@@ -1,0 +1,51 @@
+
+
+<div id="gatherCon">
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvDownlinkGuide%}</h2>
+	</div>
+	<ul class="inputCMPT medium selectUl">
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="routerSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="routerPort"></div>
+</div>
+<div id="aloneCon">
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvUplinkGuide%}</h2>
+	</div>
+	<div id="capRouterPort"></div>
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvDownlinkGuide%}</h2>
+	</div>
+	<ul class="inputCMPT medium selectUl">
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="routerSelDown" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="routerPortDown"></div>
+</div>
+<div id="iptvBtnPre"></div>
+<div id="iptvBtnNext"></div><script type="text/javascript">(function(){function r(){confirmDialog.show({content:label.confirmSaveIptv,button:{confirmStr:btn.btnY,cancelStr:btn.btnN},callback:function(b){b&&(loadingDialog.show({title:label.iptvPort,content:{primary:label.wanSettingWait}}),b={},b[uciPortConfig.fileName]={},b[uciPortConfig.fileName][KEY_TABLE]=[uciPortConfig.secType.devInfo],$.query(b,function(b){var a=b[ERR_CODE];if(a==ENONE){var h=b[uciPortConfig.fileName][uciPortConfig.secType.devInfo],c;h.forEach(function(a,b){"1"==a[uciPortConfig.dynOptName.cap]&&
+(c=b)});b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)]={};b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.on;b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy]=iptvPortChoosed[wanIdx][1].index.toString();b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy]=iptvPortChoosed[wanIdx][0].index.toString();b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev]=
+iptvPortChoosed[wanIdx][0].routerIndex==c?"FF-FF-FF-FF-FF-FF":h[iptvPortChoosed[wanIdx][0].routerIndex][uciPortConfig.dynOptName.mac];h={};h[uciIptvConfig.fileName]={};h[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)]={};h[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.wanIndex]=(wanIdx+1).toString();h[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.linkMode]="0";h[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode]=
+"0";h[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.vlanId]="0";$.modify(b,function(b){a=b[ERR_CODE]});$.modify(h,function(b){a=a||b[ERR_CODE]});a==ENONE?loadingDialog.hide(function(){showToast(label.iptvOpened);stepPage(iptvEndPage)}):loadingDialog.hide(function(){errHandle(a);var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.off;$.modify(b)})}else loadingDialog.hide(function(){errHandle(a)})}))}})}
+function p(b){d=b;c.refreshDevInfo(JSON.parse(JSON.stringify(f[b])));d==l&&e&&e.getActivePortList().length&&c.setPort(e.getActivePortList()[0].index,{name:k,state:"disable"})}function n(b){(e?e.getActivePortList().length:0)+c.getActivePortList().length>=b?m.disable(!1):m.disable(!0)}function q(b){if("disable"!=b.state){for(var e=f[d][uciPortConfig.dynOptName.phyInfo],a=0;a<b.num;a++)"disable"!=c.getPort(a).state&&(a!=b.index||"normal"==b.state?c.setPort(a,{name:"LAN",state:"active"==c.getPort(a).state?
+"normal":void 0,role:e[a][uciPortConfig.dynOptName.role]}):c.setPort(a,{name:s,role:"downlink"+(wanIdx+1)}));"gather"==iptvConnectModeChoosed[wanIdx]?n(1):n(2)}}function t(b){if("disable"!=b.state){for(var g=f[d][uciPortConfig.dynOptName.phyInfo],a=0;a<b.num;a++)"disable"!=e.getPort(a).state&&(a!=b.index||"normal"==b.state?(c.getPort(a).name==k&&c.setPort(a,{name:"LAN",state:"disable"==c.getPort(a).state?"normal":void 0,role:g[a][uciPortConfig.dynOptName.role]}),e.setPort(a,{name:"LAN",state:"active"==
+e.getPort(a).state?"normal":void 0,role:g[a][uciPortConfig.dynOptName.role]})):(e.setPort(a,{name:k,role:"uplink1"}),d==l&&c.setPort(a,{name:k,state:"disable",role:"uplink"+(wanIdx+1)})));n(2)}}$("#wanTabCon").hide();var g=[],f,d=0,l,e,c,m,k=isMultiWan?label.iptvUplinkPort+(wanIdx+1):label.iptvUplinkPort,s=isMultiWan?label.iptvPort+(wanIdx+1):label.iptvPort;new Button({text:btn.preStep,onClick:function(){stepPage(iptvFirstPage)},type:Button.TYPE.SECONDARY,id:"iptvBtnPre",props:{width:"120px","margin-top":"48px",
+"margin-left":"4px"}});(function(b){var k={};k[uciPortConfig.fileName]={};k[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo;$.query(k,function(a){if(a[ERR_CODE]==ENONE)for(f=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],a=0;a<f.length;a++)g[a]={str:f[a][uciPortConfig.dynOptName.name],value:a},"1"==f[a][uciPortConfig.dynOptName.cap]&&(l=a,g[a].str="[主路由]"+g[a].str),-1==f[a][uciPortConfig.dynOptName.subFunc].indexOf("iptv")&&(g[a].disable=!0,g[a].str+="（不支持IPTV）",d==a&&d++),
+f[a][uciPortConfig.dynOptName.phyInfo].forEach(function(a,b){if(a[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)||a[uciPortConfig.dynOptName.role]=="uplink"+(wanIdx+1))a[uciPortConfig.dynOptName.role]="lan";"lan"!=a[uciPortConfig.dynOptName.role]&&(a.state="disable")})},!1);"gather"==b?($("#aloneCon").css("display","none"),selectInit("routerSel",g,d,p),c=(new PortConfig).initDevInfo("routerPort",JSON.parse(JSON.stringify(f[d])),1,q,1)):($("#gatherCon").css("display","none"),e=(new PortConfig).initDevInfo("capRouterPort",
+JSON.parse(JSON.stringify(f[d])),1,t),selectInit("routerSelDown",g,d,p),c=(new PortConfig).initDevInfo("routerPortDown",JSON.parse(JSON.stringify(f[d])),1,q,1));m="gather"==b?new Button({text:btn.nextStep,onClick:function(){iptvPortChoosed[wanIdx]=c.getActivePortList();iptvPortChoosed[wanIdx][0].routerIndex=d;stepPage(iptvThirdPage)},type:Button.TYPE.PRIMARY,id:"iptvBtnNext",props:{width:"120px","margin-top":"48px"}}):new Button({text:btn.finish,onClick:function(){iptvPortChoosed[wanIdx]=c.getActivePortList();
+iptvPortChoosed[wanIdx].push(e.getActivePortList()[0]);iptvPortChoosed[wanIdx][0].routerIndex=d;iptvPortChoosed[wanIdx][1].routerIndex=l;r()},type:Button.TYPE.PRIMARY,id:"iptvBtnNext",props:{width:"120px","margin-top":"48px"}});m.disable(!0)})(iptvConnectModeChoosed[wanIdx])})();
+</script><style type="text/css">.chooseIptvPortGuide{color:#333;font-weight:bold;margin-bottom:16px}ul.selOptsUl li.option{height:32px;line-height:32px;font-size:13px}#capRouterPort{margin-bottom:48px}</style>

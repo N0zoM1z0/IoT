@@ -1,0 +1,13 @@
+Package: mt7915d
+Version: V1.0.0
+Depends: libc
+Provides: 
+Source: tp_package/wlan-driver/mtk/mt7915d
+Section: opt
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 1536300
+Description:  MTK mt7915d wifi AP driver(built-in)

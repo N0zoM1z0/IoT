@@ -1,0 +1,17 @@
+Firmware:
+For TOTOLINK X6000R
+
+
+
+Changelog:
+1. Fix "device restart abnormally, need to reduce device memory and MAC abnormality"
+2. Support channel selection function after MESH
+3. Optimize the problem of VPN disconnection
+4. The mobile phone UI supports LAN settings, guest network, IP/MAC address binding, light setting and other functions to optimize product experience
+
+To Upgrade:
+To prevent upgrade failures, please read the following before proceeding with the upgrade process
+1. Please verify the hardware version of your device for the firmware version. Wrong firmware upgrade may damage your device and void the warranty. 
+For example, if your hardware yersion is V1.1 or V1x(=1.2.3. 4.), please download V1 version, V2 version is not for your device.
+2. DO NOT power off the device or close the browser window during the upload because it may crash the system.
+3. The correct upgrade firmware is a file suffixed with the Web.

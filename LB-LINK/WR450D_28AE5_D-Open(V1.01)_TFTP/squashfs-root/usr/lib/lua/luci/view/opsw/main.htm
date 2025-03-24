@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LB-LINK</title>
+		<link rel="icon" type="image/x-icon" href="/opsw/img/wireless_icon.png" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/main.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/elementUi.css" />
+		<script src="/opsw/js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/tr.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hostUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "")%>';
+			var hostUrlSystem = '<%=luci.dispatcher.build_url("admin", "system", "")%>';
+			var hostDomain = '<%=luci.dispatcher.get_host_domain()%>';
+			var login_user = '<%=luci.dispatcher.get_login_user()%>';
+			var menu_idx = '<%=luci.dispatcher.get_menu_idx()%>';
+			var model_type = <%=luci.dispatcher.get_devmodel_type()%>;
+		</script>
+		<script src="/opsw/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/verify.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="container" style="display: none;" :style="{display:'block'}">
+			<div class="header flex flex-center">
+				<div class="navBar flex flex-align flex-between">
+					<div class="navBar-left">
+						<a>
+							<img src="/opsw/img/logo.png">
+						</a>
+					</div>
+					<ul class="navBar-right flex" style="margin: 0 20px;">
+						<li :style="tabIndex==0 ? {backgroundColor: '#ECECEC'} : ''" @click="tabIndex=0">
+							<span @click="window.location = 'http://' + window.location.host + hostUrl + '/main.html';">{{$t("home")}}</span>
+						</li>
+						<li>
+							<span>{{$t("setup")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="window.location = 'http://' + window.location.host + hostUrl + '/wizard.html';">{{$t("wizard")}}</div>
+								<div class="dropDown-item" @click="toSetup(1);">{{$t("internet_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(2)">{{$t("wireless_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(3)">{{$t("network_set")}}</div>
+							</div>
+						</li>
+						<li>
+							<span>{{$t("Advanced")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toFeatures(0)" v-if="model_type!=2">{{$t("engine")}}</div>
+								<div class="dropDown-item" @click="toFeatures(1)">{{$t("firewall")}}</div>
+								<div class="dropDown-item" @click="toFeatures(2)">{{$t("portForward")}}</div>
+								<div class="dropDown-item" @click="toFeatures(3)">{{$t("website_filter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(4)">{{$t("staticRouter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(5)">{{$t("dynamicDns")}}</div>
+							</div>
+						</li>
+						<li>
+							<span>{{$t("management")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toManage(0)">{{$t("onTimer")}}</div>
+								<div class="dropDown-item" @click="toManage(1)">{{$t("systemLog")}}</div>
+								<div class="dropDown-item" @click="toManage(2)">{{$t("systemAdmin")}}</div>
+								<div class="dropDown-item" @click="toManage(3)">{{$t("upgrade")}}</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+			    <div class="language">
+			    	<label>{{ $t("language") }}:</label>
+			    	<el-select v-model="curLanguage" @change="setLanguage" :placeholder="$t('plsChoose')" style="margin-left:5px;">
+			    		<el-option :key="0" value="TR" label="Turkey"></el-option>
+			    		<el-option :key="1" value="EN" label="English"></el-option>
+			    	</el-select>
+			    </div>
+			</div>
+			<div class="content WR900">
+				<div class="content-title">
+					<div class="link_status" style="height: 39px;">
+						<div class="map_status inline-block valign-middle" :style="link_color ? '' : {backgroundColor:'#FF0000'}"></div>
+						<span class="inline-block valign-middle cur-point linkSatus" @click="location = 'http://' + location.host + hostUrl + '/wizard.html';" v-if="wanInfo.networkStatus==0">
+						      {{$t("internet")}} {{$t("connected")}}
+						</span>
+						<span class="inline-block valign-middle cur-point linkSatus" @click="location = 'http://' + location.host + hostUrl + '/wizard.html';" v-else-if="wanInfo.networkStatus==1">
+						      {{$t("internet")}} {{$t("disconnected")}}
+						</span>
+						<span class="inline-block valign-middle cur-point linkSatus" @click="location = 'http://' + location.host + hostUrl + '/wizard.html';" v-else-if="wanInfo.networkStatus==2">
+						      {{$t("internet")}} {{$t("detection")}}
+						</span>
+					</div>
+					<p class="fs-16">{{$t("connected_tips")}}</p>
+				</div>
+				<div class="map ac overflow-hidden">
+					<div class="map_internet fl">
+						<p>{{$t("internet")}}</p>
+						<div class="mapIcon" @click="getIndexTabInfo(0)" :class="{mapIcon_select:infoType==0}">
+							<img src="/opsw/img/internet_.png" width="60" height="60" v-if="wanInfo.networkStatus==0">
+							<img src="/opsw/img/internet.png" width="60" height="60" v-else>
+						</div>
+					</div>
+					<div class="line_wan fl">
+						<img src="/opsw/img/line.png" alt="" width="250" height="18">
+						<div class="wan_connstat">
+							<img :src="link_color ? '/opsw/img/connected.png' : '/opsw/img/disconnected.png' " alt="" width="35" height="35">
+							<button class="linkRepair" v-if="!link_color" @click="window.location = 'http://' + window.location.host + hostUrl + '/wizard.html';">Click to repair</button>
+						</div>
+					</div>
+					<div class="map_internet fl">
+						<p style="line-height: 16px;height: 16px;">{{versionMsg.model}}</p>
+						<div class="mapIcon" @click="getIndexTabInfo(1)" :class="{mapIcon_select:infoType==1}">
+							<img src="/opsw/img/router.gif" width="60" height="60">
+						</div>
+					</div>
+					<div class="line_wan fl">
+						<img src="/opsw/img/line.png" alt="" width="250" height="18">
+					</div>
+					<div class="map_internet fl">
+						<p>{{$t("connected_clients")}}:{{clientList.length}}</p>
+						<div class="mapIcon" @click="getIndexTabInfo(2)" :class="{mapIcon_select:infoType==2}">
+							<img src="/opsw/img/wifiClient_.png" width="60" height="60">
+						</div>
+					</div>
+				</div>
+				<div class="content-info">
+					<div class="link_status">
+						<span class="inline-block valign-middle" style="margin-left: 35px;">{{info_title}}</span>
+					</div>
+					<!-- internet -->
+					<div class="internetInfo overflow-hidden" v-if="infoType==0">
+						<div class="v4_v6_btn"></div>
+						<ul class="internetInfo-left fl">
+							<li v-if="wanInfo.linktype!='routerwisp'">
+								<label>{{$t("internet")}}:</label>
+								<span v-if="wanInfo.wan_link_up==0">{{$t("disconnected")}}</span>
+								<span v-if="wanInfo.wan_link_up==1">{{$t("connected")}}</span>
+							</li>
+							<li>
+								<label>{{$t("Connection_Type")}}:</label>
+								<span v-if="wanInfo.linktype=='routerdhcp'">routerdhcp</span>
+								<span v-if="wanInfo.linktype=='routerstatic'">routerstatic</span>
+								<span v-if="wanInfo.linktype=='routerpppoe'">routerpppoe</span>
+								<span v-if="wanInfo.linktype=='bridgedhcp'">bridgedhcp</span>
+								<span v-if="wanInfo.linktype=='routerwisp'">routerwisp</span>
+								<span v-if="wanInfo.linktype=='pptp'">pptp</span>
+								<span v-if="wanInfo.linktype=='l2tp'">l2tp</span>
+							</li>
+							<li>
+								<label>{{$t("Network_Status")}}:</label>
+								<span v-if="wanInfo.networkStatus==0">{{$t("connected")}}</span>
+								<span v-if="wanInfo.networkStatus==1">{{$t("disconnected")}}</span>
+								<span v-if="wanInfo.networkStatus==2">{{$t("detection")}}</span>
+							</li>
+							<li>
+								<label>{{$t("Connection_Time")}}:</label>
+								<span>{{format(wanInfo.conn_uptime)}}</span>
+							</li>
+						</ul>
+						<ul class="internetInfo-right fr">
+							<li>
+								<label>{{$t("MAC_Address")}}:</label>
+								<span>{{wanInfo.wan_mac}}</span>
+							</li>
+							<li>
+								<label>{{$t("IP_Address")}}:</label>
+								<span>{{wanInfo.ipaddr}}</span>
+							</li>
+							<li>
+								<label>{{$t("Subnet_Mask")}}:</label>
+								<span>{{wanInfo.netmask}}</span>
+							</li>
+							<li>
+								<label>{{$t("Default_Gateway")}}:</label>
+								<span>{{wanInfo.gwaddr}}</span>
+							</li>
+							<li>
+								<label>{{$t("Primary_DNS_Server")}}:</label>
+								<span>{{dns1}}</span>
+							</li>
+							<li>
+								<label>{{$t("Secondary_DNS_Server")}}:</label>
+								<span>{{dns2}}</span>
+							</li>
+							<li class="cur-point fr" style="width: 136px;">
+								<span style="color: #4598AA;" @click="window.location = 'http://' + window.location.host + hostUrl + '/setup.html?type=1';tabIndex=1;">{{$t("GotoSet")}}</span>
+								<img src="/opsw/img/gotosettings.png" alt="" width="23" height="23">
+							</li>
+						</ul>
+					</div>
+					<!-- lan信息 -->
+					<div class="internetInfo overflow-hidden" v-if="infoType==1">
+						<ul class="internetInfo-left fl">
+							<li>
+								<img src="/opsw/img/network_icon.png" alt="" width="28" height="28">
+								<span class="lanTitle">{{ 'IPv4 ' + $t("Network")}}</span>
+							</li>
+							<li>
+								<label>{{$t('MAC_Address')}}:</label>
+								<span>{{lanInfo.lan_mac}}</span>
+							</li>
+							<li>
+								<label>{{$t('routerIp')}}:</label>
+								<span>{{lanInfo.ipaddr}}</span>
+							</li>
+							<li>
+								<label>{{$t('Subnet_Mask')}}:</label>
+								<span>{{lanInfo.netmask}}</span>
+							</li>
+						</ul>
+						<ul class="internetInfo-right fl">
+							<li>
+								<img src="/opsw/img/wireless_icon.png" alt="" width="28" height="28">
+								<span class="lanTitle">{{$t("Wireless") + ' 2.4GHz'}}</span>
+							</li>
+							<li>
+								<label>{{$t('status')}}:</label>
+								<span v-if="twoWifiSwitch">{{$t('on')}}</span>
+								<span v-else>{{$t('off')}}</span>
+							</li>
+							<li>
+								<label>{{$t('wifiName')}}:</label>
+								<span>{{twoWifiMsg.ssid}}</span>
+							</li>
+							<li>
+								<label>{{$t('password')}}:</label>
+								<span v-if="twoWifiMsg.encryption!=0">{{twoWifiMsg.password}}</span>
+							</li>
+						</ul>
+						<ul class="internetInfo-left fl">
+							<li class="cur-point fr" style="width: 136px;" :style="model_type==1 ? {marginTop:'110px'} : '' " @click="window.location = 'http://' + window.location.host + hostUrl + '/setup.html?type=3';">
+								<span style="color: #4598AA;">{{$t("GotoSet")}}</span>
+								<img src="/opsw/img/gotosettings.png" alt="" width="23" height="23">
+							</li>
+						</ul>
+						<ul class="internetInfo-right fl" >
+							<div v-show="model_type==1">
+								<li>
+									<img src="/opsw/img/wireless_icon.png" alt="" width="28" height="28">
+									<span class="lanTitle">{{$t("Wireless") + ' 5GHz'}}</span>
+								</li>
+								<li>
+									<label>{{$t('status')}}:</label>
+									<span v-if="fiveWifiSwitch">{{$t('on')}}</span>
+									<span v-else>{{$t('off')}}</span>
+								</li>
+								<li>
+									<label>{{$t('wifiName')}}:</label>
+									<span>{{fiveWifiMsg.ssid}}</span>
+								</li>
+								<li>
+									<label>{{$t('password')}}:</label>
+									<span v-if="fiveWifiMsg.encryption!=0">{{fiveWifiMsg.password}}</span>
+								</li>
+							</div>
+							<li class="cur-point fr" style="width: 136px;" @click="window.location = 'http://' + window.location.host + hostUrl + '/setup.html?type=2';">
+								<span style="color: #4598AA;">{{$t("GotoSet")}}</span>
+								<img src="/opsw/img/gotosettings.png" alt="" width="23" height="23">
+							</li>
+						</ul>
+					</div>
+					<!-- client -->
+					<div class="internetInfo overflow-hidden" v-if="infoType==2">
+						<template>
+							<el-carousel :autoplay="false" type="card" height="200px" indicator-position="none">
+								<el-carousel-item v-for="(item,index) in clientList" :key="index">
+									<div class="client-group overflow-hidden fs-12">
+										<div class="client-group-left fl">
+											<img src="/opsw/img/EthernetClient.png" width="32" height="32">
+										</div>
+										<div class="client-group-right fl">
+											<div class="client-name">
+												<template>
+													<span class="inline-block" v-if="item.type==0">{{$t(pc)}}</span>
+													<span class="inline-block" v-if="item.type==1">{{$t('android')}}</span>
+													<span class="inline-block" v-if="item.type==2">{{$t('ios')}}</span>
+													<span class="inline-block" v-if="item.type==3">{{$t('TV')}}</span>
+													<span class="inline-block" v-if="item.type==4">{{$t('router')}}</span>
+													<span class="inline-block" v-if="item.type==5">{{$t('unknown_device')}}</span>
+												</template>
+												<!-- <i class="el-icon-edit fs-18" @click="clientEditDialog=true;"></i> -->
+											</div>
+											<div class="client-Vender">
+												<span class="inline-block">{{item.hostname}}</span>
+												<p class="inline-block">{{item.ip}}</p>
+											</div>
+										</div>
+									</div>
+								</el-carousel-item>
+							</el-carousel>
+						</template>
+					</div>
+				</div>
+			</div>
+			<!-- client 编辑弹框 -->
+			<el-dialog :title="$t('edit')" :visible.sync="clientEditDialog" :model="clientEditForm" width="600px" top="10vh"
+			 :close-on-click-modal="false">
+				<el-form label-width="120px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="clientEditForm.name"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('vendor')">
+						<span>{{clientEditForm.vendor}}</span>
+					</el-form-item>
+					<el-form-item :label="$t('MAC_Address')">
+						<span>{{clientEditForm.mac}}</span>
+					</el-form-item>
+					<el-form-item :label="$t('IP_Address')">
+						<span>{{clientEditForm.ip}}</span>
+					</el-form-item>
+					<el-form-item :label="$t('reserveIp')">
+						<el-switch v-model="clientEditForm.ReserveSwitch" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+					<el-form-item :label="$t('parent_control')">
+						<el-switch v-model="clientEditForm.ParentalSwitch" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="clientEditDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="clientEditDialog = false">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+
+			<!-- client 新增弹框 -->
+			<el-dialog title="Add Rule" :visible.sync="clientAddDialog" :model="clientAddForm" width="600px" top="10vh"
+			 :close-on-click-modal="false">
+				<el-form label-width="120px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="clientAddForm.name"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('reserveIp')">
+						<el-switch v-model="clientAddForm.ReserveSwitch" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+					<el-form-item :label="$t('parent_control')">
+						<el-switch v-model="clientAddForm.ParentalSwitch" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="clientAddDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+		</div>
+		<script src="/opsw/js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var self = vm;
+			self.tabIndex = 0;
+			self.getWanInfo();
+			self.getTerminalList();
+			self.getWifiMsg();
+			self.getVersion();
+			self.mainTimer = setInterval(self.getWanInfo,5000);
+		</script>
+	</body>
+</html>

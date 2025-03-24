@@ -1,0 +1,14 @@
+FOFA🔍：
+header="SHTTPD" && header="X-UA-Compatible" && header="Pragma: no-cache" && region="TW" && before="2023-10-24"
+
+改before即可。
+
+A3300R:
+http://61.71.234.62:8001 admin
+http://211.23.234.207:8081 admin
+
+X6000R:
+http://182.155.104.240 admin
+V9.4.0cu.764 : http://139.255.142.3:8081 admin
+
+V9.4.0cu.1041 http://122.117.173.210:8081 admin (这版本还更新一点。。。)

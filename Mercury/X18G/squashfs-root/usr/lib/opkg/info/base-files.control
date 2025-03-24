@@ -1,0 +1,13 @@
+Package: base-files
+Version: 117-ed6c43389097a39a35841b037d3fa0a24029c91a
+Depends: libc
+Provides: 
+Source: tp_package/base-files
+Section: base
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 118583
+Description:  This package contains a base filesystem and system scripts for OpenWrt.

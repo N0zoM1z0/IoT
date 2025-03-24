@@ -1,0 +1,447 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+function WanIPConnection()
+{
+        this._objpath = "";
+        this.name = { ID: "", PATH: "Name", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+function WanPPPConnection()
+{
+        this._objpath = "";
+        this.name = { ID: "", PATH: "Name", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+function WanConnDev()
+{
+        this._objpath = "";
+        this._ips = new WanIPConnection();
+        this._ppps = new WanPPPConnection();
+}
+
+var i1 = 0;
+var WanConnDevInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+WanConnDevInsts[i1] = new WanConnDev();
+WanConnDevInsts[i1]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.";
+WanConnDevInsts[i1]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._index = i1;
+i2 = 0;
+WanConnDevInsts[i1]._ipsInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name" -->
+WanConnDevInsts[i1]._ipsInsts[i2] = new WanIPConnection();
+WanConnDevInsts[i1]._ipsInsts[i2]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.{i}.WANIPConnection.";
+WanConnDevInsts[i1]._ipsInsts[i2].name.VAL = "<!--#leaf "1" -->";
+WanConnDevInsts[i1]._ipsInsts[i2]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._ipsInsts[i2]._index = i2;
+i2++;
+<!--#endgetobject -->
+i3 = 0;
+WanConnDevInsts[i1]._pppsInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name" -->
+WanConnDevInsts[i1]._pppsInsts[i3] = new WanPPPConnection();
+WanConnDevInsts[i1]._pppsInsts[i3]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.{i}.WANPPPConnection.";
+WanConnDevInsts[i1]._pppsInsts[i3].name.VAL = "<!--#leaf "1" -->";
+WanConnDevInsts[i1]._pppsInsts[i3]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._pppsInsts[i3]._index = i3;
+i3++;
+<!--#endgetobject -->
+i1++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function getWanNameFromPath(path)
+{
+	for (var i = 0; i < WanConnDevInsts.length; i++) {
+		var wcd = WanConnDevInsts[i];
+
+		for (var j = 0; j < wcd._ipsInsts.length; j++) {
+			var conn = wcd._ipsInsts[j];
+			if (conn._inspath.indexOf(path) != -1) {
+				return conn.name.VAL;
+			}
+		}
+		
+		for (var j = 0; j < wcd._pppsInsts.length; j++) {
+			var conn = wcd._pppsInsts[j];
+			if (conn._inspath.indexOf(path) != -1) {
+				return conn.name.VAL;
+			}
+		}
+	}
+	return "";
+}
+
+function LanEthIf()
+{
+	this._objpath = "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.";
+	this.name = { ID: "", PATH: "Name", TYPE: "str", SBMT: "n", VAL: "" };
+	this.desc = { ID: "", PATH: "X_CT-COM_Description", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+i1 = 0;
+var LanEthIfInsts = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig. Name X_CT-COM_Description" -->
+LanEthIfInsts[i1] = new LanEthIf();
+LanEthIfInsts[i1].name.VAL = "<!--#leaf "1" -->";
+LanEthIfInsts[i1].desc.VAL = "<!--#leaf "2" -->";
+LanEthIfInsts[i1]._inspath = "<!--#path -->";
+LanEthIfInsts[i1]._index = i1;
+i1++;
+<!--#endgetobject -->
+
+function getLanNameFromPath(path)
+{
+	for (var i = 0; i < LanEthIfInsts.length; i++) {
+		var lan = LanEthIfInsts[i];
+		if (lan._inspath.indexOf(path) != -1) {
+			return lan.desc.VAL;
+		}
+	}
+}
+
+var g_flow_max = 16;
+
+function addConfig(mode)
+{
+	IPMaskLengthToStr(10);
+	if (mode == 1) {
+		if(ClassInsts.length >= g_flow_max)
+		{
+			top.AlertMsg("At most "+g_flow_max+" flows are supported.");   
+			return false;
+		}
+		document.location.href = 'adv_qosnclass.shtml';
+	} else {
+		document.location.href = 'adv_qosapp.shtml';
+	}
+}
+
+function App()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.App.";
+	this.enable = { ID: "", PATH: "X_TRI-Enable", TYPE: "int", VAL: 0 };
+	this.name = { ID: "", PATH: "AppName", TYPE: "str", VAL: "" };
+	this.queue = { ID: "", PATH: "ClassQueue", TYPE: "int", VAL: 1 };
+	this.dscp = { ID: "", PATH: "X_TRI-DSCPMarkValue", TYPE: "int", VAL: -1 };
+	this.ethpri = { ID: "", PATH: "X_TRI-802-1_P_Value", TYPE: "int", VAL: -1 };
+}
+
+i1 = 0;
+var AppInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.App. X_TRI-Enable AppName ClassQueue X_TRI-DSCPMarkValue X_TRI-802-1_P_Value" -->
+AppInsts[i1] = new App();
+AppInsts[i1].enable.VAL = <!--#leaf "1" -->;
+AppInsts[i1].name.VAL = "<!--#leaf "2" -->";
+AppInsts[i1].queue.VAL = <!--#leaf "3" -->;
+AppInsts[i1].dscp.VAL = <!--#leaf "4" -->;
+AppInsts[i1].ethpri.VAL = <!--#leaf "5" -->;
+AppInsts[i1]._inspath = "<!--#path -->";
+i1++;
+<!--#endgetobject -->
+
+
+function ClassType()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.{i}.type.";
+	this.type = { ID: "", PATH: "Type", TYPE: "str", VAL: "" };
+	this.min = { ID: "", PATH: "Min", TYPE: "str", VAL: "" };
+	this.max = { ID: "", PATH: "Max", TYPE: "str", VAL: "" };
+	this.plist = { ID: "", PATH: "ProtocolList", TYPE: "str", VAL: "" };
+}
+
+function Class()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.";
+	this.enable = { ID: "", PATH: "X_TRI-Enable", TYPE: "int", VAL: 1 };
+	this.queue = { ID: "", PATH: "ClassQueue", TYPE: "int", VAL: 1 };
+	this.dscp = { ID: "", PATH: "DSCPMarkValue", TYPE: "int", VAL: -1 };
+	this.tc = { ID: "", PATH: "X_TRI-TC", TYPE: "int", VAL: -1 };
+	this.ethpri = { ID: "", PATH: "802-1_P_Value", TYPE: "int", VAL: -1 };
+	this._type = new ClassType();
+}
+
+i1 = 0;
+var ClassInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification. X_TRI-Enable ClassQueue DSCPMarkValue X_TRI-TC 802-1_P_Value" -->
+ClassInsts[i1] = new Class();
+ClassInsts[i1].enable.VAL = <!--#leaf "1" -->;
+ClassInsts[i1].queue.VAL = <!--#leaf "2" -->;
+ClassInsts[i1].dscp.VAL = <!--#leaf "3" -->;
+ClassInsts[i1].tc.VAL = <!--#leaf "4" -->;
+ClassInsts[i1].ethpri.VAL = <!--#leaf "5" -->;
+ClassInsts[i1]._inspath = "<!--#path -->";
+ClassInsts[i1]._index = i1;
+i2 = 0;
+ClassInsts[i1]._typeInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.{i}.type. Type Min Max ProtocolList" -->
+ClassInsts[i1]._typeInsts[i2] = new ClassType();
+ClassInsts[i1]._typeInsts[i2].type.VAL = "<!--#leaf "1" -->";
+ClassInsts[i1]._typeInsts[i2].min.VAL = "<!--#leaf "2" -->";
+ClassInsts[i1]._typeInsts[i2].max.VAL = "<!--#leaf "3" -->";
+ClassInsts[i1]._typeInsts[i2].plist.VAL = "<!--#leaf "4" -->";
+ClassInsts[i1]._typeInsts[i2]._inspath = "<!--#path -->";
+ClassInsts[i1]._typeInsts[i2]._index = i2;
+i2++;
+<!--#endgetobject -->
+i1++;
+<!--#endgetobject -->
+
+
+function defaultNumberTrans(value)
+{
+	if (value == -1)
+		return '-';
+	return '' + value;
+}
+
+function defaultStringTrans(value)
+{
+	if (value == "-1")
+		return '-';
+	return value;
+}
+
+function appEdit(index)
+{
+	document.location.href = 'adv_qosapp.shtml?i=' + index;
+}
+
+function appDelete(index)
+{
+	var form = document.dataform;
+	var app = AppInsts[index];
+	ConfigObjectPrepareDel(app, form);
+	form.submit();
+}
+
+function appTableGenerate()
+{
+	var trs = "";
+	for (var i = 0; i < AppInsts.length; i++) {
+		var app = AppInsts[i];
+		var tr = "";
+		if(i%2==0)
+        		tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		tr += "<td>" + (i+1) + "</td>";
+		tr += "<td>" + (app.enable.VAL == 1 ? getStr("LK_Enable") : getStr("LK_Disable")) + "</td>";
+		tr += "<td>" + app.name.VAL + "</td>";
+		tr += "<td>"
+			+ "DSCP: " + defaultNumberTrans(app.dscp.VAL)
+			+ "<br />802.1P: " + defaultNumberTrans(app.ethpri.VAL)
+		   	+ "</td>";
+		tr += "<td>" + defaultNumberTrans(app.queue.VAL) + "</td>";
+		tr += "<td>"
+			+ "<img src='../../skin/edit.gif' style='cursor:pointer' onclick='javascript:appEdit(" + i + ");' />"
+			+ "<img src='../../skin/trash.gif' style='cursor:pointer' onclick='javascript:appDelete(" + i + ");' />"
+			+ "</td>";
+		tr += "</tr>";
+		trs += tr; 
+	}
+	if(trs=="")
+		trs = '<tr class="OddRowB"><td colspan="6">'+getStr('LK_NoRule')+'</td></tr>'
+	jQuery("#td_business").append(trs);
+}
+
+function classEdit(index)
+{
+	document.location.href = 'adv_qosnclass.shtml?i=' + index;
+}
+
+function classDelete(index)
+{
+	var form = document.dataform;
+	var cls = ClassInsts[index];
+	ConfigObjectPrepareDel(cls, form);
+	form.submit();
+}
+
+var proto_map = {
+	"6": "TCP",
+	"17": "UDP",
+	"0": "TCP/UDP",
+	"1": "ICMP",
+	"2": "IGMP",
+	"58": "ICMPv6"
+}
+
+
+function classTypeDescGenerate(type)
+{
+	var desc = "";
+
+	switch (type.type.VAL) {
+	case 'SMAC':
+		desc += getStr("LK_SourceMACc") + "&nbsp" + type.min.VAL;
+		break;
+	case 'DMAC':
+		desc += getStr("LK_DestinationMACc") + "&nbsp;" + type.min.VAL;
+		break;
+	case 'VLAN':
+		desc += "VLAN:&nbsp;" + type.min.VAL;
+		break;
+	case 'SIP':
+		desc += getStr("LK_SourceIPp") + "&nbsp;" + type.min.VAL;
+		desc += "/" + type.max.VAL;
+		break;
+	case 'DIP':
+		desc += getStr("LK_DestinationSubnett") + "&nbsp;" + type.min.VAL;
+		desc += "/" + type.max.VAL;
+		break;
+	case 'TC':
+		desc += "TC:&nbsp;" + type.min.VAL;
+		break;
+	case 'FL':
+		desc += "FL:&nbsp;" + type.min.VAL;
+		break;
+	case 'SPORT':
+		desc += getStr("LK_SourcePortt") + "&nbsp;" + type.min.VAL;
+		desc += "~" + type.max.VAL;
+		break;
+	case 'DPORT':
+		desc += getStr("LK_DestinationPortt") + "&nbsp;" + type.min.VAL;
+		desc += "~" + type.max.VAL;
+		break;
+	case 'IPTYPE':
+		break;
+	case 'LANInterface':
+		desc += "LAN:&nbsp;" + getLanNameFromPath(type.min.VAL);
+		break;
+	case 'WANInterface':
+		desc += "WAN:&nbsp;" + getWanNameFromPath(type.min.VAL);
+		break;
+	case '8021P':
+		desc += "802.1P:&nbsp;" + type.min.VAL;
+		break;
+	case 'DSCP':
+		desc += "DSCP:&nbsp;" + type.min.VAL;
+		break;
+	default:
+		break;
+	}
+	if (desc != "") {
+		desc += "<br/>"
+	}
+	return desc;
+}
+
+function classTableGenerate()
+{
+	var trs = "";
+	for (var i = 0; i < ClassInsts.length; i++) {
+		var cls = ClassInsts[i];
+		var tr ="";
+		if(i%2==0)
+        		tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		tr += "<td>" + (i+1) + "</td>";
+		tr += "<td>" + (cls.enable.VAL == 1 ? getStr("LK_Enable") : getStr("LK_Disable")) + "</td>";
+		tr += "<td>";
+		var proto = "";
+		for (var j in cls._typeInsts) {
+			var t = cls._typeInsts[j];
+			if (t.plist.VAL.length > 0) {
+				proto = t.plist.VAL;
+			}
+			tr += classTypeDescGenerate(t);
+		}
+		tr += getStr("LK_Protocol") + ":&nbsp;" + defaultStringTrans(proto);
+		tr +="</td>";
+        if (defaultNumberTrans(cls.dscp.VAL).indexOf("-") == -1)
+        {
+		    tr += "<td>"
+    		+ "DSCP:&nbsp;" + defaultNumberTrans(cls.dscp.VAL) + "<br />"
+		    + "802.1P:&nbsp;" + defaultNumberTrans(cls.ethpri.VAL)
+    	   	+ "</td>";
+        }
+        if (defaultNumberTrans(cls.tc.VAL).indexOf("-") == -1)
+        {
+		    tr += "<td>"
+		    + "TC:&nbsp;" + defaultNumberTrans(cls.tc.VAL) + "<br />"
+		    + "802.1P:&nbsp;" + defaultNumberTrans(cls.ethpri.VAL)
+    	   	+ "</td>";
+        }
+        if (defaultNumberTrans(cls.dscp.VAL).indexOf("-") != -1 && defaultNumberTrans(cls.tc.VAL).indexOf("-") != -1)
+        {
+		    tr += "<td>"
+		    + "802.1P:&nbsp;" + defaultNumberTrans(cls.ethpri.VAL)
+    	   	+ "</td>";
+        }
+		tr += "<td>" + defaultNumberTrans(cls.queue.VAL) + "</td>";
+		tr += "<td>";
+		tr += "<img style='cursor:pointer' src='../../skin/edit.gif' onclick='javascript:classEdit(" + i + ");'  />";
+		tr += "<img style='cursor:pointer' src='../../skin/trash.gif' onclick='javascript:classDelete(" + i + ");' />";
+		tr += "</td>";
+		tr += "</tr>";
+		trs += tr;
+	}
+	if(trs=="")
+		trs = '<tr class="OddRowB"><td colspan="6">'+getStr('LK_NoRule')+'</td></tr>'
+	
+	jQuery("#td_flux").append(trs);
+}
+
+function __init()
+{
+    classTableGenerate();
+    appTableGenerate();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_ClassificationList'))</script>
+<form>
+<table width="700" id="td_business" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_TrafficType"></td>
+	<td langkey="LK_Mark"></td>
+	<td langkey="LK_Queue"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table class="contenttablenocolor">
+<tr><td><script>PrintTriButton("add1",getStr('LK_AddTrafficType'),"addConfig(0)");</script></td></tr>
+</table>
+<br>
+<table width="800" id="td_flux" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_ClassificationRules"></td>
+	<td langkey="LK_Mark"></td>
+	<td langkey="LK_Queue"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table class="contenttablenocolor">
+<tr><td><script>PrintTriButton("add2",getStr('LK_AddFlow'),"addConfig(1)");</script></td></tr>
+</table>
+
+</form>
+<form method="post" name="dataform" action="/cgi-bin/setup.cgi?/page/advancedsetup/adv_qoscliffication.shtml">
+</form>
+</body></html>

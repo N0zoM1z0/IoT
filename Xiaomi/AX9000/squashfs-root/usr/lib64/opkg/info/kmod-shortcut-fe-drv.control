@@ -1,0 +1,8 @@
+Package: kmod-shortcut-fe-drv
+Version: 4.4.60+miwifi_git-1
+Depends: kernel (=4.4.60-1-5b3fa9982a4f1df1c75c17aa771f37d7), kmod-shortcut-fe
+Source: qca_qsdk/qca_qsdk_spf11.2/feeds/shortcut-fe/simulated-driver
+Section: kernel
+Architecture: aarch64_cortex-a53
+Installed-Size: 6192
+Description:  Simulated sfe driver for ECM

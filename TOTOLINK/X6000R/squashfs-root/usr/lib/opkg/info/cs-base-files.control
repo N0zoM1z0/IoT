@@ -1,0 +1,11 @@
+Package: cs-base-files
+Version: 1-r17391-e554c7eb25
+Depends: libc
+Source: package/carystudio/cs-base-files
+SourceName: cs-base-files
+License: GPL-2.0
+Section: CaryStudio Properties
+SourceDateEpoch: 1688126627
+Architecture: aarch64_cortex-a53
+Installed-Size: 3065
+Description:  packages for carystudio.

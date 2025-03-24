@@ -1,0 +1,8 @@
+Package: xq_info_sync_mqtt
+Version: 0.1
+Depends: libc, uci, libubus, libblobmsg-json, ubusd, libubox, libmosquitto, zlib, libmbedtls
+Source: package/miwifi/xq_info_sync_mqtt
+Section: net
+Architecture: mipsel_24kc
+Installed-Size: 56118
+Description:  xiaomi Router sync with AP/LAN/RE replay

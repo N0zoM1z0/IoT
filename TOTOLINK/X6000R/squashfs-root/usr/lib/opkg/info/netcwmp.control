@@ -1,0 +1,10 @@
+Package: netcwmp
+Version: 1.3.0
+Depends: libc, libuci20130104, libcommon, libcjson
+Source: package/carystudio/netcwmp
+SourceName: netcwmp
+Section: carystudio
+SourceDateEpoch: 1689238875
+Architecture: aarch64_cortex-a53
+Installed-Size: 147131
+Description:  TR069 CWMP client

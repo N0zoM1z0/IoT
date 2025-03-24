@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=13
+
+USE_PROCD=1
+PROG=/usr/bin/apply
+
+
+start_service() {
+	procd_open_instance
+	procd_set_param command "$PROG" 
+	procd_set_param respawn 0
+	procd_close_instance
+}

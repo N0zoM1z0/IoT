@@ -1,0 +1,58 @@
+<div id="meshAddReady" class="meshAddStep">
+	<i class="stepLogo stepOne"></i>
+	<i class="stepArrow"></i>
+	<i class="stepLogo stepTwo"></i>
+	<div class="showGuideStep">
+		<span>{%label.prepareRouterStepOne%}</span>
+		<span class="last">{%label.prepareRouterStepTwo%}</span>
+	</div>
+	<div id="meshAddReadySub"></div>
+	<span class="meshAddReadyTips">
+		{%label.ifMeshLightNoFlash%}<span style="color:#FF4C79" id="support_num"></span>
+	</span>
+</div>
+<div id="meshAddLoading" class="meshAddStep">
+	<i class="spin"></i>
+	<span>{%label.scaningRouter%}</span>
+</div>
+<div id="meshAddNoResult" class="meshAddStep">
+	<div class="descCon">
+		<span class="stepTitle">{%label.nonAddableRouter%}</span>
+		<div class="stepDesc">
+			<span>{%label.notFoundRouterStepOne%}</span>
+			<span>{%label.notFoundRouterStepTwo%}<span class="meshAddReset">{%btn.resetRouter%}</span>{%label.period%}</span>
+		</div>
+	</div>
+	<div id="meshAddNoResultRescan"></div>
+</div>
+<div id="meshAddListed" class="meshAddStep">
+	<div id="extListTable"></div>
+	<div class="buttonGroup">
+		<div id="meshAddAll"></div>
+		<div id="meshAddcomplete" style="margin-left:16px"></div>
+	</div>
+	<span class="routerFound">{%label.foundRouterCountOne%}<span id="routerFoundCount"></span>{%label.foundRouterCountTwo%}</span>
+	<a class="notFound" id="meshAddNotFoundBtn">{%label.noFoundRouter%}</a>
+</div>
+<div id="meshAddNotFound" class="meshAddStep">
+	<i class="stepLogo"></i>
+	<div class="stepDesc">
+		<span>{%label.notFoundRouterStepOne%}</span>
+		<span>{%label.notFoundRouterStepTwo%}<span class="meshAddReset">{%btn.resetRouter%}</span>{%label.period%}</span>
+	</div>
+	<div id="meshAddNotFoundRescan"></div>
+</div>
+<div id="meshAddReset" class="meshAddStep">
+	<i class="stepLogo"></i>
+	<div class="stepDesc">
+		<span>{%label.resetRouterStepOne%}</span>
+		<span>{%label.resetRouterStepTwo%}</span>
+		<span>{%label.resetRouterStepThree%}</span>
+		<span>{%label.resetRouterStepFour%}</span>
+	</div>
+	<div class="buttonGroup">
+		<div id="meshAddResetBack"></div>
+		<div id="meshAddResetComplete" style="margin-left:16px"></div>
+	</div>
+</div>
+<style type="text/css">#meshAddReady{text-align:center;margin-top:80px}#meshAddReady i.stepLogo{width:240px;height:160px;display:inline-block;vertical-align:middle}#meshAddReady i.stepArrow{width:16px;height:12px;display:inline-block;vertical-align:middle;background:url(../web-static/images/basic.png) no-repeat scroll -141px -656px;margin:0 24px}#meshAddReady i.stepLogo.stepOne{background:url(../web-static/images/basic.png) no-repeat scroll -248px -240px}#meshAddReady i.stepLogo.stepTwo{background:url(../web-static/images/basic.png) no-repeat scroll -496px -240px}#meshAddReady div.showGuideStep{margin-top:16px;margin-bottom:48px}#meshAddReady div.showGuideStep span{width:240px;line-height:20px;font-size:13px;color:#333;text-align:left;display:inline-block;vertical-align:top}#meshAddReady div.showGuideStep span.last{margin-left:64px}#meshAddReady span.meshAddReadyTips{display:block;margin-top:16px;font-size:13px;line-height:17px;color:#666}#meshAddLoading{text-align:center}#meshAddLoading i{width:24px;height:24px;display:block;background:url(../web-static/images/basic.png) no-repeat scroll -600px -24px;margin:194px auto 0}#meshAddLoading span{display:block;margin-top:8px;color:#999;font-size:13px;line-height:20px}#meshAddListed{padding:8px 160px 24px;position:relative}#meshAddListed span.routerFound{position:absolute;left:160px;top:14px;display:block;line-height:20px;height:20px;color:#333;font-size:13px}#meshAddListed a.notFound{position:absolute;left:160px;top:416px;height:24px;line-height:24px;font-size:13px;color:#666;display:block;text-decoration:underline;cursor:pointer}#meshAddListed div.buttonGroup{text-align:center;margin-top:56px}#meshAddNotFound{text-align:center}#meshAddNotFound i.stepLogo{margin-top:80px;width:240px;height:160px;display:inline-block;vertical-align:middle;background:url(../web-static/images/basic.png) no-repeat scroll -496px -240px}#meshAddNotFound div.stepDesc{margin:24px 0 48px 216px;text-align:left}#meshAddNotFound div.stepDesc span,#meshAddNoResult div.stepDesc span{height:20px;line-height:20px;color:#333;font-size:13px;display:block}#meshAddNotFound div.stepDesc span.meshAddReset,#meshAddNoResult div.stepDesc span.meshAddReset{display:inline-block;margin-left:4px;color:#ff4c79;text-decoration:underline;cursor:pointer}#meshAddReset{text-align:center}#meshAddReset i.stepLogo{margin-top:80px;width:480px;height:80px;display:inline-block;vertical-align:middle;background:url(../web-static/images/basic.png) no-repeat scroll 0 -622px}#meshAddReset div.stepDesc{margin:24px 0 48px 216px;text-align:left}#meshAddReset div.stepDesc span{height:20px;line-height:20px;color:#333;font-size:13px;display:block}#meshAddReset div.buttonGroup{text-align:center}#meshAddNoResult{text-align:center}#meshAddNoResult div.descCon{text-align:left;margin-left:240px;margin-top:120px}#meshAddNoResult span.stepTitle{font-size:16px;height:21px;line-height:21px;color:#333;font-weight:bold;display:block}#meshAddNoResult div.stepDesc{margin:24px 0 48px 0;text-align:left}</style>

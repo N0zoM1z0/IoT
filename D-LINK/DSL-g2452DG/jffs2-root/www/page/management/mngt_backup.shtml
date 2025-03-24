@@ -1,0 +1,52 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function download_cfg()
+{
+	if(!validateCode())
+	    return false;
+		
+    document.location.href='/cgi-bin/config_download.cgi?action=download';
+}
+</script>
+
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_SettingsBackup"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td langkey="LK_BackupText"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+			<script>PrintTriButton("backup",getStr("LK_BackupSttings"),"download_cfg();" );</script>
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+L0 = require
+L1 = "json"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQFunction"
+L1 = L1(L2)
+L2 = arg
+L2 = L2[1]
+L3 = arg
+L3 = L3[2]
+if L3 then
+  if L2 then
+    L4 = tonumber
+    L5 = L2
+    L4 = L4(L5)
+    if L4 then
+      L4 = tonumber
+      L5 = L2
+      L4 = L4(L5)
+      if 0 < L4 then
+        L4 = os
+        L4 = L4.execute
+        L5 = "sleep "
+        L6 = tostring
+        L6 = L6(L7)
+        L5 = L5 .. L6
+        L4(L5)
+      end
+    end
+  end
+  L4 = pcall
+  L5 = L0.decode
+  L6 = L3
+  L4, L5 = L4(L5, L6)
+  if L4 and L5 then
+    L6 = type
+    L6 = L6(L7)
+    if L6 == "table" then
+      L6 = L1._cmdformat
+      L10, L11, L12, L13, L14, L15, L16 = L7(L8, L9)
+      L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15, L16)
+      L7(L8)
+      L7(L8)
+      L7(L8)
+      L7(L8)
+      if L7 == 0 then
+        for L10, L11 in L7, L8, L9 do
+          L12 = L1._cmdformat
+          L13 = L11
+          L12 = L12(L13)
+          L13 = os
+          L13 = L13.execute
+          L14 = "iwpriv wl0 set DisConnectSta=\""
+          L15 = L12
+          L16 = "\""
+          L14 = L14 .. L15 .. L16
+          L13(L14)
+          L13 = os
+          L13 = L13.execute
+          L14 = "iwpriv wl1 set DisConnectSta=\""
+          L15 = L12
+          L16 = "\""
+          L14 = L14 .. L15 .. L16
+          L13(L14)
+          L13 = os
+          L13 = L13.execute
+          L14 = "iwpriv wl14 set DisConnectSta=\""
+          L15 = L12
+          L16 = "\""
+          L14 = L14 .. L15 .. L16
+          L13(L14)
+          L13 = os
+          L13 = L13.execute
+          L14 = "iwpriv wl15 set DisConnectSta=\""
+          L15 = L12
+          L16 = "\""
+          L14 = L14 .. L15 .. L16
+          L13(L14)
+        end
+      end
+      if L7 == 0 then
+        L10 = "\""
+        L7(L8)
+        L10 = "\""
+        L7(L8)
+        L10 = "\""
+        L7(L8)
+        L10 = "\""
+        L7(L8)
+        L7(L8)
+        L7(L8)
+        L7(L8)
+        L7(L8)
+      else
+        L10 = "\""
+        L7(L8)
+        L10 = "\""
+        L7(L8)
+        L7(L8)
+        L7(L8)
+        L7(L8)
+        L7(L8)
+      end
+      if L7 == 0 then
+        L7(L8)
+        L7(L8)
+        L7(L8)
+        L7(L8)
+      end
+      L7(L8)
+    end
+  end
+end

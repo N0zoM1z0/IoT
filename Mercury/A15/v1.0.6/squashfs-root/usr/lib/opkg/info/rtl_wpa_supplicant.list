@@ -1,0 +1,4 @@
+/conf/wpa_supplicant.conf
+/etc/init.d/wpas_start
+/usr/sbin/wpa_supplicant
+/usr/sbin/wpa_cli

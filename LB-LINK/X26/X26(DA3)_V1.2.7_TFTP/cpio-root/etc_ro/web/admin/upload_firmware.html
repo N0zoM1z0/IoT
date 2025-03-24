@@ -1,0 +1,205 @@
+<!doctype html>
+<!--[if lt IE 7 ]>
+<html class="ie6" lang="zh-cn"><![endif]-->
+<!--[if IE 7 ]>
+<html class="ie7" lang="zh-cn"><![endif]-->
+<!--[if IE 8 ]>
+<html class="ie8" lang="zh-cn"><![endif]-->
+<!--[if IE 9 ]>
+<html class="ie9" lang="zh-cn"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class="w3c"><!--<![endif]-->
+<head>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="Keywords" content="" />
+<meta name="Description" content="" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="renderer" content="webkit"  />
+<meta http-equiv="cache-control" content="no-cache" />
+<title>B-LINK路由设置</title>
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/router.css" />
+<link href="css/bootstrap.min.css" rel="stylesheet"/>
+<link href="css/form.css" rel="stylesheet" />
+<link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+<style type="text/css">
+<!--
+#loading {
+				width:20%;
+       height:200px;
+       background-color: #557cb7;
+	   color:#fff;
+			 position:absolute;
+        left: 40%;
+ 				top: 30%;
+       text-align: center;
+}
+-->
+    .menu .i-5{background:url("images/term.png") no-repeat 3px 3px;}
+    #nav_top{text-align: center;line-height: 40px;}
+	.upgrade-title{padding: 5px 30px;color: #777;background-color: #f4f4f4;font-size:18px;margin-top: 18px;}
+    #upload_body{width:760px;height:490px;background-color: #fff;margin: 50px auto 0;border-radius: 5px;}
+    #file_txt{width:98px;height:25px;display:inline-block;text-align: center;background: #557cb7;cursor:pointer;border: 1px solid #557cb7;border-radius: 4px;color: #fff;line-height: 25px;}
+    #file_val{vertical-align: top;padding-left: 5px;}
+	#filename{opacity: 1;cursor:pointer;filter:alpha(Opacity=100);width:0px;height: 0px;}
+    .button1{display:inline-block;background: #557cb7;border: none;border-radius: 4px;color: #fff;font-size: 15px;width: 130px;height: 37px;line-height: 37px;}
+</style>
+</head>
+<body onLoad="pageInit()" style="background: #557cb7;">
+
+<!-- ----------------- Upload firmware Settings ----------------- -->
+<div class="top"><a class="logo-box">
+	<img id='hostLogo' width="166" /></a>
+	<a target="_blank" class="user" id="websit_info">
+		<img src="images/web.png" style="width:30px;padding-right:5px;" />
+		<span></span>
+	</a>
+</div>
+<div style="width:1100px;margin:0 auto;">
+	<div class="menu">
+		<a href="main.html"><i class="png_ie i-1"></i><span id="hostPage"></span></a>
+		<a href="more.html"><i class="png_ie i-3"></i><span id="MoreFunction"></span></a>
+		<a href="setup.html"><i class="png_ie i-2"></i><span id="ChangeMode"></span></a>
+		<a href="terminal.html"><i class="png_ie i-5"></i><span id="term"></span></a>
+		<a href="upload_firmware.html" class="selected"><i class="png_ie i-4"></i><span id="getNew"></span></a>
+	</div>
+<div id="upload_body" style="display: inline-block;vertical-align:top;margin-top:45px;margin-left:90px;">
+    <div id="up_form" style="width:760px;">
+		<div><p class="upgrade-title"><span id="update_local"></span></p></div>
+        <form method="post" name="UploadFirmware" action="/cgi-bin/upload.cgi" enctype="multipart/form-data">
+        <table border=0 class="content2" cellspacing=2  id="table1" cellspacing=2>
+            <tbody>
+            <tr>
+              <td class="head" id="uploadFWLocation" style="padding-left: 220px"></td>
+				<td style="line-height: 30px;padding-top: 40px;"><label id="file_txt" for="filename"></label><span id="file_val"></span></td>
+                <td><p style="height: 0px;width:0px;overflow: hidden;"><input name="filename" size="20" maxlength="256" type="file" id="filename"></p></td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <table width="80%" border="0"  align="center">
+            <tr align="center">
+                <td style="padding-top: 45px">
+                    <input value="" class="button1" id="uploadFWApply" name="UploadFirmwareSubmit"  type="submit" onclick="return uploadFirmwareCheck();"><!--onclick="return uploadFirmwareCheck();"-->
+                </td>
+            </tr>
+        </table>
+        </form>
+    </div>
+<!-- 固件升级设置 -->
+	<div id="setupgrade" style="width:760px;display: block;">
+		<div><p class="upgrade-title"><span id="update_online"></span></p></div>
+		  <div>
+			<div class="modal-body" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+				<div id="dialogupgrade">
+					<form id="form14" role="form">
+						<ul class="listform">
+							<li>
+								<span id="nowvsion" style="min-width:160px" class="sp-l"></span>
+								<span id="curver" style="min-width:120px;width:120px;" class="sp-r"></span>
+							</li>
+							<li>
+								<span class="sp-l" style="min-width:160px" id="newvsion"></span>
+								<span class="sp-r" style="min-width:120px;width:120px;" id="newver"></span>
+							</li>
+						</ul>
+					</form>
+					<div id="version_tips" style="text-align: left;padding-left: 65px;"></div>
+				</div>
+			</div>
+			<div class="buttonbox">
+				<!--<a id="upgrade_close" class="cannel btn list-btn"></a>-->
+				<a id="upgrade_button" class="btn list-btn"></a>
+			</div>
+		  </div>
+		</div>
+<!-- 固件升级设置 end-->
+</div>
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/lang_public.js"></script>
+<script type="text/javascript" src="js/lang_main.js"></script>
+<script type="text/javascript" src="js/getinfo.js"></script>
+<script type="text/javascript" src="js/layer/layer.js"></script>
+<script>
+    var langu;
+    mode_terminal();
+    getPage();
+    getPages();
+    if(getLang()=='zhcn'){var curlang=lang.zhcn;langu="zhcn";}else{var curlang=lang.en;langu="en";}
+    if(getLang()=='zhcn'){var curlangs=langs.zhcn;}else{var curlangs=langs.en;}
+$("#upgrade_button").click(function(){
+    onform_upgrade_versoin();
+})
+$("#filename").change(function(){
+    var f_path=this.value.split("\\");
+    var len=f_path.length-1;
+    var f_val=f_path[len];
+    if(this.value==""){
+        $("#file_val").html(curlangs.file_val);
+	}else{
+        $("#file_val").html(f_val);
+	}
+});
+if(langu=="en")
+	{document.write('<div id="loading" style="display: none; "><br><br><br>Updating firmware <br><br>Please be patient, Do not turn off the unit during the updating!</div>');}
+if(langu=="zhcn")
+	{document.write('<div id="loading" style="display: none; "><br><br><br>更新固件<br><br>请耐心等待, 更新过程中禁止断掉设备电源.</div>');}
+
+var _singleton = 0;
+function uploadFirmwareCheck()
+{
+    if(_singleton) {
+        return false;
+    }
+    if(document.UploadFirmware.filename.value == ""){
+        layer.msg(curlangs.firmware_up,{icon:5});
+        return false;
+    }
+	set_restore = 1;
+	document.getElementById("loading").style.display = "block";
+    _singleton = 1;
+    return true;
+}
+function pageInit(){
+    document.UploadFirmware.UploadFirmwareSubmit.disabled = false;
+	document.getElementById("loading").style.display="none";
+}
+//根据模式显示终端
+function mode_terminal(){
+	$.ajax({
+		type: 'get',
+		url: '/goform/get_easy_cfg',
+		dataType:"json",
+		success: function(msg){
+            if(msg=="" || msg=="undefine"){
+                return;
+            }
+            if((typeof msg)=="object"){var data=msg;}
+            else{
+                var data=eval('('+msg+')');
+            }
+            if(data.operationmode.toString()=="repeater"){
+                $(".menu a").eq(3).css("display","none");
+            }
+            if(data.operationmode.toString()=="client"){
+                $(".menu a").eq(3).css("display","none");
+            }
+            if(data.operationmode.toString()=="bridge"){
+                $(".menu a").eq(3).css("display","none");
+            }
+            getData_version_info();
+		},
+		error:function(msg){
+
+		}
+	})
+}
+
+// setInterval(getLoginStatus,13000);
+</script>
+</body>
+</html>

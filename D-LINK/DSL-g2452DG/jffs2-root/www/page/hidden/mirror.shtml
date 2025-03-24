@@ -1,0 +1,248 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+</head>
+<script>
+
+/* 获取LANEthernetInterfaceConfig */
+function IfConfTuple()
+{
+	this.PhyPort = "";
+	this.Description = "";
+}
+
+function getStr(str)
+{
+    var vars = 'window.' + str;
+	return eval(vars);
+}
+
+var m=0;
+var G_LanIfConf = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig. X_TRI_PhyPort X_CT-COM_Description" -->
+	G_LanIfConf[m] = new IfConfTuple();
+	G_LanIfConf[m].PhyPort = "<!--#leaf "1"-->";
+	G_LanIfConf[m].Description = "<!--#leaf "2"-->";
+    m++;
+<!--#endgetobject -->
+
+
+/* 获取wand信息 */
+function WANEthernetInterfaceConfig()
+{
+    this.Path = "";
+    this.Enable = "";
+    this.X_TRI_PhyPort = "";
+}
+
+var wanIndex=0;
+var WANEthernetInterfaceConfigArray = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANEthernetInterfaceConfig. Enable X_TRI_PhyPort" -->
+    WANEthernetInterfaceConfigArray[wanIndex] = new WANEthernetInterfaceConfig();
+    WANEthernetInterfaceConfigArray[wanIndex].Path = "<!--#path -->";
+    WANEthernetInterfaceConfigArray[wanIndex].Enable = "<!--#leaf "1"-->";
+    WANEthernetInterfaceConfigArray[wanIndex].X_TRI_PhyPort = "<!--#leaf "2"-->";
+    wanIndex++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+
+function setEnable(_text)
+{
+	var String = _text.split('[-]');
+	var inEnable = String[0];
+	var eEnable = String[1];
+	var inPort = String[2];
+	var ePort = String[3];
+	if(inEnable == '1' || eEnable == '1'){
+		document.getElementById('submit').value = getStr('LK_Close');
+		$('SELECT_PortMirrDesPort').disabled = true;
+		$('SELECT_PortMirrDir').disabled = true;
+	}
+	else {
+		document.getElementById('submit').value = getStr('LK_Open');
+		$('SELECT_PortMirrDesPort').disabled = false;
+		$('SELECT_PortMirrDir').disabled = false;
+	}
+
+	if(inEnable == '1' && eEnable =='0')
+	{
+		setValue('SELECT_PortMirrDesPort', inPort);
+		document.getElementById('SELECT_PortMirrDir').selectedIndex = 1;
+	}
+	else if(inEnable == '0' && eEnable == '1')
+	{
+		setValue('SELECT_PortMirrDesPort', ePort);
+		document.getElementById('SELECT_PortMirrDir').selectedIndex = 2;
+	}
+	else if(inEnable == '1' && eEnable == '1')
+	{
+		setValue('SELECT_PortMirrDesPort', inPort);
+		document.getElementById('SELECT_PortMirrDir').selectedIndex = 0;
+	}	
+}
+
+function onLoadEnable()
+{
+	var _url = "/cgi-bin/mirror.cgi";
+	ajax = Ajax.getInstance(_url, "action=1",0,setEnable);
+	ajax.get();
+
+}
+
+
+/*********************************************************
+* 描述：获取eth wan对应的port 
+* 返回：成功返回port号,失败返回-1
+*********************************************************/
+function GetEthWanPhyPort()
+{
+	for (i = 0; i < WANEthernetInterfaceConfigArray.length; i++)
+    {
+        if (WANEthernetInterfaceConfigArray[i].Enable == 1)
+        {
+            return WANEthernetInterfaceConfigArray[i].X_TRI_PhyPort;
+        }
+    }
+
+    return -1;
+}
+
+function setClose()
+{
+	var Port = $('SELECT_PortMirrDesPort').selectedIndex;
+	var _url = "/cgi-bin/mirror.cgi";
+	ajax = Ajax.getInstance(_url, "action=2?port="+Port,0,uiPageRefresh);
+	ajax.get();
+}
+
+function setOpen()
+{	
+	var dPort = $('SELECT_PortMirrDesPort').value;
+    var ethWanPhyPort = GetEthWanPhyPort();
+	var mode = $('SELECT_PortMirrDir').selectedIndex;
+	var _url = "/cgi-bin/mirror.cgi";   
+
+    /* 只有DSL上行，这里认为DSL上行一定存在 */
+    if(ethWanPhyPort == -1)
+    {
+	    ajax = Ajax.getInstance(_url, "action=3?mode="+mode+"?sport=1"+"?dport="+dPort,0, uiPageRefresh);
+	    ajax.get();
+    }
+    else
+    {
+        var sPort=Math.pow(2, ethWanPhyPort); //镜像命令中的sport是2^X_TRI_PhyPort
+        sPort += 1; //加上DSL的源端口
+        ajax = Ajax.getInstance(_url, "action=3?mode="+mode+"?sport="+sPort+"?dport="+dPort,0,uiPageRefresh);
+        ajax.get();
+    }
+}
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+	if($('submit').value == getStr('LK_Close'))
+	{
+		setClose();
+	}
+	else
+	{
+		setOpen();
+	}	
+}
+
+function createDesPortOptions()
+{
+	var text = [];
+	var value = [];
+	var n = 0;
+	
+	for (i = 0; i < G_LanIfConf.length; i++)
+	{
+		text[n] = G_LanIfConf[i].Description;
+		value[n] = G_LanIfConf[i].PhyPort;
+		n++;
+	}
+	createOptions('SELECT_PortMirrDesPort', text, value);
+}
+		
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_both"),getStr("LK_ingress"), getStr("LK_egress")]	
+  value = ['0', '1', '2'];
+	createOptions('SELECT_PortMirrDir', text, value);
+}
+
+function refreshword(){
+    jQuery("[langkey]").each(function(){
+		var keys_id = 'window.' + jQuery(this).attr("langkey");
+		var content = eval(keys_id);
+		if('input' == jQuery(this)[0].tagName.toLowerCase())
+			jQuery(this).attr("value", content);	
+		else 
+			jQuery(this).html(content);						
+		});
+		createsel();
+	  createDesPortOptions();
+	  onLoadEnable(); 
+}
+
+function __init()
+{ 
+    var lang_js='/js/language_en.js';
+    jQuery.getScript(lang_js,refreshword);
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<h1 langkey="LK_Mirror"></h1>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="130" langkey="LK_TargetPort">
+			</td>
+			<td>
+				<select id="SELECT_PortMirrDesPort">
+				</select>
+			</td>
+			</select>
+			</td>	
+		</tr>
+		<tr>
+			<td langkey="LK_Mirrorr">
+			</td>
+			<td>
+				<select id="SELECT_PortMirrDir">
+				</select>
+			</td>
+		</tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+			<script>PrintTriButton("submit",getStr("LK_Open"),onClick="uiSubmit();");</script>
+			&nbsp;&nbsp;
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="app_bakCfgform" id="app_bakCfgform" action="/cgi-bin/setup.cgi?page/hidden/mirror.shtml">
+</form>
+</body>
+</html>

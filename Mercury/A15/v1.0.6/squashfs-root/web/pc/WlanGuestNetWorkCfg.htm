@@ -1,0 +1,109 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.wifiGuestNet%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="wlanGuestNetWorkHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.guestNetworkDescription%}</p>
+</div>
+<div id="guestNetworkCon">
+	<div class="subTitle">
+		<h2>{%label.wirelessNet2G%}</h2>
+		<div id="guestSwitch2G" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<div id="basicArguments2G"></div>
+	<div id="accessBlock2G">
+		<div id="innerNetAuth2G" class="checkboxTitle" style="padding-top:24px;"></div>
+		<div id="speedLimit2G" class="checkboxTitle"></div>
+		<div id="speedLimitBasicArguments2G" class="basicArgCon"></div>
+		<div id="accessTime2G" class="checkboxTitle"></div>
+		<div id="accessTimeBasicArguments2G" class="basicArgCon">
+			<ul class="inputCMPT medium selectUl">
+				<label class="outerLbl">{%label.accessTime%}</label>
+				<li class="inputLi">
+					<span class="selectWrap">
+						<span id="accessTimeSel2G" class="select">
+							<span class="value"></span>
+							<i class="arrow iconfont icon-folddropdown"></i>
+						</span>
+					</span>
+				</li>
+			</ul>
+			<div id="accessTimeoutClass2G">
+				<div id="accessTimeoutCon2G"></div>
+				<div id="accessTimeoutCountdown2G"></div>
+			</div>
+			<div id="accessScheduleCon2G">
+				<div id="accessAddSchedule2G"></div>
+			</div>
+		</div>
+	</div>
+	<div id="save2G"></div>
+	<div id="guest5GTitle" class="subTitle">
+		<h2>{%label.wirelessNet5G%}</h2>
+		<div id="guestSwitch5G" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<div id="basicArguments5G"></div>
+	<div id="accessBlock5G">
+		<div id="innerNetAuth5G" class="checkboxTitle" style="padding-top:24px;"></div>
+		<div id="speedLimit5G" class="checkboxTitle"></div>
+		<div id="speedLimitBasicArguments5G" class="basicArgCon"></div>
+		<div id="accessTime5G" class="checkboxTitle"></div>
+		<div id="accessTimeBasicArguments5G" class="basicArgCon">
+			<ul class="inputCMPT medium selectUl">
+				<label class="outerLbl">{%label.accessTime%}</label>
+				<li class="inputLi">
+					<span class="selectWrap">
+						<span id="accessTimeSel5G" class="select">
+							<span class="value"></span>
+							<i class="arrow iconfont icon-folddropdown"></i>
+						</span>
+					</span>
+				</li>
+			</ul>
+			<div id="accessTimeoutClass5G">
+				<div id="accessTimeoutCon5G"></div>
+				<div id="accessTimeoutCountdown5G"></div>
+			</div>
+			<div id="accessScheduleCon5G">
+				<div id="accessAddSchedule5G"></div>
+			</div>
+		</div>
+	</div>
+	<div id="save5G"></div>
+</div>
+<div class="tipText contentTips"></div><script type="text/javascript">(function(){function w(a){var d="";switch(a){case ENONE:return!0;case EINVWLANPWD:d=errStr.wlanPwdInvalid;break;case EINVPSKLEN:d=errStr.wlanPwdLenValid;break;case EINVSPEEDCFG:d=errStr.guestNetSpeedInvalid;break;case EINVTIMEOUTCFG:d=errStr.guestNetTimeoutInvalid;break;case EINVPERIODBLANK:d=errStr.timePeriodBlank;break;case EINVPERIODTOOLONG:d=errStr.timePeriodTooLong;break;case EINVBEGINTIME:d=errStr.invTlBeginTime;break;case EINVENDTIME:d=errStr.invTlEndTime;break;case EINVBEGINENDTIME:d=errStr.invTlBeginEndTime;
+break;case EINVREPEATBLANK:d=errStr.tlRepeatBlank;break;default:d=errStr.unknown+a}alarmDialog.show(d);return!1}function F(a){x==b[a].accessTimeSel.value?($("#accessScheduleCon"+a).show(),$("#accessTimeoutClass"+a).hide()):($("#accessScheduleCon"+a).hide(),$("#accessTimeoutClass"+a).show(),b[a].accessTimeOut.checkAll())}function G(a,d){function c(c){if(w(c[ERR_CODE])){e[SEC_NAME]=k[d]+"_"+a.index;c=H(e,d);var b=$("#accessScheduleCon"+d).find("[dataIndex="+a.index+"]");0==b.length?$(c).insertBefore($("#accessAddSchedule"+
+d)):$(b).replaceWith(c);y(d);timePeriodDialog.hide(function(){showToast(label.saveSuccess)})}}for(var b in m)m.hasOwnProperty(b);b={};var e={};b[g]={};e[I]=a.name;e[J]=a.startHour+":"+a.startMin;e[K]=a.endHour+":"+a.endMin;e[L]=a.mon?"1":"0";e[M]=a.tue?"1":"0";e[N]=a.wed?"1":"0";e[O]=a.thu?"1":"0";e[P]=a.fri?"1":"0";e[Q]=a.sat?"1":"0";e[R]=a.sun?"1":"0";"add"==a.mode?(b[g][KEY_NAME]=k[d]+"_"+a.index,b[g][KEY_TABLE]=k[d],b[g][KEY_PARA]=e,$.add(b,c)):"edit"==a.mode&&(b[g][k[d]+"_"+a.index]=e,$.modify(b,
+c))}function ba(a,d){var c={};c[g]={};c[g][KEY_NAME]=k[d]+"_"+a.index;$.del(c,function(c){ENONE==c[ERR_CODE]&&(showToast(label.deleteSuccess),$("[dataIndex="+a.index+"]").remove(),y(d))})}function ca(a){var d=[],c=$("#accessScheduleCon"+a+" ul.timeRuleObj"),b,e;if(0==c.length)return 1;for(a=0;a<c.length;a++)d.push($(c[a]).attr("dataIndex"));d.sort(function(a,c){return a-c});c=parseInt(d[d.length-1]);b=Array(c).fill(0);for(a=0;a<d.length;a++)b[parseInt(d[a])-1]=1;return-1==(e=b.join("").indexOf("0"))?
+c+1:parseInt(e)+1}function z(a,b){var c={},f,e;void 0==a?(f=ca(b),c.mode="add",c.index=f,c.name=label.timeSection+f,c.startHour=c.startMin=c.endHour=c.endMin="00",c.mon=c.tue=c.wed=c.thu=c.fri=c.sat=c.sun=!0):(f=$(a).find("span.time").text(),e=$(a).find("span.day").text(),timeArr=f.split("-"),startTime=timeArr[0].split(":"),endTime=timeArr[1].split(":"),c.mode="edit",c.index=$(a).attr("dataIndex"),c.name=$(a).find("label.desc").text(),c.startHour=startTime[0],c.startMin=startTime[1],c.endHour=endTime[0],
+c.endMin=endTime[1],c.mon=-1==e.indexOf(label.one)?!1:!0,c.tue=-1==e.indexOf(label.two)?!1:!0,c.wed=-1==e.indexOf(label.three)?!1:!0,c.thu=-1==e.indexOf(label.four)?!1:!0,c.fri=-1==e.indexOf(label.five)?!1:!0,c.sat=-1==e.indexOf(label.six)?!1:!0,c.sun=-1==e.indexOf(label.day)?!1:!0);return c}function H(a,b){var c=a[SEC_NAME].replace(/.*_(\d)$/,"$1"),f=a[J]+"-"+a[K],e=htmlEscape(a[I]),c=$('<ul class="inputCMPT medium timeRuleObj" dataIndex="'+c+'"><label class="outerLbl desc">'+e+'</label><li class="inputLi"><span class="time">'+
+f+'</span><span class="day">'+(("0"==a[L]?"":m.mon)+("0"==a[M]?"":m.tue)+("0"==a[N]?"":m.wed)+("0"==a[O]?"":m.thu)+("0"==a[P]?"":m.fri)+("0"==a[Q]?"":m.sat)+("0"==a[R]?"":m.sun))+'</span></li><i class="edit iconfont icon-edit"></i><i class="delete iconfont icon-delete"></i></ul>');c.find("i.edit").on("click",function(){var a=z(this.parentNode,b);timePeriodDialog.resetCommit(function(a){G(a,b)});timePeriodDialog.show(a)});c.find("i.delete").on("click",function(){var a=z(this.parentNode,b);a.mode="delete";
+ba(a,b)});return c}function da(a,b){var c={},f={},e={};c[g]=f;f[l[b]]=e;e[r]=a;$.modify(c,function(a){w(a[ERR_CODE])})}function ea(a){function d(){var c=b[a].speedLimitCheckbox.getValue();$("#speedLimitBasicArguments"+a).toggle(c)}t?confirmDialog.show({title:menuStr.wifiGuestNet,content:label.hNatCloseForWlanGuest,callback:function(c){!0==c?(c={},c[uciHNat.fileName]={},c[uciHNat.fileName][uciHNat.secName.main]={},c[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable]=uciHNat.optValue.enable.off,
+$.modify(c,function(c){w(c[ERR_CODE])?(showToast(label.hNatClosed),t=!1,d()):b[a].speedLimitCheckbox.setValue(!1)})):b[a].speedLimitCheckbox.setValue(!1)}}):d()}function A(){null!=s&&(clearTimeout(s),s=null);slp.getWiFiStatus(function(a){var d=a[uciGuestNet.fileName];if(S)if(isWifiAllSwitchOpen=a[uciWireless.fileName][uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]==uciWireless.dynOptValue.enable.on)$(".wifiSetCon").css("display","block"),$("div.tipText").css("display","none"),b["2G"].guestNetSwitch.disable(!1),
+slp.guest5GSupport&&b["5G"].guestNetSwitch.disable(!1),void 0!=id("wifiAllSwitchClose")&&removeTitleError("wifiAllSwitchClose");else{$(".wifiSetCon").css("display","none");$("div.tipText").html(label.wifiAllSwitchCloseStateTipsForGuest);$("div.tipText").css("display","block");b["2G"].guestNetSwitch.disable(!0);slp.guest5GSupport&&b["5G"].guestNetSwitch.disable(!0);void 0==id("wifiAllSwitchClose")&&addTitleError("wifiAllSwitchClose",label.canNotSetGuestDueToWifiAllSwitch,{hasIcon:!1,hasBtn:!0,btnArr:[{btnStr:btn.openWifiAllSwitch,
+btnOnclick:function(){var a={};a[uciWireless.dynData.wifi_switch]={};a[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]=uciWireless.dynOptValue.enable.on;slp.host.setData({data:a,success:function(){}})}}]});s=$.setTimeout(A,2E3);return}b["2G"].guestNetSwitch.setState(d[l["2G"]][r]);slp.guest5GSupport&&b["5G"].guestNetSwitch.setState(d[l["5G"]][r]);s=$.setTimeout(A,2E3)})}function T(a){var d;d=parseInt(h[a][r]);b[a].guestNetSwitch.setState(d);b[a].wifiName.setValue(h[a][U]||"");b[a].wifiPwd.setValue(h[a][B]?
+h[a][B]:"");b[a].maxUploadSpeed.setValue(h[a][V]);b[a].maxDownloadSpeed.setValue(h[a][W]);d=parseInt(h[a][X]);b[a].innerNetAuthCheckbox.setValue("0"==d);d=(0!=b[a].maxUploadSpeed.getValue()||0!=b[a].maxDownloadSpeed.getValue())&&!t;b[a].speedLimitCheckbox.setValue(d);d&&$("#speedLimitBasicArguments"+a).show();"0"===h[a][C]?b[a].accessTimeOut.setValue(1):b[a].accessTimeOut.setValue(String(parseInt(parseInt(h[a][C])/3600)));"1"==parseInt(h[a][Y])&&(b[a].accessTimeCheckbox.setValue(!0),$("#accessTimeBasicArguments"+
+a).show());id("accessTimeSel"+a).changeSel(h[a][u]);$("#accessScheduleCon"+a+" .timeRuleObj").remove();for(var c=0;c<q[a].length;c++)d=H(q[a][c],a),$(d).insertBefore($("#accessAddSchedule"+a));y(a);D(a);F(a);A()}function fa(a){function d(){!0==b[a].accessTimeCheckbox.getValue()&&n==b[a].accessTimeSel.value&&0==b[a].guestNetSwitch.state?confirmDialog.show({content:label.guestNetForceToOpen,callback:function(d){d&&(e[r]="1",$.modify(c,function(c){b[a].guestNetSwitch.setState(1);$.setTimeout(function(){D(a)},
+1500);ENONE==c[ERR_CODE]&&showToast(label.saveSuccess)}))}}):$.modify(c,function(b){$.setTimeout(function(){D(a)},1500);ENONE==b[ERR_CODE]&&showToast(label.saveSuccess)})}var c={},f={},e={};c[g]=f;f[l[a]]=e;var h=!0,f=[b[a].wifiName,b[a].wifiPwd];!0==b[a].speedLimitCheckbox.getValue()&&(f.push(b[a].maxUploadSpeed),f.push(b[a].maxDownloadSpeed));!0==b[a].accessTimeCheckbox.getValue()&&n==b[a].accessTimeSel.value&&f.push(b[a].accessTimeOut);f.forEach(function(a){h=a.checkAll()&&h});h&&(e[U]=b[a].wifiName.getValue(),
+e[B]=b[a].wifiPwd.getValue(),e[V]=!1==b[a].speedLimitCheckbox.getValue()?"0":parseInt(b[a].maxUploadSpeed.getValue(),10),e[W]=!1==b[a].speedLimitCheckbox.getValue()?"0":parseInt(b[a].maxDownloadSpeed.getValue(),10),e[ga]=""==b[a].wifiPwd.getValue()?0:1,e[X]=!0==b[a].innerNetAuthCheckbox.getValue()?0:1,e[Y]=!0==b[a].accessTimeCheckbox.getValue()?1:0,n==b[a].accessTimeSel.value?(e[u]=n,e[C]=3600*parseInt(b[a].accessTimeOut.getValue(),10)):e[u]=x,checkStrHasCN(b[a].wifiName.getValue())?confirmDialog.show({content:label.confirmSsidHasCNChar,
+button:{confirmStr:btn.btnY,cancelStr:btn.btnN},callback:function(c){c?checkStrHasCN(b[a].wifiName.getValue())&&b[a].wifiName.input.select():d()}}):d())}function D(a){var d={};!0!=b[a].accessTimeCheckbox.getValue()||n!=b[a].accessTimeSel.value||n!=h[a][u]||1!=b[a].guestNetSwitch.state?(p[a]=0,clearTimeout(E),$("#accessTimeoutCountdown"+a).css("display","none")):(d[g]={},d[g][KEY_NAME]=v[a],$.query(d,function(b){ENONE==b[ERR_CODE]&&(p[a]=parseInt(b[g][v[a]][uciGuestNet.optName.timeLeft]),clearTimeout(E),
+ha(a))}))}function ha(a){0<p[a]?(b[a].countdown.setValue(ia(p[a])),$("#accessTimeoutCountdown"+a).css("display","block"),p[a]--,E=$.setTimeout(arguments.callee,1E3)):$("#accessTimeoutCountdown"+a).css("display","none")}function ia(a){var b=label.lBrackets,c,f;c=parseInt(a/3600);f=parseInt(a%3600/60);a=parseInt(a%60);0<c&&(b+=c+label.lHour);0<f&&(b+=f+label.minute);0<a&&(b+=a+label.second);return b+"后关闭访客网络）"}function y(a){var d=$("#accessScheduleCon"+a).find("ul.timeRuleObj");b[a].accessAddScheduleBtn.disable(d.length>=
+GUEST_NETWORK_ACCESS_TIME_RULE_MAX?!0:!1)}function Z(a){b[a].guestNetSwitch=new Switch("guestSwitch"+a,0,function(b){da(b,a)},!1);b[a].wifiName=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.wirelessName},targetId:"basicArguments"+a,check:{blur:checkSsidInput},props:{maxlength:"32",type:"text"}});b[a].wifiPwd=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.wirelessPwd},strength:{show:!0,least:8,critical:12},check:{blur:onPwdBlur,keyup:onPwdKeyup},targetId:"basicArguments"+a,props:{maxlength:"63",
+type:"text"}});b[a].innerNetAuthCheckbox=new CheckBox({targetId:"innerNetAuth"+a,label:'<span style="font-weight: bold;">'+label.innerNetAuth+"</span>",checked:!1,onClick:null});b[a].speedLimitCheckbox=new CheckBox({targetId:"speedLimit"+a,label:'<span style="font-weight: bold;">'+label.speedLimit+"</span>",checked:!1,onClick:function(){ea(a)}});b[a].maxUploadSpeed=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.maxUploadSpeed},targetId:"speedLimitBasicArguments"+a,tips:{value:label.unitKBs,
+className:"unit"},check:{blur:function(){return!1==checkNum(this.input.value)?(this.showNote(errStr.guestNetSpeedInvalid),!1):!0}},props:{maxlength:"6",type:"text"}});b[a].maxDownloadSpeed=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.maxDownloadSpeed},targetId:"speedLimitBasicArguments"+a,tips:{value:label.unitKBs,className:"unit"},check:{blur:function(){return!1==checkNum(this.input.value)?(this.showNote(errStr.guestNetSpeedInvalid),!1):!0}},props:{maxlength:"6",type:"text"}});b[a].accessTimeCheckbox=
+new CheckBox({targetId:"accessTime"+a,label:'<span style="font-weight: bold;">'+label.setAccessTime+"</span>",checked:!1,onClick:function(){var d=b[a].accessTimeCheckbox.getValue();$("#accessTimeBasicArguments"+a).toggle(d)}});b[a].accessTimeOut=new Input({type:Input.TYPE.PLAIN_TEXT,targetId:"accessTimeoutCon"+a,label:{value:label.guestNetTimeoutOpen},tips:{value:label.unitHour,className:"unit"},hint:{value:label.autoCloseAfter},check:{blur:function(){return""==this.input.value||!1==checkNum(this.input.value)||
+!1==checkNumRange(parseInt(this.input.value,10),24,1)?(this.showNote(errStr.guestNetTimeoutInvalid),!1):!0}},props:{maxlength:"2",type:"text"}});b[a].accessAddScheduleBtn=new Button({type:Button.TYPE.FUNCTIONAL,id:"accessAddSchedule"+a,onClick:function(){timePeriodDialog.resetCommit(function(b){G(b,a)});timePeriodDialog.show(z(void 0,a))},text:'<i class="iconfont icon-add"></i><span>'+btn.addTimePeriod+"</span>",props:{width:"240px",marginLeft:"132px"}});selectInit("accessTimeSel"+a,ja,n,function(){F(a)},
+190);b[a].accessTimeSel=document.getElementById("accessTimeSel"+a);b[a].saveBtn=new Button({text:btn.save,onClick:function(){fa(a)},type:Button.TYPE.PRIMARY,id:"save"+a,props:{width:"240px",margin:"36px 0 0 132px"}});b[a].countdown=new Input({type:Input.TYPE.STATIC_TEXT,targetId:"accessTimeoutCountdown"+a})}var g=uciGuestNet.fileName,ka=uciGuestNet.dynData.guestRule2G,la=uciGuestNet.dynData.timeLeft2G,ma=uciGuestNet.secName.wireless5G,na=uciGuestNet.dynData.guestRule5G,oa=uciGuestNet.dynData.timeLeft5G,
+r=uciGuestNet.optName.enable,U=uciGuestNet.optName.ssid,ga=uciGuestNet.optName.encrypt,B=uciGuestNet.optName.key,X=uciGuestNet.optName.accright,V=uciGuestNet.optName.upload,W=uciGuestNet.optName.download,Y=uciGuestNet.optName.timelimit,C=uciGuestNet.optName.duration,u=uciGuestNet.optName.timetype,L=uciGuestNet.optName.mon,M=uciGuestNet.optName.tue,N=uciGuestNet.optName.wed,O=uciGuestNet.optName.thu,P=uciGuestNet.optName.fri,Q=uciGuestNet.optName.sat,R=uciGuestNet.optName.sun,I=uciGuestNet.optName.name,
+J=uciGuestNet.optName.startTime,K=uciGuestNet.optName.endTime,n=uciGuestNet.optValue.timetype.timeout,x=uciGuestNet.optValue.timetype.schedule,aa=!1,t=!1,S=!1,s=null,b={"2G":{},"5G":{}},ja=[{str:label.timingAccess,value:x},{str:label.guestNetTimeout,value:n}],m={mon:label.one,tue:label.two,wed:label.three,thu:label.four,fri:label.five,sat:label.six,sun:label.day},E,l={},v={},k={},q={},h={},p={};l["2G"]=uciGuestNet.secName.wireless2G;l["5G"]=ma;v["2G"]=la;v["5G"]=oa;k["2G"]=ka;k["5G"]=na;q["2G"]=null;
+q["5G"]=null;h["2G"]=null;h["5G"]=null;p["2G"]=null;p["5G"]=null;Z("2G");slp.guest5GSupport&&Z("5G");$("#guest5GTitle, #basicArguments5G").toggle(slp.guest5GSupport);timePeriodDialog.resetTpType(timePeriodDialog.tpType.GUEST_NET);slp.moduleSpec.wifi_switch&&1==slp.moduleSpec.wifi_switch&&(S=!0);(function(){var a={};a[g]={};a[g][KEY_NAME]=[l["2G"]];a[g][KEY_TABLE]=[k["2G"]];slp.guest5GSupport&&(a[g][KEY_NAME].push(l["5G"]),a[g][KEY_TABLE].push(k["5G"]));1==slp.moduleSpec.hnat&&(a[uciHNat.fileName]=
+{},a[uciHNat.fileName][KEY_NAME]=uciHNat.secName.main,aa=!0);$.query(a,function(a){aa&&(t=a[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable]==uciHNat.optValue.enable.on);"function"==typeof callback&&callback();h["2G"]=a[g][l["2G"]];q["2G"]=formatTableData(a[g][k["2G"]]);T("2G");slp.guest5GSupport&&(h["5G"]=a[g][l["5G"]],q["5G"]=formatTableData(a[g][k["5G"]]),T("5G"))})})()})();
+</script><style type="text/css">div.checkboxTitle{height:24px;line-height:24px;margin-top:24px}div.basicArgCon{margin-top:16px}div.checkboxTitle:before{content:'';display:inline-block;vertical-align:middle;height:24px}#speedLimitBasicArguments2G,#accessTimeBasicArguments2G,#speedLimitBasicArguments5G,#accessTimeBasicArguments5G{display:none}#accessTimeoutCountdown2G,#accessTimeoutCountdown5G{margin-left:132px}.tipText{display:none}</style>

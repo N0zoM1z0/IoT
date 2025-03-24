@@ -1,0 +1,755 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+var sepStr="<!zte!>";
+
+function LinesTuple()
+{
+    this.Path = "";
+    this.Enable = "";
+}
+
+function LinesSIPTuple()
+{
+    this.Path = "";
+    this.AuthUserName = "";
+    this.AuthPassword = "";
+    this.URI = "";
+}
+var password0_changed=0;
+function Password0_changed()
+{
+    password0_changed=1;
+    return true;
+}
+var password1_changed=0;
+function Password1_changed()
+{
+    password1_changed=1;
+    return true;
+}
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP. UserAgentPort RegistrarServer ProxyServer OutboundProxy OutboundProxyPort X_CT-COM_Standby-RegistrarServer X_CT-COM_Standby-ProxyServer X_CT-COM_Standby-OutboundProxy X_CT-COM_Standby-OutboundProxyPort RegisterRetryInterval RegisterExpires X_TRI-LinkTest X_TRI-LinkTestInterval X_TRI-EscapeFlag P-Asserted-Identity"-->
+    var userSgentPort = "<!--#leaf "1"-->";
+    var registrarServ = "<!--#leaf "2"-->";
+    var proxyServ = "<!--#leaf "3"-->";
+    var outBoundProxy = "<!--#leaf "4"-->";
+    var masterPort = "<!--#leaf "5"-->";
+    
+    var stdbyRegistrarServ = "<!--#leaf "6"-->";
+    var stdbyProxyServ = "<!--#leaf "7"-->";
+    var stdbyOutBoundProxy = "<!--#leaf "8"-->";
+    var stdbyMasterPort = "<!--#leaf "9"-->";
+    
+    var retryInterval = "<!--#leaf "10"-->";
+    var registerExpires = "<!--#leaf "11"-->";
+    
+    var linkTest = "<!--#leaf "12"-->";
+    var linkTestInterval = "<!--#leaf "13"-->";
+    var escapeFlag = "<!--#leaf "14"-->";
+    var PAssertID = "<!--#leaf "15"-->";
+<!--#endgetobject -->
+var servType = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_ServerType"-->";
+var serviceenable = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable"-->";
+
+var m = 0;
+var LineS = new Array();
+var n = 0;
+var LineSIPS = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Enable Description" -->
+    LineS[m] = new LinesTuple();
+    LineS[m].Path = "<!--#path -->";
+    LineS[m].Enable = "<!--#leaf "1"-->";
+    LineS[m].Description = "<!--#leaf "2"-->";
+    m++;
+    <!--#endgetobject -->
+     
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.SIP. AuthUserName URI" -->
+    LineSIPS[n] = new LinesSIPTuple();   
+    LineSIPS[n].Path = "<!--#path -->";
+    LineSIPS[n].AuthUserName = "<!--#leaf "1"-->";
+    LineSIPS[n].URI = "<!--#leaf "2"-->";
+    n++;
+    <!--#endgetobject -->
+<!--#endgetobject -->
+
+function rmNULLInputs()
+{
+    var o=getObj("fSubmit");
+    var is=o.getElementsByTagName("input");
+    var l=is.length;
+    var ia=new Array();
+    for(var i=0;i<l;i++)
+        ia[i]=is[i];
+    for(var i=0;i<l;i++)
+    {
+        if(ia[i].value=="NULL")
+	    o.removeChild(ia[i]);
+    }
+}
+
+function checkDomainNameNew(domain_name)
+{
+    var len=domain_name.length;
+    var firstChar=domain_name.substr(0,1);
+    var lastChar=domain_name.substr(len-1,1);
+    var leftChar="";
+    var rightChar="";
+    var iDotCount=0;
+    var i=0;
+    var preDotPos=0;
+    var statu=checkStrLengthRange(domain_name, 0,63);
+    if(statu!=true)
+        return statu;
+    if(domain_name.match("[^0-9a-zA-Z_.-]")!=null)
+        return false;
+    if(firstChar.match("[^0-9a-zA-Z]")!=null)
+        return false;
+    if(lastChar.match("[^0-9a-zA-Z]")!=null)
+        return false;
+    return true;
+}
+
+function checkIp(value)
+{
+    var ipaddr=value;
+    if((checkIpAddress(ipaddr)!=true)&&(checkIPV6Address(ipaddr)!=true))
+        return false;
+    else 
+        return true;
+}
+
+function pageCheckValue()
+{
+    var msg="";
+    var cResult;
+    var srvValue;
+    var pResult;
+    var rInterval;
+    var index=m; // init *getValue("IF_INSTNUM")*  is  2;
+    cResult=checkIntegerRange($('Frm_UserAgentPort').value, 1024, 65535);
+    if(cResult==-1)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"Frm_UserAgentPort");
+        return false;
+    }
+    else if(cResult==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"Frm_UserAgentPort");
+        return false;
+    }
+    else if(cResult==-3)
+    {
+        msg=getmsg(116,1024,65535);
+        top.AlertMsg(msg,"Frm_UserAgentPort");
+        return false;
+    }
+    srvValue=getValue("Frm_ProxyServer1");
+    if(checkNull(srvValue)==true)
+    {
+        if(checkStrLengthRange(srvValue,0,63)!=true)
+        {
+            msg=getmsg(102,0,63,"Frm_ProxyServer1");
+            top.AlertMsg(msg);
+            return false;
+        }
+        if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+        {
+            msg=getmsg(134);
+            top.AlertMsg(msg,"Frm_ProxyServer1");
+            return false;
+        }
+    }
+    
+    srvValue=getValue("Frm_OutboundProxy1");
+    if(checkNull(srvValue)==true)
+    {
+        if(checkStrLengthRange(srvValue,0,63)!=true)
+        {
+            msg=getmsg(102,0,63);
+            top.AlertMsg(msg,"Frm_OutboundProxy1");
+            return false;
+        }
+        if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+        {
+            msg=getmsg(134);
+            top.AlertMsg(msg,"Frm_OutboundProxy1");
+            return false;
+        }
+    }
+    
+    cResult=checkIntegerRange(getValue("Frm_ProxyServerPort1"),1024,65535);
+    if(cResult==-1)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"Frm_ProxyServerPort1");
+        return false;
+    }
+    else if(cResult==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"Frm_ProxyServerPort1");
+        return false;
+    }
+    else if(cResult==-3)
+    {
+        msg=getmsg(116,1024,65535);
+        top.AlertMsg(msg,"Frm_ProxyServerPort1");
+        return false;
+    }
+    srvValue=getValue("Frm_ProxyServer2");
+    if(checkNull(srvValue)==true)
+    {
+        if(checkStrLengthRange(srvValue,0,63)!=true)
+        {
+            msg=getmsg(102,0,63);
+            top.AlertMsg(msg,"Frm_ProxyServer2");
+            return false;
+        }
+        if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+        {
+            msg=getmsg(134);
+            top.AlertMsg(msg,"Frm_ProxyServer2");
+            return false;
+        }
+    }
+    srvValue=getValue("Frm_OutboundProxy2");
+    if(checkNull(srvValue)==true)
+    {
+        if(checkStrLengthRange(srvValue,0,63)!=true)
+        {
+            msg=getmsg(102,0,63);
+            top.AlertMsg(msg,"Frm_OutboundProxy2");
+            return false;
+        }
+        if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+        {
+            msg=getmsg(134);
+            top.AlertMsg(msg,"Frm_OutboundProxy2");
+            return false;
+        }
+    }
+    cResult=checkIntegerRange(getValue("Frm_ProxyServerPort2"),1024,65535);
+    if(cResult==-1)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"Frm_ProxyServerPort2");
+        return false;
+    }
+    else if(cResult==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"Frm_ProxyServerPort2");
+        return false;
+    }
+    else if(cResult==-3)
+    {
+        msg=getmsg(116,1024,65535);
+        top.AlertMsg(msg,"Frm_ProxyServerPort2");
+        return false;
+    }
+    pResult=checkIntegerRange(getValue("Frm_RegisterExpires"),1,4294967295);
+    if(pResult==-1)
+    {
+        setValue("Frm_RegisterExpires", 1800);
+    }
+    else if(pResult==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"Frm_RegisterExpires");
+        return false;
+    }
+    else if(pResult==-3)
+    {
+        msg=getmsg(116,1,4294967295);
+        top.AlertMsg(msg,"Frm_RegisterExpires");
+        return false;
+    }
+    pResult=checkIntegerRange(getValue("Frm_LinkTestInterval"),1,4294967295);
+    if(pResult==-1)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"Frm_LinkTestInterval");
+        return false;
+    }
+    else if(pResult==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"Frm_LinkTestInterval");
+        return false;
+    }
+    else if(pResult==-3)
+    {
+        msg=getmsg(116,1,4294967295);
+        top.AlertMsg(msg,"Frm_LinkTestInterval");
+        return false;
+    }
+    rInterval=checkIntegerRange(getValue("Frm_RegisterRetryInterval"),1,4294967295);
+    if(rInterval==-1)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"RegisterRetryInterval");
+        return false;
+    }
+    else if(rInterval==-2)
+    {
+        msg=getmsg(115);
+        top.AlertMsg(msg,"RegisterRetryInterval");
+        return false;
+    }
+    else if(rInterval==-3)
+    {
+        msg=getmsg(116,1,4294967295);
+        top.AlertMsg(msg,"RegisterRetryInterval");
+        return false;
+    }
+    srvValue=getValue("Frm_RegistrarServer1");
+    if(checkNull(srvValue)==false)
+    {
+        msg=getmsg(101);
+        top.AlertMsg(msg,"Frm_RegistrarServer1");
+        return false;
+    }
+    if(checkStrLengthRange(srvValue,0,63)!=true)
+    {
+        msg=getmsg(102,0,63);
+        top.AlertMsg(msg,"Frm_RegistrarServer1");
+        return false;
+    }
+    if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+    {
+        msg=getmsg(134);
+        top.AlertMsg(msg,"Frm_RegistrarServer1");
+        return false;
+    }
+    srvValue=getValue("Frm_RegistrarServer2");
+    if(checkNull(srvValue)==true)
+    {
+        if(checkStrLengthRange(srvValue,0,63)!=true)
+        {
+            msg=getmsg(102,0,63);
+            top.AlertMsg(msg,"Frm_RegistrarServer2");
+            return false;
+        }
+        if(checkIp(srvValue)!=true&&checkDomainNameNew(srvValue) !=true)
+        {
+            msg=getmsg(134);
+            top.AlertMsg(msg,"Frm_RegistrarServer2");
+            return false;
+        }
+    }
+    for(var i=0;i<index; i++)
+	{
+       if(getChecked("Frm_Enable"+i)==true)
+	   {
+	    if ((getValue("Frm_AuthUserName"+i).length == 0) && (getValue("Frm_DigestUserName"+i).length == 0))
+		{
+		   msg=getmsg(114);
+		   top.AlertMsg(msg);
+		   return false;
+		}
+
+        if(checkGenStringForASC(getValue("Frm_AuthUserName"+i))==false)
+        //if(checkGenStringForTelNum(getValue("Frm_AuthUserName"+i))==false)
+        {
+            msg=getmsg(114);
+            top.AlertMsg(msg);
+            return false;
+        }
+        if(checkStrLengthRange(getValue("Frm_AuthUserName"+i),0,63)==-3)
+        {
+            msg=getmsg(102,0,63);
+            top.AlertMsg(msg);
+            return false;
+        }
+        if(getValue("Frm_AuthPassword"+i)!=sepStr)
+        {
+            if(checkGenStringForASC(getValue("Frm_AuthPassword"+i))==false)
+            {
+                msg=getmsg(114);
+                top.AlertMsg(msg);
+                return false;
+            }
+            if(checkStrLengthRange(getValue("Frm_AuthPassword"+i),0,63)==-3)
+            {
+                msg=getmsg(102,0,63);
+                top.AlertMsg(msg);
+                return false;
+            }
+        }
+        if(checkGenStringForASC(getValue("Frm_DigestUserName"+i))==false)
+        {
+            msg=getmsg(114);
+            top.AlertMsg(msg);
+            return false;
+        }
+        if(checkStrLengthRange(getValue("Frm_DigestUserName"+i),0,127)==-3)
+        {
+            msg=getmsg(102,0,127);
+            top.AlertMsg(msg);
+            return false;
+			}
+		}
+    }
+    if(!validateCode())
+        return false;
+    return true;
+}
+
+function uiSubmit()
+{
+    var df=$('fSubmit');
+    ReSetValueRmZero("Frm_UserAgentPort","Frm_ProxyServerPort1","Frm_ProxyServerPort2","Frm_RegisterExpires");
+    ReSetIpRmZero("Frm_ProxyServer1","Frm_OutboundProxy1","Frm_ProxyServer2","Frm_OutboundProxy2");
+    var index=m;
+    if(pageCheckValue()==true)
+    {
+        jslDisable("Btn_Submit","Btn_Cancel");
+	//AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_ServerType", getValue("Frm_ServerType"));
+	
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.UserAgentPort", getValue("Frm_UserAgentPort"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.RegistrarServer", getValue("Frm_RegistrarServer1"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.ProxyServer", getValue("Frm_ProxyServer1"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.OutboundProxy", getValue("Frm_OutboundProxy1"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.OutboundProxyPort", getValue("Frm_ProxyServerPort1"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_Standby-RegistrarServer", getValue("Frm_RegistrarServer2"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_Standby-ProxyServer", getValue("Frm_ProxyServer2"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_Standby-OutboundProxy", getValue("Frm_OutboundProxy2"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_Standby-OutboundProxyPort", getValue("Frm_ProxyServerPort2"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.RegisterRetryInterval", getValue("Frm_RegisterRetryInterval"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.RegisterExpires", getValue("Frm_RegisterExpires"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_TRI-LinkTest", getChecked("Frm_LinkTest") ? 1 : 0);
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_TRI-LinkTestInterval", getValue("Frm_LinkTestInterval"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.P-Asserted-Identity", getChecked("Frm_P-Asserted-ID") ? 1 : 0);
+	//AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_TRI-EscapeFlag", getChecked("Frm_EscapeFlag") ? 1 : 0);
+        for(var i = 0;i < index; i++)
+	      {
+	          var LineNum = 0;
+	          if(LineS[i].Description == "LINE1")
+	              LineNum = 1;
+	          else if(LineS[i].Description == "LINE2")
+	              LineNum = 2;
+	          else
+	              LineNum = i+1;
+	        if(getChecked("Frm_Enable"+i)==true)
+	        {
+	           AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".Enable", "Enabled");
+	           AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".SIP.AuthUserName", getValue("Frm_AuthUserName"+i));
+             if((i==0 && password0_changed==1)  || (i==1 && password1_changed==1))
+             {
+	              AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".SIP.AuthPassword", getValue("Frm_AuthPassword"+i));
+             }
+	           AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".SIP.URI", getValue("Frm_DigestUserName"+i));
+	        }
+	        else
+	        {
+	           AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".Enable", "Disabled");
+	        }
+	      }
+/*	if(getValue('dhcpmode')=="dhcp")
+		AddElements(df, "InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable", "1");			
+	else
+		AddElements(df, "InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable", "0");			
+*///dhcptype	
+
+	rmNULLInputs();
+	df.submit();
+    }
+}
+
+function ChangeLinkValue()
+{
+    if(getChecked("Frm_LinkTest")==true)
+    {
+        $('LinkTest').value = "1";
+	$('Frm_LinkTestInterval').disabled = false;
+    }
+    else 
+    {
+	$('Frm_LinkTestInterval').disabled = true;
+        $('LinkTest').value = "0";
+    }
+}
+
+function IsEscapeFlag()
+{
+    if(getChecked("Frm_EscapeFlag")==true)
+        $('EscapeFlag').value = "1";
+    else 
+        $('EscapeFlag').value = "0";
+}
+
+function ChangePAIValue()
+{
+    if(getChecked("Frm_P-Asserted-ID")==true)
+    {
+        $('PAssertID').value = "1";
+    }
+    else 
+    {
+        $('PAssertID').value = "0";
+    }
+}
+
+function pageGetValue()
+{
+    //var index = 2; // init *getValue("IF_INSTNUM")*;
+    $('Frm_UserAgentPort').value = userSgentPort; //"UserAgentPort");
+    $('Frm_ProxyServer1').value = proxyServ; //"js.ctcims.cn"; //"ProxyServer1");
+    $('Frm_OutboundProxy1').value = outBoundProxy; //"58.213.56.91"; //"OutboundProxy1");
+    $('Frm_ProxyServerPort1').value = masterPort; //"5060"; //"ProxyServerPort1");
+    $('Frm_ProxyServer2').value = stdbyProxyServ; //"js.ctcims.cn"; //"ProxyServer2";
+    $('Frm_OutboundProxy2').value = stdbyOutBoundProxy; //"58.213.56.91"; //"OutboundProxy2");
+    $('Frm_ProxyServerPort2').value = stdbyMasterPort; //"5060"; //"ProxyServerPort2");
+    $('Frm_RegisterExpires').value = registerExpires; //"600"; //"RegisterExpires");
+    //$('Frm_ServerType').value = servType; //"0"; //"ServerType");
+    $('Frm_RegisterRetryInterval').value = retryInterval; //"60"; //"RegisterRetryInterval");
+    $('Frm_RegistrarServer1').value = registrarServ; //"js.ctcims.cn"; //"RegistrarServer1");
+    $('Frm_RegistrarServer2').value = stdbyRegistrarServ; //"js.ctcims.cn"; //"RegistrarServer2");
+    if(1==linkTest)  //链路测试 开启？ 1     关闭 0
+        setChecked("Frm_LinkTest",true);
+    else 
+        setChecked("Frm_LinkTest",false);
+    setValue("Frm_LinkTestInterval",linkTestInterval);
+    
+    if(1==PAssertID)
+        setChecked("Frm_P-Asserted-ID",true);
+    else
+        setChecked("Frm_P-Asserted-ID",false);
+        
+	 for(var i=0;i<LineS.length; i++)
+    {
+    	var LineNum = 0;
+		 			if(LineS[i].Description == "LINE1")
+		 				LineNum = 1;
+		 			else if(LineS[i].Description == "LINE2")
+		 				LineNum = 2;
+		 			else
+		 				LineNum = i+1;
+        if(LineS[LineNum-1].Enable=='Enabled')
+	      {
+	        setChecked("Frm_Enable"+ i,true);
+	        jslEnable("Frm_AuthUserName"+i, "Frm_AuthPassword"+i, "Frm_DigestUserName"+i);
+	      }
+	      else
+	      {
+	        setChecked("Frm_Enable"+i,false);
+	        jslDisable("Frm_AuthUserName"+i, "Frm_AuthPassword"+i, "Frm_DigestUserName"+i);
+	      }
+	      setValue("Frm_AuthUserName"+i,LineSIPS[(LineNum-1)].AuthUserName);
+	      setValue("Frm_DigestUserName"+i,LineSIPS[(LineNum-1)].URI);
+    }
+}
+
+function lineEnorDis0()
+{
+    if(getChecked("Frm_Enable0"))
+        jslEnable("Frm_AuthUserName0", "Frm_AuthPassword0", "Frm_DigestUserName0");
+    else
+        jslDisable("Frm_AuthUserName0", "Frm_AuthPassword0", "Frm_DigestUserName0");
+}
+
+function lineEnorDis1()
+{
+    if(getChecked("Frm_Enable1"))
+        jslEnable("Frm_AuthUserName1", "Frm_AuthPassword1", "Frm_DigestUserName1");
+    else
+        jslDisable("Frm_AuthUserName1", "Frm_AuthPassword1", "Frm_DigestUserName1");
+}
+/*function setmodemask()
+{
+	var type=getValue('dhcpmode');
+	if(type=="dhcp")
+	{
+		$('Frm_UserAgentPort').disabled = true;
+		$('Frm_RegistrarServer1').disabled = true;
+		$('Frm_ProxyServer1').disabled = true;
+		$('Frm_OutboundProxy1').disabled = true;
+		$('Frm_ProxyServerPort1').disabled = true;
+		$('Frm_RegistrarServer2').disabled = true;
+		$('Frm_ProxyServer2').disabled = true;
+		$('Frm_OutboundProxy2').disabled = true;
+		$('Frm_ProxyServerPort2').disabled = true;
+	}
+	else
+	{
+                $('Frm_UserAgentPort').disabled = false;
+                $('Frm_RegistrarServer1').disabled = false;
+                $('Frm_ProxyServer1').disabled = false;
+                $('Frm_OutboundProxy1').disabled = false;
+                $('Frm_ProxyServerPort1').disabled = false;
+                $('Frm_RegistrarServer2').disabled = false;
+                $('Frm_ProxyServer2').disabled = false;
+                $('Frm_OutboundProxy2').disabled = false;
+                $('Frm_ProxyServerPort2').disabled = false;
+	}
+
+}*///dhcptype
+function __init()
+{
+    pageGetValue();
+    // setmodemask(); dhcptype
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_BasicSetup'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipbasiccall.shtml">
+<input type="hidden" name="LinkTest" id="LinkTest" value="0">
+<input type="hidden" name="EscapeFlag" id="EscapeFlag" value="0">
+</form>
+<table id="TestContent" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<!--<tr>
+	<td width="180" langkey="LK_SoftSwitchVersionn"></td>
+	<td>
+	<select id="Frm_ServerType" name="select2" size="1" class="list_2">
+	<option value="0" langkey="LK_IMSSIP"></option>
+	<option value="1" langkey="LK_SoftSwitchSIP"></option>
+	</select>
+	</td>
+</tr>-->
+<!--<tr>
+	<td langkey="LK_Modee"></td>
+	<td>
+		<input type="radio" id="dhcpmode" name="dhcpmode" value="dhcp" onClick="setmodemask()">&nbsp;<span langkey="LK_ConfigedbyDHCP"></span>&nbsp;&nbsp;
+		<input type="radio" id="dhcpmode" name="dhcpmode" value="manual" onClick="setmodemask()">&nbsp;<span langkey="LK_Manually"></span>
+	</td>
+</tr> dhcptype-->
+<tr>
+	<td langkey="LK_Portt"></td>
+<td><input name="" id="Frm_UserAgentPort" type="text" class="inputId9" value="" size="15"> (1024 ~ 65535)</td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+	<td id="Fnt_RegistrarServer1" langkey="LK_RegisterServerr"></td>
+	<td><input name="" id="Frm_RegistrarServer1" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_ProxyServer1" langkey="LK_SupplyServerr"></td>
+	<td><input name="" id="Frm_ProxyServer1" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_OutboundProxy1" langkey="LK_SendSupplyServerr"></td>	
+	<td><input name="" id="Frm_OutboundProxy1" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_ProxyServerPort1" langkey="LK_Portt"></td>
+	<td><input name="" id="Frm_ProxyServerPort1" type="text" class="inputId9" value="" size="15"> (1024 ~ 65535)</td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+	<td id="Fnt_RegistrarServer2" langkey="LK_BackupRegisterServerr"></td>
+	<td><input name="" id="Frm_RegistrarServer2" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_ProxyServer2" langkey="LK_BackupSupplyServerr"></td>
+	<td><input name="" id="Frm_ProxyServer2" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_OutboundProxy2" langkey="LK_BackupSendSupplyServerr"></td>	
+	<td><input name="" id="Frm_OutboundProxy2" type="text" class="inputId5" value="" size="15"></td>
+</tr>
+<tr>
+	<td id="Fnt_ProxyServerPort2" langkey="LK_BackupPortt"></td>
+	<td><input name="" id="Frm_ProxyServerPort2" type="text" class="inputId9" value="" size="15"> (1024 ~ 65535)</td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+	<td id="Fnt_RegisterExpires" langkey="LK_RegisterLifeTimee"></td>
+	<td><input name="" id="Frm_RegisterExpires" type="text" class="inputId5" value="" size="15"> <span langkey="LK_Second"></td>
+</tr>
+<tr>
+	<td langkey="LK_EnableLinkTestt"></td>
+	<td>
+	<input type="checkbox" id="Frm_LinkTest" name="Frm_LinkTest" value="" onclick="ChangeLinkValue();">
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_LinkTestIntervall"></td>
+	<td><input type="text" name="Frm_LinkTestInterval" id="Frm_LinkTestInterval" class="inputId9"> <span langkey="LK_Second"></span></td>
+</tr>
+<!--<tr>
+	<td langkey="LK_EnableTransferredMeaningg"></td>
+	<td>
+	<input type="checkbox" id="Frm_EscapeFlag" name="Frm_EscapeFlag" value="" onclick="IsEscapeFlag();">
+	</td>
+</tr>-->
+<tr>
+	<td langkey="LK_RetryIntervall"></td>
+	<td><input type="text" name="Frm_RegisterRetryInterval" id="Frm_RegisterRetryInterval" class="inputId9"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_PAssertedID"></td>
+	<td>
+	<input type="checkbox" id="Frm_P-Asserted-ID" name="Frm_P-Asserted-ID" value="" onclick="ChangePAIValue();">
+	</td>
+</tr>
+</table>
+<br>
+
+<script>SetContentTitle(getStr('LK_Connection1'))</script>
+<table id="TableUser" class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+<td width="180" langkey="LK_Enablee"></td>
+<td><input name="Frm_Enable0" id="Frm_Enable0" type="checkbox" onclick="lineEnorDis0()" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_UserNamee"></td>
+	<td><input name="Frm_AuthUserName0" id="Frm_AuthUserName0" type="text" class="inputId"></td>
+</tr>
+<tr>
+	<td langkey="LK_Passwordd"></td>
+	<td><input name="Frm_AuthPassword0" id="Frm_AuthPassword0" type="password" class="inputId" value="123456789ABCDEFG" onChange="Password0_changed()"></td>
+</tr>
+<tr>
+	<td langkey="LK_URIi"></td>
+	<td><input name="Frm_DigestUserName0" id="Frm_DigestUserName0" type="text" class="inputId"></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_Connection2'))</script>
+<table id="TableUser" class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+<td width="180" langkey="LK_Enablee"></td>
+<td><input name="Frm_Enable1" id="Frm_Enable1" type="checkbox" onclick="lineEnorDis1()" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_UserNamee"></td>
+<td><input name="Frm_AuthUserName1" id="Frm_AuthUserName1" type="text" class="inputId"></td>
+</tr>
+<tr>
+	<td langkey="LK_Passwordd"></td>
+<td><input name="Frm_AuthPassword1" id="Frm_AuthPassword1" type="password" class="inputId" value="123456789ABCDEFG" onChange="Password1_changed()"></td>
+</tr>
+<tr>
+	<td langkey="LK_URIi"></td>
+<td><input name="Frm_DigestUserName1" id="Frm_DigestUserName1" type="text" class="inputId"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

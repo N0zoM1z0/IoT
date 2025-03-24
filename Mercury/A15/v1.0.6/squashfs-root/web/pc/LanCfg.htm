@@ -1,0 +1,35 @@
+
+
+<div class="head">
+	<div class="title"><h1>{%menuStr.lanSet%}</h1><i class="helpBtn iconfont icon-help" helpStr="lanHelp"></i></div>
+	<p class="description"></p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<div id="macAddr"></div>
+<div id="ipSet">
+	<ul id="lanSelUl" class="inputCMPT medium selectUl">
+		<label class="outerLbl">{%label.lanIpSetting%}</label>
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="lanSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="staticLanSel"></div>
+</div>
+<div id="save"></div><script type="text/javascript">(function(){function q(a){var b="";switch(a){case ENONE:return!1;case EINVNET:b=errStr.ipAddrNetErr;break;case EINVIP:b=errStr.ipAddrErr;break;case EINVIPFMT:b=errStr.ipAddrFmtErr;break;case EINVGROUPIP:b=errStr.ipAddrGroupErr;break;case EINVLOOPIP:b=errStr.ipAddrLoopErr;break;case EINVMASK:b=errStr.maskErr;break;case EINVNETID:b=errStr.ipAddrNetIdErr;break;case EINVHOSTID:b=errStr.ipAddrHostIdErr;break;case EINVIPMASKPAIR:b=errStr.ipAddrMaskNotMatch;break;case ECOMFLICTNET:b=errStr.ipAddrLanWanConflict;
+break;case ECONFLICTGATEWAY:b=errStr.ipAddrLanGatewayConflict;break;case ECONFLICTFDNS:b=errStr.ipAddrLanFDNSConflict;break;case ECONFLICTSDNS:b=errStr.ipAddrLanSDNSConflict;break;case EMANUALLANMODE:b=label.lanWDSTip;break;default:b=errStr.unknown+a}alarmDialog.show(b);return!0}function r(a){c=a[uciNetwork.fileName][uciNetwork.secName.lan];id("lanSel").changeSel(c[uciNetwork.optName.ipMode]);h.setValue(c[uciNetwork.optName.mac].toUpperCase());e.setValue(c[uciNetwork.optName.ip]);g.setValue(c[uciNetwork.optName.netmask]);
+m=-1==location.href.toString().indexOf(c[uciNetwork.optName.ip]);n=location.port||80;slp.gSysModeSupport&&(f=a.system.sys_mode.mode,f!=p&&($(".relayErrorTip").show(),h.disable(!0),e.disable(!0),g.disable(!0),s.disable(!0),id("lanSel").disable(!0),f==t?$("#relayTipText").text("上网方式为AP（有线中继）时，LAN口IP设置不可修改。"):$("#relayTipText").text("上网方式为桥接（无线中继）时，LAN口IP设置不可修改。")))}function u(a){function b(){!1==m||!0==isIE?window.location.href="http://"+a+":"+n:window.location.reload()}$.action({network:{apply_lan_config:null}},
+null,!0);$.changeDomain(a);loadingDialog.show({title:label.confirmTitle,content:{primary:label.lanCfgChgTip}},void 0,void 0,!1,void 0);$.setTimeout(b,v);$.setTimeout(function(){lanDetecting(function(){$.setTimeout(b,LAN_DETECT_TIME)})},w)}var d=uciNetwork.optValue.ipMode.dynamic,l=uciNetwork.optValue.ipMode.manual,v=12E4,w=4E3,x=[{str:label.lanIpAuto,value:d},{str:label.lanIpManual,value:l}],p=0,t=1,f=p,m=!1,n=80,c=null,h=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.mac},targetId:"macAddr",
+props:{value:"00-00-00-00-00-00",type:"text"}}),e=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.ipAddr},targetId:"ipSet",props:{value:"0.0.0.0",maxlength:"15",type:"text"},check:{blur:function(){var a=this.getValue();return""==a?(this.showNote(errStr.wzdStcIpEmpty),!1):ENONE!=checkIp(a)?(this.showNote(errStr.wzdStcIpErr),!1):!0}}}),g=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.mask},targetId:"ipSet",props:{value:"0.0.0.0",maxlength:"15",type:"text"},check:{blur:function(){var a=
+this.getValue();return""==a?(this.showNote(errStr.wzdStcMaskEmpty),!1):ENONE!=checkMask(a)?(this.showNote(errStr.wzdStcMaskErr),!1):ENONE!=checkIpMask(e.getValue(),a)?(this.showNote(errStr.wzdStcIpMaskNotMatch),!1):!0}}}),s=new Button({text:btn.save,onClick:function(){var a={},b={};a[uciNetwork.fileName]={};a[uciNetwork.fileName][uciNetwork.secName.lan]=b;var f=e.getValue(),k=id("lanSel").value,h=g.getValue();if(d==k)b[uciNetwork.optName.ipMode]=d;else{if(!e.checkAll()||!g.checkAll())return;b[uciNetwork.optName.ipMode]=
+l;b[uciNetwork.optName.ip]=f;b[uciNetwork.optName.netmask]=h}c[uciNetwork.optName.ipMode]==k&&(d==k||l==k&&c[uciNetwork.optName.ip]==f&&c[uciNetwork.optName.netmask]==h)||confirmDialog.show({title:label.confirmTitle,content:label.lanConfChgConfirm,callback:function(b){b&&$.modify(a,function(a){q(a[ERR_CODE])||(a={},a[uciNetwork.fileName]={},a[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan,$.query(a,function(a){a=a[uciNetwork.fileName][uciNetwork.secName.lan];c[uciNetwork.optName.ip]==a[uciNetwork.optName.ip]&&
+c[uciNetwork.optName.netmask]==a[uciNetwork.optName.netmask]?(c[uciNetwork.optName.ipMode]=a[uciNetwork.optName.ipMode],showToast(label.saveSuccess)):u(f)}))})}})},type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",margin:"36px 0 0 132px"}});selectInit("lanSel",x,d,function(a){e.toggleStatic(d==a);g.toggleStatic(d==a);d==a&&(e.setValue(c[uciNetwork.optName.ip]),g.setValue(c[uciNetwork.optName.netmask]))});slp.modeSwitchSupport&&getBridgeStatus(function(a){a?(id("lanSel").disable(!0),$("#lanSelUl").hide(),
+(new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.lanIpSetting},targetId:"staticLanSel"})).setValue(label.lanIpAuto),$("#staticLanSel").show(),$("#save").hide(),$("div.head p.description").hide(),addTitleError("bridgeWarning",label.bridgeLanWarning,{hasIcon:!1})):$("#staticLanSel").hide()});(function(){var a={};a[uciNetwork.fileName]={};a[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan;slp.gSysModeSupport&&(a.system={name:"sys_mode"});$.query(a,r)})()})();
+</script><style type="text/css">p#highsetTitleError{margin:16px 0}</style>

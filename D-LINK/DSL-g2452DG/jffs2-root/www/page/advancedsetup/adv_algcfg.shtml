@@ -1,0 +1,122 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script>
+function CheckFalse(item)
+{
+	top.AlertMsg(getValue(item.ID));
+	return false;
+}
+
+function AlgAbility()
+{
+	this._objpath = "InternetGatewayDevice.DeviceInfo.X_CT-COM_ALGAbility.";
+	this.ALG_TFTPEnabled = { ID: "INPUT_TFTPEnabled", PATH: "TFTPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_FTPEnabled = { ID: "INPUT_FTPEnabled", PATH: "FTPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_PPTPEnabled = { ID: "INPUT_PPTPEnabled", PATH: "PPTPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_RTSPEnabled = { ID: "INPUT_RTSPEnabled", PATH: "RTSPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_L2TPEnabled = { ID: "INPUT_L2TPEnabled", PATH: "L2TPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_H323Enabled = { ID: "INPUT_H323Enabled", PATH: "H323Enable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_SIPEnabled = { ID: "INPUT_SIPEnabled", PATH: "SIPEnable", TYPE: "int", SBMT: "y", VAL: "" };
+	this.ALG_IPSECEnabled = { ID: "INPUT_IPSECEnabled", PATH: "IPSECEnable", TYPE: "int", SBMT: "y", VAL: "" };
+}
+
+var AlgAbilityInstance = new AlgAbility();
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_ALGAbility. TFTPEnable FTPEnable PPTPEnable RTSPEnable L2TPEnable H323Enable SIPEnable IPSECEnable" -->
+AlgAbilityInstance.ALG_TFTPEnabled.VAL = <!--#leaf "1"-->;
+AlgAbilityInstance.ALG_FTPEnabled.VAL = <!--#leaf "2"-->;
+AlgAbilityInstance.ALG_PPTPEnabled.VAL = <!--#leaf "3"-->;
+AlgAbilityInstance.ALG_RTSPEnabled.VAL = <!--#leaf "4"-->;
+AlgAbilityInstance.ALG_L2TPEnabled.VAL = <!--#leaf "5"-->;
+AlgAbilityInstance.ALG_H323Enabled.VAL = <!--#leaf "6"-->;
+AlgAbilityInstance.ALG_SIPEnabled.VAL = <!--#leaf "7"-->;
+AlgAbilityInstance.ALG_IPSECEnabled.VAL = <!--#leaf "8"-->;
+<!--#endgetobject -->
+
+function init()
+{
+	ConfigObjectUIInit(AlgAbilityInstance);
+}
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+	var df = document.dataform;
+
+	if (!ConfigObjectCheck(AlgAbilityInstance)) {
+		return;
+	}
+
+	ConfigObjectPrepareSet(AlgAbilityInstance, df);
+
+    df.submit();
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+  <form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_ALGSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor" width="600">
+<tr>
+	<td width="150" langkey="LK_TFTPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_TFTPEnabled" id="INPUT_TFTPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_FTPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_FTPEnabled" id="INPUT_FTPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_PPTPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_PPTPEnabled" id="INPUT_PPTPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_RTSPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_RTSPEnabled" id="INPUT_RTSPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_L2TPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_L2TPEnabled" id="INPUT_L2TPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_H323Passthroughh"></td>
+	<td><input type="checkbox" name="INPUT_H323Enabled" id="INPUT_H323Enabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_SIPPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_SIPEnabled" id="INPUT_SIPEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr>
+	<td langkey="LK_IPSECPassthroughh"></td>
+	<td><input type="checkbox" name="INPUT_IPSECEnabled" id="INPUT_IPSECEnabled" value="" onClick="boxChecked(this);"/></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr("LK_uirefresh"),"uiPageRefresh()")</script>
+	</td>
+</tr>
+<script>printEndContent()</script>
+  </form>
+    <form method="post" name ="dataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_algcfg.shtml">
+    </form>
+</body>
+</html>

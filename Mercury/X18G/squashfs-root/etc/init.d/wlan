@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+
+STOP=90
+DOWN=90
+
+
+shutdown() {
+	stop
+}
+
+stop() {
+	#MT7915D need to shutdown all wireless interface before soft reboot
+	local ifname=
+
+	for ifname in `iwconfig 2> /dev/null | grep RTWIFI | cut -d ' ' -f 1`
+	do
+		ifconfig ${ifname} down
+	done
+}
+
+

@@ -1,0 +1,10 @@
+Package: iw
+Version: 5.4-1
+Depends: libc, libnl-tiny
+Source: package/iw
+License: GPL-2.0
+Section: net
+Maintainer: Felix Fietkau <nbd@openwrt.org>
+Architecture: rtl
+Installed-Size: 69632
+Description:  cfg80211 interface configuration utility

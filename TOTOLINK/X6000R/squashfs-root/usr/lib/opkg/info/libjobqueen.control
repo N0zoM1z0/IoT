@@ -1,0 +1,10 @@
+Package: libjobqueen
+Version: 1
+Depends: libc, libpthread, librt
+Source: package/carystudio/libjobqueen
+SourceName: libjobqueen
+Section: CaryStudio Properties
+SourceDateEpoch: 1654938098
+Architecture: aarch64_cortex-a53
+Installed-Size: 3436
+Description:  management timer lib

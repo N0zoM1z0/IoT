@@ -1,0 +1,13 @@
+config service 'xl2tpd'
+		option enable '0'
+		option startip '10.8.0.2'
+		option endip '10.8.0.51'
+		option localip '10.8.0.1'
+		option pridns '8.8.8.8'
+		option secdns '10.20.0.1'
+		option mtu '1450'
+		option mru '1450'
+		option lcp_echo '1'
+		option ipsec_l2tp_enable '0'
+		option log '0'
+		

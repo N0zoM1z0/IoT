@@ -1,0 +1,9 @@
+Package: libmicroxml
+Version: 2015-03-18
+Depends: libc
+Source: package/libs/libmicroxml
+Section: libs
+Maintainer: Luka Perkov <luka@openwrt.org>
+Architecture: ramips_24kec
+Installed-Size: 17544
+Description:  A micro sized XML library

@@ -1,0 +1,47 @@
+﻿
+
+<h1 class="phoneTitle">{%label.netSet%}</h1>
+<div class="syncWarnCon">
+	<p id="syncWarn">{%label.syncPPPoEFail%}</p>
+</div>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="netModeSel">{%label.netMode%}</label>
+		<i class="clapboard"></i>
+		<span id="netModeSel" class="phSelect">
+			<span class="value">{%label.pppoe%}</span>
+			<i class="arrow"></i>
+		</span>
+	</li>
+</ul>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="pppoeAccount">{%label.netAccount%}</label>
+		<i class="clapboard"></i>
+		<input id="pppoeAccount" maxlength="118" />
+	</li>
+</ul>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="pppoePasswd">{%label.netPwd%}</label>
+		<i class="clapboard"></i>
+		<input id="pppoePasswd" maxlength="118" />
+	</li>
+</ul>
+<ul class="phInputUl disNone" id="dynMac">
+	<li class="phInputLi">
+		<label for="pppoeMacAddr">{%label.netMac%}</label>
+		<i class="clapboard"></i>
+		<input id="pppoeMacAddr" maxlength="17" />
+	</li>
+</ul>
+<div class="phFunc">
+	<label id="sub" class="phOneBtn">{%btn.nextStep%}</label>
+	<span id="goSync" class="phLink">{%label.syncPppoeCfgFromOld%} ></span>
+	<label id="backDetect" class="phOneBtn">重新检测上网方式</label>
+</div>
+<script type="text/javascript">function init(){wzdSelectInit("netModeSel",wzOptions,WAN_TYPE_PPPOE,wzdNetWorkModeChange);id("sub").onclick=function(){function d(a){var b="";switch(a){case ENONE:break;case EINVMACFMT:b=errStr.inputFmtErr;break;case EINVMACZERO:b=errStr.inputMacZeroErr;break;case EINVMACBROAD:b=errStr.inputMacBroadErr;break;case EINVMACGROUP:b=errStr.inputMacGroupErr;break;default:b=errStr.inputUnknown}return b}var e=id("pppoeAccount").value,f=id("pppoePasswd").value,c;c=$("#dynMac").hasClass("disNone")?"":id("pppoeMacAddr").value;
+(function(){var a=checkMac(c);if(0!=c.length&&a!=ENONE)showPhConfirm(d(a),function(){return!1});else return!0})()&&(0==e.length||0==f.length?showPhConfirm(label.phonePppoeAccPwdNullTip,function(a){a?(loadPage("WizardWirelessCfg.htm","phCon"),saveNetworkCfg(uciProto.optValue.proto.pppoe,null,c)):id("pppoeAccount").focus()},btn.btnY,btn.btnN):saveNetworkCfg(uciProto.optValue.proto.pppoe,function(){loadPage("WizardWirelessCfg.htm","phCon");$.action({network:{change_wan_status:{proto:"pppoe",operate:"connect"}}})},
+c))};id("backDetect").onclick=function(){loadPage("PhoneNetworkWeb.htm","phCon")};slp.gSysModeSupport?$("#backDetect").show():$("#backDetect").hide();id("goSync").onclick=function(){loadPage("PhonePPPoEWebSync.htm","phCon")};adaptCNABrowserInput("pppoeAccount");adaptCNABrowserInput("pppoePasswd");adaptCNABrowserInput("pppoeMacAddr");showNetworkCfg(uciProto.optValue.proto.pppoe);"1"==slp.moduleSpec.pppoe_account_sync&&(gPPPoESyncSuccess?(id("pppoeAccount").value=gPPPoESyncCfg.username,id("pppoePasswd").value=
+gPPPoESyncCfg.password,gPPPoESyncCfg.macaddr?($("#dynMac").removeClass("disNone"),id("pppoeMacAddr").value=gPPPoESyncCfg.macaddr):$("#dynMac").addClass("disNone"),0==gPPPoESyncCfg.username.length||0==gPPPoESyncCfg.password.length?id("syncWarn").innerHTML=label.syncPPPoEBlankTip:id("syncWarn").innerHTML=label.syncPPPoESuccessTip,id("syncWarn").style.display="block",gPPPoESyncSuccess=!1):($("#dynMac").addClass("disNone"),id("goSync").style.display="inline-block"))}init();
+</script><style type="text/css">span.phLink{font-size:16px;color:#f36;display:none;width:100%;text-align:center;padding-top:16px}h1.phoneTitle{margin-bottom:0}div.syncWarnCon{font-size:12px;height:40px;line-height:40px;text-align:center;color:#666}#syncWarn{display:none}#backDetect{color:#333;margin-top:12px;background:#e0e0e0}</style>

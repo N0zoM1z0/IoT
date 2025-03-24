@@ -1,0 +1,20 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.hnat%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description"></p>
+</div>
+<div class="content">
+	<span>{%label.hnatNote1%}</span>
+	<span>{%label.hnatNote2%}</span>
+</div>
+<script type="text/javascript">(function(){function e(){var a={},c=!1;a[uciCustomNetwork.fileName]={};a[uciCustomNetwork.fileName][KEY_NAME]=[uciCustomNetwork.dynData.bridgeStatus];$.query(a,function(a){a[ERR_CODE]==ENONE&&(c=1==a.custom_network.bridge_status.enable);c&&(d.disable(!0),$(".description").hide(),addTitleError("bridgeWarning",label.bridgeHNATWarning,{hasIcon:!1}))})}function f(a){function c(){d.disable(!0);$.modify(b,function(a){d.disable(!1);a[ERR_CODE]==ENONE&&showToast(label.switchSuccess)})}var b={};b[uciHNat.fileName]=
+{};b[uciHNat.fileName][uciHNat.secName.main]={};b[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable]=a;1==a?(b[uciFirewall.fileName]={},b[uciFirewall.fileName][uciFirewall.secName.parentConfig]={},b[uciFirewall.fileName][uciFirewall.secName.parentConfig][uciFirewall.optName.enable]=SWITCH_OFF,confirmDialog.show({content:label.hNatOpenConfirm,callback:function(b){b?c():d.setState(1-a)}})):c()}var d;(function(){var a={};a[uciHNat.fileName]={};a[uciHNat.fileName][KEY_NAME]=uciHNat.secName.main;
+$.query(a,function(a){d=new Switch("switchCon",a[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable],f,!1);slp.modeSwitchSupport&&e()})})()})();
+</script><style type="text/css">div.content span{display:block;line-height:30px;height:30px;color:#333;font-size:13px}p#highsetTitleError{margin:16px 0}</style>

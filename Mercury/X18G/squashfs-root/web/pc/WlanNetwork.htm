@@ -1,0 +1,1624 @@
+<script type="text/javascript">
+	(function(){
+		var stateStr = "";
+
+		var BAND_2G = 0;
+		var BAND_5G = 1;
+		var BAND_5G1 = 2;
+		var BAND_5G2 = 3;
+		var BAND_STEER = 4;
+
+		var wifiInputSet = {};
+		var wifiOldDataSet = {};
+		var wifiOldBsIsolateData;
+
+		var wifiInfoSet = {};
+		wifiInfoSet[BAND_2G] = {switchId: "wifi2GSwitch", moduleName: uciWireless.dynData.host_2g, bandPostfix: "2g"};
+		wifiInfoSet[BAND_5G] = {switchId: "wifi5GSwitch", moduleName: uciWireless.dynData.host_5g, bandPostfix: "5g"};
+		wifiInfoSet[BAND_5G1] = {switchId: "wifi5G1Switch", moduleName: uciWireless.dynData.host_5g1, bandPostfix: "5g1"};
+		wifiInfoSet[BAND_5G2] = {switchId: "wifi5G2Switch", moduleName: uciWireless.dynData.host_5g2, bandPostfix: "5g4"};
+		wifiInfoSet[BAND_STEER] = {switchId: "bandSteeringSwitch", moduleName: uciWireless.secName.wlanBS, bandPostfix: "bs"};
+
+		var BANDS = slp.bandsProvided;
+		var BANDSTEERING = slp.bandSteeringProvided;
+		var isBandSteeringOn = false;
+
+		var BSEnableSwitch = null;
+		var wpsSwitch = null;
+
+		var isSupportWifiAllSwitch = false;
+		var wifiStateHandle = null;
+
+		var terminalPin;
+
+		function errHandle(errCode){
+			var showStr = "";
+
+			switch (errCode)
+			{
+			case ENONE:
+				return true;
+			case EINVCHNAMODEBAND:
+				showStr = errStr.wlanInvalidOptionWithWDSEnabled;
+				break;
+			case ESYSBUSY:
+				showStr = errStr.invRequestFailTrylater;
+				break;
+			default:
+				showStr = errStr.unknown + errCode;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+
+			return false;
+		}
+
+		function dataCompare(oldData, newData){
+			var newDataKeys = Object.keys(newData);
+			var isChanged = false;
+
+			for (var i = 0; i < newDataKeys.length; i++)
+			{
+				if (oldData[newDataKeys[i]] == undefined || oldData[newDataKeys[i]] != newData[newDataKeys[i]])
+				{
+					isChanged = true;
+				}
+				else
+				{
+					delete newData[newDataKeys[i]];
+				}
+			}
+
+			return isChanged;
+		}
+
+		/* SELECT HANDLER */
+		/* 认证字段WPA3-SAE与加密算法TKIP互斥 */
+		function authSelectHandler(authVal, con)
+		{
+			var band;
+
+			for (var i in wifiInfoSet)
+			{
+				if (con.id.toLowerCase().indexOf(wifiInfoSet[i].bandPostfix) > -1)
+				{
+					band = i;
+				}
+			}
+
+			if (uciWireless.dynOptValue.auth.psk2_sae3 == authVal ||
+				uciWireless.dynOptValue.auth.sae3 == authVal)
+			{
+				$("#authTips" + wifiInfoSet[band].bandPostfix).show();
+			}
+			else
+			{
+				$("#authTips" + wifiInfoSet[band].bandPostfix).hide();
+			}
+
+			var modeVal = band == BAND_STEER ? $(wifiInputSet[BAND_2G].mode).val() : $(wifiInputSet[band].mode).val();
+			if (slp.cipherSupport || slp["cipherSupport" + wifiInfoSet[band].bandPostfix])
+			{
+				if (uciWireless.dynOptValue.auth.psk2_sae3 == authVal ||
+					uciWireless.dynOptValue.auth.sae3 == authVal ||
+					uciWireless.dynOptValue.mode.m_11n == modeVal)
+				{
+					wifiInputSet[band].cipher.changeSel(uciWireless.dynOptValue.cipher.aes);
+					wifiInputSet[band].cipher.disable(true);
+				}
+				else
+				{
+					wifiInputSet[band].cipher.changeSel(wifiOldDataSet[band][uciWireless.dynOptName.cipher]);
+					wifiInputSet[band].cipher.disable(false);
+				}
+			}
+		}
+
+		function modeSelectHandler2G(modeVal){
+			if (uciWireless.dynOptValue.mode.m_11b == modeVal ||
+					uciWireless.dynOptValue.mode.m_11g == modeVal ||
+					uciWireless.dynOptValue.mode.m_11bg == modeVal)
+			{
+				wifiInputSet[BAND_2G].bandWidth.changeSel(uciWireless.dynOptValue.bandwidth.bw20);
+				wifiInputSet[BAND_2G].bandWidth.disable(true);
+			}
+			else
+			{
+				wifiInputSet[BAND_2G].bandWidth.changeSel(uciWireless.dynOptValue.bandwidth.auto);
+				wifiInputSet[BAND_2G].bandWidth.disable(false);
+			}
+
+			if (slp.cipherSupport || slp.cipherSupport2g) {
+				var band = isBandSteeringOn ? BAND_STEER : BAND_2G;
+				var authVal = $(wifiInputSet[band].auth).val();
+				if (((!isBandSteeringOn && (slp.authSupport || slp.authSupport2g) ||
+					(isBandSteeringOn && (slp.authSupport || slp.authSupport2g || slp.authSupport5g || slp.authSupport5g1 || slp.authSupport5g4)))) &&
+					(uciWireless.dynOptValue.auth.psk2_sae3 == authVal || uciWireless.dynOptValue.auth.wpa3 == authVal))
+				{
+					wifiInputSet[band].cipher.changeSel(uciWireless.dynOptValue.cipher.aes);
+					wifiInputSet[band].cipher.disable(true);
+				}
+				else if (uciWireless.dynOptValue.mode.m_11n == modeVal)
+				{
+					wifiInputSet[band].cipher.changeSel(uciWireless.dynOptValue.cipher.aes);
+					wifiInputSet[band].cipher.disable(true);
+				}
+				else
+				{
+					wifiInputSet[band].cipher.changeSel(wifiOldDataSet[band][uciWireless.dynOptName.cipher]);
+					wifiInputSet[band].cipher.disable(false);
+				}
+			}
+
+			if (slp.g11AXSupport && uciWireless.dynOptValue.mode.m_11bgn_ax == modeVal)
+			{
+				$("#modeTips" + wifiInfoSet[BAND_2G].bandPostfix).show();
+
+				if (slp.muMimoSupport || slp.muMimoSupport2g)
+				{
+					wifiInputSet[BAND_2G].muMimoCon.css("display", "table");
+				}
+
+				if (slp.twtSupport || slp.twtSupport2g)
+				{
+					wifiInputSet[BAND_2G].twtCon.css("display", "table");
+				}
+
+				if (slp.ofdmaSupport || slp.ofdmaSupport2g)
+				{
+					wifiInputSet[BAND_2G].ofdmaCon.css("display", "table");
+				}
+			}
+			else
+			{
+				$("#modeTips" + wifiInfoSet[BAND_2G].bandPostfix).hide();
+
+				if (slp.muMimoSupport || slp.muMimoSupport2g)
+				{
+					wifiInputSet[BAND_2G].muMimoCon.css("display", "none");
+				}
+
+				if (slp.twtSupport || slp.twtSupport2g)
+				{
+					wifiInputSet[BAND_2G].twtCon.css("display", "none");
+				}
+
+				if (slp.ofdmaSupport || slp.ofdmaSupport2g)
+				{
+					wifiInputSet[BAND_2G].ofdmaCon.css("display", "none");
+				}
+			}
+		}
+
+		function modeSelectHandler5G(modeVal, con){
+			var bands;
+
+			bands = con == wifiInputSet[BAND_5G].mode ? BAND_5G : (con == wifiInputSet[BAND_5G1].mode ? BAND_5G1 : BAND_5G2);
+
+			if (uciWireless.dynOptValue.mode.m_11an == modeVal)
+			{
+				wifiInputSet[bands].bandWidth.resetOptions(wifiBandWidthOptions40M, uciWireless.dynOptValue.bandwidth.auto);
+			}
+			else
+			{
+				wifiInputSet[bands].bandWidth.resetOptions(wifiBandWidthOptions80M, uciWireless.dynOptValue.bandwidth.auto);
+			}
+
+			if (165 == parseInt(wifiInputSet[bands].channel.value))
+			{
+				wifiInputSet[bands].bandWidth.changeSel(uciWireless.dynOptValue.bandwidth.bw20);
+				wifiInputSet[bands].bandWidth.disable(true);
+			}
+			else
+			{
+				wifiInputSet[bands].bandWidth.changeSel(uciWireless.dynOptValue.bandwidth.auto);
+				wifiInputSet[bands].bandWidth.disable(false);
+			}
+
+			if (slp.g11AXSupport && uciWireless.dynOptValue.mode.m_11ac_ax == modeVal)
+			{
+				$("#modeTips" + wifiInfoSet[bands].bandPostfix).show();
+
+				if (slp.twtSupport || (slp.twtSupport5g && bands == BAND_5G) || (slp.twtSupport5g1 && bands == BAND_5G1) || (slp.twtSupport5g4 && bands == BAND_5G2))
+				{
+					wifiInputSet[bands].twtCon.css("display", "table");
+				}
+
+				if (slp.ofdmaSupport || (slp.ofdmaSupport5g && bands == BAND_5G) || (slp.ofdmaSupport5g1 && bands == BAND_5G1) || (slp.ofdmaSupport5g4 && bands == BAND_5G2))
+				{
+					wifiInputSet[bands].ofdmaCon.css("display", "table");
+				}
+			}
+			else
+			{
+				$("#modeTips" + wifiInfoSet[bands].bandPostfix).hide();
+
+				if (slp.twtSupport || (slp.twtSupport5g && bands == BAND_5G) || (slp.twtSupport5g1 && bands == BAND_5G1) || (slp.twtSupport5g4 && bands == BAND_5G2))
+				{
+					wifiInputSet[bands].twtCon.css("display", "none");
+				}
+
+				if (slp.ofdmaSupport || (slp.ofdmaSupport5g && bands == BAND_5G) || (slp.ofdmaSupport5g1 && bands == BAND_5G1) || (slp.ofdmaSupport5g4 && bands == BAND_5G2))
+				{
+					wifiInputSet[bands].ofdmaCon.css("display", "none");
+				}
+			}
+		}
+
+		function channelSelectHandler5G(chanVal, con){
+			var bands;
+
+			bands = con == wifiInputSet[BAND_5G].channel ? BAND_5G : (con == wifiInputSet[BAND_5G1].channel ? BAND_5G1 : BAND_5G2);
+
+			if (165 == parseInt(chanVal))
+			{
+				wifiInputSet[bands].bandWidth.changeSel(uciWireless.dynOptValue.bandwidth.bw20);
+				wifiInputSet[bands].bandWidth.disable(true);
+			}
+			else
+			{
+				wifiInputSet[bands].bandWidth.disable(false);
+			}
+		}
+
+		/* WIFI SWITCH HANDLER */
+		function wifiBSEnableSwitchHandler(state){
+			var data = {}, self = this;
+
+			data[uciWireless.secName.wlanBS] = {};
+			data[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable] = state;
+
+			slp.host.setData({data: data,
+				success: function(){
+					slp.host.getData({success: preLoadData, fail:null});
+				},
+				fail: function(result){
+					if (result != undefined && result[ERR_CODE] != undefined)
+					{
+						errHandle(result[ERR_CODE]);
+					}
+
+					self.setState(1 - state);
+				}
+			});
+		}
+
+		function wifiEnableSwitchHandler(state){
+			var bands, self = this, data = {}, options, optName;
+
+			Object.keys(wifiInputSet).forEach(function(key){
+				if (self == wifiInputSet[key].enable)
+				{
+					bands = key;
+				}
+			});
+
+			data[wifiInfoSet[bands].moduleName] = {};
+			optName = bands == BAND_STEER ? uciWireless.optName.wifiEnable : uciWireless.dynOptName.enable;
+			data[wifiInfoSet[bands].moduleName][optName] = state;
+
+			slp.host.setData({data: data,
+				success: function(){
+					slp.host.getData({success: preLoadData, fail:null});
+				},
+				fail: function(result){
+					if (result != undefined && result[ERR_CODE] != undefined)
+					{
+						errHandle(result[ERR_CODE]);
+					}
+
+					self.setState(1 - state);
+				}
+			});
+		}
+
+		/* SAVE BUTTON HANDLER */
+		function saveButtonHandler(bands){
+			var data = {}, newConfigData = {}, isChanged = false, bandsArr = [bands], isValidResult = true, hasCNChar = false, firstChSsid = null;
+
+			data[wifiInfoSet[bands].moduleName] = newConfigData;
+
+			if (!isBandSteeringOn || bands == BAND_STEER)
+			{
+				[wifiInputSet[bands].ssid, wifiInputSet[bands].pwd].forEach(function(o){
+					isValidResult = o.checkAll() && isValidResult;
+				});
+
+				if (!isValidResult)
+				{
+					return;
+				}
+
+				newConfigData[uciWireless.dynOptName.ssid] = wifiInputSet[bands].ssid.getValue();
+				newConfigData[uciWireless.dynOptName.key] = wifiInputSet[bands].pwd.getValue();
+				newConfigData[uciWireless.dynOptName.encryption] = wifiInputSet[bands].pwd.getValue().length == 0
+																   ? uciWireless.dynOptValue.encryption.off
+																   : uciWireless.dynOptValue.encryption.on;
+				newConfigData[uciWireless.dynOptName.ssidbrd] = wifiInputSet[bands].ssidBrd.getValue() == true
+																? uciWireless.dynOptValue.ssidbrd.on
+																: uciWireless.dynOptValue.ssidbrd.off;
+			}
+
+			switch (bands)
+			{
+			case BAND_STEER:
+				data[wifiInfoSet[BAND_2G].moduleName] = {};
+				data[wifiInfoSet[BAND_2G].moduleName][uciWireless.dynOptName.isolate] = wifiInputSet[bands].isolate.getValue() == true
+																						? uciWireless.dynOptValue.isolate.on
+																						: uciWireless.dynOptValue.isolate.off;
+				bandsArr.push(BAND_2G);
+				if (BANDS == slp.DOUBLE)
+				{
+					data[wifiInfoSet[BAND_5G].moduleName] = {};
+					data[wifiInfoSet[BAND_5G].moduleName][uciWireless.dynOptName.isolate] = wifiInputSet[bands].isolate.getValue() == true
+																						? uciWireless.dynOptValue.isolate.on
+																						: uciWireless.dynOptValue.isolate.off;
+					bandsArr.push(BAND_5G);
+				}
+				else if (BANDS == slp.TRIPLE)
+				{
+					data[wifiInfoSet[BAND_5G1].moduleName] = data[wifiInfoSet[BAND_5G2].moduleName] = {};
+					data[wifiInfoSet[BAND_5G1].moduleName][uciWireless.dynOptName.isolate] = data[wifiInfoSet[BAND_5G2].moduleName][uciWireless.dynOptName.isolate] = wifiInputSet[bands].isolate.getValue() == true
+																						? uciWireless.dynOptValue.isolate.on
+																						: uciWireless.dynOptValue.isolate.off;
+					bandsArr.push(BAND_5G1);
+					bandsArr.push(BAND_5G2);
+				}
+
+				if (isBandSteeringOn)
+				{
+					if (slp.authSupport || slp.authSupport2g || slp.authSupport5g || slp.authSupport5g1 || slp.authSupport5g4)
+					{
+						newConfigData[uciWireless.dynOptName.auth] = parseInt($(wifiInputSet[bands].auth).val());
+					}
+
+					if (slp.cipherSupport || slp.cipherSupport2g || slp.cipherSupport5g || slp.cipherSupport5g1 || slp.cipherSupport5g4)
+					{
+						newConfigData[uciWireless.dynOptName.cipher] = parseInt($(wifiInputSet[bands].cipher).val());
+					}
+				}
+				break;
+			case BAND_2G:
+			case BAND_5G:
+			case BAND_5G1:
+			case BAND_5G2:
+				if (!isBandSteeringOn)
+				{
+					newConfigData[uciWireless.dynOptName.isolate] = wifiInputSet[bands].isolate.getValue() == true
+																	? uciWireless.dynOptValue.isolate.on
+																	: uciWireless.dynOptValue.isolate.off;
+
+					var authSupportType = "authSupport" + wifiInfoSet[bands].bandPostfix;
+					var cipherSupportType = "cipherSupport" + wifiInfoSet[bands].bandPostfix;
+					if (slp.authSupport || slp[authSupportType])
+					{
+						newConfigData[uciWireless.dynOptName.auth] = parseInt($(wifiInputSet[bands].auth).val());
+					}
+
+					if (slp.cipherSupport || slp[cipherSupportType])
+					{
+						newConfigData[uciWireless.dynOptName.cipher] = parseInt($(wifiInputSet[bands].cipher).val());
+					}
+				}
+
+				newConfigData[uciWireless.dynOptName.channel] = parseInt($(wifiInputSet[bands].channel).val());
+				newConfigData[uciWireless.dynOptName.mode] = parseInt($(wifiInputSet[bands].mode).val());
+				newConfigData[uciWireless.dynOptName.bandwidth] = parseInt($(wifiInputSet[bands].bandWidth).val());
+				newConfigData[uciWireless.dynOptName.power] = parseInt($(wifiInputSet[bands].power).val());
+
+				if (slp["muMimoSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					newConfigData[uciWireless.dynOptName.vhtmubfer] = wifiInputSet[bands].muMimoOnRadio.getValue() ? 1 : 0;
+				}
+
+				if (slp.twtSupport || slp["twtSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					newConfigData[uciWireless.dynOptName.twt] = wifiInputSet[bands].twtOnRadio.getValue() ? 1 : 0;
+				}
+
+				if (slp.ofdmaSupport || slp["ofdmaSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					newConfigData[uciWireless.dynOptName.ofdma] = wifiInputSet[bands].ofdmaOnRadio.getValue() ? 1 : 0;
+				}
+
+				break;
+			}
+
+			for (var i = 0; i < bandsArr.length; i++)
+			{
+				isChanged = dataCompare(wifiOldDataSet[bandsArr[i]], data[wifiInfoSet[bandsArr[i]].moduleName]) || isChanged;
+
+				if ($.isEmptyObject(data[wifiInfoSet[bandsArr[i]].moduleName]))
+				{
+					delete data[wifiInfoSet[bandsArr[i]].moduleName];
+				}
+
+				if (data[wifiInfoSet[bandsArr[i]].moduleName] &&
+					data[wifiInfoSet[bandsArr[i]].moduleName][uciWireless.dynOptName.ssid] &&
+					checkStrHasCN(wifiInputSet[bands].ssid.getValue()))
+				{
+					if (firstChSsid == null)
+					{
+						firstChSsid = wifiInputSet[bands].ssid;
+					}
+
+					hasCNChar = true;
+				}
+			}
+
+			if (!isChanged)
+			{
+				return;
+			}
+			else
+			{
+				if (hasCNChar)
+				{
+					confirmDialog.show({
+						content: label.confirmSsidHasCNChar,
+						button: {confirmStr:btn.btnY,
+								 cancelStr:btn.btnN},
+						callback: function(choose){
+							if (choose)
+							{
+								firstChSsid.input.select();
+							}
+							else
+							{
+								send();
+							}
+						}
+					});
+				}
+				else
+				{
+					send();
+				}
+			}
+
+			function send()
+			{
+				var options = {"data": data};
+
+				if (bands == BAND_STEER)
+				{
+					options.name = wifiInfoSet[BAND_STEER].moduleName;
+				}
+
+				options.success = function(res){
+					showToast(label.modifySuccess);
+					slp.host.getData({success: preLoadData, fail:null});
+				}
+
+				options.resetPhyConfig = function(){
+					wifiInputSet[bands].channel.changeSel(wifiOldDataSet[bands][uciWireless.dynOptName.channel]);
+					if (bands != BAND_2G)
+					{
+						channelSelectHandler5G(wifiOldDataSet[bands][uciWireless.dynOptName.channel], wifiInputSet[bands].channel);
+					}
+
+					wifiInputSet[bands].mode.changeSel(wifiOldDataSet[bands][uciWireless.dynOptName.mode]);
+					if (bands == BAND_2G)
+					{
+						modeSelectHandler2G(wifiOldDataSet[bands][uciWireless.dynOptName.mode]);
+					}
+					else
+					{
+						modeSelectHandler5G(wifiOldDataSet[bands][uciWireless.dynOptName.mode], wifiInputSet[bands].mode);
+					}
+
+					wifiInputSet[bands].bandWidth.changeSel(wifiOldDataSet[bands][uciWireless.dynOptName.bandwidth]);
+
+					if (slp["muMimoSupport" + wifiInfoSet[bands].bandPostfix])
+					{
+						var isMuMimoOn = wifiOldDataSet[bands][uciWireless.dynOptName.vhtmubfer] == 1;
+						wifiInputSet[bands].muMimoOnRadio.setValue(isMuMimoOn);
+						wifiInputSet[bands].muMimoOffRadio.setValue(!isMuMimoOn);
+					}
+
+					if (slp.twtSupport || slp["twtSupport" + wifiInfoSet[bands].bandPostfix])
+					{
+						var isTwtOn = wifiOldDataSet[bands][uciWireless.optName.twt] == 1;
+						wifiInputSet[bands].twtOnRadio.setValue(isTwtOn);
+						wifiInputSet[bands].twtOffRadio.setValue(!isTwtOn);
+					}
+
+					if (slp.ofdmaSupport || slp["ofdmaSupport" + wifiInfoSet[bands].bandPostfix])
+					{
+						var isOfdmaOn = wifiOldDataSet[bands][uciWireless.optName.ofdma] == 1;
+						wifiInputSet[bands].ofdmaOnRadio.setValue(isOfdmaOn);
+						wifiInputSet[bands].ofdmaOffRadio.setValue(!isOfdmaOn);
+					}
+				}
+
+				options.fail = function(result){
+					if (result != undefined && result[ERR_CODE] != undefined)
+					{
+						errHandle(result[ERR_CODE]);
+					}
+				}
+
+				slp.host.setData(options);
+			}
+		}
+
+		/* VIEW SWITCH */
+		function BsViewSwitch(isBsOpen){
+			$("ul.bsShow").css("display", isBsOpen == "1" ? "table" : "none");
+			$("ul.bsNotShow").css("display", isBsOpen == "1" ? "none" : "table");
+			$(".switchCon.bsShow").css("display", isBsOpen == "1" ? "inline-block" : "none");
+			$(".switchCon.bsNotShow").css("display", isBsOpen == "1" ? "none" : "inline-block");
+			$(".subTitle.bsShow, div.bsShow").css("display", isBsOpen == "1" ? "block" : "none");
+
+			$("#wifi2GTitle").text(isBsOpen == "1" ? label.wirelessNetHighset2G : label.wirelessNet2G);
+			$("#wifi5GTitle").text(isBsOpen == "1" ? label.wirelessNetHighset5G : label.wirelessNet5G);
+			$("#wifi5G1Title").text(isBsOpen == "1" ? label.wirelessNetHighset5G1 : label.wirelessNet5G1);
+			$("#wifi5G2Title").text(isBsOpen == "1" ? label.wirelessNetHighset5G2 : label.wirelessNet5G2);
+		}
+
+		/* COMPONNENT INIT RELATED */
+		function initOptionSelect(targetId, selectLabel, selectId, selectOptions, defaultValue, callback){
+			var dom = $(
+				'<ul class="inputCMPT medium selectUl">' +
+					'<label class="outerLbl">' + selectLabel + '</label>' +
+					'<li class="inputLi">'				 +
+						'<span class="selectWrap">'		 +
+							'<span id=' + selectId + ' class="select">'   +
+								'<span class="value"></span>'			  +
+								'<i class="arrow iconfont icon-folddropdown"></i>'	+
+							'</span>'					 +
+						'</span>'						 +
+					'</li>'								 +
+				'</ul>'
+			)[0];
+
+			$("#" + targetId).append(dom);
+			selectInit(selectId, selectOptions, defaultValue, callback);
+		}
+
+		function initChannelOption(moduleSpecChannel){
+			var channelOpt = [];
+			var len = moduleSpecChannel.length;
+
+			for (var i = 0; i < len; i++)
+			{
+				if ("auto" == moduleSpecChannel[i])
+				{
+					channelOpt[i] = {str:label.wirelessAuto, value:"0"};
+				}
+				else
+				{
+					channelOpt[i] = {str:moduleSpecChannel[i], value:moduleSpecChannel[i]};
+				}
+			}
+
+			return channelOpt;
+		}
+
+		function initAuthType(moduleSpecAuthType)
+		{
+			var authOpt = [];
+			if (moduleSpecAuthType == undefined) {
+				authOpt = authOption;
+			} else {
+				for (var i = 0; i < moduleSpecAuthType.length; ++i) {
+					var val = moduleSpecAuthType[i];
+					authOpt[i] = {str:authOptStr[val], value: val};
+				}
+			}
+
+			return authOpt;
+		}
+
+		function fillData(options){
+			var temp, old;
+
+			if (!$.isArray(options))
+			{
+				options = [options];
+			}
+
+			for (var i = 0; i < options.length; i++)
+			{
+				temp = options[i];
+
+				if (temp == BAND_STEER)
+				{
+					wifiInputSet[temp].enable.setState(wifiOldDataSet[temp][uciWireless.optName.wifiEnable]);
+
+					if (BANDS == slp.DOUBLE)
+					{
+						wifiOldBsIsolateData = (parseInt(wifiOldDataSet[BAND_2G][uciWireless.dynOptName.isolate]) == parseInt(uciWireless.dynOptValue.isolate.on)) ||
+											   (parseInt(wifiOldDataSet[BAND_5G][uciWireless.dynOptName.isolate]) == parseInt(uciWireless.dynOptValue.isolate.on))
+					}
+					else if (BANDS == slp.TRIPLE)
+					{
+						wifiOldBsIsolateData = (parseInt(wifiOldDataSet[BAND_2G][uciWireless.dynOptName.isolate]) == parseInt(uciWireless.dynOptValue.isolate.on)) ||
+											   (parseInt(wifiOldDataSet[BAND_5G1][uciWireless.dynOptName.isolate]) == parseInt(uciWireless.dynOptValue.isolate.on)) ||
+											   (parseInt(wifiOldDataSet[BAND_5G2][uciWireless.dynOptName.isolate]) == parseInt(uciWireless.dynOptValue.isolate.on))
+					}
+
+					wifiInputSet[temp].isolate.setValue(wifiOldBsIsolateData);
+				}
+				else
+				{
+					wifiInputSet[temp].enable.setState(wifiOldDataSet[temp][uciWireless.dynOptName.enable]);
+					wifiInputSet[temp].isolate.setValue(parseInt(wifiOldDataSet[temp][uciWireless.dynOptName.isolate])
+						== parseInt(uciWireless.dynOptValue.isolate.on) ? true : false);
+				}
+
+				wifiInputSet[temp].ssid.setValue(wifiOldDataSet[temp][uciWireless.dynOptName.ssid]);
+				wifiInputSet[temp].pwd.setValue(wifiOldDataSet[temp][uciWireless.dynOptName.key]);
+				wifiInputSet[temp].ssidBrd.setValue(parseInt(wifiOldDataSet[temp][uciWireless.dynOptName.ssidbrd])
+					== parseInt(uciWireless.dynOptValue.ssidbrd.on) ? true : false);
+
+				var authSupportType = "authSupport" + wifiInfoSet[temp].bandPostfix;
+				var cipherSupportType = "cipherSupport" + wifiInfoSet[temp].bandPostfix;
+				if (slp.authSupport ||
+					(temp == BAND_STEER && ((slp.authSupport2g || slp.authSupport5g || slp.authSupport5g1 || slp.authSupport5g4))) ||
+					(temp != BAND_STEER && slp[authSupportType]))
+				{
+					wifiInputSet[temp].auth.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.auth])
+				}
+
+				if (slp.cipherSupport ||
+					(temp == BAND_STEER && ((slp.cipherSupport2g || slp.cipherSupport5g || slp.cipherSupport5g1 || slp.cipherSupport5g4))) ||
+					(temp != BAND_STEER && slp[cipherSupportType]))
+				{
+					wifiInputSet[temp].cipher.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.cipher])
+				}
+
+				if (temp != BAND_STEER)
+				{
+					wifiInputSet[temp].channel.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.channel]);
+					if (temp != BAND_2G)
+					{
+						channelSelectHandler5G(wifiOldDataSet[temp][uciWireless.dynOptName.channel], wifiInputSet[temp].channel);
+					}
+
+					wifiInputSet[temp].mode.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.mode]);
+					if (temp == BAND_2G)
+					{
+						modeSelectHandler2G(wifiOldDataSet[temp][uciWireless.dynOptName.mode]);
+					}
+					else
+					{
+						modeSelectHandler5G(wifiOldDataSet[temp][uciWireless.dynOptName.mode], wifiInputSet[temp].mode);
+					}
+
+					wifiInputSet[temp].bandWidth.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.bandwidth]);
+					wifiInputSet[temp].power.changeSel(wifiOldDataSet[temp][uciWireless.dynOptName.power]);
+
+					if (slp["muMimoSupport" + wifiInfoSet[temp].bandPostfix])
+					{
+						var isMuMimoOn = wifiOldDataSet[temp][uciWireless.dynOptName.vhtmubfer] == 1;
+						wifiInputSet[temp].muMimoOnRadio.setValue(isMuMimoOn);
+						wifiInputSet[temp].muMimoOffRadio.setValue(!isMuMimoOn);
+					}
+
+					if (slp.twtSupport || slp["twtSupport" + wifiInfoSet[temp].bandPostfix])
+					{
+						var isTwtOn = wifiOldDataSet[temp][uciWireless.optName.twt] == 1;
+						wifiInputSet[temp].twtOnRadio.setValue(isTwtOn);
+						wifiInputSet[temp].twtOffRadio.setValue(!isTwtOn);
+					}
+
+					if (slp.ofdmaSupport || slp["ofdmaSupport" + wifiInfoSet[temp].bandPostfix])
+					{
+						var isOfdmaOn = wifiOldDataSet[temp][uciWireless.optName.ofdma] == 1;
+						wifiInputSet[temp].ofdmaOnRadio.setValue(isOfdmaOn);
+						wifiInputSet[temp].ofdmaOffRadio.setValue(!isOfdmaOn);
+					}
+				}
+			}
+		}
+
+		function preLoadData(ALL_DATA){
+			switch (BANDS)
+			{
+			case slp.TRIPLE:
+				wifiOldDataSet[BAND_2G] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_2g];
+				wifiOldDataSet[BAND_5G1] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_5g1];
+				wifiOldDataSet[BAND_5G2] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_5g2];
+				break;
+			case slp.DOUBLE:
+				wifiOldDataSet[BAND_2G] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_2g];
+				wifiOldDataSet[BAND_5G] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_5g];
+				break;
+			case slp.SINGLE:
+				wifiOldDataSet[BAND_2G] = ALL_DATA[uciWireless.fileName][uciWireless.dynData.host_2g];
+				break;
+			}
+
+			if (BANDSTEERING)
+			{
+				wifiOldDataSet[BAND_STEER] = ALL_DATA[uciWireless.fileName][uciWireless.secName.wlanBS];
+				isBandSteeringOn = wifiOldDataSet[BAND_STEER][uciWireless.optName.bsEnable] == "1" ? true : false;
+				fillData([BAND_STEER]);
+				BSEnableSwitch.setState(wifiOldDataSet[BAND_STEER][uciWireless.optName.bsEnable]);
+				BsViewSwitch(wifiOldDataSet[BAND_STEER][uciWireless.optName.bsEnable]);
+			}
+
+			switch (BANDS)
+			{
+			case slp.TRIPLE:
+				fillData([BAND_2G, BAND_5G1, BAND_5G2]);
+				break;
+			case slp.DOUBLE:
+				fillData([BAND_2G, BAND_5G]);
+				break;
+			case slp.SINGLE:
+				fillData([BAND_2G]);
+				break;
+			}
+
+			wifiStateQuery();
+		}
+
+		function wifiStateQuery(){
+			if (wifiStateHandle != null)
+			{
+				clearTimeout(wifiStateHandle);
+				wifiStateHandle = null;
+			}
+
+			slp.getWiFiStatus(function(result){
+				if (isSupportWifiAllSwitch)
+				{
+					isWifiAllSwitchOpen = result[uciWireless.fileName][uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]
+										== uciWireless.dynOptValue.enable.on;
+
+					if (!isWifiAllSwitchOpen)
+					{
+						$(".wifiSetCon").css("display", "none");
+						$("div.tipText").html(label.wifiAllSwitchCloseStateTips);
+						$("div.tipText").css("display", "block");
+
+						if (id("wifiAllSwitchClose") == undefined)
+						{
+							addTitleError("wifiAllSwitchClose", label.canNotSetWifiDueToWifiAllSwitch, {
+								hasIcon: false,
+								hasBtn: true,
+								btnArr: [
+									{
+										btnStr: btn.openWifiAllSwitch,
+										btnOnclick: function(){
+											var reqData = {};
+											reqData[uciWireless.dynData.wifi_switch] = {};
+											reqData[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable] = uciWireless.dynOptValue.enable.on;
+
+											slp.host.setData({
+												data: reqData,
+												success: function(){
+													//slp.host.getData({success: preLoadData, fail:null});
+												}
+											});
+										}
+									}
+								]
+							});
+						}
+
+						wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+						return;
+					}
+					else
+					{
+						$(".wifiSetCon").css("display", "block");
+						$("div.tipText").css("display", "none");
+
+						if (id("wifiAllSwitchClose") != undefined)
+						{
+							removeTitleError("wifiAllSwitchClose");
+						}
+					}
+				}
+
+				if (isBandSteeringOn)
+				{
+					wifiInputSet[BAND_STEER].enable.setState(result[uciWireless.fileName][uciWireless.secName.wlanBS][uciWireless.optName.wifiEnable]);
+				}
+				else if (BANDS == slp.TRIPLE)
+				{
+					wifiInputSet[BAND_2G].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_2g][uciWireless.dynOptName.enable]);
+					wifiInputSet[BAND_5G1].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_5g1][uciWireless.dynOptName.enable]);
+					wifiInputSet[BAND_5G2].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_5g2][uciWireless.dynOptName.enable]);
+				}
+				else if (BANDS == slp.DOUBLE)
+				{
+					wifiInputSet[BAND_2G].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_2g][uciWireless.dynOptName.enable]);
+					wifiInputSet[BAND_5G].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_5g][uciWireless.dynOptName.enable]);
+				}
+				else if (BANDS == slp.SINGLE)
+				{
+					wifiInputSet[BAND_2G].enable.setState(result[uciWireless.fileName][uciWireless.dynData.host_2g][uciWireless.dynOptName.enable]);
+				}
+
+				wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+			});
+		}
+
+		function modifyWpsPinCodeStats(pinEnable, pinCode)
+		{
+			var data = {};
+			data[uciCustomWireless.fileName] = {};
+			data[uciCustomWireless.fileName][uciCustomWireless.secName.wpsConfig] = {};
+			data[uciCustomWireless.fileName][uciCustomWireless.secName.wpsConfig][uciCustomWireless.optName.pinEnable] = pinEnable;
+			data[uciCustomWireless.fileName][uciCustomWireless.secName.wpsConfig][uciCustomWireless.optName.pinCode] = pinCode;
+
+			$.modify(data, function(resp){
+				if (resp[ERR_CODE] == ENONE)
+				{
+					$("#pinCode").text(pinCode);
+					$(".pinCodeBlock").toggle(pinEnable == "on");
+				}
+				else
+				{
+					errHandle(resp[ERR_CODE]);
+				}
+
+				closeLoading();
+			});
+		}
+
+		function wpsSwitchHandle(state, pinCode)
+		{
+			showLoading();
+
+			if (state)
+			{
+				/* 如果是还没有生成过PIN码的情况下，需要先生成PIN码 */
+				if (pinCode.length == 0)
+				{
+					refreshPinCode();
+				}
+				else
+				{
+					modifyWpsPinCodeStats("on", pinCode);
+				}
+			}
+			else
+			{
+				modifyWpsPinCodeStats("off", pinCode);
+			}
+		}
+
+		function refreshPinCode(callback)
+		{
+			var data = {};
+			data[uciCustomWireless.fileName] = {};
+			data[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsGeneratePin] = null;
+
+			showLoading();
+
+			$.action(data,function(resp){
+				if (ENONE == resp[ERR_CODE])
+				{
+					var pinCode = resp[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsGeneratePin][uciCustomWireless.optName.vendorPin];
+
+					modifyWpsPinCodeStats("on", pinCode);
+				}
+				else
+				{
+					closeLoading();
+					errHandle(resp[ERR_CODE])
+				}
+			});
+		}
+
+		function wpsMethodSelectHandler(value, terminalPin)
+		{
+			$(terminalPin.dom).toggle(!!value);
+		}
+
+		function onWpsConnect()
+		{
+			var isValid;
+			var wpsMethod = id("wpsMethod").value == 0 ? uciCustomWireless.optValue.linkType.button : uciCustomWireless.optValue.linkType.pin;
+
+			var data = {};
+			data[uciCustomWireless.fileName] = {};
+			data[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsLink] = {};
+			data[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsLink][uciCustomWireless.optName.linkType] = wpsMethod;
+			data[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsLink][uciCustomWireless.optName.band] = "all";
+
+			if (id("wpsMethod").value == 1)
+			{
+				isValid = terminalPin.checkAll();
+
+				if (!isValid)
+				{
+					return;
+				}
+
+				var wpsTerminalPin = terminalPin.getValue();
+				data[uciCustomWireless.fileName][uciCustomWireless.actionName.wpsLink][uciCustomWireless.optName.terminalPinCode] = wpsTerminalPin;
+			}
+
+			showLoading();
+
+			$.action(data,function(resp){
+				if (resp[ERR_CODE] == ENONE)
+				{
+
+				}
+				else
+				{
+					errHandle(resp[ERR_CODE]);
+				}
+
+				closeLoading();
+			});
+		}
+
+		function wpsConfigInit(wpsConfig)
+		{
+			var enable = wpsConfig.pin_enable == "on" ? 1 : 0;
+			var pinCode = wpsConfig.wsc_vendorpin;
+
+			$("#wpsConfigBlock").show();
+			$("#pinCode").text(pinCode);
+			id("refreshPinCode").onclick = refreshPinCode;
+			$(".pinCodeBlock").toggle(!!enable);
+
+			wpsSwitch = new Switch("wpsSwitch", enable, function(state){
+				wpsSwitchHandle(state, pinCode);
+			}, false);
+
+			initOptionSelect("wpsConfigBlock", label.wpsMethod, "wpsMethod", wpsMethod, wpsMethod[0].value, function(value){
+				wpsMethodSelectHandler(value, terminalPin);
+			});
+
+			terminalPin = new Input({
+				type: Input.TYPE.PLAIN_TEXT,
+				label: {value:label.wpsTerminalPin},
+				targetId: "wpsConfigBlock",
+				check: {blur:checkPinInput},
+				props: {maxlength: '8', type: "text"}
+			});
+			$(terminalPin.dom).toggle(false);
+
+			$("#wpsConfigBlock").append($('<div id="connectBtn"></div>'));
+			new Button({
+				text: btn.connect,
+				type: Button.TYPE.PRIMARY,
+				id: "connectBtn",
+				onClick: onWpsConnect,
+				props: {width:"240px", margin:"16px 0 0 132px"}
+			});
+		}
+
+		/* INIT COMPONNENT */
+		function componentInit(bands, targetId){
+			var authOpt, authOptOrigin, authSupportType, authSupportOpt, cipherOpt, cipherSupportType, modeOpt, channelOpt, bandWidthOpt, powerOpt, authId, cipherId, modeId, channelId, bandWidthId, powerId, twtSwitchId, ofdmSwitchId, muMimoId,
+				modeSelectHandler, channelSelectHandler, bandWidthSelectHandler;
+			var pwdOptions;
+
+			wifiInputSet[bands] = {};
+			wifiInputSet[bands].enable = new Switch(wifiInfoSet[bands].switchId, 1, wifiEnableSwitchHandler, false);
+			wifiInputSet[bands].ssid = new Input({
+				type: Input.TYPE.PLAIN_TEXT,
+				label: {value:label.wirelessName},
+				targetId: targetId,
+				check: {blur:checkSsidInput},
+				className: bands == BAND_STEER ? "bsShow" : "bsNotShow",
+				props: {maxlength: '32', type: "text"},
+				innerElement: {id:"wifiSsidBrd" + bands, className: "checkboxElement"}
+			});
+			wifiInputSet[bands].ssidBrd = new CheckBox({
+				targetId: "wifiSsidBrd" + bands,
+				label: label.wirelessSsidBrd,
+				checked:false,
+				onClick:null
+			});
+
+			pwdOptions = {
+				type: Input.TYPE.CIPHER_TEXT,
+				label: {value:label.wirelessPwd},
+				targetId: targetId,
+				strength:{show: true, least:8, critical:12},
+				check:{blur:onPwdBlur, keyup:onPwdKeyup},
+				className: bands == BAND_STEER ? "bsShow" : "bsNotShow",
+				props:{maxlength: '63', type: "text"}
+			}
+
+			wifiInputSet[bands].pwd = new Input(pwdOptions);
+
+			if (bands == BAND_STEER)
+			{
+				if (slp.authSupport || slp.authSupport2g || slp.authSupport5g || slp.authSupport5g1 || slp.authSupport5g4)
+				{
+				    var authOptOrigin2g = slp.moduleSpec[uciFunction.optName.supportWlanAuthType2g];
+				    var authOptOrigin5g = slp.moduleSpec[uciFunction.optName.supportWlanAuthType5g];
+				    var authOpt2g, authOpt5g;
+				    if (authOptOrigin2g === undefined){
+				        authOpt2g = [].concat(authOption);
+					}
+					else {
+				        authOpt2g = initAuthType(authOptOrigin2g);
+					}
+					if (authOptOrigin5g === undefined){
+				        authOpt5g = [].concat(authOption);
+					}
+					else {
+				        authOpt5g = initAuthType(authOptOrigin5g);
+					}
+					for (var i = 0; i < authOpt2g.length; i++){
+						for (var j = 0; j < authOpt5g.length; j++){
+							if (authOpt5g[j]['str'] === authOpt2g[i]['str'] || authOpt5g[j]['value'] === authOpt2g[i]['value']){
+								authOpt5g.splice(j, 1);
+							}
+						}
+					}
+					authOpt = authOpt2g.concat(authOpt5g);
+					authOpt.sort(function(a, b){return a - b});
+					authId = "wifiBsAuth";
+					authClass = "bsShow";
+					initOptionSelect(targetId, label.wirelessAuth, authId, authOpt, authOpt[0].value, authSelectHandler);
+					wifiInputSet[bands].auth = id(authId);
+					$("#" + authId).parents(".selectUl").addClass(authClass);
+
+					/* 插入wifi6相关兼容性提示 */
+					var authTips = '<span id="authTips' + wifiInfoSet[bands].bandPostfix + '" class="suffixText authSuffixText">{%label.compatibilityTipsSelected%}</span>';
+					$("#" + authId).parents(".inputLi").after(authTips);
+				}
+
+				if (slp.cipherSupport || slp.cipherSupport2g || slp.cipherSupport5g || slp.cipherSupport5g1 || slp.cipherSupport5g4)
+				{
+					cipherOpt = cipherOption;
+					cipherId = "wifiBsCipher";
+					cipherClass = "bsShow";
+					initOptionSelect(targetId, label.wirelessCipher, cipherId, cipherOpt, cipherOpt[0].value);
+					wifiInputSet[bands].cipher = id(cipherId);
+					$("#" + cipherId).parents(".selectUl").addClass(cipherClass);
+				}
+			}
+			else if (bands != BAND_STEER)
+			{
+				authSupportType = "authSupport" + wifiInfoSet[bands].bandPostfix;
+				cipherSupportType = "cipherSupport" + wifiInfoSet[bands].bandPostfix;
+
+				if (slp.cipherSupport || slp[cipherSupportType])
+				{
+					cipherOpt = cipherOption;
+				}
+
+				/* INIT CHANNEL */
+				switch (bands)
+				{
+				case BAND_2G:
+					authId = "wifi2GAuth";
+					authSupportOpt = "supportWlanAuthType2g";
+					cipherId = "wifi2GCipher";
+					modeOpt = wifi2GModeOptions;
+					if (slp.g11AXSupport) {
+					    modeOpt = wifi2GModeOptionsAX;
+					}
+					modeId = "wifi2GMode";
+					channelOpt = initChannelOption(slp["moduleSpec"][uciFunction.optName.channel2g] || wifi2GChannelOptions);
+					channelId = "wifi2GChannel";
+					bandWidthOpt = wifiBandWidthOptions40M;
+					bandWidthId = "wifi2GBandWidth";
+					powerId = "wifi2GPower";
+					modeSelectHandler = modeSelectHandler2G;
+
+					if (slp.muMimoSupport2g == true)
+					{
+						muMimoId = "wifi2GMuMimo";
+					}
+
+					if (slp.twtSupport || slp.twtSupport2g)
+					{
+						twtSwitchId = "twt2GSwitch";
+					}
+
+					if (slp.ofdmaSupport || slp.ofdmaSupport2g)
+					{
+						ofdmaSwitchId = "ofdma2GSwitch";
+					}
+					break;
+				case BAND_5G:
+					authId = "wifi5GAuth";
+					authSupportOpt = "supportWlanAuthType5g";
+					cipherId = "wifi5GCipher";
+					modeOpt = wifi5GModeOptionsAC;
+					if (slp.g11AXSupport) {
+					    modeOpt = wifi5GModeOptionsAX;
+					}
+					modeId = "wifi5GMode";
+					channelOpt = initChannelOption(slp["moduleSpec"][uciFunction.optName.channel5g] || wifi5GChannelOptions);
+					channelId = "wifi5GChannel";
+					bandWidthOpt = wifiBandWidthOptions80M;
+					bandWidthId = "wifi5GBandWidth";
+					powerId = "wifi5GPower";
+					modeSelectHandler = modeSelectHandler5G;
+					channelSelectHandler = channelSelectHandler5G;
+
+					if (slp.muMimoSupport5g == true)
+					{
+						muMimoId = "wifi5GMuMimo";
+					}
+
+					if (slp.twtSupport || slp.twtSupport5g)
+					{
+						twtSwitchId = "twt5GSwitch";
+					}
+
+					if (slp.ofdmaSupport || slp.ofdmaSupport5g)
+					{
+						ofdmaSwitchId = "ofdma5GSwitch";
+					}
+
+					break;
+				case BAND_5G1:
+					authId = "wifi5G1Auth";
+					authSupportOpt = "supportWlanAuthType5g1";
+					cipherId = "wifi5G1Cipher";
+					modeOpt = wifi5GModeOptionsAC;
+					if (slp.g11AXSupport) {
+					    modeOpt = wifi5GModeOptionsAX;
+					}
+					modeId = "wifi5G1Mode";
+					channelOpt = initChannelOption(slp["moduleSpec"][uciFunction.optName.channel5g1] || wifi5G1ChannelOptions);
+					channelId = "wifi5G1Channel";
+					bandWidthOpt = wifiBandWidthOptions80M;
+					bandWidthId = "wifi5G1BandWidth";
+					powerId = "wifi5G1Power";
+					modeSelectHandler = modeSelectHandler5G;
+					channelSelectHandler = channelSelectHandler5G;
+
+					if (slp.muMimoSupport5g1 == true)
+					{
+						muMimoId = "wifi5G1MuMimo";
+					}
+
+					if (slp.twtSupport || slp.twtSupport5g1)
+					{
+						twtSwitchId = "twt5G1Switch";
+					}
+
+					if (slp.ofdmaSupport || slp.ofdmaSupport5g1)
+					{
+						ofdmaSwitchId = "ofdma5G1Switch";
+					}
+
+					break;
+				case BAND_5G2:
+					authId = "wifi5G2Auth";
+					authSupportOpt = "supportWlanAuthType5g4";
+					cipherId = "wifi5G2Cipher";
+					modeOpt = wifi5GModeOptionsAC;
+					if (slp.g11AXSupport) {
+					    modeOpt = wifi5GModeOptionsAX;
+					}
+					modeId = "wifi5G2Mode";
+					channelOpt = initChannelOption(slp["moduleSpec"][uciFunction.optName.channel5g4] || wifi5G2ChannelOptions);
+					channelId = "wifi5G2Channel";
+					bandWidthOpt = wifiBandWidthOptions80M;
+					bandWidthId = "wifi5G2BandWidth";
+					powerId = "wifi5G2Power";
+					modeSelectHandler = modeSelectHandler5G;
+					channelSelectHandler = channelSelectHandler5G;
+
+					if (slp.muMimoSupport5g4 == true)
+					{
+						muMimoId = "wifi5G2MuMimo";
+					}
+
+					if (slp.twtSupport || slp.twtSupport5g4)
+					{
+						twtSwitchId = "twt5G4Switch";
+					}
+
+					if (slp.ofdmaSupport || slp.ofdmaSupport5g4)
+					{
+						ofdmaSwitchId = "ofdma5G4Switch";
+					}
+
+					break;
+				}
+
+				if (slp.moduleSpec.power_list && slp.moduleSpec.power_list.length == 2)
+				{
+					powerOpt = wifiPowerOptionsTurbo;
+				}
+				else
+				{
+					powerOpt = wifiPowerOptionsNormal;
+				}
+
+				if (slp.authSupport || slp[authSupportType])
+				{
+					authOptOrigin = slp.moduleSpec[uciFunction.optName[authSupportOpt]];
+				    if (authOptOrigin == undefined){
+				        authOpt = authOption;
+					}
+					else {
+				        authOpt = initAuthType(authOptOrigin);
+					}
+					initOptionSelect(targetId, label.wirelessAuth, authId, authOpt, authOpt[0].value, authSelectHandler);
+					wifiInputSet[bands].auth = id(authId);
+					authClass = "bsNotShow";
+					$("#" + authId).parents(".selectUl").addClass(authClass);
+
+					/* 插入wifi6相关兼容性提示 */
+					var authTips = '<span id="authTips' + wifiInfoSet[bands].bandPostfix + '" class="suffixText authSuffixText">{%label.compatibilityTipsSelected%}</span>';
+					$("#" + authId).parents(".inputLi").after(authTips);
+				}
+
+				if (slp.cipherSupport || slp[cipherSupportType])
+				{
+					initOptionSelect(targetId, label.wirelessCipher, cipherId, cipherOpt, cipherOpt[0].value);
+					wifiInputSet[bands].cipher = id(cipherId);
+					cipherClass = "bsNotShow";
+					$("#" + cipherId).parents(".selectUl").addClass(cipherClass);
+				}
+
+				initOptionSelect(targetId, label.wirelessChannel, channelId, channelOpt, channelOpt[0].value, channelSelectHandler);
+				wifiInputSet[bands].channel = id(channelId);
+
+				initOptionSelect(targetId, label.wirelessMode, modeId, modeOpt, modeOpt[0].value, modeSelectHandler);
+				wifiInputSet[bands].mode = id(modeId);
+
+				if (slp.g11AXSupport)
+				{
+					/* 插入wifi6相关兼容性提示 */
+					var authTips = '<span id="modeTips' + wifiInfoSet[bands].bandPostfix + '" class="suffixText authSuffixText">{%label.compatibilityTipsSelected%}</span>';
+					$("#" + modeId).parents(".inputLi").after(authTips);
+				}
+
+				initOptionSelect(targetId, label.wirelessWidth, bandWidthId, bandWidthOpt, bandWidthOpt[0].value, bandWidthSelectHandler);
+				wifiInputSet[bands].bandWidth = id(bandWidthId);
+
+				initOptionSelect(targetId, label.wirelessTxPwr, powerId, powerOpt, powerOpt[0].value);
+				wifiInputSet[bands].power = id(powerId);
+			}
+
+			$("#" + targetId).append($('<ul class="inputCMPT medium' + (bands == BAND_STEER ? " bsShow" : " bsNotShow") + '">' +
+											'<label class="outerLbl"></label>' +
+											'<div id="wifiIsolate' + bands + '"></div>' +
+									   '</ul>')[0]);
+			wifiInputSet[bands].isolate = new CheckBox({
+				targetId: "wifiIsolate" + bands,
+				label: label.apIsolate,
+				checked:false,
+				onClick:null
+			});
+
+			if (bands != BAND_STEER)
+			{
+				if (slp["muMimoSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					wifiInputSet[bands].muMimoCon = $(
+						'<ul class="inputCMPT medium">' +
+							'<label class="outerLbl">{%label.wirelessMUMIMO%}</label>' +
+							'<span id="' + muMimoId + 'Off" class="radioItem"></span>' +
+							'<span id="' + muMimoId + 'On" class="radioItem"></span>' +
+						'</ul>');
+
+					$("#" + targetId).append(wifiInputSet[bands].muMimoCon);
+
+					wifiInputSet[bands].muMimoOffRadio = new Radio({
+						targetId: muMimoId + "Off",
+						label: label.close,
+						name: muMimoId + "Enable"
+					});
+					wifiInputSet[bands].muMimoOnRadio = new Radio({
+						targetId: muMimoId + "On",
+						label: label.open,
+						name: muMimoId + "Enable"
+					});
+				}
+
+				if (slp.twtSupport || slp["twtSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					wifiInputSet[bands].twtCon = $(
+						'<ul class="inputCMPT medium">' +
+							'<label class="outerLbl">{%label.TWT%}</label>' +
+							'<span id="' + twtSwitchId + 'Off" class="radioItem"></span>' +
+							'<span id="' + twtSwitchId + 'On" class="radioItem"></span>' +
+							'<span class="suffixText">{%label.compatibilityTipsOpen%}</span>' +
+						'</ul>');
+					$("#" + targetId).append(wifiInputSet[bands].twtCon);
+
+					wifiInputSet[bands].twtOffRadio = new Radio({
+						targetId: twtSwitchId + "Off",
+						label: label.close,
+						name: twtSwitchId + "Enable"
+					});
+					wifiInputSet[bands].twtOnRadio = new Radio({
+						targetId: twtSwitchId + "On",
+						label: label.open,
+						name: twtSwitchId + "Enable"
+					});
+				}
+
+				if (slp.ofdmaSupport || slp["ofdmaSupport" + wifiInfoSet[bands].bandPostfix])
+				{
+					wifiInputSet[bands].ofdmaCon = $(
+						'<ul class="inputCMPT medium">' +
+							'<label class="outerLbl">{%label.OFDMA%}</label>' +
+							'<span id="' + ofdmaSwitchId + 'Off" class="radioItem"></span>' +
+							'<span id="' + ofdmaSwitchId + 'On" class="radioItem"></span>' +
+						'</ul>');
+					$("#" + targetId).append(wifiInputSet[bands].ofdmaCon);
+
+					wifiInputSet[bands].ofdmaOffRadio = new Radio({
+						targetId: ofdmaSwitchId + "Off",
+						label: label.close,
+						name: ofdmaSwitchId + "Enable"
+					});
+					wifiInputSet[bands].ofdmaOnRadio = new Radio({
+						targetId: ofdmaSwitchId + "On",
+						label: label.open,
+						name: ofdmaSwitchId + "Enable"
+					});
+				}
+			}
+
+			$("#" + targetId).append($('<div id="saveBtn' + bands + '"></div>')[0]);
+			wifiInputSet[bands].saveBtn = new Button({
+				text:btn.save,
+				type:Button.TYPE.PRIMARY,
+				id:"saveBtn" + bands,
+				onClick:function(){
+					saveButtonHandler(bands);
+				},
+				props:{width:"240px", margin:"16px 0 0 132px"}
+			});
+		}
+
+		if (BANDS == slp.TRIPLE)
+		{
+			$(".wifi2GCon").css("display", "block");
+			$(".wifi5G1Con").css("display", "block");
+			$(".wifi5G2Con").css("display", "block");
+
+			componentInit(BAND_2G, "wifi2GBasicArgument");
+			componentInit(BAND_5G1, "wifi5G1BasicArgument");
+			componentInit(BAND_5G2, "wifi5G2BasicArgument");
+		}
+		else if (BANDS == slp.DOUBLE)
+		{
+			$(".wifi2GCon").css("display", "block");
+			$(".wifi5GCon").css("display", "block");
+
+			componentInit(BAND_2G, "wifi2GBasicArgument");
+			componentInit(BAND_5G, "wifi5GBasicArgument");
+		}
+		else if (BANDS == slp.SINGLE)
+		{
+			$('#wifi2GTitle').text(label.wirelessHost);
+			$(".wifi2GCon").css("display", "block");
+
+			componentInit(BAND_2G, "wifi2GBasicArgument");
+		}
+
+		if (BANDSTEERING)
+		{
+			$(".bandSteeringCon").css("display", "block");
+
+			componentInit(BAND_STEER, "bandSteeringBasicArgument");
+			BSEnableSwitch = new Switch("bandSteeringEnableSwitch", 1, wifiBSEnableSwitchHandler, false);
+		}
+
+		/* 部分定制功能帮助信息初始化 */
+		if (slp.authSupport || slp.authSupport2g || slp.authSupport5g || slp.authSupport5g1 || slp.authSupport5g4)
+		{
+			$("#authHelp").show();
+		}
+
+		if (slp.cipherSupport || slp.cipherSupport2g || slp.cipherSupport5g || slp.cipherSupport5g1 || slp.cipherSupport5g4)
+		{
+			$("#cipherHelp").show();
+		}
+
+		if (slp.muMimoSupport2g || slp.muMimoSupport5g || slp.muMimoSupport5g1 || slp.muMimoSupport5g4)
+		{
+			$("#muMimoHelp").show();
+		}
+
+		if (slp.twtSupport || slp.twtSupport2g || slp.twtSupport5g || slp.twtSupport5g1 || slp.twtSupport5g4)
+		{
+			$("#twtHelp").show();
+		}
+
+		if (slp.ofdmaSupport || slp.ofdmaSupport2g || slp.ofdmaSupport5g)
+		{
+			$("#ofdmaHelp").show();
+		}
+
+		if (slp.wpsSupport)
+		{
+			$("#wpsHelp").show();
+		}
+
+		if (slp.moduleSpec["wifi_switch"] && slp.moduleSpec["wifi_switch"] == 1)
+		{
+			isSupportWifiAllSwitch = true;
+		}
+
+		slp.host.getData({success: preLoadData});
+
+		if (slp.wpsSupport)
+		{
+			var data = {};
+			data[uciCustomWireless.fileName] = {};
+			data[uciCustomWireless.fileName][KEY_NAME] = uciCustomWireless.secName.wpsConfig;
+
+			$.query(data, function(resp){
+				if (resp[ERR_CODE] == ENONE)
+				{
+					var wpsConfig = resp[uciCustomWireless.fileName][uciCustomWireless.secName.wpsConfig];
+					wpsConfigInit(wpsConfig);
+				}
+				else
+				{
+					errHandle(resp[ERR_CODE]);
+				}
+			});
+		}
+	})();
+</script>
+<style type="text/css">
+	.bandSteeringCon, .wifi2GCon, .wifi5GCon, .wifi5G1Con, .wifi5G2Con, .tipText{
+		display: none;
+	}
+	div.subTitle p.description{
+		font-size:13px;
+		color:#666;
+		line-height:20px;
+		padding-top:16px;
+	}
+	div.wpsConfigBlock{
+		display: none;
+	}
+	div#wpsSwitch{
+		margin-top: 8px;
+	}
+	div.pinCodeBlock{
+		display: none;
+		padding-left: 132px;
+		margin-bottom: 12px;
+		line-height: 32px;
+		font-size: 13px;
+		color: #666666;
+	}
+	div.pinCodeBlock label.pinCode{
+		display: inline-block;
+		height: 20px;
+		line-height: 20px;
+		margin-bottom: 8px;
+		color: #333;
+		font-weight: bold;
+	}
+	div.refreshBtn{
+		width: 240px;
+		height: 32px;
+		padding: 0px 16px;
+		font-size: 13px;
+		border: 1px solid #CCCCCC;
+		border-radius: 4px;
+		box-sizing: border-box;
+		vertical-align: top;
+		text-align: center;
+		cursor: pointer;
+	}
+	div.refreshBtn span{
+		line-height: 30px;
+		font-size: 13px;
+		vertical-align: middle;
+		margin-left: 4px;
+		color: #333333;
+	}
+	div.refreshBtn i.iconfont{
+		font-size: 16px;
+		vertical-align: middle;
+		line-height: 30px;
+		color: #999999;
+	}
+	div.refreshBtn:hover i.iconfont{
+		color: #FF3366;
+	}
+	div.refreshBtn:hover span{
+		color: #FF3366;
+	}
+	ul.inputCMPT.medium div.switchCon{
+		margin: 8px 0;
+	}
+	span.radioItem + span.radioItem{
+		margin-left: 16px;
+	}
+	span.suffixText {
+		font-size: 12px;
+		color: #333333;
+		vertical-align: middle;
+	}
+	span.authSuffixText {
+		display: none;
+		position: absolute;
+		left: 384px;
+		top: 8px;
+		width: 360px;
+	}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.wifiHost%}</h1><i class="helpBtn iconfont icon-help" helpStr="wlanNetworkHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.hostNetworkDescription%}</p>
+</div>
+<div class="wifiSetCon">
+	<div class="subTitle bandSteeringCon">
+		<h2>{%label.multiBandIntegration%}</h2>
+		<div id="bandSteeringEnableSwitch" class="switchCon">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+		<p class="description">{%titleDescriptionStr.hostNetworkBSDescription%}</p>
+	</div>
+	<div class="subTitle bandSteeringCon bsShow">
+		<h2>{%label.wirelessNet%}</h2>
+		<div id="bandSteeringSwitch" class="switchCon">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<div id="bandSteeringBasicArgument" class="bandSteeringCon bsShow">
+	</div>
+	<div class="subTitle wifi2GCon">
+		<h2 id="wifi2GTitle">{%label.wirelessNet2G%}</h2>
+		<div id="wifi2GSwitch" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<div id="wifi2GBasicArgument" class="wifi2GCon">
+	</div>
+	<div class="subTitle wifi5GCon">
+		<h2 id="wifi5GTitle">{%label.wirelessNet5G%}</h2>
+		<div id="wifi5GSwitch" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<div id="wifi5GBasicArgument" class="wifi5GCon">
+	</div>
+	<div class="subTitle wifi5G1Con">
+		<h2 id="wifi5G1Title">{%label.wirelessNet5G1%}</h2>
+		<div id="wifi5G1Switch" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<div id="wifi5G1BasicArgument" class="wifi5G1Con">
+	</div>
+	<div class="subTitle wifi5G2Con">
+		<h2 id="wifi5G2Title">{%label.wirelessNet5G2%}</h2>
+		<div id="wifi5G2Switch" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<div id="wifi5G2BasicArgument" class="wifi5G2Con">
+	</div>
+</div>
+<div class="tipText contentTips"></div>
+<div id="wpsConfigBlock" class="wpsConfigBlock">
+	<div class="subTitle">
+		<h2>{%label.wpsConfig%}</h2>
+	</div>
+	<ul class="inputCMPT medium">
+		<label class="outerLbl">{%label.wpsRouterPinCode%}</label>
+		<div id="wpsSwitch" class="switchCon">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</ul>
+	<div id="pinCodeBlock" class="pinCodeBlock">
+		<div>{%label.pinCodeTip%}</div>
+		<div><label id="pinCode" class="pinCode"></label></div>
+		<div id="refreshPinCode" class="refreshBtn">
+			<i class="iconfont icon-refresh"></i><span>{%btn.refreshPinCode%}</span>
+		</div>
+	</div>
+</div>

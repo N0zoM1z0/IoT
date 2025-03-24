@@ -1,0 +1,346 @@
+<script type="text/javascript">
+	(function (){
+		$("#wanTabCon").hide();
+		var routerOptions = [];
+		var dev_info;
+		var routerIdx = 0, capRouterIdx;
+		var capPort, port;
+		var iptvBtnNext;
+		var uplinkPortName = isMultiWan? (label.iptvUplinkPort + (wanIdx+1)) : label.iptvUplinkPort;
+		var portName = isMultiWan? (label.iptvPort + (wanIdx+1)) : label.iptvPort;
+
+		//上一步按钮
+		var iptvBtnPre = new Button({
+			text: btn.preStep,
+			onClick: function () {
+				stepPage(iptvFirstPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"iptvBtnPre",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+
+		function iptvCfgComplate() {
+			confirmDialog.show({
+				content: label.confirmSaveIptv,
+				button: {confirmStr:btn.btnY,
+							cancelStr:btn.btnN},
+				callback: function(choose){
+					if (choose)
+					{
+						loadingDialog.show({
+							title: label.iptvPort,
+							content:{
+								primary:label.wanSettingWait
+							}
+						});
+
+						var data = {}, capNum = 0, meshNum = 0;
+						data[uciPortConfig.fileName] = {};
+						data[uciPortConfig.fileName][KEY_TABLE] = [uciPortConfig.secType.devInfo];
+
+						$.query(data, function(result){
+							var err_code = result[ERR_CODE];
+
+							if (err_code == ENONE)
+							{
+								var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+								var capRouterIdx;
+								routerList.forEach(function(item, idx) {
+									if (item[uciPortConfig.dynOptName.cap] == "1") {
+										capRouterIdx = idx;
+									}
+								});
+								//portCfg用来修改port_manage中的iptv
+								var portCfg = {};
+								portCfg[uciPortConfig.fileName] = {};
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)] = {};
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy] = iptvPortChoosed[wanIdx][1]["index"].toString();
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy] = iptvPortChoosed[wanIdx][0]["index"].toString();
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev] = (iptvPortChoosed[wanIdx][0]["routerIndex"] == capRouterIdx? "FF-FF-FF-FF-FF-FF" : routerList[iptvPortChoosed[wanIdx][0]["routerIndex"]][uciPortConfig.dynOptName.mac]);
+								//iptvCfg用来修改iptv_manage中的iptv_entry
+								var iptvCfg = {};
+								iptvCfg[uciIptvConfig.fileName] = {};
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)] =  {};
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.wanIndex] = (wanIdx+1).toString();//wan1
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.linkMode] = "0";//分线传输
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode] = "0";//直通模式
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.vlanId] = "0"; //直通模式下为0
+
+								var err_code;
+								$.modify(portCfg,function(res) {
+									err_code = res[ERR_CODE];
+								});
+								$.modify(iptvCfg,function(res) {
+									err_code = err_code || res[ERR_CODE];
+								});
+
+								if (err_code == ENONE) {
+									loadingDialog.hide(function(){
+										showToast(label.iptvOpened);
+										stepPage(iptvEndPage);
+									});
+								}
+								else { //修改失败则把iptv开关关闭
+									loadingDialog.hide(function(){
+										errHandle(err_code);
+
+										var cfg = {};
+										cfg[uciPortConfig.fileName] = {};
+										cfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.off;
+										$.modify(cfg);
+									});
+								}
+							}
+							else
+							{
+								loadingDialog.hide(function() {
+									errHandle(err_code);
+								});
+							}
+						});
+					}
+				}
+			});
+		}
+
+		function init(mode) {
+			var data = {};
+
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE) {
+					dev_info = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					for (var i = 0; i < dev_info.length; i++) {
+						routerOptions[i] = {
+							"str": dev_info[i][uciPortConfig.dynOptName.name],
+							"value": i
+						};
+
+						if (dev_info[i][uciPortConfig.dynOptName.cap] == "1") {
+							capRouterIdx = i;
+							routerOptions[i]["str"] = "[主路由]" + routerOptions[i]["str"];
+						}
+						if (dev_info[i][uciPortConfig.dynOptName.subFunc].indexOf("iptv") == -1) {
+							routerOptions[i]["disable"] = true;
+							routerOptions[i]["str"] += "（不支持IPTV）"
+							//如果选中的路由恰好不支持iptv，则选中下一个路由，至少有一个路由支持
+							if (routerIdx == i) {
+								routerIdx++;
+							}
+						}
+						//把之前设置的iptv端口清除，把有其他角色的端口disable
+						dev_info[i][uciPortConfig.dynOptName.phyInfo].forEach(function(port,idx) {
+							if (port[uciPortConfig.dynOptName.role] == ("downlink" + (wanIdx+1)) || port[uciPortConfig.dynOptName.role] == ("uplink" + (wanIdx+1))) {
+								port[uciPortConfig.dynOptName.role] = "lan";
+							}
+							if (port[uciPortConfig.dynOptName.role] != "lan") {
+								port["state"] = "disable";
+							}
+						});
+					}
+				}
+			},false);
+
+			if (mode == "gather") {
+				$("#aloneCon").css("display","none");
+				selectInit("routerSel", routerOptions, routerIdx, routerSelectChange);
+				port = new PortConfig().initDevInfo("routerPort",JSON.parse(JSON.stringify(dev_info[routerIdx])),1,portClickHandle,1);
+			}
+			else {
+				$("#gatherCon").css("display","none");
+				capPort = new PortConfig().initDevInfo("capRouterPort",JSON.parse(JSON.stringify(dev_info[routerIdx])),1,capPortClickHandle);
+				selectInit("routerSelDown", routerOptions, routerIdx, routerSelectChange);
+				port = new PortConfig().initDevInfo("routerPortDown",JSON.parse(JSON.stringify(dev_info[routerIdx])),1,portClickHandle,1);
+			}
+
+			//下一步按钮，根据光猫连接方式决定是下一步还是完成，因为分线传输模式没有第三步：IPTV模式
+			if (mode == "gather") { //单线复用
+				iptvBtnNext = new Button({
+					text:btn.nextStep,
+					onClick:function(){
+						iptvPortChoosed[wanIdx] = port.getActivePortList();
+						iptvPortChoosed[wanIdx][0]["routerIndex"] = routerIdx;
+						stepPage(iptvThirdPage);
+					},
+					type:Button.TYPE.PRIMARY,
+					id:"iptvBtnNext",
+					props:{width:"120px", "margin-top":"48px"}
+				});
+			}
+			else { //分线传输
+				iptvBtnNext = new Button({
+					text:btn.finish,
+					onClick:function(){
+						iptvPortChoosed[wanIdx] = port.getActivePortList();
+						iptvPortChoosed[wanIdx].push(capPort.getActivePortList()[0]);
+						iptvPortChoosed[wanIdx][0]["routerIndex"] = routerIdx;
+						iptvPortChoosed[wanIdx][1]["routerIndex"] = capRouterIdx;
+						//分线传输到这一步就设置完成了，将所有设置修改到路由器上
+						iptvCfgComplate();
+					},
+					type:Button.TYPE.PRIMARY,
+					id:"iptvBtnNext",
+					props:{width:"120px", "margin-top":"48px"}
+				});
+			}
+			iptvBtnNext.disable(true);
+		}
+
+		//改变路由下拉框选项，端口数据改为选中路由的
+		function routerSelectChange(value) {
+			routerIdx = value;
+			port.refreshDevInfo(JSON.parse(JSON.stringify(dev_info[value])));
+			//如果选中的是主路由且主路由上选了上联口，则把选下联口的Port组件中对应端口置为disable
+			if (routerIdx == capRouterIdx && capPort && capPort.getActivePortList().length) {
+				port.setPort(capPort.getActivePortList()[0]["index"],{
+					name: uplinkPortName,
+					state: "disable"
+				})
+			}
+		}
+
+		//选择num个端口后才能点击下一步按钮
+		function getNextBtnStatus(num) {
+			if ((capPort?capPort.getActivePortList().length:0) + port.getActivePortList().length >= num) {
+				iptvBtnNext.disable(false);
+			}
+			else {
+				iptvBtnNext.disable(true);
+			}
+		}
+
+		//选择下联口回调函数
+		function portClickHandle(portInfo) {
+			if (portInfo.state == "disable") {
+				return;
+			}
+			var phy_info = dev_info[routerIdx][uciPortConfig.dynOptName.phyInfo];
+
+			for (var i = 0;i < portInfo.num;i++) {
+				if (port.getPort(i).state == "disable") {
+					continue;
+				}
+				if (i != portInfo.index || portInfo.state == "normal") {
+					port.setPort(i,{
+						name: "LAN",
+						state: port.getPort(i).state == "active"? "normal":undefined,
+						role: phy_info[i][uciPortConfig.dynOptName.role]
+					});
+				}
+				else {
+					port.setPort(i,{name: portName,role: ("downlink" + (wanIdx+1))});
+				}
+			}
+
+			if (iptvConnectModeChoosed[wanIdx] == "gather") {
+				getNextBtnStatus(1);
+			}
+			else {
+				getNextBtnStatus(2);
+			}
+		}
+
+		//在主路由选择上联口回调函数
+		function capPortClickHandle(portInfo) {
+			if (portInfo.state == "disable") {
+				return;
+			}
+			var phy_info = dev_info[routerIdx][uciPortConfig.dynOptName.phyInfo];
+			for (var i = 0;i < portInfo.num;i++) {
+				if (capPort.getPort(i).state == "disable") {
+					continue;
+				}
+				if (i != portInfo.index || portInfo.state == "normal") {
+					//取消非当前点击的端口的active状态和选择下联口时的disable状态
+					if (port.getPort(i).name == uplinkPortName) {
+						port.setPort(i,{
+							name: "LAN",
+							state: port.getPort(i).state == "disable"? "normal":undefined,
+							role: phy_info[i][uciPortConfig.dynOptName.role]
+						});
+					}
+					capPort.setPort(i,{
+						name: "LAN",
+						state: capPort.getPort(i).state == "active"? "normal":undefined,
+						role: phy_info[i][uciPortConfig.dynOptName.role]
+					});
+				}
+				else {
+					//给当前点击端口添加active状态和下联口添加disable状态
+					capPort.setPort(i,{name:uplinkPortName,role:"uplink1"});
+					if (routerIdx == capRouterIdx) {
+						port.setPort(i,{
+							name: uplinkPortName,
+							state: "disable",
+							role: "uplink" + (wanIdx+1)
+						})
+					}
+				}
+			}
+
+			getNextBtnStatus(2);
+		}
+
+		init(iptvConnectModeChoosed[wanIdx]);
+	})()
+</script>
+<style type="text/css">
+	.chooseIptvPortGuide{
+		color: #333333;
+		font-weight: bold;
+		margin-bottom: 16px;
+	}
+	ul.selOptsUl li.option{
+		height: 32px;
+		line-height: 32px;
+		font-size: 13px;
+	}
+	#capRouterPort{
+		margin-bottom: 48px;
+	}
+</style>
+<div id="gatherCon">
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvDownlinkGuide%}</h2>
+	</div>
+	<ul class="inputCMPT medium selectUl">
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="routerSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="routerPort"></div>
+</div>
+<div id="aloneCon">
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvUplinkGuide%}</h2>
+	</div>
+	<div id="capRouterPort"></div>
+	<div class="chooseIptvPortGuide">
+		<h2>{%label.iptvDownlinkGuide%}</h2>
+	</div>
+	<ul class="inputCMPT medium selectUl">
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="routerSelDown" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="routerPortDown"></div>
+</div>
+<div id="iptvBtnPre"></div>
+<div id="iptvBtnNext"></div>

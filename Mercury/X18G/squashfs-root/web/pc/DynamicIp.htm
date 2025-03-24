@@ -1,0 +1,685 @@
+<script type="text/javascript">
+	(function(){
+		var speedNull = "---";
+		var updateTimerHandle = null;
+		var protocolData, portDetectData;
+		var isPortDetectOpen = false;
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVFDNSVR:
+				showStr = errStr.primDnsErr;
+				break;
+			case EINVSDNSVR:
+				showStr = errStr.seDnsErr;
+				break;
+			case EHOSTNAME:
+				showStr = errStr.hostNameErr;
+				break;
+			case ENOLINK:
+				if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 && isPortDetectOpen)
+				{
+					showStr = errStr.linkPhyDownMesh;
+				}
+				else
+				{
+					showStr = errStr.wanLinkDown;
+				}
+				break;
+			case ECONFLICTGATEWAY:
+				showStr = errStr.ipAddrLanGatewayConflict;
+				break;
+			case ECONFLICTFDNS:
+				showStr = errStr.ipAddrLanFDNSConflict;
+				break;
+			case ECONFLICTSDNS:
+				showStr = errStr.ipAddrLanSDNSConflict;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			if (alarmDialog.status == "idle")
+			{
+				alarmDialog.show(showStr);
+			}
+			return false;
+		}
+
+		function wanStatusRefresh()
+		{
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 && isPortDetectOpen)
+			{
+				linkCode[LINK_CODE_PHYDOWN] = errStr.linkPhyDownMesh;
+			}
+			else
+			{
+				linkCode[LINK_CODE_PHYDOWN] = errStr.linkPhyDown;
+			}
+
+			slp.latestWanStatus(function(resp){
+				var code = resp["error_code"];
+
+				if (uciProto.optValue.proto.dynIp != resp["proto"])
+				{
+					clearTimeout(updateTimerHandle);
+					return;
+				}
+
+				id("upSpeed").innerHTML = speedNull;
+				id("downSpeed").innerHTML = speedNull;
+				id("upUnit").innerHTML = speedNull;
+				id("downUnit").innerHTML = speedNull;
+
+				switch(parseInt(resp["link_status"]))
+				{
+				case LINK_DOWN:
+					if ((LINK_CODE_MANUAL != code) && (LINK_CODE_NORMAL != code))
+					{
+						if (LINK_CODE_IP_CONFLICT == code)
+						{
+							setLinkState(false, linkCode[code]);
+						}
+						else
+						{
+							setLinkState(false, linkStatus[LINK_DOWN] + label.lBrackets + linkCode[code] + label.rBrackets);
+						}
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINK_DOWN]);
+					}
+
+					ipAddrAuto.setValue("0.0.0.0");
+					netmaskAuto.setValue("0.0.0.0");
+					gatewayAuto.setValue("0.0.0.0");
+					dnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+					disconnBtn.disable(true);
+					connBtn.setState({text:btn.connect, onClick: connect});
+					break;
+				case LINK_UP:
+					var upSpeedObj = speedConversion(resp[uciNetwork.optName.upSpeed]);
+					var downSpeedObj = speedConversion(resp[uciNetwork.optName.downSpeed]);
+
+					if (null == upSpeedObj || null == downSpeedObj)
+					{
+						id("upSpeed").innerHTML = speedNull;
+						id("downSpeed").innerHTML = speedNull;
+						id("upUnit").innerHTML = speedNull;
+						id("downUnit").innerHTML = speedNull;
+					}
+					else
+					{
+						id("upSpeed").innerHTML = upSpeedObj.speed;
+						id("upUnit").innerHTML = upSpeedObj.unit;
+						id("downSpeed").innerHTML = downSpeedObj.speed;
+						id("downUnit").innerHTML = downSpeedObj.unit;
+					}
+
+					var dns = "";
+					var priDns = resp[uciNetwork.optName.priDns] || "0.0.0.0";
+					var sndDns = resp[uciNetwork.optName.sndDns] || "0.0.0.0";
+
+					dns = priDns + " , " + sndDns;
+
+					ipAddrAuto.setValue(resp[uciNetwork.optName.ip]);
+					netmaskAuto.setValue(resp[uciNetwork.optName.netmask]);
+					gatewayAuto.setValue(resp[uciNetwork.optName.gateway]);
+					dnsAuto.setValue(dns);
+
+					disconnBtn.disable(false);
+					connBtn.setState({text:btn.renew, onClick: update});
+					setLinkState(true, linkStatus[LINK_UP]);
+					break;
+				case LINKING_DOWN:
+					disconnBtn.disable(true);
+					connBtn.setState({text:btn.connect, onClick: connect});
+					setLinkState(false, linkStatus[LINKING_DOWN]);
+
+					ipAddrAuto.setValue("0.0.0.0");
+					netmaskAuto.setValue("0.0.0.0");
+					gatewayAuto.setValue("0.0.0.0");
+					dnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+					break;
+				case LINKING_UP:
+					disconnBtn.disable(false);
+					connBtn.setState({text:btn.connect, onClick: connect});
+					if ((LINK_CODE_MANUAL != code) && (LINK_CODE_NORMAL != code))
+					{
+						setLinkState(false, linkStatus[LINKING_UP] + label.lBrackets + linkCode[code] + label.rBrackets);
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINKING_UP]);
+					}
+
+					ipAddrAuto.setValue("0.0.0.0");
+					netmaskAuto.setValue("0.0.0.0");
+					gatewayAuto.setValue("0.0.0.0");
+					dnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+					break;
+				default:
+					break;
+				}
+
+				clearTimeout(updateTimerHandle);
+				updateTimerHandle = $.setTimeout(wanStatusRefresh, 2000);
+			}, true);
+		}
+
+		function update()
+		{
+			wanCheckWDS(function(){
+				var data = {"network":{"change_wan_status":{"proto":"dhcp", "operate":"renew"}}};
+
+				connBtn.disable(true);
+				$.action(data, function(result){
+					connBtn.disable(false);
+					errHandle(result[ERR_CODE]);
+				});
+			});
+		}
+
+		function connect()
+		{
+			if (highSetWanType == uciProto.optValue.proto.dynIp)
+			{
+				update();
+				return;
+			}
+
+			var self = this;
+			var data = {};
+
+			data[uciProto.secName.wan] = {};
+			data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.dynIp;
+
+			slp.protocol.setData({
+				data: data,
+				success: function(){
+					showToast(label.saveSuccess);
+					highSetWanType = uciProto.optValue.proto.dynIp;
+				},
+				fail: function(result){
+					errHandle(result[ERR_CODE]);
+				}
+			});
+
+			/* 开始轮询WAN口状态 */
+			updateTimerHandle = $.setTimeout(wanStatusRefresh, 2000);
+		}
+
+		function disconnect()
+		{
+			wanCheckWDS(function(){
+				var data = {"network":{"change_wan_status":{"proto":"dhcp", "operate":"release"}}};
+
+				disconnBtn.disable(true);
+				$.action(data, function(result){
+					disconnBtn.disable(false);
+					errHandle(result[ERR_CODE]);
+				});
+			});
+		}
+
+		/* 处理数字首部的0 */
+		function processNumber(target)
+		{
+			target.setValue(hideLeadingZeros(target.getValue()));
+
+			return target.getValue();
+		}
+
+		function advancedSet()
+		{
+			var self = this;
+
+			if (!(hostName.checkAll() &&
+				mtu.checkAll() &&
+				priDns.checkAll() &&
+				sndDns.checkAll()))
+			{
+				return;
+			}
+
+			var data = {};
+			data[uciProto.secName.wan] = {};
+			data[uciProto.secName.wan][uciProto.optName.speed] = id("wanRateSel").value;
+
+			data[uciProto.secName.dhcp] = {};
+			data[uciProto.secName.dhcp][uciProto.optName.hostName] = hostName.getValue();
+			data[uciProto.secName.dhcp][uciProto.optName.mtu] = processNumber(mtu);
+			data[uciProto.secName.dhcp][uciProto.optName.broadcast_en] = unicast.checkbox.checked ? 0 : 1;
+
+			if (dnsSrvCb.checkbox.checked)
+			{
+				data[uciProto.secName.dhcp][uciProto.optName.dnsMode] = uciProto.optValue.dnsMode.manual;
+				data[uciProto.secName.dhcp][uciProto.optName.priDns] = processNumber(priDns);
+				data[uciProto.secName.dhcp][uciProto.optName.sndDns] = processNumber(sndDns);
+			}
+			else
+			{
+				data[uciProto.secName.dhcp][uciProto.optName.dnsMode] = uciProto.optValue.dnsMode.dynamic;
+			}
+
+			slp.protocol.setData({
+				data: data,
+				success: function(){
+					showToast(label.saveSuccess);
+				},
+				fail: function(result){
+					errHandle(result[ERR_CODE]);
+				}
+			});
+		}
+
+		function onclickManualDns(value)
+		{
+			priDns.disable(!value);
+			sndDns.disable(!value);
+		}
+
+		function fillData()
+		{
+			var wanData = protocolData[uciProto.fileName][uciProto.secName.wan];
+			var dhcpData = protocolData[uciProto.fileName][uciProto.secName.dhcp];
+
+			hostName.setValue(dhcpData[uciProto.optName.hostName] || "");
+			mtu.setValue(dhcpData[uciProto.optName.mtu]);
+			selectInit("wanRateSel", rateOptions, wanData[uciProto.optName.speed]);
+
+			dnsSrvCb.setValue(
+				uciProto.optValue.dnsMode.manual == dhcpData[uciProto.optName.dnsMode]
+			);
+			priDns.setValue(dhcpData[uciProto.optName.priDns] || "");
+			sndDns.setValue(dhcpData[uciProto.optName.sndDns] || "");
+
+			onclickManualDns(dnsSrvCb.getValue());
+
+			unicast.setValue(
+				1 != dhcpData[uciProto.optName.broadcast_en]
+			);
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1)
+			{
+				var $con = $('<div>'	+
+								'<div class="subTitle">' +
+									'<h2>' + label.wanPortLayout + '</h2>'	+
+								'</div>' +
+								'<span class="wanPortDetectTip"></span>'	+
+								'<ul class="inputCMPT medium selectUl">'	+
+									'<label class="outerLbl">' + label.wanPortMode + '</label>'	+
+									'<li class="inputLi">'	+
+										'<span class="selectWrap">'	+
+											'<span id="wanPortSel" class="select">'	+
+												'<span class="value"></span>'	+
+												'<i class="arrow iconfont icon-folddropdown"></i>'	+
+											'</span>'	+
+										'</span>'	+
+									'</li>'	+
+								'</ul>'	+
+								'<div>' +
+									'<div id="portImageAuto" class="portImage"></div>' +
+									'<div id="portImageFixed" class="portImage"></div>' +
+								'</div>' +
+								'<div id="wanPortDetectSave"></div>'  +
+							'</div>');
+
+				$("#save").after($con);
+
+				var portModeOptions = [{str: label.wanPortStatic, value:uciWanPortDetect.optValue.enable.off},
+									   {str: label.wanPortDynamic, value:uciWanPortDetect.optValue.enable.on}];
+				var podtModeVal = portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable];
+				isPortDetectOpen = portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable] == uciWanPortDetect.optValue.enable.on;
+				selectInit("wanPortSel", portModeOptions, portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable], function(val){
+					$("span.wanPortDetectTip").text(val == uciWanPortDetect.optValue.enable.off ? label.wanPortStaticTip : label.wanPortDynamicTip);
+					var isAutoWan = val == uciWanPortDetect.optValue.enable.on;
+					switchPortImage(isAutoWan);
+				});
+
+				$("span.wanPortDetectTip").text(podtModeVal == uciWanPortDetect.optValue.enable.off ? label.wanPortStaticTip : label.wanPortDynamicTip);
+				var isAutoWan = podtModeVal == uciWanPortDetect.optValue.enable.on;
+				initPortImage();
+				switchPortImage(isAutoWan);
+
+				new Button({
+					text:btn.save,
+					onClick:function(){
+						wanCheckWDS(function(){
+							var wanPortData = {}, config = {};
+							wanPortData[uciWanPortDetect.fileName] = {};
+							wanPortData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config] = config;
+							config[uciWanPortDetect.optName.enable] = id("wanPortSel").value;
+
+							$.modify(wanPortData, function(result) {
+								if (result[ERR_CODE] == ENONE)
+								{
+									showToast(label.saveSuccess);
+									isPortDetectOpen = config[uciWanPortDetect.optName.enable] == uciWanPortDetect.optValue.enable.on;
+								}
+								else
+								{
+									errHandle(result[ERR_CODE]);
+								}
+							});
+						});
+					},
+					type:Button.TYPE.PRIMARY,
+					id:"wanPortDetectSave",
+					props:{width:"240px", margin:"12px 0 0 132px"}
+				});
+			}
+
+			wanStatusRefresh();
+		}
+
+		function requestData()
+		{
+			var dfdProto = $.Deferred();
+			var dfdPortDetect = $.Deferred();
+			var dfdArray = [], data = {};
+
+			dfdArray.push(dfdProto);
+
+			slp.protocol.getData({
+				success: function(res){
+					protocolData = res;
+					dfdProto.resolve();
+				}
+			});
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1)
+			{
+				dfdArray.push(dfdPortDetect);
+
+				data[uciWanPortDetect.fileName] = {};
+				data[uciWanPortDetect.fileName][KEY_NAME] = uciWanPortDetect.secName.config;
+
+				$.query(data, function(result){
+					portDetectData = result;
+					dfdPortDetect.resolve();
+				});
+			}
+
+			$.when.apply($, dfdArray).done(function(){
+				fillData();
+			});
+		}
+
+		var ipAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"dynamicIpContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var netmaskAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"dynamicIpContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var gatewayAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"dynamicIpContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dnsAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"dynamicIpContainer",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var disconnBtn = new Button({
+			text:btn.disconnect,
+			onClick:disconnect,
+			type:Button.TYPE.SECONDARY,
+			id:"disconnect",
+			props:{width:"116px"}
+		});
+		disconnBtn.disable(true);
+		var connBtn = new Button({
+			text:btn.connect,
+			onClick:connect,
+			type:Button.TYPE.PRIMARY,
+			id:"connect",
+			props:{width:"116px", marginLeft:"8px"}
+		});
+
+		var hostName = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.hostName},
+			targetId:"advancedArguments",
+			props:{maxlength: HOST_NAME_LEN_MAX, type: "text"},
+			check:{blur:function(){
+				if (/[^0-9a-z_\-\u00b7\u4E00-\u9FFFF\s]/gi.test(this.input.value))
+				{
+					this.showNote(errStr.hostNameErr);
+					return false;
+				}
+
+				if (getCNStrLen(this.input.value) > 63)
+				{
+					this.showNote(errStr.hostLenErr);
+					return false;
+				}
+
+				return true;
+			}}
+		});
+		var mtu = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mtu},
+			targetId:"advancedArguments",
+			tips:{value:label.unitByte, className:"unit"},
+			hint:{value:label.mtuComment},
+			check:{blur:function(){
+				var MAX = 1500;
+				var MIN = 576;
+
+				if (!checkNum(this.input.value))
+				{
+					this.showNote(errStr.dhcpcMtuErr);
+					return false;
+				}
+
+				if (this.input.value > MAX)
+				{
+					this.setValue(MAX.toString());
+				}
+				else if (this.input.value < MIN)
+				{
+					this.setValue(MIN.toString());
+				}
+
+				return true;
+			}},
+			props:{maxlength: '4', type: "text"}
+		});
+
+		var dnsSrvCb = new CheckBox({
+			targetId:"dnsServer",
+			label:label.manualDns,
+			onClick:function(){
+				onclickManualDns(this.checked);
+			},
+			checked:false
+		});
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"dnsServer",
+			check:{blur:function(){
+				if (!dnsSrvCb.getValue())
+				{
+					return true;
+				}
+
+				if ("" == this.input.value)
+				{
+					/* 不允许为空 */
+					this.showNote(errStr.wzdPrimDnsEmpty);
+					return false;
+				}
+				else if (ENONE != checkIp(this.input.value))
+				{
+					this.showNote(errStr.wzdPrimDnsErr);
+					return false;
+				}
+
+				return true;
+			}},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}
+		});
+		var sndDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"dnsServer",
+			check:{blur:function(){
+				if (!dnsSrvCb.getValue())
+				{
+					return true;
+				}
+
+				if ("" == this.input.value || "0.0.0.0" == this.input.value)
+				{
+					return true;
+				}
+				else if (ENONE != checkIp(this.input.value))
+				{
+					this.showNote(errStr.wzdSeDnsErr);
+					return false;
+				}
+
+				return true;
+			}},
+			hint:{value:label.allowEmpty},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}
+		});
+
+		var unicast = new CheckBox({
+			targetId:"unicast",
+			label:'<span>' + label.unicast + '</span><span class="unicastNote">' + label.unicastNote + '</span>',
+			onClick:function(){
+			},
+			checked:false
+		});
+
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:advancedSet,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		$("i.helpBtn").attr("helpStr", "dynamicIpHelp");
+		selectInit("wanSel", wanOptions, LINK_TYPE_DHCP, loadPageByIndex);
+
+		if (slp.modeSwitchSupport)
+		{
+			getBridgeStatus(function(bridgeEnable){
+				/* 桥模式下禁止更改上网模式及其他设置 */
+				if (bridgeEnable)
+				{
+					id("wanSel").disable(true);
+					$("#wanSelUl").hide();
+					var staticWanSel = new Input({
+						type:Input.TYPE.STATIC_TEXT,
+						label:{value:label.netMode},
+						targetId:"staticWanSel"
+					});
+					staticWanSel.setValue(label.dhcp);
+					$("#staticWanSel").show();
+					$("#disconnect").parent().hide();
+					$("#save").hide();
+					$("#bridgeWarning").show();
+				}
+				else
+				{
+					$("#staticWanSel").hide();
+				}
+			});
+		}
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	#unicast label.checkbox,
+	#dnsServer label.checkbox{
+		margin:14px 0;
+		font-weight:bold;
+	}
+	span.unicastNote{
+		font-size:12px;
+		font-weight:normal;
+		color:#999;
+	}
+	i.wanPortDetectImg{
+		margin-bottom: 12px;
+	}
+	p#bridgeWarning{
+		display: none;
+		margin-bottom: 12px;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<ul class="dashBoard clearfix">
+	<li class="board">
+		<i class="iconfont icon-upstream"></i>
+		<span id="upSpeed" class="speed">---</span>
+		<p class="speedText"><span id="upUnit">---</span><span>{%label.upSpeed%}</span></p>
+	</li>
+	<li class="board">
+		<i class="iconfont icon-downstream"></i>
+		<span id="downSpeed" class="speed">---</span>
+		<p class="speedText"><span id="downUnit">---</span><span>{%label.downSpeed%}</span></p>
+	</li>
+</ul>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<p id="bridgeWarning" class="commonErrTip">
+	{%label.bridgeWanWarning%}
+</p>
+<ul id="wanSelUl" class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="staticWanSel"></div>
+<div id="dynamicIpContainer"></div>
+<div class="buttonGroup">
+	<div id="disconnect"></div>
+	<div id="connect"></div>
+</div>
+<div class="subTitle">
+	<h2>{%label.wanAdvancedArguments%}</h2>
+</div>
+<div id="advancedArguments"></div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.wanRateSet%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanRateSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="dnsServer"></div>
+<div id="unicast"></div>
+<div id="save"></div>

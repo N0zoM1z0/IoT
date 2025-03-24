@@ -1,0 +1,65 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+
+set_usb_led() {
+	ucidef_set_led_usbdev "usb" "USB" "${1}" "${2:-1-1}"
+}
+
+set_wifi_led() {
+	ucidef_set_led_netdev "wifi_led" "wifi" "${1}" "${2:-wlan0}"
+}
+
+set_wifi_led_2g() {
+	ucidef_set_led_netdev "wifi_led" "wifi" "${1}" "${2:-ra0}"
+}
+
+set_wifi_led_5g() {
+	ucidef_set_led_netdev "wifi_led_5g" "wifi_5g" "${1}" "${2:-rai0}"
+}
+
+set_internet_led() {
+	local sysfs="$1"
+	json_select_object led
+	json_select_object "led_internet"
+	json_add_string name "pb_internet"
+	json_add_string sysfs "$sysfs"
+	json_add_string trigger "pb_internet"
+	json_select ..
+	json_select ..
+}
+
+mediatek_setup_leds(){
+	local board="$1"
+
+
+	case $board in
+	*wx039a*)
+        	echo "setup wx039a leds">>/tmp/leds.log
+        	ucidef_set_led_netdev "wlan2g_blue" "WLAN2G Blue" "wlan2g:blue" "ra0" "link"
+        	;;
+	*)
+		;;
+	esac
+
+}
+
+board_config_update
+board=$(board_name)
+
+echo "01_leds start">/dev/console
+echo "board:$board" > /tmp/leds.log
+cat /etc/config/system >> /tmp/leds.log
+
+mediatek_setup_leds $board
+
+board_config_flush
+echo "" >> /tmp/leds.log
+echo "" >> /tmp/leds.log
+cat /etc/config/system >> /tmp/leds.log
+echo "01_leds completed">/dev/console
+
+exit 0

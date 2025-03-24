@@ -1,0 +1,294 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+function mediaSetTuple()
+{
+    this.Enable = "";
+    this.Codec = "";
+    this.Priority = "";
+    this.PacketizationPeriod = "";
+}
+
+function LineDescription(){
+    this.Description = "";
+    }
+var num = 0;
+var LineInfo = new Array();
+ <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+   <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Description" -->
+	   LineInfo[num] = new LineDescription();
+     LineInfo[num].Description= "<!--#leaf "1"-->";
+   <!--#endgetobject -->
+   num++;
+<!--#endgetobject -->
+
+
+
+var index=0;
+var n=0;
+var mediaSet = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line."-->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.Codec.List."-->
+        <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.Codec.List.{i}. Enable Codec Priority PacketizationPeriod"-->
+	    mediaSet[index] = new mediaSetTuple();
+	    mediaSet[index].Enable = '<!--#leaf "1"-->';
+	    mediaSet[index].Codec = '<!--#leaf "2"-->';
+	    mediaSet[index].Priority = '<!--#leaf "3"-->';
+	    mediaSet[index].PacketizationPeriod = '<!--#leaf "4"-->';
+	    index++;
+	<!--#endgetobject -->
+    <!--#endgetobject -->
+    n++;
+<!--#endgetobject -->
+
+function pageCheckValue()
+{
+    var msg="";
+    var cResult;
+    var allInstNum=index; //=8=,getValue("ALL_INSTNUM");
+    for(var i=0;i<allInstNum;i++)
+    {
+        cResult=checkIntegerRange(getValue("Frm_PRIORITY"+i),1,16);
+	if(cResult==-1)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg); //ShowErrorForCom("Frm_PRIORITY"+i,"Fnt_PRIORITY"+i,msg);
+	    return false;
+	}
+	if(cResult==-2)
+	{
+	    msg=getmsg(132);
+	    top.AlertMsg(msg); //ShowErrorForCom("Frm_PRIORITY"+i,"Fnt_PRIORITY"+i,msg);
+	    return false;
+	}
+	if(cResult==-3)
+	{
+	    msg=getmsg(116,1,16);
+	    top.AlertMsg(msg); //ShowErrorForCom("Frm_PRIORITY"+i,"Fnt_PRIORITY"+i,msg);
+	    return false;
+	}
+    }
+	if(!validateCode())
+		return false;
+    return true;
+}
+
+function rmNULLInputs()
+{
+    var o=$('fSubmit');
+    var is =o.getElementsByTagName("input");
+    var l=is.length;
+    var ia=new Array();
+    for(var i=0;i<l;i++)
+        ia[i]=is[i];
+    for(var i=0;i<l;i++)
+    {
+        if(ia[i].value=="NULL")
+	    o.removeChild(ia[i]);
+    }
+}
+
+function pageGetValue()
+{
+    var allInstNum=index; // = 8 = getValue("ALL_INSTNUM");
+    for(var i=0;i<allInstNum;i++)
+    {
+    	var LineNum = 0;
+		 			if(LineInfo[parseInt(i/4)].Description == "LINE1")
+		 			   LineNum = 1;
+		 			else if(LineInfo[parseInt(i/4)].Description == "LINE2")
+		 			   LineNum = 2;
+		 			else
+		 			   LineNum = parseInt(i/4)+1;
+	if(mediaSet[i].Enable == "1") //getChecked("Frm_IFENABLE"+i)==true)
+	    setChecked("Frm_IFENABLE"+i, true);
+	else 
+	    setChecked("Frm_IFENABLE"+i, false);
+	    
+        setValue("Frm_PRIORITY"+i, mediaSet[(LineNum-1)*4+i%4].Priority);
+        setValue("Frm_MediaVPT"+i, mediaSet[(LineNum-1)*4+i%4].PacketizationPeriod);
+    }
+}
+
+function uiSubmit()
+{
+    var allInstNum=index;//= 8 = getValue("ALL_INSTNUM");
+    for(var i=0;i<allInstNum;i++)
+        ReSetValueRmZero("Frm_PRIORITY"+i);
+    if(true==pageCheckValue())
+    {
+        var df = $("fSubmit");
+        jslDisable("Btn_Submit","Btn_Cancel");
+        var lines=0;
+        for(var i = 0;i < n; i++)
+        {
+          var LineNum = 0;
+          if(LineInfo[i].Description == "LINE1")
+              LineNum = 1;
+          else if(LineInfo[i].Description == "LINE2")
+              LineNum = 2;
+          else
+              LineNum = i+1;
+
+          var count = allInstNum/n;
+          for(var j=lines;j<allInstNum;j++)
+          {
+              var path = "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".Codec.List." + eval(j+1-lines);
+              AddElements(df,  path + ".Enable", getChecked("Frm_IFENABLE"+j) ? 1 :0);
+              AddElements(df,  path + ".Priority", getValue("Frm_PRIORITY"+j));
+              AddElements(df,  path + ".PacketizationPeriod", getValue("Frm_MediaVPT"+j));
+              count--;
+              if(!count)
+              {
+                  lines += (j+1);
+                  break;
+              }
+          }
+        }
+        rmNULLInputs();
+        df.submit();
+    }
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_MediaSettings'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipmediasetting.shtml">
+</form>
+<script>SetContentTitle(getStr('LK_Connection1'))</script>
+<table id="Siptype_Table" class="ContentBorder" cellpadding="0" cellspacing="0">
+<tr class="TitleRow">
+	<td></td>
+	<td langkey="LK_CodingTypee"></td>
+	<td langkey="LK_EnableCodingPriorityy"></td>
+	<td langkey="LK_RTPPeriodd"></td>
+</tr>
+<tr class="OddRowB">
+	<td>G711U</td>
+    	<td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE0" checked=""></td>
+        <td><input type="text" id="Frm_PRIORITY0" size="4" value="3"></td>
+	<td>
+        <select id="Frm_MediaVPT0" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+    </td>
+</tr>
+<tr class="EvenRowB">
+	<td>G711A</td>
+        <td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE1" checked=""></td>
+    	<td><input type="text" id="Frm_PRIORITY1" size="4" value="1"></td>
+        <td>
+        <select id="Frm_MediaVPT1" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+        </td>
+</tr>
+<tr class="OddRowB">
+	<td>G729</td>
+        <td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE2" checked=""></td>
+        <td><input type="text" id="Frm_PRIORITY2" size="4" value="4"></td>
+	<td>
+        <select id="Frm_MediaVPT2" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+	    </td>
+
+</tr>
+<tr class="EvenRowB">
+	<td>G722</td>
+    	<td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE3" checked=""></td>
+    	<td><input type="text" id="Frm_PRIORITY3" size="4" value="2"></td>
+        <td><select id="Frm_MediaVPT3" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+    </td>
+</tr>
+</table>
+
+<script>SetContentTitle(getStr('LK_Connection2'))</script>
+<table id="Siptype_Table" class="ContentBorder" cellpadding="0" cellspacing="0">
+<tr class="TitleRow">
+	<td></td>
+	<td langkey="LK_CodingTypee"></td>
+	<td langkey="LK_EnableCodingPriorityy"></td>
+	<td langkey="LK_RTPPeriodd"></td>
+</tr>
+<tr class="OddRowB">
+	<td>G711U</td>
+        <td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE4" checked=""></td>
+        <td><input type="text" id="Frm_PRIORITY4" size="4" value="3"></td>
+        <td>
+        <select id="Frm_MediaVPT4" size="1"> 
+            <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+        </select>
+    </td>
+</tr>
+<tr class="EvenROwB">
+	<td>G711A</td>
+    	<td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE5" checked=""></td>
+        <td><input type="text" id="Frm_PRIORITY5" size="4" value="1"></td>
+        <td>
+        <select id="Frm_MediaVPT5" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+        </td>
+</tr>
+<tr class="OddRowB">
+	<td>G729</td>
+        <td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE6" checked=""></td>
+        <td><input type="text" id="Frm_PRIORITY6" size="4" value="4"></td>
+        <td>
+        <select id="Frm_MediaVPT6" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+    </td>
+</tr>
+<tr class="EvenRowB">
+    <td>G722</td>
+    <td><input type="checkbox" align="right" name="checkbox" id="Frm_IFENABLE7" checked=""></td>
+    <td><input type="text" id="Frm_PRIORITY7" size="4" value="2"></td>
+    <td><select id="Frm_MediaVPT7" size="1"> 
+	    <option value="10">10</option> 
+	    <option value="20" selected="">20</option> 
+	</select>
+    </td>
+</tr>
+
+</table>
+<table class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

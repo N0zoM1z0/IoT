@@ -1,0 +1,51 @@
+#[ "$ACTION" = "add" -o "$ACTION" = "remove" ] && /sbin/block hotplug
+
+blkdev=`dirname $DEVPATH`
+basename=`basename $blkdev`
+device=`basename $DEVPATH`
+path=$DEVPATH
+
+if [ $basename != "block" ] && [ -z "${device##sd*}" ]; then
+        #islabel=`block info /dev/$device | grep -q LABEL ; echo $?`
+        #if [ $islabel -eq 0 ] ; then
+        #        mntpnt=`block info /dev/$device |sed 's/.*LABEL="\([^"]*\)".*/\1/'`
+        #else
+                mntpnt=$device
+        #fi
+
+        # Do not tolerate spaces in mount points -- the remove case mountpoint determination fails
+        if echo "$mntpnt" |grep -q ' ' ; then
+                exit 0
+        fi
+
+        case "$ACTION" in
+                add)
+			led_status=`uci -q get system.main.led_status`
+                        if [ $led_status -eq 1 ]; then
+                                echo 1 > /sys/class/leds/usb/brightness
+                        fi
+
+			usb_type=`block info /dev/$device |sed 's/.*TYPE="\([^"]*\)".*/\1/'`
+
+                        mkdir -p "/mnt/usb"
+                        mkdir -p "/mnt/usb/$mntpnt"
+                        # Set APM value for automatic spin down
+                        /sbin/hdparm -B 127 /dev/$device
+                        # Try to be gentle on solid state devices
+                        if [ $usb_type = "ntfs" ]; then
+                                ntfs-3g /dev/$device "/mnt/usb/$mntpnt" -o rw,big_writes
+                        else
+                                mount -o noatime /dev/$device "/mnt/usb/$mntpnt"
+                        fi
+			/etc/init.d/samba restart
+                ;;
+                remove)
+                        echo 0 > /sys/class/leds/usb/brightness
+                        # Once the device is removed, the /dev entry disappear. We need mountpoint
+                        mountpoint=`mount |grep /dev/$device | sed 's/.* on \(.*\) type.*/\1/'`
+                        umount -l $mountpoint
+                        rmdir $mountpoint
+			/etc/init.d/samba restart
+                ;;
+        esac
+fi

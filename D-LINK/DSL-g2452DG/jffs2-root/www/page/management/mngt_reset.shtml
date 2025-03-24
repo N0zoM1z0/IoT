@@ -1,0 +1,117 @@
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!-- 
+  * { font:12px Arial, Helvetica, sans-serif;}
+  td { background:#FFFFFF; text-align:center;}
+  .title {font-size:14px; font-weight:bold;}
+-->
+</style>
+<script type="text/javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script type="text/javascript">
+
+function uiOnload(){    
+    uiProgress() ;
+}
+
+var bar = 0;
+var amount ="";
+var ajax = null;
+
+/* Ë¢ÐÂÒ»¸ñµÄÊ±¼ä¼ä¸ô£¬×Ü¹²110¸ñ */
+var interval = 500; 
+
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+function DoLogin() 
+{ 
+    window.location = "/";
+} 
+
+function uiProgress(){
+    if (bar>=110){ 
+        DoLogin(); 
+        return;
+    }
+
+    if (bar<110){ 
+        if( bar == 2 )
+            checkOnline();
+        setTimeout("uiProgress()", interval); 
+    } 
+    document.rebooting.chart.value=amount ;
+    document.rebooting.percent.value=Math.round(bar*100/110)+"%" ;
+    amount =amount + "|" ;
+    bar= bar+1;
+}
+var do_factory=1;
+function checkOnline()
+{
+    if (ajax != null)
+    {
+        ajax.abort();
+        ajax = null;
+    }
+
+    var _url = "/cgi-bin/main.cgi";
+    var _action="ops=factory";
+    if(1 == do_factory){
+        _action += "&action=factory";
+        do_factory = 0;
+    }
+    ajax = Ajax.getInstance(_url, _action, 0, processResult);
+    ajax.get();
+}
+
+function processResult(responseText)
+{
+
+}
+
+
+
+window.onload = uiOnload;
+
+</script>
+</head>
+<body >
+<div id="Content">
+<table cellspacing=0 border=0 cellpadding=5 align=center width=600>
+    <tr>
+        <td>
+            <span id="lang_title" class="title" langkey="LK_mngt_reseting">Reseting...</span>
+            <br><br>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span id="lang_notice1" langkey="LK_mngt_resetingwait">System is reseting... Please wait for a moment</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span id="lang_notice2" langkey="LK_mngt_loginafterreseting">Please relogin after reset</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form name="rebooting">
+                <input type="text" name="chart" size="51" style="font-family:Arial; font-weight:bolder; color:#0000FF; background-color:#F0F0F0; padding:0px; border-style:none;">
+                <input type="text" name="percent" size="1" style="font-family:Arial; color:#000000;  background-color:white;text-align:right; border-width:medium; border-style:none;" class="unnamed1">
+            </form>
+        </td>
+    </tr>
+</table>
+</div>
+</body>
+</html>

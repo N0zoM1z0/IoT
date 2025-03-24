@@ -1,0 +1,161 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+
+function ConnectionTuple()
+{
+	this.Type = "";
+	this.Path = "";
+	this.pktreceived = "";
+	this.bytereceived = "";
+	this.pktsend = "";
+	this.bytesend = "";
+	this.Name = "";
+}
+
+var m=0;
+var G_WanStatus = new Array();
+
+<!--#getobject "InternetGatewayDevice.WANDevice.3.WANDongleInterfaceConfig. Enable Status provider ppp_status network_type_var rssi cell_id roam realtime_up realtime_down" -->
+	G_WanStatus[m] = new ConnectionTuple();
+    G_WanStatus[m].Enable = "<!--#leaf "1"-->";
+    G_WanStatus[m].Status = "<!--#leaf "2"-->";
+    G_WanStatus[m].provider = "<!--#leaf "3"-->";
+    G_WanStatus[m].ppp_status = "<!--#leaf "4"-->";
+    G_WanStatus[m].network_type_var = "<!--#leaf "5"-->";
+    G_WanStatus[m].rssi = "<!--#leaf "6"-->";
+    G_WanStatus[m].cell_id= "<!--#leaf "7"-->";
+    G_WanStatus[m].roam = "<!--#leaf "8"-->";
+    G_WanStatus[m].realtime_up = "<!--#leaf "9"-->";
+    G_WanStatus[m].realtime_down = "<!--#leaf "10"-->";
+	
+<!--#endgetobject -->
+
+function strGetStatus(val){
+	
+	switch(val){
+        case "NoLink" : 
+            return "Nolink or Disabled";
+		default:
+            return val;
+    }
+    
+    return getStr("LK_Down");
+}
+
+function strGetSpeed(val){
+    switch(val){
+        case "10" : 
+            return getStr("LK_10MBS");
+        case "100" : 
+            return getStr("LK_100MBS");
+        case "1000" :
+            return getStr("LK_1000MBS");
+    }
+    
+    return getStr("LK_10MBS");
+}
+
+function strGetDuplex(val){
+    switch(val){
+        case "Half" : 
+            return getStr("LK_HalfDuplex");
+        case "Full" : 
+            return getStr("LK_FullDuplex");
+    }
+    
+    return getStr("LK_HalfDuplex");
+}
+
+function onCreatTable()
+{
+	var trs_hd = "<tr class='TitleRow'>";
+	var trs = "<tr>";
+
+	for(i=0;i<G_WanStatus.length;i++){
+		trs_hd += "<td>" + getStr("LK_StatusM") +"</td>";
+	    trs += "<td>"+strGetStatus(G_WanStatus[i].Status)+"</td>";
+	    if(G_WanStatus[i].provider){
+			trs_hd += "<td>" + getStr("LK_provider_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].provider)+"</td>";    
+	    }
+	    if(G_WanStatus[i].ppp_status){
+			trs_hd += "<td>" + getStr("LK_ppp_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].ppp_status)+"</td>";    
+	    }
+	    if(G_WanStatus[i].network_type_var){
+			trs_hd += "<td>" + getStr("LK_network_donle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].network_type_var)+"</td>";    
+	    }
+	    if(G_WanStatus[i].rssi){
+			trs_hd += "<td>" + getStr("LK_rssi_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].rssi)+"</td>";    
+	    }
+	    if(G_WanStatus[i].cell_id){
+			trs_hd += "<td>" + getStr("LK_cellid_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].cell_id)+"</td>";    
+	    }
+	    if(G_WanStatus[i].roam){
+			trs_hd += "<td>" + getStr("LK_roam_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].roam)+"</td>";    
+	    }
+	    if(G_WanStatus[i].realtime_up){
+			trs_hd += "<td>" + getStr("LK_up_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].realtime_up)+"</td>";    
+	    }
+	    if(G_WanStatus[i].realtime_down){
+			trs_hd += "<td>" + getStr("LK_down_dongle") +"</td>";
+	    	trs += "<td>"+strGetStatus(G_WanStatus[i].realtime_down)+"</td>";    
+	    }
+	}
+
+	trs+="</tr>";
+	trs_hd += "</tr>"
+	trs_hd += trs;
+	jQuery("#td_table").append(trs_hd);
+}
+function __init()
+{
+    onCreatTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>        
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StatisticsWan'))</script>
+<form method="get"> 
+<table class="ContentBorder" id="td_table" cellpadding="0" cellspacing="0" >
+<!--
+<tr class="TitleRow">
+	<td langkey="LK_StatusM"></td>
+	<td langkey="LK_provider_dongle"></td>
+	<td langkey="LK_ppp_dongle"></td>
+	<td langkey="LK_network_donle"></td>
+	<td langkey="LK_rssi_dongle"></td>
+	<td langkey="LK_cellid_dongle"></td>
+	<td langkey="LK_roam_dongle"></td>
+	<td langkey="LK_down_dongle"></td>
+	<td langkey="LK_up_dongle"></td>
+</tr>
+-->
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();")</script>
+</td></tr></table>
+<script>printEndContent();</script>
+</form>
+</body>
+</html>

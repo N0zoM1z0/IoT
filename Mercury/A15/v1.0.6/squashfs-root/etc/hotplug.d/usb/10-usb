@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Copyright (C) 2009 OpenWrt.org
+
+PATH=$PATH:/tmp/usr/bin
+
+case "$ACTION" in
+	add)
+		gpio_ctrl --usb_insert
+		# update LEDs
+		;;
+	remove)
+		# update LEDs
+		;;
+esac	
+		

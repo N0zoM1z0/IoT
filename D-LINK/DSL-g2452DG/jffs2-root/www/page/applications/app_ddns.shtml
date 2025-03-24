@@ -1,0 +1,355 @@
+
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+
+function DDNSTuple()
+{
+    this.Path = "";
+    this.DDNSProvider = "";
+    this.Hostname = "";
+    this.WANConnectionID = "";
+    this.Username = "";
+    this.Password = "";
+    this.Email = "";
+    this.Key = "";
+    this.DDNSState = "";
+}
+
+function WanConnsTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+}
+var password_changed=0;
+function Password_changed()
+{
+    password_changed=1;
+    return true;
+}
+var index = 0;
+var n = 0;
+var DDNS = new Array();
+var WanConns = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType"-->
+        WanConns[n] = new WanConnsTuple();   
+        WanConns[n].Path = "<!--#path -->";
+        WanConns[n].Name = "<!--#leaf "1"-->";
+        WanConns[n].ServiceList = "<!--#leaf "2"-->";
+        WanConns[n].ConnectionType = "<!--#leaf "3"-->";
+        n++;
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection.{i}.X_CT-COM_DDNSConfiguration. DDNSProvider DDNSHostName X_CT-COM_ConnectedDeviceName DDNSUsername Email Key DDNSState" -->
+            DDNS[index] = new DDNSTuple();   
+            DDNS[index].Path = "<!--#path -->";
+            DDNS[index].DDNSProvider = "<!--#leaf "1"-->";
+            DDNS[index].Hostname = "<!--#leaf "2"-->";
+            DDNS[index].WANConnectionID = "<!--#leaf "3"-->";
+            DDNS[index].Username = "<!--#leaf "4"-->";
+            DDNS[index].Email = "<!--#leaf "5"-->";
+            DDNS[index].Key = "<!--#leaf "6"-->";
+            DDNS[index].DDNSState = "<!--#leaf "7"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+    
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType"-->
+        WanConns[n] = new WanConnsTuple();   
+        WanConns[n].Path = "<!--#path -->";
+        WanConns[n].Name = "<!--#leaf "1"-->";
+        WanConns[n].ServiceList = "<!--#leaf "2"-->";
+        WanConns[n].ConnectionType = "<!--#leaf "3"-->";
+        n++;
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.X_CT-COM_DDNSConfiguration. DDNSProvider DDNSHostName X_CT-COM_ConnectedDeviceName DDNSUsername Email Key DDNSState" -->
+            DDNS[index] = new DDNSTuple();
+            DDNS[index].Path = "<!--#path -->";
+            DDNS[index].DDNSProvider = "<!--#leaf "1"-->";
+            DDNS[index].Hostname = "<!--#leaf "2"-->";
+            DDNS[index].WANConnectionID = "<!--#leaf "3"-->";
+            DDNS[index].Username = "<!--#leaf "4"-->";
+            DDNS[index].Email = "<!--#leaf "5"-->";
+            DDNS[index].Key = "<!--#leaf "6"-->";
+            DDNS[index].DDNSState = "<!--#leaf "7"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->    
+
+<!--#getobject "InternetGatewayDevice.X_CT-COM_DDNS. Enable" -->
+var G_DDNSEnable = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+function init(){    
+    var array_ddns = [];
+    setValue("INPUT_DdnsEnabled", G_DDNSEnable);
+	createOptions('SELECT_DDNSService',['oray.com','DynDNS.org','TZO','No-IP.com'],[0,1,2,3]);
+    //生成wan连接列表
+    createWanConns();
+    //根据不同的服务商选择不同的输入   
+    UpdateSubmitState();
+    ddns_change_enable();
+}
+
+function createWanConns(){
+    var text = [], value = [];
+    var j = 0;
+    
+    for(var i = 0, len = WanConns.length; i < len; i++){
+        if (!isBridgedConn(WanConns[i].ConnectionType))
+        {
+            text[j]  = WanConns[i].Name;
+            value[j] = WanConns[i].Path;
+            j++;
+        }
+    }
+    createOptions('SELECT_BindWanConns',text,value);
+}
+
+
+function UpdateSubmitState()
+{
+    if ($('SELECT_BindWanConns').selectedIndex == -1)
+    {
+        disableCtrl('submit',true);
+    }
+    else
+    {
+        disableCtrl('submit',false);
+    }
+}
+
+function isIPAddrValid(address) {
+   var i = 0;
+
+   if ( address == '0.0.0.0' ||
+        address == '255.255.255.255' )
+      return false;
+
+   addrParts = address.split('.');
+   if ( addrParts.length != 4 )
+	   return false;
+   for (i = 0; i < 4; i++) {
+      if (isNaN(addrParts[i]) || addrParts[i] == "")
+         return false;
+	  if (addrParts[i].indexOf(" ") != -1)
+		return false;
+
+      num = parseInt(addrParts[i]);
+	  if(i ==0 )
+	  {
+		  if(num <0 || num > 223)
+			return false;
+	  }
+	  else
+	  {
+      	if ( num < 0 || num > 255 )
+         return false;
+	  }
+   }
+   return true;
+}
+
+function checkdomain(dm){
+	var re = /^([\w-]+\.)+((com)|(net)|(org)|(gov\.cn)|(info)|(cc)|(com\.cn)|(net\.cn)|(org\.cn)|(name)|(biz)|(tv)|(cn)|(mobi)|(name)|(sh)|(ac)|(io)|(tw)|(com\.tw)|(hk)|(com\.hk)|(ws)|(travel)|(us)|(tm)|(la)|(me\.uk)|(org\.uk)|(ltd\.uk)|(plc\.uk)|(in)|(eu)|(it)|(jp))$/;
+	if(!re.test(dm)){
+		return false;
+	}
+	return true;
+}
+function uiAdd(){
+    var node_ddns = $('SELECT_DDNSService','INPUT_HostName','SELECT_BindWanConns','INPUT_UserName','INPUT_Password','INPUT_Email','INPUT_Key','INPUT_UserNameGnudip', 'INPUT_PasswordGnudip', 'INPUT_DdnsHostGnudip');
+    var df = document.app_ddnsmngerform;
+    var add_path = node_ddns[2].value+'X_CT-COM_DDNSConfiguration.';
+    var ddnsService ='';
+    if(node_ddns[0].value == 0) {
+		ddnsService = 'oray.com';
+	} else if (node_ddns[0].value == 1){
+		ddnsService = 'dyndns';
+	} else if (node_ddns[0].value == 2){
+		ddnsService = 'tzo';
+	} else if (node_ddns[0].value == 3){
+		ddnsService = 'noip';
+	}
+	
+
+    //生成表单
+    var ddnsHostname = node_ddns[1].value;
+	if(ddnsHostname == '' ){
+		top.AlertMsg(getStr("LK_DomainNamenotE"));
+		return false;
+	} else if (!(checkdomain(ddnsHostname) || isIPAddrValid(ddnsHostname))) {
+		top.AlertMsg(getStr("LK_DomainNameinvalid"));
+		return false;
+	}
+	if(!validateCode(2))
+		return false;
+    AddElements(df, 'add_obj',add_path);
+    AddElements(df, add_path+"{i}.DDNSProvider", ddnsService);
+	AddElements(df, add_path+"{i}.DDNSCfgEnabled", 1);
+    AddElements(df, add_path+"{i}.DDNSHostName", ddnsHostname);
+    AddElements(df, add_path+"{i}.X_CT-COM_ConnectedDeviceName", node_ddns[2].value);
+	AddElements(df, add_path+"{i}.DDNSUsername", node_ddns[3].value);
+    if(password_changed == 1)
+    {
+        AddElements(df, add_path+"{i}.DDNSPassword", node_ddns[4].value);
+    }
+    
+    df.submit();
+}
+
+function createTable(){
+    var host_name;
+    var trs = "";
+   	if(DDNS.length == 0)
+		trs += '<tr class="OddRowB"><td colspan="4">'+getStr("LK_NoRule")+'</td></tr>'; 
+    for(var i = 0, len = DDNS.length; i < len; i++){
+    	host_name = DDNS[i].Hostname;
+    	if (DDNS[i].DDNSProvider == "GnuDIP")
+    	{
+        	host_name = DDNS[i].Username + '.' + DDNS[i].Hostname;
+    	}
+	var tr = "";
+	if(i%2==0)
+        	tr += "<tr class='OddRowB'>";
+	else
+		tr += "<tr class='EvenRowB'>";
+	tr += "<td>"+(i+1)+"</td>";
+	tr += "<td>"+DDNS[i].DDNSState+"</td>";
+        tr += "<td>"+host_name+"</td>";
+	tr += "<td><img src='../../skin/trash.gif' style='cursor:pointer' name='delete' onclick='uiDelete(\"" +DDNS[i].Path+ "\")'></td>";
+	tr += "</tr>";
+	trs += tr;            
+    }
+	jQuery("#td_ddnsList").append(trs);
+}
+    
+function uiDelete(path){
+	if(!validateCode(2))
+		return false;
+	var df = document.app_ddnsmngerform; 
+	AddElements(df, 'del_obj',path);
+	df.submit(); 
+}
+
+function __init()
+{
+    init();
+    createTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+function uiSubmit(){
+	if(!validateCode())
+		return false;
+    var df = document.app_ddnsmngerform;
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_DDNS.Enable", getValue("INPUT_DdnsEnabled"));    
+    df.submit();
+}
+
+function ddns_block_add()
+{
+	var display = $('DynDNS.org').style.display;
+	if(display == 'none')
+	{
+		$('DynDNS.org').style.display = 'block';
+		SetButtonStatus("submit","disabled");
+	}
+	else
+	{
+		$('DynDNS.org').style.display = 'none';
+		SetButtonStatus("submit","");
+	}
+}
+
+function ddns_change_enable()
+{
+	if($('INPUT_DdnsEnabled').checked)
+	{
+		SetButtonStatus("submit","");	
+	}
+	else
+	{
+		SetButtonStatus("submit","disabled");
+		$('DynDNS.org').style.display = 'none';
+	}
+}
+
+</script> 
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_DDNSSetting'));</script>
+<table width="600" class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_Enablee"></td>
+		<td><input name="checkbox" type="checkbox" id="INPUT_DdnsEnabled" checked></td>
+	</tr>
+	<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+	<tr><td><script>PrintTriButton("uisubmit",getStr('LK_Apply'),"uiSubmit();");</script></td></tr>
+</table>
+<br><br>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	<tr>
+		<td>
+		<script>PrintTriButton("submit",getStr('LK_Add'),"ddns_block_add()");</script>
+		</td>
+	</tr>
+	<tr id="BUTTON_BLOCK2" class="spaceLine"><td width="150">&nbsp;</td></tr>
+</table>
+<table id="DynDNS.org" width="600" class="ContentTableNoColor" cellspacing="0" cellpadding="0" style="display: none;">
+	<tr>
+		<td langkey="LK_DDNSServerr"></td>
+		<td><select id="SELECT_DDNSService"><option> </option></select></td>	
+	</tr>
+	<tr>
+		<td langkey="LK_HostNamee"></td>
+		<td><input type="text" id="INPUT_HostName"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_WANConnection_Colon"></td>
+		<td><select id="SELECT_BindWanConns" onChange="UpdateSubmitState();"><option> </option></select></td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_UserNamee"></td>
+		<td><input type="text" id="INPUT_UserName"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_Passwordd"></td>
+		<td><input type="password" id="INPUT_Password" value="123456789ABCDEFG" onChange="Password_changed()"></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+		<script>
+			PrintTriButton("back",getStr('LK_Back'),"ddns_block_add();");
+			document.write("&nbsp;&nbsp;");
+			PrintTriButton("apply",getStr('LK_Apply'),"uiAdd()");
+		</script>
+	</tr>
+</table>
+<br>
+<table id="td_ddnsList" class="ContentBorder" width="600" cellpadding="0" cellspacing="0">   
+	<tr class="TitleRow">
+		<td langkey="LK_Number"></td>
+		<td langkey="LK_DDNSStatus"></td>
+		<td langkey="LK_HostName"></td>
+		<td langkey="LK_Action">
+	</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+    <form method="post" name ="app_ddnsmngerform" action="/cgi-bin/setup.cgi?page/applications/app_ddns.shtml">
+    </form></body>
+</html>

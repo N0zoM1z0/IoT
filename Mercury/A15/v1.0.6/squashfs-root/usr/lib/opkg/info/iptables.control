@@ -1,0 +1,46 @@
+Package: iptables
+Version: 1.6.2-3
+Depends: libc, kmod-ipt-core, libip4tc, libip6tc, libxtables
+Source: tp_package/u_packages/iptables
+License: GPL-2.0
+Section: net
+Architecture: rtl
+Installed-Size: 27507
+Description:  IP firewall administration tool.
+ 
+ Matches:
+ - icmp
+ - tcp
+ - udp
+ - comment
+ - conntrack
+ - limit
+ - mac
+ - mark
+ - multiport
+ - set
+ - state
+ - time
+ - multiurl
+ 
+ Targets:
+ - ACCEPT
+ - CT
+ - DNAT
+ - DROP
+ - REJECT
+ - FLOWOFFLOAD
+ - LOG
+ - MARK
+ - MASQUERADE
+ - REDIRECT
+ - SET
+ - SNAT
+ - TCPMSS
+ 
+ Tables:
+ - filter
+ - mangle
+ - nat
+ - raw
+ 

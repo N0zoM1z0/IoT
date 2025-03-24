@@ -1,0 +1,169 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+</head>
+<script>
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Logger. LogTFTPServer LogUploadTrigger LogClearTrigger RemoteLogEnabled RemoteLogger RemotePort DisplayLevel"-->
+var LogTFTPServer = "<!--#leaf "1"-->";
+var LogUploadTrigger = "<!--#leaf "2"-->";
+var LogClearTrigger = "<!--#leaf "3"-->";
+var RemoteLogEnabled = "<!--#leaf "4"-->";
+var RemoteLogger = "<!--#leaf "5"-->";
+var RemotePort = "<!--#leaf "6"-->";
+var DisplayLevel = "<!--#leaf "7"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_Syslog. Enable Level" -->
+var Enable = "<!--#leaf "1"-->";
+var Level = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+function frmLoad()
+{
+	setValue('INPUT_logEnable' , Enable);
+	setValue('SELECT_LogLevel' , Level);
+	setValue('INPUT_TFTPServer' , LogTFTPServer);
+	setValue('INPUT_RemoteControlEnable' , RemoteLogEnabled || 0);
+	setValue('INPUT_RemoteHost' , RemoteLogger);
+	setValue('INPUT_RemotePort' , RemotePort || 514);
+	setValue('SELECT_LogLevel' , Level || 0);
+	relateTftpServer();
+	Log_enable_change();
+}
+function relateTftpServer()
+{
+	var nodes = $('INPUT_TFTPServer','INPUT_uploadLog');
+	nodes[1].disabled = nodes[0].value == '' ? true : false;
+}
+function uiUploadLog()
+{
+	var df = document.Mngt_Loglevel;
+	AddElements(df, 'InternetGatewayDevice.X_CT-COM_Logger.LogUploadTrigger', 1);
+  	df.submit();
+}
+
+function uiSubmit()
+{
+	var df = document.Mngt_Loglevel;
+	if($('INPUT_RemoteControlEnable').checked ==true)
+	{
+		if(!isCheckIPV4($('INPUT_RemoteHost')))
+			return false;
+		
+		if(!isAllNum(getValue('INPUT_RemotePort')))
+		{
+			top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_RemotePort")
+			return false;
+		}
+		else if(getValue('INPUT_RemotePort')<1 || getValue('INPUT_RemotePort')>65535)
+		{
+			top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_RemotePort");
+			return false;
+		}
+	}
+	if(!validateCode())
+		return false;
+	AddElements(df,'InternetGatewayDevice.DeviceInfo.X_CT-COM_Syslog.Enable', $('INPUT_logEnable').checked ? 1 : 0);
+	AddElements(df,'InternetGatewayDevice.DeviceInfo.X_CT-COM_Syslog.Level', $('SELECT_LogLevel').value);
+	AddElements(df,'InternetGatewayDevice.X_CT-COM_Logger.LogTFTPServer',$('INPUT_TFTPServer').value);
+	AddElements(df,'InternetGatewayDevice.X_CT-COM_Logger.RemoteLogEnabled',$('INPUT_RemoteControlEnable').checked ? 1 : 0);
+	AddElements(df,'InternetGatewayDevice.X_CT-COM_Logger.RemoteLogger',$('INPUT_RemoteHost').value);
+	AddElements(df,'InternetGatewayDevice.X_CT-COM_Logger.RemotePort',$('INPUT_RemotePort').value);
+	df.submit();
+}
+function Log_enable_change()
+{
+	if($('INPUT_logEnable').checked)
+	{
+		$('INPUT_RemoteControlEnable').disabled = false;
+	}
+	else
+	{
+		$('INPUT_RemoteControlEnable').disabled =true;
+		$('INPUT_RemoteControlEnable').checked = false;
+	}
+
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Emergency"), getStr("LK_Alert"), getStr("LK_Critical"), getStr("LK_Error"), 
+	getStr("LK_Warning"), getStr("LK_Notice"), getStr("LK_Informational"), getStr("LK_Debug")];
+  value = ['1' , '2', '3', '4', '5', '6', '7', '8'];
+	createOptions('SELECT_LogLevel', text, value);
+}
+
+function __init()
+{
+    createsel();
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_AccountLogLevel"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr class="FlagText">
+			<td colspan="2" langkey="LK_AttentionEnabling"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td width="150" langkey="LK_EnableLog"></td>
+			<td><input type="checkbox" id="INPUT_logEnable" onClick="Log_enable_change();"></td>
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_LogLevel"></td>
+			<td><select id ="SELECT_LogLevel">	
+			</select>
+			</td>	
+		</tr>
+		<tr>
+			<td langkey="LK_TFTPServer"></td>
+			<td><input type="text" maxlength="15" id="INPUT_TFTPServer">
+			&nbsp;&nbsp;
+			<script>PrintTriButton("INPUT_uploadLog",getStr("LK_UploadLogFile"),onClick="uiUploadLog();");</script>
+			</td>
+		<tr>
+		<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+		<tr>			
+			<td langkey="LK_EnableLogServer"></td>
+			<td><input type="checkbox" id="INPUT_RemoteControlEnable"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_RemoteLogServer"></td>
+			<td><input type="text" id="INPUT_RemoteHost" maxlength="15"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_Portt"></td>
+			<td><input type="text" id="INPUT_RemotePort" maxlength="5" size="5"></td>
+		</tr>
+		
+		
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+			<script>PrintTriButton("save",getStr("LK_Apply"),"uiSubmit();" );</script>&nbsp;
+			<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()");</script>
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="Mngt_Loglevel" id="Mngt_Loglevel" action="/cgi-bin/setup.cgi?page/management/mngt_loglevel.shtml">
+</form>
+</body>
+</html>

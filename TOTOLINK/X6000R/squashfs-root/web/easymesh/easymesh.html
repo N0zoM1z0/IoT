@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/basic_menu.css"><link rel="stylesheet" href="/static/css/loading.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div class="basic-box">
+  <x-help :text="helpText"></x-help><br><br>
+  <div class="fun-box">
+    <table class="table">
+      <tbody>
+	    <tr>
+		  <td class="fun-left"><b>{{ lang_t('easymesh.state') }}</b></td>
+		  <td>
+		    <x-switch v-model="enabled" @change="stateChange"></x-switch>
+		  </td>
+	    </tr>
+		<tr v-show="enabled">
+		  <td class="fun-left">{{ lang_t('easymesh.mode') }}</td>
+		  <td>
+			<select v-model="mode" @change="modeChange">
+			  <option value="controller">{{ lang_t('easymesh.controller') }}</option>
+			  <option value="agent">{{ lang_t('easymesh.agent') }}</option>
+			  <option value="auto" v-if="globalConfig.autoMeshModeSupport">{{ lang_t('wifi.auto') }}</option>
+			</select>
+		  </td>
+		</tr>
+	  </tbody>
+	  <tbody v-if="enabled && origMode == 'auto'">
+		<tr>
+		  <td class="fun-left">{{ lang_t('easymesh.character') }}</td>
+		  <td>{{isConfig=='unknown'?lang_t('common.unknown'):isConfig}}</td>
+		</tr>
+	  </tbody>
+	  <tbody v-show="enabled">
+		<tr v-show="bssShow && !applyShow && isConfig=='agent'">
+		  <td class="fun-left">{{ lang_t('easymesh.link_status') }}</td>
+		  <td>
+			<span v-html="linkStatusHtml"></span>
+		  </td>
+		</tr>
+	    <tr v-show="(!bssShow && isConfig!='unknown') || applyShow">		
+		  <td class="fun-left">&nbsp;</td>
+		  <td>
+			<button type="button" class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+		  </td>
+		</tr>
+	    <tr v-show="(bssShow || isConfig=='unknown') && !applyShow">
+		  <td class="fun-left">&nbsp;</td>
+		  <td>
+			<button type="button" class="btn" @click="startFun">{{ lang_t('easymesh.pair') }}</button>&nbsp;&nbsp;
+			<!-- <button type="button" class="btn" @click="clearFun">{{ lang_t('easymesh.clear') }}</button> -->
+		  </td>
+		</tr>
+	  </tbody>
+    </table>
+	<div v-show="enabled && bssShow && !applyShow && isConfig=='controller'">
+	  <br><br>
+	  <table class="table">
+	    <tbody>
+		<tr>
+	      <td class="fun-left">&nbsp;</td>
+		  <td><b>{{ lang_t('easymesh.bss') }}</b></td>
+        </tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('easymesh.back_haul_pre') }}</td>
+		  <td>
+			<select v-model="backHaulPre">
+			  <option value="0">{{ lang_t('easymesh.disable') }}</option>
+		  	  <option value="3">{{ lang_t('easymesh.low') }}</option>
+		      <option value="1">{{ lang_t('easymesh.high') }}</option>
+			</select>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('easymesh.back_haul_pre5g') }}</td>
+		  <td>
+			<select v-model="backHaulPre5g">
+			  <option value="0">{{ lang_t('easymesh.disable') }}</option>
+		  	  <option value="3">{{ lang_t('easymesh.low') }}</option>
+		      <option value="1">{{ lang_t('easymesh.high') }}</option>
+			</select>
+		  </td>
+		</tr>
+		<tr v-show="false">
+		  <td class="fun-left">{{ lang_t('easymesh.steering') }}</td>
+		  <td>
+			<x-checkbox v-model="steering"></x-checkbox>
+		  </td>
+		</tr>
+		<tr v-show="false">
+		  <td class="fun-left">{{ lang_t('easymesh.rssi_threshold') }}</td>
+		  <td>
+			<input type="text" v-model="rssiThreshold" v-verify="formRules" data-name="rssiThreshold" maxlength="3">
+			<small>({{ lang_t('easymesh.range') }}:-90~0)</small>
+		  </td>
+		</tr>
+		<tr v-show="false">
+		  <td class="fun-left">2.4G {{ lang_t('easymesh.channel_pre') }}</td>
+		  <td>
+			<select v-model="channelPre">
+			  <!-- <option value="0">{{ lang_t('wifi.auto') }}</option> -->
+			  <option v-for="v in channel2gOption" :key="v" :value="v">{{ v }}</option>
+			</select>
+		  </td>
+		</tr>
+		<tr v-show="false">
+		  <td class="fun-left">5G {{ lang_t('easymesh.channel_pre') }}</td>
+		  <td>
+			<select v-model="channelPre5g">
+			  <!-- <option value="0">{{ lang_t('wifi.auto') }}</option> -->
+			  <option v-for="_channel in channel5gOption" :value="_channel">{{ _channel }}</option>
+			</select>
+		  </td>
+		</tr>
+	    </tbody>
+	  </table>
+	  <div v-show="false">
+	  <br><br>
+	  <table class="t_table3 table-bordered table-striped" style="width:auto;">
+	    <thead>
+		  <th>&nbsp;</th>
+		  <th>{{ lang_t('wifi.ssid') }}</th>
+		  <th>{{ lang_t('wifi.hide_ssid') }}</th>
+		  <th>{{ lang_t('wifi.pass_state') }}</th>
+		  <th>{{ lang_t('wifi.pass') }}</th>
+		  <th v-if="globalConfig.wifiWpa3Support">WPA3-SAE</th>
+	    </thead>
+	    <tbody>
+		<tr v-for="(data,index) in mulAp" v-if="!wifiOff[index]">
+		  <td>{{band[index]}} AP-{{wifiIdx[index]}}</td>
+		  <td><input type="text" v-model="ssid[index]" maxlength="32" v-verify="formRules" :data-name="'ssid'+index" /></td>
+		  <td><x-checkbox v-model="hssid[index]"></x-checkbox></td>
+		  <td><x-checkbox v-model="ispass[index]"></x-checkbox></td>
+		  <td><input type="password" v-model="key[index]" maxlength="63" v-pass v-verify="formRules" :data-name="'key'+index" :disabled="!ispass[index]" /></td>
+		  <td v-if="globalConfig.wifiWpa3Support"><x-checkbox v-model="wpaMode[index]" @change="tipsFun(index)" :disabled="!ispass[index]"></x-checkbox></td>
+		</tr>
+	    </tbody>
+	  </table>
+	  </div>
+	  <table class="table">
+	    <tbody>
+		  <tr>
+		    <td class="fun-left">&nbsp;</td>
+		    <td><button type="button" class="btn" @click="applyFun">{{ lang_t('common.apply') }}</button></td>
+		  </tr>
+		</tbody>
+	  </table>	  
+	  <div v-show="enabled && bssShow && !applyShow && isConfig=='controller'">
+	  <br><br>
+	  <table class="table">
+	    <tbody>
+		  <tr>
+	        <td class="fun-left">&nbsp;</td>
+		    <td><b>{{ lang_t('easymesh.channel_pre') }}</b></td>
+          </tr>
+		  <tr>
+		    <td class="fun-left">{{ lang_t('common.state') }}</td>
+		    <td>
+		     <x-switch v-model="ChPlanningEnable" @change="ChPlanningChange"></x-switch>
+		    </td>
+	      </tr>
+		  <tr v-show="ChPlanningEnable">
+		    <td class="fun-left">{{ lang_t('easymesh.current_channel') }}</td>
+		    <td><b>{{ current_channel }}</b></td>
+		  </tr>
+		  <tr v-show="ChPlanningEnable">
+		    <td class="fun-left">&nbsp;</td>
+		    <td>
+			  <button type="button" class="btn" @click="triggerFun">{{ lang_t('easymesh.trigger') }}</button>
+		    </td>
+		  </tr>
+	    </tbody>
+	  </table>
+	  </div><br><br>
+	</div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,bssShow:!1,applyShow:!1,enabled:!1,is_wep:!1,origEnabled:"0",mode:"controller",origMode:"controller",isConfig:"0",steering:!1,ChPlanningEnable:!1,current_channel:"",countryCode:"CN",bw5g:"0",band5g:"14",channelPre:"0",channelPre5g:"0",backHaulPre:"0",backHaulPre5g:"0",rssiThreshold:"0",linkStatus:"",band:[""],wifiIdx:[""],wifiOff:[""],hssid:[!1],ssid:[""],key:[""],wpaMode:[!1],hssidclass:!1,ispass:[!1],mulAp:1,countryCode5g:"CN"}},computed:{helpText:function(){var n=lang_t("easymesh.help");return globalConfig.autoMeshModeSupport&&(n+=lang_t("easymesh.mesh_auto_help")),n},linkStatusHtml:function(){var n=this.lang_t("index.disconnected"),i="#db3b21";return"connected"==this.linkStatus&&(n=this.lang_t("index.connected"),i="#28a745"),'<span style="color:'+i+';">'+n+"</span>"},channel2gOption:function(){var n=[],i=1,s=13;for("US"===this.countryCode&&(s=11);i<=s;i++)n.push(i+"");return n},channel5gOption:function(){var n=this.countryCode5g,i=this.bw5g,s=["149","153","157","161"],e=["36","40","44","48"];"2"!=this.band5g&&"1"==i&&s.push("165");var t=e.concat(["52","56","60","64","100","104","108","112","116","132","136","140"],s),a=e.concat(s),o=[];switch(n){case"CN":o=e.concat(s);break;case"US":o=a;break;case"EU":o=e;break;case"OT":o=t;break;case"IA":o=s}return o},formRules:function(){var e=this;return{rssiThreshold:function(n,i){n=cs.dbm_range(n);0==n?i(e.lang_t("easymesh.msg1")):1==n?i(e.lang_t("easymesh.msg2")):i()},ssid:function(n,i,s){n=cs.ssid(n);0==n?i(e.lang_t("wifi.msg1")):4==n?i(e.lang_t("wifi.msg18")):5==n?i(e.lang_t("wifi.msg5")):1==n?i(e.lang_t("wifi.msg2")):2==n?i(e.lang_t("wifi.msg3")):i()},key:function(n,i,s){passwordVerify("wifi",lang_t("wifi.pass"),n,i,e.ispass[s])}}}},created:function(){var i=this;uiPost.getEasyMeshCfg(function(n){if(i.origEnabled="1"==n.enabled,i.enabled="1"==n.enabled,i.linkStatus=n.status,i.mode=n.mode,i.origMode=n.mode,i.isConfig=n.isConfig,i.is_wep="1"==n.is_wep,i.enabled||(i.applyShow=!0),"auto"==n.mode){if("unknown"==n.isConfig)return;i.bssShow=!0}else i.bssShow=n.mode==n.isConfig;i.bssShow&&i.wifiInit()}),uiPost.getWiFiEasyCfg(function(n){i.isWifiOn="0"==n.wifiOff||"0"==n.wifiOff5g})},methods:{tipsFun:function(n){},modeChange:function(){this.origEnabled&&(this.applyShow=this.mode!=this.origMode)},stateChange:function(n){var i=this;!this.isWifiOn&&n?Cstool.Msg({content:lang_t("easymesh.on_5wifi"),ok:function(){i.enabled=!i.enabled}}):this.is_wep&&n?Cstool.Msg({content:lang_t("easymesh.wep_tip"),ok:function(){i.enabled=!i.enabled}}):n||n==this.origEnabled||(n={enabled:"0"},uiPost.setEasyMeshCfg(n,applyCallback))},getEasyMeshStatus:function(){uiPost.getEasyMeshStatus({},function(n){"connected"==n.status?Cstool.Msg({content:lang_t("easymesh.success"),type:"alert",ok:function(){location.href="/easymesh/index.html"+get_token_from_url()}}):Cstool.Msg({content:lang_t("easymesh.fail"),type:"alert",ok:function(){location.href=location.href}})})},ChPlanningChange:function(){var n={};n.ChPlanningEnable=this.ChPlanningEnable?"1":"0",uiPost.setChPlanningTrigger(n,function(n){applyCallback(n,60,function(){location.reload()})})},triggerFun:function(){var n={};this.ChPlanningEnable&&(n.ChPlanningTrigger="1"),uiPost.setChPlanningTrigger(n,function(n){applyCallback(n,60,function(){location.reload()})})},startFun:function(){var i=this;uiPost.setEasyMeshStart({},function(n){applyCallback(n,60,function(){"agent"==globalConfig.meshMode?location.reload():i.getEasyMeshStatus()})})},clearFun:function(){Cstool.Msg({content:this.lang_t("easymesh.msg3"),type:"confirm",ok:function(){uiPost.clearEasyMeshCfg(function(n){applyCallback(n,60)})}})},handleSubmit:function(){var n={enabled:"1"};n.mode=this.mode,uiPost.setEasyMeshCfg(n,function(n){applyCallback(n,60)})},wifiInit:function(n){var s=this;s.wifiOff=[],s.band=[],s.wifiIdx=[],s.hssid=[],s.ssid=[],s.key=[],s.wpaMode=[],s.ispass=[],this._tmpWifiIdx=[],this.tmpIndex={b2:0,b5:0},uiPost.getEasyMeshBssCfg(function(n){if(("controller"==s.origMode||"auto"==s.origMode&&"controller"==s.isConfig)&&(s.steering="1"==n.steering,s.rssiThreshold=n.rssiThreshold,s.countryCode=n.countryCode,s.countryCode5g=n.countryCode5g,s.bw5g=n.bw,s.band5g=n.band,s.channelPre=n.channelPre,s.channelPre5g=n.channelPre5g,s.ChPlanningEnable="1"==n.ChPlanningEnable,s.current_channel=n.current_channel,cs.isInArray(s.channel5gOption,s.channelPre5g)||(s.channelPre5g="0"),n.mulAp)){s.mulAp=n.mulAp.length;for(var i=0;i<s.mulAp;i++)s.initData(n.mulAp[i],i)}s.backHaulPre=n.backHaulPre,s.backHaulPre5g=n.backHaulPre5g})},initData:function(n,i){this.wifiOff.push("1"==n.wifiOff),this.band.push(n.band),this._tmpWifiIdx.push(n.wifiIdx),"0"==n.wifiOff?"5G"==n.band?this.wifiIdx.push(this.tmpIndex.b5++):this.wifiIdx.push(this.tmpIndex.b2++):this.wifiIdx.push(-1),this.hssid.push("1"==n.hssid),this.ssid.push(n.ssid),this.key.push(n.key),this.wpaMode.push("2"==n.wpaMode),this.ispass.push(""!=n.key)},applyFun:function(){var n=this,i={},s=!1;if("controller"==this.mode||"auto"==this.mode&&"controller"==this.isConfig){for(var e=0;e<n.mulAp;e++){if(Cstool.Verify(n.formRules,function(n){s=n},n.mulAp,e),!s)return;i["mulAp"+e]={wifiOff:n.wifiOff[e]?"1":"0",band:n.band[e],wifiIdx:n._tmpWifiIdx[e],ssid:n.ssid[e],key:n.ispass[e]?n.key[e]:"",wpaMode:n.wpaMode[e]?"2":"1",hssid:n.hssid[e]?"1":"0"}}i.channelPre=n.channelPre,i.channelPre5g=n.channelPre5g,i.steering=n.steering?"1":"0",i.rssiThreshold=n.rssiThreshold}i.backHaulPre=n.backHaulPre,i.backHaulPre5g=n.backHaulPre5g,uiPost.setEasyMeshBssCfg(i,applyCallback)}}}</script><script src="/static/js/main.js"></script></body></html>

@@ -1,0 +1,10 @@
+Package: pm-utils
+Version: 1.4.1-1
+Depends: libc, flock
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/platform_utils/pm-utils
+Section: utils
+Architecture: arm_cortex-a7
+Installed-Size: 13303
+Description:  Power Managment Utilities is a small collection of scripts to
+ suspend/hibernate system that can be used to run user supplied
+ scripts on suspend and resume

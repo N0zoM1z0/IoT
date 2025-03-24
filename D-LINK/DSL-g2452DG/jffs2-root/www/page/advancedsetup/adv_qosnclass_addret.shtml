@@ -1,0 +1,26 @@
+i1 = 0;
+var __clsInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification. X_TRI-Enable ClassQueue DSCPMarkValue X_TRI-TC 802-1_P_Value" -->
+__clsInsts[i1] = new Class();
+__clsInsts[i1].enable.VAL = <!--#leaf "1" -->;
+__clsInsts[i1].queue.VAL = <!--#leaf "2" -->;
+__clsInsts[i1].dscp.VAL = <!--#leaf "3" -->;
+__clsInsts[i1].tc.VAL = <!--#leaf "4" -->;
+__clsInsts[i1].ethpri.VAL = <!--#leaf "5" -->;
+__clsInsts[i1]._inspath = "<!--#path -->";
+__clsInsts[i1]._index = i1;
+i2 = 0;
+__clsInsts[i1]._typeInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.{i}.type. Type Min Max ProtocolList" -->
+__clsInsts[i1]._typeInsts[i2] = new ClassType();
+__clsInsts[i1]._typeInsts[i2].type.VAL = "<!--#leaf "1" -->";
+__clsInsts[i1]._typeInsts[i2].min.VAL = "<!--#leaf "2" -->";
+__clsInsts[i1]._typeInsts[i2].max.VAL = "<!--#leaf "3" -->";
+__clsInsts[i1]._typeInsts[i2].plist.VAL = "<!--#leaf "4" -->";
+__clsInsts[i1]._typeInsts[i2]._inspath = "<!--#path -->";
+__clsInsts[i1]._typeInsts[i2]._index = i2;
+i2++;
+<!--#endgetobject -->
+i1++;
+<!--#endgetobject -->
+;__clsInsts;

@@ -1,0 +1,7 @@
+/etc/dnsmasq.conf
+/etc/dhcp_client_lock_file
+/etc/config/dhcp
+/etc/hotplug.d/gmac/24-dnsmasq
+/etc/hotplug.d/ntp/25-dnsmasqsec
+/etc/init.d/dnsmasq
+/usr/sbin/dnsmasq

@@ -1,0 +1,613 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function FilterTuple()
+{    
+    this.Enable = "";
+    this.SrcIP = "";
+    this.SrcPort="";
+    this.DestIP = "";
+    this.DestPort="";
+    this.Protocol="";
+    this.Description="";
+    this.DevPath="";
+}
+var m = 0;
+var G_Wan_Black = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.WanBlackFilter. Enable SrcIP SrcPort DestIP DestPort Protocol Description DevPath" -->
+    G_Wan_Black[m] = new FilterTuple();
+    G_Wan_Black[m].path = "<!--#path -->";
+    G_Wan_Black[m].Enable = "<!--#leaf "1"-->";
+    G_Wan_Black[m].SrcIP = "<!--#leaf "2"-->";
+    G_Wan_Black[m].SrcPort = "<!--#leaf "3"-->";
+    G_Wan_Black[m].DestIP = "<!--#leaf "4"-->";
+    G_Wan_Black[m].DestPort = "<!--#leaf "5"-->";
+    G_Wan_Black[m].Protocol = "<!--#leaf "6"-->";
+    G_Wan_Black[m].Description = "<!--#leaf "7"-->";
+    G_Wan_Black[m].DevPath = "<!--#leaf "8"-->";
+    m++;
+<!--#endgetobject -->
+var n = 0;
+var G_Wan_White = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.WanWhiteFilter. Enable SrcIP SrcPort DestIP DestPort Protocol Description DevPath" -->
+    G_Wan_White[n] = new FilterTuple();
+    G_Wan_White[n].path = "<!--#path -->";
+    G_Wan_White[n].Enable = "<!--#leaf "1"-->";
+    G_Wan_White[n].SrcIP = "<!--#leaf "2"-->";
+    G_Wan_White[n].SrcPort = "<!--#leaf "3"-->";
+    G_Wan_White[n].DestIP = "<!--#leaf "4"-->";
+    G_Wan_White[n].DestPort = "<!--#leaf "5"-->";
+    G_Wan_White[n].Protocol = "<!--#leaf "6"-->";
+    G_Wan_White[n].Description = "<!--#leaf "7"-->";
+    G_Wan_White[n].DevPath = "<!--#leaf "8"-->";
+    n++;
+<!--#endgetobject -->
+var x = 0;
+var G_Lan_Black = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.LanBlackFilter. Enable SrcIP SrcPort DestIP DestPort Protocol Description DevPath" -->
+    G_Lan_Black[x] = new FilterTuple();
+    G_Lan_Black[x].path = "<!--#path -->";
+    G_Lan_Black[x].Enable = "<!--#leaf "1"-->";
+    G_Lan_Black[x].SrcIP = "<!--#leaf "2"-->";
+    G_Lan_Black[x].SrcPort = "<!--#leaf "3"-->";
+    G_Lan_Black[x].DestIP = "<!--#leaf "4"-->";
+    G_Lan_Black[x].DestPort = "<!--#leaf "5"-->";
+    G_Lan_Black[x].Protocol = "<!--#leaf "6"-->";
+    G_Lan_Black[x].Description = "<!--#leaf "7"-->";
+    G_Lan_Black[x].DevPath = "<!--#leaf "8"-->";
+    x++;
+<!--#endgetobject -->
+var y = 0;
+var G_Lan_White = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.LanWhiteFilter. Enable SrcIP SrcPort DestIP DestPort Protocol Description DevPath" -->
+    G_Lan_White[y] = new FilterTuple();
+    G_Lan_White[y].path = "<!--#path -->";
+    G_Lan_White[y].Enable = "<!--#leaf "1"-->";
+    G_Lan_White[y].SrcIP = "<!--#leaf "2"-->";
+    G_Lan_White[y].SrcPort = "<!--#leaf "3"-->";
+    G_Lan_White[y].DestIP = "<!--#leaf "4"-->";
+    G_Lan_White[y].DestPort = "<!--#leaf "5"-->";
+    G_Lan_White[y].Protocol = "<!--#leaf "6"-->";
+    G_Lan_White[y].Description = "<!--#leaf "7"-->";
+    G_Lan_White[y].DevPath = "<!--#leaf "8"-->";
+    y++;
+<!--#endgetobject -->
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+}
+var s = 0;
+var Connection = new Array();
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[s] = new ConnectionTuple();
+   	Connection[s].Type = "IP";
+    Connection[s].Path = "<!--#path -->";
+    Connection[s].Name = "<!--#leaf "1"-->";
+    Connection[s].ServiceList = "<!--#leaf "2"-->";
+    Connection[s].ConnectionType = "<!--#leaf "3"-->";
+    Connection[s].IPMode = "<!--#leaf "4"-->";
+    s++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[s] = new ConnectionTuple();
+    Connection[s].Type = "PPP";
+    Connection[s].Path = "<!--#path -->";
+    Connection[s].Name = "<!--#leaf "1"-->";
+    Connection[s].ServiceList = "<!--#leaf "2"-->";
+    Connection[s].ConnectionType = "<!--#leaf "3"-->";
+    Connection[s].IPMode = "<!--#leaf "4"-->";
+    s++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var G_Operation = "Add";
+var G_Index;
+var G_FilterAddPath = "";
+var G_FilterEditPath = "";
+var G_FilterEditInst = new FilterTuple();
+
+var url=window.location.search;
+
+var opts = url.split("&");
+G_Index = opts[0].split("=")[1];
+G_Operation = opts[1].split("=")[1];
+
+if (G_Operation == 'Add') {
+
+	var G_FilterType = opts[2].split("=")[1];
+	
+	if(G_FilterType == "WanBlack"){
+		G_FilterAddPath = "InternetGatewayDevice.X_CT-COM_Firewall.WanBlackFilter.{i}.";    
+	}else if(G_FilterType == "WanWhite"){
+		G_FilterAddPath = "InternetGatewayDevice.X_CT-COM_Firewall.WanWhiteFilter.{i}.";
+	}else if(G_FilterType == "LanBlack"){
+		G_FilterAddPath = "InternetGatewayDevice.X_CT-COM_Firewall.LanBlackFilter.{i}.";
+	}else if(G_FilterType == "LanWhite"){
+		G_FilterAddPath = "InternetGatewayDevice.X_CT-COM_Firewall.LanWhiteFilter.{i}.";
+	}
+
+} else {
+
+	G_FilterEditPath = opts[2].split("=")[1];
+	
+	var Type = G_FilterEditPath.split(".")[2].substring(0,8);
+
+	if (Type == "WanBlack") {
+		G_FilterEditInst = G_Wan_Black[G_Index];
+	} else if (Type=="WanWhite") {
+		G_FilterEditInst = G_Wan_White[G_Index];
+	} else if (Type=="LanBlack") {
+		G_FilterEditInst = G_Lan_Black[G_Index];
+	} else if (Type=="LanWhite") {
+		G_FilterEditInst = G_Lan_White[G_Index];
+	}
+}
+
+
+function createInterfaceOptions()
+{
+	var exclude = '1';
+	var iptype = $('SELECT_IPType').value;
+	if (iptype == "IPv4") {
+		exclude = '2';
+	} else {
+		exclude = '1';
+	}
+
+	var options = "<option value=''>-</option>";
+
+	for (i = 0; i < Connection.length; i++)
+	{
+		if (!isBridgedConn(Connection[i].ConnectionType) && Connection[i].ServiceList!= 'TR069' && Connection[i].IPMode != exclude)
+		{
+			options += "<option value='" + Connection[i].Path + "'>" + Connection[i].Name + "</option>";
+		}
+	}
+
+	jQuery('#SELECT_ConnsName').html(options);
+	jQuery('#SELECT_ConnsName').css("width", "auto");
+
+	$('SELECT_ConnsName').value = G_FilterEditInst.DevPath;
+}
+
+function getConnection(path)
+{
+	for (var i in Connection) {
+		var conn = Connection[i];
+
+		if (conn.Path == path) {
+			return conn;
+		}
+	}
+	return null;
+}
+
+function getIPTypeFromConfiguredInfo(inst)
+{
+	if (isIPv4Addr(inst.SrcIP) || isIPv4Addr(inst.DestIP)) {
+		return "IPv4";
+	}
+	
+	if (isIPv6Addr(inst.SrcIP) || isIPv6Addr(inst.DestIP)) {
+		return "IPv6";
+	}
+
+	var iptype = "IPv4/IPv6";
+	var conn = getConnection(inst.DevPath);
+	if (conn != null) {
+		switch(conn.IPMode) {
+		case "1":
+			iptype = "IPv4";
+			break;
+		case "2":
+			iptype = "IPv6";
+			break;
+		case "3":
+			break;
+		}
+	}
+
+	return iptype;
+}
+
+function init() {
+    if (G_Operation == 'Edit') {
+		var src_ip = G_FilterEditInst.SrcIP;
+		var sip_start = "";
+		var sip_end = "";
+		if (src_ip.indexOf("-") != -1) {
+			sip_start = src_ip.split("-")[0];
+			sip_end = src_ip.split("-")[1];
+		}
+		else {
+			sip_start = src_ip;
+		}
+	
+		var dst_ip = G_FilterEditInst.DestIP;
+		var dip_start = "";
+		var dip_end = "";
+		if (dst_ip.indexOf("-") != -1) {
+			dip_start = dst_ip.split("-")[0];
+			dip_end = dst_ip.split("-")[1];
+		}
+		else {
+			dip_start = dst_ip;
+		}
+		
+		setValue("SELECT_ConnsName", G_FilterEditInst.DevPath);
+		setValue("INPUT_Description", G_FilterEditInst.Description);
+		setValue("INPUT_Enable", G_FilterEditInst.Enable);
+
+		setValue("SELECT_Protocol", G_FilterEditInst.Protocol);
+		setValue("INPUT_SrcIPStart", sip_start);    
+		setValue("INPUT_SrcIPEnd", sip_end);            
+		setValue("INPUT_DestIPStart", dip_start);    
+		setValue("INPUT_DestIPEnd", dip_end);
+
+		if (G_FilterEditInst.SrcPort.length > 0) {
+			setValue('INPUT_SrcPortStart', G_FilterEditInst.SrcPort.split(":")[0]);
+			setValue('INPUT_SrcPortEnd', G_FilterEditInst.SrcPort.split(":")[1] || '');
+		}
+
+		if (G_FilterEditInst.DestPort.length > 0) {
+			setValue('INPUT_DestPortStart', G_FilterEditInst.DestPort.split(":")[0]);
+			setValue('INPUT_DestPortEnd', G_FilterEditInst.DestPort.split(":")[1] || '');
+		}
+
+		var iptype = getIPTypeFromConfiguredInfo(G_FilterEditInst);
+		setValue("SELECT_IPType", iptype);
+	}
+
+	onProtoChange(false);
+	onChangeIPType(false);
+}
+
+function changeIcmpVal(){
+
+	var iptype = $('SELECT_IPType').value;
+	var opts = $('SELECT_Protocol').options;
+
+	var value = "";
+	if (iptype == "IPv4") {
+		value = "ICMP";
+	} else {
+		value = "ICMPv6";
+	}
+	
+	for (var i = 0; i < opts.length; i++) {
+		var o = opts[i];
+		if (o.text == "ICMP" || o.text == "ICMPv6") {
+			o.text = value;
+			o.value = value;
+			break;
+		}
+	}
+}
+
+function changeIpAddrLabel(iptype)
+{
+	var label_srcip = jQuery("#lang_sourceIP");
+	var label_dstip = jQuery("#lang_destiIP");
+
+	if (iptype == "IPv4") {
+		label_srcip.html(getStr('LK_sec_sourceip'));
+		label_dstip.html(getStr('LK_sec_destip'));
+	} else { //"IPv6"
+		label_srcip.html(getStr('LK_sec_sourceip6'));
+		label_dstip.html(getStr('LK_sec_destip6'));
+	}
+}
+
+function changeIpAddrInput(reset)
+{
+	var input_srcip_start = jQuery("#INPUT_SrcIPStart");
+	var input_srcip_end = jQuery("#INPUT_SrcIPEnd");
+	var input_dstip_start = jQuery("#INPUT_DestIPStart");
+	var input_dstip_end = jQuery("#INPUT_DestIPEnd");
+
+	if (reset) {
+		input_srcip_start.val('');
+		input_srcip_end.val('');
+		input_dstip_start.val('');
+		input_dstip_end.val('');
+	}
+}
+
+function changeIPAddr(reset)
+{
+	var iptype = $('SELECT_IPType').value;
+	changeIpAddrLabel(iptype);
+	changeIpAddrInput(reset);
+}
+
+function onChangeIPType(reset) {
+	createInterfaceOptions();
+	changeIcmpVal();
+	changeIPAddr(reset);
+}
+
+function onProtoChange(reset)
+{
+	var nodes = [ "INPUT_SrcPortStart", "INPUT_SrcPortEnd", "INPUT_DestPortStart", "INPUT_DestPortEnd"];
+
+	var disabled_map = {
+	"ALL": true,
+	"TCP": false,
+	"UDP": false,
+	"TCP/UDP": false,
+	"ICMP": true,
+	"ICMPv6": true
+	};
+
+	var proto = $('SELECT_Protocol').value;
+	if (proto == "") {
+		proto = "-1";
+	}
+	var enable = disabled_map[proto];
+
+	for (var i = 0; i < nodes.length; i++) {
+		if (reset) {
+			$(nodes[i]).value = "";
+		}
+		$(nodes[i]).disabled = enable;
+	}
+}
+
+function checkIPv4Addr()
+{
+	var sip_start = $('INPUT_SrcIPStart');
+	var sip_end = $('INPUT_SrcIPEnd');
+	var dip_start = $('INPUT_DestIPStart');
+	var dip_end = $('INPUT_DestIPEnd');
+
+	if (sip_start.value != "") {
+		if(!isCheckIPV4(sip_start)){            
+		  return false;
+		}
+	}
+	if (sip_end.value != "") {
+		if(!isCheckIPV4(sip_end)){            
+		  return false;
+		}
+	}
+
+	if (dip_start.value != "") {
+		if(!isCheckIPV4(dip_start)){            
+		  return false;
+		}
+	}
+	if (dip_end.value != "") {
+		if(!isCheckIPV4(dip_end)){            
+		  return false;
+		}
+	}
+	return true;
+}
+
+function checkIPv6Addr()
+{
+	var sip_start = $('INPUT_SrcIPStart');
+	var sip_end = $('INPUT_SrcIPEnd');
+	var dip_start = $('INPUT_DestIPStart');
+	var dip_end = $('INPUT_DestIPEnd');
+
+	if (sip_start.value != "") {
+		if(!checkIpv6(sip_start)){            
+		  return false;
+		}
+	}
+	if (sip_end.value != "") {
+		if(!checkIpv6(sip_end)){            
+		  return false;
+		}
+	}
+
+	if (dip_start.value != "") {
+		if(!checkIpv6(dip_start)){            
+		  return false;
+		}
+	}
+	if (dip_end.value != "") {
+		if(!checkIpv6(dip_end)){            
+		  return false;
+		}
+	}
+	return true;
+}
+
+function checkIPAddr()
+{
+	var iptype = $('SELECT_IPType').value;
+	if (iptype == "IPv4") {
+		return checkIPv4Addr();
+	} else if (iptype == "IPv6") {
+		return checkIPv6Addr();
+	} else {
+		return true;
+	}
+}
+
+function checkPorts()
+{
+	var ports = [ "INPUT_SrcPortStart", "INPUT_SrcPortEnd", "INPUT_DestPortStart", "INPUT_DestPortEnd"];
+	for (var i in ports) {
+		var port = getValue(ports[i]);
+		if(port != ""){
+			if (!checkRange(port, 1,1,65535)) {
+				top.AlertMsg(getStr('LK_PortRangeText'),ports[i]);
+				return false;
+			}
+		}
+		
+	}
+	return true;
+}
+function uiBack()
+{
+	document.location.href = "adv_ipfilter.shtml";
+
+}
+function uiSubmit(){
+	var object_path = "";
+	var df = document.sec_ipfilterdataform;     
+
+	if (!checkIPAddr()) {
+		return false;
+	}
+	
+	if (!checkPorts()) {
+		return false;
+	}
+	if(!validateCode())
+		return false;
+		
+	if(G_Operation == 'Add'){
+		object_path = G_FilterAddPath;
+        AddElements(df, 'add_obj', object_path);
+    }else if(G_Operation == 'Edit'){
+		object_path = G_FilterEditPath;
+    }
+
+
+	AddElements(df, object_path+"Enable", getValue('INPUT_Enable'));
+	
+	var start = getValue('INPUT_SrcPortStart');
+	var end = getValue('INPUT_SrcPortEnd');
+	var range = start
+	if (start != "" && end != "") {
+		range += ":" + end;
+	}
+	AddElements(df, object_path+"SrcPort", range);
+	
+	start = getValue('INPUT_DestPortStart');
+	end = getValue('INPUT_DestPortEnd');
+	var range = start
+	if (start != "" && end != "") {
+		range += ":" + end;
+	}
+	AddElements(df, object_path+"DestPort", range);
+	
+	AddElements(df, object_path+"DevPath", getValue('SELECT_ConnsName'));
+	AddElements(df, object_path+"Description", getValue('INPUT_Description'));
+	AddElements(df, object_path+"Protocol", getValue('SELECT_Protocol'));
+
+	var sip_start = getValue('INPUT_SrcIPStart');
+	var sip_end = getValue('INPUT_SrcIPEnd');
+	if (sip_start == "") {
+		sip_end = "";
+		AddElements(df, object_path+"SrcIP", sip_start);
+	}
+	else if (sip_end == "")
+		AddElements(df, object_path+"SrcIP", sip_start);
+	else
+		AddElements(df, object_path+"SrcIP", sip_start + "-" + sip_end);
+
+	var dip_start = getValue('INPUT_DestIPStart');
+	var dip_end = getValue('INPUT_DestIPEnd');
+	if (dip_start == "") {
+		dip_end = "";
+		AddElements(df, object_path+"DestIP", dip_start);
+	}
+	else if (dip_end == "")
+		AddElements(df, object_path+"DestIP", dip_start);
+	else
+		AddElements(df, object_path+"DestIP", dip_start + "-" + dip_end);
+	
+	df.submit(); 
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_PortFilterRuleSettings'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_IPVersionn"></td>
+	<td><select id="SELECT_IPType" onchange="onChangeIPType(true)">
+           		<option value="IPv4">IPv4</option>
+            	<option value="IPv6">IPv6</option>
+			</select></td>
+</tr>
+<tr>
+	<td langkey="LK_Connectionn"></td>
+	<td><select name="select" id="SELECT_ConnsName">
+			</select></td>
+</tr>
+<tr>
+	<td langkey="LK_Descriptionn"></td>
+	<td><input type="text" id="INPUT_Description" maxlength="15"></td>
+</tr>
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable"></td>
+</tr>
+<tr>
+	<td langkey="LK_Protocol_Colon"></td>
+	<td><select id="SELECT_Protocol" onChange="onProtoChange(true)">
+           		<option value="ALL">ALL</option>
+            	<option value="TCP">TCP</option>
+                <option value="UDP">UDP</option>
+                <option value="ICMP">ICMP</option>
+                <option value="TCP/UDP">TCP/UDP</option>
+        	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_SourceIPp"></td>
+	<td><input name="text" type="text" id="INPUT_SrcIPStart" /> - <input type="text" id="INPUT_SrcIPEnd"></td>
+</tr>
+<tr>
+	<td langkey="LK_SourcePortt"></td>
+	<td>  <input type="text" class="portType" id="INPUT_SrcPortStart"> - 
+            <input type="text" class="portType" id="INPUT_SrcPortEnd"></td>
+</tr>	
+<tr>
+	<td langkey="LK_DestinationIPp"></td>
+	<td><input type="text" id="INPUT_DestIPStart" /> - <input type="text" id="INPUT_DestIPEnd"></td>
+</tr>
+<tr>
+	<td langkey="LK_DestinationPortt"></td>
+	<td><input type="text" class="portType" id="INPUT_DestPortStart"/> - 
+            <input type="text" class="portType" id="INPUT_DestPortEnd"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>			
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	&nbsp;<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()")</script>
+	</td>
+</tr> 
+</table>    
+	<script>printEndContent()</script>
+	</form>
+<form method="post" name ="sec_ipfilterdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_ipfilter.shtml">
+ </form>
+</body>
+</html>

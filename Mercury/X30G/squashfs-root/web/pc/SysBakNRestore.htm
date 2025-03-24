@@ -1,0 +1,172 @@
+<style type="text/css">
+	span.backupImportTips{
+		margin-left: 132px;
+		margin-bottom: 12px;
+		font-size:13px;
+		height:32px;
+		line-height:32px;
+		display:block;
+		color:#333;
+	}
+	#importFile{
+		margin-left: 132px;
+	}
+	li.importNotices{
+		margin-left: 132px;
+		font-size: 12px;
+		line-height: 20px;
+		display: list-item;
+		list-style-position: inside;
+		color: #999;
+		width: 328px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var domain, lanIp;
+
+		function reboot() {
+			var reqData = {system: {reboot:null}};
+
+			$.action(reqData, function(data){
+				var waitTime = data["wait_time"];
+				if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+				{
+					waitTime = parseInt(waitTime, 10) * 1000;
+				}
+				else
+				{
+					waitTime = REBOOT_SECONDS;
+				}
+
+				/* REBOOTING */
+				loadingDialog.show({
+					title: label.importConfig,
+					content:{
+						primary: label.importing,
+						secondary: label.importingTips
+					}
+				}, function(){
+					$.changeDomain(lanIp);
+					lanDetecting(function(){
+						window.location.href = ((location.href.toString()).indexOf(domain) == -1) ?
+							("http://" + lanIp) : ("http://" + domain);
+					});
+				}, waitTime);
+			});
+		}
+
+		function upLoadCallBack(code)
+		{
+			if (code == ENONE)
+			{
+				/* IF CONFIG FILE IS VALID */
+				var reqData = {};
+				reqData[uciNetwork.fileName] = {};
+				reqData[uciDeviceInfo.fileName] = {};
+				reqData[uciNetwork.fileName][KEY_NAME] = [uciNetwork.secName.lan];
+				reqData[uciDeviceInfo.fileName][KEY_NAME] = [uciDeviceInfo.secName.info];
+
+				$.query(reqData, function(data){
+					data = data || {};
+					if (data[ERR_CODE] == ENONE)
+					{
+						lanIp = data[uciNetwork.fileName][uciNetwork.secName.lan]
+								[uciNetwork.optName.ip];
+						domain = data[uciDeviceInfo.fileName][uciDeviceInfo.secName.info]
+								[uciDeviceInfo.optName.domainName];
+
+						reboot();
+					}
+				});
+			}
+			else if (code == EFILETOOBIG)
+			{
+				alarmDialog.show(errStr.fileSizeErr);
+			}
+			else	/* IF CONFIG FILE IS SOMETHING WRONG */
+			{
+				alarmDialog.show(errStr.bakNRestoreFail);
+			}
+		}
+
+		function backupFunc()
+		{
+			var reqData = {};
+			reqData[uciSystem.fileName] = {};
+			reqData[uciSystem.fileName][uciSystem.actionName.downloadConf] = null;
+
+			$.action(reqData, function(data){
+				var url = $.orgURL(data["url"]);
+				location.href = url;
+			}, true);
+		}
+
+		function importFunc()
+		{
+			if (importFile.checkFile())
+			{
+				confirmDialog.show({
+					title:label.importConfig,
+					content:label.importConfigConfirm,
+					callback:function(result){
+						if (result == true)
+						{
+							var reqData = {};
+							reqData[uciSystem.fileName] = {};
+							reqData[uciSystem.fileName][uciSystem.actionName.uploadConf] = null;
+
+							$.action(reqData, function(data){
+								importFile.submit($.orgURL(data["url"]));
+							}, true);
+						}
+					}
+				});
+			}
+		}
+
+		var backupBtn = new Button({
+			text:btn.backupConfig,
+			onClick:backupFunc,
+			type:Button.TYPE.PRIMARY,
+			id:"backupBtn",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		var importFile = new UpFile({
+			targetId:"importFile",
+			upLoadCallback: upLoadCallBack
+		});
+
+		var importBtn = new Button({
+			text:btn.importConfig,
+			onClick:importFunc,
+			type:Button.TYPE.PRIMARY,
+			id:"importBtn",
+			props:{width:"240px", margin:"12px 0 24px 132px"}
+		});
+
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.backupload%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.backupAndConfigDescription%}</p>
+</div>
+<div class="subTitle">
+	<h2>{%label.backupConfig%}</h2>
+</div>
+<span class="backupImportTips">{%label.backupTip%}</span>
+<div id="backupBtn"></div>
+<div class="subTitle">
+	<h2>{%label.importConfig%}</h2>
+</div>
+<span class="backupImportTips">{%label.importTip%}</span>
+<div id="importFile"></div>
+<div id="importBtn"></div>
+<ol>
+	<li class="importNotices">{%label.restoreNotice1%}</li>
+	<li class="importNotices">{%label.restoreNotice2%}</li>
+	<li class="importNotices">{%label.restoreNotice3%}</li>
+</ol>

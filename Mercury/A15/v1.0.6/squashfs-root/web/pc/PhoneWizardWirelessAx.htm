@@ -1,0 +1,40 @@
+
+
+<div id="phoneAxPage">
+	<h1 class="phoneTitle">{%menuStr.ax%}</h1>
+	<ul class="phInputUl wifiUniteUl" id="wifiUnite">
+		<p class="info" style="padding-top: 48px; padding-bottom: 24px;">{%label.axTip%}</p>
+		<div class="axCheckboxCon">
+			<input id="axCheckbox" class="axCheck" type="checkbox" />
+			<label class="axCheckboxLbl" for="axCheckbox">{%label.axCheckLabel%}</label>
+		</div>
+		<p style="margin-bottom: 16px; margin-top: 12px;" class="info">由于部分无线网卡驱动较旧，连接至802.11ax无线路由器时，可能会出现一些兼容性问题。如果您有以上疑虑，请到相关制造商官网下载最新驱动程序。</p>
+		<p class="info">Intel:&nbsp;&nbsp;<a href="https://downloadcenter.intel.com" target="_blank">https://downloadcenter.intel.com</a></p>
+		<p class="info">Mediatek:&nbsp;&nbsp;<a href="https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi" target="_blank">https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi</a></p>
+		<p class="info">Realtek:&nbsp;&nbsp;<a href="https://www.realtek.com/en/downloads" target="_blank">https://www.realtek.com/en/downloads</a></p>
+		<p class="info">*需终端支持802.11ax协议，才能体验到802.11ax带来的高速上网体验。</p>
+	</ul>
+
+	<div class="phFunc">
+		<label id="pre" class="phTwoBtn phTwoBtnL">{%btn.preStep%}</label><label id="next" class="phTwoBtnR">{%btn.finish%}</label>
+	</div>
+</div>
+<div id="phoneEndWDSPage" class="disNone">
+	<div class="textCenter">
+		<i class="configGif"></i>
+		<p>路由器设置已完成</p>
+	</div>
+	<div class="block">
+		<div style="text-align:center;">
+			<div class="ssidInfo">
+			</div>
+		</div>
+	</div>
+</div><script type="text/javascript">function init(){function f(){$.modify(gWifiCfgToSave,function(a){ENONE==a[ERR_CODE]&&(gSysMode==uciSystem.optValue.sysMode.wdsMode?($("#phoneAxPage").hide(),$("#phoneEndWDSPage").show(),refreshEndPage()):gSysMode==uciSystem.optValue.sysMode.apMode?($("#phoneAxPage").hide(),$("#phoneEndWDSPage").show(),refreshEndPage("ap")):loadPage("PhoneWireRepeaterEnd.htm","phCon"))})}var a=uciWireless.fileName,b=uciWireless.dynData.host_2g,c=uciWireless.dynData.host_5g,d=uciWireless.dynOptName.mode,e=id("axCheckbox");
+e.checked=!0;$("#next").click(function(){$(!e.checked)&&(gWifiCfgToSave[a]=gWifiCfgToSave[a]||{},gWifiCfgToSave[a][b]=gWifiCfgToSave[a][b]||{},gWifiCfgToSave[a][b][d]=uciWireless.dynOptValue.mode.m_11bgn,gWifiCfgToSave[a][c]=gWifiCfgToSave[a][c]||{},gWifiCfgToSave[a][c][d]=uciWireless.dynOptValue.mode.m_11ac);gSysMode==uciSystem.optValue.sysMode.wdsMode?$.modify({system:{sys_mode:{mode:gSysMode}}},function(a){!0==errHandle(a[ERR_CODE])&&f()}):f()});$("#pre").click(function(){gSysMode==uciSystem.optValue.sysMode.wdsMode?
+loadPage("PhoneWlanWDSCfgThird.htm","phCon"):loadPage("PhoneWired.htm","phCon")})}init();
+function refreshEndPage(f){(function(){var a=["2.4G Wi-Fi","5G Wi-Fi","5G1 Wi-Fi","5G4 Wi-Fi"],b=[FREQ_2G,FREQ_5G],c=[FREQ_2G,FREQ_5G1,FREQ_5G4],d;d="ap"==f?gWireRepeaterCfg:gLocalAPInfo;if("1"==d[FREQ_BS].bs_enable){var b=document.createElement("p"),c=document.createElement("p"),e=document.createElement("p");b.className="wifiName";c.className="ssid";e.className="pwd";b.innerHTML="2.4G&5G Wi-Fi";c.innerHTML="<span>"+label.wirelessName+"： </span>"+d[FREQ_BS].ssid;e.innerHTML="<span>"+label.wirelessPwd+
+"： </span>"+("1"==d[FREQ_BS].encryption?d[FREQ_BS].key:label.wirelessNoSecurity);$(".ssidInfo").append(b);$(".ssidInfo").append(c);$(".ssidInfo").append(e)}else for(var k=2==slp.bandsProvided-1?c:b,h=0;h<k.length;h++){var g=k[h],b=document.createElement("p"),c=document.createElement("p"),e=document.createElement("p");b.className="wifiName";c.className="ssid";e.className="pwd";b.innerHTML=a[g];c.innerHTML="<span>"+label.wirelessName+"： </span>"+d[g].ssid;e.innerHTML="<span>"+label.wirelessPwd+"： </span>"+
+("1"==d[g].encryption?d[g].key:label.wirelessNoSecurity);$(".ssidInfo").append(b);$(".ssidInfo").append(c);$(".ssidInfo").append(e)}wzdDone();a=document.createElement("p");a.className="lanIp";a.innerHTML="<span>"+label.ipAddr+"： </span>"+gLanIP;$(".ssidInfo").append(a);"ap"==f?$.action({wired_extender:{set_ip:null}}):$.action({network:{apply_lan_config:null},wireless:{wds_finish:null}},null,!0);$.setTimeout(function(){window.location.href="http://"+gLanIP},1E4);$.changeDomain(gLanIP);$.setTimeout(function(){lanDetecting(function(){window.location.href=
+"http://"+gLanIP})},4E3)})()};
+</script><style type="text/css">p.info{font-size:13px;line-height:20px;color:#666;width:283px;margin-top:8px}p.info a{color:#ff4c79}ul.wifiUniteUl{margin-top:-20px}div.axCheckboxCon{margin-bottom:6px}input.axCheck{display:inline;height:20px!important;margin:0;vertical-align:middle!important;width:20px!important}label.axCheckboxLbl{color:#333!important;display:inline!important;font-size:15px;line-height:24px;height:20px;vertical-align:middle!important;margin-left:8px;font-weight:bold}div.WDSFiBlock{margin:13px 0 11px 0;padding-bottom:35px;border:1px solid #cbcbcb;background:#fcfcfc;overflow:hidden}p.WDSFiTitle{font-size:14px;font-weight:bold;margin:20px 0 12px 51px;text-align:left}p.WDSFiDetail{line-height:21px;margin-left:51px;text-align:left;white-space:pre}p.WDSFiLine{font-size:0;padding:0;line-height:0;margin:13px 43px 0 43px;border-bottom:1px solid #ccc}p.WDSFiLineS{margin-top:21px!important}ul.wdsGridLine{padding-left:260px;margin-top:0!important}ul.gridLine label span{display:inline-block}ul.gridLine label span pre{overflow:hidden;text-overflow:ellipsis;vertical-align:middle;width:300px;display:inline-block;*display:inline;*zoom:1}i.configGif{width:56px;height:56px;display:inline-block;background:url(../web-static/images/portal.png) -71px -31px no-repeat}.textCenter{text-align:center;padding-top:80px}.block p{color:#333;font-size:14px;text-align:center}.ssidInfo{display:inline-block;border:1px solid #dbdbdb;padding-top:16px;padding-bottom:14px;width:80%;padding-left:24px}.ssidInfo p{text-align:left}.ssid{margin-left:14px;margin-top:12px}.pwd{margin-left:14px;margin-top:8px;margin-bottom:24px}.lanIp{margin-left:14px}.ssidInfo p span{color:#666}.textCenter p{font-size:15px;color:#333;margin-top:25px;margin-bottom:40px}</style>

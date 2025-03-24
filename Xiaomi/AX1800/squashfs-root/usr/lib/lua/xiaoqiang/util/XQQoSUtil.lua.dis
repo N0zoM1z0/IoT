@@ -1,0 +1,1726 @@
+local L0, L1, L2, L3, L4
+L0 = module
+L1 = "xiaoqiang.util.XQQoSUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "luci.model.uci"
+L0 = L0(L1)
+L0 = L0.cursor
+L0 = L0()
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQFunction"
+L2 = L2(L3)
+L3 = require
+L4 = "xiaoqiang.util.XQSysUtil"
+L3 = L3(L4)
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = luci
+  L0 = L0.model
+  L0 = L0.uci
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_all
+  L3 = "app-tc"
+  L4 = "config"
+  L1 = L1(L2, L3, L4)
+  L3 = L0
+  L2 = L0.get_all
+  L4 = "app-tc"
+  L5 = "xunlei"
+  L2 = L2(L3, L4, L5)
+  L4 = L0
+  L3 = L0.get_all
+  L5 = "app-tc"
+  L6 = "kuaipan"
+  L3 = L3(L4, L5, L6)
+  L4 = {}
+  if L1 then
+    L5 = L1.enable
+    L4.enable = L5
+  end
+  if L2 then
+    L4.xunlei = L2
+  end
+  if L3 then
+    L4.kuaipan = L3
+  end
+  return L4
+end
+_application = L4
+function L4(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.set
+  L5 = "app-tc"
+  L6 = A0
+  L7 = A1
+  L8 = A2
+  L3(L4, L5, L6, L7, L8)
+end
+_set = L4
+function L4()
+  local L0, L1, L2
+  L0 = _UPVALUE0_
+  L1 = L0
+  L0 = L0.save
+  L2 = "app-tc"
+  L0(L1, L2)
+  L0 = _UPVALUE0_
+  L1 = L0
+  L0 = L0.commit
+  L2 = "app-tc"
+  L0(L1, L2)
+end
+_apply = L4
+function L4(A0, A1, A2)
+  local L3, L4, L5, L6, L7
+  if A1 then
+    L3 = _set
+    L4 = A0
+    L5 = "max_download_speed"
+    L6 = tostring
+    L7 = A1
+    L6, L7 = L6(L7)
+    L3(L4, L5, L6, L7)
+  end
+  if A2 then
+    L3 = _set
+    L4 = A0
+    L5 = "max_upload_speed"
+    L6 = tostring
+    L7 = A2
+    L6, L7 = L6(L7)
+    L3(L4, L5, L6, L7)
+  end
+  L3 = _apply
+  L3()
+end
+_appSpeedlimit = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.QOS_APPSL_ENABLE
+    if L1 then
+      goto lbl_9
+    end
+  end
+  L1 = _UPVALUE0_
+  L1 = L1.QOS_APPSL_DISABLE
+  ::lbl_9::
+  if A0 then
+    L2 = "1"
+    if L2 then
+      goto lbl_15
+    end
+  end
+  L2 = "0"
+  ::lbl_15::
+  L3 = _set
+  L4 = "config"
+  L5 = "enable"
+  L6 = L2
+  L3(L4, L5, L6)
+  L3 = _apply
+  L3()
+  L3 = os
+  L3 = L3.execute
+  L4 = L1
+  L3 = L3(L4)
+  L3 = L3 == 0
+  return L3
+end
+appSpeedlimitSwitch = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L0 = require
+  L1 = "json"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = {}
+  L3 = {}
+  L4 = {}
+  L5 = _application
+  L5 = L5()
+  L6 = _UPVALUE0_
+  L6 = L6.thrift_tunnel_to_datacenter
+  L7 = "{\"api\":45,\"appCode\":1}"
+  L6 = L6(L7)
+  L7 = _UPVALUE0_
+  L7 = L7.thrift_tunnel_to_datacenter
+  L8 = "{\"api\":45,\"appCode\":0}"
+  L7 = L7(L8)
+  if L6 then
+    L8 = L6.code
+    if L8 == 0 then
+      L8 = tonumber
+      L9 = L6.downloadSpeed
+      L8 = L8(L9)
+      L3.download = L8
+      L8 = tonumber
+      L9 = L6.uploadSpeed
+      L8 = L8(L9)
+      L3.upload = L8
+  end
+  else
+    L3.download = 0
+    L3.upload = 0
+  end
+  if L7 then
+    L8 = L7.code
+    if L8 == 0 then
+      L8 = tonumber
+      L9 = L7.downloadSpeed
+      L8 = L8(L9)
+      L4.download = L8
+      L8 = tonumber
+      L9 = L7.uploadSpeed
+      L8 = L8(L9)
+      L4.upload = L8
+  end
+  else
+    L4.download = 0
+    L4.upload = 0
+  end
+  L8 = L5.enable
+  L2.enable = L8
+  L8 = L5.xunlei
+  L8 = L8.enable
+  L3.enable = L8
+  L8 = tonumber
+  L9 = L5.xunlei
+  L9 = L9.max_download_speed
+  L8 = L8(L9)
+  L3.maxdownload = L8
+  L8 = tonumber
+  L9 = L5.xunlei
+  L9 = L9.max_upload_speed
+  L8 = L8(L9)
+  L3.maxupload = L8
+  L8 = L5.kuaipan
+  L8 = L8.enable
+  L4.enable = L8
+  L8 = tonumber
+  L9 = L5.kuaipan
+  L9 = L9.max_download_speed
+  L8 = L8(L9)
+  L4.maxdownload = L8
+  L8 = tonumber
+  L9 = L5.kuaipan
+  L9 = L9.max_upload_speed
+  L8 = L8(L9)
+  L4.maxupload = L8
+  L2.xunlei = L3
+  L2.kuaipan = L4
+  return L2
+end
+appInfo = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5
+  L2 = _appSpeedlimit
+  L3 = "xunlei"
+  L4 = A0
+  L5 = A1
+  L2(L3, L4, L5)
+end
+setXunlei = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5
+  L2 = _appSpeedlimit
+  L3 = "kuaipan"
+  L4 = A0
+  L5 = A1
+  L2(L3, L4, L5)
+end
+setKuaipan = L4
+function L4()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = _UPVALUE0_
+  L1 = L1.QOS_APPSL_RELOAD
+  L0(L1)
+end
+reload = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = 0
+    return L1
+  end
+  L1 = type
+  L2 = A0
+  L1 = L1(L2)
+  if L1 == "number" then
+    L1 = tonumber
+    L2 = string
+    L2 = L2.format
+    L3 = "%0.2f"
+    L4 = A0 / 8192
+    L2, L3, L4, L5, L6, L7 = L2(L3, L4)
+    return L1(L2, L3, L4, L5, L6, L7)
+  end
+  L2 = A0
+  L1 = A0.match
+  L3 = "Gbit"
+  L1 = L1(L2, L3)
+  if L1 then
+    L1 = tonumber
+    L3 = A0
+    L2 = A0.match
+    L4 = "(%S+)Gbit"
+    L2, L3, L4, L5, L6, L7 = L2(L3, L4)
+    L1 = L1(L2, L3, L4, L5, L6, L7)
+    L1 = L1 * 131072
+    return L1
+  else
+    L2 = A0
+    L1 = A0.match
+    L3 = "Mbit"
+    L1 = L1(L2, L3)
+    if L1 then
+      L1 = tonumber
+      L3 = A0
+      L2 = A0.match
+      L4 = "(%S+)Mbit"
+      L2, L3, L4, L5, L6, L7 = L2(L3, L4)
+      L1 = L1(L2, L3, L4, L5, L6, L7)
+      L1 = L1 * 128
+      return L1
+    else
+      L2 = A0
+      L1 = A0.match
+      L3 = "Kbit"
+      L1 = L1(L2, L3)
+      if L1 then
+        L1 = tonumber
+        L2 = string
+        L2 = L2.format
+        L3 = "%0.2f"
+        L4 = tonumber
+        L6 = A0
+        L5 = A0.match
+        L7 = "(%S+)Kbit"
+        L5, L6, L7 = L5(L6, L7)
+        L4 = L4(L5, L6, L7)
+        L4 = L4 / 8
+        L2, L3, L4, L5, L6, L7 = L2(L3, L4)
+        return L1(L2, L3, L4, L5, L6, L7)
+      else
+        L2 = A0
+        L1 = A0.match
+        L3 = "bit"
+        L1 = L1(L2, L3)
+        if L1 then
+          L1 = tonumber
+          L2 = string
+          L2 = L2.format
+          L3 = "%0.2f"
+          L4 = tonumber
+          L6 = A0
+          L5 = A0.match
+          L7 = "(%S+)bit"
+          L5, L6, L7 = L5(L6, L7)
+          L4 = L4(L5, L6, L7)
+          L4 = L4 / 8192
+          L2, L3, L4, L5, L6, L7 = L2(L3, L4)
+          return L1(L2, L3, L4, L5, L6, L7)
+        else
+          L1 = 0
+          return L1
+        end
+      end
+    end
+  end
+end
+_bitFormat = L4
+function L4(A0)
+  local L1
+  if A0 == 1 then
+    L1 = 0.25
+    return L1
+  elseif A0 == 2 then
+    L1 = 0.5
+    return L1
+  elseif A0 == 3 then
+    L1 = 0.75
+    return L1
+  else
+    L1 = 0.1
+    return L1
+  end
+end
+_weightHelper = L4
+function L4(A0)
+  local L1
+  if A0 == 0 then
+    L1 = 2
+    return L1
+  elseif 0 < A0 and A0 <= 0.25 then
+    L1 = 1
+    return L1
+  elseif 0.25 < A0 and A0 <= 0.5 then
+    L1 = 2
+    return L1
+  elseif 0.5 < A0 then
+    L1 = 3
+    return L1
+  end
+  L1 = 0
+  return L1
+end
+_levelHelper = L4
+function L4(A0)
+  local L1, L2
+  if A0 then
+    L1 = os
+    L1 = L1.execute
+    L2 = "/etc/init.d/miqos on"
+    L1 = L1(L2)
+    L1 = L1 == 0
+    return L1
+  else
+    L1 = os
+    L1 = L1.execute
+    L2 = "/etc/init.d/miqos off"
+    L1 = L1(L2)
+    L1 = L1 == 0
+    return L1
+  end
+end
+qosSwitch = L4
+function L4(A0)
+  local L1, L2, L3
+  L1 = tonumber
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    if L1 == 0 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type auto"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 1 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type min"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 2 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type max"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 3 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type service && /etc/init.d/miqos set_seq auto"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 4 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type service && /etc/init.d/miqos set_seq game"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 5 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type service && /etc/init.d/miqos set_seq web"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    elseif L1 == 6 then
+      L2 = os
+      L2 = L2.execute
+      L3 = "/etc/init.d/miqos set_type service && /etc/init.d/miqos set_seq video"
+      L2 = L2(L3)
+      L2 = L2 == 0
+      return L2
+    end
+  end
+  L2 = false
+  return L2
+end
+setQoSMode = L4
+function L4()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "/etc/init.d/miqos restart"
+  return L0(L1)
+end
+qosRestart = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L2 = os
+  L2 = L2.execute
+  L3 = "/etc/init.d/miqos status"
+  L2 = L2(L3)
+  if L2 == 0 then
+    L1.on = 1
+    L1.mode = 0
+    L2 = require
+    L3 = "miqos"
+    L2 = L2(L3)
+    L3 = L2.cmd
+    L4 = "show_limit"
+    L3 = L3(L4)
+    L4 = {}
+    L4.auto = 3
+    L4.game = 4
+    L4.web = 5
+    L4.video = 6
+    if not L3 then
+      goto lbl_77
+    end
+    L5 = L3.status
+    if L5 ~= 0 then
+      goto lbl_77
+    end
+    L5 = L3.mode
+    if not L5 then
+      goto lbl_77
+    end
+    L5 = L3.mode
+    if L5 == "auto" then
+      L1.mode = 0
+    else
+      L5 = L3.mode
+      if L5 == "min" then
+        L1.mode = 1
+      else
+        L5 = L3.mode
+        if L5 == "max" then
+          L1.mode = 2
+        else
+          L5 = L3.mode
+          if L5 ~= "service" then
+            L5 = L3.mode
+            if L5 ~= "noifb" then
+              goto lbl_72
+            end
+          end
+          L5 = L2.cmd
+          L6 = "get_seq"
+          L5 = L5(L6)
+          L6 = L5.status
+          if L6 == 0 then
+            L6 = L5.data
+            L6 = L6.seq_prio
+            L6 = L4[L6]
+            L6 = L6 or L6
+            L1.mode = L6
+          else
+            L6 = L4.auto
+            L1.mode = L6
+            goto lbl_77
+            ::lbl_72::
+            L5 = L4.auto
+            L1.mode = L5
+          end
+        end
+      end
+    end
+  else
+    L1.on = 0
+    L1.mode = 0
+  end
+  ::lbl_77::
+  return L1
+end
+qosStatus = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "miqos"
+  L0 = L0(L1)
+  L1 = {}
+  L1.download = 0
+  L1.upload = 0
+  L2 = L0.cmd
+  L3 = "show_band"
+  L2 = L2(L3)
+  if L2 then
+    L3 = L2.status
+    if L3 == 0 then
+      L3 = L2.data
+      if L3 then
+        L3 = tonumber
+        L4 = string
+        L4 = L4.format
+        L5 = "%0.2f"
+        L6 = L2.data
+        L6 = L6.downlink
+        L6 = L6 / 1024
+        L4, L5, L6 = L4(L5, L6)
+        L3 = L3(L4, L5, L6)
+        L1.download = L3
+        L3 = tonumber
+        L4 = string
+        L4 = L4.format
+        L5 = "%0.2f"
+        L6 = L2.data
+        L6 = L6.uplink
+        L6 = L6 / 1024
+        L4, L5, L6 = L4(L5, L6)
+        L3 = L3(L4, L5, L6)
+        L1.upload = L3
+      end
+    end
+  end
+  return L1
+end
+qosBand = L4
+function L4()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "miqos"
+  L0 = L0(L1)
+  L1 = {}
+  L1.switch = 0
+  L2 = L0.cmd
+  L3 = "show_wangzhe"
+  L2 = L2(L3)
+  if L2 then
+    L3 = L2.status
+    if L3 == 0 then
+      L3 = L2.data
+      if L3 then
+        L3 = L2.data
+        L3 = L3.switch
+        L1.switch = L3
+      end
+    end
+  end
+  return L1
+end
+wangzheInfo = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = require
+  L3 = "miqos"
+  L2 = L2(L3)
+  if A0 and A1 then
+    L3 = tostring
+    L4 = math
+    L4 = L4.floor
+    L5 = 1024 * A0
+    L4, L5, L6, L7, L8, L9 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9)
+    L4 = tostring
+    L5 = math
+    L5 = L5.floor
+    L6 = 1024 * A1
+    L5, L6, L7, L8, L9 = L5(L6)
+    L4 = L4(L5, L6, L7, L8, L9)
+    L5 = L2.cmd
+    L6 = string
+    L6 = L6.format
+    L7 = "change_band %s %s"
+    L8 = L3
+    L9 = L4
+    L6, L7, L8, L9 = L6(L7, L8, L9)
+    L5 = L5(L6, L7, L8, L9)
+    if L5 then
+      L6 = L5.status
+      if L6 == 0 then
+        L6 = true
+        return L6
+      end
+    end
+  end
+  L3 = false
+  return L3
+end
+setQosBand = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "miqos"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQDeviceUtil"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = {}
+  L5 = L2.getDeviceList
+  L6 = true
+  L7 = true
+  L5 = L5(L6, L7)
+  L6 = L1.cmd
+  L7 = "show_limit"
+  L6 = L6(L7)
+  L7 = qosBand
+  L7 = L7()
+  if L5 then
+    if L8 == "table" then
+      if 0 < L8 then
+        for L11, L12 in L8, L9, L10 do
+          L13 = L12.ip
+          L4[L13] = L12
+        end
+      end
+    end
+  end
+  if L4 and L6 then
+    if L8 == 0 then
+      if L8 then
+        for L11, L12 in L8, L9, L10 do
+          L13 = L4[L11]
+          if L13 then
+            L14 = L0.clone
+            L15 = L13
+            L16 = true
+            L14 = L14(L15, L16)
+            L13 = L14
+            L13.ip = L11
+            L14 = {}
+            L15 = tonumber
+            L16 = L12.DOWN
+            L16 = L16.max_per
+            L15 = L15(L16)
+            L15 = L15 / 8
+            L14.downmax = L15
+            L15 = tonumber
+            L16 = L12.DOWN
+            L16 = L16.min_per
+            L15 = L15(L16)
+            L15 = L15 / 8
+            L14.downmin = L15
+            L15, L16 = nil, nil
+            L17 = L7.download
+            if 0 < L17 then
+              L17 = tonumber
+              L18 = L12.DOWN
+              L18 = L18.max_per
+              L17 = L17(L18)
+              L17 = L17 or L17
+              L15 = 100 * L17
+              L17 = _levelHelper
+              L18 = tonumber
+              L19 = L12.DOWN
+              L19 = L19.min_per
+              L18 = L18(L19)
+              L18 = L18 or L18
+              L17 = L17(L18)
+              L16 = L17
+            else
+              L16 = 2
+              L15 = 100
+            end
+            L14.maxdownper = L15
+            L17 = tonumber
+            L18 = L12.UP
+            L18 = L18.max_per
+            L17 = L17(L18)
+            L17 = L17 / 8
+            L14.upmax = L17
+            L17 = tonumber
+            L18 = L12.UP
+            L18 = L18.min_per
+            L17 = L17(L18)
+            L17 = L17 / 8
+            L14.upmin = L17
+            L17 = nil
+            L18 = L7.upload
+            if 0 < L18 then
+              L18 = tonumber
+              L19 = L12.UP
+              L19 = L19.max_per
+              L18 = L18(L19)
+              L18 = L18 or L18
+              L17 = 100 * L18
+            else
+              L17 = 100
+            end
+            L14.level = L16
+            L14.upmaxper = L17
+            L13.qos = L14
+            L18 = L13.isap
+            if L18 == 0 then
+              L18 = table
+              L18 = L18.insert
+              L19 = L3
+              L20 = L13
+              L18(L19, L20)
+            end
+          end
+        end
+      end
+    end
+  end
+  return L3
+end
+qosList = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "miqos"
+  L1 = L1(L2)
+  L2 = L1.cmd
+  L3 = "show_cfg"
+  L2 = L2(L3)
+  L3 = {}
+  L3.upmax = 0
+  L3.downmax = 0
+  L3.flag = "off"
+  L4 = L2.status
+  if L4 ~= 0 then
+    L4 = nil
+    return L4
+  end
+  L4 = L2.data
+  if L4 then
+    L4 = L2.data
+    L4 = L4[A0]
+    if L4 then
+      L4 = tonumber
+      L5 = L2.data
+      L5 = L5[A0]
+      L5 = L5.max_grp_uplink
+      L4 = L4(L5)
+      L4 = L4 / 8
+      L3.upmax = L4
+      L4 = tonumber
+      L5 = L2.data
+      L5 = L5[A0]
+      L5 = L5.max_grp_downlink
+      L4 = L4(L5)
+      L4 = L4 / 8
+      L3.downmax = L4
+      L4 = L2.data
+      L4 = L4[A0]
+      L4 = L4.flag
+      L3.flag = L4
+      L4 = L2.data
+      L4 = L4[A0]
+      L4 = L4.flag
+      if not L4 then
+        L4 = L3.upmax
+        if not (0 < L4) then
+          L4 = L3.downmax
+          if not (0 < L4) then
+            goto lbl_54
+          end
+        end
+        L3.flag = "on"
+        goto lbl_55
+        ::lbl_54::
+        L3.flag = "off"
+      end
+    end
+  end
+  ::lbl_55::
+  return L3
+end
+macQosInfo = L4
+function L4(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L3 = require
+  L4 = "miqos"
+  L3 = L3(L4)
+  L4 = _UPVALUE0_
+  L4 = L4.isStrNil
+  L5 = A0
+  L4 = L4(L5)
+  if not L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.macFormat
+    L5 = A0
+    L4 = L4(L5)
+    A0 = L4
+    L4 = tonumber
+    L5 = A1
+    L4 = L4(L5)
+    if L4 then
+      L4 = tonumber
+      L5 = A2
+      L4 = L4(L5)
+      if L4 then
+        L4 = L3.cmd
+        L5 = string
+        L5 = L5.format
+        L6 = "on_limit max %s %s %s"
+        L7 = _UPVALUE0_
+        L7 = L7.macFormat
+        L8 = A0
+        L7 = L7(L8)
+        L8 = tostring
+        L9 = tonumber
+        L10 = A1
+        L9 = L9(L10)
+        L9 = 8 * L9
+        L8 = L8(L9)
+        L9 = tostring
+        L10 = tonumber
+        L11 = A2
+        L10 = L10(L11)
+        L10 = 8 * L10
+        L9, L10, L11 = L9(L10)
+        L5, L6, L7, L8, L9, L10, L11 = L5(L6, L7, L8, L9, L10, L11)
+        L4 = L4(L5, L6, L7, L8, L9, L10, L11)
+        L5 = L4.status
+        if L5 == 0 then
+          L5 = true
+          return L5
+        end
+      end
+    end
+  end
+  L4 = false
+  return L4
+end
+setMacQosInfo = L4
+function L4(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L4 = require
+  L5 = "miqos"
+  L4 = L4(L5)
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = A0
+  L5 = L5(L6)
+  if not L5 then
+    L5 = tonumber
+    L6 = A1
+    L5 = L5(L6)
+    if L5 then
+      L5 = _UPVALUE0_
+      L5 = L5.macFormat
+      L6 = A0
+      L5 = L5(L6)
+      L6 = tonumber
+      L7 = A1
+      L6 = L6(L7)
+      L7 = qosStatus
+      L7 = L7()
+      if L7 then
+        L8 = L7.mode
+        if L8 ~= L6 then
+          L8 = setQoSMode
+          L9 = L6
+          L8 = L8(L9)
+          if not L8 then
+            L8 = false
+            return L8
+          end
+        end
+      end
+      if L6 == 1 then
+        L8 = _weightHelper
+        L9 = tonumber
+        L10 = A2
+        L9, L10, L11, L12, L13, L14, L15, L16 = L9(L10)
+        L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16)
+        L9 = _weightHelper
+        L10 = tonumber
+        L11 = A3
+        L10, L11, L12, L13, L14, L15, L16 = L10(L11)
+        L9 = L9(L10, L11, L12, L13, L14, L15, L16)
+        if L8 and L9 then
+          L10 = os
+          L10 = L10.execute
+          L11 = string
+          L11 = L11.format
+          L12 = "/etc/init.d/miqos on_limit min \"%s\" \"%s\" \"%s\""
+          L13 = _UPVALUE0_
+          L13 = L13.macFormat
+          L14 = L5
+          L13 = L13(L14)
+          L14 = tostring
+          L15 = L8
+          L14 = L14(L15)
+          L15 = tostring
+          L16 = L9
+          L15, L16 = L15(L16)
+          L11, L12, L13, L14, L15, L16 = L11(L12, L13, L14, L15, L16)
+          L10(L11, L12, L13, L14, L15, L16)
+          L10 = true
+          return L10
+        end
+      else
+        L8 = tonumber
+        L9 = A2
+        L8 = L8(L9)
+        if L8 then
+          L8 = tonumber
+          L9 = A3
+          L8 = L8(L9)
+          if L8 then
+            L8 = os
+            L8 = L8.execute
+            L9 = string
+            L9 = L9.format
+            L10 = "/etc/init.d/miqos on_limit max \"%s\" \"%s\" \"%s\""
+            L11 = _UPVALUE0_
+            L11 = L11.macFormat
+            L12 = L5
+            L11 = L11(L12)
+            L12 = tostring
+            L13 = tonumber
+            L14 = A2
+            L13 = L13(L14)
+            L13 = 8 * L13
+            L12 = L12(L13)
+            L13 = tostring
+            L14 = tonumber
+            L15 = A3
+            L14 = L14(L15)
+            L14 = 8 * L14
+            L13, L14, L15, L16 = L13(L14)
+            L9, L10, L11, L12, L13, L14, L15, L16 = L9(L10, L11, L12, L13, L14, L15, L16)
+            L8(L9, L10, L11, L12, L13, L14, L15, L16)
+            L8 = true
+            return L8
+          end
+        end
+      end
+    end
+  end
+  L5 = false
+  return L5
+end
+qosOnLimit = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "miqos"
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if not L3 and (A1 == "on" or A1 == "off") then
+    L3 = _UPVALUE0_
+    L3 = L3.macFormat
+    L4 = A0
+    L3 = L3(L4)
+    L4 = L2.cmd
+    L5 = "limit_flag "
+    L6 = L3
+    L7 = " "
+    L8 = A1
+    L5 = L5 .. L6 .. L7 .. L8
+    L4 = L4(L5)
+    L5 = L4.status
+    if L5 == 0 then
+      L5 = true
+      return L5
+    else
+      L5 = false
+      return L5
+    end
+  else
+    L3 = false
+    return L3
+  end
+end
+qosLimitFlag = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  if A1 then
+    L2 = type
+    L2 = L2(L3)
+    if L2 == "table" then
+      L2 = #A1
+      if not (L2 <= 0) then
+        goto lbl_13
+      end
+    end
+  end
+  L2 = false
+  do return L2 end
+  ::lbl_13::
+  L2 = require
+  L2 = L2(L3)
+  if A0 then
+    if L3 then
+      if L3 then
+        if L4 ~= A0 then
+          if not L4 then
+            return L4
+          end
+        end
+      end
+      for L7, L8 in L4, L5, L6 do
+        L9 = _UPVALUE0_
+        L9 = L9.macFormat
+        L10 = L8.mac
+        L9 = L9(L10)
+        L10 = tonumber
+        L11 = L8.maxup
+        L10 = L10(L11)
+        L11 = tonumber
+        L12 = L8.maxdown
+        L11 = L11(L12)
+        if A0 == 1 then
+          L12 = _weightHelper
+          L13 = tonumber
+          L14 = L8.maxup
+          L13, L14, L15, L16, L17, L18, L19, L20 = L13(L14)
+          L12 = L12(L13, L14, L15, L16, L17, L18, L19, L20)
+          L13 = _weightHelper
+          L14 = tonumber
+          L15 = L8.maxdown
+          L14, L15, L16, L17, L18, L19, L20 = L14(L15)
+          L13 = L13(L14, L15, L16, L17, L18, L19, L20)
+          if L12 and L13 then
+            L14 = os
+            L14 = L14.execute
+            L15 = string
+            L15 = L15.format
+            L16 = "/etc/init.d/miqos set_limit min \"%s\" \"%s\" \"%s\""
+            L17 = _UPVALUE0_
+            L17 = L17.macFormat
+            L18 = L9
+            L17 = L17(L18)
+            L18 = tostring
+            L19 = L12
+            L18 = L18(L19)
+            L19 = tostring
+            L20 = L13
+            L19, L20 = L19(L20)
+            L15, L16, L17, L18, L19, L20 = L15(L16, L17, L18, L19, L20)
+            L14(L15, L16, L17, L18, L19, L20)
+          end
+        else
+          L12 = tonumber
+          L13 = L10
+          L12 = L12(L13)
+          if L12 then
+            L12 = tonumber
+            L13 = L11
+            L12 = L12(L13)
+            if L12 then
+              L12 = os
+              L12 = L12.execute
+              L13 = string
+              L13 = L13.format
+              L14 = "/etc/init.d/miqos on_limit max \"%s\" \"%s\" \"%s\""
+              L15 = _UPVALUE0_
+              L15 = L15.macFormat
+              L16 = L9
+              L15 = L15(L16)
+              L16 = tostring
+              L17 = tonumber
+              L18 = L10
+              L17 = L17(L18)
+              L17 = 8 * L17
+              L16 = L16(L17)
+              L17 = tostring
+              L18 = tonumber
+              L19 = L11
+              L18 = L18(L19)
+              L18 = 8 * L18
+              L17, L18, L19, L20 = L17(L18)
+              L13, L14, L15, L16, L17, L18, L19, L20 = L13(L14, L15, L16, L17, L18, L19, L20)
+              L12(L13, L14, L15, L16, L17, L18, L19, L20)
+            end
+          end
+        end
+      end
+      L4(L5)
+      return L4
+  end
+  else
+    for L6, L7 in L3, L4, L5 do
+      L8 = _UPVALUE0_
+      L8 = L8.macFormat
+      L9 = L7.mac
+      L8 = L8(L9)
+      L9 = tonumber
+      L10 = L7.maxup
+      L9 = L9(L10)
+      L10 = tonumber
+      L11 = L7.maxdown
+      L10 = L10(L11)
+      L11 = tonumber
+      L12 = L9
+      L11 = L11(L12)
+      if L11 then
+        L11 = tonumber
+        L12 = L10
+        L11 = L11(L12)
+        if L11 then
+          L11 = os
+          L11 = L11.execute
+          L12 = string
+          L12 = L12.format
+          L13 = "/etc/init.d/miqos set_limit max \"%s\" \"%s\" \"%s\""
+          L14 = _UPVALUE0_
+          L14 = L14.paramFormat
+          L15 = L8
+          L14 = L14(L15)
+          L15 = tostring
+          L16 = tonumber
+          L17 = L9
+          L16 = L16(L17)
+          L16 = 8 * L16
+          L15 = L15(L16)
+          L16 = tostring
+          L17 = tonumber
+          L18 = L10
+          L17 = L17(L18)
+          L17 = 8 * L17
+          L16, L17, L18, L19, L20 = L16(L17)
+          L12, L13, L14, L15, L16, L17, L18, L19, L20 = L12(L13, L14, L15, L16, L17, L18, L19, L20)
+          L11(L12, L13, L14, L15, L16, L17, L18, L19, L20)
+        end
+      end
+    end
+    L3(L4)
+    return L3
+  end
+  return L3
+end
+qosOnLimits = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "miqos"
+  L1 = L1(L2)
+  L2 = nil
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if not L3 then
+    L3 = L1.cmd
+    L4 = string
+    L4 = L4.format
+    L5 = "off_limit %s"
+    L6 = _UPVALUE0_
+    L6 = L6.macFormat
+    L7 = A0
+    L6, L7 = L6(L7)
+    L4, L5, L6, L7 = L4(L5, L6, L7)
+    L3 = L3(L4, L5, L6, L7)
+    L2 = L3
+  else
+    L3 = L1.cmd
+    L4 = string
+    L4 = L4.format
+    L5 = "off_limit"
+    L4, L5, L6, L7 = L4(L5)
+    L3 = L3(L4, L5, L6, L7)
+    L2 = L3
+  end
+  if L2 then
+    L3 = L2.status
+    if L3 == 0 then
+      L3 = true
+      return L3
+  end
+  else
+    L3 = false
+    return L3
+  end
+end
+qosOffLimit = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "miqos"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = {}
+  L4.on = 0
+  L4.mode = 0
+  L3.status = L4
+  L4 = {}
+  L4.upload = 0
+  L4.download = 0
+  L3.band = L4
+  L4 = qosStatus
+  L4 = L4()
+  L3.status = L4
+  L5 = qosBand
+  L5 = L5()
+  L3.band = L5
+  L5 = L2.cmd
+  L6 = "show_cfg"
+  L5 = L5(L6)
+  if L5 then
+    L6 = L5.status
+    if L6 == 0 then
+      L6 = L4.mode
+      if L6 ~= 0 then
+        L6 = {}
+        if A0 then
+          if L7 == "table" then
+            if 0 < L7 then
+              for L10, L11 in L7, L8, L9 do
+                L12 = {}
+                L13 = _UPVALUE0_
+                L13 = L13.macFormat
+                L14 = L11
+                L13 = L13(L14)
+                L12.mac = L13
+                L13 = L5.data
+                L14 = L12.mac
+                L13 = L13[L14]
+                if L13 then
+                  L14 = L4.mode
+                  if L14 == 1 then
+                    L14 = _levelHelper
+                    L15 = tonumber
+                    L16 = L13.min_grp_downlink
+                    L15, L16 = L15(L16)
+                    L14 = L14(L15, L16)
+                    L12.level = L14
+                  else
+                    L14 = tonumber
+                    L15 = L13.max_grp_uplink
+                    L14 = L14(L15)
+                    L14 = L14 / 8
+                    L12.upmax = L14
+                    L14 = tonumber
+                    L15 = L13.max_grp_downlink
+                    L14 = L14(L15)
+                    L14 = L14 / 8
+                    L12.downmax = L14
+                  end
+                  L14 = L13.flag
+                  if not L14 then
+                    L14 = L12.upmax
+                    if L14 then
+                      L14 = L12.upmax
+                      if 0 < L14 then
+                        goto lbl_94
+                      end
+                    end
+                    L14 = L12.downmax
+                    if L14 then
+                      L14 = L12.downmax
+                      ::lbl_94::
+                      if 0 < L14 then
+                        L12.flag = "on"
+                    end
+                    else
+                      L12.flag = "off"
+                    end
+                  else
+                    L14 = L13.flag
+                    if L14 == "on" then
+                      L12.flag = "on"
+                    else
+                      L12.flag = "off"
+                    end
+                  end
+                else
+                  L14 = L4.mode
+                  if L14 == 1 then
+                    L12.level = 2
+                  else
+                    L12.upmax = 0
+                    L12.downmax = 0
+                  end
+                  L12.flag = "off"
+                end
+                L6[L11] = L12
+              end
+          end
+        end
+        else
+          for L10, L11 in L7, L8, L9 do
+            L12 = {}
+            L13 = L4.mode
+            if L13 == 1 then
+              L12.mac = L10
+              L13 = _levelHelper
+              L14 = tonumber
+              L15 = L11.min_grp_downlink
+              L14, L15, L16 = L14(L15)
+              L13 = L13(L14, L15, L16)
+              L12.level = L13
+            else
+              L12.mac = L10
+              L13 = tonumber
+              L14 = L11.max_grp_uplink
+              L13 = L13(L14)
+              L13 = L13 / 8
+              L12.upmax = L13
+              L13 = tonumber
+              L14 = L11.max_grp_downlink
+              L13 = L13(L14)
+              L13 = L13 / 8
+              L12.downmax = L13
+            end
+            L13 = L11.flag
+            if not L13 then
+              L13 = L12.upmax
+              if L13 then
+                L13 = L12.upmax
+                if 0 < L13 then
+                  goto lbl_159
+                end
+              end
+              L13 = L12.downmax
+              if L13 then
+                L13 = L12.downmax
+                ::lbl_159::
+                if 0 < L13 then
+                  L12.flag = "on"
+              end
+              else
+                L12.flag = "off"
+              end
+            else
+              L13 = L11.flag
+              if L13 == "on" then
+                L12.flag = "on"
+              else
+                L12.flag = "off"
+              end
+            end
+            L6[L10] = L12
+          end
+        end
+        L3.dict = L6
+      end
+    end
+  end
+  return L3
+end
+qosHistory = L4
+function L4()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "miqos"
+  L0 = L0(L1)
+  L1 = {}
+  L1.up = 0
+  L1.down = 0
+  L1.percent = 0.6
+  L1.percent_up = 0.6
+  L2 = L0.cmd
+  L3 = "show_guest"
+  L2 = L2(L3)
+  if L2 then
+    L3 = L2.data
+    if L3 then
+      L3 = L2.data
+      L3 = L3.inner
+      if L3 then
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.UP
+        L3 = L3(L4)
+        L1.up = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.DOWN
+        L3 = L3(L4)
+        L1.down = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.inner
+        L4 = L4.DOWN
+        L3 = L3(L4)
+        L1.percent = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.inner
+        L4 = L4.UP
+        L3 = L3(L4)
+        L1.percent_up = L3
+      end
+    end
+  end
+  return L1
+end
+guestQoSInfo = L4
+function L4()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "miqos"
+  L0 = L0(L1)
+  L1 = {}
+  L1.up = 0
+  L1.down = 0
+  L1.percent = 0.9
+  L1.percent_up = 0.9
+  L2 = L0.cmd
+  L3 = "show_xq"
+  L2 = L2(L3)
+  if L2 then
+    L3 = L2.data
+    if L3 then
+      L3 = L2.data
+      L3 = L3.inner
+      if L3 then
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.UP
+        L3 = L3(L4)
+        L1.up = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.DOWN
+        L3 = L3(L4)
+        L1.down = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.inner
+        L4 = L4.DOWN
+        L3 = L3(L4)
+        L1.percent = L3
+        L3 = tonumber
+        L4 = L2.data
+        L4 = L4.inner
+        L4 = L4.UP
+        L3 = L3(L4)
+        L1.percent_up = L3
+      end
+    end
+  end
+  return L1
+end
+xqQoSInfo = L4
+function L4(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9
+  L3 = require
+  L4 = "miqos"
+  L3 = L3(L4)
+  L4 = nil
+  if A1 then
+    L5 = tonumber
+    L6 = A1
+    L5 = L5(L6)
+    if L5 then
+      L5 = tonumber
+      L6 = A1
+      L5 = L5(L6)
+      if 0 <= L5 then
+        L5 = tonumber
+        L6 = A1
+        L5 = L5(L6)
+        if L5 <= 1 then
+          if A2 then
+            L5 = tonumber
+            L6 = A2
+            L5 = L5(L6)
+            if not (L5 < 0) then
+              goto lbl_35
+            end
+            L5 = tonumber
+            L6 = A2
+            L5 = L5(L6)
+            if not (1 < L5) then
+              goto lbl_35
+            end
+          end
+          A2 = A1
+          ::lbl_35::
+          if A0 == "guest" then
+            L4 = "on_guest "
+          elseif A0 == "xq" then
+            L4 = "on_xq "
+          else
+            L5 = false
+            return L5
+          end
+          L5 = L4
+          L6 = tostring
+          L7 = A2
+          L6 = L6(L7)
+          L7 = " "
+          L8 = tostring
+          L9 = A1
+          L8 = L8(L9)
+          L4 = L5 .. L6 .. L7 .. L8
+          L5 = L3.cmd
+          L6 = L4
+          L5(L6)
+          L5 = true
+          return L5
+      end
+    end
+  end
+  else
+    L5 = false
+    return L5
+  end
+end
+setQosGuestAndXQ = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5
+  L2 = setQosGuestAndXQ
+  L3 = "guest"
+  L4 = A0
+  L5 = A1
+  return L2(L3, L4, L5)
+end
+qosGuest = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5
+  L2 = setQosGuestAndXQ
+  L3 = "xq"
+  L4 = A0
+  L5 = A1
+  return L2(L3, L4, L5)
+end
+qosXQ = L4
+function L4(A0, A1, A2, A3, A4)
+  local L5, L6, L7, L8, L9, L10, L11, L12
+  L5 = require
+  L6 = "xqcrypto"
+  L5 = L5(L6)
+  if not A0 or not A4 then
+    L6 = -1
+    return L6
+  end
+  L6 = L5.app_opt
+  L7 = tostring
+  L8 = A0
+  L7 = L7(L8)
+  L8 = "+"
+  L6 = L6(L7, L8)
+  if 0 <= L6 then
+    if A4 == 0 then
+      L7 = L5.lan_opt
+      L8 = tostring
+      L9 = L6
+      L8 = L8(L9)
+      L9 = "+"
+      L10 = A1 or L10
+      if not A1 then
+        L10 = "0.0.0.0"
+      end
+      L7 = L7(L8, L9, L10)
+      if L7 == 0 then
+        if A2 or A3 then
+          L7 = L5.remote_opt
+          L8 = tostring
+          L9 = L6
+          L8 = L8(L9)
+          L9 = "+"
+          L10 = tostring
+          L11 = A2 or L11
+          if not A2 then
+            L11 = "0.0.0.0"
+          end
+          L10 = L10(L11)
+          L11 = tostring
+          L12 = A3 or L12
+          if not A3 then
+            L12 = 0
+          end
+          L11, L12 = L11(L12)
+          L7 = L7(L8, L9, L10, L11, L12)
+          if L7 == 0 then
+            L7 = 0
+            return L7
+          else
+            L7 = -4
+            return L7
+          end
+        end
+      else
+        L7 = -3
+        return L7
+      end
+    elseif A4 == 1 then
+      if not A1 then
+        L7 = L5.app_opt
+        L8 = tostring
+        L9 = A0
+        L8 = L8(L9)
+        L9 = "-"
+        L7 = L7(L8, L9)
+        if 0 <= L7 then
+          L7 = 0
+          return L7
+        else
+          L7 = -2
+          return L7
+        end
+      else
+        L7 = L5.lan_opt
+        L8 = tostring
+        L9 = L6
+        L8 = L8(L9)
+        L9 = "-"
+        L10 = A1
+        L7 = L7(L8, L9, L10)
+        if L7 == 0 then
+          L7 = 0
+          return L7
+        else
+          L7 = -3
+          return L7
+        end
+        if A2 or A3 then
+          L7 = L5.remote_opt
+          L8 = tostring
+          L9 = L6
+          L8 = L8(L9)
+          L9 = "-"
+          L10 = tostring
+          L11 = A2 or L11
+          if not A2 then
+            L11 = "0.0.0.0"
+          end
+          L10 = L10(L11)
+          L11 = tostring
+          L12 = A3 or L12
+          if not A3 then
+            L12 = 0
+          end
+          L11, L12 = L11(L12)
+          L7 = L7(L8, L9, L10, L11, L12)
+          if L7 == 0 then
+            L7 = 0
+            return L7
+          else
+            L7 = -4
+            return L7
+          end
+        end
+        L7 = 0
+        return L7
+      end
+    else
+      L7 = -1
+      return L7
+    end
+  else
+    L7 = -2
+    return L7
+  end
+end
+qos_app = L4

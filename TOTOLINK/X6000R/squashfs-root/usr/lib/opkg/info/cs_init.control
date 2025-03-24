@@ -1,0 +1,10 @@
+Package: cs_init
+Version: 1
+Depends: libc, libpthread, librt, libcommon
+Source: package/carystudio/cs_init
+SourceName: cs_init
+Section: CaryStudio Properties
+SourceDateEpoch: 1689645221
+Architecture: aarch64_cortex-a53
+Installed-Size: 3261
+Description:  cs_init

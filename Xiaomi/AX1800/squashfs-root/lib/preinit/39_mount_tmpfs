@@ -1,0 +1,13 @@
+#!/bin/sh
+# Copyright (C) 2006-2010 OpenWrt.org
+# Copyright (C) 2010 Vertical Communications
+
+mount_etc_tmpfs(){
+	cp -a /etc /tmp/etc_tmp
+	mount -t ramfs -n none /etc
+	cp -a /tmp/etc_tmp/* /etc
+	rm -rf /tmp/etc_tmp
+}
+
+boot_hook_add preinit_mount_root mount_etc_tmpfs
+

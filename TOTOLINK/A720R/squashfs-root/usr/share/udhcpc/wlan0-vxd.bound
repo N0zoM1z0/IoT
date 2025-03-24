@@ -1,0 +1,11 @@
+#!/bin/sh
+# udhcpc bound script
+sysconf conn dhcp $interface $ip $subnet $router $dns
+
+
+
+
+
+
+
+

@@ -1,0 +1,1303 @@
+<script type="text/javascript">
+	(function(){
+		var isDetailPage = false;
+		var refreshDataHandle = null;
+		var deviceList = [], forbidTimeList = [], forbidTimeShowList = [], deviceRuleList = [], deviceRuleShowList = [],
+			detailDeviceObj;
+		var deviceTable, accessCtrlTable, accessCtrlPoolTable, accessCtrlPoolManageTable;
+		var accessCtrlPoolDialog, accessCtrlPollManageDialog;
+		var deviceUpSpeedLimitInput, deviceDownSpeedLimitInput;
+
+		var isHNatOpen = false;
+
+		var RULE_STATE_IS_USE = 1;
+		var RULE_STATE_IDLE = 0;
+
+		var KEY_NAME = uciTimeSwitch.optName.name;
+		var KEY_MON = uciTimeSwitch.optName.mon;
+		var KEY_TUE = uciTimeSwitch.optName.tue;
+		var KEY_WED = uciTimeSwitch.optName.wed;
+		var KEY_THU = uciTimeSwitch.optName.thu;
+		var KEY_FRI = uciTimeSwitch.optName.fri;
+		var KEY_SAT = uciTimeSwitch.optName.sat;
+		var KEY_SUN = uciTimeSwitch.optName.sun;
+		var KEY_ENABLE = uciTimeSwitch.optName.enable;
+		var KEY_STARTTIME = uciTimeSwitch.optName.startTime;
+		var KEY_ENDTIME = uciTimeSwitch.optName.endTime;
+
+		var weekMap = {
+			"mon": label.one,
+			"tue": label.two,
+			"wed": label.three,
+			"thu": label.four,
+			"fri": label.five,
+			"sat": label.six,
+			"sun": label.day
+		};
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch(errNo)
+			{
+			case ENONE:
+				return true;
+			case ESYSTEM:
+				showStr = errStr.systemErr;
+				break;
+			case ENOMEMORY:
+				showStr = errStr.invMemoryOut;
+				break;
+			case ENOECHO:
+				showStr = errStr.invRequestTimeout;
+				break;
+			case ESYSBUSY:
+				showStr = errStr.systemBusy;
+				break;
+			case EENTRYEXIST:
+				showStr = errStr.entryExistErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.entryConflicErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case ELACKARG:
+				showStr = errStr.acIncompleteArg;
+				break;
+			case ETIMEPERIODBLANK:
+				showStr = errStr.timePeriodBlank;
+				break;
+			case ETIMEPERIODTOOLONG:
+				showStr = errStr.timePeriodTooLong;
+				break;
+			case EINVTLBEGINTIME:
+				showStr = errStr.invTlBeginTime;
+				break;
+			case EINVTLEENDTIME:
+				showStr = errStr.invTlEndTime;
+				break;
+			case ETLREPEATBLANK:
+				showStr = errStr.tlRepeatBlank;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function initForbidTimeRuleList(oriList){
+			var nextDay = "";
+			showList = [];
+
+			for (var i = 0; i < oriList.length; i++)
+			{
+				nextDay = "";
+				showList[i] = {};
+
+				showList[i][KEY_NAME] = oriList[i][KEY_NAME];
+				showList[i][SEC_NAME] = oriList[i][SEC_NAME];
+
+				if (oriList[i][KEY_STARTTIME] > oriList[i][KEY_ENDTIME])
+				{
+					nextDay = label.lBrackets + label.timePeriodNextDay + label.rBrackets;
+				}
+
+				showList[i]["timeDesc"] = oriList[i][KEY_STARTTIME] + "/" +
+												nextDay + oriList[i][KEY_ENDTIME];
+
+				showList[i]["weekDesc"] = ("0" == oriList[i][KEY_MON] ? "" : weekMap["mon"])
+												+ ("0" == oriList[i][KEY_TUE] ? "" : weekMap["tue"])
+												+ ("0" == oriList[i][KEY_WED] ? "" : weekMap["wed"])
+												+ ("0" == oriList[i][KEY_THU] ? "" : weekMap["thu"])
+												+ ("0" == oriList[i][KEY_FRI] ? "" : weekMap["fri"])
+												+ ("0" == oriList[i][KEY_SAT] ? "" : weekMap["sat"])
+												+ ("0" == oriList[i][KEY_SUN] ? "" : weekMap["sun"]);
+
+				showList[i]["state"] = checkIfRuleIsUse(oriList[i]) ? RULE_STATE_IS_USE : RULE_STATE_IDLE;
+			}
+
+			return showList;
+		}
+
+		function speedConversion(speed){
+			var kSpeed = 1024;
+			var mSpeed = kSpeed * 1024;
+			var gSpeed = mSpeed * 1024;
+			var unit;
+
+			if (null == speed)
+			{
+				return null;
+			}
+
+			speed = parseInt(speed);
+
+			if (speed >= gSpeed)
+			{
+				speed = (speed/gSpeed).toFixed(1);
+				unit = "GB/s";
+			}
+			else if (speed >= mSpeed)
+			{
+				speed = (speed/mSpeed).toFixed(1);
+				unit = "MB/s";
+			}
+			else
+			{
+				speed = (speed/kSpeed).toFixed(1);
+				unit = "KB/s";
+			}
+
+			return {
+				speed: speed,
+				unit: unit
+			};
+		}
+
+		function manageDevice(index){
+			detailDeviceObj = $.extend({}, deviceList[index]);
+
+			initDeviceDitailPage(detailDeviceObj);
+
+			$("#accessCtrlPage").fadeOut(200, function(){
+				$("#deviceDetail").fadeIn(200);
+				advanceAutoFit();
+			});
+
+			isDetailPage = true;
+		}
+
+		function initDeviceDitailPage(data){
+			var str = "", deviceTempRuleList;
+
+			deviceRuleList = [];
+
+			$("i.deviceDetailLogo")[0].style.background = "url(../web-static/images/basic.png) no-repeat scroll " + data.logoPosX + "px " + data.logoPosY + "px";
+			$("span.deviceDetailName").html(data.name == "" ? label.anonymousHost : data.name);
+
+			$("#deviceDetailIp").html(data.ip);
+			$("#deviceDetailMac").html(data.mac.toUpperCase());
+
+			if (data.blocked == uciHostsInfo.optValue.isBlocked.yes)
+			{
+				str = label.unLink;
+			}
+			else if (data.type == "1")
+			{
+				switch (data.wifi_mode)
+				{
+				case uciHostsInfo.optValue.wifiMode.h2G:
+					str = label.wirelessNet2G;
+					break;
+				case uciHostsInfo.optValue.wifiMode.h5G:
+					str = label.wirelessNet5G;
+					break;
+				case uciHostsInfo.optValue.wifiMode.h5G1:
+					str = label.wirelessNet5G1;
+					break;
+				case uciHostsInfo.optValue.wifiMode.h5G4:
+					str = label.wirelessNet5G2;
+					break;
+				default:
+					str = label.wirelessLink;
+					break;
+				}
+			}
+			else if (data.type == "0")
+			{
+				str = label.inetLink;
+			}
+			else if (data.type == "2")
+			{
+				str = label.wirelessLink;
+			}
+			else
+			{
+				str = "- - -";
+			}
+
+			$("#deviceDetailLink").html(str);
+
+			refreshDeviceDetailSpeed(data);
+
+			initSpeedLimitComponent(data);
+
+			deviceTempRuleList = data.forbid_time.split(",");
+
+			for (var i = 0; i < deviceTempRuleList.length; i++)
+			{
+				for (var j = 0; j < forbidTimeList.length; j++)
+				{
+					if (forbidTimeList[j][SEC_NAME] == deviceTempRuleList[i])
+					{
+						deviceRuleList.push(forbidTimeList[j]);
+					}
+				}
+			}
+
+			deviceRuleShowList = initForbidTimeRuleList(deviceRuleList);
+			accessCtrlTable.setDataSource(deviceRuleShowList);
+			accessCtrlTable.loadData();
+		}
+
+		function initSpeedLimitComponent(data){
+			var upSpeedLimit = data.upLimit;
+			var downSpeedLimit = data.downLimit;
+
+			$("div.speedLimitShow").css("display", "block");
+			$("div.speedLimitInput").css("display", "none");
+
+			$("div.speedLimitShow.up span.speedLimit").html(parseInt(upSpeedLimit) == 0 ? label.upSpeed + label.notYetNetLimit :
+													   label.upSpeed + label.colon + upSpeedLimit + label.unitKBs);
+			$("div.speedLimitShow.down span.speedLimit").html(parseInt(downSpeedLimit) == 0 ? label.downSpeed + label.notYetNetLimit :
+													   label.downSpeed + label.colon + downSpeedLimit + label.unitKBs);
+		}
+
+		function manageTime(){
+			forbidTimeShowList = initForbidTimeRuleList(forbidTimeList);
+			accessCtrlPoolManageTable.setDataSource(forbidTimeShowList);
+			accessCtrlPoolManageTable.loadData();
+
+			accessCtrlPollManageDialog.show();
+		}
+
+		function netSpeedTrans(speed){
+			var kSpeed = 1024;
+			var mSpeed = kSpeed * 1024;
+			var gSpeed = mSpeed * 1024;
+
+			speed = parseInt(speed);
+
+			if (speed >= gSpeed)
+			{
+				speed = (speed/gSpeed).toFixed(1) + "GB/s";
+			}
+			else if (speed >= mSpeed)
+			{
+				speed = (speed/mSpeed).toFixed(1) + "MB/s";
+			}
+			else
+			{
+				speed = (speed/kSpeed).toFixed(1) + "KB/s";
+			}
+
+			return speed.toString();
+		}
+
+		function refreshDeviceDetailSpeed(data){
+			var upSpeedObj = speedConversion(data.up);
+			var downSpeedObj = speedConversion(data.down);
+
+			id("upSpeed").innerHTML = upSpeedObj.speed;
+			id("upUnit").innerHTML = upSpeedObj.unit;
+			id("downSpeed").innerHTML = downSpeedObj.speed;
+			id("downUnit").innerHTML = downSpeedObj.unit;
+		}
+
+		function checkIfRuleIsUse(rule){
+			var state = false;
+			for (var i = 0; i < deviceList.length; i++)
+			{
+				deviceList[i].forbid_time.split(",").forEach(function(n){
+					if (n == rule[SEC_NAME])
+					{
+						state = true;
+					}
+				});
+			}
+
+			return state;
+		}
+
+		/* FORBID POOL BEHAVIOUR */
+		function saveAccessCtrlRule(data){
+			var KEY_LIST = [KEY_MON, KEY_TUE, KEY_WED, KEY_THU,
+							KEY_FRI, KEY_SAT, KEY_SUN];
+
+			var postData = {}, module = {}, para = {};
+
+			var optTable;
+
+			for (var i = 0; i < forbidTimeList.length; i++)
+			{
+				if ((data.mon == false ? "0" : "1") == forbidTimeList[i][KEY_MON] &&
+				    (data.tue == false ? "0" : "1") == forbidTimeList[i][KEY_TUE] &&
+					(data.wed == false ? "0" : "1") == forbidTimeList[i][KEY_WED] &&
+					(data.thu == false ? "0" : "1") == forbidTimeList[i][KEY_THU] &&
+					(data.fri == false ? "0" : "1") == forbidTimeList[i][KEY_FRI] &&
+					(data.sat == false ? "0" : "1") == forbidTimeList[i][KEY_SAT] &&
+					(data.sun == false ? "0" : "1") == forbidTimeList[i][KEY_SUN] &&
+					(data.startHour + ":" + data.startMin) == forbidTimeList[i][KEY_STARTTIME] &&
+					(data.endHour + ":" + data.endMin) == forbidTimeList[i][KEY_ENDTIME])
+				{
+					showToast(label.sameRule);
+					return;
+				}
+			}
+
+			postData[uciHostsInfo.fileName] = module;
+
+			module[KEY_TABLE] = uciHostsInfo.optName.forbidTime;
+			module[KEY_NAME] = module[KEY_TABLE] + "_" + data.index;
+			module[KEY_PARA] = para;
+
+			para[KEY_NAME] = data[KEY_NAME];
+
+			for (i = 0; i < KEY_LIST.length; i++)
+			{
+				para[KEY_LIST[i]] = data[KEY_LIST[i]] == true ? "1" : "0";
+			}
+
+			para[KEY_STARTTIME] = data.startHour + ":" + data.startMin;
+			para[KEY_ENDTIME] = data.endHour + ":" + data.endMin;
+
+			$.add(postData, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					optTable = isDetailPage ? accessCtrlPoolTable : accessCtrlPoolManageTable;
+
+					getForbidTimeRule(function(){
+						forbidTimeShowList = initForbidTimeRuleList(forbidTimeList);
+						optTable.setDataSource(forbidTimeShowList);
+						optTable.loadData();
+
+						if (isDetailPage)
+						{
+							for (i = 0; i < deviceRuleList.length; i++)
+							{
+								for (var j = 0; j < forbidTimeShowList.length; j++)
+								{
+									if (deviceRuleList[i][SEC_NAME] == forbidTimeShowList[j][SEC_NAME])
+									{
+										forbidTimeShowList[j]["CHECK_BOX"].setValue(true);
+										break;
+									}
+								}
+							}
+						}
+
+						timePeriodDialog.hide(function(){
+							showToast(label.addSuccess);
+						});
+					});
+				}
+			});
+		}
+
+		function delAccessCtrlRule(){
+			var selectList = accessCtrlPoolManageTable._getSelectItem().selArrStr.split("-");
+			var isRuleUsed = false, tipsStr;
+
+			for (var i = 0; i < selectList.length; i++)
+			{
+				if (forbidTimeShowList[selectList[i]].state == RULE_STATE_IS_USE)
+				{
+					isRuleUsed = true;
+					break;
+				}
+			}
+
+			tipsStr = isRuleUsed ? label.deleteSelTimePeriodWhichUsedConfirm : label.deleteSelTimePeriodConfirm;
+
+			confirmDialog.show({
+				title: btn.deleteSel,
+				content: tipsStr,
+				button:{confirmStr: btn.clear},
+				callback: function(choose){
+					if (choose)
+					{
+						var data = {}, hostData = {};
+
+						data[uciHostsInfo.fileName] = hostData;
+						hostData[KEY_NAME] = [];
+
+						for (i = 0; i < selectList.length; i++)
+						{
+							hostData[KEY_NAME].push(forbidTimeShowList[selectList[i]][SEC_NAME]);
+						}
+
+						$.del(data, function(result){
+							if (errHandle(result[ERR_CODE]))
+							{
+								getForbidTimeRule(function(){
+									forbidTimeShowList = initForbidTimeRuleList(forbidTimeList);
+									accessCtrlPoolManageTable.setDataSource(forbidTimeShowList);
+									accessCtrlPoolManageTable.loadData();
+									showToast(label.deleteSuccess);
+								});
+							}
+						});
+					}
+				}
+			});
+		}
+
+		/* DEVICE BEHAVIOUR */
+		function addAccessCtrlRuleSelect(){
+			forbidTimeShowList = initForbidTimeRuleList(forbidTimeList);
+			accessCtrlPoolTable.setDataSource(forbidTimeShowList);
+			accessCtrlPoolTable.loadData();
+
+			for (i = 0; i < deviceRuleList.length; i++)
+			{
+				for (var j = 0; j < forbidTimeShowList.length; j++)
+				{
+					if (deviceRuleList[i][SEC_NAME] == forbidTimeShowList[j][SEC_NAME])
+					{
+						forbidTimeShowList[j]["CHECK_BOX"].setValue(true);
+						break;
+					}
+				}
+			}
+
+			accessCtrlPoolDialog.show();
+		}
+
+		function addAccessCtrlRuleManual(){
+			var data = {}, dataIndex;
+
+			dataIndex = calcNextIndex(forbidTimeList);
+
+			data.mode = "add";
+			data.index = dataIndex;
+			data.name = label.timeSection + dataIndex;
+			data.startHour = data.startMin = data.endHour = data.endMin = "00";
+			data.mon = data.tue = data.wed = data.thu = data.fri = data.sat = data.sun = true;
+
+			timePeriodDialog.show(data);
+		}
+
+		function delDeviceAccessCtrlRule(indexStr, callback){
+			var data = {}, setHostInfo = {};
+
+			var ruleList = detailDeviceObj.forbid_time.split(",");
+			var deleteList = indexStr.split("-");
+
+			for (var i = 0; i < deleteList.length; i++)
+			{
+				for (var j = 0; j < ruleList.length; j++)
+				{
+					if (ruleList[j] == deviceRuleList[deleteList[i]][SEC_NAME])
+					{
+						ruleList.splice(j, 1);
+						break;
+					}
+				}
+			}
+
+			ruleList = ruleList.join(",");
+
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][uciHostsInfo.dynData.setHostInfo] = setHostInfo;
+
+			setHostInfo.name = detailDeviceObj.name;
+			setHostInfo.mac = detailDeviceObj.mac;
+			setHostInfo.up_limit = detailDeviceObj.upLimit;
+			setHostInfo.down_limit = detailDeviceObj.downLimit;
+			setHostInfo.is_blocked = detailDeviceObj.blocked;
+			setHostInfo.forbid_time = ruleList;
+
+			$.action(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.deleteSuccess);
+					callback(true);
+					detailDeviceObj.forbid_time = ruleList;
+					initDeviceDitailPage(detailDeviceObj);
+				}
+				else
+				{
+					callback(false);
+				}
+			});
+		}
+
+		function saveDeviceAccessCtrlRule(){
+			var selectList = accessCtrlPoolTable._getSelectItem();
+			var ruleStr, data = {}, setHostInfo = {};
+
+			if (selectList.selArr.length == 0)
+			{
+				ruleStr = "";
+			}
+			else if (selectList.selArr.length > 4)
+			{
+				showToast(label.uCanAddAtMost + ACCESS_CONTROL_RULE_DEVICE_NUM_MAX + label.timePeriodAndReselect);
+				return;
+			}
+			else
+			{
+				ruleStr = [];
+				selectList.selArrStr.split("-").forEach(function(i){
+					ruleStr.push(forbidTimeShowList[i][SEC_NAME]);
+				});
+				ruleStr = ruleStr.join(",");
+			}
+
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][uciHostsInfo.dynData.setHostInfo] = setHostInfo;
+
+			setHostInfo.name = detailDeviceObj.name;
+			setHostInfo.mac = detailDeviceObj.mac;
+			setHostInfo.up_limit = detailDeviceObj.upLimit;
+			setHostInfo.down_limit = detailDeviceObj.downLimit;
+			setHostInfo.is_blocked = detailDeviceObj.blocked;
+			setHostInfo.forbid_time = ruleStr;
+
+			$.action(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					accessCtrlPoolDialog.hide(function(){
+						showToast(label.saveSuccess);
+						detailDeviceObj.forbid_time = ruleStr;
+						initDeviceDitailPage(detailDeviceObj);
+					});
+				}
+			});
+		}
+
+		/* GET_DATA INTERFACE */
+		function deviceListDataGet(){
+			var data = {}, deviceTempList, localDevice;
+
+			if (refreshDataHandle != null)
+			{
+				clearTimeout(refreshDataHandle);
+				refreshDataHandle = null;
+			}
+
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.host_info;
+
+			$.query(data, function(res){
+				refreshDataHandle = $.setTimeout(deviceListDataGet, 2000);
+
+				deviceList.length = 0;
+
+				deviceTempList = formatTableData(res[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);
+
+				var dlIdx = 0
+				for (var i = 0; i < deviceTempList.length; i++)
+				{
+					if (deviceTempList[i].blocked == uciHostsInfo.optValue.isBlocked.yes &&
+						deviceTempList[i].forbid_time == "")
+					{
+						continue;
+					}
+
+					deviceList[dlIdx] = {};
+					deviceList[dlIdx].type		= deviceTempList[i].type;
+					deviceList[dlIdx].blocked 	= deviceTempList[i].blocked;
+					deviceList[dlIdx].name 		= deviceTempList[i].hostname;
+					deviceList[dlIdx].ip 		= deviceTempList[i].ip;
+					deviceList[dlIdx].mac 		= deviceTempList[i].mac;
+					deviceList[dlIdx].up 		= deviceTempList[i].up_speed;
+					deviceList[dlIdx].upLimit 	= deviceTempList[i].up_limit;
+					deviceList[dlIdx].down 		= deviceTempList[i].down_speed;
+					deviceList[dlIdx].downLimit = deviceTempList[i].down_limit;
+					deviceList[dlIdx].isCurHost	= deviceTempList[i].is_cur_host;
+					deviceList[dlIdx].cfgValid	= deviceTempList[i].cfg_valid;
+					deviceList[dlIdx].cfgname	= deviceTempList[i].mac;
+					deviceList[dlIdx].wifi_mode	= deviceTempList[i].wifi_mode;
+					deviceList[dlIdx].forbid_time = deviceTempList[i].forbid_time;
+					dlIdx++;
+				}
+
+				deviceList.sort(function(pre, next){
+					var ipPreArr = pre.ip.split(".");
+					var ipNextArr = next.ip.split(".");
+
+					for (var i = 0; i < 4; i++)
+					{
+						if (parseInt(ipPreArr[i], 10) == parseInt(ipNextArr[i], 10))
+						{
+							continue;
+						}
+
+						if (parseInt(ipPreArr[i], 10) > parseInt(ipNextArr[i], 10))
+						{
+							return -1;
+						}
+						else
+						{
+							return 1;
+						}
+					}
+
+					return 0;
+				});
+
+				for (var index = 0; index < deviceList.length; index ++)
+				{
+					deviceTemp = deviceList[index];
+
+					if (isDetailPage && deviceTemp.mac.toUpperCase() == detailDeviceObj.mac.toUpperCase())
+					{
+						refreshDeviceDetailSpeed(deviceList[index]);
+					}
+
+					if (deviceTemp.isCurHost == "1")
+					{
+						localDevice = deviceList.splice(index, 1);
+						deviceList.push(localDevice[0]);
+						break;
+					}
+				}
+
+				if (isDetailPage)
+				{
+					return;
+				}
+				else
+				{
+					deviceTable.setDataSource(deviceList);
+					deviceTable.loadData(deviceTable.getCurrentPage());
+				}
+			});
+		}
+
+		function getForbidTimeRule(callback){
+			var data = {};
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.optName.forbidTime;
+
+			$.query(data, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					forbidTimeList = formatTableData(result[uciHostsInfo.fileName][uciHostsInfo.optName.forbidTime]);
+					typeof callback == "function" && callback();
+				}
+			});
+		}
+
+		function getHNatInfo(){
+			var data = {};
+			data[uciHNat.fileName] = {}
+			data[uciHNat.fileName][KEY_NAME] = uciHNat.secName.main;
+
+			$.query(data, function(res){
+				isHNatOpen = res[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] ==
+								uciHNat.optValue.enable.on;
+
+				if (!isHNatOpen)
+				{
+					deviceTableOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.20"});
+					deviceTableOption.head[1].width = "0.20";
+					deviceTableOption.column.splice(2, 0,
+						{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+				}
+
+				deviceTable = new Table(deviceTableOption);
+
+				if (isHNatOpen)
+				{
+					$(deviceTable.titleBtnContainer).find("div.tableOption").addClass("disabled");
+					addTitleError("hNatFail", label.hNatForAccessCtrlFail, {
+						hasIcon: false,
+						hasBtn: true,
+						btnArr: [
+							{
+								btnStr: btn.closeHNatAndManage,
+								btnOnclick: function(){
+									var reqData = {};
+									reqData[uciHNat.fileName] = {};
+									reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+									reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] =
+										uciHNat.optValue.enable.off;
+
+									$.modify(reqData, function(res){
+										if (errHandle(res[ERR_CODE]))
+										{
+											showToast(label.hNatClosed);
+											removeTitleError("hNatFail");
+											isHNatOpen = false;
+
+											deviceTableOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.20"});
+											deviceTableOption.head[1].width = "0.20";
+											deviceTableOption.column.splice(2, 0,
+														{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+
+											clearTimeout(refreshDataHandle);
+											refreshDataHandle = null;
+
+											id("deviceTable").innerHTML = "";
+											deviceTable = new Table(deviceTableOption);
+											deviceListDataGet();
+										}
+									});
+								}
+							}
+						]
+					});
+				}
+
+				deviceListDataGet();
+			});
+		}
+
+		/* COMPONENT INIT */
+		var deviceTableOption = {
+			targetId: "deviceTable",
+			hasCheckBox: false,
+			editable: false,
+			deletable: false,
+			addable: false,
+			head:[
+				{field: label.deviceName, width: "0.60"},
+				{field: label.deviceLinkType, width: "0.40"}
+			],
+			column:[
+				{name: "basicInfo", type: "deviceBasicInfo", isEditable: false},
+				{name: "linkType", type: "deviceLinkType"}
+			],
+			itemOption:[
+				{
+					icon: "icon-manage",
+					type: "manage",
+					str: btn.manage,
+					func: manageDevice,
+					onRender: function(){
+						if (!isHNatOpen)
+						{
+							return {result:false};
+						}
+						else
+						{
+							return {result:true, str: ""};
+						}
+					}
+				}
+			],
+			tableOption:[
+				{icon: "icon-time", str: btn.forbidTimeManage, selRelate: false, type:"timeManage", func:manageTime}
+			],
+			pageTurnCallback: advanceAutoFit,
+			type: Table.TYPE.DEVICE
+		}
+
+		accessCtrlTable = new Table({
+			targetId: 'accessCtrlTable',
+			title: label.forbidNetTime,
+			head:[
+				{field:label.periodDesc, width:"0.38"},
+				{field:label.timeSection, width:"0.42"},
+				{field:label.repeatWeek, width:"0.20"}
+			],
+			column:[
+				{name:KEY_NAME, type:"str"},
+				{name:"timeDesc", type:"str"},
+				{name:"weekDesc", type:"str"}
+			],
+			hasCheckBox: true,
+			editable:false,
+			addable:false,
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.selectExistTimePeriod, func:addAccessCtrlRuleSelect, selRelate: false}
+			],
+			max: ACCESS_CONTROL_RULE_DEVICE_NUM_MAX,
+			clickList:{
+				"click_del_item":{func:delDeviceAccessCtrlRule, asyn:true}
+			}
+		});
+
+		accessCtrlPoolDialog = new Dialog({
+			title: label.addForbidNetTimePeriod,
+			content: '<div id="accessCtrlPoolTable"></div>',
+			size: component.Dialog.SIZE.MEDIUM,
+			type: component.Dialog.TYPE.CUSTOM,
+			closeIconHandle: null,
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text:btn.cancelTip,
+					id:'accessCtrlPoolTableCancel',
+					onClick:function(){
+						accessCtrlPoolDialog.hide();
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.confirmTip,
+					id:'accessCtrlPoolTableSubmit',
+					onClick:saveDeviceAccessCtrlRule
+				}
+			],
+			renderCallBack: function(){
+				accessCtrlPoolTable = new Table({
+					targetId: 'accessCtrlPoolTable',
+					head:[
+						{field:label.periodDesc, width:"0.40"},
+						{field:label.timeSection, width:"0.37"},
+						{field:label.repeatWeek, width:"0.23"}
+					],
+					column:[
+						{name:KEY_NAME, type:"str"},
+						{name:"timeDesc", type:"str"},
+						{name:"weekDesc", type:"str"}
+					],
+					hasCheckBox: true,
+					editable:false,
+					addable:false,
+					deletable:false,
+					max: ACCESS_CONTROL_RULE_NUM_MAX,
+					numPerPage: 8,
+					tableOption:[
+						{icon:"icon-manual", type: "add", str: btn.addTimePeriodManual, func:addAccessCtrlRuleManual, selRelate: false}
+					]
+				});
+			}
+		});
+
+		accessCtrlPollManageDialog = new Dialog({
+			title: btn.forbidTimeManage,
+			content: '<div id="accessCtrlPoolManageTable"></div>',
+			size: component.Dialog.SIZE.MEDIUM,
+			type: component.Dialog.TYPE.CUSTOM,
+			closeIconHandle: null,
+			bottom: [
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.finish,
+					id:'accessCtrlPoolManageTableCancel',
+					onClick:function(){
+						accessCtrlPollManageDialog.hide();
+					}
+				}
+			],
+			renderCallBack: function(){
+				accessCtrlPoolManageTable = new Table({
+					targetId: 'accessCtrlPoolManageTable',
+					head:[
+						{field:label.periodDesc, width:"0.32"},
+						{field:label.timeSection, width:"0.30"},
+						{field:label.repeatWeek, width:"0.23"},
+						{field:label.currentState, width:"0.15"}
+					],
+					column:[
+						{name:KEY_NAME, type:"str"},
+						{name:"timeDesc", type:"str"},
+						{name:"weekDesc", type:"str"},
+						{name:"state", type:"strSelect", options:[{str:label.isUse, value: RULE_STATE_IS_USE}, {str:label.idle, value: RULE_STATE_IDLE}]}
+					],
+					hasCheckBox: true,
+					editable:false,
+					addable:false,
+					deletable:false,
+					max: ACCESS_CONTROL_RULE_NUM_MAX,
+					numPerPage: 8,
+					tableOption:[
+						{icon:"icon-delete", type: "delete", str: btn.deleteSel, func:delAccessCtrlRule, selRelate: true},
+						{icon:"icon-add", type: "add", str: btn.addTimePeriod, func:addAccessCtrlRuleManual, selRelate: false}
+					]
+				});
+			}
+		});
+
+		deviceUpSpeedLimitInput = new Input({
+			targetId: 'deviceUpSpeedLimit',
+			type: Input.TYPE.PLAIN_TEXT,
+			tips: {value:label.unitKBs, className: "unit"},
+			props:{type: "text", maxLength: 6, placeholder: label.zeroForNoSpeedLimit},
+			size: Input.SIZE.SMALL
+		});
+
+		deviceDownSpeedLimitInput = new Input({
+			targetId: 'deviceDownSpeedLimit',
+			type: Input.TYPE.PLAIN_TEXT,
+			tips: {value:label.unitKBs, className: "unit"},
+			props:{type: "text", maxLength: 6, placeholder: label.zeroForNoSpeedLimit},
+			size: Input.SIZE.SMALL
+		});
+
+		$("#deviceDetailBack").click(function(){
+			$("#deviceDetail").fadeOut(200, function(){
+				$("#accessCtrlPage").fadeIn(200);
+				isDetailPage = false;
+				detailDeviceObj = null;
+				advanceAutoFit();
+			});
+		});
+
+		$("div.speedLimitBtn.limit").click(function(){
+			var type = $(this).hasClass("up") ? "up" : "down";
+
+			type == "up" ? deviceUpSpeedLimitInput.setValue(detailDeviceObj.upLimit)
+					: deviceDownSpeedLimitInput.setValue(detailDeviceObj.downLimit);
+
+			$("div.speedLimitShow." + type).css("display", "none");
+			$("div.speedLimitInput." + type).css("display", "block");
+		});
+
+		$("div.speedLimitBtn.cancel").click(function(){
+			var type = $(this).hasClass("up") ? "up" : "down";
+
+			$("div.speedLimitShow." + type).css("display", "block");
+			$("div.speedLimitInput." + type).css("display", "none");
+		});
+
+		$("div.speedLimitBtn.commit").click(function(){
+			var type = $(this).hasClass("up") ? "up" : "down";
+			var inputVal;
+
+			if (type == "up")
+			{
+				inputVal = deviceUpSpeedLimitInput.getValue();
+
+				if (inputVal.length > 0)
+				{
+					if (!checkNum(inputVal) || parseInt(detailDeviceObj.upLimit) == parseInt(inputVal))
+					{
+						$("div.speedLimitBtn.cancel." + type).trigger("click");
+						return;
+					}
+				}
+				else
+				{
+					if (parseInt(detailDeviceObj.upLimit) == 0)
+					{
+						$("div.speedLimitBtn.cancel." + type).trigger("click");
+						return;
+					}
+					else
+					{
+						inputVal = "0";
+					}
+				}
+			}
+			else
+			{
+				inputVal = deviceDownSpeedLimitInput.getValue();
+
+				if (inputVal.length > 0)
+				{
+					if (!checkNum(inputVal) || parseInt(detailDeviceObj.downLimit) == parseInt(inputVal))
+					{
+						$("div.speedLimitBtn.cancel." + type).trigger("click");
+						return;
+					}
+				}
+				else
+				{
+					if (parseInt(detailDeviceObj.downLimit) == 0)
+					{
+						$("div.speedLimitBtn.cancel." + type).trigger("click");
+						return;
+					}
+					else
+					{
+						inputVal = "0";
+					}
+				}
+			}
+
+			var data = {
+				"hosts_info":{
+					"set_flux_limit":{
+						"mac": detailDeviceObj.mac,
+						"name": detailDeviceObj.name,
+						"is_blocked": detailDeviceObj.blocked
+					}
+				}
+			}
+
+			if (type == "up")
+			{
+				data["hosts_info"]["set_flux_limit"]["up_limit"] = inputVal;
+				data["hosts_info"]["set_flux_limit"]["down_limit"] = detailDeviceObj.downLimit;
+			}
+			else
+			{
+				data["hosts_info"]["set_flux_limit"]["up_limit"] = detailDeviceObj.upLimit;
+				data["hosts_info"]["set_flux_limit"]["down_limit"] = inputVal;
+			}
+
+			$.action(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					if (type == "up")
+					{
+						detailDeviceObj.upLimit = inputVal;
+					}
+					else
+					{
+						detailDeviceObj.downLimit = inputVal;
+					}
+
+					initDeviceDitailPage(detailDeviceObj);
+					showToast(label.modifySuccess);
+				}
+			});
+
+		});
+		/* RESET TIME_PERIOD DIALOG */
+		timePeriodDialog.resetTpType(timePeriodDialog.tpType.PARENT_CONTROL);
+		timePeriodDialog.resetCommit(saveAccessCtrlRule);
+
+		getForbidTimeRule();
+
+		if (slp.moduleSpec["hnat"] == 1)
+		{
+			getHNatInfo();
+		}
+		else
+		{
+			deviceTableOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.20"});
+			deviceTableOption.head[1].width = "0.20";
+			deviceTableOption.column.splice(2, 0,
+						{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+
+			deviceTable = new Table(deviceTableOption);
+			deviceListDataGet();
+		}
+	})();
+</script>
+<style type="text/css">
+	#deviceDetail{
+		display: none;
+	}
+	#deviceDetailBack{
+		display: block;
+		color: #333333;
+		font-size: 13px;
+		cursor: pointer;
+		line-height: 24px;
+		height: 24px;
+		width: 124px;
+	}
+	#deviceDetailBack i.iconfont{
+		display: inline-block;
+		font-size: 16px;
+		margin-right: 4px;
+		vertical-align: middle;
+	}
+	span.deviceDetailBackText{
+		vertical-align: middle;
+	}
+	div.deviceDetailTitle{
+		padding-top: 24px;
+		padding-bottom: 16px;
+	}
+	i.deviceDetailLogo{
+		width: 48px;
+		height: 48px;
+		vertical-align: middle;
+		display: inline-block;
+	}
+	div.deviceDetailInfoCon{
+		margin-left: 16px;
+		vertical-align: middle;
+		display: inline-block;
+	}
+	span.deviceDetailName{
+		display: block;
+		height: 24px;
+		line-height: 24px;
+		font-size: 16px;
+		font-weight: bold;
+		color: #333333;
+		margin-bottom: 4px;
+	}
+	span.deviceDetailIpMacLink{
+		margin-left: 16px;
+		display: inline-block;
+		color: #666666;
+		font-size: 13px;
+		line-height: 20px;
+	}
+	ul.dashBoard{
+		margin-bottom:-24px;
+	}
+	ul.dashBoard li.board{
+		float:left;
+		width:338px;
+		border:1px solid #e6e6e6;
+		border-radius:4px;
+		padding: 16px;
+	}
+	ul.dashBoard li + li{
+		margin-left:16px;
+	}
+	li.board div.speedInfo i{
+		font-size:24px;
+		color:#999;
+		margin:0 4px 0 16px;
+		vertical-align:middle;
+	}
+	li.board span.speed{
+		font-size:36px;
+		color:#666;
+		vertical-align:middle;
+		font-weight: bold;
+	}
+	li.board p.speedText{
+		display:inline-block;
+		vertical-align:middle;
+		margin-left:8px;
+		width:65px;
+	}
+	p.speedText span{
+		float:left;
+		width:100%;
+		font-size:12px;
+		color:#666;
+		line-height:18px;
+	}
+	div.speedLimitShow, div.speedLimitInput{
+		height: 24px;
+		margin-top: 8px;
+		position: relative;
+		font-size: 0px;
+	}
+	div.speedLimitInput{
+		display: none;
+	}
+	div.speedLimitBtn{
+		height: 24px;
+		display: inline-block;
+		font-size: 0px;
+		cursor: pointer;
+	}
+	div.speedLimitBtn i.iconfont{
+		display: inline-block;
+		vertical-align: middle;
+		font-size: 16px;
+		height: 24px;
+		line-height: 24px;
+		margin-right: 4px;
+		color: #333333;
+	}
+	div.speedLimitBtn span{
+		display: inline-block;
+		vertical-align: middle;
+		height: 24px;
+		line-height: 24px;
+		font-size: 13px;
+		color: #333333;
+	}
+	div.speedLimitBtn:hover i.iconfont{
+		color: #FF3366;
+	}
+	div.speedLimitBtn:hover span{
+		color: #FF3366;
+	}
+	div.speedLimitBtn.commit i.iconfont{
+		color: #FF3366;
+	}
+	div.speedLimitBtn.commit span{
+		color: #FF3366;
+	}
+	div.speedLimitShow span{
+		display: inline-block;
+		height:24px;
+		line-height: 24px;
+		color: #666666;
+		font-size: 13px;
+	}
+	div.speedLimitShow div.speedLimitBtn{
+		position: absolute;
+		right: 0px;
+	}
+	div.speedLimitInput div.speedLimitInputCon{
+		width:212px;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	div.speedLimitInput div.speedLimitInputCon ul{
+		margin-bottom: 0px;
+	}
+	div.speedLimitInput div.speedLimitBtn{
+		margin-left:  16px;
+	}
+</style>
+<div id="accessCtrlPage">
+	<div class="head">
+		<div class="title">
+			<h1>{%menuStr.actionControl%}</h1>
+			<i class="helpBtn iconfont icon-help" helpStr="accessCtrlHelp"></i>
+		</div>
+		<p class="description">{%titleDescriptionStr.accessControlDescription%}</p>
+	</div>
+	<div id="deviceTable"></div>
+</div>
+<div id="deviceDetail">
+	<div class="head">
+		<span id="deviceDetailBack"><i class="iconfont icon-back"></i><span class="deviceDetailBackText">{%btn.backToAccessControl%}</span></span>
+		<div class="deviceDetailTitle">
+			<i class="deviceDetailLogo"></i>
+			<div class="deviceDetailInfoCon">
+				<span class="deviceDetailName"></span>
+				<span class="deviceDetailIpMacLink" style="margin-left: 0px;">{%label.ipAddr%}{%label.colon%}<span id="deviceDetailIp"></span></span>
+				<span class="deviceDetailIpMacLink">{%label.mac%}{%label.colon%}<span id="deviceDetailMac"></span></span>
+				<span class="deviceDetailIpMacLink">{%label.deviceLinkType%}{%label.colon%}<span id="deviceDetailLink"></span></span>
+			</div>
+		</div>
+	</div>
+	<div class="subTitle">
+		<h2>{%label.deviceNetSpeed%}</h2>
+	</div>
+	<ul class="dashBoard clearfix">
+		<li class="board">
+			<div class="speedInfo">
+				<i class="iconfont icon-upstream"></i>
+				<span id="upSpeed" class="speed">---</span>
+				<p class="speedText"><span id="upUnit">---</span><span>{%label.upSpeed%}</span></p>
+			</div>
+			<div class="speedLimit up">
+				<div class="speedLimitShow up">
+					<span class="speedLimit"></span>
+					<div class="speedLimitBtn limit up">
+						<i class="iconfont icon-speedlimit"></i>
+						<span>{%label.speedLimit%}</span>
+					</div>
+				</div>
+				<div class="speedLimitInput up">
+					<div class="speedLimitInputCon" id="deviceUpSpeedLimit"></div>
+					<div class="speedLimitBtn cancel up">
+						<i class="iconfont icon-close"></i>
+						<span>{%btn.cancel%}</span>
+					</div>
+					<div class="speedLimitBtn commit up">
+						<i class="iconfont icon-ok"></i>
+						<span>{%btn.ok%}</span>
+					</div>
+				</div>
+			</div>
+		</li>
+		<li class="board">
+			<div class="speedInfo">
+				<i class="iconfont icon-downstream"></i>
+				<span id="downSpeed" class="speed">---</span>
+				<p class="speedText"><span id="downUnit">---</span><span>{%label.downSpeed%}</span></p>
+			</div>
+			<div class="speedLimit down">
+				<div class="speedLimitShow down">
+					<span  class="speedLimit"></span>
+					<div class="speedLimitBtn limit down">
+						<i class="iconfont icon-speedlimit"></i>
+						<span>{%label.speedLimit%}</span>
+					</div>
+				</div>
+				<div class="speedLimitInput down">
+					<div class="speedLimitInputCon" id="deviceDownSpeedLimit"></div>
+					<div class="speedLimitBtn cancel down">
+						<i class="iconfont icon-close"></i>
+						<span>{%btn.cancel%}</span>
+					</div>
+					<div class="speedLimitBtn commit down">
+						<i class="iconfont icon-ok"></i>
+						<span>{%btn.ok%}</span>
+					</div>
+				</div>
+			</div>
+		</li>
+	</ul>
+	<div id="accessCtrlTable" class="advanceTable"></div>
+</div>

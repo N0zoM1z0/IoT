@@ -1,0 +1,478 @@
+local L0, L1, L2, L3, L4, L5, L6
+L0 = module
+L1 = "xiaoqiang.util.XQSynchrodata"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "json"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQFunction"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQConfigs"
+L2 = L2(L3)
+L3 = pcall
+L4 = require
+L5 = "messageclient"
+L3, L4 = L3(L4, L5)
+function L5(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if not L3 then
+    L3 = _UPVALUE0_
+    L3 = L3.isStrNil
+    L4 = A1
+    L3 = L3(L4)
+    if not L3 then
+      L3 = os
+      L3 = L3.execute
+      L4 = string
+      L4 = L4.format
+      L5 = "matool --method setKVB64 --params \"%s\" \"%s\""
+      L6 = A0
+      L7 = L2.binaryBase64Enc
+      L8 = A1
+      L7, L8 = L7(L8)
+      L4, L5, L6, L7, L8 = L4(L5, L6, L7, L8)
+      L3(L4, L5, L6, L7, L8)
+    end
+  end
+end
+if not L3 then
+  L6 = {}
+  L6.send = L5
+  L4 = L6
+end
+function L6(A0)
+  local L1, L2, L3
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if not L1 then
+    L1 = _UPVALUE1_
+    L1 = L1.send
+    L2 = "router_name"
+    L3 = A0
+    L1(L2, L3)
+  end
+end
+syncRouterName = L6
+function L6(A0)
+  local L1, L2, L3, L4
+  L1 = tostring
+  L2 = A0
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if not L2 then
+    L2 = _UPVALUE1_
+    L2 = L2.send
+    L3 = "router_locale"
+    L4 = L1
+    L2(L3, L4)
+  end
+end
+syncRouterLocale = L6
+function L6(A0, A1)
+  local L2, L3, L4
+  if A0 then
+    L2 = _UPVALUE0_
+    L2 = L2.send
+    L3 = "ssid_24G"
+    L4 = A0
+    L2(L3, L4)
+  end
+  if A1 then
+    L2 = _UPVALUE0_
+    L2 = L2.send
+    L3 = "ssid_5G"
+    L4 = A1
+    L2(L3, L4)
+  end
+end
+syncWiFiSSID = L6
+function L6(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  if A0 then
+    L1 = type
+    L2 = A0
+    L1 = L1(L2)
+    if L1 == "table" then
+      L1 = require
+      L2 = "json"
+      L1 = L1(L2)
+      L2 = _UPVALUE0_
+      L2 = L2.forkExec
+      L3 = string
+      L3 = L3.format
+      L4 = "matool --method api_call_post --params /device/router_conf/upload \"%s\""
+      L5 = _UPVALUE0_
+      L5 = L5._cmdformat
+      L6 = L1.encode
+      L7 = A0
+      L6, L7 = L6(L7)
+      L5, L6, L7 = L5(L6, L7)
+      L3, L4, L5, L6, L7 = L3(L4, L5, L6, L7)
+      L2(L3, L4, L5, L6, L7)
+    end
+  end
+end
+uploadConf = L6
+function L6(A0)
+  local L1, L2, L3, L4
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.send
+    L2 = "work_mode"
+    L3 = tostring
+    L4 = A0
+    L3, L4 = L3(L4)
+    L1(L2, L3, L4)
+  end
+end
+syncWorkMode = L6
+function L6(A0)
+  local L1, L2, L3, L4
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.send
+    L2 = "active_apcli_mode"
+    L3 = tostring
+    L4 = A0
+    L3, L4 = L3(L4)
+    L1(L2, L3, L4)
+  end
+end
+syncActiveApcliMode = L6
+function L6(A0)
+  local L1, L2, L3, L4
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.send
+    L2 = "ap_lan_ip"
+    L3 = tostring
+    L4 = A0
+    L3, L4 = L3(L4)
+    L1(L2, L3, L4)
+  end
+end
+syncApLanIp = L6
+function L6(A0, A1)
+  local L2, L3, L4, L5
+  if A0 then
+    L2 = _UPVALUE0_
+    L2 = L2.send
+    L3 = "protection_enabled"
+    L4 = tostring
+    L5 = A0
+    L4, L5 = L4(L5)
+    L2(L3, L4, L5)
+    L2 = _UPVALUE0_
+    L2 = L2.send
+    L3 = "protection_mode"
+    L4 = tostring
+    L5 = A1
+    L4, L5 = L4(L5)
+    L2(L3, L4, L5)
+  end
+end
+syncProtectionStatus = L6
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "xiaoqiang.util.XQQoSUtil"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQDeviceUtil"
+  L1 = L1(L2)
+  L2 = L0.qosHistory
+  L3 = L1.getDeviceMacsFromDB
+  L3, L4, L5, L6 = L3()
+  L2 = L2(L3, L4, L5, L6)
+  L3 = L0.guestQoSInfo
+  L3 = L3()
+  L2.guest = L3
+  L3 = L0.xqQoSInfo
+  L3 = L3()
+  L2["local"] = L3
+  L3 = _UPVALUE0_
+  L3 = L3.send
+  L4 = "qos_info"
+  L5 = _UPVALUE1_
+  L5 = L5.encode
+  L6 = L2
+  L5, L6 = L5(L6)
+  L3(L4, L5, L6)
+end
+syncQosInfo = L6
+function L6()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "xiaoqiang.module.XQPredownload"
+  L0 = L0(L1)
+  L1 = L0.predownloadInfo
+  L1 = L1()
+  L2 = _UPVALUE0_
+  L2 = L2.send
+  L3 = "auto_ota_rom"
+  L4 = tostring
+  L5 = L1.auto
+  L4, L5 = L4(L5)
+  L2(L3, L4, L5)
+  L2 = _UPVALUE0_
+  L2 = L2.send
+  L3 = "auto_ota_plugin"
+  L4 = tostring
+  L5 = L1.plugin
+  L4, L5 = L4(L5)
+  L2(L3, L4, L5)
+end
+syncOTAInfo = L6
+function L6(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQPushUtil"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQDeviceUtil"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.module.XQParentControl"
+  L4 = L4(L5)
+  if A0 then
+    L5 = A0.mac
+    if L5 then
+      L5 = L4.parentctl_rules
+      L6 = {}
+      L7 = A0.mac
+      L6[L7] = 1
+      L5 = L5(L6)
+      L6 = L4.netacctl_status
+      L7 = {}
+      L8 = A0.mac
+      L7[L8] = 1
+      L6 = L6(L7)
+      L7 = L4.get_urlfilter_info
+      L8 = {}
+      L9 = A0.mac
+      L8[L9] = 1
+      L7 = L7(L8)
+      L8 = {}
+      L9 = A0.mac
+      L8.mac = L9
+      L8.lan = 1
+      L8.wan = 1
+      L8.admin = 1
+      L8.limited = 0
+      L8.nickname = ""
+      L8.pridisk = 0
+      L8.owner = ""
+      L8.device = ""
+      L8.push = 0
+      L9 = A0.mac
+      L9 = L5[L9]
+      L8.pcontrol = L9
+      L9 = A0.mac
+      L9 = L6[L9]
+      L8.netacctl = L9
+      L9 = A0.mac
+      L9 = L7[L9]
+      L8.urlfilter = L9
+      L9 = {}
+      L9.api = 70
+      L10 = {}
+      L11 = A0.mac
+      L10[1] = L11
+      L9.macs = L10
+      L10 = {}
+      L11 = L3.getMacfilterInfoDict
+      L11 = L11()
+      L12 = L3.fetchDeviceInfoFromConfig
+      L13 = A0.mac
+      L12 = L12(L13)
+      L13 = _UPVALUE0_
+      L13 = L13.thrift_tunnel_to_datacenter
+      L14 = _UPVALUE1_
+      L14 = L14.encode
+      L15 = L9
+      L14, L15, L16, L20, L21, L22 = L14(L15)
+      L13 = L13(L14, L15, L16, L17, L18, L19, L20, L21, L22)
+      if L13 then
+        L14 = L13.code
+        if L14 == 0 then
+          L10 = L13.canAccessAllDisk
+        end
+      end
+      L14 = A0.mac
+      L14 = L11[L14]
+      L15 = L1.getWiFiMacfilterModel
+      L15 = L15()
+      if L15 == 1 then
+        L16 = L1.getCurrentMacfilterList
+        L16 = L16()
+        if L16 then
+          for L20, L21 in L17, L18, L19 do
+            L22 = A0.mac
+            if L21 == L22 then
+              L8.limited = 1
+              break
+            end
+          end
+        end
+      end
+      L16 = A0.push
+      if L16 then
+        L16 = A0.push
+        L8.push = L16
+      else
+        L16 = L2.specialNotify
+        L16 = L16(L17)
+        if L16 then
+          if L17 then
+            goto lbl_115
+          end
+        end
+        ::lbl_115::
+        L8.push = L17
+      end
+      if L14 then
+        L16 = L14.wan
+        if L16 then
+          L16 = 1
+          if L16 then
+            goto lbl_125
+          end
+        end
+        L16 = 0
+        ::lbl_125::
+        L8.wan = L16
+        L16 = L14.lan
+        if L16 then
+          L16 = 1
+          if L16 then
+            goto lbl_133
+          end
+        end
+        L16 = 0
+        ::lbl_133::
+        L8.lan = L16
+        L16 = L14.admin
+        if L16 then
+          L16 = 1
+          if L16 then
+            goto lbl_141
+          end
+        end
+        L16 = 0
+        ::lbl_141::
+        L8.admin = L16
+        L16 = L14.pridisk
+        if L16 then
+          L16 = 1
+          if L16 then
+            goto lbl_149
+          end
+        end
+        L16 = 0
+        ::lbl_149::
+        L8.pridisk = L16
+      else
+        L8.wan = 1
+        L8.lan = 1
+        L8.admin = 1
+        L8.pridisk = 0
+      end
+      L16 = A0.mac
+      L16 = L10[L16]
+      if L16 ~= nil then
+        L16 = A0.mac
+        L16 = L10[L16]
+        if L16 then
+          L16 = 1
+          if L16 then
+            goto lbl_167
+          end
+        end
+        L16 = 0
+        ::lbl_167::
+        L8.lan = L16
+      end
+      if L12 then
+        L16 = L12.owner
+        L8.owner = L16
+        L16 = L12.device
+        L8.device = L16
+      end
+      L16 = A0.nickname
+      if L16 then
+        L16 = A0.nickname
+        L8.nickname = L16
+      else
+        L16 = require
+        L16 = L16(L17)
+        if not L18 then
+          L8.nickname = L18
+        end
+      end
+      L16 = A0.lan
+      if L16 then
+        L16 = A0.lan
+        L8.lan = L16
+      end
+      L16 = A0.wan
+      if L16 then
+        L16 = A0.wan
+        L8.wan = L16
+      end
+      L16 = A0.admin
+      if L16 then
+        L16 = A0.admin
+        L8.admin = L16
+      end
+      L16 = A0.pridisk
+      if L16 then
+        L16 = A0.pridisk
+        L8.pridisk = L16
+      end
+      L16 = A0.owner
+      if L16 then
+        L16 = A0.pridisk
+        L8.owner = L16
+      end
+      L16 = A0.device
+      if L16 then
+        L16 = A0.device
+        L8.device = L16
+      end
+      L16 = A0.limited
+      if L16 then
+        L16 = A0.limited
+        L8.limited = L16
+      end
+      L16 = A0.pcontrol
+      if L16 then
+        L16 = A0.pcontrol
+        L8.pcontrol = L16
+      end
+      L16 = _UPVALUE2_
+      L16 = L16.send
+      L20, L21, L22 = L18(L19)
+      L16(L17, L18, L19, L20, L21, L22)
+    end
+  end
+end
+syncDeviceInfo = L6

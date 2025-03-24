@@ -1,0 +1,641 @@
+local L0, L1, L2, L3, L4, L5
+L0 = module
+L1 = "xiaoqiang.module.XQDisk"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "luci.util"
+L1 = L1(L2)
+L2 = "iostat -d 1 2 | grep -w sda | tail -1 | awk '{print $3,$4,$5,$6}'"
+L3 = "hdparm -I /dev/sda"
+L4 = "smartctl -A /dev/sda -s on"
+function L5()
+  local L0, L1, L2, L3, L4
+  L0 = {}
+  L0.rrate = 0
+  L0.wrate = 0
+  L0.read = 0
+  L0.write = 0
+  L1 = _UPVALUE0_
+  L1 = L1.exec
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = _UPVALUE2_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if not L2 then
+    L2 = _UPVALUE0_
+    L2 = L2.split
+    L3 = _UPVALUE0_
+    L3 = L3.trim
+    L4 = L1
+    L3 = L3(L4)
+    L4 = " "
+    L2 = L2(L3, L4)
+    L1 = L2
+    L2 = L1[1]
+    L2 = L2 * 512
+    L0.rrate = L2
+    L2 = L1[2]
+    L2 = L2 * 512
+    L0.wrate = L2
+    L2 = L1[3]
+    L2 = L2 * 512
+    L0.read = L2
+    L2 = L1[4]
+    L2 = L2 * 512
+    L0.write = L2
+  end
+  return L0
+end
+iostatus = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L0 = {}
+  L0.model = ""
+  L0.serial = ""
+  L0.size = ""
+  L0.factor = ""
+  L0.rorate = ""
+  L0.filesys = ""
+  L0.sata = ""
+  L1 = _UPVALUE0_
+  L1 = L1.execl
+  L1 = L1(L2)
+  if L1 then
+    for L5, L6 in L2, L3, L4 do
+      L7 = _UPVALUE2_
+      L7 = L7.isStrNil
+      L8 = L6
+      L7 = L7(L8)
+      if not L7 then
+        L8 = L6
+        L7 = L6.match
+        L9 = "Model Number:"
+        L7 = L7(L8, L9)
+        if L7 then
+          L7 = _UPVALUE0_
+          L7 = L7.trim
+          L9 = L6
+          L8 = L6.match
+          L10 = "Model Number:%s+(.+)"
+          L8, L9, L10 = L8(L9, L10)
+          L7 = L7(L8, L9, L10)
+          L0.model = L7
+        else
+          L8 = L6
+          L7 = L6.match
+          L9 = "Serial Number:"
+          L7 = L7(L8, L9)
+          if L7 then
+            L7 = _UPVALUE0_
+            L7 = L7.trim
+            L9 = L6
+            L8 = L6.match
+            L10 = "Serial Number:%s+(.+)"
+            L8, L9, L10 = L8(L9, L10)
+            L7 = L7(L8, L9, L10)
+            L0.serial = L7
+          else
+            L8 = L6
+            L7 = L6.match
+            L9 = "device size with M = 1000%*1000:"
+            L7 = L7(L8, L9)
+            if L7 then
+              L8 = L6
+              L7 = L6.match
+              L9 = "device size with M = 1000%*1000:%s+(%d+)"
+              L7 = L7(L8, L9)
+              L0.size = L7
+            else
+              L8 = L6
+              L7 = L6.match
+              L9 = "Form Factor:"
+              L7 = L7(L8, L9)
+              if L7 then
+                L8 = L6
+                L7 = L6.match
+                L9 = "Form Factor:%s+(%S+)"
+                L7 = L7(L8, L9)
+                L0.factor = L7
+              else
+                L8 = L6
+                L7 = L6.match
+                L9 = "Nominal Media Rotation Rate:"
+                L7 = L7(L8, L9)
+                if L7 then
+                  L8 = L6
+                  L7 = L6.match
+                  L9 = "Nominal Media Rotation Rate:%s+(%d+)"
+                  L7 = L7(L8, L9)
+                  L0.rorate = L7
+                else
+                  L8 = L6
+                  L7 = L6.match
+                  L9 = "Gen1 signaling speed"
+                  L7 = L7(L8, L9)
+                  if L7 then
+                    L0.sata = "SATAI"
+                  else
+                    L8 = L6
+                    L7 = L6.match
+                    L9 = "Gen2 signaling speed"
+                    L7 = L7(L8, L9)
+                    if L7 then
+                      L0.sata = "SATAII"
+                    else
+                      L8 = L6
+                      L7 = L6.match
+                      L9 = "Gen3 signaling speed"
+                      L7 = L7(L8, L9)
+                      if L7 then
+                        L0.sata = "SATAIII"
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  L0.filesys = "EXT4"
+  return L0
+end
+diskInfo = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L0 = {}
+  L0.sectorcount = ""
+  L0.poweronhours = ""
+  L0.spinretry = ""
+  L0.temperature = ""
+  L0.reventcount = ""
+  L0.pendingsector = ""
+  L0.uncorrectable = ""
+  L0.filesystem = ""
+  L1 = _UPVALUE0_
+  L1 = L1.execl
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = get_diskstatus
+  L2 = L2()
+  if L2 == 2 or L2 == 0 then
+    L0.filesystem = "0"
+  else
+    L0.filesystem = "1"
+  end
+  if L1 then
+    for L6, L7 in L3, L4, L5 do
+      L8 = _UPVALUE2_
+      L8 = L8.isStrNil
+      L9 = L7
+      L8 = L8(L9)
+      if not L8 then
+        L9 = L7
+        L8 = L7.match
+        L10 = "Reallocated_Sector_Ct"
+        L8 = L8(L9, L10)
+        if L8 then
+          L8 = tostring
+          L9 = _UPVALUE0_
+          L9 = L9.trim
+          L11 = L7
+          L10 = L7.sub
+          L12 = 88
+          L13 = #L7
+          L10, L11, L12, L13 = L10(L11, L12, L13)
+          L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+          L8 = L8(L9, L10, L11, L12, L13)
+          L0.sectorcount = L8
+        else
+          L9 = L7
+          L8 = L7.match
+          L10 = "Power_On_Hours"
+          L8 = L8(L9, L10)
+          if L8 then
+            L8 = tostring
+            L9 = _UPVALUE0_
+            L9 = L9.trim
+            L11 = L7
+            L10 = L7.sub
+            L12 = 88
+            L13 = #L7
+            L10, L11, L12, L13 = L10(L11, L12, L13)
+            L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+            L8 = L8(L9, L10, L11, L12, L13)
+            L0.poweronhours = L8
+          else
+            L9 = L7
+            L8 = L7.match
+            L10 = "Spin_Retry_Count"
+            L8 = L8(L9, L10)
+            if L8 then
+              L8 = tostring
+              L9 = _UPVALUE0_
+              L9 = L9.trim
+              L11 = L7
+              L10 = L7.sub
+              L12 = 88
+              L13 = #L7
+              L10, L11, L12, L13 = L10(L11, L12, L13)
+              L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+              L8 = L8(L9, L10, L11, L12, L13)
+              L0.spinretry = L8
+            else
+              L9 = L7
+              L8 = L7.match
+              L10 = "Temperature_Celsius"
+              L8 = L8(L9, L10)
+              if L8 then
+                L8 = _UPVALUE0_
+                L8 = L8.trim
+                L10 = L7
+                L9 = L7.sub
+                L11 = 88
+                L12 = #L7
+                L9, L10, L11, L12, L13 = L9(L10, L11, L12)
+                L8 = L8(L9, L10, L11, L12, L13)
+                L9 = {}
+                L9.current = "0"
+                L9.min = "0"
+                L9.max = "0"
+                L11 = L8
+                L10 = L8.match
+                L12 = "(%d+)%s%S+%s+(%d+)/(%d+)"
+                L10, L11, L12 = L10(L11, L12)
+                L9.max = L12
+                L9.min = L11
+                L9.current = L10
+                L0.temperature = L9
+              else
+                L9 = L7
+                L8 = L7.match
+                L10 = "Reallocated_Event_Count"
+                L8 = L8(L9, L10)
+                if L8 then
+                  L8 = tostring
+                  L9 = _UPVALUE0_
+                  L9 = L9.trim
+                  L11 = L7
+                  L10 = L7.sub
+                  L12 = 88
+                  L13 = #L7
+                  L10, L11, L12, L13 = L10(L11, L12, L13)
+                  L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+                  L8 = L8(L9, L10, L11, L12, L13)
+                  L0.reventcount = L8
+                else
+                  L9 = L7
+                  L8 = L7.match
+                  L10 = "Current_Pending_Sector"
+                  L8 = L8(L9, L10)
+                  if L8 then
+                    L8 = tostring
+                    L9 = _UPVALUE0_
+                    L9 = L9.trim
+                    L11 = L7
+                    L10 = L7.sub
+                    L12 = 88
+                    L13 = #L7
+                    L10, L11, L12, L13 = L10(L11, L12, L13)
+                    L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+                    L8 = L8(L9, L10, L11, L12, L13)
+                    L0.pendingsector = L8
+                  else
+                    L9 = L7
+                    L8 = L7.match
+                    L10 = "Offline_Uncorrectable"
+                    L8 = L8(L9, L10)
+                    if L8 then
+                      L8 = tostring
+                      L9 = _UPVALUE0_
+                      L9 = L9.trim
+                      L11 = L7
+                      L10 = L7.sub
+                      L12 = 88
+                      L13 = #L7
+                      L10, L11, L12, L13 = L10(L11, L12, L13)
+                      L9, L10, L11, L12, L13 = L9(L10, L11, L12, L13)
+                      L8 = L8(L9, L10, L11, L12, L13)
+                      L0.uncorrectable = L8
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  return L0
+end
+smartctl = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.XQPreference"
+  L0 = L0(L1)
+  L1 = tonumber
+  L2 = L0.get
+  L3 = "DISK_STATUS_NEW"
+  L2, L3 = L2(L3)
+  L1 = L1(L2, L3)
+  if not L1 then
+    L2 = hdd_status
+    L2 = L2()
+    if L2 == 0 then
+      L1 = 2
+    elseif L2 == 1 then
+      L1 = 3
+    elseif L2 == 2 then
+      L1 = 4
+    elseif L2 == 99 then
+      L1 = 6
+    elseif L2 == 98 then
+      L1 = 8
+    end
+  end
+  return L1
+end
+get_diskstatus = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "disk"
+  L4 = "primary"
+  L5 = "status"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L2 = tonumber
+  L3 = L1
+  return L2(L3)
+end
+get_diskmstatus = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.XQPreference"
+  L0 = L0(L1)
+  L1 = tonumber
+  L2 = L0.get
+  L3 = "DISK_REPAIR_STATUS"
+  L2, L3 = L2(L3)
+  L1 = L1(L2, L3)
+  L1 = L1 or L1
+  return L1
+end
+get_repairstatus = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.XQPreference"
+  L0 = L0(L1)
+  L1 = tonumber
+  L2 = L0.get
+  L3 = "DISK_FORMAT_STATUS"
+  L2, L3 = L2(L3)
+  L1 = L1(L2, L3)
+  L1 = L1 or L1
+  return L1
+end
+get_formatstatus = L5
+function L5(A0)
+  local L1, L2
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.forkExec
+    L2 = "lua /usr/sbin/disk_helper.lua check notify"
+    L1(L2)
+  else
+    L1 = _UPVALUE0_
+    L1 = L1.forkExec
+    L2 = "lua /usr/sbin/disk_helper.lua check"
+    L1(L2)
+  end
+  L1 = true
+  return L1
+end
+disk_check = L5
+function L5(A0)
+  local L1, L2
+  if A0 then
+    L1 = _UPVALUE0_
+    L1 = L1.forkExec
+    L2 = "lua /usr/sbin/disk_helper.lua repair notify"
+    L1(L2)
+  else
+    L1 = _UPVALUE0_
+    L1 = L1.forkExec
+    L2 = "lua /usr/sbin/disk_helper.lua repair"
+    L1(L2)
+  end
+  L1 = true
+  return L1
+end
+disk_repair = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = L1.set
+  L3 = "DISK_STATUS_NEW"
+  L4 = tostring
+  L5 = A0
+  L4, L5 = L4(L5)
+  L2(L3, L4, L5)
+end
+save_diskstatus = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = L1.set
+  L3 = "DISK_REPAIR_STATUS"
+  L4 = tostring
+  L5 = A0
+  L4, L5 = L4(L5)
+  L2(L3, L4, L5)
+end
+save_diskrstatus = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = L1.set
+  L3 = "DISK_FORMAT_STATUS"
+  L4 = tostring
+  L5 = A0
+  L4, L5 = L4(L5)
+  L2(L3, L4, L5)
+end
+save_diskfstatus = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = tonumber
+  L1 = _UPVALUE0_
+  L1 = L1.trim
+  L2 = _UPVALUE0_
+  L2 = L2.exec
+  L3 = "/usr/sbin/hddstatus; echo $?"
+  L2 = L2(L3)
+  L2 = L2 or L2
+  L1, L2, L3 = L1(L2)
+  L0 = L0(L1, L2, L3)
+  L0 = L0 or L0
+  return L0
+end
+hdd_status = L5
+function L5()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "/usr/sbin/diskchk prepare"
+  L0 = L0(L1)
+  L0 = L0 == 0
+  return L0
+end
+diskchk_prepare = L5
+function L5()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "/usr/sbin/diskchk probe"
+  L0 = L0(L1)
+  L0 = L0 == 0
+  return L0
+end
+diskchk_probe = L5
+function L5()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "/usr/sbin/diskchk restore"
+  L0 = L0(L1)
+  L0 = L0 == 0
+  return L0
+end
+diskchk_restore = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = tonumber
+  L1 = _UPVALUE0_
+  L1 = L1.trim
+  L2 = _UPVALUE0_
+  L2 = L2.exec
+  L3 = "/usr/sbin/diskchk fix; echo $?"
+  L2 = L2(L3)
+  L2 = L2 or L2
+  L1, L2, L3 = L1(L2)
+  L0 = L0(L1, L2, L3)
+  L0 = L0 or L0
+  L1 = L0 <= 2
+  return L1
+end
+diskchk_fix = L5
+function L5()
+  local L0, L1
+  L0 = _UPVALUE0_
+  L0 = L0.forkExec
+  L1 = "/usr/sbin/format_userdisk part >/dev/null 2>/dev/null"
+  L0(L1)
+end
+disk_init = L5
+function L5()
+  local L0, L1, L2
+  L0 = tonumber
+  L1 = os
+  L1 = L1.execute
+  L2 = "/usr/sbin/format_userdisk fs >/dev/null 2>/dev/null"
+  L1, L2 = L1(L2)
+  L0 = L0(L1, L2)
+  L0 = L0 == 0
+  return L0
+end
+disk_format = L5
+function L5()
+  local L0, L1
+  L0 = _UPVALUE0_
+  L0 = L0.forkExec
+  L1 = "lua /usr/sbin/disk_helper.lua format >/dev/null 2>/dev/null"
+  L0(L1)
+end
+disk_format_async = L5
+function L5()
+  local L0, L1
+  L0 = hdd_status
+  return L0()
+end
+disk_status_v2 = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.execl
+  L1 = L1(L2)
+  if L1 then
+    for L5, L6 in L2, L3, L4 do
+      L7 = _UPVALUE2_
+      L7 = L7.isStrNil
+      L8 = L6
+      L7 = L7(L8)
+      if not L7 then
+        L8 = L6
+        L7 = L6.match
+        L9 = "(%d+)%s(%S+)%s+(%S+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%S+)%s+(%S+)%s+(%S+)%s+(%S+)"
+        L7, L8, L9, L10, L11, L12, L13, L14, L15, L16 = L7(L8, L9)
+        if L7 and L8 and L9 and L10 and L11 and L12 and L13 and L14 and L15 and L16 then
+          L17 = string
+          L17 = L17.lower
+          L18 = L8
+          L17 = L17(L18)
+          if L17 == "raw_read_error_rate" or L17 == "temperature_celsius" or L17 == "airflow_temperature_cel" or L17 == "spin_up_time" then
+            L15 = "-"
+          end
+          if L17 == "current_pending_sector" then
+            L18 = tonumber
+            L19 = L16
+            L18 = L18(L19)
+            if 10 < L18 then
+              L15 = "FAILING_NOW"
+            end
+          end
+          L18 = table
+          L18 = L18.insert
+          L19 = L0
+          L20 = {}
+          L20.ID = L7
+          L20.ATTRIBUTE_NAME = L8
+          L20.FLAG = L9
+          L20.VALUE = L10
+          L20.WORST = L11
+          L20.THRESH = L12
+          L20.TYPE = L13
+          L20.UPDATED = L14
+          L20.WHEN_FAILED = L15
+          L20.RAW_VALUE = L16
+          L18(L19, L20)
+        end
+      end
+    end
+  end
+  return L0
+end
+smartctl_info_v2 = L5

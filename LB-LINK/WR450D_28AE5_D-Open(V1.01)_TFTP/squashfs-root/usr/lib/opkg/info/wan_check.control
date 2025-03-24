@@ -1,0 +1,8 @@
+Package: wan_check
+Version: 1.1.5
+Depends: libc
+Source: package/blink/wan_check
+Section: wanCheck
+Architecture: ramips_24kec
+Installed-Size: 11804
+Description:  An program to config wan_check_1.1.3

@@ -1,0 +1,13 @@
+Package: strongswan-mod-pkcs1
+Version: 5.9.2-1
+Depends: libc, strongswan
+Source: feeds/packages/net/strongswan
+SourceName: strongswan-mod-pkcs1
+License: GPL-2.0-or-later
+Section: net
+SourceDateEpoch: 1660894911
+CPE-ID: cpe:/a:strongswan:strongswan
+Maintainer: Philip Prindeville <philipp@redfish-solutions.com>, Noel Kuntze <noel.kuntze@thermi.consulting>
+Architecture: aarch64_cortex-a53
+Installed-Size: 4749
+Description:  StrongSwan PKCS1 key decoding plugin

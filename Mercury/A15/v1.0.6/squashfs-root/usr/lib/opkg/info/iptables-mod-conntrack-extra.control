@@ -1,0 +1,20 @@
+Package: iptables-mod-conntrack-extra
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-conntrack-extra, kmod-ipt-raw
+Source: tp_package/u_packages/iptables
+License: GPL-2.0
+Section: net
+Architecture: rtl
+Installed-Size: 161
+Description:  Extra iptables extensions for connection tracking.
+ 
+ Matches:
+ - connbytes
+ - connlimit
+ - connmark
+ - recent
+ - helper
+ 
+ Targets:
+ - CONNMARK
+ 

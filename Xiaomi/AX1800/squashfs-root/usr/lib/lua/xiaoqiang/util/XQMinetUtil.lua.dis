@@ -1,0 +1,278 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.util.XQMinetUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.XQLog"
+L1 = L1(L2)
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = {}
+  L0.code = 0
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.json"
+  L2 = L2(L3)
+  L3 = "ubus call minetd fsm_state"
+  L4 = L1.exec
+  L5 = L3
+  L4 = L4(L5)
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    L0.code = 1
+    return L0
+  end
+  L5 = L2.decode
+  L6 = L4
+  L5 = L5(L6)
+  L4 = L5
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    L0.code = 2
+    return L0
+  end
+  L0.code = 0
+  L0.data = L4
+  return L0
+end
+listFsm = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = {}
+  L1.code = 0
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.log
+  L4 = 1
+  L5 = "MiNet state ctrl "
+  L6 = A0
+  L5 = L5 .. L6
+  L3(L4, L5)
+  if A0 == nil then
+    L1.code = 1
+    return L1
+  end
+  if A0 == "1" then
+    L3 = L2.exec
+    L4 = "ubus call minetd ctrl '{ \"cmd\":1, \"push\":0, \"src\":\"luci\"}'"
+    L3(L4)
+  end
+  if A0 == "2" then
+    L3 = L2.exec
+    L4 = "ubus call minetd ctrl '{ \"cmd\":2, \"push\":0, \"src\":\"luci\"}'"
+    L3(L4)
+  end
+  return L1
+end
+ctrlState = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = {}
+  L0.code = 0
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.json"
+  L2 = L2(L3)
+  L3 = "ubus call minetd list"
+  L4 = L1.exec
+  L5 = L3
+  L4 = L4(L5)
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    L0.code = 1
+    return L0
+  end
+  L5 = L2.decode
+  L6 = L4
+  L5 = L5(L6)
+  L4 = L5
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    L0.code = 1
+    return L0
+  end
+  L0.code = 0
+  L0.data = L4
+  return L0
+end
+listDevice = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L2 = {}
+  L2.code = 0
+  L3 = {}
+  L4 = _UPVALUE0_
+  L4 = L4._strformat
+  L5 = A0
+  L4 = L4(L5)
+  L3.mac = L4
+  L4 = tonumber
+  L5 = A1
+  L4 = L4(L5)
+  L3.ctrl = L4
+  L4 = require
+  L5 = "luci.util"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "luci.json"
+  L5 = L5(L6)
+  L6 = "ubus call minetd grant "
+  L7 = "'"
+  L8 = L5.encode
+  L9 = L3
+  L8 = L8(L9)
+  L9 = "'"
+  L7 = L7 .. L8 .. L9
+  L8 = L4.exec
+  L9 = L6
+  L10 = L7
+  L9 = L9 .. L10
+  L8 = L8(L9)
+  L9 = _UPVALUE1_
+  L9 = L9.log
+  L10 = 1
+  L11 = "MiNet grant Device "
+  L12 = A1
+  L11 = L11 .. L12
+  L9(L10, L11)
+  L9 = _UPVALUE0_
+  L9 = L9.isStrNil
+  L10 = L8
+  L9 = L9(L10)
+  if L9 then
+    L2.code = 1
+    return L2
+  end
+  L9 = L5.decode
+  L10 = L8
+  L9 = L9(L10)
+  L8 = L9
+  L9 = _UPVALUE0_
+  L9 = L9.isStrNil
+  L10 = L8
+  L9 = L9(L10)
+  if L9 then
+    L2.code = 1
+    return L2
+  end
+  L9 = L8.code
+  L2.code = L9
+  return L2
+end
+grantDevice = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = {}
+  L0.code = 0
+  L1 = {}
+  L1.enable = 0
+  L1.express = 0
+  L0.data = L1
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = posix
+  L2 = L2.stat
+  L3 = "/usr/sbin/minetd"
+  L2 = L2(L3)
+  if L2 == nil then
+    L0.code = 1
+    return L0
+  end
+  L2 = L0.data
+  L3 = tonumber
+  L5 = L1
+  L4 = L1.get
+  L6 = "minet"
+  L7 = "setting"
+  L8 = "enabled"
+  L4, L5, L6, L7, L8 = L4(L5, L6, L7, L8)
+  L3 = L3(L4, L5, L6, L7, L8)
+  L3 = L3 or L3
+  L2.enable = L3
+  L2 = L0.data
+  L3 = tonumber
+  L5 = L1
+  L4 = L1.get
+  L6 = "minet"
+  L7 = "setting"
+  L8 = "express_connect"
+  L4, L5, L6, L7, L8 = L4(L5, L6, L7, L8)
+  L3 = L3(L4, L5, L6, L7, L8)
+  L3 = L3 or L3
+  L2.express = L3
+  L0.code = 0
+  return L0
+end
+getConfig = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = [[
+      /etc/init.d/minet restart
+    ]]
+  L4 = posix
+  L4 = L4.stat
+  L5 = "/usr/sbin/minetd"
+  L4 = L4(L5)
+  if L4 == nil then
+    return
+  end
+  if A0 ~= nil then
+    L5 = L2
+    L4 = L2.set
+    L6 = "minet"
+    L7 = "setting"
+    L8 = "enabled"
+    L9 = A0
+    L4(L5, L6, L7, L8, L9)
+  end
+  if A1 ~= nil then
+    L5 = L2
+    L4 = L2.set
+    L6 = "minet"
+    L7 = "setting"
+    L8 = "express_connect"
+    L9 = A1
+    L4(L5, L6, L7, L8, L9)
+  end
+  L5 = L2
+  L4 = L2.commit
+  L6 = "minet"
+  L4(L5, L6)
+  L4 = _UPVALUE0_
+  L4 = L4.forkExec
+  L5 = L3
+  L4(L5)
+  return
+end
+setConfig = L2

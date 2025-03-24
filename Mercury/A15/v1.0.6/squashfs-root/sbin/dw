@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+
+if [ $# -lt 1 ]; then echo "Usage: $0 <addr> <len>";  exit 1 ; fi
+if [ $# -eq 1 ]; then
+	echo r $1 4 > /proc/rtl8686gmac/mem
+else
+	a=4
+	echo r $1 `expr $2 \* $a` > /proc/rtl8686gmac/mem
+fi
+

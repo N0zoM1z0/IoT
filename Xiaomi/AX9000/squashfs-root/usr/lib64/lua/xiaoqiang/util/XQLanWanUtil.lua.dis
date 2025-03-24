@@ -1,0 +1,5102 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.util.XQLanWanUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = _UPVALUE0_
+  L2 = L2.GET_DEFAULT_MACADDRESS
+  L1 = L1(L2)
+  L2 = _UPVALUE1_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = nil
+    L2 = "null"
+    return L2
+  else
+    L2 = L0.trim
+    L3 = L1
+    L2 = L2(L3)
+    L3 = L2
+    L2 = L2.match
+    L4 = "(%S-),"
+    L2 = L2(L3, L4)
+    L1 = L2
+    L2 = string
+    L2 = L2.upper
+    L3 = L1
+    return L2(L3)
+  end
+end
+getDefaultMacAddress = L2
+function L2()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = _UPVALUE0_
+  L2 = L2.GET_DEFAULT_WAN_MACADDRESS
+  L1 = L1(L2)
+  L2 = _UPVALUE1_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = nil
+    L2 = "null"
+    return L2
+  else
+    L2 = L0.trim
+    L3 = L1
+    L2 = L2(L3)
+    L1 = L2
+    L2 = string
+    L2 = L2.upper
+    L3 = L1
+    return L2(L3)
+  end
+end
+getDefaultWanMacAddress = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "network"
+  L5 = "wan2"
+  L6 = "ifname"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L3 = L0.exec
+  L4 = "getmac "
+  L5 = L2
+  L4 = L4 .. L5
+  L3 = L3(L4)
+  L4 = _UPVALUE0_
+  L4 = L4.isStrNil
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L3 = nil
+    L4 = "null"
+    return L4
+  else
+    L4 = L0.trim
+    L5 = L3
+    L4 = L4(L5)
+    L3 = L4
+    L4 = string
+    L4 = L4.upper
+    L5 = L3
+    return L4(L5)
+  end
+end
+getDefaultWan2MacAddress = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "misc"
+  L2 = L2(L3, L4, L5, L6)
+  L3 = {}
+  L4 = "/sbin/ethstatus"
+  L8, L9, L10, L11, L12, L13, L14 = L6(L7)
+  for L8, L9 in L5, L6, L7 do
+    L11 = L9
+    L10 = L9.match
+    L12 = "port (%d):(%S+)"
+    L10, L11 = L10(L11, L12)
+    if L11 then
+      L12 = string
+      L12 = L12.match
+      L13 = L2
+      L14 = L10
+      L12 = L12(L13, L14)
+      if L12 ~= nil then
+        if L11 == "up" then
+          L12 = 1
+          if L12 then
+            goto lbl_40
+          end
+        end
+        L12 = 0
+        ::lbl_40::
+        L3[L8] = L12
+      end
+    end
+  end
+  return L3
+end
+getLanLinkList = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L3 = "/sbin/ethstatus"
+  L7, L8, L9, L10, L11, L12, L13 = L5(L6)
+  for L7, L8 in L4, L5, L6 do
+    L10 = L8
+    L9 = L8.match
+    L11 = "port (%d):(%S+)"
+    L9, L10 = L9(L10, L11)
+    if L10 and L10 == "up" then
+      L11 = tonumber
+      L12 = L9
+      L11 = L11(L12)
+      L12 = tonumber
+      L13 = L2
+      L12 = L12(L13)
+      if L11 == L12 then
+        L11 = true
+        return L11
+      end
+    end
+  end
+  return L4
+end
+getWanLink = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L3 = "/sbin/ethstatus"
+  L7, L8, L9, L10, L11, L12, L13 = L5(L6)
+  for L7, L8 in L4, L5, L6 do
+    L10 = L8
+    L9 = L8.match
+    L11 = "port (%d):(%S+)"
+    L9, L10 = L9(L10, L11)
+    if L10 and L10 == "up" then
+      L11 = tonumber
+      L12 = L9
+      L11 = L11(L12)
+      L12 = tonumber
+      L13 = L2
+      L12 = L12(L13)
+      if L11 == L12 then
+        L11 = true
+        return L11
+      end
+    end
+  end
+  return L4
+end
+getWan2Link = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = getWanLink
+  L1 = L1()
+  L2 = 30
+  while not L1 do
+    L2 = L2 - 1
+    if L2 < 0 then
+      L3 = false
+      return L3
+    end
+    L3 = L0.exec
+    L4 = "sleep 1"
+    L3(L4)
+    L3 = getWanLink
+    L3 = L3()
+    L1 = L3
+  end
+  L3 = true
+  return L3
+end
+checkInitWanLink = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_all
+  L3 = "network"
+  L4 = "lan"
+  L1 = L1(L2, L3, L4)
+  if L1 then
+    L2 = L1.ipaddr
+    if L2 then
+      L2 = L1.ipaddr
+      return L2
+    end
+  end
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = L2.exec
+  L4 = "ifconfig br-lan|grep -o \"inet addr:[0-9.]*\"|awk -F: '{print $2}'"
+  L3 = L3(L4)
+  L4 = _UPVALUE0_
+  L4 = L4.isStrNil
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L4 = nil
+    return L4
+  end
+  return L3
+end
+getLanIp = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_all
+  L3 = "network"
+  L4 = "lan"
+  L1 = L1(L2, L3, L4)
+  L2 = L1.netmask
+  return L2
+end
+getLanMask = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = L0.readfile
+  L2 = _UPVALUE0_
+  L2 = L2.WAN_MONITOR_STAT_FILEPATH
+  L1 = L1(L2)
+  L2 = {}
+  if L1 ~= nil then
+    for L6 in L3, L4, L5 do
+      L8 = L6
+      L7 = L6.match
+      L9 = "(%S+)=(%S+)"
+      L7, L8 = L7(L8, L9)
+      value = L8
+      key = L7
+      L7 = key
+      L8 = value
+      L2[L7] = L8
+    end
+  end
+  return L2
+end
+getWanMonitorStat = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "misc"
+  L5 = "hardware"
+  L6 = "model"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  if L2 then
+    L3 = string
+    L3 = L3.lower
+    L4 = L2
+    L3 = L3(L4)
+    L2 = L3
+  end
+  L4 = L1
+  L3 = L1.get
+  L5 = "xiaoqiang"
+  L6 = "common"
+  L7 = "INITTED"
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  L5 = L2
+  L4 = L2.match
+  L6 = "^d01"
+  L4 = L4(L5, L6)
+  if L4 and L3 ~= "YES" then
+    L4 = L0.execi
+    L5 = "/usr/sbin/autowancheck 6"
+    L4 = L4(L5)
+    L5, L6, L7 = nil, nil, nil
+    if L4 then
+      for L11 in L8, L9, L10 do
+        L13 = L11
+        L12 = L11.match
+        L14 = "^LINK=(%S+)"
+        L12 = L12(L13, L14)
+        if L12 ~= nil then
+          L13 = L11
+          L12 = L11.match
+          L14 = "^LINK=(%S+)"
+          L12 = L12(L13, L14)
+          L5 = L12
+        else
+          L13 = L11
+          L12 = L11.match
+          L14 = "^PPPOE=(%S+)"
+          L12 = L12(L13, L14)
+          if L12 ~= nil then
+            L13 = L11
+            L12 = L11.match
+            L14 = "^PPPOE=(%S+)"
+            L12 = L12(L13, L14)
+            L6 = L12
+          else
+            L13 = L11
+            L12 = L11.match
+            L14 = "^DHCP=(%S+)"
+            L12 = L12(L13, L14)
+            if L12 ~= nil then
+              L13 = L11
+              L12 = L11.match
+              L14 = "^DHCP=(%S+)"
+              L12 = L12(L13, L14)
+              L7 = L12
+            end
+          end
+        end
+      end
+    end
+    if L6 == "YES" then
+      return L8
+    elseif L7 == "YES" then
+      return L8
+    elseif L5 ~= "YES" then
+      return L8
+    else
+      return L8
+    end
+  else
+    L4 = L0.execi
+    L5 = "/usr/sbin/wanlinkprobe 4 WAN pppoe dhcp"
+    L4 = L4(L5)
+    L5, L6, L7 = nil, nil, nil
+    if L4 then
+      for L11 in L8, L9, L10 do
+        L13 = L11
+        L12 = L11.match
+        L14 = "^LINK=(%S+)"
+        L12 = L12(L13, L14)
+        if L12 ~= nil then
+          L13 = L11
+          L12 = L11.match
+          L14 = "^LINK=(%S+)"
+          L12 = L12(L13, L14)
+          L5 = L12
+        else
+          L13 = L11
+          L12 = L11.match
+          L14 = "^PPPOE=(%S+)"
+          L12 = L12(L13, L14)
+          if L12 ~= nil then
+            L13 = L11
+            L12 = L11.match
+            L14 = "^PPPOE=(%S+)"
+            L12 = L12(L13, L14)
+            L6 = L12
+          else
+            L13 = L11
+            L12 = L11.match
+            L14 = "^DHCP=(%S+)"
+            L12 = L12(L13, L14)
+            if L12 ~= nil then
+              L13 = L11
+              L12 = L11.match
+              L14 = "^DHCP=(%S+)"
+              L12 = L12(L13, L14)
+              L7 = L12
+            end
+          end
+        end
+      end
+    end
+    if L6 == "YES" then
+      return L8
+    elseif L7 == "YES" then
+      return L8
+    elseif L5 ~= "YES" then
+      return L8
+    else
+      return L8
+    end
+  end
+end
+getAutoWanType = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    A0 = "wan"
+  end
+  L1 = require
+  L2 = "ubus"
+  L1 = L1(L2)
+  L1 = L1.connect
+  L1 = L1()
+  L3 = L1
+  L2 = L1.call
+  L4 = "network.interface."
+  L5 = A0
+  L4 = L4 .. L5
+  L5 = "status"
+  L6 = {}
+  L2 = L2(L3, L4, L5, L6)
+  L3 = {}
+  L4 = L2["ipv4-address"]
+  if L4 then
+    L4 = L2["ipv4-address"]
+    L4 = #L4
+    if 0 < L4 then
+      L4 = L2["ipv4-address"]
+      L4 = L4[1]
+      L3.ipv4 = L4
+  end
+  else
+    L4 = {}
+    L4.mask = 0
+    L4.address = ""
+    L3.ipv4 = L4
+  end
+  L4 = L2["dns-server"]
+  L4 = L4 or L4
+  L3.dns = L4
+  L4 = string
+  L4 = L4.lower
+  L5 = L2.proto
+  L5 = L5 or L5
+  L4 = L4(L5)
+  L3.proto = L4
+  L4 = L2.up
+  L3.up = L4
+  L4 = L2.uptime
+  L4 = L4 or L4
+  L3.uptime = L4
+  L4 = L2.pending
+  L3.pending = L4
+  L4 = L2.autostart
+  L3.autostart = L4
+  return L3
+end
+ubusWanStatus = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "ubus"
+  L0 = L0(L1)
+  L0 = L0.connect
+  L0 = L0()
+  L2 = L0
+  L1 = L0.call
+  L3 = "network.interface.wan"
+  L4 = "status"
+  L5 = {}
+  L1 = L1(L2, L3, L4, L5)
+  L3 = L0
+  L2 = L0.call
+  L4 = "network.interface.wan2"
+  L5 = "status"
+  L6 = {}
+  L2 = L2(L3, L4, L5, L6)
+  L3 = {}
+  L4 = {}
+  L3.wan = L4
+  L4 = {}
+  L3.wan2 = L4
+  if L1 then
+    L4 = L1["ipv4-address"]
+    if L4 then
+      L4 = L1["ipv4-address"]
+      L4 = #L4
+      if 0 < L4 then
+        L4 = L3.wan
+        L5 = L1["ipv4-address"]
+        L5 = L5[1]
+        L4.ipv4 = L5
+    end
+  end
+  else
+    L4 = L3.wan
+    L5 = {}
+    L5.mask = 0
+    L5.address = ""
+    L4.ipv4 = L5
+  end
+  if L2 then
+    L4 = L2["ipv4-address"]
+    if L4 then
+      L4 = L2["ipv4-address"]
+      L4 = #L4
+      if 0 < L4 then
+        L4 = L3.wan2
+        L5 = L2["ipv4-address"]
+        L5 = L5[1]
+        L4.ipv4 = L5
+    end
+  end
+  else
+    L4 = L3.wan2
+    L5 = {}
+    L5.mask = 0
+    L5.address = ""
+    L4.ipv4 = L5
+  end
+  L4 = L3.wan
+  L5 = L1["dns-server"]
+  L5 = L5 or L5
+  L4.dns = L5
+  L4 = L3.wan
+  L5 = string
+  L5 = L5.lower
+  L6 = L1.proto
+  L6 = L6 or L6
+  L5 = L5(L6)
+  L4.proto = L5
+  L4 = L3.wan
+  L5 = L1.up
+  L4.up = L5
+  L4 = L3.wan
+  L5 = L1.uptime
+  L5 = L5 or L5
+  L4.uptime = L5
+  L4 = L3.wan
+  L5 = L1.pending
+  L4.pending = L5
+  L4 = L3.wan
+  L5 = L1.autostart
+  L4.autostart = L5
+  if L2 then
+    L4 = L3.wan2
+    L5 = L2["dns-server"]
+    L5 = L5 or L5
+    L4.dns = L5
+    L4 = L3.wan2
+    L5 = string
+    L5 = L5.lower
+    L6 = L2.proto
+    L6 = L6 or L6
+    L5 = L5(L6)
+    L4.proto = L5
+    L4 = L3.wan2
+    L5 = L2.up
+    L4.up = L5
+    L4 = L3.wan2
+    L5 = L2.uptime
+    L5 = L5 or L5
+    L4.uptime = L5
+    L4 = L3.wan2
+    L5 = L2.pending
+    L4.pending = L5
+    L4 = L3.wan2
+    L5 = L2.autostart
+    L4.autostart = L5
+  end
+  return L3
+end
+ubusDualWanStatus = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "json"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = "lua /usr/sbin/pppoe.lua status"
+  L4 = " "
+  L5 = A0
+  L3 = L3 .. L4 .. L5
+  L4 = L2.exec
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L5 = L2.trim
+    L6 = L4
+    L5 = L5(L6)
+    L4 = L5
+    L5 = _UPVALUE0_
+    L5 = L5.isStrNil
+    L6 = L4
+    L5 = L5(L6)
+    if L5 then
+      L5 = false
+      return L5
+    end
+    L5 = L1.decode
+    L6 = L4
+    L5 = L5(L6)
+    L4 = L5
+    return L4
+  else
+    L5 = false
+    return L5
+  end
+end
+_pppoeStatusCheck = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5
+  L1 = {}
+  L1["507"] = 1
+  L1["691"] = 1
+  L1["509"] = 1
+  L1["514"] = 1
+  L1["520"] = 1
+  L1["646"] = 1
+  L1["647"] = 1
+  L1["648"] = 1
+  L1["649"] = 1
+  L1["691"] = 1
+  L1["646"] = 1
+  L1["678"] = 1
+  L2 = {}
+  L2["516"] = 1
+  L2["650"] = 1
+  L2["601"] = 1
+  L2["510"] = 1
+  L2["530"] = 1
+  L2["531"] = 1
+  L3 = {}
+  L3["501"] = 1
+  L3["502"] = 1
+  L3["503"] = 1
+  L3["504"] = 1
+  L3["505"] = 1
+  L3["506"] = 1
+  L3["507"] = 1
+  L3["508"] = 1
+  L3["511"] = 1
+  L3["512"] = 1
+  L3["515"] = 1
+  L3["517"] = 1
+  L3["518"] = 1
+  L3["519"] = 1
+  L4 = tostring
+  L5 = A0
+  L4 = L4(L5)
+  if L4 then
+    L5 = L1[L4]
+    if L5 then
+      L5 = 1
+      return L5
+    end
+    L5 = L2[L4]
+    if L5 then
+      L5 = 2
+      return L5
+    end
+    L5 = L3[L4]
+    if L5 then
+      L5 = 3
+      return L5
+    end
+    L5 = 1
+    return L5
+  end
+end
+_pppoeErrorCodeHelper = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = require
+  L4 = "xiaoqiang.util.XQCryptoUtil"
+  L3 = L3(L4)
+  L5 = L2
+  L4 = L2.get
+  L6 = "network"
+  L7 = A1
+  L8 = "username"
+  L4 = L4(L5, L6, L7, L8)
+  L6 = L2
+  L5 = L2.get
+  L7 = "network"
+  L8 = A1
+  L9 = "password"
+  L5 = L5(L6, L7, L8, L9)
+  L6 = 0
+  if L4 and L5 then
+    L7 = L3.md5Str
+    L8 = L4
+    L9 = L5
+    L8 = L8 .. L9
+    L7 = L7(L8)
+    L9 = L2
+    L8 = L2.get_all
+    L10 = "xiaoqiang"
+    L11 = L7
+    L8 = L8(L9, L10, L11)
+    if L8 then
+      L9 = L8.status
+      if L9 then
+        L9 = tonumber
+        L10 = L8.status
+        L9 = L9(L10)
+        if L9 then
+          L9 = tonumber
+          L10 = L8.status
+          L9 = L9(L10)
+          L6 = L9
+      end
+    end
+    else
+      L6 = 0
+    end
+    if A0 == 691 then
+      if L6 == 0 then
+        L9 = 33
+        return L9
+      else
+        L9 = 34
+        return L9
+      end
+    elseif A0 == 678 then
+      if L6 == 0 then
+        L9 = 35
+        return L9
+      else
+        L9 = 36
+        return L9
+      end
+    end
+  end
+  L7 = nil
+  return L7
+end
+_pppoeError = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L1 = {}
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    A0 = "wan"
+  end
+  L2 = ubusWanStatus
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L3 = require
+    L4 = "luci.model.network"
+    L3 = L3(L4)
+    L3 = L3.init
+    L3 = L3()
+    L5 = L3
+    L4 = L3.get_network
+    L6 = A0
+    L4 = L4(L5, L6)
+    L5 = require
+    L6 = "luci.util"
+    L5 = L5(L6)
+    L6 = require
+    L7 = "luci.model.uci"
+    L6 = L6(L7)
+    L6 = L6.cursor
+    L6 = L6()
+    L7 = L2.proto
+    if L7 == "pppoe" then
+      L7 = getWanLink
+      L7 = L7()
+      if not L7 then
+        L9 = L6
+        L8 = L6.get
+        L10 = "xiaoqiang"
+        L11 = "common"
+        L12 = "INITTED"
+        L8 = L8(L9, L10, L11, L12)
+        if not L8 then
+          L9 = checkInitWanLink
+          L9 = L9()
+          L7 = L9
+        else
+          L9 = L5.exec
+          L10 = "sleep 3"
+          L9(L10)
+          L7 = true
+        end
+      end
+      if not L7 then
+        L1.status = 3
+        L1.errcode = 678
+        L1.errtype = 2
+        L1.perror = 35
+      else
+        L8 = L2.up
+        if L8 then
+          L1.status = 2
+        else
+          L8 = _pppoeStatusCheck
+          L9 = A0
+          L8 = L8(L9)
+          if L8 then
+            L9 = L8.process
+            if L9 == "down" then
+              L1.status = 4
+            else
+              L9 = L8.process
+              if L9 == "up" then
+                L1.status = 2
+              else
+                L9 = L8.process
+                if L9 ~= "connecting" then
+                  goto lbl_109
+                end
+                L9 = L8.code
+                if L9 ~= nil then
+                  L9 = L8.code
+                  if L9 ~= 0 then
+                    goto lbl_90
+                  end
+                end
+                L1.status = 1
+                goto lbl_109
+                ::lbl_90::
+                L1.status = 3
+                L9 = L8.msg
+                L9 = L9 or L9
+                L1.errcode = L9
+                L9 = _pppoeErrorCodeHelper
+                L10 = tostring
+                L11 = L8.code
+                L10, L11, L12 = L10(L11)
+                L9 = L9(L10, L11, L12)
+                L1.errtype = L9
+                L9 = _pppoeError
+                L10 = L8.msg
+                L11 = A0
+                L9 = L9(L10, L11)
+                L1.perror = L9
+              end
+            end
+          else
+            L1.status = 0
+          end
+        end
+      end
+      ::lbl_109::
+      L9 = L4
+      L8 = L4.get_option_value
+      L10 = "dns"
+      L8 = L8(L9, L10)
+      L9 = _UPVALUE0_
+      L9 = L9.isStrNil
+      L10 = L8
+      L9 = L9(L10)
+      if not L9 then
+        L9 = luci
+        L9 = L9.util
+        L9 = L9.split
+        L10 = L8
+        L11 = " "
+        L9 = L9(L10, L11)
+        L1.cdns = L9
+      end
+      L10 = L4
+      L9 = L4.get_option_value
+      L11 = "username"
+      L9 = L9(L10, L11)
+      L1.pppoename = L9
+      L10 = L4
+      L9 = L4.get_option_value
+      L11 = "password"
+      L9 = L9(L10, L11)
+      L1.password = L9
+      L10 = L4
+      L9 = L4.get_option_value
+      L11 = "peerdns"
+      L9 = L9(L10, L11)
+      L1.peerdns = L9
+    else
+      L1.status = 0
+    end
+    L8 = L4
+    L7 = L4.get_interface
+    L7 = L7(L8)
+    L9 = L7
+    L8 = L7.ipaddrs
+    L8 = L8(L9)
+    L9 = {}
+    L9.address = ""
+    L9.mask = ""
+    if L8 then
+      L10 = #L8
+      if 0 < L10 then
+        L10 = L8[1]
+        L11 = L10
+        L10 = L10.host
+        L10 = L10(L11)
+        L11 = L10
+        L10 = L10.string
+        L10 = L10(L11)
+        L9.address = L10
+        L10 = L8[1]
+        L11 = L10
+        L10 = L10.mask
+        L10 = L10(L11)
+        L11 = L10
+        L10 = L10.string
+        L10 = L10(L11)
+        L9.mask = L10
+      end
+    end
+    L1.ip = L9
+    L10 = L2.dns
+    L1.dns = L10
+    L10 = L2.proto
+    L1.proto = L10
+    L11 = L4
+    L10 = L4.gwaddr
+    L10 = L10(L11)
+    L10 = L10 or L10
+    L1.gw = L10
+    return L1
+  else
+    L3 = false
+    return L3
+  end
+end
+getPPPoEStatus = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "xiaoqiang.common.XQFunction"
+  L1 = L1(L2)
+  L2 = L1.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    A0 = "wan"
+  end
+  L2 = os
+  L2 = L2.execute
+  L3 = "lua /usr/sbin/pppoe.lua down"
+  L4 = " "
+  L5 = A0
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+end
+pppoeStop = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5
+  L1 = require
+  L2 = "xiaoqiang.common.XQFunction"
+  L1 = L1(L2)
+  L2 = L1.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    A0 = "wan"
+  end
+  L2 = L1.forkExec
+  L3 = "lua /usr/sbin/pppoe.lua up"
+  L4 = " "
+  L5 = A0
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+end
+pppoeStart = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L1 = require
+  L2 = "cjson"
+  L1 = L1(L2)
+  if A0 ~= "lan" and A0 ~= "wan" then
+    L2 = false
+    return L2
+  end
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "luci.model.network"
+  L3 = L3(L4)
+  L3 = L3.init
+  L3 = L3()
+  L4 = luci
+  L4 = L4.model
+  L4 = L4.uci
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = {}
+  L7 = L3
+  L6 = L3.get_network
+  L8 = A0
+  L6 = L6(L7, L8)
+  if L6 then
+    L8 = L6
+    L7 = L6.get_interface
+    L7 = L7(L8)
+    L9 = L7
+    L8 = L7.ipaddrs
+    L8 = L8(L9)
+    L10 = L4
+    L9 = L4.get
+    L11 = "ipv6"
+    L9 = L9(L10, L11, L12, L13)
+    L11 = L4
+    L10 = L4.get
+    L10 = L10(L11, L12, L13, L14)
+    L10 = L10 or L10
+    if L10 == "none" then
+      L9 = "0"
+    end
+    if A0 == "wan" then
+      L11 = getWanDetails
+      L11 = L11()
+      L5.details = L11
+      L11 = nil
+      if L12 then
+        if L12 == "pppoe" then
+          L11 = L12.mru
+      end
+      else
+        L11 = L12
+      end
+      if L12 then
+        L11 = "1480"
+      end
+      L5.mtu = L12
+      if L12 then
+        if L12 == "pppoe" then
+          if L12 and L12 == "1" then
+            L5.special = 1
+          else
+            L5.special = 0
+          end
+        end
+      end
+      if L9 == "1" then
+        L5.ipv6_info = L12
+        if L12 == nil then
+          L5.ipv6_info = L12
+        end
+        L12.wanType = L10
+      else
+        L5.ipv6_info = L12
+        L12.wanType = L10
+      end
+      if L12 then
+        if L12 then
+          goto lbl_122
+        end
+      end
+      ::lbl_122::
+      L5.link = L12
+      L15 = "ipv6"
+      L16 = "settings"
+      L17 = "ipv6_show"
+      L5.ipv6_show = L12
+    end
+    if L7 then
+      L11 = #L8
+      if 0 < L11 then
+        L11 = {}
+        for L15, L16 in L12, L13, L14 do
+          L17 = #L11
+          L17 = L17 + 1
+          L18 = {}
+          L11[L17] = L18
+          L17 = #L11
+          L17 = L11[L17]
+          L19 = L16
+          L18 = L16.host
+          L18 = L18(L19)
+          L19 = L18
+          L18 = L18.string
+          L18 = L18(L19)
+          L17.ip = L18
+          L17 = #L11
+          L17 = L11[L17]
+          L19 = L16
+          L18 = L16.mask
+          L18 = L18(L19)
+          L19 = L18
+          L18 = L18.string
+          L18 = L18(L19)
+          L17.mask = L18
+        end
+        L5.ipv4 = L11
+      end
+    end
+    L11 = L6.gwaddr
+    L11 = L11(L12)
+    L5.gateWay = L11
+    L11 = L6.dnsaddrs
+    L11 = L11(L12)
+    if L11 then
+      L11 = L6.dnsaddrs
+      L11 = L11(L12)
+      L11 = L11[1]
+      L11 = L11 or L11
+      L5.dnsAddrs = L11
+      L11 = L6.dnsaddrs
+      L11 = L11(L12)
+      L11 = L11[2]
+      L11 = L11 or L11
+      L5.dnsAddrs1 = L11
+    else
+      L5.dnsAddrs = ""
+      L5.dnsAddrs1 = ""
+    end
+    if L7 then
+      L11 = L7.mac
+      L11 = L11(L12)
+      if L11 ~= "00:00:00:00:00:00" then
+        L11 = L7.mac
+        L11 = L11(L12)
+        L5.mac = L11
+      end
+    end
+    L11 = L5.mac
+    if L11 == nil then
+      L11 = getWanMac
+      L11 = L11()
+      L5.mac = L11
+    end
+    L11 = L6.uptime
+    L11 = L11(L12)
+    if 0 < L11 then
+      L11 = L6.uptime
+      L11 = L11(L12)
+      L5.uptime = L11
+    else
+      L5.uptime = 0
+    end
+    L11 = L6.status
+    L11 = L11(L12)
+    if L11 == "down" then
+      L5.status = 0
+    elseif L11 == "up" then
+      L5.status = 1
+      if L12 then
+        if L12 == "pppoe" then
+          wanMonitor = L12
+          if L12 ~= "UP" then
+            L5.status = 0
+          end
+        end
+      end
+    elseif L11 == "connection" then
+      L5.status = 2
+    end
+  else
+    L5 = false
+  end
+  return L5
+end
+getLanWanInfo = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L1 = require
+  L2 = "cjson"
+  L1 = L1(L2)
+  if A0 ~= "wan2" then
+    L2 = false
+    return L2
+  end
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "luci.model.network"
+  L3 = L3(L4)
+  L3 = L3.init
+  L3 = L3()
+  L4 = luci
+  L4 = L4.model
+  L4 = L4.uci
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = {}
+  L7 = L3
+  L6 = L3.get_network
+  L8 = A0
+  L6 = L6(L7, L8)
+  if L6 then
+    L8 = L6
+    L7 = L6.get_interface
+    L7 = L7(L8)
+    L9 = L7
+    L8 = L7.ipaddrs
+    L8 = L8(L9)
+    L10 = L4
+    L9 = L4.get
+    L11 = "ipv6"
+    L9 = L9(L10, L11, L12, L13)
+    L11 = L4
+    L10 = L4.get
+    L10 = L10(L11, L12, L13, L14)
+    L10 = L10 or L10
+    if L10 == "none" then
+      L9 = "0"
+    end
+    if A0 == "wan2" then
+      L11 = L4.get
+      L15 = "weight_wan1"
+      L11 = L11(L12, L13, L14, L15)
+      L11 = L11 or L11
+      L5.weight_wan1 = L11
+      L11 = L4.get
+      L15 = "weight_wan2"
+      L11 = L11(L12, L13, L14, L15)
+      L11 = L11 or L11
+      L5.weight_wan2 = L11
+      L11 = L4.get
+      L15 = "bandwidth_wan1"
+      L11 = L11(L12, L13, L14, L15)
+      L11 = L11 or L11
+      L5.bandwidth_wan1 = L11
+      L11 = L4.get
+      L15 = "bandwidth_wan2"
+      L11 = L11(L12, L13, L14, L15)
+      L11 = L11 or L11
+      L5.bandwidth_wan2 = L11
+      L11 = getWan2Details
+      L11 = L11()
+      L5.details = L11
+      L11 = nil
+      if L12 then
+        if L12 == "pppoe" then
+          L11 = L12.mru
+      end
+      else
+        L11 = L12
+      end
+      if L12 then
+        L11 = "1480"
+      end
+      L5.mtu = L12
+      if L12 then
+        if L12 == "pppoe" then
+          if L12 and L12 == "1" then
+            L5.special = 1
+          else
+            L5.special = 0
+          end
+        end
+      end
+      if L9 == "1" then
+        L5.ipv6_info = L12
+        if L12 == nil then
+          L5.ipv6_info = L12
+        end
+        L12.wanType = L10
+      else
+        L5.ipv6_info = L12
+        L12.wanType = L10
+      end
+      if L12 then
+        if L12 then
+          goto lbl_156
+        end
+      end
+      ::lbl_156::
+      L5.link = L12
+      L15 = "ipv6"
+      L16 = "settings2"
+      L17 = "ipv6_show"
+      L5.ipv6_show = L12
+    end
+    if L7 then
+      L11 = #L8
+      if 0 < L11 then
+        L11 = {}
+        for L15, L16 in L12, L13, L14 do
+          L17 = #L11
+          L17 = L17 + 1
+          L18 = {}
+          L11[L17] = L18
+          L17 = #L11
+          L17 = L11[L17]
+          L19 = L16
+          L18 = L16.host
+          L18 = L18(L19)
+          L19 = L18
+          L18 = L18.string
+          L18 = L18(L19)
+          L17.ip = L18
+          L17 = #L11
+          L17 = L11[L17]
+          L19 = L16
+          L18 = L16.mask
+          L18 = L18(L19)
+          L19 = L18
+          L18 = L18.string
+          L18 = L18(L19)
+          L17.mask = L18
+        end
+        L5.ipv4 = L11
+      end
+    end
+    L11 = L6.gwaddr
+    L11 = L11(L12)
+    L5.gateWay = L11
+    L11 = L6.dnsaddrs
+    L11 = L11(L12)
+    if L11 then
+      L11 = L6.dnsaddrs
+      L11 = L11(L12)
+      L11 = L11[1]
+      L11 = L11 or L11
+      L5.dnsAddrs = L11
+      L11 = L6.dnsaddrs
+      L11 = L11(L12)
+      L11 = L11[2]
+      L11 = L11 or L11
+      L5.dnsAddrs1 = L11
+    else
+      L5.dnsAddrs = ""
+      L5.dnsAddrs1 = ""
+    end
+    if L7 then
+      L11 = L7.mac
+      L11 = L11(L12)
+      if L11 ~= "00:00:00:00:00:00" then
+        L11 = L7.mac
+        L11 = L11(L12)
+        L5.mac = L11
+      end
+    end
+    L11 = L5.mac
+    if L11 == nil then
+      L11 = getWan2Mac
+      L11 = L11()
+      L5.mac = L11
+    end
+    L11 = L6.uptime
+    L11 = L11(L12)
+    if 0 < L11 then
+      L11 = L6.uptime
+      L11 = L11(L12)
+      L5.uptime = L11
+    else
+      L5.uptime = 0
+    end
+    L11 = L6.status
+    L11 = L11(L12)
+    if L11 == "down" then
+      L5.status = 0
+    elseif L11 == "up" then
+      L5.status = 1
+      if L12 then
+        if L12 == "pppoe" then
+          wanMonitor = L12
+          if L12 ~= "UP" then
+            L5.status = 0
+          end
+        end
+      end
+    elseif L11 == "connection" then
+      L5.status = 2
+    end
+  else
+    L5 = false
+  end
+  return L5
+end
+getWan2Info = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L1 = luci
+  L1 = L1.model
+  L1 = L1.uci
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  L4 = L0
+  L3 = L0.get_network
+  L5 = "wan"
+  L3 = L3(L4, L5)
+  if L3 then
+    L5 = L1
+    L4 = L1.get
+    L6 = "ipv6"
+    L7 = "settings"
+    L8 = "enabled"
+    L4 = L4(L5, L6, L7, L8)
+    L6 = L1
+    L5 = L1.get
+    L7 = "ipv6"
+    L8 = "settings"
+    L9 = "mode"
+    L5 = L5(L6, L7, L8, L9)
+    L5 = L5 or L5
+    if L5 == "none" then
+      L4 = "0"
+    end
+    L6 = getWanDetails
+    L6 = L6()
+    L2.details = L6
+    if L4 == "1" then
+      L6 = getIp6Details
+      L6 = L6()
+      L2.ipv6_info = L6
+      L6 = L2.ipv6_info
+      if L6 == nil then
+        L6 = {}
+        L2.ipv6_info = L6
+      end
+      L6 = L2.ipv6_info
+      L6.wanType = L5
+    else
+      L6 = {}
+      L2.ipv6_info = L6
+      L6 = L2.ipv6_info
+      L6.wanType = L5
+    end
+    L6 = tonumber
+    L8 = L1
+    L7 = L1.get
+    L9 = "ipv6"
+    L10 = "settings"
+    L11 = "ipv6_show"
+    L7, L8, L9, L10, L11 = L7(L8, L9, L10, L11)
+    L6 = L6(L7, L8, L9, L10, L11)
+    L2.ipv6_show = L6
+    L7 = L3
+    L6 = L3.gwaddr
+    L6 = L6(L7)
+    L2.gateWay = L6
+    L7 = L3
+    L6 = L3.dnsaddrs
+    L6 = L6(L7)
+    if L6 then
+      L7 = L3
+      L6 = L3.dnsaddrs
+      L6 = L6(L7)
+      L6 = L6[1]
+      L6 = L6 or L6
+      L2.dnsAddrs = L6
+      L7 = L3
+      L6 = L3.dnsaddrs
+      L6 = L6(L7)
+      L6 = L6[2]
+      L6 = L6 or L6
+      L2.dnsAddrs1 = L6
+    else
+      L2.dnsAddrs = ""
+      L2.dnsAddrs1 = ""
+    end
+  else
+    L2 = false
+  end
+  return L2
+end
+getWan6Info = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L1 = luci
+  L1 = L1.model
+  L1 = L1.uci
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  L4 = L0
+  L3 = L0.get_network
+  L5 = "wan2"
+  L3 = L3(L4, L5)
+  if L3 then
+    L5 = L1
+    L4 = L1.get
+    L6 = "ipv6"
+    L7 = "settings2"
+    L8 = "enabled"
+    L4 = L4(L5, L6, L7, L8)
+    L6 = L1
+    L5 = L1.get
+    L7 = "ipv6"
+    L8 = "settings2"
+    L9 = "mode"
+    L5 = L5(L6, L7, L8, L9)
+    L5 = L5 or L5
+    if L5 == "none" then
+      L4 = "0"
+    end
+    L6 = getWan2Details
+    L6 = L6()
+    L2.details = L6
+    if L4 == "1" then
+      L6 = getIp62Details
+      L6 = L6()
+      L2.ipv6_info = L6
+      L6 = L2.ipv6_info
+      if L6 == nil then
+        L6 = {}
+        L2.ipv6_info = L6
+      end
+      L6 = L2.ipv6_info
+      L6.wanType = L5
+    else
+      L6 = {}
+      L2.ipv6_info = L6
+      L6 = L2.ipv6_info
+      L6.wanType = L5
+    end
+    L6 = tonumber
+    L8 = L1
+    L7 = L1.get
+    L9 = "ipv6"
+    L10 = "settings2"
+    L11 = "ipv6_show"
+    L7, L8, L9, L10, L11 = L7(L8, L9, L10, L11)
+    L6 = L6(L7, L8, L9, L10, L11)
+    L2.ipv6_show = L6
+    L7 = L3
+    L6 = L3.gwaddr
+    L6 = L6(L7)
+    L2.gateWay = L6
+    L7 = L3
+    L6 = L3.dnsaddrs
+    L6 = L6(L7)
+    if L6 then
+      L7 = L3
+      L6 = L3.dnsaddrs
+      L6 = L6(L7)
+      L6 = L6[1]
+      L6 = L6 or L6
+      L2.dnsAddrs = L6
+      L7 = L3
+      L6 = L3.dnsaddrs
+      L6 = L6(L7)
+      L6 = L6[2]
+      L6 = L6 or L6
+      L2.dnsAddrs1 = L6
+    else
+      L2.dnsAddrs = ""
+      L2.dnsAddrs1 = ""
+    end
+  else
+    L2 = false
+  end
+  return L2
+end
+getWan26Info = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "cjson"
+  L2 = L2(L3)
+  L3 = {}
+  if A0 == nil then
+    L4 = L1.exec
+    L5 = "ubus call trafficd hw"
+    L4 = L4(L5)
+    L5 = L2.decode
+    L5 = L5(L6)
+    L3 = L5
+  else
+    L3 = A0
+  end
+  L4 = nil
+  L5 = L1.exec
+  L5 = L5(L6)
+  L9 = ""
+  L5 = L6
+  for L9, L10 in L6, L7, L8 do
+    if L11 ~= nil then
+      for L14, L15 in L11, L12, L13 do
+        L16 = L15.ip
+        if L16 == L5 then
+          L4 = L15.ifname
+          break
+        end
+      end
+    end
+  end
+  return L4
+end
+getDefaultGWDev = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_network
+  L3 = "wan"
+  L1 = L1(L2, L3)
+  L3 = L1
+  L2 = L1.get_option_value
+  L4 = "ifname"
+  return L2(L3, L4)
+end
+getWanEth = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_network
+  L3 = "wan2"
+  L1 = L1(L2, L3)
+  L3 = L1
+  L2 = L1.get_option_value
+  L4 = "ifname"
+  return L2(L3, L4)
+end
+getWan2Eth = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = "ifconfig "
+  L3 = getWanEth
+  L3 = L3()
+  L2 = L2 .. L3
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if not L2 then
+    L3 = L1
+    L2 = L1.match
+    L4 = "HWaddr (%S+)"
+    L2 = L2(L3, L4)
+    L2 = L2 or L2
+    return L2
+  else
+    L2 = nil
+    return L2
+  end
+end
+getWanMac = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = "ifconfig "
+  L3 = getWan2Eth
+  L3 = L3()
+  L2 = L2 .. L3
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if not L2 then
+    L3 = L1
+    L2 = L1.match
+    L4 = "HWaddr (%S+)"
+    L2 = L2(L3, L4)
+    L2 = L2 or L2
+    return L2
+  else
+    L2 = nil
+    return L2
+  end
+end
+getWan2Mac = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  if A0 ~= "lan" and A0 ~= "wan" and A0 ~= "wan2" then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.model.network"
+  L1 = L1(L2)
+  L1 = L1.init
+  L1 = L1()
+  L2 = {}
+  L4 = L1
+  L3 = L1.get_network
+  L5 = A0
+  L3 = L3(L4, L5)
+  if L3 then
+    L5 = L3
+    L4 = L3.get_interface
+    L4 = L4(L5)
+    L5 = L4.ipaddrs
+    L5 = L5(L6)
+    if L4 then
+      if 0 < L6 then
+        for L9, L10 in L6, L7, L8 do
+          L11 = #L2
+          L11 = L11 + 1
+          L12 = {}
+          L2[L11] = L12
+          L11 = #L2
+          L11 = L2[L11]
+          L13 = L10
+          L12 = L10.host
+          L12 = L12(L13)
+          L13 = L12
+          L12 = L12.string
+          L12 = L12(L13)
+          L11.ip = L12
+          L11 = #L2
+          L11 = L2[L11]
+          L13 = L10
+          L12 = L10.mask
+          L12 = L12(L13)
+          L13 = L12
+          L12 = L12.string
+          L12 = L12(L13)
+          L11.mask = L12
+        end
+      end
+    end
+  end
+  return L2
+end
+getLanWanIp = L2
+function L2(A0)
+  local L1, L2, L3, L4
+  L1 = require
+  L2 = "luci.ip"
+  L1 = L1(L2)
+  L2 = L1.iptonl
+  L3 = A0
+  L2 = L2(L3)
+  L3 = L1.iptonl
+  L4 = "10.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "10.255.255.255"
+    L3 = L3(L4)
+    if L2 <= L3 then
+      goto lbl_37
+    end
+  end
+  L3 = L1.iptonl
+  L4 = "172.16.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "172.31.255.255"
+    L3 = L3(L4)
+    if L2 <= L3 then
+      goto lbl_37
+    end
+  end
+  L3 = L1.iptonl
+  L4 = "192.168.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "192.168.255.255"
+    L3 = L3(L4)
+    ::lbl_37::
+    if L2 <= L3 then
+      L3 = 0
+      return L3
+  end
+  else
+    L3 = 1527
+    return L3
+  end
+end
+checkLanIp = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "xiaoqiang.XQEvent"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "luci.model.network"
+  L3 = L3(L4)
+  L3 = L3.init
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get_network
+  L6 = "lan"
+  L4 = L4(L5, L6)
+  L6 = L4
+  L5 = L4.set
+  L7 = "ipaddr"
+  L8 = A0
+  L5(L6, L7, L8)
+  L6 = L4
+  L5 = L4.set
+  L7 = "netmask"
+  L8 = A1
+  L5(L6, L7, L8)
+  L6 = L3
+  L5 = L3.commit
+  L7 = "network"
+  L5(L6, L7)
+  L6 = L3
+  L5 = L3.save
+  L7 = "network"
+  L5(L6, L7)
+  L5 = L2.lanIPChange
+  L6 = A0
+  L5(L6)
+  L5 = true
+  return L5
+end
+setLanIp = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = require
+  L1 = "luci.ip"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = "ifconfig|grep inet6"
+  L3 = L1.execi
+  L4 = L2
+  L3 = L3(L4)
+  L4 = {}
+  for L8 in L5, L6, L7 do
+    L9 = luci
+    L9 = L9.util
+    L9 = L9.trim
+    L10 = L8
+    L9 = L9(L10)
+    L8 = L9
+    L10 = L8
+    L9 = L8.match
+    L11 = "inet6 addr: ([^%s]+)/([^%s]+)%s+Scope:([^%s]+)"
+    L9, L10, L11 = L9(L10, L11)
+    if L9 then
+      L12 = L0.IPv6
+      L13 = L9
+      L14 = "ffff:ffff:ffff:ffff::"
+      L12 = L12(L13, L14)
+      L9 = L12
+      L13 = L9
+      L12 = L9.host
+      L12 = L12(L13)
+      L13 = L12
+      L12 = L12.string
+      L12 = L12(L13)
+      L9 = L12
+      L12 = {}
+      L4[L9] = L12
+      L12 = L4[L9]
+      L12.ip = L9
+      L12 = L4[L9]
+      L12.mask = L10
+      L12 = L4[L9]
+      L12.type = L11
+    end
+  end
+  return L4
+end
+getIPv6Addrs = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = "ip addr show dev br-lan | grep inet6 | grep -v fe80 | grep -v deprecated"
+  L2 = L0.execi
+  L3 = L1
+  L2 = L2(L3)
+  L3 = {}
+  for L7 in L4, L5, L6 do
+    L8 = luci
+    L8 = L8.util
+    L8 = L8.trim
+    L9 = L7
+    L8 = L8(L9)
+    L7 = L8
+    L9 = L7
+    L8 = L7.match
+    L10 = "inet6 ([^%s]+/[^%s]+)%s+"
+    L8 = L8(L9, L10)
+    if L8 then
+      L9 = table
+      L9 = L9.insert
+      L10 = L3
+      L11 = L8
+      L9(L10, L11)
+    end
+  end
+  return L3
+end
+getLanIPv6Addrs = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = "ip addr show dev br-lan | grep inet6 | grep -v fe80 | grep -v deprecated"
+  L2 = L0.execi
+  L3 = L1
+  L2 = L2(L3)
+  L3 = {}
+  for L7 in L4, L5, L6 do
+    L8 = luci
+    L8 = L8.util
+    L8 = L8.trim
+    L9 = L7
+    L8 = L8(L9)
+    L7 = L8
+    L9 = L7
+    L8 = L7.match
+    L10 = "inet6 ([^%s]+)1/[^%s]+"
+    L8 = L8(L9, L10)
+    if L8 then
+      L9 = table
+      L9 = L9.insert
+      L10 = L3
+      L11 = L8
+      L9(L10, L11)
+    end
+  end
+  return L3
+end
+getLanIPv6Prefix = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = L0.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "dhcp"
+  L6 = "lan"
+  L7 = "ignore"
+  L3 = L3(L4, L5, L6, L7)
+  L5 = L2
+  L4 = L2.get
+  L6 = "dhcp"
+  L7 = "lan"
+  L8 = "leasetime"
+  L4 = L4(L5, L6, L7, L8)
+  if L3 ~= "1" then
+    L3 = "0"
+  end
+  L6 = L4
+  L5 = L4.match
+  L7 = "^(%d+)([^%d]+)"
+  L5, L6 = L5(L6, L7)
+  L7 = getLanWanIp
+  L8 = "lan"
+  L7 = L7(L8)
+  L1.lanIp = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "start"
+  L7 = L7(L8, L9, L10, L11)
+  L1.start = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "startip"
+  L7 = L7(L8, L9, L10, L11)
+  L1.startip = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "endip"
+  L7 = L7(L8, L9, L10, L11)
+  L1.endip = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "limit"
+  L7 = L7(L8, L9, L10, L11)
+  L1.limit = L7
+  L1.leasetime = L4
+  L1.leasetimeNum = L5
+  L1.leasetimeUnit = L6
+  L1.ignore = L3
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "router"
+  L7 = L7(L8, L9, L10, L11)
+  L1.router = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "dns1"
+  L7 = L7(L8, L9, L10, L11)
+  L1.dns1 = L7
+  L8 = L2
+  L7 = L2.get
+  L9 = "dhcp"
+  L10 = "lan"
+  L11 = "dns2"
+  L7 = L7(L8, L9, L10, L11)
+  L1.dns2 = L7
+  return L1
+end
+getLanDHCPService = L2
+function L2(A0, A1, A2, A3, A4, A5, A6, A7, A8)
+  local L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L9 = require
+  L10 = "luci.model.uci"
+  L9 = L9(L10)
+  L10 = require
+  L11 = "luci.util"
+  L10 = L10(L11)
+  L11 = L9.cursor
+  L11 = L11()
+  if A5 == "1" then
+    L13 = L11
+    L12 = L11.set
+    L14 = "dhcp"
+    L15 = "lan"
+    L16 = "ignore"
+    L17 = tonumber
+    L18 = A5
+    L17, L18, L19 = L17(L18)
+    L12(L13, L14, L15, L16, L17, L18, L19)
+  else
+    L12 = nil
+    if A0 and A1 then
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "start"
+      L18 = tonumber
+      L19 = A0
+      L18, L19 = L18(L19)
+      L13(L14, L15, L16, L17, L18, L19)
+      L13 = tonumber
+      L14 = A1
+      L13 = L13(L14)
+      L14 = tonumber
+      L15 = A0
+      L14 = L14(L15)
+      L13 = L13 - L14
+      L12 = L13 + 1
+      if L12 < 0 then
+        L13 = false
+        return L13
+      end
+    elseif A2 and A3 then
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "startip"
+      L18 = A2
+      L13(L14, L15, L16, L17, L18)
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "endip"
+      L18 = A3
+      L13(L14, L15, L16, L17, L18)
+      L13 = tonumber
+      L15 = A2
+      L14 = A2.match
+      L16 = ".(%d+).%d+$"
+      L14, L15, L16, L17, L18, L19 = L14(L15, L16)
+      L13 = L13(L14, L15, L16, L17, L18, L19)
+      L14 = tonumber
+      L16 = A2
+      L15 = A2.match
+      L17 = "%d+$"
+      L15, L16, L17, L18, L19 = L15(L16, L17)
+      L14 = L14(L15, L16, L17, L18, L19)
+      L15 = tonumber
+      L17 = A3
+      L16 = A3.match
+      L18 = ".(%d+).%d+$"
+      L16, L17, L18, L19 = L16(L17, L18)
+      L15 = L15(L16, L17, L18, L19)
+      L16 = tonumber
+      L18 = A3
+      L17 = A3.match
+      L19 = "%d+$"
+      L17, L18, L19 = L17(L18, L19)
+      L16 = L16(L17, L18, L19)
+      L17 = L13 - L15
+      L17 = L17 * 256
+      L18 = L14 - L16
+      L17 = L17 + L18
+      L12 = L17 + 1
+    end
+    L14 = L11
+    L13 = L11.set
+    L15 = "dhcp"
+    L16 = "lan"
+    L17 = "limit"
+    L18 = tonumber
+    L19 = L12
+    L18, L19 = L18(L19)
+    L13(L14, L15, L16, L17, L18, L19)
+    L14 = L11
+    L13 = L11.set
+    L15 = "dhcp"
+    L16 = "lan"
+    L17 = "leasetime"
+    L18 = A4
+    L13(L14, L15, L16, L17, L18)
+    L14 = L11
+    L13 = L11.delete
+    L15 = "dhcp"
+    L16 = "lan"
+    L17 = "ignore"
+    L13(L14, L15, L16, L17)
+    if A6 then
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "router"
+      L18 = A6
+      L13(L14, L15, L16, L17, L18)
+    end
+    if A7 then
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "dns1"
+      L18 = A7
+      L13(L14, L15, L16, L17, L18)
+    end
+    if A8 then
+      L14 = L11
+      L13 = L11.set
+      L15 = "dhcp"
+      L16 = "lan"
+      L17 = "dns2"
+      L18 = A8
+      L13(L14, L15, L16, L17, L18)
+    end
+  end
+  L13 = L11
+  L12 = L11.save
+  L14 = "dhcp"
+  L12(L13, L14)
+  L13 = L11
+  L12 = L11.load
+  L14 = "dhcp"
+  L12(L13, L14)
+  L13 = L11
+  L12 = L11.commit
+  L14 = "dhcp"
+  L12(L13, L14)
+  L13 = L11
+  L12 = L11.load
+  L14 = "dhcp"
+  L12(L13, L14)
+  L12 = L10.exec
+  L13 = "/etc/init.d/dnsmasq restart > /dev/null"
+  L12(L13)
+  L12 = true
+  return L12
+end
+setLanDHCPService = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = require
+  L1 = "xiaoqiang.common.XQFunction"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "lag"
+  L6 = "lag"
+  L7 = "enable"
+  L3 = L3(L4, L5, L6, L7)
+  if L3 == "0" then
+    L4 = false
+    return L4
+  else
+    L4 = true
+    return L4
+  end
+end
+getBoudStatus = L2
+function L2()
+  local L0, L1
+  L1 = getBoudStatus
+  L1 = L1()
+  if L1 then
+    L0 = 1
+  else
+    L0 = 0
+  end
+  return L0
+end
+getLanAggregationSwitch = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = getBoudStatus
+  L1 = L1()
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  if A0 then
+    if not L1 then
+      L4 = L2
+      L3 = L2.set
+      L5 = "lag"
+      L6 = "lag"
+      L7 = "enable"
+      L8 = "1"
+      L3(L4, L5, L6, L7, L8)
+      L4 = L2
+      L3 = L2.commit
+      L5 = "lag"
+      L3(L4, L5)
+      L3 = os
+      L3 = L3.execute
+      L4 = "/etc/init.d/lag start > /dev/null 2>&1"
+      L3(L4)
+    end
+  elseif L1 then
+    L3 = os
+    L3 = L3.execute
+    L4 = "/etc/init.d/lag stop > /dev/null 2>&1"
+    L3(L4)
+    L4 = L2
+    L3 = L2.set
+    L5 = "lag"
+    L6 = "lag"
+    L7 = "enable"
+    L8 = "0"
+    L3(L4, L5, L6, L7, L8)
+    L4 = L2
+    L3 = L2.commit
+    L5 = "lag"
+    L3(L4, L5)
+  end
+  L3 = true
+  return L3
+end
+milanaggregationSwitch = L2
+function L2()
+  local L0, L1, L2
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = "env -i /sbin/ifdown wan"
+  L1(L2)
+end
+wanDown = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = "env -i /sbin/ifup wan"
+  L1(L2)
+  L1 = require
+  L2 = "ubus"
+  L1 = L1(L2)
+  L1 = L1.connect
+  L1 = L1()
+  L3 = L1
+  L2 = L1.call
+  L4 = "network.interface.vpn"
+  L5 = "status"
+  L6 = {}
+  L2 = L2(L3, L4, L5, L6)
+  if L2 then
+    L3 = L2.autostart
+    if L3 then
+      L3 = L2.pending
+      if L3 then
+        L3 = L0.exec
+        L4 = "env -i /sbin/ifup vpn"
+        L3(L4)
+      end
+    end
+  end
+  L3 = _UPVALUE0_
+  L3 = L3.forkExec
+  L4 = "/etc/init.d/filetunnel restart"
+  L3(L4)
+end
+wanRestart = L2
+function L2()
+  local L0, L1, L2
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = "ubus call network reload; sleep 1; /etc/init.d/dnsmasq restart > /dev/null"
+  L1(L2)
+end
+dnsmsqRestart = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_network
+  L3 = "wan"
+  L1 = L1(L2, L3)
+  L2 = {}
+  if L1 then
+    L4 = L1
+    L3 = L1.proto
+    L3 = L3(L4)
+    if L3 == "mobile" or L3 == "3g" then
+      L3 = "mobile"
+    elseif L3 == "static" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "ipaddr"
+      L4 = L4(L5, L6)
+      L2.ipaddr = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "netmask"
+      L4 = L4(L5, L6)
+      L2.netmask = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "gateway"
+      L4 = L4(L5, L6)
+      L2.gateway = L4
+    elseif L3 == "pppoe" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "username"
+      L4 = L4(L5, L6)
+      L2.username = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "password"
+      L4 = L4(L5, L6)
+      L2.password = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "peerdns"
+      L4 = L4(L5, L6)
+      L2.peerdns = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "service"
+      L4 = L4(L5, L6)
+      L2.service = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "mru"
+      L4 = L4(L5, L6)
+      L2.mru = L4
+    elseif L3 == "dhcp" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "peerdns"
+      L4 = L4(L5, L6)
+      L2.peerdns = L4
+    end
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L6 = L1
+    L5 = L1.get_option_value
+    L7 = "dns"
+    L5, L6, L7 = L5(L6, L7)
+    L4 = L4(L5, L6, L7)
+    if not L4 then
+      L4 = luci
+      L4 = L4.util
+      L4 = L4.split
+      L6 = L1
+      L5 = L1.get_option_value
+      L7 = "dns"
+      L5 = L5(L6, L7)
+      L6 = " "
+      L4 = L4(L5, L6)
+      L2.dns = L4
+    end
+    L2.wanType = L3
+    L5 = L1
+    L4 = L1.get_option_value
+    L6 = "ifname"
+    L4 = L4(L5, L6)
+    L2.ifname = L4
+    return L2
+  else
+    L3 = nil
+    return L3
+  end
+end
+getWanDetails = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_network
+  L3 = "wan2"
+  L1 = L1(L2, L3)
+  L2 = {}
+  if L1 then
+    L4 = L1
+    L3 = L1.proto
+    L3 = L3(L4)
+    if L3 == "mobile" or L3 == "3g" then
+      L3 = "mobile"
+    elseif L3 == "static" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "ipaddr"
+      L4 = L4(L5, L6)
+      L2.ipaddr = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "netmask"
+      L4 = L4(L5, L6)
+      L2.netmask = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "gateway"
+      L4 = L4(L5, L6)
+      L2.gateway = L4
+    elseif L3 == "pppoe" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "username"
+      L4 = L4(L5, L6)
+      L2.username = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "password"
+      L4 = L4(L5, L6)
+      L2.password = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "peerdns"
+      L4 = L4(L5, L6)
+      L2.peerdns = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "service"
+      L4 = L4(L5, L6)
+      L2.service = L4
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "mru"
+      L4 = L4(L5, L6)
+      L2.mru = L4
+    elseif L3 == "dhcp" then
+      L5 = L1
+      L4 = L1.get_option_value
+      L6 = "peerdns"
+      L4 = L4(L5, L6)
+      L2.peerdns = L4
+    end
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L6 = L1
+    L5 = L1.get_option_value
+    L7 = "dns"
+    L5, L6, L7 = L5(L6, L7)
+    L4 = L4(L5, L6, L7)
+    if not L4 then
+      L4 = luci
+      L4 = L4.util
+      L4 = L4.split
+      L6 = L1
+      L5 = L1.get_option_value
+      L7 = "dns"
+      L5 = L5(L6, L7)
+      L6 = " "
+      L4 = L4(L5, L6)
+      L2.dns = L4
+    end
+    L2.wanType = L3
+    L5 = L1
+    L4 = L1.get_option_value
+    L6 = "ifname"
+    L4 = L4(L5, L6)
+    L2.ifname = L4
+    return L2
+  else
+    L3 = nil
+    return L3
+  end
+end
+getWan2Details = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "cjson"
+  L2 = L2(L3)
+  L4 = L0
+  L3 = L0.get_network
+  L5 = "wan"
+  L3 = L3(L4, L5)
+  L5 = L3
+  L4 = L3.proto
+  L4 = L4(L5)
+  L5 = luci
+  L5 = L5.model
+  L5 = L5.uci
+  L5 = L5.cursor
+  L5 = L5()
+  L6 = {}
+  L8 = L5
+  L7 = L5.get
+  L9 = "ipv6"
+  L7 = L7(L8, L9, L10, L11)
+  L7 = L7 or L7
+  L9 = L5
+  L8 = L5.get
+  L8 = L8(L9, L10, L11, L12)
+  L6.assign = L8
+  L9 = L5
+  L8 = L5.get
+  L8 = L8(L9, L10, L11, L12)
+  L6.peerdns = L8
+  L8 = _UPVALUE0_
+  L8 = L8.isStrNil
+  L9 = L5.get
+  L9, L14, L15, L16, L17, L18, L19, L20 = L9(L10, L11, L12, L13)
+  L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20)
+  if not L8 then
+    L8 = luci
+    L8 = L8.util
+    L8 = L8.split
+    L9 = L5.get
+    L9 = L9(L10, L11, L12, L13)
+    L8 = L8(L9, L10)
+    L6.dns_conf = L8
+  end
+  L8 = "ubus call network.interface.wan_6 status"
+  L9 = L1.exec
+  L9 = L9(L10)
+  if not L10 then
+    L9 = L10
+    if L10 then
+      for L13 = L10, L11, L12 do
+        L14 = L9.route
+        L14 = L14[L13]
+        L14 = L14.nexthop
+        if L14 ~= "::" then
+          L14 = L9.route
+          L14 = L14[L13]
+          L14 = L14.nexthop
+          L6.ip6gw = L14
+          break
+        end
+      end
+      L6.dns = L10
+    end
+    if L10 then
+      for L14, L15 in L11, L12, L13 do
+        L16 = table
+        L16 = L16.insert
+        L17 = L10
+        L18 = L15.address
+        L19 = "/"
+        L20 = L15.mask
+        L18 = L18 .. L19 .. L20
+        L16(L17, L18)
+      end
+      L6.ip6addr = L10
+    end
+  end
+  L6.lan_ip6addr = L10
+  L6.lan_ip6prefix = L10
+  L6.wanType = L7
+  L6.ifname = L10
+  return L6
+end
+getIp6Details = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "cjson"
+  L2 = L2(L3)
+  L4 = L0
+  L3 = L0.get_network
+  L5 = "wan2"
+  L3 = L3(L4, L5)
+  L5 = L3
+  L4 = L3.proto
+  L4 = L4(L5)
+  L5 = luci
+  L5 = L5.model
+  L5 = L5.uci
+  L5 = L5.cursor
+  L5 = L5()
+  L6 = {}
+  L8 = L5
+  L7 = L5.get
+  L9 = "ipv6"
+  L7 = L7(L8, L9, L10, L11)
+  L7 = L7 or L7
+  L9 = L5
+  L8 = L5.get
+  L8 = L8(L9, L10, L11, L12)
+  L6.assign = L8
+  L9 = L5
+  L8 = L5.get
+  L8 = L8(L9, L10, L11, L12)
+  L6.peerdns = L8
+  L8 = _UPVALUE0_
+  L8 = L8.isStrNil
+  L9 = L5.get
+  L9, L14, L15, L16, L17, L18, L19, L20 = L9(L10, L11, L12, L13)
+  L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20)
+  if not L8 then
+    L8 = luci
+    L8 = L8.util
+    L8 = L8.split
+    L9 = L5.get
+    L9 = L9(L10, L11, L12, L13)
+    L8 = L8(L9, L10)
+    L6.dns_conf = L8
+  end
+  L8 = "ubus call network.interface.wan2_6 status"
+  L9 = L1.exec
+  L9 = L9(L10)
+  if not L10 then
+    L9 = L10
+    if L10 then
+      for L13 = L10, L11, L12 do
+        L14 = L9.route
+        L14 = L14[L13]
+        L14 = L14.nexthop
+        if L14 ~= "::" then
+          L14 = L9.route
+          L14 = L14[L13]
+          L14 = L14.nexthop
+          L6.ip6gw = L14
+          break
+        end
+      end
+      L6.dns = L10
+    end
+    if L10 then
+      for L14, L15 in L11, L12, L13 do
+        L16 = table
+        L16 = L16.insert
+        L17 = L10
+        L18 = L15.address
+        L19 = "/"
+        L20 = L15.mask
+        L18 = L18 .. L19 .. L20
+        L16(L17, L18)
+      end
+      L6.ip6addr = L10
+    end
+  end
+  L6.lan_ip6addr = L10
+  L6.lan_ip6prefix = L10
+  L6.wanType = L7
+  L6.ifname = L10
+  return L6
+end
+getIp62Details = L2
+function L2(A0, A1, A2)
+  local L3, L4, L5, L6
+  L4 = _UPVALUE0_
+  L4 = L4.isStrNil
+  L5 = A0
+  L4 = L4(L5)
+  if not L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L5 = A1
+    L4 = L4(L5)
+    if not L4 then
+      L4 = {}
+      L5 = A0
+      L6 = A1
+      L4[1] = L5
+      L4[2] = L6
+      L3 = L4
+  end
+  else
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L3 = A0
+    else
+      L4 = _UPVALUE0_
+      L4 = L4.isStrNil
+      L5 = A1
+      L4 = L4(L5)
+      if not L4 then
+        L3 = A1
+      end
+    end
+  end
+  return L3
+end
+generateDns = L2
+function L2(A0)
+  local L1, L2
+  L1 = tonumber
+  L2 = A0
+  L1 = L1(L2)
+  if L1 and 576 <= L1 and L1 <= 1492 then
+    L2 = true
+    return L2
+  else
+    L2 = false
+    return L2
+  end
+end
+checkMTU = L2
+function L2(A0, A1, A2, A3, A4, A5, A6, A7)
+  local L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31
+  L8 = require
+  L9 = "xiaoqiang.XQPreference"
+  L8 = L8(L9)
+  L9 = require
+  L10 = "luci.model.network"
+  L9 = L9(L10)
+  L9 = L9.init
+  L9 = L9()
+  L10 = require
+  L11 = "luci.model.uci"
+  L10 = L10(L11)
+  L10 = L10.cursor
+  L10 = L10()
+  L12 = L10
+  L11 = L10.get
+  L13 = "network"
+  L14 = "wan"
+  L15 = "macaddr"
+  L11 = L11(L12, L13, L14, L15)
+  L12 = "wan"
+  L13 = getWanEth
+  L13 = L13()
+  L15 = L10
+  L14 = L10.get_all
+  L16 = "network"
+  L17 = "wan"
+  L14 = L14(L15, L16, L17)
+  L14 = L14 or L14
+  L15 = true
+  L16 = true
+  L17 = require
+  L18 = "luci.util"
+  L17 = L17(L18)
+  L19 = L10
+  L18 = L10.get
+  L20 = "misc"
+  L21 = "hardware"
+  L22 = "model"
+  L18 = L18(L19, L20, L21, L22)
+  L18 = L18 or L18
+  if L18 then
+    L19 = string
+    L19 = L19.lower
+    L20 = L18
+    L19 = L19(L20)
+    L18 = L19
+  end
+  L19 = L14.username
+  if L19 == A0 then
+    L19 = L14.password
+    if L19 == A1 then
+      L19 = tonumber
+      L20 = L14.mru
+      L19 = L19(L20)
+      L20 = tonumber
+      L21 = A5
+      L20 = L20(L21)
+      if L19 == L20 then
+        L19 = _UPVALUE0_
+        L19 = L19.isStrNil
+        L20 = L14.service
+        L19 = L19(L20)
+        if L19 then
+          L19 = _UPVALUE0_
+          L19 = L19.isStrNil
+          L20 = A7
+          L19 = L19(L20)
+          if L19 then
+            goto lbl_78
+          end
+        end
+        L19 = L14.service
+        ::lbl_78::
+        if L19 == A7 then
+          L19 = tonumber
+          L20 = L14.special
+          L19 = L19(L20)
+          L20 = tonumber
+          L21 = A6
+          L20 = L20(L21)
+          if L19 ~= L20 then
+            L19 = L14.special
+            if L19 then
+              goto lbl_95
+            end
+            L19 = tonumber
+            L20 = A6
+            L19 = L19(L20)
+            if L19 ~= 0 then
+              goto lbl_95
+            end
+          end
+          L15 = false
+        end
+      end
+    end
+  end
+  ::lbl_95::
+  if A0 and A1 then
+    L19 = require
+    L20 = "xiaoqiang.util.XQCryptoUtil"
+    L19 = L19(L20)
+    L20 = require
+    L21 = "xiaoqiang.util.XQSynchrodata"
+    L20 = L20(L21)
+    L21 = require
+    L22 = "xiaoqiang.util.XQSysUtil"
+    L21 = L21(L22)
+    L22 = L21.doConfUpload
+    L23 = {}
+    L23.pppoe_name = A0
+    L23.pppoe_password = A1
+    L22(L23)
+    L22 = L19.md5Str
+    L23 = A0
+    L23 = L23 .. L24
+    L22 = L22(L23)
+    L23 = L10.get_all
+    L23 = L23(L24, L25, L26)
+    if not L23 then
+      L27 = "record"
+      L28 = L22
+      L29 = {}
+      L29.username = A0
+      L29.password = A1
+      L29.status = 0
+      L24(L25, L26, L27, L28, L29)
+      L24(L25, L26)
+    end
+  end
+  L19 = {}
+  L20 = {}
+  L21 = L14.dns
+  if L21 then
+    L21 = type
+    L22 = L14.dns
+    L21 = L21(L22)
+    if L21 == "string" then
+      L21 = {}
+      L22 = L14.dns
+      L21[1] = L22
+      L20 = L21
+  end
+  else
+    L21 = L14.dns
+    if L21 then
+      L21 = type
+      L22 = L14.dns
+      L21 = L21(L22)
+      if L21 == "table" then
+        L20 = L14.dns
+      end
+    end
+  end
+  L21 = _UPVALUE0_
+  L21 = L21.isStrNil
+  L22 = A2
+  L21 = L21(L22)
+  if not L21 then
+    L21 = table
+    L21 = L21.insert
+    L22 = L19
+    L23 = A2
+    L21(L22, L23)
+  end
+  L21 = _UPVALUE0_
+  L21 = L21.isStrNil
+  L22 = A3
+  L21 = L21(L22)
+  if not L21 then
+    L21 = table
+    L21 = L21.insert
+    L22 = L19
+    L23 = A3
+    L21(L22, L23)
+  end
+  L21 = #L19
+  if 0 < L21 then
+    L21 = "0"
+    if L21 then
+      goto lbl_189
+    end
+  end
+  L21 = nil
+  ::lbl_189::
+  L22 = #L19
+  L23 = #L20
+  if L22 == L23 then
+    L22 = #L19
+    if L22 == 0 then
+      L16 = false
+    else
+      L22 = {}
+      L23 = 0
+      for L27, L28 in L24, L25, L26 do
+        L22[L28] = 1
+      end
+      for L27, L28 in L24, L25, L26 do
+        L29 = L22[L28]
+        if L29 == 1 then
+          L23 = L23 + 1
+        end
+      end
+      if L23 == L24 then
+        L16 = false
+      end
+    end
+  end
+  L23 = L9
+  L22 = L9.del_network
+  L22 = L22(L23, L24)
+  L23 = nil
+  if A5 then
+    if L24 then
+      L23 = L24
+    else
+      return L24
+    end
+  else
+    L23 = 1480
+  end
+  L27 = {}
+  L27.proto = "pppoe"
+  L27.ifname = L13
+  L27.username = A0
+  L27.password = A1
+  L28 = generateDns
+  L29 = A2
+  L30 = A3
+  L31 = A4
+  L28 = L28(L29, L30, L31)
+  L27.dns = L28
+  L27.peerdns = L21
+  L27.macaddr = L11
+  L27.service = A7
+  L27.mru = L23
+  L27.special = A6
+  L22 = L24
+  if not L24 then
+    L24(L25, L26)
+  else
+    L24(L25, L26)
+  end
+  if not L24 then
+    L24(L25, L26)
+  else
+    L24(L25, L26)
+  end
+  if not L24 then
+    L24(L25, L26)
+    L24(L25, L26)
+  end
+  if not L24 then
+    L24(L25, L26)
+    L24(L25, L26)
+  end
+  if not L24 then
+    L24(L25, L26)
+  end
+  L24(L25, L26)
+  L24()
+  if L22 then
+    L24(L25, L26)
+    L24(L25, L26)
+    if L24 then
+      L24(L25)
+    end
+    if L16 then
+      L24()
+    end
+    if L15 then
+      L24()
+    elseif L24 then
+      if L25 == 4 then
+        L25(L26)
+      end
+    end
+    L27 = "settings"
+    L28 = "enabled"
+    if L24 and L24 == "1" then
+      L27 = "ipv6"
+      L28 = "settings"
+      L29 = "mode"
+      if L25 == "off" or L25 == "none" then
+        L27 = "/etc/init.d/ipv6 off"
+        L26(L27)
+      else
+        L27 = "/etc/init.d/ipv6 start_ipv6 "
+        L28 = L25
+        L27 = L27 .. L28
+        L26(L27)
+      end
+    end
+    return L25
+  else
+    return L24
+  end
+end
+setWanPPPoE = L2
+function L2(A0, A1, A2, A3, A4, A5, A6, A7, A8)
+  local L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28
+  L9 = require
+  L10 = "xiaoqiang.XQPreference"
+  L9 = L9(L10)
+  L10 = require
+  L11 = "luci.model.network"
+  L10 = L10(L11)
+  L10 = L10.init
+  L10 = L10()
+  L11 = require
+  L12 = "luci.model.uci"
+  L11 = L11(L12)
+  L11 = L11.cursor
+  L11 = L11()
+  L12 = "wan2"
+  L13 = A0
+  L15 = L11
+  L14 = L11.get_all
+  L16 = "network"
+  L17 = "wan2"
+  L14 = L14(L15, L16, L17)
+  L14 = L14 or L14
+  L15 = require
+  L16 = "luci.util"
+  L15 = L15(L16)
+  if A1 and A2 then
+    L16 = require
+    L17 = "xiaoqiang.util.XQCryptoUtil"
+    L16 = L16(L17)
+    L17 = require
+    L18 = "xiaoqiang.util.XQSynchrodata"
+    L17 = L17(L18)
+    L18 = require
+    L19 = "xiaoqiang.util.XQSysUtil"
+    L18 = L18(L19)
+    L19 = L18.doConfUpload
+    L20 = {}
+    L20.pppoe_name = A1
+    L20.pppoe_password = A2
+    L19(L20)
+    L19 = L16.md5Str
+    L20 = A1
+    L21 = A2
+    L20 = L20 .. L21
+    L19 = L19(L20)
+    L21 = L11
+    L20 = L11.get_all
+    L22 = "xiaoqiang"
+    L23 = L19
+    L20 = L20(L21, L22, L23)
+    if not L20 then
+      L22 = L11
+      L21 = L11.section
+      L23 = "xiaoqiang"
+      L24 = "record"
+      L25 = L19
+      L26 = {}
+      L26.username = A1
+      L26.password = A2
+      L26.status = 0
+      L21(L22, L23, L24, L25, L26)
+      L22 = L11
+      L21 = L11.commit
+      L23 = "xiaoqiang"
+      L21(L22, L23)
+    end
+  end
+  L16 = {}
+  L17 = {}
+  L18 = L14.dns
+  if L18 then
+    L18 = type
+    L19 = L14.dns
+    L18 = L18(L19)
+    if L18 == "string" then
+      L18 = {}
+      L19 = L14.dns
+      L18[1] = L19
+      L17 = L18
+  end
+  else
+    L18 = L14.dns
+    if L18 then
+      L18 = type
+      L19 = L14.dns
+      L18 = L18(L19)
+      if L18 == "table" then
+        L17 = L14.dns
+      end
+    end
+  end
+  L18 = _UPVALUE0_
+  L18 = L18.isStrNil
+  L19 = A3
+  L18 = L18(L19)
+  if not L18 then
+    L18 = table
+    L18 = L18.insert
+    L19 = L16
+    L20 = A3
+    L18(L19, L20)
+  end
+  L18 = _UPVALUE0_
+  L18 = L18.isStrNil
+  L19 = A4
+  L18 = L18(L19)
+  if not L18 then
+    L18 = table
+    L18 = L18.insert
+    L19 = L16
+    L20 = A4
+    L18(L19, L20)
+  end
+  L18 = #L16
+  if 0 < L18 then
+    L18 = "0"
+    if L18 then
+      goto lbl_120
+    end
+  end
+  L18 = nil
+  ::lbl_120::
+  L20 = L10
+  L19 = L10.del_network
+  L21 = L12
+  L19 = L19(L20, L21)
+  L20 = nil
+  if A6 then
+    L21 = checkMTU
+    L22 = A6
+    L21 = L21(L22)
+    if L21 then
+      L21 = tonumber
+      L22 = A6
+      L21 = L21(L22)
+      L20 = L21
+    else
+      L21 = false
+      return L21
+    end
+  else
+    L20 = 1480
+  end
+  L22 = L10
+  L21 = L10.add_network
+  L23 = L12
+  L24 = {}
+  L24.proto = "pppoe"
+  L24.ifname = L13
+  L24.username = A1
+  L24.password = A2
+  L25 = generateDns
+  L26 = A3
+  L27 = A4
+  L28 = A5
+  L25 = L25(L26, L27, L28)
+  L24.dns = L25
+  L24.peerdns = L18
+  L24.service = A8
+  L24.mru = L20
+  L24.special = A7
+  L21 = L21(L22, L23, L24)
+  L19 = L21
+  if L19 then
+    L22 = L10
+    L21 = L10.save
+    L23 = "network"
+    L21(L22, L23)
+    L22 = L10
+    L21 = L10.commit
+    L23 = "network"
+    L21(L22, L23)
+    L21 = true
+    return L21
+  else
+    L21 = false
+    return L21
+  end
+end
+setWan2PPPoE = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "xiaoqiang.XQLog"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "ipv6"
+  L6 = "settings"
+  L7 = "firewall"
+  L3 = L3(L4, L5, L6, L7)
+  if L3 and L3 == A0 then
+    return
+  end
+  L5 = L2
+  L4 = L2.set
+  L6 = "ipv6"
+  L7 = "settings"
+  L8 = "firewall"
+  L9 = A0
+  L4(L5, L6, L7, L8, L9)
+  L5 = L2
+  L4 = L2.commit
+  L6 = "ipv6"
+  L4(L5, L6)
+  if A0 == "0" then
+    L5 = L2
+    L4 = L2.set
+    L6 = "firewall"
+    L7 = "@defaults[0]"
+    L8 = "disable_ipv6"
+    L9 = "1"
+    L4(L5, L6, L7, L8, L9)
+  else
+    L5 = L2
+    L4 = L2.set
+    L6 = "firewall"
+    L7 = "@defaults[0]"
+    L8 = "disable_ipv6"
+    L9 = "0"
+    L4(L5, L6, L7, L8, L9)
+  end
+  L5 = L2
+  L4 = L2.commit
+  L6 = "firewall"
+  L4(L5, L6)
+  L4 = _UPVALUE0_
+  L4 = L4.forkExec
+  L5 = "/etc/init.d/firewall restart"
+  L4(L5)
+end
+setIpv6Firewall = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "xiaoqiang.XQLog"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "ipv6"
+  L5 = "settings"
+  L6 = "firewall"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  return L2
+end
+getIpv6Firewall = L2
+function L2(A0)
+  local L1, L2, L3, L4
+  L1 = require
+  L2 = "luci.ip"
+  L1 = L1(L2)
+  L2 = L1.iptonl
+  L3 = A0
+  L2 = L2(L3)
+  L3 = L1.iptonl
+  L4 = "1.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "126.255.255.255"
+    L3 = L3(L4)
+    if L2 <= L3 then
+      goto lbl_27
+    end
+  end
+  L3 = L1.iptonl
+  L4 = "128.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "223.255.255.255"
+    L3 = L3(L4)
+    ::lbl_27::
+    if L2 <= L3 then
+      L3 = 0
+      return L3
+  end
+  else
+    L3 = 1533
+    return L3
+  end
+end
+checkWanIp = L2
+function L2(A0, A1, A2, A3, A4, A5, A6, A7)
+  local L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29
+  L8 = require
+  L9 = "luci.model.network"
+  L8 = L8(L9)
+  L8 = L8.init
+  L8 = L8()
+  L9 = require
+  L10 = "luci.model.uci"
+  L9 = L9(L10)
+  L9 = L9.cursor
+  L9 = L9()
+  L11 = L9
+  L10 = L9.get
+  L12 = "network"
+  L13 = "wan"
+  L14 = "macaddr"
+  L10 = L10(L11, L12, L13, L14)
+  L12 = L9
+  L11 = L9.get_all
+  L13 = "network"
+  L14 = "wan"
+  L11 = L11(L12, L13, L14)
+  L11 = L11 or L11
+  L12 = "wan"
+  L13 = getWanEth
+  L13 = L13()
+  L14 = true
+  L15 = true
+  L16 = {}
+  L17 = {}
+  L18 = require
+  L19 = "luci.util"
+  L18 = L18(L19)
+  L20 = L9
+  L19 = L9.get
+  L21 = "misc"
+  L22 = "hardware"
+  L19 = L19(L20, L21, L22, L23)
+  L19 = L19 or L19
+  if L19 then
+    L20 = string
+    L20 = L20.lower
+    L21 = L19
+    L20 = L20(L21)
+    L19 = L20
+  end
+  L20 = L11.dns
+  if L20 then
+    L20 = type
+    L21 = L11.dns
+    L20 = L20(L21)
+    if L20 == "string" then
+      L20 = {}
+      L21 = L11.dns
+      L20[1] = L21
+      L17 = L20
+  end
+  else
+    L20 = L11.dns
+    if L20 then
+      L20 = type
+      L21 = L11.dns
+      L20 = L20(L21)
+      if L20 == "table" then
+        L17 = L11.dns
+      end
+    end
+  end
+  L20 = _UPVALUE0_
+  L20 = L20.isStrNil
+  L21 = A4
+  L20 = L20(L21)
+  if not L20 then
+    L20 = table
+    L20 = L20.insert
+    L21 = L16
+    L22 = A4
+    L20(L21, L22)
+  end
+  L20 = _UPVALUE0_
+  L20 = L20.isStrNil
+  L21 = A5
+  L20 = L20(L21)
+  if not L20 then
+    L20 = table
+    L20 = L20.insert
+    L21 = L16
+    L22 = A5
+    L20(L21, L22)
+  end
+  L20 = #L16
+  if 0 < L20 then
+    L20 = "0"
+    if L20 then
+      goto lbl_99
+    end
+  end
+  L20 = nil
+  ::lbl_99::
+  L21 = #L16
+  L22 = #L17
+  if L21 == L22 then
+    L21 = #L16
+    if L21 == 0 then
+      L14 = false
+    else
+      L21 = {}
+      L22 = 0
+      for L26, L27 in L23, L24, L25 do
+        L21[L27] = 1
+      end
+      for L26, L27 in L23, L24, L25 do
+        L28 = L21[L27]
+        if L28 == 1 then
+          L22 = L22 + 1
+        end
+      end
+      if L22 == L23 then
+        L14 = false
+      end
+    end
+  end
+  L22 = L8
+  L21 = L8.del_network
+  L21 = L21(L22, L23)
+  L22 = generateDns
+  L22 = L22(L23, L24, L25)
+  if A7 then
+  else
+  end
+  if A0 == "dhcp" then
+    if L24 == "dhcp" then
+      L15 = false
+    end
+    L24.proto = "dhcp"
+    L24.ifname = L13
+    L24.dns = L22
+    L24.macaddr = L10
+    L24.peerdns = L20
+    L24.mtu = L23
+    L26 = L8
+    L27 = L12
+    L28 = L24
+    L21 = L25
+  elseif A0 == "static" then
+    if L24 == "static" then
+      if L24 == A1 then
+        if L24 == A2 then
+          if L24 == A3 then
+            if L24 == L23 then
+              L15 = false
+            end
+          end
+        end
+      end
+    end
+    L22 = L22 or L22
+    L24.proto = "static"
+    L24.ipaddr = A1
+    L24.netmask = A2
+    L24.gateway = A3
+    L24.dns = L22
+    L24.macaddr = L10
+    L24.ifname = L13
+    L24.mtu = L23
+    L26 = L8
+    L27 = L12
+    L28 = L24
+    L21 = L25
+    L26 = A1
+    if not L25 then
+      L26 = "nv_wan_ip"
+      L27 = A1
+      L25(L26, L27)
+    end
+    L26 = A3
+    if not L25 then
+      L26 = "nv_wan_gateway"
+      L27 = A3
+      L25(L26, L27)
+    end
+    L26 = A2
+    if not L25 then
+      L26 = "nv_wan_netmask"
+      L27 = A2
+      L25(L26, L27)
+    end
+    L26 = A4
+    if not L25 then
+      L26 = "nv_wan_dns1"
+      L27 = A4
+      L25(L26, L27)
+    else
+      L26 = "nv_wan_dns1"
+      L27 = ""
+      L25(L26, L27)
+    end
+    L26 = A5
+    if not L25 then
+      L26 = "nv_wan_dns2"
+      L27 = A5
+      L25(L26, L27)
+    else
+      L26 = "nv_wan_dns2"
+      L27 = ""
+      L25(L26, L27)
+    end
+  end
+  L26 = A0
+  L24(L25, L26)
+  L24()
+  if L21 then
+    L26 = "network"
+    L24(L25, L26)
+    L26 = "network"
+    L24(L25, L26)
+    L26 = "^d01"
+    if L24 then
+      if A0 == "dhcp" then
+        L24(L25)
+      elseif A0 == "static" then
+        L24(L25)
+      end
+    end
+    if L14 then
+      L24()
+    end
+    if L15 then
+      L24()
+    end
+    L26 = "ipv6"
+    L27 = "settings"
+    L28 = "enabled"
+    if L24 and L24 == "1" then
+      L26 = L9
+      L27 = "ipv6"
+      L28 = "settings"
+      L29 = "mode"
+      if L25 == "off" or L25 == "none" then
+        L26 = _UPVALUE0_
+        L26 = L26.forkExec
+        L27 = "/etc/init.d/ipv6 off"
+        L26(L27)
+      else
+        L26 = _UPVALUE0_
+        L26 = L26.forkExec
+        L27 = "/etc/init.d/ipv6 start_ipv6 "
+        L28 = L25
+        L27 = L27 .. L28
+        L26(L27)
+      end
+    end
+    return L25
+  else
+    return L24
+  end
+end
+setWanStaticOrDHCP = L2
+function L2(A0, A1, A2, A3, A4, A5, A6, A7, A8)
+  local L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27
+  L9 = require
+  L10 = "luci.model.network"
+  L9 = L9(L10)
+  L9 = L9.init
+  L9 = L9()
+  L10 = require
+  L11 = "luci.model.uci"
+  L10 = L10(L11)
+  L10 = L10.cursor
+  L10 = L10()
+  L12 = L10
+  L11 = L10.get_all
+  L13 = "network"
+  L14 = "wan"
+  L11 = L11(L12, L13, L14)
+  L11 = L11 or L11
+  L12 = "wan2"
+  L13 = A0
+  L14 = true
+  L15 = true
+  L16 = {}
+  L17 = {}
+  L18 = require
+  L19 = "luci.util"
+  L18 = L18(L19)
+  L19 = L11.dns
+  if L19 then
+    L19 = type
+    L20 = L11.dns
+    L19 = L19(L20)
+    if L19 == "string" then
+      L19 = {}
+      L20 = L11.dns
+      L19[1] = L20
+      L17 = L19
+  end
+  else
+    L19 = L11.dns
+    if L19 then
+      L19 = type
+      L20 = L11.dns
+      L19 = L19(L20)
+      if L19 == "table" then
+        L17 = L11.dns
+      end
+    end
+  end
+  L19 = _UPVALUE0_
+  L19 = L19.isStrNil
+  L20 = A5
+  L19 = L19(L20)
+  if not L19 then
+    L19 = table
+    L19 = L19.insert
+    L20 = L16
+    L21 = A5
+    L19(L20, L21)
+  end
+  L19 = _UPVALUE0_
+  L19 = L19.isStrNil
+  L20 = A6
+  L19 = L19(L20)
+  if not L19 then
+    L19 = table
+    L19 = L19.insert
+    L20 = L16
+    L21 = A6
+    L19(L20, L21)
+  end
+  L19 = #L16
+  if 0 < L19 then
+    L19 = "0"
+    if L19 then
+      goto lbl_78
+    end
+  end
+  L19 = nil
+  ::lbl_78::
+  L21 = L9
+  L20 = L9.del_network
+  L22 = L12
+  L20 = L20(L21, L22)
+  L21 = generateDns
+  L22 = A5
+  L23 = A6
+  L24 = A7
+  L21 = L21(L22, L23, L24)
+  L22 = nil
+  if A8 then
+    L23 = tonumber
+    L24 = A8
+    L23 = L23(L24)
+    L22 = L23
+  else
+    L22 = 1500
+  end
+  if A1 == "dhcp" then
+    L23 = {}
+    L23.proto = "dhcp"
+    L23.ifname = L13
+    L23.dns = L21
+    L23.peerdns = L19
+    L23.mtu = L22
+    L25 = L9
+    L24 = L9.add_network
+    L26 = L12
+    L27 = L23
+    L24 = L24(L25, L26, L27)
+    L20 = L24
+  elseif A1 == "static" then
+    L21 = L21 or L21
+    L23 = {}
+    L23.proto = "static"
+    L23.ipaddr = A2
+    L23.netmask = A3
+    L23.gateway = A4
+    L23.dns = L21
+    L23.ifname = L13
+    L23.mtu = L22
+    L25 = L9
+    L24 = L9.add_network
+    L26 = L12
+    L27 = L23
+    L24 = L24(L25, L26, L27)
+    L20 = L24
+  end
+  if L20 then
+    L24 = L9
+    L23 = L9.save
+    L25 = "network"
+    L23(L24, L25)
+    L24 = L9
+    L23 = L9.commit
+    L25 = "network"
+    L23(L24, L25)
+    L23 = true
+    return L23
+  else
+    L23 = false
+    return L23
+  end
+end
+setWan2StaticOrDHCP = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L2 = require
+  L3 = "luci.model.network"
+  L2 = L2(L3)
+  L2 = L2.init
+  L2 = L2()
+  L3 = require
+  L4 = "luci.cbi.datatypes"
+  L3 = L3(L4)
+  L5 = L2
+  L4 = L2.get_network
+  L6 = A1
+  L4 = L4(L5, L6)
+  L6 = L4
+  L5 = L4.get_option_value
+  L7 = "macaddr"
+  L5 = L5(L6, L7)
+  L6 = false
+  if L5 ~= A0 then
+    L7 = _UPVALUE0_
+    L7 = L7.isStrNil
+    L8 = A0
+    L7 = L7(L8)
+    if L7 then
+      L7 = getDefaultWanMacAddress
+      L7 = L7()
+      L7 = L7 or L7
+      L9 = L4
+      L8 = L4.set
+      L10 = "macaddr"
+      L11 = L7
+      L8(L9, L10, L11)
+      L6 = true
+    else
+      L7 = L3.macaddr
+      L8 = A0
+      L7 = L7(L8)
+      if L7 and A0 ~= "ff:ff:ff:ff:ff:ff" and A0 ~= "00:00:00:00:00:00" then
+        L8 = L4
+        L7 = L4.set
+        L9 = "macaddr"
+        L10 = A0
+        L7(L8, L9, L10)
+        L6 = true
+      end
+    end
+  else
+    L6 = true
+  end
+  if L6 then
+    L8 = L2
+    L7 = L2.save
+    L9 = "network"
+    L7(L8, L9)
+    L8 = L2
+    L7 = L2.commit
+    L9 = "network"
+    L7(L8, L9)
+    L7 = wanRestart
+    L7()
+  end
+  return L6
+end
+setWanMac = L2
+function L2(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.ip"
+  L1 = L1(L2)
+  L2 = L1.iptonl
+  L3 = A0
+  L2 = L2(L3)
+  L3 = L1.iptonl
+  L4 = "1.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "126.0.0.0"
+    L3 = L3(L4)
+    if L2 <= L3 then
+      goto lbl_35
+    end
+  end
+  L3 = L1.iptonl
+  L4 = "128.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "223.255.255.255"
+    L3 = L3(L4)
+    ::lbl_35::
+    if L2 <= L3 then
+      L3 = true
+      return L3
+  end
+  else
+    L3 = false
+    return L3
+  end
+end
+_checkIP = L2
+function L2(A0)
+  local L1, L2, L3
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.cbi.datatypes"
+  L1 = L1(L2)
+  L2 = L1.macaddr
+  L3 = A0
+  L2 = L2(L3)
+  if L2 and A0 ~= "ff:ff:ff:ff:ff:ff" and A0 ~= "00:00:00:00:00:00" then
+    L2 = true
+    return L2
+  else
+    L2 = false
+    return L2
+  end
+end
+_checkMac = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5
+  if A0 then
+    L1 = string
+    L1 = L1.lower
+    L2 = string
+    L2 = L2.gsub
+    L3 = A0
+    L4 = "[:-]"
+    L5 = ""
+    L2, L3, L4, L5 = L2(L3, L4, L5)
+    return L1(L2, L3, L4, L5)
+  else
+    L1 = nil
+    return L1
+  end
+end
+_parseMac = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  L3 = _UPVALUE0_
+  L3 = L3.DHCP_LEASE_FILEPATH
+  L4 = L1.foreach
+  function L8(A0)
+    local L1, L2
+    L1 = A0.leasefile
+    if L1 then
+      L1 = _UPVALUE0_
+      L1 = L1.access
+      L2 = A0.leasefile
+      L1 = L1(L2)
+      if L1 then
+        L1 = A0.leasefile
+        _UPVALUE1_ = L1
+        L1 = false
+        return L1
+      end
+    end
+  end
+  L4(L5, L6, L7, L8)
+  L4 = io
+  L4 = L4.open
+  L4 = L4(L5, L6)
+  if L4 then
+    for L8 in L5, L6, L7 do
+      if L8 then
+        L10 = L8
+        L9 = L8.match
+        L11 = "^(%d+) (%S+) (%S+) (%S+)"
+        L9, L10, L11, L12 = L9(L10, L11)
+        if L12 == "*" then
+          L12 = ""
+        end
+        if L9 and L10 and L11 and L12 then
+          L13 = {}
+          L14 = string
+          L14 = L14.lower
+          L15 = _UPVALUE1_
+          L15 = L15.macFormat
+          L16 = L10
+          L15, L16 = L15(L16)
+          L14 = L14(L15, L16)
+          L13.mac = L14
+          L13.ip = L11
+          L13.name = L12
+          L2[L11] = L13
+        end
+      end
+    end
+    L5(L6)
+  end
+  return L2
+end
+_parseDhcpLeases = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    return
+  end
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "network"
+  L5 = "lan"
+  L6 = "netmask"
+  L2 = L2(L3, L4, L5, L6)
+  L3 = nil
+  L4 = string
+  L4 = L4.find
+  L5 = L2
+  L6 = "255.255.255.0"
+  L4 = L4(L5, L6)
+  if 1 == L4 then
+    L3 = ".%d+$"
+  else
+    L3 = ".%d+.%d+$"
+  end
+  L5 = A0
+  L4 = A0.gsub
+  L6 = L3
+  L7 = ""
+  L4 = L4(L5, L6, L7)
+  L6 = L1
+  L5 = L1.foreach
+  L7 = "macbind"
+  L8 = "host"
+  function L9(A0)
+    local L1, L2, L3, L4, L5, L6, L7
+    L1 = A0.ip
+    L2 = _UPVALUE0_
+    L4 = L1
+    L3 = L1.match
+    L5 = _UPVALUE1_
+    L3 = L3(L4, L5)
+    L1 = L2 .. L3
+    L2 = _UPVALUE2_
+    L3 = L2
+    L2 = L2.set
+    L4 = "macbind"
+    L5 = A0[".name"]
+    L6 = "ip"
+    L7 = L1
+    L2(L3, L4, L5, L6, L7)
+  end
+  L5(L6, L7, L8, L9)
+  L6 = L1
+  L5 = L1.foreach
+  L7 = "dhcp"
+  L8 = "host"
+  function L9(A0)
+    local L1, L2, L3, L4, L5, L6, L7
+    L1 = A0.ip
+    L2 = _UPVALUE0_
+    L4 = L1
+    L3 = L1.match
+    L5 = _UPVALUE1_
+    L3 = L3(L4, L5)
+    L1 = L2 .. L3
+    L2 = _UPVALUE2_
+    L3 = L2
+    L2 = L2.set
+    L4 = "dhcp"
+    L5 = A0[".name"]
+    L6 = "ip"
+    L7 = L1
+    L2(L3, L4, L5, L6, L7)
+  end
+  L5(L6, L7, L8, L9)
+  L6 = L1
+  L5 = L1.commit
+  L7 = "dhcp"
+  L5(L6, L7)
+  L6 = L1
+  L5 = L1.commit
+  L7 = "macbind"
+  L5(L6, L7)
+end
+hookLanIPChangeEvent = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L3 = L0
+  L2 = L0.foreach
+  L4 = "macbind"
+  L5 = "host"
+  function L6(A0)
+    local L1, L2, L3
+    L1 = {}
+    L2 = A0.name
+    L1.name = L2
+    L2 = A0.mac
+    L1.mac = L2
+    L2 = A0.ip
+    L1.ip = L2
+    L1.tag = 1
+    L2 = _UPVALUE0_
+    L3 = A0.mac
+    L2[L3] = L1
+  end
+  L2(L3, L4, L5, L6)
+  L3 = L0
+  L2 = L0.foreach
+  L4 = "dhcp"
+  L5 = "host"
+  function L6(A0)
+    local L1, L2, L3
+    L1 = {}
+    L2 = A0.name
+    L1.name = L2
+    L2 = A0.mac
+    L1.mac = L2
+    L2 = A0.ip
+    L1.ip = L2
+    L1.tag = 2
+    L2 = _UPVALUE0_
+    L3 = A0.mac
+    L2[L3] = L1
+  end
+  L2(L3, L4, L5, L6)
+  return L1
+end
+macBindInfo = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = _checkIP
+  L4 = A1
+  L3 = L3(L4)
+  if L3 then
+    L3 = _checkMac
+    L4 = A0
+    L3 = L3(L4)
+    if L3 then
+      L3 = _parseDhcpLeases
+      L3 = L3()
+      L4 = string
+      L4 = L4.lower
+      L5 = _UPVALUE0_
+      L5 = L5.macFormat
+      L6 = A0
+      L5, L6, L7, L8, L9, L10, L11, L12 = L5(L6)
+      L4 = L4(L5, L6, L7, L8, L9, L10, L11, L12)
+      A0 = L4
+      L4 = L3[A1]
+      if L4 then
+        L5 = L4.mac
+        if L5 ~= A0 then
+          L5 = 1
+          return L5
+        end
+      end
+      L5 = _parseMac
+      L6 = A0
+      L5 = L5(L6)
+      L6 = {}
+      L6.name = L5
+      L6.mac = A0
+      L6.ip = A1
+      L8 = L2
+      L7 = L2.section
+      L9 = "macbind"
+      L10 = "host"
+      L11 = L5
+      L12 = L6
+      L7(L8, L9, L10, L11, L12)
+      L8 = L2
+      L7 = L2.commit
+      L9 = "macbind"
+      L7(L8, L9)
+  end
+  else
+    L3 = 2
+    return L3
+  end
+  L3 = 0
+  return L3
+end
+addBind = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = _checkMac
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L2 = _parseMac
+    L3 = A0
+    L2 = L2(L3)
+    L4 = L1
+    L3 = L1.delete
+    L5 = "macbind"
+    L6 = L2
+    L3(L4, L5, L6)
+    L4 = L1
+    L3 = L1.delete
+    L5 = "dhcp"
+    L6 = L2
+    L3(L4, L5, L6)
+    L4 = L1
+    L3 = L1.commit
+    L5 = "macbind"
+    L3(L4, L5)
+    L4 = L1
+    L3 = L1.commit
+    L5 = "dhcp"
+    L3(L4, L5)
+    L3 = true
+    return L3
+  else
+    L2 = false
+    return L2
+  end
+end
+removeBind = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.delete_all
+  L3 = "dhcp"
+  L4 = "host"
+  L1(L2, L3, L4)
+  L2 = L0
+  L1 = L0.delete_all
+  L3 = "macbind"
+  L4 = "host"
+  L1(L2, L3, L4)
+  L2 = L0
+  L1 = L0.commit
+  L3 = "dhcp"
+  L1(L2, L3)
+  L2 = L0
+  L1 = L0.commit
+  L3 = "macbind"
+  L1(L2, L3)
+end
+unbindAll = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.delete_all
+  L3 = "dhcp"
+  L4 = "host"
+  L1(L2, L3, L4)
+  L2 = L0
+  L1 = L0.foreach
+  L3 = "macbind"
+  L4 = "host"
+  function L5(A0)
+    local L1, L2, L3, L4, L5, L6, L7
+    L1 = {}
+    L2 = A0.name
+    L1.name = L2
+    L2 = A0.mac
+    L1.mac = L2
+    L2 = A0.ip
+    L1.ip = L2
+    L2 = _UPVALUE0_
+    L3 = L2
+    L2 = L2.section
+    L4 = "dhcp"
+    L5 = "host"
+    L6 = A0.name
+    L7 = L1
+    L2(L3, L4, L5, L6, L7)
+  end
+  L1(L2, L3, L4, L5)
+  L2 = L0
+  L1 = L0.commit
+  L3 = "dhcp"
+  L1(L2, L3)
+end
+saveBindInfo = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = tonumber
+  L3 = L1.get
+  L4 = "WAN_SPEED"
+  L5 = 0
+  L3, L4, L5 = L3(L4, L5)
+  L2 = L2(L3, L4, L5)
+  L3 = L2 or L3
+  if not L2 then
+    L3 = 0
+  end
+  return L3
+end
+getWanSpeed = L2
+function L2()
+  local L0, L1
+  L0 = getWanEth
+  L0 = L0()
+  L1 = nil
+  if L0 == "eth4" then
+    L1 = "2.5G"
+  else
+    L1 = "1G"
+  end
+  return L1
+end
+getWanLanMode = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = tonumber
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L3 = L1.set
+    L4 = "WAN_SPEED"
+    L5 = L2
+    L3(L4, L5)
+    if L2 == 10 then
+      L3 = os
+      L3 = L3.execute
+      L4 = "/usr/bin/longloopd stop > /dev/null 2>&1"
+      L3(L4)
+    else
+      L3 = os
+      L3 = L3.execute
+      L4 = "/usr/bin/longloopd start > /dev/null 2>&1"
+      L3(L4)
+    end
+    L3 = os
+    L3 = L3.execute
+    L4 = "phyhelper swan "
+    L5 = tostring
+    L6 = L2
+    L5 = L5(L6)
+    L6 = " > /dev/null 2>&1"
+    L4 = L4 .. L5 .. L6
+    L3(L4)
+    L3 = true
+    return L3
+  end
+  L3 = false
+  return L3
+end
+setWanSpeed = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "xiaoqiang.XQLog"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "network"
+  L6 = "wan"
+  L7 = "ifname"
+  L3 = L3(L4, L5, L6, L7)
+  L4 = L1.log
+  L5 = 4
+  L6 = "setWanLanSwap  "
+  L7 = L3
+  L6 = L6 .. L7
+  L4(L5, L6)
+  if A0 then
+    if A0 == "2.5G" then
+      if L3 == "eth3" then
+        L4 = os
+        L4 = L4.execute
+        L5 = "/usr/sbin/switch2.5Gwan.sh wan > /dev/null 2>&1"
+        L4(L5)
+      end
+    elseif L3 == "eth4" then
+      L4 = os
+      L4 = L4.execute
+      L5 = "/usr/sbin/switch2.5Gwan.sh lan > /dev/null 2>&1"
+      L4(L5)
+    end
+    L4 = true
+    return L4
+  end
+  L4 = false
+  return L4
+end
+setWanLanSwap = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L1 = require
+  L2 = "xiaoqiang.XQLog"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = 0
+  L4 = "1"
+  L5 = nil
+  if A0 then
+    if A0 == "2.5G" then
+      L6 = L2.exec
+      L7 = "ssdk_sh port linkstatus get 5 | grep ENABLE | wc -l"
+      L6 = L6(L7)
+      L5 = L6
+    else
+      L6 = L2.exec
+      L7 = "ssdk_sh port linkstatus get 4 | grep ENABLE | wc -l"
+      L6 = L6(L7)
+      L5 = L6
+    end
+    L6 = string
+    L6 = L6.gsub
+    L7 = L5
+    L8 = "^[%s\n\r\t]*(.-)[%s\n\r\t]*$"
+    L9 = "%1"
+    L6 = L6(L7, L8, L9)
+    L4 = L6
+    L6 = L1.log
+    L7 = 6
+    L8 = "getWanPortStatus link  "
+    L9 = L4
+    L10 = A0
+    L8 = L8 .. L9 .. L10
+    L6(L7, L8)
+    if L4 == "1" then
+      L6 = L2.exec
+      L7 = "/sbin/ifstatus wan | grep up | awk 'NR==1 {print $2}' | sed -e 's/,//'"
+      L6 = L6(L7)
+      L7 = string
+      L7 = L7.gsub
+      L8 = L6
+      L9 = "^[%s\n\r\t]*(.-)[%s\n\r\t]*$"
+      L10 = "%1"
+      L7 = L7(L8, L9, L10)
+      L8 = L1.log
+      L9 = 6
+      L10 = "getWanPortStatus status  "
+      L11 = L7
+      L10 = L10 .. L11
+      L8(L9, L10)
+      if L7 == "true" then
+        L3 = 2
+      elseif L7 == "false" then
+        L3 = 1
+      else
+        L3 = 1523
+      end
+    else
+      L3 = 0
+    end
+  end
+  L6 = L1.log
+  L7 = 6
+  L8 = "getWanPortStatus result  "
+  L9 = L3
+  L8 = L8 .. L9
+  L6(L7, L8)
+  return L3
+end
+getWanPortStatus = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L1 = require
+  L2 = "xiaoqiang.XQLog"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "luci.model.uci"
+  L3 = L3(L4)
+  L3 = L3.cursor
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get
+  L6 = "xiaoqiang"
+  L7 = "common"
+  L8 = "wan_port_type"
+  L4 = L4(L5, L6, L7, L8)
+  L4 = L4 or L4
+  L5, L6, L7 = nil, nil, nil
+  L8 = L1.log
+  L12 = " cur_mode: "
+  L13 = L4
+  L8(L9, L10)
+  L8 = L2.execi
+  L8 = L8(L9)
+  if L8 then
+    for L12 in L9, L10, L11 do
+      L14 = L12
+      L13 = L12.match
+      L15 = "^LINK=(%S+)"
+      L13 = L13(L14, L15)
+      if L13 ~= nil then
+        L14 = L12
+        L13 = L12.match
+        L15 = "^LINK=(%S+)"
+        L13 = L13(L14, L15)
+        L5 = L13
+      else
+        L14 = L12
+        L13 = L12.match
+        L15 = "^PPPOE=(%S+)"
+        L13 = L13(L14, L15)
+        if L13 ~= nil then
+          L14 = L12
+          L13 = L12.match
+          L15 = "^PPPOE=(%S+)"
+          L13 = L13(L14, L15)
+          L6 = L13
+        else
+          L14 = L12
+          L13 = L12.match
+          L15 = "^DHCP=(%S+)"
+          L13 = L13(L14, L15)
+          if L13 ~= nil then
+            L14 = L12
+            L13 = L12.match
+            L15 = "^DHCP=(%S+)"
+            L13 = L13(L14, L15)
+            L7 = L13
+          end
+        end
+      end
+    end
+  end
+  L12 = L6
+  L13 = " link "
+  L14 = L5
+  L15 = " dhcp "
+  L16 = L7
+  L9(L10, L11)
+  if (L6 == "YES" or L7 == "YES") and L4 ~= A0 then
+    L9(L10)
+  end
+  if L6 == "YES" then
+    return L9
+  elseif L7 == "YES" then
+    return L9
+  elseif L5 ~= "YES" then
+    return L9
+  else
+    return L9
+  end
+end
+getWanLanType = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "xiaoqiang.XQLog"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "network"
+  L6 = "wan"
+  L7 = "ifname"
+  L3 = L3(L4, L5, L6, L7)
+  L4 = L1.log
+  L5 = 4
+  L6 = "setWanLanPort  "
+  L7 = L3
+  L8 = A0
+  L6 = L6 .. L7 .. L8
+  L4(L5, L6)
+  if A0 then
+    if A0 == "2.5G" then
+      if L3 == "eth3" then
+        L4 = os
+        L4 = L4.execute
+        L5 = "/usr/sbin/switch2.5Gwan.sh wan init > /dev/null 2>&1"
+        L4(L5)
+      end
+    elseif L3 == "eth4" then
+      L4 = os
+      L4 = L4.execute
+      L5 = "/usr/sbin/switch2.5Gwan.sh lan init > /dev/null 2>&1"
+      L4(L5)
+    end
+    L4 = true
+    return L4
+  end
+  L4 = false
+  return L4
+end
+setWanLanPort = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = {}
+  L2.code = 0
+  L2.service = ""
+  L2.pppoename = ""
+  L2.pppoepasswd = ""
+  L3 = L1.execl
+  L3 = L3(L4)
+  if L3 then
+    if L4 == "table" then
+      for L7, L8 in L4, L5, L6 do
+        L9 = _UPVALUE0_
+        L9 = L9.isStrNil
+        L10 = L8
+        L9 = L9(L10)
+        if not L9 then
+          L9 = L1.trim
+          L10 = L8
+          L9 = L9(L10)
+          L10 = L9
+          L9 = L9.match
+          L11 = "^Service%-Name:%s(.+)"
+          L9 = L9(L10, L11)
+          L10 = _UPVALUE0_
+          L10 = L10.isStrNil
+          L11 = L9
+          L10 = L10(L11)
+          if not L10 then
+            L2.service = L9
+          end
+          L10 = L1.trim
+          L11 = L8
+          L10 = L10(L11)
+          L11 = L10
+          L10 = L10.match
+          L12 = "PPPoE:"
+          L10 = L10(L11, L12)
+          if L10 then
+            L10 = L7 + 1
+            L10 = L3[L10]
+            L11 = L7 + 2
+            L11 = L3[L11]
+            L12 = _UPVALUE0_
+            L12 = L12.isStrNil
+            L13 = L10
+            L12 = L12(L13)
+            if not L12 then
+              L12 = L1.trim
+              L13 = L10
+              L12 = L12(L13)
+              L2.pppoename = L12
+            end
+            L12 = _UPVALUE0_
+            L12 = L12.isStrNil
+            L13 = L11
+            L12 = L12(L13)
+            if not L12 then
+              L12 = L1.trim
+              L13 = L11
+              L12 = L12(L13)
+              L2.pppoepasswd = L12
+            end
+            break
+          end
+        end
+      end
+    end
+  end
+  if L4 then
+    if L4 then
+      L2.code = 1
+    end
+  end
+  return L2
+end
+pppoeCatch = L2
+function L2(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L6 = L4
+  L5 = L4.get_all
+  L7 = "network"
+  L8 = "wan"
+  L5 = L5(L6, L7, L8)
+  if A0 == "pppoe" then
+    L6 = {}
+    L7 = L5.ifname
+    L6.ifname = L7
+    L6.proto = A0
+    L6.username = A1
+    L6.password = A2
+    L6.service = A3
+    L8 = L4
+    L7 = L4.delete
+    L9 = "network"
+    L10 = "wan"
+    L7(L8, L9, L10)
+    L8 = L4
+    L7 = L4.section
+    L9 = "network"
+    L10 = "interface"
+    L11 = "wan"
+    L12 = L6
+    L7(L8, L9, L10, L11, L12)
+    L8 = L4
+    L7 = L4.commit
+    L9 = "network"
+    L7(L8, L9)
+    L7 = wanRestart
+    L7()
+    L7 = pppoeStart
+    L8 = "wan"
+    L7(L8)
+  elseif A0 == "dhcp" then
+    L6 = L5.proto
+    if L6 == "pppoe" then
+      L6 = {}
+      L7 = L5.ifname
+      L6.ifname = L7
+      L6.proto = "dhcp"
+      L7 = pppoeStop
+      L8 = "wan"
+      L7(L8)
+      L8 = L4
+      L7 = L4.delete
+      L9 = "network"
+      L10 = "wan"
+      L7(L8, L9, L10)
+      L8 = L4
+      L7 = L4.section
+      L9 = "network"
+      L10 = "interface"
+      L11 = "wan"
+      L12 = L6
+      L7(L8, L9, L10, L11, L12)
+      L8 = L4
+      L7 = L4.commit
+      L9 = "network"
+      L7(L8, L9)
+      L7 = wanRestart
+      L7()
+    end
+  end
+  L6 = true
+  return L6
+end
+setWan = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "network"
+  L5 = "lan"
+  L6 = "netmask"
+  L2 = L2(L3, L4, L5, L6)
+  L3 = ".%d+.%d+$"
+  L4, L5 = nil, nil
+  L6 = string
+  L6 = L6.find
+  L7 = L2
+  L8 = "255.255.255.0"
+  L6 = L6(L7, L8)
+  if 1 ~= L6 then
+    L7 = L1
+    L6 = L1.get
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "startip"
+    L6 = L6(L7, L8, L9, L10)
+    L4 = L6
+    L7 = L1
+    L6 = L1.get
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "endip"
+    L6 = L6(L7, L8, L9, L10)
+    L5 = L6
+    if nil == L4 or nil == L5 then
+      L7 = A0
+      L6 = A0.gsub
+      L8 = L3
+      L9 = ""
+      L6 = L6(L7, L8, L9)
+      L7 = "0.5"
+      L4 = L6 .. L7
+      L7 = A0
+      L6 = A0.gsub
+      L8 = L3
+      L9 = ""
+      L6 = L6(L7, L8, L9)
+      L7 = "3.237"
+      L5 = L6 .. L7
+    else
+      L7 = A0
+      L6 = A0.gsub
+      L8 = L3
+      L9 = ""
+      L6 = L6(L7, L8, L9)
+      L8 = L4
+      L7 = L4.match
+      L9 = L3
+      L7 = L7(L8, L9)
+      L4 = L6 .. L7
+      L7 = A0
+      L6 = A0.gsub
+      L8 = L3
+      L9 = ""
+      L6 = L6(L7, L8, L9)
+      L8 = L5
+      L7 = L5.match
+      L9 = L3
+      L7 = L7(L8, L9)
+      L5 = L6 .. L7
+    end
+    L7 = L1
+    L6 = L1.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "startip"
+    L11 = L4
+    L6(L7, L8, L9, L10, L11)
+    L7 = L1
+    L6 = L1.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "endip"
+    L11 = L5
+    L6(L7, L8, L9, L10, L11)
+    L7 = L1
+    L6 = L1.commit
+    L8 = "dhcp"
+    L6(L7, L8)
+  end
+end
+setLanDHCPConfig = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "dhcp"
+  L6 = "lan"
+  L7 = "router"
+  L3 = L3(L4, L5, L6, L7)
+  L5 = L2
+  L4 = L2.get
+  L6 = "network"
+  L7 = "lan"
+  L8 = "netmask"
+  L4 = L4(L5, L6, L7, L8)
+  L6 = L2
+  L5 = L2.get
+  L7 = "network"
+  L8 = "lan"
+  L9 = "ipaddr"
+  L5 = L5(L6, L7, L8, L9)
+  if L4 == A1 then
+    L6 = setLanDHCPConfig
+    L7 = A0
+    L6(L7)
+    return A0
+  end
+  L6 = string
+  L6 = L6.find
+  L7 = A1
+  L8 = "255.255.255.0"
+  L6 = L6(L7, L8)
+  if 1 ~= L6 then
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "startip"
+    L11 = "10.31.0.5"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "endip"
+    L11 = "10.31.3.237"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "miot"
+    L10 = "startip"
+    L11 = "10.32.0.10"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "miot"
+    L10 = "endip"
+    L11 = "10.32.0.209"
+    L6(L7, L8, L9, L10, L11)
+    if nil ~= L3 then
+      L7 = L2
+      L6 = L2.delete
+      L8 = "dhcp"
+      L9 = "lan"
+      L10 = "router"
+      L6(L7, L8, L9, L10)
+    end
+    L7 = L2
+    L6 = L2.commit
+    L8 = "dhcp"
+    L6(L7, L8)
+    L7 = L2
+    L6 = L2.set
+    L8 = "network"
+    L9 = "miot"
+    L10 = "netmask"
+    L11 = "255.255.0.0"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "network"
+    L9 = "miot"
+    L10 = "ipaddr"
+    L11 = "10.32.0.1"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.commit
+    L8 = "network"
+    L6(L7, L8)
+    A0 = "10.31.0.1"
+  else
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "start"
+    L11 = "5"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "dhcp"
+    L9 = "lan"
+    L10 = "limit"
+    L11 = "250"
+    L6(L7, L8, L9, L10, L11)
+    if nil ~= L3 then
+      L7 = L2
+      L6 = L2.delete
+      L8 = "dhcp"
+      L9 = "lan"
+      L10 = "router"
+      L6(L7, L8, L9, L10)
+    end
+    L7 = L2
+    L6 = L2.commit
+    L8 = "dhcp"
+    L6(L7, L8)
+    L7 = L2
+    L6 = L2.set
+    L8 = "network"
+    L9 = "miot"
+    L10 = "netmask"
+    L11 = "255.255.255.0"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.set
+    L8 = "network"
+    L9 = "miot"
+    L10 = "ipaddr"
+    L11 = "192.168.32.1"
+    L6(L7, L8, L9, L10, L11)
+    L7 = L2
+    L6 = L2.commit
+    L8 = "network"
+    L6(L7, L8)
+    A0 = "192.168.31.1"
+  end
+  return A0
+end
+lanMaskChange = L2

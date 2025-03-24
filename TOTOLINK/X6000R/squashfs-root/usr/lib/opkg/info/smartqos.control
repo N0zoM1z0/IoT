@@ -1,0 +1,10 @@
+Package: smartqos
+Version: 1
+Depends: libc, librt, libpthread, libuci20130104, libjson-c5, libcommon
+Source: package/carystudio/smartqos
+SourceName: smartqos
+Section: CaryStudio Properties
+SourceDateEpoch: 1678179650
+Architecture: aarch64_cortex-a53
+Installed-Size: 7091
+Description:  User daemon for QOS

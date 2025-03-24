@@ -1,0 +1,218 @@
+
+
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul id="wanSelUl" class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div class="initWdsCon">
+	<div class="buttonGroup">
+		<div id="save"></div>
+		<div id="selectFrontRouter"></div>
+	</div>
+	<div class="meshHelp">
+		<div id="meshHelpTip1" class="meshHelpTip">
+			1.选择无线中继，本路由将作为从路由，通过无线与前端路由中继，扩展无线网络的覆盖范围。
+		</div>
+		<div id="meshHelpTip2" class="meshHelpTip">
+			2.如果前端路由器为"Mesh"路由器，推荐使用"Mesh"功能扩展无线网络。
+			<i id="meshHelpCon" class="helpBtn iconfont icon-help"></i>
+		</div>
+	</div>
+</div>
+<div id="wdsResultCon" class="disNone">
+	<div class="subTitle">
+		<h2>{%label.frontRouter%}</h2>
+	</div>
+	<div id="frontRouterCon" class="routerCon">
+		<div class="routerImg"></div>
+		<div class="routerWifiInfo">
+			<div class="twofiveGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">2.4G&5G Wi-Fi: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="twoGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">2.4G Wi-Fi名称: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">2.4G Wi-Fi密码: </label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G Wi-Fi名称: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G Wi-Fi密码: </label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveG1Con wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G1 Wi-Fi名称：</label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G1 Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveG4Con wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G4 Wi-Fi名称：</label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G4 Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="subTitle">
+		<h2>{%label.currentRouter%}</h2>
+	</div>
+	<div id="currentRouterCon" class="routerCon">
+		<div class="routerImg"></div>
+		<div class="routerWifiInfo">
+			<div class="twofiveGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">2.4G&5G Wi-Fi: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="twoGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">2.4G Wi-Fi名称: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">2.4G Wi-Fi密码: </label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveGCon wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G Wi-Fi名称: </label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G Wi-Fi密码: </label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveG1Con wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G1 Wi-Fi名称：</label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G1 Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+			<div class="fiveG4Con wifiInfoCon">
+				<div class="wifiInfo">
+					<label class="routerName">5G4 Wi-Fi名称：</label>
+					<label class="routerNameVal"></label>
+				</div>
+				<div class="wifiInfo">
+					<label class="routerPsd">5G4 Wi-Fi密码：</label>
+					<label class="routerPsdVal"></label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="relayAnotherRouter"></div>
+</div>
+<script type="text/javascript">"undefined"!=typeof gStartWirelessRepeater&&(gStartWirelessRepeater=!1);
+var firstPage="WirelessRepeaterFirst.htm",secondPage="WirelessRepeaterSecond.htm",wirelessResultPage="WirelessRepeaterResult.htm",directSecondPage=!1,MAX_AP_ENTRY,LOAD=64,getDhcpsHd=null,getDhcpcHd=null,getWdsStatusHd=null,getScanResultHd=null,updateStatusHandle=null,isLanIpChanged=!1,bInWizard=!0,bNeedPwd=!1,manualConnect=!1,selectedFreq={},bWirelessLinked=!1,gOldLanIP="",gLanIP="",gLanMask,gLanIPMode="",gOldSysMode,FREQ_2G=0,FREQ_5G=1,FREQ_5G1=2,FREQ_5G4=3,FREQ_BS=4,BAND_1=0,BAND_2=1,BAND_3=2,BAND_2G=
+0,BAND_5G=1,BAND_5G1=2,BAND_5G2=3,BAND_STEER=4;selectedFreq[FREQ_2G]=!1;selectedFreq[FREQ_5G]=!1;selectedFreq[FREQ_5G1]=!1;selectedFreq[FREQ_5G4]=!1;var scanWiFiList=[];scanWiFiList[FREQ_2G]=!1;scanWiFiList[FREQ_5G]=!1;scanWiFiList[FREQ_5G1]=!1;scanWiFiList[FREQ_5G4]=!1;var wdsTargetIndex=[],targetSelFreq={},oldSelFreq={},curEqtFreq=FREQ_2G,gFreqInfo=["2.4G","5G","5G1","5G2"],gLocalAPInfo=[];gLocalAPInfo[FREQ_2G]={ssid:"",encryption:"",key:"",enable:""};
+gLocalAPInfo[FREQ_5G]={ssid:"",encryption:"",key:"",enable:""};gLocalAPInfo[FREQ_5G1]={ssid:"",encryption:"",key:"",enable:""};gLocalAPInfo[FREQ_5G4]={ssid:"",encryption:"",key:"",enable:""};gLocalAPInfo[FREQ_BS]={ssid:"",encryption:"",key:"",wifi_enable:"",bs_enable:""};var gRootAPInfo=[];gRootAPInfo[FREQ_2G]={ssid:"",encryption:"",key:"",enable:""};gRootAPInfo[FREQ_5G]={ssid:"",encryption:"",key:"",enable:""};gRootAPInfo[FREQ_5G1]={ssid:"",encryption:"",key:"",enable:""};
+gRootAPInfo[FREQ_5G4]={ssid:"",encryption:"",key:"",enable:""};var connectingCount=1,dhcpcRetryCounts=1,dhcpsRetryCounts=1,scanRetryCounts=1,gWDSModel=[];gWDSModel[FREQ_2G]={start_dhcps_detect:"start_dhcps_detect_2g",wds_start:"wds_start_2g",wlan_wds_dhcps:"wlan_wds_2g_dhcps",wlan_wds_dhcpc:"wlan_wds_2g_dhcpc",wlan_wds_status:"wlan_wds_2g_status",set_wds:"wlan_wds_2g",scan_start:{wireless:{scan_start_2g:null}},wlan_scan_status:"wlan_scan_2g_status",wlan_scan:"wlan_scan_2g",wds_cfg_status:"wds_cfg_status_2g"};
+gWDSModel[FREQ_5G]={start_dhcps_detect:"start_dhcps_detect_5g",wds_start:"wds_start_5g",wlan_wds_dhcps:"wlan_wds_5g_dhcps",wlan_wds_dhcpc:"wlan_wds_5g_dhcpc",wlan_wds_status:"wlan_wds_5g_status",set_wds:"wlan_wds_5g",scan_start:{wireless:{scan_start_5g:null}},wlan_scan_status:"wlan_scan_5g_status",wlan_scan:"wlan_scan_5g",wds_cfg_status:"wds_cfg_status_5g"};
+gWDSModel[FREQ_5G1]={start_dhcps_detect:"start_dhcps_detect_5g_1",wds_start:"wds_start_5g_1",wlan_wds_dhcps:"wlan_wds_5g_1_dhcps",wlan_wds_dhcpc:"wlan_wds_5g_1_dhcpc",wlan_wds_status:"wlan_wds_5g_1_status",set_wds:"wlan_wds_5g_1",scan_start:{wireless:{scan_start_5g_1:null}},wlan_scan_status:"wlan_scan_5g_1_status",wlan_scan:"wlan_scan_5g_1",wds_cfg_status:"wds_cfg_status_5g_1"};
+gWDSModel[FREQ_5G4]={start_dhcps_detect:"start_dhcps_detect_5g_4",wds_start:"wds_start_5g_4",wlan_wds_dhcps:"wlan_wds_5g_4_dhcps",wlan_wds_dhcpc:"wlan_wds_5g_4_dhcpc",wlan_wds_status:"wlan_wds_5g_4_status",set_wds:"wlan_wds_5g_4",scan_start:{wireless:{scan_start_5g_4:null}},wlan_scan_status:"wlan_scan_5g_4_status",wlan_scan:"wlan_scan_5g_4",wds_cfg_status:"wds_cfg_status_5g_4"};
+switch(slp.bandsProvided-1){case BAND_3:MAX_AP_ENTRY=3*LOAD;break;case BAND_2:MAX_AP_ENTRY=2*LOAD;break;default:MAX_AP_ENTRY=LOAD}var gKeyNames=[];gKeyNames[BAND_1]={};gKeyNames[BAND_2]={};gKeyNames[BAND_3]={};gKeyNames[BAND_1].wlan_host=[];gKeyNames[BAND_2].wlan_host=[];gKeyNames[BAND_3].wlan_host=[];gKeyNames[BAND_1].wlan_wds=[];gKeyNames[BAND_2].wlan_wds=[];gKeyNames[BAND_3].wlan_wds=[];gKeyNames[BAND_1].wds_cfg_status=[];gKeyNames[BAND_2].wds_cfg_status=[];gKeyNames[BAND_3].wds_cfg_status=[];
+gKeyNames[BAND_1].wlan_host[FREQ_2G]="wlan_host_2g";gKeyNames[BAND_1].wlan_wds[FREQ_2G]="wlan_wds_2g";gKeyNames[BAND_1].wds_cfg_status[FREQ_2G]="wds_cfg_status_2g";gKeyNames[BAND_2].wlan_host[FREQ_2G]="wlan_host_2g";gKeyNames[BAND_2].wlan_host[FREQ_5G]="wlan_host_5g";gKeyNames[BAND_2].wlan_wds[FREQ_2G]="wlan_wds_2g";gKeyNames[BAND_2].wlan_wds[FREQ_5G]="wlan_wds_5g";gKeyNames[BAND_2].wds_cfg_status[FREQ_2G]="wds_cfg_status_2g";gKeyNames[BAND_2].wds_cfg_status[FREQ_5G]="wds_cfg_status_5g";
+gKeyNames[BAND_3].wlan_host[FREQ_2G]="wlan_host_2g";gKeyNames[BAND_3].wlan_host[FREQ_5G1]="wlan_host_5g_1";gKeyNames[BAND_3].wlan_host[FREQ_5G4]="wlan_host_5g_4";gKeyNames[BAND_3].wlan_wds[FREQ_2G]="wlan_wds_2g";gKeyNames[BAND_3].wlan_wds[FREQ_5G1]="wlan_wds_5g_1";gKeyNames[BAND_3].wlan_wds[FREQ_5G4]="wlan_wds_5g_4";gKeyNames[BAND_3].wds_cfg_status[FREQ_2G]="wds_cfg_status_2g";gKeyNames[BAND_3].wds_cfg_status[FREQ_5G1]="wds_cfg_status_5g_1";gKeyNames[BAND_3].wds_cfg_status[FREQ_5G4]="wds_cfg_status_5g_4";
+function onStartWds(){lanIpModeHandle(function(){chkWifiOpened(function(){menuLoad("WirelessRepeaterProcess.htm")})})}
+function wdsStatusHd(){if(10<connectingCount)"undefined"!=typeof wdsTimeoutHandle?wdsTimeoutHandle():loadingDialog.hide(function(){confirmDialog.show({content:label.linkFailed,callback:function(c){!0==c?(loadingDialog.show({title:label.bridgingRootAP,content:{primary:label.bridgingAndWait}},null,null,!0,function(){wdsCanceldHandle(function(){0==$("div.wdsStep").length&&menuLoad("WanLoader.htm")})}),connectingCount=1,getWdsStatusHd=$.setTimeout(wdsStatusHd,100)):wdsCanceldHandle(function(){0==$("div.wdsStep").length&&
+menuLoad("WanLoader.htm")})}})});else{var b={wireless:{name:[]}},a;for(a in targetSelFreq)targetSelFreq[a].selected&&b.wireless.name.push(gWDSModel[a].wlan_wds_status);$.query(b,function(c){var b=0,a=0,d=0,g=0,h=0,m=0,k="",n="",p="",q="",f;for(f in targetSelFreq)if(targetSelFreq[f].selected){var r=parseInt(c.wireless[gWDSModel[f].wlan_wds_status].status);targetSelFreq[f].status=r;switch(r){case 2:a++;k+=(""==k?"":",")+gFreqInfo[f]+"频段"+gRootAPInfo[f].ssid;break;case 3:d++;gRootAPInfo[f].pwdErr=!0;
+n+=(""==n?"":",")+gFreqInfo[f]+"频段"+gRootAPInfo[f].ssid;break;case 4:g++;p+=(""==p?"":",")+gFreqInfo[f]+"频段"+gRootAPInfo[f].ssid;break;case 5:h++;q+=(""==q?"":",")+gFreqInfo[f]+"频段"+gRootAPInfo[f].ssid;break;case 0:case 1:b++}m++}0!=b?(connectingCount++,getWdsStatusHd=$.setTimeout(wdsStatusHd,2E3)):a==m?(dhcpsRetryCounts=1,getDhcpsHd=$.setTimeout(wdsGetIpDhcpsStatus,100)):0<a?(loadingDialog.hide(),0<d?bInWizard&&confirmDialog.show({content:k+"中继成功，"+n+"密码错误；您可重新输入密码或只中继成功的网络",button:{confirmStr:"下一步",
+cancelStr:"重新输入"},callback:function(c){!0==c?closeFailedBand():inputRootApPwd(!0)}}):bInWizard&&(c=k+"中继成功，",0<g&&(c+=p+"信号弱；"),0<h&&(c+=q+"中继失败；"),confirmDialog.show({content:c+"您可尝试重连或只中继成功的网络",button:{confirmStr:"下一步",cancelStr:"重试"},callback:function(c){!0==c?closeFailedBand():wdsNextStep()}}))):g==m?loadingDialog.hide(function(){alarmDialog.show({content:"前端路由信号弱，请尝试重新配置",callback:function(){wdsCanceldHandle()}})}):d==m?bInWizard&&loadingDialog.hide(function(){inputRootApPwd(!0)}):loadingDialog.hide(function(){alarmDialog.show({content:"中继失败，请尝试重新配置",
+callback:function(){wdsCanceldHandle(function(){menuLoad("WanLoader.htm")})}})})})}}function wdsTimeoutHandle(){loadingDialog.hide(function(){confirmDialog.show({content:label.linkFailed,callback:function(b){!0==b?wdsNextStep():(clearTimeout(getWdsStatusHd),wdsCanceldHandle())}})})}
+function initWds(){var b={wireless:{name:[]},network:{name:["lan"]},hosts_info:{table:["host_info"]},system:{name:"sys_mode"}},a;for(a in gKeyNames[slp.bandsProvided-1])gKeyNames[slp.bandsProvided-1].hasOwnProperty(a)&&$.each(gKeyNames[slp.bandsProvided-1][a],function(c,a){null!=a&&b.wireless.name.push(a)});slp.bandSteeringProvided&&b.wireless.name.push("wlan_bs");$.query(b,function(c){$.each(gKeyNames[slp.bandsProvided-1].wlan_host,function(a,b){null!=b&&(gLocalAPInfo[a].enable=c.wireless[b].enable,
+gLocalAPInfo[a].ssid=c.wireless[b].ssid,gLocalAPInfo[a].encryption=c.wireless[b].encryption,gLocalAPInfo[a].key=c.wireless[b].key)});$.each(gKeyNames[slp.bandsProvided-1].wlan_wds,function(a,b){null!=b&&(gRootAPInfo[a].enable=c.wireless[b].enable,gRootAPInfo[a].ssid=c.wireless[b].ssid||"",gRootAPInfo[a].encryption=c.wireless[b].encryption,gRootAPInfo[a].key=c.wireless[b].key)});slp.bandSteeringProvided&&(gLocalAPInfo[FREQ_BS].wifi_enable=c.wireless.wlan_bs.wifi_enable,gLocalAPInfo[FREQ_BS].bs_enable=
+c.wireless.wlan_bs.bs_enable,gLocalAPInfo[FREQ_BS].ssid=c.wireless.wlan_bs.ssid,gLocalAPInfo[FREQ_BS].encryption=c.wireless.wlan_bs.encryption,gLocalAPInfo[FREQ_BS].key=c.wireless.wlan_bs.key);gOldLanIP=gLanIP=c.network.lan.ipaddr;gLanIPMode=c.network.lan.ip_mode;gOldSysMode=c.system.sys_mode.mode;for(var a=uciHostsInfo.optValue.linkType.wired,b=formatTableData(c.hosts_info.host_info),d=b.length,g=0;g<d;g++)if("1"==b[g].is_cur_host){switch(b[g].wifi_mode){case "0":curEqtFreq=FREQ_2G;break;case "1":curEqtFreq=
+FREQ_5G;break;case "2":curEqtFreq=FREQ_5G1;break;case "3":curEqtFreq=FREQ_5G4}slp.bandSteeringProvided&&"1"==gLocalAPInfo[FREQ_BS].bs_enable&&(curEqtFreq=FREQ_BS);bWirelessLinked=a!=b[g].type?!0:!1;break}var a=0,h;for(h in gRootAPInfo)if(gRootAPInfo.hasOwnProperty(h)&&(b=gKeyNames[slp.bandsProvided-1].wds_cfg_status[h],0<gRootAPInfo[h].ssid.length))switch(targetSelFreq[h]={selected:!0,bs:!1},c.wireless[b].status){case "idle":0>=a&&(a=0);break;case "unfinished":4>=a&&(a=4);targetSelFreq[h].status=
+uciWireless.dynOptValue.status.connected;break;case "connecting":3>=a&&(a=3);break;case "connect_fail":1>=a&&(a=1);break;case "success":2>=a&&(a=2)}oldSelFreq=targetSelFreq;switch(a){case 0:$("#selectFrontRouter").show();$("#save").hide();$("#wdsResultCon").addClass("disNone");setLinkState(!1,"未中继");break;case 4:$("#selectFrontRouter").hide();loadingDialog.show({content:{primary:label.WDSConnecting}},void 0,void 0,!0,function(){wdsCanceldHandle();setLinkState(!1,"中继失败");showWDSResult();requestHostInfo()});
+getDhcpsHd=$.setTimeout(wdsGetIpDhcpsStatus,100);break;case 3:$("#selectFrontRouter").hide();loadingDialog.show({content:{primary:label.WDSConnecting}},void 0,void 0,!0,function(){wdsCanceldHandle();setLinkState(!1,"中继失败");showWDSResult()});bInWizard=!1;connectingCount=1;requestHostInfo();getWdsStatusHd=$.setTimeout(wdsStatusHd,100);break;case 1:$("#selectFrontRouter").hide();$("#save span").html("重新连接");$("#save").show();$(".initWdsCon .meshHelp").hide();setLinkState(!1,"中继失败");showWDSResult();requestHostInfo();
+break;default:setLinkState(!0,"中继成功"),$("#save span").html("保存"),$("#save").hide(),$(".initWdsCon .meshHelp").hide(),showWDSResult(),requestHostInfo()}})}
+function getWdsStatus(){var b={wireless:{name:[]}},a;for(a in targetSelFreq)targetSelFreq[a].selected&&b.wireless.name.push(gWDSModel[a].wlan_wds_status);$.query(b,function(a){var b=0,e;for(e in targetSelFreq)if(targetSelFreq[e].selected)switch(parseInt(a.wireless[gWDSModel[e].wlan_wds_status].status)){case 0:case 3:case 4:case 5:0>=b&&(b=0);break;case 1:1>=b&&(b=1);break;case 2:2>=b&&(b=2)}10<connectingCount&&(!0==manualConnect?(manualConnect=!1,loadingDialog.hide(),a=function(){confirmDialog.show({content:"连接失败，请确定是否重试？",
+callback:function(a){!0==a?(loadingDialog.show({title:label.wirelessRepeater,content:{primary:label.WDSConnecting}},void 0,void 0,!0,function(){manualConnect=!1;wdsCanceldHandle()}),manualConnect=!0,connectingCount=1,clearTimeout(updateStatusHandle),updateStatusHandle=$.setTimeout(getWdsStatus,1E3)):(manualConnect=!1,wdsCanceldHandle())}})},slp.wifiSwitchSupport?checkWifiSwitchOff(a):a()):wdsCanceldHandle());switch(b){case 0:setLinkState(!1,"中继失败");connectingCount++;break;case 1:setLinkState(!1,"正在中继");
+connectingCount++;break;case 2:setLinkState(!0,"中继成功"),connectingCount=1,!0==manualConnect&&(manualConnect=!1,dhcpsRetryCounts=1,getDhcpsHd=$.setTimeout(wdsGetIpDhcpsStatus,100))}updateStatusHandle=$.setTimeout(getWdsStatus,2E3)})}
+function showWDSResult(b){bInWizard=!1;$("#selectFrontRouter").hide();$("#wdsResultCon").removeClass("disNone");$("#frontRouterCon .wifiInfoCon").hide();for(var a in targetSelFreq)targetSelFreq[a].selected&&(slp.bandSteeringProvided&&gRootAPInfo[FREQ_BS]&&"1"==gRootAPInfo[FREQ_BS].bs_enable&&FREQ_BS==a?($("#frontRouterCon .twofiveGCon .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_BS].ssid)),$("#frontRouterCon .twofiveGCon .routerNameVal").attr("title",htmlEscape(gRootAPInfo[FREQ_BS].ssid)),1==
+gRootAPInfo[FREQ_BS].encryption?($("#frontRouterCon .twofiveGCon .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_BS].key)),$("#frontRouterCon .twofiveGCon .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_BS].key))):$("#frontRouterCon .twofiveGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twofiveCon").show()):BAND_2==slp.bandsProvided-1?(a==FREQ_2G&&($("#frontRouterCon .twoGCon .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_2G].ssid)),$("#frontRouterCon .twoGCon .routerNameVal").attr("title",
+htmlEscape(gRootAPInfo[FREQ_2G].ssid)),1==gRootAPInfo[FREQ_2G].encryption?($("#frontRouterCon .twoGCon .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_2G].key)),$("#frontRouterCon .twoGCon .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_2G].key))):$("#frontRouterCon .twoGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twoGCon").show()),a==FREQ_5G&&($("#frontRouterCon .fiveGCon .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G].ssid)),$("#frontRouterCon .fiveGCon .routerNameVal").attr("title",
+htmlEscape(gRootAPInfo[FREQ_5G].ssid)),1==gRootAPInfo[FREQ_5G].encryption?($("#frontRouterCon .fiveGCon .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G].key)),$("#frontRouterCon .fiveGCon .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_5G].key))):$("#frontRouterCon .fiveGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .fiveGCon").show())):BAND_3==slp.bandsProvided-1&&(a==FREQ_2G&&($("#frontRouterCon .twoGCon .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_2G].ssid)),
+$("#frontRouterCon .twoGCon .routerNameVal").attr("title",htmlEscape(gRootAPInfo[FREQ_2G].ssid)),1==gRootAPInfo[FREQ_2G].encryption?($("#frontRouterCon .twoGCon .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_2G].key)),$("#frontRouterCon .twoGCon .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_2G].key))):$("#frontRouterCon .twoGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twoGCon").hide()),a==FREQ_5G1&&($("#frontRouterCon .fiveG1Con .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G1].ssid)),
+$("#frontRouterCon .fiveG1Con .routerNameVal").attr("title",htmlEscape(gRootAPInfo[FREQ_5G1].ssid)),1==gRootAPInfo[FREQ_5G1].encryption?($("#frontRouterCon .fiveG1Con .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G1].key)),$("#frontRouterCon .fiveG1Con .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_5G1].key))):$("#frontRouterCon .fiveG1Con .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .fiveG1Con").hide()),a==FREQ_5G4&&($("#frontRouterCon .fiveG4Con .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G4].ssid)),
+$("#frontRouterCon .fiveG4Con .routerNameVal").attr("title",htmlEscape(gRootAPInfo[FREQ_5G4].ssid)),1==gRootAPInfo[FREQ_5G4].encryption?($("#frontRouterCon .fiveG4Con .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G4].key)),$("#frontRouterCon .fiveG4Con .routerPsdVal").attr("title",htmlEscape(gRootAPInfo[FREQ_5G4].key))):$("#frontRouterCon .fiveG4Con .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .fiveG4Con").hide())));getWdsStatus()}
+function wdsGetIpDhcpsStatus(){var b={wireless:{name:[]}},a;for(a in targetSelFreq)targetSelFreq[a].selected&&b.wireless.name.push(gWDSModel[a].wlan_wds_dhcps);15<dhcpsRetryCounts?dhcpFailHandle():$.query(b,function(a){if(ENONE==a[ERR_CODE]){var b=!0,e;for(e in targetSelFreq)if(targetSelFreq[e].selected){var d=parseInt(a.wireless[gWDSModel[e].wlan_wds_dhcps].status),g=parseInt(a.wireless[gWDSModel[e].wlan_wds_dhcps].result);if(1==d&&1==g){dhcpcRetryCounts=1;getDhcpcHd=$.setTimeout(wdsDhcpcGetStatus,
+100);return}0==d&&(b=!1)}b?dhcpFailHandle():(dhcpsRetryCounts++,getDhcpsHd=$.setTimeout(wdsGetIpDhcpsStatus,1E3))}else dhcpFailHandle()})}
+function wdsSetLanIp(){$.modify({network:{lan:{ipaddr:gLanIP,netmask:gLanMask,ip_mode:"dynamic"}},system:{sys_mode:{mode:uciSystem.optValue.sysMode.wdsMode}}},function(b){$.action({network:{apply_lan_config:null},wireless:{wds_finish:null}});loadingDialog.hide(function(){loadingDialog.show({content:{primary:"连接成功，路由器IP地址已更改为："+gLanIP+"。页面将自动跳转到新的IP地址，请稍候..."}});$.changeDomain(gLanIP);$.setTimeout(function(){window.location.href="http://"+gLanIP},6E4);$.setTimeout(function(){lanDetecting(function(){window.location.href=
+"http://"+gLanIP})},4E3)})})}
+function wdsDhcpcGetStatus(){if(15<dhcpcRetryCounts)dhcpFailHandle();else{var b={wireless:{name:[]}},a;for(a in targetSelFreq)targetSelFreq[a].selected&&b.wireless.name.push(gWDSModel[a].wlan_wds_dhcpc);$.query(b,function(a){var b=!0,e;for(e in targetSelFreq)if(targetSelFreq[e].selected){var d=a.wireless[gWDSModel[e].wlan_wds_dhcpc];if("2"==d.status){bInWizard?loadingDialog.hide(function(){gLanIP=d.ip;gLanMask=d.mask;isLanIpChanged=gLanIP!=gOldLanIP?!0:!1;0==$("div.wdsStep").length?(directSecondPage=
+!0,menuLoad("WirelessRepeaterProcess.htm")):stepPage(secondPage)}):(gOldLanIP=gLanIP=d.ip,gLanMask=d.mask,wdsSetLanIp());return}"0"==d.status&&(b=!1)}b?dhcpFailHandle():(dhcpcRetryCounts++,getDhcpcHd=$.setTimeout(wdsDhcpcGetStatus,1E3))})}}function dhcpFailHandle(){loadingDialog.hide(function(){slp.wifiSwitchSupport?checkWifiSwitchOff(dhcpFailConfirm):dhcpFailConfirm()})}
+function dhcpFailConfirm(){confirmDialog.show({content:label.DHCPOpen,button:{cancelStr:btn.back,confirmStr:btn.retry},callback:function(b){if(b){b={wireless:{}};for(var a in targetSelFreq)targetSelFreq[a].selected&&(b.wireless[gWDSModel[a].start_dhcps_detect]=null);connectingCount=dhcpsRetryCounts=dhcpcRetryCounts=1;$.action(b,function(a){loadingDialog.show({title:label.bridgingRootAP,content:{primary:label.WDSConnecting}},null,null,!0,function(){!1==MANUAL_WDS&&void 0!=wdsTargetIndex&&(wdsTargetIndex=
+void 0);wdsCanceldHandle()});getDhcpsHd=$.setTimeout(wdsStatusHd,5E3)},!0)}else wdsCanceldHandle()}})}
+function wdsCanceldHandle(b){var a={wireless:{}},c={wireless:{}},l;for(l in targetSelFreq)targetSelFreq[l].selected&&(a.wireless[gWDSModel[l].set_wds]={enable:"0"},c.wireless[gWDSModel[l].wds_start]={set_ip_immediate:"1"},gRootAPInfo[l].enable="0");clearTimeout(getWdsStatusHd);clearTimeout(getDhcpsHd);clearTimeout(getDhcpcHd);$.modify(a,function(){$.action(c,function(a){loadingDialog.hide();"function"==typeof b&&b()})})}
+function checkWifiSwitchOff(b){var a={custom_wireless:{}};a.custom_wireless.name="wifi_switch";$.query(a,function(a){a.error_code!==ENONE?errHandle(a.error_code):"off"==a.custom_wireless.wifi_switch.enable?alarmDialog.show("无线总开关已关闭，请先开启无线总开关后再重新设置。"):b()})}
+function chkWifiOpened(b){if(slp.bandSteeringProvided&&"1"==gLocalAPInfo[FREQ_BS].bs_enable)"1"==gLocalAPInfo[FREQ_BS].wifi_enable?b():confirmDialog.show({content:label.alertWifiOpen,callback:function(a){!0==a&&openWifi(!0,b)}});else{for(var a in gLocalAPInfo)if(gLocalAPInfo.hasOwnProperty(a)&&"1"==gLocalAPInfo[a].enable){b();return}confirmDialog.show({content:label.alertWifiOpen,callback:function(a){!0==a&&openWifi(!1,b)}})}}
+function openWifi(b,a){var c={wireless:{}};b?c.wireless.wlan_bs={wifi_enable:"1"}:$.each(gKeyNames[slp.bandsProvided-1].wlan_host,function(a,b){null!=b&&(c.wireless[b]={enable:"1"})});loadingDialog.show({content:{primary:statusStr.cfgApplying}});$.modify(c,function(c){var e=c[ERR_CODE];ENONE!==e?(loadingDialog.hide(),errHandle(e)):$.setTimeout(function(){loadingDialog.hide();if(b)gLocalAPInfo[FREQ_BS].wifi_enable="1";else for(var d in gKeyNames[slp.bandsProvided-1].wlan_host)gKeyNames[slp.bandsProvided-
+1].wlan_host.hasOwnProperty(d)&&null!=gKeyNames[slp.bandsProvided-1].wlan_host[d]&&(gLocalAPInfo[d].enable="1");c.dfs_wait_time&&0!=c.dfs_wait_time?dfsDialog.show(parseInt(c.dfs_wait_time),function(){a()}):a()},3E3)})}
+function onConnect(){saveBtn.showLoading();manualConnect=!0;var b={wireless:{}},b=BAND_2==slp.bandsProvided-1?{wireless:{wlan_wds_2g:{enable:"0"},wlan_wds_5g:{enable:"0"}}}:{wireless:{wlan_wds_2g:{enable:"0"},wlan_wds_5g_1:{enable:"0"},wlan_wds_5g_4:{enable:"0"}}};b.system={sys_mode:{mode:"2"}};for(var a in targetSelFreq)targetSelFreq[a].selected&&(b.wireless[gWDSModel[a].set_wds]={enable:1},gRootAPInfo[a].enable="1");(function(a){connectingCount=1;clearTimeout(updateStatusHandle);$.modify(a,function(a){if(ENONE!==
+a[ERR_CODE])saveBtn.closeLoading(),errHandle(a[ERR_CODE]);else{a={wireless:{}};for(var b in targetSelFreq)targetSelFreq[b].selected&&(a.wireless[gWDSModel[b].wds_start]={set_ip_immediate:"0"});$.action(a,function(a){a=a[ERR_CODE];if(ENONE!==a)saveBtn.closeLoading(),errHandle(a);else{saveBtn.closeLoading();var b=null;loadingDialog.show({content:{primary:label.WDSConnecting}});if(!0==bWirelessLinked){var c=!1,e=1,k=function(){if(3<e&&!1==c){var a="";"1"==gLocalAPInfo[curEqtFreq].encryption&&(a="  无线密码："+
+gLocalAPInfo[curEqtFreq].key);a="您的设备与路由器的连接已断开，请重新进行无线连接...<br />"+("无线名称："+gLocalAPInfo[curEqtFreq].ssid+a);c=!0;loadingDialog.hide();loadingDialog.show({content:{primary:a}})}$.detect(function(){!1==$.result.timeout&&(loadingDialog.hide(),loadingDialog.show({content:{primary:label.WDSConnecting}}),clearTimeout(updateStatusHandle),connectingCount=1,updateStatusHandle=$.setTimeout(getWdsStatus,1E3))});e++;b=$.setTimeout(k,2E3)};clearTimeout(b);$.setTimeout(k,4E3)}else clearTimeout(updateStatusHandle),
+connectingCount=1,updateStatusHandle=$.setTimeout(getWdsStatus,5E3)}})}},!0)})(b)}function lanIpModeHandle(b){"manual"==gLanIPMode?confirmDialog.show({title:menuStr.wifiWDS,content:label.lanIPMode,callback:function(a){!0==a&&(gLanIPMode="dynamic",$.modify({network:{lan:{ip_mode:"dynamic"}}},null,!0),b())}}):b()}
+function stepPage(b){var a;$("div.head").addClass("wdsStep");a=b==firstPage?0:b==secondPage?1:2;loadPage(b,"WDSCon",function(){$($("li.step")[a]).addClass("active").siblings().removeClass("active");$("ul.stepTab").find("li.underline").css({left:$("li.step")[a].offsetLeft+"px",width:$("li.step")[a].offsetWidth+"px"})})}
+function errHandle(b){switch(b){case ENONE:return!0;case EINVSSIDNULL:alarmDialog.show(errStr.wlanSsidErr);break;case EINVSSIDLEN:alarmDialog.show(errStr.wlanSsidLenErr);break;case EINVSSIDBLANK:alarmDialog.show(errStr.wlanSsidBlank);break;case EINVPSKLEN:alarmDialog.show(errStr.wlanPwdLenValid);break;case EINVIPFMT:alarmDialog.show(errStr.ipAddrFmtNoteErr);break;case EINVNET:alarmDialog.show(errStr.stcIpNetErr);break;case EINVIP:alarmDialog.show(errStr.lanIpErr);break;case EINVNETID:alarmDialog.show(errStr.stcNetIdErr);
+break;case EINVGROUPIP:alarmDialog.show(errStr.ipAddrGroupErr);break;case EINVLOOPIP:alarmDialog.show(errStr.ipAddrLoopErr);break;case EINVHOSTID:alarmDialog.show(errStr.wdsIpAddrHostIdErr);break;case ECOMFLICTNET:alarmDialog.show(errStr.lanIpWanConflict);break;case EINVWLANPWD:alarmDialog.show(errStr.wlanPwdInvalid);break;case ESYSBUSY:alarmDialog.show(errStr.invRequestFailTrylater);break;default:alarmDialog.show(errStr.invRequestFail)}return!1}id("meshHelpCon").onclick=function(){meshDescDialog.show()};
+var saveBtn=new Button({text:btn.save,onClick:saveHandle,type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",marginLeft:"12px 0 0 132px"}}),selectFrontRouterBtn=new Button({text:btn.selectFrontRouter,onClick:selectFrontRouterHandle,type:Button.TYPE.PRIMARY,id:"selectFrontRouter",props:{width:"240px",marginLeft:"12px 0 0 132px"}}),relayAnotherRouterBtn=new Button({text:btn.relayAnotherRouter,onClick:relayAnotherRouterHandle,type:Button.TYPE.PRIMARY,id:"relayAnotherRouter",props:{width:"240px"}});
+function selectFrontRouterHandle(){gOldSysMode==uciSystem.optValue.sysMode.apMode?confirmDialog.show({content:"切换为桥接（无线中继）后，AP（有线中继）将会自动关闭。确定切换吗？",callback:function(b){!0==b&&onStartWds()}}):changeSysModeAlert("switch",uciSystem.optValue.sysMode.wdsMode,function(){onStartWds()})}function relayAnotherRouterHandle(){gOldSysMode==uciSystem.optValue.sysMode.wdsMode?onStartWds():changeSysModeAlert("switch",uciSystem.optValue.sysMode.wdsMode,function(){onStartWds()})}
+function saveHandle(){gOldSysMode==uciSystem.optValue.sysMode.wdsMode?slp.wifiSwitchSupport?checkWifiSwitchOff(function(){chkWifiOpened(onConnect)}):chkWifiOpened(onConnect):gOldSysMode==uciSystem.optValue.sysMode.apMode?confirmDialog.show({content:"切换为桥接（无线中继）后，AP（有线中继）将会自动关闭。确定切换吗？",callback:function(b){!0==b&&(slp.wifiSwitchSupport?checkWifiSwitchOff(function(){chkWifiOpened(onConnect)}):chkWifiOpened(onConnect))}}):changeSysModeAlert("switch",uciSystem.optValue.sysMode.wdsMode,function(){slp.wifiSwitchSupport?
+checkWifiSwitchOff(function(){chkWifiOpened(onConnect)}):chkWifiOpened(onConnect)})}
+function requestHostInfo(){var b=uciWireless.optValue.bsEnable.enable,a=$.Deferred(),c;slp.host.getData({success:function(b){c=b[uciWireless.fileName];a.resolve()}});$.when(a).done(function(){$("#currentRouterCon .wifiInfoCon").hide();null!=c[uciWireless.secName.wlanBS]&&b==c[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable]?($("#currentRouterCon .twofiveGCon .routerNameVal").text(htmlEscape(c[uciWireless.secName.wlanBS].ssid)),$("#currentRouterCon .twofiveGCon .routerNameVal").attr("title",
+htmlEscape(c[uciWireless.secName.wlanBS].ssid)),1==c[uciWireless.secName.wlanBS].encryption?($("#currentRouterCon .twofiveGCon .routerPsdVal").text(htmlEscape(c[uciWireless.secName.wlanBS].key)),$("#currentRouterCon .twofiveGCon .routerPsdVal").attr("title",htmlEscape(c[uciWireless.secName.wlanBS].key))):$("#currentRouterCon .twofiveGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#currentRouterCon .twofiveGCon").show()):("1"==c.wlan_host_2g.enable&&($("#currentRouterCon .twoGCon .routerNameVal").text(htmlEscape(c.wlan_host_2g.ssid)),
+$("#currentRouterCon .twoGCon .routerNameVal").attr("title",htmlEscape(c.wlan_host_2g.ssid)),1==c.wlan_host_2g.encryption?($("#currentRouterCon .twoGCon .routerPsdVal").text(htmlEscape(c.wlan_host_2g.key)),$("#currentRouterCon .twoGCon .routerPsdVal").attr("title",htmlEscape(c.wlan_host_2g.key))):$("#currentRouterCon .twoGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#currentRouterCon .twoGCon").show()),"1"==c.wlan_host_5g.enable&&($("#currentRouterCon .fiveGCon .routerNameVal").text(htmlEscape(c.wlan_host_5g.ssid)),
+$("#currentRouterCon .fiveGCon .routerNameVal").attr("title",htmlEscape(c.wlan_host_5g.ssid)),1==c.wlan_host_5g.encryption?($("#currentRouterCon .fiveGCon .routerPsdVal").text(htmlEscape(c.wlan_host_5g.key)),$("#currentRouterCon .fiveGCon .routerPsdVal").attr("title",htmlEscape(c.wlan_host_5g.key))):$("#currentRouterCon .fiveGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#currentRouterCon .fiveGCon").show()))})}$("#menuLoader i.helpBtn").hide();$("#meshHelpCon").show();
+selectInit("wanSel",wanOptions,LINK_TYPE_WIRELESS_REPEATER,loadPageByIndex);initWds();
+</script><style type="text/css">.meshHelp{margin-top:24px}.meshHelpTip{width:336px;margin-left:132px;font-size:12px;color:#999}#meshHelpCon{cursor:pointer}.routerCon{width:760px;background:#fff;border:1px solid #ccc;border-radius:4px;padding:24px}.routerCon::after{display:inline-block;vertical-align:middle;content:'';height:100%}.routerCon .routerImg{display:inline-block;background:url(../../web-static/images/wds_bridge.png);width:80px;height:80px;vertical-align:middle}.routerWifiInfo{display:inline-block;margin-left:40px;font-size:13px;color:#666;line-height:20px;vertical-align:middle}.wifiInfoCon{margin-top:16px}#relayAnotherRouter{margin-top:24px}#wanSelUl .inputLi{display:inline-block}</style>

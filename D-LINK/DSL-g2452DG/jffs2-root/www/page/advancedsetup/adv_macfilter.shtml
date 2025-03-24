@@ -1,0 +1,156 @@
+<!-- userlevel=2 -->
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var G_Enable = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_MacFilter.Enable" -->';
+var G_FilterMode = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_MacFilter.FilterMode" -->';
+function FilterTuple()
+{    
+    this.path = "";
+    this.MACAddress = "";
+}
+var m = 0;
+var G_MacList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_MacFilter.MacList. MACAddress" -->
+    G_MacList[m] = new FilterTuple();
+    G_MacList[m].path = "<!--#path -->";
+    G_MacList[m].MACAddress = "<!--#leaf "1"-->";
+    m++;
+<!--#endgetobject -->
+
+function createTable(){
+	var trs = "";
+	if(G_MacList.length == 0)
+		trs = '<tr class="OddRowB"><td colspan="3">'+getStr('LK_NoRule')+'</td></tr>'
+      for(i=0;i<G_MacList.length;i++){
+            var tr = "";
+		if(i%2 == 0 )
+			tr +='<tr class="OddRowB">';
+		else
+            		tr += '<tr class="EvenRowB">';
+		tr += "<td>"+(i+1)+"</td>";
+		tr += "<td>"+G_MacList[i].MACAddress+"</td>";
+		tr += "<td><img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +G_MacList[i].path+ "\")'></td>";
+            tr += "</tr>";
+		    trs += tr;               
+    }
+	jQuery("#td_MacList").append(trs);
+}
+
+function init(){
+    setValue("INPUT_MacEnabled",G_Enable);
+    if(G_Enable==1){
+        $('INPUT_MacEnabled').checked=true;
+    }else if(G_Enable==0){
+        $('INPUT_MacEnabled').checked=false;
+    }
+    setValue("MacFilterMode",G_FilterMode);
+
+}
+
+function uiSubmit(){
+    if(!validateCode())
+        return false;
+    if(G_MacList.length == 0 && $('INPUT_MacEnabled').checked == true && getValue('MacFilterMode') == "Allow")
+    {
+        top.AlertMsg(getStr("LK_sec_least1mac"));
+        return false;
+    }
+    var df = document.macfilterdataform; 
+    if($('INPUT_MacEnabled').checked == false){
+        AddElements(df, "InternetGatewayDevice.X_CT-COM_MacFilter.Enable",0);
+    }else {
+        AddElements(df, "InternetGatewayDevice.X_CT-COM_MacFilter.Enable",1);
+    }
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_MacFilter.FilterMode", getValue('MacFilterMode'));
+    df.submit();
+}
+
+function uiAdd(){
+    if(!ischeckMAC($('INPUT_MacAddress'))){            
+            return false;
+    }
+    if(!validateCode(2))
+        return false;
+    var object_path="InternetGatewayDevice.X_CT-COM_MacFilter.MacList.";        
+    var df = document.macfilterdataform; 
+    AddElements(df, 'add_obj',object_path);
+    AddElements(df, object_path+"{i}.MACAddress", getValue('INPUT_MacAddress'));
+    df.submit();
+}
+
+function uiDelete(path){
+    if(!validateCode(2))
+        return false;
+    var df = document.macfilterdataform; 
+    AddElements(df, 'del_obj',path);
+    if ((G_FilterMode == "Allow") && (G_MacList.length < 2 ) && (G_Enable == '1'))
+    {
+        top.AlertMsg(getStr("LK_sec_nodel"));
+        return false;
+    }
+    df.submit(); 
+}
+function __init()
+{
+    createTable();
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_MACFilter'))</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_MacEnabled" checked></td>
+</tr>
+<tr>
+	<td langkey="LK_FilterModee"></td>
+	<td><input type="radio" name="MacFilterMode" id="INPUT_ModeBlack" value="Deny"><span id="lang_modeBlack" langkey="LK_sec_wantolanblack"></span> <input type="radio" name="MacFilterMode" id="INPUT_ModeWhite" value="Allow"><span id="lang_modeWhite" langkey="LK_sec_wantolanwhite"></span></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton('submit',getStr('LK_Apply'),"uiSubmit()");</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_MACList'))</script>            
+<table cellspacing="0" cellpadding="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_MACAddresss"></td>
+	<td><input type="text" id="INPUT_MacAddress" maxlength="256">
+	&nbsp;&nbsp;
+	<script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script>
+	</td>
+</tr>
+<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table id="td_MacList" cellpadding="0" cellspacing="0" width="600" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_MACAddress"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<script>printEndContent()</script>
+    </form>
+<form method="post" name ="macfilterdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_macfilter.shtml">
+</form>
+</body>
+</html>

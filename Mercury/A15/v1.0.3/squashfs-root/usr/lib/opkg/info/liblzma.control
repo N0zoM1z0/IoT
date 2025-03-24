@@ -1,0 +1,8 @@
+Package: liblzma
+Version: 1
+Depends: libc
+Source: tp_package/lib/liblzma
+Section: libs
+Architecture: rtl
+Installed-Size: 22668
+Description:  C library for LZMA

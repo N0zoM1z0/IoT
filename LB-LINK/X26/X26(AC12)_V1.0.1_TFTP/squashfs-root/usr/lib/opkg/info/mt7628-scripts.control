@@ -1,0 +1,8 @@
+Package: mt7628-scripts
+Version: 4.1.1.0
+Depends: libc, mtk-base-files
+Source: package/mtk/drivers/mt7628
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 2951
+Description:  MT7628 scripts

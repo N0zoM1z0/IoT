@@ -1,0 +1,5 @@
+#!/bin/sh
+
+nvram restore_default
+sleep 1
+reboot

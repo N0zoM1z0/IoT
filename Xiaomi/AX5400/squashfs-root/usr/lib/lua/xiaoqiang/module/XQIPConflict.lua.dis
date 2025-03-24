@@ -1,0 +1,113 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.module.XQIPConflict"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+function L0()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "xiaoqiang.common.XQFunction"
+  L0 = L0(L1)
+  L1 = L0.getNetModeType
+  L1 = L1()
+  if 0 ~= L1 then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = string
+  L2 = L2.gsub
+  L3 = L1.exec
+  L4 = "/usr/sbin/ip_conflict.sh lanwan"
+  L3 = L3(L4)
+  L4 = "^[%s\n\r\t]*(.-)[%s\n\r\t]*$"
+  L5 = "%1"
+  L2 = L2(L3, L4, L5)
+  L3 = L0.isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if L3 or L2 == "0.0.0.0" then
+    L3 = false
+    return L3
+  end
+  return L2
+end
+ip_conflict_detection = L0
+function L0(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = os
+  L2 = L2.execute
+  L3 = "/usr/sbin/ip_conflict.sh miot "
+  L4 = A0
+  L5 = " "
+  L6 = A1
+  L7 = " chk_wan"
+  L3 = L3 .. L4 .. L5 .. L6 .. L7
+  L2(L3)
+end
+miotip_conflict_resolution = L0
+function L0()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L0 = require
+  L1 = "xiaoqiang.module.XQMessageBox"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.XQEvent"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.common.XQFunction"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "luci.util"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = string
+  L5 = L5.gsub
+  L6 = L3.exec
+  L7 = "/usr/sbin/ip_conflict.sh newlanip"
+  L6 = L6(L7)
+  L7 = "^[%s\n\r\t]*(.-)[%s\n\r\t]*$"
+  L8 = "%1"
+  L5 = L5(L6, L7, L8)
+  L6 = L2.isStrNil
+  L7 = L5
+  L6 = L6(L7)
+  if not L6 and L5 ~= "0.0.0.0" then
+    L6 = L0.removeMessage
+    L7 = 4
+    L6(L7)
+    L7 = L4
+    L6 = L4.get
+    L8 = "network"
+    L9 = "lan"
+    L10 = "netmask"
+    L6 = L6(L7, L8, L9, L10)
+    L6 = L6 or L6
+    L7 = L1.lanIPChange
+    L8 = L5
+    L9 = L6
+    L7(L8, L9)
+    L7 = true
+    return L7
+  end
+  L6 = false
+  return L6
+end
+ip_conflict_resolution = L0
+function L0()
+  local L0, L1, L2
+  L0 = require
+  L1 = "xiaoqiang.common.XQFunction"
+  L0 = L0(L1)
+  L1 = L0.forkExec
+  L2 = "/usr/sbin/ip_conflict.sh restart_service"
+  L1(L2)
+end
+restart_services = L0

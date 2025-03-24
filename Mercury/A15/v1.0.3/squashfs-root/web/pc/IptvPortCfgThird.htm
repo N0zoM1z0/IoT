@@ -1,0 +1,24 @@
+
+
+<div class="chooseModeGuide">
+	<h2>{%label.iptvModeChoose1%}</h2>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvMode%}</label>
+	<div id="directRadio" class="radioLabel"></div>
+	<div id="vlanRadio" class="radioLabel"></div>
+</ul>
+<div id="vlanId">
+	<div id="vlanIdInput"></div>
+	<span class="vlanInputTips">{%label.vlanInputTips%}</span>
+	<span class="vlanIdTips">{%label.vlanIdTips%}</span>
+</div>
+<div id="iptvBtnPre"></div>
+<div id="iptvBtnNext"></div><script type="text/javascript">(function(){function e(){confirmDialog.show({content:label.confirmSaveIptv,button:{confirmStr:btn.btnY,cancelStr:btn.btnN},callback:function(b){b&&(loadingDialog.show({title:label.iptvPort,content:{primary:label.wanSettingWait}}),b={},b[uciPortConfig.fileName]={},b[uciPortConfig.fileName][KEY_TABLE]=[uciPortConfig.secType.devInfo],$.query(b,function(b){var a=b[ERR_CODE];if(a==ENONE){b=b[uciPortConfig.fileName][uciPortConfig.secType.devInfo];var c;b.forEach(function(a,b){"1"==a[uciPortConfig.dynOptName.cap]&&
+(c=b)});a={};a[uciIptvConfig.fileName]={};a[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)]={};a[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.wanIndex]=wanIdx+1;a[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.linkMode]="gather"==iptvConnectModeChoosed[wanIdx]?"1":"0";a[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode]="direct"==iptvModeChoosed[wanIdx].mode?"0":"1";a[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+
+1)][uciIptvConfig.optName.vlanId]="direct"==iptvModeChoosed[wanIdx].mode?"0":iptvModeChoosed[wanIdx].vlanId;a[uciPortConfig.fileName]={};a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)]={};a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.on;a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy]="-1";a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy]=iptvPortChoosed[wanIdx][0].index.toString();
+a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev]=iptvPortChoosed[wanIdx][0].routerIndex==c?"FF-FF-FF-FF-FF-FF":b[iptvPortChoosed[wanIdx][0].routerIndex][uciPortConfig.dynOptName.mac];$.modify(a,function(a){var b=a[ERR_CODE];b==ENONE?loadingDialog.hide(function(){showToast(label.iptvOpened);stepPage(iptvEndPage)}):loadingDialog.hide(function(){errHandle(b);var a={};a[uciPortConfig.fileName]={};a[uciPortConfig.fileName]["iptv_"+(wanIdx+1)]={};a[uciPortConfig.fileName]["iptv_"+
+(wanIdx+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.off;$.modify(a)})})}else errHandle(a)}))}})}$("#wanTabCon").hide();$("#iptvContent");var c=new Radio({targetId:"directRadio",label:label.directMode,name:"iptvModeSet",onClick:function(){$("#vlanId").css("display","none")}});new Radio({targetId:"vlanRadio",label:label.vlanMode,name:"iptvModeSet",onClick:function(){$("#vlanId").css("display","block")}});c.setValue(!0);$("#vlanId").css("display","none");new Button({text:btn.finish,
+onClick:function(){iptvModeChoosed[wanIdx]={mode:c.getValue()?"direct":"vlan"};"vlan"!=iptvModeChoosed[wanIdx].mode||d.checkAll()?(iptvModeChoosed[wanIdx].vlanId=d.getValue(),e()):$("#vlanIdInput input").blur()},type:Button.TYPE.PRIMARY,id:"iptvBtnNext",props:{width:"120px","margin-top":"48px"}});new Button({text:btn.preStep,onClick:function(){stepPage(iptvSecondPage)},type:Button.TYPE.SECONDARY,id:"iptvBtnPre",props:{width:"120px","margin-top":"48px","margin-left":"4px"}});var d=new Input({type:Input.TYPE.PLAIN_TEXT,
+label:{value:label.vlanId},targetId:"vlanIdInput",props:{type:"number"},check:{blur:function(){return""==this.input.value||1>this.input.value||4094<this.input.value?(this.showNote(errStr.vlanIdErr),!1):!0}}})})();
+</script><style type="text/css">.chooseModeGuide{color:#333;font-weight:bold;margin-bottom:20px}div.radioLabel{display:inline-block;margin-right:16px;color:#333}#vlanId{position:relative}#vlanId .vlanInputTips{position:absolute;top:0;line-height:32px;margin-left:384px;font-size:13px;color:#999}.vlanIdTips{font-size:12px;color:#999;margin-left:132px}</style>

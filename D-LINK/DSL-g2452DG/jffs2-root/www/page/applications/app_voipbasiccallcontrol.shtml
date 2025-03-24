@@ -1,0 +1,417 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+function check10times(value1,value2)
+{
+    if(!(value1%value2))
+        return true;
+    else 
+        return false;
+}
+
+function checkMinMax(Min, Max)
+{
+	if (Min >= Max)
+		return false;
+
+	return true;
+}
+
+
+function pageCheckValue()
+{
+    var msg="";
+    var ShortTimer_Result;
+    var LongTimer_Result;
+    var StartTimer_Result;
+    var AlertingTimer_Result;
+    var HaulToneTimer_Result;
+    var BusyToneTimer_Result;
+    var FlashLowMin_Result;
+    var HookLow_Result;
+    ShortTimer_Result=checkIntegerRange(getValue("Frm_ShortTimer"),0,42949672);
+    if(ShortTimer_Result==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(ShortTimer_Result==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(ShortTimer_Result==-3)
+    {
+        msg=getmsg(116,0,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    LongTimer_Result=checkIntegerRange(getValue("Frm_LongTimer"),0,42949672);
+    if(LongTimer_Result==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(LongTimer_Result==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(LongTimer_Result==-3)
+    {
+        msg=getmsg(116,0,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    StartTimer_Result=checkIntegerRange(getValue("Frm_StartTimer"),0,42949672);
+    if(StartTimer_Result==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(StartTimer_Result==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(StartTimer_Result==-3)
+    {
+        msg=getmsg(116,0,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    AlertingTimer_Result=checkIntegerRange(getValue("Frm_AlertingTimer"),1,42949672);
+    if(AlertingTimer_Result ==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(AlertingTimer_Result ==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(AlertingTimer_Result ==-3)
+    {
+        msg=getmsg(116,1,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    HaulToneTimer_Result=checkIntegerRange(getValue("Frm_HaulToneTimer"),1,42949672);
+    if(HaulToneTimer_Result==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(HaulToneTimer_Result==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(HaulToneTimer_Result==-3)
+    {
+        msg=getmsg(116,1,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    BusyToneTimer_Result=checkIntegerRange(getValue("Frm_BusyToneTimer"),1,42949672);
+    if(BusyToneTimer_Result==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(BusyToneTimer_Result==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(BusyToneTimer_Result==-3)
+    {
+        msg=getmsg(116,1,42949672);
+	top.AlertMsg(msg);
+	return false;
+    }
+    var linenum=2; //getValue("LINE_INSTNUM");
+    for(var i=0;i<linenum;i++)
+    {
+
+	    FlashLowMin_Result=checkIntegerRange(getValue("Frm_FlashLowMin"+i),100,1300);
+		
+		if(FlashLowMin_Result ==-1)
+	    {
+	        msg=getmsg(101);
+	        top.AlertMsg(msg);
+	        return false;
+	    }
+	    else if(FlashLowMin_Result ==-2)
+	    {
+	        msg=getmsg(115);
+	        top.AlertMsg(msg);
+	        return false;
+	    }
+	    else if(FlashLowMin_Result ==-3)
+	    {
+	        msg=getmsg(116,100,1300);
+	        top.AlertMsg(msg);
+	        return false;
+	    }
+		
+		
+		HookLow_Result=checkIntegerRange(getValue("Frm_HookLow"+i),100,1300);
+	    if(HookLow_Result==-1)
+	    {
+	         msg=getmsg(101);
+	        top.AlertMsg(msg);
+	        return false;
+	    }
+	    else if(HookLow_Result==-2)
+	    {
+	        msg=getmsg(115);
+	        top.AlertMsg(msg);
+	        return false;
+	    }
+	    else if(HookLow_Result==-3)
+	    {
+	        msg=getmsg(116,100,1300);
+	        top.AlertMsg(msg);
+	        return false;
+		}
+
+        if (!checkMinMax(getValue("Frm_FlashLowMin"+i), getValue("Frm_HookLow"+i)))
+		{
+			top.AlertMsg("Min value must less than Max value");
+			return false;
+		}
+
+    }
+	
+	/*if(getValue("Frm_HookLow" + i) < getValue("Frm_FlashLowMin" + i)) {
+		alert("plese input the correct data\n");
+		return flash
+	}*/
+	if(!validateCode())
+		return false;
+    return true;
+}
+
+function FlashHookTuple()
+{
+    this.flashLowMin = "";
+    this.flashLowMax= "";
+}
+
+var index=0;
+var FlashHook = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.X_TRI-FLASHHOOK. FlashLowMin FlashLowMax"-->
+    FlashHook[index] = new FlashHookTuple();
+    FlashHook[index].flashLowMin = '<!--#leaf "1"-->';
+    FlashHook[index].flashLowMax = '<!--#leaf "2"-->';
+    index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function LineDescription(){
+			this.Description = "";
+		}
+	var num = 0;
+ var LineInfo = new Array();
+ <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Description" -->
+	    LineInfo[num] = new LineDescription();
+      LineInfo[num].Description= "<!--#leaf "1"-->";
+      <!--#endgetobject -->
+      num++;
+<!--#endgetobject -->
+
+function uiSubmit()
+{
+    var df=$('fSubmit');
+    ReSetValueRmZero("Frm_ShortTimer","Frm_LongTimer","Frm_AlertingTimer","Frm_HaulToneTimer","Frm_BusyToneTimer","Frm_StartTimer", "Frm_ContryTone");
+    if(pageCheckValue()==true)
+    {
+        for(var i=0;i < index; i++)
+	{
+	    var LineNum = 0;
+	    if(LineInfo[i].Description == "LINE1")
+	        LineNum = 1;
+	    else if(LineInfo[i].Description == "LINE2")
+	        LineNum = 2;
+	    else
+	        LineNum = i+1;
+					
+	   		 	jslDisable("Frm_FlashLowMin"+i,"Frm_HookLow"+i);
+        	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".X_TRI-FLASHHOOK.FlashLowMin", getValue("Frm_FlashLowMin"+i));
+	   			AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".X_TRI-FLASHHOOK.FlashLowMax", getValue("Frm_HookLow"+i));
+				}
+				jslDisable("Btn_Submit","Btn_Cancel");
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_InterDigitTimerShort", getValue("Frm_ShortTimer"));
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_InterDigitTimerLong", getValue("Frm_LongTimer"));
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_StartDigitTimer", getValue("Frm_StartTimer"));
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_NoAnswerTimer", getValue("Frm_AlertingTimer"));
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_HangingReminderToneTimer", getValue("Frm_HaulToneTimer"));
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_BusyToneTimer", getValue("Frm_BusyToneTimer"));
+	AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.CountryId", getValue("Frm_ContryTone"));
+
+		df.submit();
+    }
+}
+
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1. X_CT-COM_InterDigitTimerShort X_CT-COM_InterDigitTimerLong X_CT-COM_StartDigitTimer X_CT-COM_NoAnswerTimer X_CT-COM_HangingReminderToneTimer X_CT-COM_BusyToneTimer CountryId"-->
+    var interDigitTmrS = '<!--#leaf "1"-->';
+    var interDigitTmrL = '<!--#leaf "2"-->';
+    var startDigitTmr = '<!--#leaf "3"-->';
+    var noAnswerTmr = '<!--#leaf "4"-->';
+    var haulToneTmr = '<!--#leaf "5"-->';
+	var busyToneTmr = '<!--#leaf "6"-->';
+	var countryId = '<!--#leaf "7"-->';
+<!--#endgetobject -->
+
+function pageGetValue()
+{
+    setValue("Frm_ShortTimer", interDigitTmrS);
+    setValue("Frm_LongTimer", interDigitTmrL);
+    setValue("Frm_AlertingTimer", noAnswerTmr);
+    setValue("Frm_HaulToneTimer", haulToneTmr);
+    setValue("Frm_BusyToneTimer", busyToneTmr);
+	setValue("Frm_StartTimer", startDigitTmr);
+	setValue("Frm_ContryTone", countryId);
+
+    
+    var linenum = index;
+    for(var i=0;i<linenum; i++)
+    {
+    	 var LineNum = 0;
+	    if(LineInfo[i].Description == "LINE1")
+	        LineNum = 1;
+	    else if(LineInfo[i].Description == "LINE2")
+	        LineNum = 2;
+	    else
+	        LineNum = i+1;
+        setValue("Frm_FlashLowMin"+i, FlashHook[LineNum-1].flashLowMin);
+		setValue("Frm_HookLow"+i, FlashHook[LineNum-1].flashLowMax);
+    }
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_AUSTRALIA"), getStr("LK_BELGIUM"), getStr("LK_BRAZIL"), getStr("LK_CHILE"), getStr("LK_CHINA"), getStr("LK_CZECH"), getStr("LK_DENMARK"), 
+	getStr("LK_ETSI"), getStr("LK_FINLAND"), getStr("LK_FRANCE"), getStr("LK_GERMANY"), getStr("LK_HUNGARY"), getStr("LK_ITALY"), getStr("LK_JAPAN"), 
+	getStr("LK_NETHERLANDS"), getStr("LK_NEW_ZEALAND"), getStr("LK_NORTH_AMERICA"), getStr("LK_SPAIN"), getStr("LK_SWEDEN"), getStr("LK_NORWAY"), getStr("LK_SWITZERLAND"), 
+	getStr("LK_TR57"), getStr("LK_UK"), getStr("LK_TAIWAN"), getStr("LK_SINGAPORE")];
+  value = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'];
+	createOptions('Frm_ContryTone', text, value);
+}
+
+function __init()
+{
+    createsel();
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<div class="MainTittle">
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_BasicCallControl'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipbasiccallcontrol.shtml">
+</form>
+<table id="TestContent" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_ShortTimerr"></td>
+	<td><input type="text" name="Frm_ShortTimer" id="Frm_ShortTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+<td langkey="LK_LongTimerr"></td>
+<td><input type="text" name="Frm_LongTimer" id="Frm_LongTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+<td langkey="LK_StartTimerr"></td>
+<td><input type="text" name="Frm_StartTimer" id="Frm_StartTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+<td langkey="LK_AlertingTimerr"></td>
+<td><input type="text" name="Frm_AlertingTimer" id="Frm_AlertingTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+<td langkey="LK_HaulToneTimerr"></td>
+<td><input type="text" name="Frm_HaulToneTimer" id="Frm_HaulToneTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr>
+<td langkey="LK_BusyToneTimerr"></td>
+<td><input type="text" name="Frm_BusyToneTimer" id="Frm_BusyToneTimer" class="inputId"> <span langkey="LK_Second"></span></td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr class="FlagText">
+<td colspan="2" langkey="LK_BasicCallText"></td>
+</tr>
+<tr>
+<td langkey="LK_ContryTone"></td>
+<td>
+<select id="Frm_ContryTone" name="select2" size="1">
+</select>
+</td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_Connection1'))</script>
+<table class="ContentTableNoColor" id="TableVAD" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_FlashLowMinn"></td>
+<td><input type="text" name="Frm_FlashLowMin0" id="Frm_FlashLowMin0" class="inputId"> ms(100-1300)</td>
+</tr>
+<tr>
+<td langkey="LK_HookLoww"></td>
+<td><input type="text" name="Frm_HookLow0" id="Frm_HookLow0" class="inputId"> ms(100-1300)</td>
+</tr>
+</table>
+
+<script>SetContentTitle(getStr('LK_Connection2'))</script>
+<table class="ContentTableNoColor" id="TableVAD" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_FlashLowMinn"></td>
+<td><input type="text" name="Frm_FlashLowMin1" id="Frm_FlashLowMin1" class="inputId"> ms(100-1300)</td>
+</tr>
+<tr>
+<td langkey="LK_HookLoww"></td>
+<td><input type="text" name="Frm_HookLow1" id="Frm_HookLow1" class="inputId"> ms(100-1300)</td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</tbody></table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

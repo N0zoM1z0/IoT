@@ -1,0 +1,486 @@
+Package: libc
+Version: -1
+Depends: libgcc
+Provides:
+Status: install hold installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329703
+
+Package: kmod-rtl-cfg80211
+Version: 4.4.176+5.2.8-1-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), wireless-tools
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329778
+
+Package: opkg
+Version: 618-5
+Depends: libc, zlib, libsecurity
+Provides:
+Status: install ok installed
+Architecture: rtl
+Conffiles:
+ /etc/opkg.conf e372984769788bbf02df7dc8a75dcb86
+Installed-Time: 1692329712
+
+Package: iptables-mod-extra
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-extra
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: ip
+Version: 4.0.0-1
+Depends: libc, libnl-tiny
+Provides:
+Conflicts: ip-full
+Status: install ok installed
+Architecture: rtl
+Conffiles:
+ /etc/iproute2/rt_tables a1313318d6778fe6b8c680248ef5a463
+Installed-Time: 1692329693
+
+Package: kmod-map_filter
+Version: 4.4.176+
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329709
+
+Package: libpthread
+Version: -1
+Depends: libgcc
+Provides:
+Status: install hold installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329703
+
+Package: iw
+Version: 5.4-1
+Depends: libc, libnl-tiny
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329693
+
+Package: kmod-xt_multiurl
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329709
+
+Package: busybox
+Version: 1.19.4-6
+Depends: libc, libpthread
+Provides:
+Status: install ok installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329713
+
+Package: kmod-br_router_iptv
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329708
+
+Package: kmod-dns_proxy
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329708
+
+Package: liblzma
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329711
+
+Package: libopenssl-1.1.1g
+Version: 1.1.1g-1
+Depends: libc, libpthread
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329702
+
+Package: kmod-dn_login
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329708
+
+Package: tdmp-resource
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329734
+
+Package: base-files
+Version: 117-450d09ece9b8ff391ca246ec7a8892bc89b8f0bd
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Conffiles:
+ /etc/hosts 0eea71665fb6890c06421fd13aa3f849
+ /etc/inittab 517ddcd3176f3fb036d66b9ebea5ed38
+ /etc/group 4a116d818b2f49e14939d581ec786de1
+ /etc/passwd b3352030ffaa37a56162701d92373bd4
+ /etc/shadow 497b070fd6e487f137756e9bce95b636
+ /etc/shells 725ba6f40dff0612f61ecd3f171bb3e1
+ /etc/sysctl.conf 38f9da84d678284741d7476bcc4f7131
+ /etc/rc.local 6f8bfdaf36d3ec4aa9be6e96fa61d32b
+ /etc/sysupgrade.conf f91aef484370cefee501d64b5725c1d2
+ /etc/config/system 58a3ac560c488053707c7896ee8c09c5
+Installed-Time: 1692329703
+
+Package: kmod-g6_wifi_driver
+Version: 4.4.176+015.20-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, kmod-ther_ctrl
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329777
+
+Package: memtester
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329702
+
+Package: kmod-ipt-nathelper-rtsp
+Version: 4.4.176+2.14-4
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-ipt-core, kmod-ipt-conntrack-extra, kmod-ipt-nat
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329710
+
+Package: iptables-mod-iprange
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-iprange
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: libip4tc
+Version: 1.6.2-3
+Depends: libc, libxtables
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: tcpdump
+Version: 4.2.1-3
+Depends: libc, libpcap
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329713
+
+Package: rtk_app
+Version: 0.1-1
+Depends: libc, kmod-rtl-cfg80211
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329735
+
+Package: iptables-mod-ipopt
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-ipopt
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: libnl
+Version: 3.2.21-1
+Depends: libc, libpthread
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329701
+
+Package: libstdcpp
+Version: -1
+Provides:
+Status: install hold installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329703
+
+Package: libgcc
+Version: -1
+Provides:
+Status: install hold installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329703
+
+Package: kmod-wan_port_detect_hook
+Version: 4.4.176+
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329709
+
+Package: libip6tc
+Version: 1.6.2-3
+Depends: libc, libxtables
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: kmod-ipv6-pass-through
+Version: 4.4.176+1.0-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329709
+
+Package: libjson
+Version: 0.9-2
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329711
+
+Package: librt
+Version: -1
+Depends: libpthread
+Provides:
+Status: install hold installed
+Essential: yes
+Architecture: rtl
+Installed-Time: 1692329703
+
+Package: kmod-rtl8192cd
+Version: 4.4.176+2.5-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, wireless-tools, kmod-ther_ctrl
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329784
+
+Package: psh
+Version: 1
+Depends: libc, libctaocrypt
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329712
+
+Package: iptables
+Version: 1.6.2-3
+Depends: libc, kmod-ipt-core, libip4tc, libip6tc, libxtables
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: iptables-mod-filter
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-filter
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: hotplug2
+Version: 1.0-beta-4
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Conffiles:
+ /etc/hotplug2.rules d4975ba71cf50d3d3c286b0de0f0929a
+Installed-Time: 1692329693
+
+Package: libpcap
+Version: 1.1.1-2
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329702
+
+Package: dms
+Version: 1
+Depends: libc, libjson, libpthread, libsecurity, libcyassl2, zlib, libnl-tiny, tdmp-resource
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329735
+
+Package: kmod-ther_ctrl
+Version: 4.4.176+2.5-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, wireless-tools
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329786
+
+Package: iptables-mod-conntrack-extra
+Version: 1.6.2-3
+Depends: libc, iptables, kmod-ipt-conntrack-extra, kmod-ipt-raw
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: libxtables
+Version: 1.6.2-3
+Depends: libc
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: ip6tables
+Version: 1.6.2-3
+Depends: libc, kmod-ip6tables, iptables
+Provides:
+Status: install user installed
+Architecture: rtl
+Installed-Time: 1692329733
+
+Package: zlib
+Version: 1.2.7-1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329786
+
+Package: kmod-gpio-slp
+Version: 4.4.176-1
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329708
+
+Package: libcyassl2
+Version: 2.7.0-1
+Depends: libc, libpthread, librt
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329711
+
+Package: rtl_hostapd
+Version: 2.10
+Depends: libc, libnl-tiny, libopenssl-1.1.1g, librt
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329714
+
+Package: kernel
+Version: 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4
+Depends: libc
+Provides:
+Status: install hold installed
+Architecture: rtl
+Installed-Time: 1692329701
+
+Package: libnl-tiny
+Version: 0.1-3
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329701
+
+Package: factory_restore
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329712
+
+Package: kmod-igmp_proxy_snooping
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329709
+
+Package: mpstat
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329734
+
+Package: kmod-arp_filter
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329707
+
+Package: wireless-tools
+Version: 29-5
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329713
+
+Package: rtl_wpa_supplicant
+Version: 2.10
+Depends: libc, libnl-tiny, libopenssl-1.1.1g, librt
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329714
+
+Package: libsecurity
+Version: 1
+Depends: libc
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329712
+
+Package: kmod-br_hook_gn
+Version: 4.4.176+1.0
+Depends: kernel (= 4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Provides:
+Status: install ok installed
+Architecture: rtl
+Installed-Time: 1692329707
+

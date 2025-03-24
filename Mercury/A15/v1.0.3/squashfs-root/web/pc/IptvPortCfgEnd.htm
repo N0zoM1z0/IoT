@@ -1,0 +1,32 @@
+
+
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvConnectMode2%}</label>
+	<li class="inputLi state"><span id="iptvConnectMode"></span></li>
+</ul>
+<ul id="iptvModeCon" class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvMode%}</label>
+	<div id="directRadio" class="radioLabel"></div>
+	<div id="vlanRadio" class="radioLabel"></div>
+</ul>
+<div id="vlanId">
+	<div id="vlanIdInput"></div>
+	<span class="vlanInputTips">{%label.vlanInputTips%}</span>
+	<span class="vlanIdTips">{%label.vlanIdTips%}</span>
+</div>
+<div id="routerPortUp"></div>
+<div id="routerPort"></div>
+<span class="iptvUsing">{%label.iptvUsing%}</span>
+<div id="iptvBtnReset"></div>
+<div id="iptvBtnSave"></div><script type="text/javascript">(function(){function k(b){var a={};a[uciPlc.fileName]={};a[uciPlc.fileName][KEY_TABLE]=uciPlc.secType.connectedExt;var c=!1;$.query(a,function(a){ENONE==a[ERR_CODE]&&(b.length<a[uciPlc.fileName][uciPlc.secType.connectedExt].length+1?c=!0:d.forEach(function(a,b){-1==a[uciPortConfig.dynOptName.subFunc].indexOf("iptv")&&(c=!0)}),c&&$(".meshIptvDisable").show())})}$("#wanTabCon").show();var e=new Radio({targetId:"directRadio",label:label.directMode,name:"iptvModeSet",onClick:function(){$("#vlanId").css("display",
+"none")}}),l=new Radio({targetId:"vlanRadio",label:label.vlanMode,name:"iptvModeSet",onClick:function(){$("#vlanId").css("display","block")}}),g=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.vlanId},targetId:"vlanIdInput",props:{type:"number"},check:{blur:function(){return""==this.input.value||1>this.input.value||4094<this.input.value?(this.showNote(errStr.vlanIdErr),!1):!0}}});new Button({text:btn.save,onClick:function(){var b=!0;l.getValue()&&(b=g.checkAll()&&b);b?(b={},b[uciIptvConfig.fileName]=
+{},b[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)]={},b[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode]=e.getValue()?"0":"1",b[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.vlanId]=e.getValue()?"0":g.getValue(),$.modify(b,function(a){a=a[ERR_CODE];a==ENONE?showToast(label.iptvModeChanged):errHandle(a)})):$("#vlanIdInput input").blur()},type:Button.TYPE.PRIMARY,id:"iptvBtnSave",props:{width:"120px","margin-top":"48px"}});new Button({text:btn.reSelPort,
+onClick:function(){$(".meshIptvDisable").hide();isMultiWan?$("#subIptvStepTab").css("display","block"):$("#iptvStepTab").css("display","block");stepPage(iptvFirstPage)},type:Button.TYPE.SECONDARY,id:"iptvBtnReset",props:{width:"120px","margin-top":"48px","margin-left":"4px"}});var d,m=isMultiWan?label.iptvUplinkPort+(wanIdx+1):label.iptvUplinkPort,h=isMultiWan?label.iptvPort+(wanIdx+1):label.iptvPort;(function(){var b={};b[uciIptvConfig.fileName]={};b[uciIptvConfig.fileName][KEY_TABLE]=uciIptvConfig.secType.iptvEntry;
+$.query(b,function(a){a[ERR_CODE]==ENONE&&(a=a[uciIptvConfig.fileName][uciIptvConfig.secType.iptvEntry][wanIdx]["iptv_entry_"+(wanIdx+1)],"1"==a[uciIptvConfig.optName.linkMode]?(id("iptvConnectMode").innerHTML=label.gatherMode,"0"==a[uciIptvConfig.optName.workMode]?(e.setValue(!0),$("#vlanId").css("display","none")):(l.setValue(!0),g.setValue(a[uciIptvConfig.optName.vlanId])),a={},a[uciPortConfig.fileName]={},a[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo,$.query(a,function(a){var b;
+a[ERR_CODE]==ENONE&&(d=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],k(d),a={},a[uciPortConfig.fileName]={},a[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.iptv,$.query(a,function(a){var c;a[ERR_CODE]==ENONE&&(c=a[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev],d.forEach(function(a,f){if(a[uciPortConfig.dynOptName.mac]==c||"FF-FF-FF-FF-FF-FF"==c&&"1"==a[uciPortConfig.dynOptName.cap])b=f,a[uciPortConfig.dynOptName.phyInfo].forEach(function(b,
+f){b[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)&&(a[uciPortConfig.dynOptName.phyInfo][f].name=h,a[uciPortConfig.dynOptName.phyInfo][f].state="active")})}),(new PortConfig).initDevInfo("routerPort",JSON.parse(JSON.stringify(d[b]))))}))})):(id("iptvConnectMode").innerHTML=label.aloneMode,$(".iptvUsing").html(label.iptvUpDownUsing),$("#iptvModeCon").css("display","none"),$("#vlanId").css("display","none"),$("#iptvBtnSave").css("display","none"),a={},a[uciPortConfig.fileName]={},a[uciPortConfig.fileName][KEY_TABLE]=
+uciPortConfig.secType.devInfo,$.query(a,function(a){var b,e;a[ERR_CODE]==ENONE&&(d=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],k(d),a={},a[uciPortConfig.fileName]={},a[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.iptv,$.query(a,function(a){var c;a[ERR_CODE]==ENONE&&(c=a[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev],"FF-FF-FF-FF-FF-FF"==c?d.forEach(function(a,c){"1"==a[uciPortConfig.dynOptName.cap]&&(b=c,
+a[uciPortConfig.dynOptName.phyInfo].forEach(function(b,c){b[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)&&(a[uciPortConfig.dynOptName.phyInfo][c].name=h,a[uciPortConfig.dynOptName.phyInfo][c].state="active");b[uciPortConfig.dynOptName.role]=="uplink"+(wanIdx+1)&&(a[uciPortConfig.dynOptName.phyInfo][c].name=m,a[uciPortConfig.dynOptName.phyInfo][c].state="active")}))}):(d.forEach(function(a,d){"1"==a[uciPortConfig.dynOptName.cap]&&(e=d,a[uciPortConfig.dynOptName.phyInfo].forEach(function(b,
+c){b[uciPortConfig.dynOptName.role]=="uplink"+(wanIdx+1)&&(a[uciPortConfig.dynOptName.phyInfo][c].name=m,a[uciPortConfig.dynOptName.phyInfo][c].state="active")}));a[uciPortConfig.dynOptName.mac]==c&&(b=d,a[uciPortConfig.dynOptName.phyInfo].forEach(function(b,c){b[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)&&(a[uciPortConfig.dynOptName.phyInfo][c].name=h,a[uciPortConfig.dynOptName.phyInfo][c].state="active")}))}),(new PortConfig).initDevInfo("routerPortUp",JSON.parse(JSON.stringify(d[e])))),
+(new PortConfig).initDevInfo("routerPort",JSON.parse(JSON.stringify(d[b]))))}))})))})})()})();
+</script><style type="text/css">div.radioLabel{display:inline-block;margin-right:16px;color:#333}#vlanId{position:relative}#vlanId .vlanInputTips{position:absolute;top:0;line-height:32px;margin-left:384px;font-size:13px;color:#999}.vlanIdTips{font-size:12px;color:#999;margin-left:132px}#routerPort{margin-top:24px}.iptvUsing{color:#999;display:block;margin-top:16px;font-size:13px}</style>

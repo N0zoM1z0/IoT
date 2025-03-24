@@ -1,0 +1,9 @@
+Package: qca-thermald-10.4
+Version: miwifi_git-1
+Depends: libc, libpthread
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/qca-platform-utils/qca-thermald-10.4
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7
+Installed-Size: 18895
+Description:  This package is IPQ Thermal Mitigation daemon.

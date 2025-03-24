@@ -1,0 +1,178 @@
+local L0, L1, L2, L3, L4, L5
+L0 = module
+L1 = "xiaoqiang.module.XQWifiShare"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.util.XQSysUtil"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.util"
+L3 = L3(L4)
+L4 = require
+L5 = "xiaoqiang.XQLog"
+L4 = L4(L5)
+function L5()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = {}
+  L2.guest = 0
+  L2.share = 0
+  L2.need = 0
+  L3 = {}
+  L2.sns = L3
+  L3 = L1.getGuestWifi
+  L4 = 1
+  L3 = L3(L4)
+  L4 = tonumber
+  L5 = L3.status
+  L4 = L4(L5)
+  L2.guest = L4
+  L4 = {}
+  L5 = L3.ssid
+  L4.ssid = L5
+  L5 = L3.encryption
+  L4.encryption = L5
+  L5 = L3.password
+  L4.password = L5
+  L2.data = L4
+  L4 = L2.guest
+  if L4 == 0 then
+    L2.need = 1
+  end
+  return L2
+end
+wifi_share_info = L5
+function L5()
+  local L0, L1
+  L0 = {}
+  L0.need = 1
+  L1 = wifi_share_info
+  L1 = L1()
+  info = L1
+  L1 = info
+  L1 = L1.need
+  L0.need = L1
+  return L0
+end
+wifi_share_info_web = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  if A0 then
+    L1 = type
+    L2 = A0
+    L1 = L1(L2)
+    if L1 == "table" then
+      goto lbl_10
+    end
+  end
+  L1 = false
+  do return L1 end
+  ::lbl_10::
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = require
+  L3 = "xiaoqiang.module.XQGuestWifi"
+  L2 = L2(L3)
+  L3 = A0.guest
+  if L3 then
+    L3 = _UPVALUE0_
+    L3 = L3.log
+    L4 = 6
+    L5 = "info.guest "
+    L6 = A0.guest
+    L5 = L5 .. L6
+    L3(L4, L5)
+    L3 = "XIAOMI_ROUTER_GUEST"
+    function L4(A0)
+      local L1, L2
+      if A0 then
+        L1 = _UPVALUE0_
+        L1 = L1.forkExec
+        L2 = "sleep 1; /usr/sbin/guestwifi.sh open; sleep 25; lua /usr/sbin/sync_guest_bssid.lua"
+        L1(L2)
+      else
+        L1 = _UPVALUE0_
+        L1 = L1.forkExec
+        L2 = "sleep 1; /sbin/wifi >/dev/null 2>/dev/null; sleep 3; lua /usr/sbin/sync_guest_bssid.lua"
+        L1(L2)
+      end
+    end
+    L5, L6, L7 = nil, nil, nil
+    L8 = A0.data
+    if L8 then
+      L8 = type
+      L9 = A0.data
+      L8 = L8(L9)
+      if L8 == "table" then
+        L8 = A0.data
+        L5 = L8.ssid
+        L8 = A0.data
+        L6 = L8.encryption
+        L8 = A0.data
+        L7 = L8.password
+      end
+    end
+    L8 = _UPVALUE0_
+    L8 = L8.log
+    L9 = 6
+    L10 = "ssid "
+    L11 = L5
+    L10 = L10 .. L11
+    L8(L9, L10)
+    L8 = _UPVALUE0_
+    L8 = L8.log
+    L9 = 6
+    L10 = "encryption "
+    L11 = L6
+    L10 = L10 .. L11
+    L8(L9, L10)
+    L8 = _UPVALUE0_
+    L8 = L8.log
+    L9 = 6
+    L10 = "key "
+    L11 = L7
+    L10 = L10 .. L11
+    L8(L9, L10)
+    if L6 == "none" then
+      L7 = "12345678"
+      L8 = _UPVALUE0_
+      L8 = L8.log
+      L9 = 6
+      L10 = "set guest not share, key = "
+      L11 = L7
+      L10 = L10 .. L11
+      L8(L9, L10)
+    end
+    L8 = L2.setGuestWifi
+    L9 = 1
+    L10 = L5
+    L11 = L6
+    L12 = L7
+    L13 = 1
+    L14 = A0.guest
+    L15 = L3
+    L16 = L4
+    L8(L9, L10, L11, L12, L13, L14, L15, L16)
+  end
+  L3 = true
+  return L3
+end
+set_wifi_share = L5

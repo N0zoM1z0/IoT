@@ -1,0 +1,14 @@
+Package: kmod-ipsec
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-5b3fa9982a4f1df1c75c17aa771f37d7), kmod-crypto-authenc, kmod-crypto-iv, kmod-crypto-des, kmod-crypto-hmac, kmod-crypto-md5, kmod-crypto-sha1, kmod-crypto-deflate, kmod-crypto-cbc
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: aarch64_cortex-a53
+Installed-Size: 31307
+Description:  Kernel modules for IPsec support in both IPv4 and IPv6.
+ Includes:
+ - af_key
+ - xfrm_ipcomp
+ - xfrm_user

@@ -1,0 +1,120 @@
+#!/bin/sh /etc/rc.common
+# Copyright (c) 2014-2015 TP-LINK Technologies CO.,LTD.
+# Copyright (c) 2013 Qualcomm Atheros, Inc.
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=10
+
+system_config() {
+	local cfg="$1"
+
+	local hostname conloglevel timezone
+
+	config_get hostname "$cfg" hostname 'SLP'
+	echo "$hostname" > /proc/sys/kernel/hostname
+
+	config_get conloglevel "$cfg" conloglevel
+	config_get buffersize "$cfg" buffersize
+	[ -z "$conloglevel" -a -z "$buffersize" ] || dmesg ${conloglevel:+-n $conloglevel} ${buffersize:+-s $buffersize}
+
+	config_get timezone "$cfg" timezone 'UTC'
+	echo "$timezone" > /tmp/TZ
+
+	config_get zonename "$cfg" zonename
+	[ -n "$zonename" ] && [ -f "/usr/share/zoneinfo/$zonename" ] && ln -s "/usr/share/zoneinfo/$zonename" /tmp/localtime
+
+	# apply timezone to kernel
+	date -k
+
+}
+
+start() {
+	[ -f /proc/mounts ] || /sbin/mount_root
+	[ -f /proc/jffs2_bbc ] && echo "S" > /proc/jffs2_bbc
+	[ -f /proc/net/vlan/config ] && vconfig set_name_type DEV_PLUS_VID_NO_PAD
+
+	mkdir -p /var/run
+	mkdir -p /var/log
+	mkdir -p /var/lock
+	mkdir -p /tmp/usbdisk
+	touch /var/log/wtmp
+	touch /var/log/lastlog
+	touch /tmp/resolv.conf.auto
+	ln -sf /tmp/resolv.conf.auto /tmp/resolv.conf
+	grep -q debugfs /proc/filesystems && mount -t debugfs debugfs /sys/kernel/debug
+	[ "$FAILSAFE" = "true" ] && touch /tmp/.failsafe
+
+	load_modules /etc/modules.d/*
+
+	/sbin/wifi cal_check
+#	if [ "$SLP_DUT_CALED" -eq "0" ]; then
+#		echo 200 >> /sys/devices/platform/leds-gpio/leds/slp:status/delay_on &&
+#		echo 200 >> /sys/devices/platform/leds-gpio/leds/slp:status/delay_off
+#		/etc/init.d/art stop
+#		/etc/init.d/art start
+#		if [ -x /bin/testmode ]; then
+#			/bin/testmode &
+#		fi
+#	fi
+
+	# allow wifi modules time to settle
+	sleep 1
+
+#	/sbin/sound detect > /tmp/sound.tmp
+#	[ -s /tmp/sound.tmp ] && {
+#		cat /tmp/sound.tmp >> /etc/config/sound
+#	}
+#	rm -f /tmp/sound.tmp
+
+	# load arp_filter kmod to filter ARP reply with conflicting LAN IP in bridge.
+	load_arp_filter
+
+	# config dn_login add by liyi
+	config_dn_login
+	
+	config_load system
+	config_foreach system_config system
+
+	killall -q hotplug2
+	[ -x /sbin/hotplug2 ] && /sbin/hotplug2 --override --persistent \
+			--set-rules-file /etc/hotplug2.rules \
+			--set-coldplug-cmd /sbin/udevtrigger \
+			--max-children 1 >/dev/null 2>&1 &
+
+	# create /dev/root if it doesn't exist
+	[ -e /dev/root -o -h /dev/root ] || {
+		rootdev=$(awk 'BEGIN { RS=" "; FS="="; } $1 == "root" { print $2 }' < /proc/cmdline)
+		[ -n "$rootdev" ] && ln -s "$rootdev" /dev/root
+	}
+}
+
+# config dn_login add by liyi
+config_dn_login() {
+	local enable=0
+	local lan_ip
+	local domain_name
+	local login_way=1
+	local is_factory
+	
+	enable=$(uci_get device_info.info.enable_dns)
+	if [ $enable == 1 ]; then 
+		is_factory=$(uci_get system.sys.is_factory)
+		[ "$is_factory" == "1" ] && login_way=0
+		domain_name=$(uci_get device_info.info.domain_name)
+		lan_ip=$(uci_get network.lan.ipaddr)
+		insmod dn_login ipv4_addr=$lan_ip domain_name=$domain_name login_way=$login_way
+	else 
+		return 
+	fi
+}
+
+load_arp_filter() {
+	local lan_ip=$(uci_get network.lan.ipaddr)
+	local kernel_version=$(cat /proc/sys/kernel/osrelease)
+	local arp_filter=arp_filter.ko
+
+	cd /lib/modules/$kernel_version
+	if [ -e $arp_filter ]; then
+		insmod $arp_filter ip=$lan_ip
+	fi
+}

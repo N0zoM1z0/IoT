@@ -1,0 +1,182 @@
+
+
+<div class="basicNetworkCon">
+		<p id="bridgeWarning" class="commonErrTip">{%label.bridgeWanWarning%}</p>
+	<p class="notice">{%titleDescriptionStr.wanSetDescription%}</p>
+	<ul id="netModeSelUl" class="inputCMPT medium selectUl">
+		<label class="outerLbl">{%label.netMode%}</label>
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="netModeSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="staticWanSel"></div>
+	<div class="page">
+		<p class="networkAbnormal commonErrTip"><i class="iconfont icon-error"></i>{%errStr.linkAuthErrToCustomerService%}</p>
+		<div id="pppoeInput"></div>
+		<div id="subP"></div>
+		<div id="cancleP"></div>
+	</div>
+	<div class="page">
+		<div id="staticInput"></div>
+		<div id="subS"></div>
+	</div>
+	<div class="page">
+		<div id="dhcpInput"></div>
+		<div id="subD"></div>
+		<div id="cancleD"></div>
+	</div>
+	<div class="page">
+		<ul class="inputCMPT medium">
+			<label id="compatibleLbl" class="outerLbl">兼容模式</label>
+			<div id="radioGroup">
+				<div id="compatibleOn" class="radioLabel"></div>
+				<div id="compatibleOff" class="radioLabel"></div>
+			</div>
+			<span id="compatModeDesc">{%label.compatibleModeInfo%}</span>
+		</ul>
+		<div id="apInput"></div>
+		<div id="saveAp"></div>
+		<div class="meshHelp">
+			<div id="meshHelpTip1" class="meshHelpTip">
+				1.如果前端路由器为"Mesh"路由器，推荐使用"Mesh"功能扩展无线网络。仅在前端路由器不支持"Mesh"功能时，才推荐使用本路由器的AP（有线中继）模式。
+			</div>
+			<div id="meshHelpTip2" class="meshHelpTip">
+				2.通过AP（有线中继）模式扩展现有网络时，请确保本路由器与前端路由器的LAN口通过网线连接。
+			</div>
+		</div>
+	</div>
+	<div class="page">
+		<div class="initWdsCon">
+			<div class="buttonGroup">
+				<div id="saveWds"></div>
+				<div id="selectFrontRouter"></div>
+			</div>
+			<div class="meshHelp">
+				<div id="meshHelpTip1" class="meshHelpTip">
+					1.选择无线中继，本路由将作为从路由，通过无线与前端路由中继，扩展无线网络的覆盖范围。
+				</div>
+				<div id="meshHelpTip2" class="meshHelpTip">
+					2.如果前端路由器为"Mesh"路由器，推荐使用"Mesh"功能扩展无线网络。
+					<i id="meshHelpCon" class="helpBtn iconfont icon-help"></i>
+				</div>
+			</div>
+		</div>
+		<div id="wdsResultCon" class="disNone">
+			<div class="subTitle">
+				<h2>{%label.frontRouter%}</h2>
+			</div>
+			<div id="frontRouterCon" class="routerCon">
+				<div class="routerImg"></div>
+				<div class="routerWifiInfo">
+					<div class="twofiveGCon wifiInfoCon">
+						<div class="wifiInfo">
+							<label class="routerName">2.4G&5G Wi-Fi: </label>
+							<label class="routerNameVal"></label>
+						</div>
+						<div class="wifiInfo">
+							<label class="routerPsd">Wi-Fi密码：</label>
+							<label class="routerPsdVal"></label>
+						</div>
+					</div>
+					<div class="twoGCon wifiInfoCon">
+						<div class="wifiInfo">
+							<label class="routerName">2.4G Wi-Fi名称: </label>
+							<label class="routerNameVal"></label>
+						</div>
+						<div class="wifiInfo">
+							<label class="routerPsd">2.4G Wi-Fi密码: </label>
+							<label class="routerPsdVal"></label>
+						</div>
+					</div>
+					<div class="fiveGCon wifiInfoCon">
+						<div class="wifiInfo">
+							<label class="routerName">5G Wi-Fi名称: </label>
+							<label class="routerNameVal"></label>
+						</div>
+						<div class="wifiInfo">
+							<label class="routerPsd">5G Wi-Fi密码: </label>
+							<label class="routerPsdVal"></label>
+						</div>
+					</div>
+					<div class="fiveG1Con wifiInfoCon">
+						<div class="wifiInfo">
+							<label class="routerName">5G1 Wi-Fi名称：</label>
+							<label class="routerNameVal"></label>
+						</div>
+						<div class="wifiInfo">
+							<label class="routerPsd">5G1 Wi-Fi密码：</label>
+							<label class="routerPsdVal"></label>
+						</div>
+					</div>
+					<div class="fiveG4Con wifiInfoCon">
+						<div class="wifiInfo">
+							<label class="routerName">5G4 Wi-Fi名称：</label>
+							<label class="routerNameVal"></label>
+						</div>
+						<div class="wifiInfo">
+							<label class="routerPsd">5G4 Wi-Fi密码：</label>
+							<label class="routerPsdVal"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="relayAnotherRouter"></div>
+		</div>
+	</div>
+</div><script type="text/javascript">var gStartWirelessRepeater=!1;
+(function(){function m(a){var b="";switch(a){case ENONE:return!0;case EINVNET:b=errStr.ipAddrNetErr;break;case EINVIP:b=errStr.ipAddrErr;break;case EINVIPFMT:b=errStr.ipAddrFmtNoteErr;break;case EINVGROUPIP:b=errStr.ipAddrGroupErr;break;case EINVLOOPIP:b=errStr.ipAddrLoopErr;break;case EINVNETID:case EINVHOSTID:case EINVIPMASKPAIR:b=errStr.ipAddrMaskNotMatch;break;case ECOMFLICTNET:b=errStr.ipAddrLanWanConflict;break;case EINVGTW:b=errStr.wzdStcGatewayErr;break;case ECONFLICTGATEWAY:return y.showNote(errStr.wzdStcIpLanConflict),!1;
+case EINVFDNSVR:b=errStr.wzdPrimDnsErr;break;case ECONFLICTFDNS:return z.showNote(errStr.wzdStcIpLanConflict),!1;case EINVSDNSVR:b=errStr.wzdSeDnsErr;break;case ECONFLICTSDNS:return A.showNote(errStr.wzdStcIpLanConflict),!1;case ENOLINK:b=errStr.wanLinkDown;break;default:b=errStr.unknown+a}alarmDialog.show(b);return!1}function Z(){if(""!=n.getValue()&&"0.0.0.0"!=n.getValue()&&""!=f.getValue()&&"0.0.0.0"!=f.getValue()&&ENONE==checkMask(n.getValue())&&ENONE==checkIp(f.getValue())){if(ENONE!=checkIpMask(f.getValue(),
+n.getValue()))return n.showNote(errStr.wzdStcIpMaskNotMatch),!1;n.closeNote();var a=ENONE,b=f.getValue(),v=n.getValue(),p=transIp(N[uciNetwork.optName.ip]),B=transIp(N[uciNetwork.optName.netmask]),b=transIp(b),v=transIp(v);if(a!=(0==((p^b)&B&v)?ECOMFLICTNET:ENONE))return f.showNote(errStr.wzdStcIpLanConflict),!1;f.closeNote()}return!0}function O(a,b){if(""==this.input.value){if(a)return this.showNote(a),!1}else if(ENONE!=checkIp(this.input.value))return this.showNote(b),!1;return!0}function ia(){var a=
+{},a={network:{change_wan_status:{proto:"pppoe",operate:"connect"}}};$.action(a,function(a){P.disable(!1);m(a[ERR_CODE])})}function G(){function a(){var a={};a[uciProto.secName.wan]={};a[uciProto.secName.wan][uciProto.optName.type]=uciProto.optValue.proto.dynIp;Q();k.disable(!0);slp.protocol.setData({data:a,success:function(){C=uciProto.optValue.proto.dynIp;k.disable(!1);gCurSysMode=uciSystem.optValue.sysMode.routerMode},fail:function(a){k.disable(!1);m(a[ERR_CODE])}})}C==uciProto.optValue.proto.dynIp&&
+gCurSysMode==uciSystem.optValue.sysMode.routerMode?aa():slp.gSysModeSupport&&gCurSysMode!=uciSystem.optValue.sysMode.routerMode?changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){a()}):a()}function aa(){k.disable(!0);$.action({network:{change_wan_status:{proto:"dhcp",operate:"renew"}}},function(a){k.disable(!1);m(a[ERR_CODE])})}function e(){e.disable(!0);$.action({network:{change_wan_status:{proto:"dhcp",operate:"release"}}},function(a){e.disable(!1);m(a[ERR_CODE])})}function ba(a){var b=
+parseInt(a[uciNetwork.optName.wanStatus]),v=parseInt(a[uciNetwork.optName.code]),p=a[uciNetwork.optName.ip]||"0.0.0.0",B=a[uciNetwork.optName.priDns]||"0.0.0.0";a=a[uciNetwork.optName.sndDns]||"0.0.0.0";switch(b){case LINK_DOWN:case LINKING_UP:LINK_CODE_AUTH_ERR==v?$("p.networkAbnormal").css("display","table"):$("p.networkAbnormal").css("display","none");R.setValue("0.0.0.0");S.setValue("0.0.0.0 , 0.0.0.0");t.disable(b==LINK_DOWN?!0:!1);break;case LINK_UP:$("p.networkAbnormal").css("display","none");
+R.setValue(p);S.setValue(B+" , "+a);t.disable(!1);break;case LINKING_DOWN:$("p.networkAbnormal").css("display","none"),R.setValue("0.0.0.0"),S.setValue("0.0.0.0 , 0.0.0.0"),t.disable(!0);default:$("p.networkAbnormal").css("display","none")}}function ca(a){switch(parseInt(a[uciNetwork.optName.wanStatus])){case LINK_UP:var b="",b=(a[uciNetwork.optName.priDns]||"0.0.0.0")+" , "+(a[uciNetwork.optName.sndDns]||"0.0.0.0");H.setValue(a[uciNetwork.optName.ip]);I.setValue(a[uciNetwork.optName.netmask]);J.setValue(a[uciNetwork.optName.gateway]);
+K.setValue(b);k.setState({text:btn.renew,onClick:aa});e.disable(!1);break;case LINK_DOWN:H.setValue("0.0.0.0");I.setValue("0.0.0.0");J.setValue("0.0.0.0");K.setValue("0.0.0.0 , 0.0.0.0");k.setState({text:btn.connect,onClick:G});e.disable(!0);break;case LINKING_UP:H.setValue("0.0.0.0");I.setValue("0.0.0.0");J.setValue("0.0.0.0");K.setValue("0.0.0.0 , 0.0.0.0");k.setState({text:btn.connect,onClick:G});e.disable(!1);break;case LINKING_DOWN:H.setValue("0.0.0.0"),I.setValue("0.0.0.0"),J.setValue("0.0.0.0"),
+K.setValue("0.0.0.0 , 0.0.0.0"),k.setState({text:btn.connect,onClick:G}),e.disable(!0)}}function T(){slp.latestWanStatus(function(a){if(slp.gSysModeSupport){var b={};b[uciSystem.fileName]={};b[uciSystem.fileName][KEY_NAME]=uciSystem.secName.sysMode;$.query(b,function(b){if(ENONE==b[ERR_CODE])if(gCurSysMode=b[uciSystem.fileName][uciSystem.secName.sysMode][uciSystem.optName.mode],gCurSysMode==uciSystem.optValue.sysMode.apMode)ja();else if(gCurSysMode!=uciSystem.optValue.sysMode.wdsMode)switch(a[uciNetwork.optName.proto]){case uciNetwork.optValue.proto.pppoe:ba(a);
+break;case uciNetwork.optValue.proto.dynIp:ca(a)}})}else switch(a[uciNetwork.optName.proto]){case uciNetwork.optValue.proto.pppoe:ba(a);break;case uciNetwork.optValue.proto.dynIp:ca(a)}U=$.setTimeout(T,2E3)},!0)}function da(a){for(var b=[LINK_TYPE_PPPOE,LINK_TYPE_STATIC_IP,LINK_TYPE_DHCP],g=slp.moduleSpec.dial_mode,p=0;p<g.length;p++)switch(g[p]){case "wired_relay":b.push(LINK_TYPE_WIRED_REPEATER_INDEX);break;case "wds_relay":b.push(LINK_TYPE_WIRELESS_REPEATER_INDEX)}b.forEach(function(b,p){$("div.page")[p].style.display=
+b==a?"block":"none"})}function ka(a){"manual"==V?confirmDialog.show({title:"AP（有线中继）",content:"当前路由器的LAN口IP为手动设置，使用AP（有线中继）将更改为自动，确定更改LAN口IP设置？",callback:function(b){b&&(V="dynamic",$.modify({network:{lan:{ip_mode:"dynamic"}}},null,!0),a())}}):a()}function ea(){D.showLoading();var a={};a.system={sys_mode:{mode:uciSystem.optValue.sysMode.apMode}};switch(slp.bandsProvided){case slp.SINGLE:a.wireless={wlan_wds_2g:{enable:"0"}};break;case slp.DOUBLE:a.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g:{enable:"0"}};
+break;case slp.TRIPLE:a.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g_1:{enable:"0"},wlan_wds_5g_4:{enable:"0"}}}E.getValue()?a.wired_extender={config:{compat_mode:"1"}}:a.wired_extender={config:{compat_mode:"0"}};$.modify(a,function(a){a.error_code!=ENONE?(showAlert(errStr.invRequestFail),D.closeLoading()):(u=!0,clearTimeout(U),U=$.setTimeout(T,2E3))})}function ja(){u&&10<L?(L=1,u=!1,D.closeLoading()):($.query({wired_extender:{name:["status"]},network:{name:"lan"}},function(a){var b=a.wired_extender.status.ip,
+g=a.wired_extender.status.state;V=a.network.lan.ip_mode;"0.0.0.0"!=b&&(fa=!0,2<=g&&u&&(L=1,u=!1,D.closeLoading(),la(b)));ma.setValue(a.wired_extender.status.ip);na.setValue(a.wired_extender.status.mask);oa.setValue(a.wired_extender.status.root_ip);pa.setValue(a.wired_extender.status.pri_dns+" , "+a.wired_extender.status.snd_dns)}),fa||u&&L++)}function Q(){if(slp.gSysModeSupport){var a={};a.system={sys_mode:{mode:uciSystem.optValue.sysMode.routerMode}};switch(slp.bandsProvided){case slp.SINGLE:a.wireless=
+{wlan_wds_2g:{enable:"0"}};break;case slp.DOUBLE:a.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g:{enable:"0"}};break;case slp.TRIPLE:a.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g_1:{enable:"0"},wlan_wds_5g_4:{enable:"0"}}}$.modify(a,function(a){a.error_code==ENONE&&(gCurSysMode=uciSystem.optValue.sysMode.routerMode)})}}function la(a){D.closeLoading();$.action({wired_extender:{set_ip:null}});loadingDialog.show({title:label.wiredRepeater,content:{primary:"连接成功，路由器IP地址已更改为："+a+"。页面将自动跳转到新的IP地址，请稍候..."}},
+void 0,void 0,!1,void 0);$.changeDomain(a);$.setTimeout(function(){window.location.href="http://"+a},6E4);$.setTimeout(function(){lanDetecting(function(){window.location.href="http://"+a})},4E3)}var C,N,V,fa=!1,u=!1,M=uciSystem.optValue.enable.off,U=null,ga=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.netAccount},targetId:"pppoeInput",props:{maxlength:"118",type:"text"}}),ha=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.netPwd},targetId:"pppoeInput",props:{maxlength:"118",type:"text"}}),
+R=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.ipAddr},targetId:"pppoeInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),S=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.dns},targetId:"pppoeInput",props:{value:"0.0.0.0 , 0.0.0.0",type:"text"}}),P=new Button({text:btn.connect,onClick:function(){function a(){var a={};a[uciProto.secName.wan]={};a[uciProto.secName.wan][uciProto.optName.type]=uciProto.optValue.proto.pppoe;a[uciProto.secName.pppoe]={};a[uciProto.secName.pppoe][uciProto.optName.pppoeUsr]=
+ga.getValue();a[uciProto.secName.pppoe][uciProto.optName.pppoePwd]=ha.getValue();Q();P.disable(!0);slp.protocol.setData({data:a,success:function(){C=uciProto.optValue.proto.pppoe;ia();gCurSysMode=uciSystem.optValue.sysMode.routerMode},fail:function(a){P.disable(!1);m(a[ERR_CODE])}})}slp.gSysModeSupport&&gCurSysMode!=uciSystem.optValue.sysMode.routerMode?changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){a()}):a()},type:Button.TYPE.PRIMARY,id:"subP",props:{width:"280px",margin:"12px 0 0 216px"}}),
+t=new Button({text:btn.disconnect,onClick:function(){t.disable(!0);$.action({network:{change_wan_status:{proto:"pppoe",operate:"disconnect"}}},function(a){t.disable(!1);m(a[ERR_CODE])})},type:Button.TYPE.SECONDARY,id:"cancleP",props:{width:"280px",margin:"12px 0 0 216px"}});t.disable(!0);var f=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.ipAddr},targetId:"staticInput",check:{blur:function(){return""==this.input.value?(this.showNote(errStr.wzdStcIpEmpty),!1):checkInputIp.call(this)?Z():
+!1}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),n=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.mask},targetId:"staticInput",check:{blur:function(){return""==this.input.value?(this.showNote(errStr.wzdStcMaskEmpty),!1):ENONE!=checkMask(this.input.value)?(this.showNote(errStr.wzdStcMaskErr),!1):Z()}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),y=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.gateway},targetId:"staticInput",check:{blur:function(){return O.call(this,
+errStr.wzdStcGatewayEmpty,errStr.wzdStcGatewayErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),z=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.preferredDnsServer},targetId:"staticInput",check:{blur:function(){return O.call(this,errStr.wzdPrimDnsEmpty,errStr.wzdPrimDnsErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),A=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.alternativeDnsServer},targetId:"staticInput",check:{blur:function(){return"0.0.0.0"==
+this.input.value?!0:O.call(this,null,errStr.wzdSeDnsErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),W=new Button({text:btn.connect,onClick:function(){function a(){var a={};a[uciProto.secName.wan]={};a[uciProto.secName.wan][uciProto.optName.type]=uciProto.optValue.proto.staticIp;a[uciProto.secName.sta]={};a[uciProto.secName.sta][uciProto.optName.ip]=f.getValue();a[uciProto.secName.sta][uciProto.optName.netmask]=n.getValue();a[uciProto.secName.sta][uciProto.optName.gateway]=y.getValue();
+a[uciProto.secName.sta][uciProto.optName.priDns]=z.getValue();a[uciProto.secName.sta][uciProto.optName.sndDns]=A.getValue();Q();W.disable(!0);slp.protocol.setData({data:a,success:function(){C=uciProto.optValue.proto.staticIp;W.disable(!1);gCurSysMode=uciSystem.optValue.sysMode.routerMode},fail:function(a){W.disable(!1);m(a[ERR_CODE])}})}var b=!0,g=[f,n,y,z,A];y.closeNote();z.closeNote();A.closeNote();g.forEach(function(a){a.setValue(hideLeadingZeros(a.getValue()));b=a.checkAll()&&b});b&&(slp.gSysModeSupport&&
+gCurSysMode!=uciSystem.optValue.sysMode.routerMode?changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){a()}):a())},type:Button.TYPE.PRIMARY,id:"subS",props:{width:"280px",margin:"12px 0 0 216px"}}),H=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.ipAddr},targetId:"dhcpInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),I=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.mask},targetId:"dhcpInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),
+J=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.gateway},targetId:"dhcpInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),K=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.dns},targetId:"dhcpInput",props:{value:"0.0.0.0 , 0.0.0.0",type:"text"}}),k=new Button({text:btn.connect,onClick:G,type:Button.TYPE.PRIMARY,id:"subD",props:{width:"280px",margin:"12px 0 0 216px"}}),e=new Button({text:btn.disconnect,onClick:e,type:Button.TYPE.SECONDARY,id:"cancleD",props:{width:"280px",
+margin:"12px 0 0 216px"}});e.disable(!0);var E=new Radio({targetId:"compatibleOn",label:label.open,name:"compatibleMode"}),qa=new Radio({targetId:"compatibleOff",label:label.close,name:"compatibleMode"}),ma=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.ipAddr},targetId:"apInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),na=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.mask},targetId:"apInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),oa=new Input({type:Input.TYPE.STATIC_TEXT,
+label:{value:label.gateway},targetId:"apInput",props:{value:"0.0.0.0",maxlength:"15",type:"text"}}),pa=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.dns},targetId:"apInput",props:{value:"0.0.0.0 , 0.0.0.0",type:"text"}}),D=new Button({text:btn.save,onClick:function(){if(gCurSysMode==uciSystem.optValue.sysMode.apMode){if(M==uciSystem.optValue.enable.on!=E.getValue()){var a={};E.getValue()?a.wired_extender={config:{compat_mode:"1"}}:a.wired_extender={config:{compat_mode:"0"}};$.modify(a,
+function(a){a.error_code!=ENONE?alarmDialog.show(errStr.invRequestFail):(showToast(label.saveSuccess),M=E.getValue()?uciSystem.optValue.enable.on:uciSystem.optValue.enable.off)})}}else gCurSysMode==uciSystem.optValue.sysMode.wdsMode?confirmDialog.show({content:"切换为AP（有线中继）后，桥接（无线中继）将会自动关闭。确定切换吗？",callback:function(a){a&&ea()}}):changeSysModeAlert("switch",uciSystem.optValue.sysMode.apMode,function(){ka(ea)})},type:Button.TYPE.PRIMARY,id:"saveAp",props:{width:"280px",margin:"12px 0 0 216px"}});id("meshHelpCon").onclick=
+function(){meshDescDialog.show()};new Button({text:btn.selectFrontRouter,onClick:function(){gStartWirelessRepeater=!0;menuConfig.menuTargetUrl="WanLoader.htm";loadPage("Advance.htm","content")},type:Button.TYPE.PRIMARY,id:"selectFrontRouter",props:{width:"280px",marginLeft:"12px 0 0 132px"}});new Button({text:btn.relayAnotherRouter,onClick:function(){gStartWirelessRepeater=!0;menuConfig.menuTargetUrl="WanLoader.htm";loadPage("Advance.htm","content")},type:Button.TYPE.PRIMARY,id:"relayAnotherRouter",
+props:{width:"280px"}});var x,g={},F=null,X=1,Y=1,L=1;(function(){function a(a){$("#selectFrontRouter").hide();$("#wdsResultCon").removeClass("disNone");$("#frontRouterCon .wifiInfoCon").hide();for(var b in g)g[b].selected&&(slp.bandSteeringProvided&&c[w]&&"1"==c[w].bs_enable&&w==b?($("#frontRouterCon .twofiveGCon .routerNameVal").text(htmlEscape(c[w].ssid)),$("#frontRouterCon .twofiveGCon .routerNameVal").attr("title",htmlEscape(c[w].ssid)),1==c[w].encryption?($("#frontRouterCon .twofiveGCon .routerPsdVal").text(htmlEscape(c[w].key)),
+$("#frontRouterCon .twofiveGCon .routerPsdVal").attr("title",htmlEscape(c[w].key))):$("#frontRouterCon .twofiveGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twofiveCon").show()):s==slp.bandsProvided-1?(b==l&&($("#frontRouterCon .twoGCon .routerNameVal").text(htmlEscape(c[l].ssid)),$("#frontRouterCon .twoGCon .routerNameVal").attr("title",htmlEscape(c[l].ssid)),1==c[l].encryption?($("#frontRouterCon .twoGCon .routerPsdVal").text(htmlEscape(c[l].key)),$("#frontRouterCon .twoGCon .routerPsdVal").attr("title",
+htmlEscape(c[l].key))):$("#frontRouterCon .twoGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twoGCon").show()),b==f&&($("#frontRouterCon .fiveGCon .routerNameVal").text(htmlEscape(c[f].ssid)),$("#frontRouterCon .fiveGCon .routerNameVal").attr("title",htmlEscape(c[f].ssid)),1==c[f].encryption?($("#frontRouterCon .fiveGCon .routerPsdVal").text(htmlEscape(c[f].key)),$("#frontRouterCon .fiveGCon .routerPsdVal").attr("title",htmlEscape(c[f].key))):$("#frontRouterCon .fiveGCon .routerPsdVal").text(label.wirelessNoSecurity),
+$("#frontRouterCon .fiveGCon").show())):q==slp.bandsProvided-1&&(b==l&&($("#frontRouterCon .twoGCon .routerNameVal").text(htmlEscape(c[l].ssid)),$("#frontRouterCon .twoGCon .routerNameVal").attr("title",htmlEscape(c[l].ssid)),1==c[l].encryption?($("#frontRouterCon .twoGCon .routerPsdVal").text(htmlEscape(c[l].key)),$("#frontRouterCon .twoGCon .routerPsdVal").attr("title",htmlEscape(c[l].key))):$("#frontRouterCon .twoGCon .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .twoGCon").hide()),
+b==k&&($("#frontRouterCon .fiveG1Con .routerNameVal").text(htmlEscape(c[k].ssid)),$("#frontRouterCon .fiveG1Con .routerNameVal").attr("title",htmlEscape(c[k].ssid)),1==c[k].encryption?($("#frontRouterCon .fiveG1Con .routerPsdVal").text(htmlEscape(c[k].key)),$("#frontRouterCon .fiveG1Con .routerPsdVal").attr("title",htmlEscape(c[k].key))):$("#frontRouterCon .fiveG1Con .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .fiveG1Con").hide()),b==e&&($("#frontRouterCon .fiveG4Con .routerNameVal").text(htmlEscape(c[e].ssid)),
+$("#frontRouterCon .fiveG4Con .routerNameVal").attr("title",htmlEscape(c[e].ssid)),1==c[e].encryption?($("#frontRouterCon .fiveG4Con .routerPsdVal").text(htmlEscape(c[e].key)),$("#frontRouterCon .fiveG4Con .routerPsdVal").attr("title",htmlEscape(c[e].key))):$("#frontRouterCon .fiveG4Con .routerPsdVal").text(label.wirelessNoSecurity),$("#frontRouterCon .fiveG4Con").hide())))}function b(){h.showLoading();var a={wireless:{}},a=s==slp.bandsProvided-1?{wireless:{wlan_wds_2g:{enable:"0"},wlan_wds_5g:{enable:"0"}}}:
+{wireless:{wlan_wds_2g:{enable:"0"},wlan_wds_5g_1:{enable:"0"},wlan_wds_5g_4:{enable:"0"}}};a.system={sys_mode:{mode:"2"}};for(var b in g)g[b].selected&&(a.wireless[r[b].set_wds]={enable:1},c[b].enable="1");(function(a){connectingCount=1;clearTimeout(F);$.modify(a,function(a){if(ENONE!==a[ERR_CODE])h.closeLoading(),m(a[ERR_CODE]);else{a={wireless:{}};for(var b in g)g[b].selected&&(a.wireless[r[b].wds_start]={set_ip_immediate:"0"});$.action(a,function(a){a=a[ERR_CODE];ENONE!==a?(h.closeLoading(),m(a)):
+(clearTimeout(F),connectingCount=1,F=$.setTimeout(v,5E3))})}},!0)})(a)}function v(){var a={wireless:{name:[]}},b;for(b in g)g[b].selected&&a.wireless.name.push(r[b].wlan_wds_status);$.query(a,function(a){var b=0,c;for(c in g)if(g[c].selected)switch(parseInt(a.wireless[r[c].wlan_wds_status].status)){case 0:case 3:case 4:case 5:0>=b&&(b=0);break;case 1:1>=b&&(b=1);break;case 2:2>=b&&(b=2)}if(10<connectingCount)connectingCount=1,clearTimeout(F);else{switch(b){case 0:connectingCount++;break;case 1:connectingCount++;
+break;case 2:Y=connectingCount=1,$.setTimeout(p,100)}F=$.setTimeout(v,2E3)}})}function p(){var a={wireless:{name:[]}},b;for(b in g)g[b].selected&&a.wireless.name.push(r[b].wlan_wds_dhcps);15<Y?h.closeLoading():$.query(a,function(a){if(ENONE==a[ERR_CODE]){var b=!0,c;for(c in g)if(g[c].selected){var d=parseInt(a.wireless[r[c].wlan_wds_dhcps].status),f=parseInt(a.wireless[r[c].wlan_wds_dhcps].result);if(1==d&&1==f){X=1;$.setTimeout(n,100);return}0==d&&(b=!1)}b?h.closeLoading():(Y++,$.setTimeout(p,1E3))}else h.closeLoading()})}
+function B(){$.modify({network:{lan:{ipaddr:x,netmask:gLanMask,ip_mode:"dynamic"}},system:{sys_mode:{mode:uciSystem.optValue.sysMode.wdsMode}}},function(a){$.action({network:{apply_lan_config:null},wireless:{wds_finish:null}});loadingDialog.hide(function(){loadingDialog.show({content:{primary:"连接成功，路由器IP地址已更改为："+x+"。页面将自动跳转到新的IP地址，请稍候..."}});$.changeDomain(x);$.setTimeout(function(){window.location.href="http://"+x},6E4);$.setTimeout(function(){lanDetecting(function(){window.location.href="http://"+
+x})},4E3)})})}function n(){if(15<X)h.closeLoading();else{var a={wireless:{name:[]}},b;for(b in g)g[b].selected&&a.wireless.name.push(r[b].wlan_wds_dhcpc);$.query(a,function(a){var b=!0,c;for(c in g)if(g[c].selected){var d=a.wireless[r[c].wlan_wds_dhcpc];if("2"==d.status){x=d.ip;gLanMask=d.mask;h.closeLoading();B();return}"0"==d.status&&(b=!1)}b?h.closeLoading():(X++,$.setTimeout(n,1E3))})}}var h=new Button({text:btn.save,onClick:function(){gCurSysMode==uciSystem.optValue.sysMode.apMode?confirmDialog.show({content:"切换为桥接（无线中继）后，AP（有线中继）将会自动关闭。确定切换吗？",
+callback:function(a){!0==a&&b()}}):changeSysModeAlert("switch",uciSystem.optValue.sysMode.wdsMode,function(){b()})},type:Button.TYPE.PRIMARY,id:"saveWds",props:{width:"280px",marginLeft:"12px 0 0 132px"}}),d=[],c=[],l=0,f=1,k=2,e=3,w=4;c[l]={ssid:"",encryption:"",key:"",enable:""};c[f]={ssid:"",encryption:"",key:"",enable:""};c[k]={ssid:"",encryption:"",key:"",enable:""};c[e]={ssid:"",encryption:"",key:"",enable:""};var s=1,q=2;d[0]={};d[s]={};d[q]={};d[0].wlan_host=[];d[s].wlan_host=[];d[q].wlan_host=
+[];d[0].wlan_wds=[];d[s].wlan_wds=[];d[q].wlan_wds=[];d[0].wds_cfg_status=[];d[s].wds_cfg_status=[];d[q].wds_cfg_status=[];d[0].wlan_wds[l]="wlan_wds_2g";d[0].wds_cfg_status[l]="wds_cfg_status_2g";d[s].wlan_wds[l]="wlan_wds_2g";d[s].wlan_wds[f]="wlan_wds_5g";d[s].wds_cfg_status[l]="wds_cfg_status_2g";d[s].wds_cfg_status[f]="wds_cfg_status_5g";d[q].wlan_wds[l]="wlan_wds_2g";d[q].wlan_wds[k]="wlan_wds_5g_1";d[q].wlan_wds[e]="wlan_wds_5g_4";d[q].wds_cfg_status[l]="wds_cfg_status_2g";d[q].wds_cfg_status[k]=
+"wds_cfg_status_5g_1";d[q].wds_cfg_status[e]="wds_cfg_status_5g_4";var t={wireless:{name:[]},system:{name:"sys_mode"}},r=[];r[l]={start_dhcps_detect:"start_dhcps_detect_2g",wds_start:"wds_start_2g",wlan_wds_dhcps:"wlan_wds_2g_dhcps",wlan_wds_dhcpc:"wlan_wds_2g_dhcpc",wlan_wds_status:"wlan_wds_2g_status",set_wds:"wlan_wds_2g",scan_start:{wireless:{scan_start_2g:null}},wlan_scan_status:"wlan_scan_2g_status",wlan_scan:"wlan_scan_2g",wds_cfg_status:"wds_cfg_status_2g"};r[f]={start_dhcps_detect:"start_dhcps_detect_5g",
+wds_start:"wds_start_5g",wlan_wds_dhcps:"wlan_wds_5g_dhcps",wlan_wds_dhcpc:"wlan_wds_5g_dhcpc",wlan_wds_status:"wlan_wds_5g_status",set_wds:"wlan_wds_5g",scan_start:{wireless:{scan_start_5g:null}},wlan_scan_status:"wlan_scan_5g_status",wlan_scan:"wlan_scan_5g",wds_cfg_status:"wds_cfg_status_5g"};for(var u in d[slp.bandsProvided-1])d[slp.bandsProvided-1].hasOwnProperty(u)&&$.each(d[slp.bandsProvided-1][u],function(a,b){null!=b&&t.wireless.name.push(b)});$.query(t,function(b){$.each(d[slp.bandsProvided-
+1].wlan_wds,function(a,h){null!=h&&(c[a].enable=b.wireless[h].enable,c[a].ssid=b.wireless[h].ssid||"",c[a].encryption=b.wireless[h].encryption,c[a].key=b.wireless[h].key)});var h=0,f;for(f in c)if(c.hasOwnProperty(f)){var l=d[slp.bandsProvided-1].wds_cfg_status[f];if(0<c[f].ssid.length)switch(g[f]={selected:!0,bs:!1},b.wireless[l].status){case "idle":0>=h&&(h=0);break;case "unfinished":4>=h&&(h=4);g[f].status=uciWireless.dynOptValue.status.connected;break;case "connecting":3>=h&&(h=3);break;case "connect_fail":1>=
+h&&(h=1);break;case "success":2>=h&&(h=2)}}switch(h){case 0:$("#selectFrontRouter").show();$("#saveWds").hide();$("#wdsResultCon").addClass("disNone");break;case 4:$("#selectFrontRouter").hide();a();break;case 3:a();break;case 1:$("#selectFrontRouter").hide();$("#saveWds span").html("重新连接");$("#saveWds").show();$(".initWdsCon .meshHelp").hide();a();break;default:$("#saveWds span").html("保存"),$("#saveWds").hide(),$(".initWdsCon .meshHelp").hide(),a()}})})();(function(){var a,b=$.Deferred(),g=$.Deferred();
+dfdSysMode=$.Deferred();for(var k=[{str:label.pppoe,value:LINK_TYPE_PPPOE},{str:label.staticIp,value:LINK_TYPE_STATIC_IP},{str:label.dhcp,value:LINK_TYPE_DHCP}],e=slp.moduleSpec.dial_mode,m=0;m<e.length;m++)switch(e[m]){case "wired_relay":k.push({str:label.wiredRepeater,value:LINK_TYPE_WIRED_REPEATER_INDEX});break;case "wds_relay":k.push({str:label.wirelessRepeater,value:LINK_TYPE_WIRELESS_REPEATER_INDEX})}slp.protocol.getData({success:function(h){a=h;b.resolve()}});e={};e[uciNetwork.fileName]={};
+e[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan;$.query(e,function(a){ENONE==a[ERR_CODE]&&(N=a[uciNetwork.fileName][uciNetwork.secName.lan],g.resolve())});slp.gSysModeSupport?(e={},e[uciSystem.fileName]={},e[uciSystem.fileName][KEY_NAME]=uciSystem.secName.sysMode,e.wired_extender={},e.wired_extender.name="config",$.query(e,function(a){ENONE==a[ERR_CODE]&&(gCurSysMode=a[uciSystem.fileName][uciSystem.secName.sysMode][uciSystem.optName.mode],M=a.wired_extender.config.compat_mode,M==uciSystem.optValue.enable.on?
+E.setValue(!0):qa.setValue(!0),dfdSysMode.resolve())})):(gCurSysMode=uciSystem.optValue.sysMode.routerMode,dfdSysMode.resolve());$.when(b,g,dfdSysMode).done(function(){var b;C=a[uciProto.fileName][uciProto.secName.wan][uciProto.optName.type];if(gCurSysMode==uciSystem.optValue.sysMode.apMode)b=LINK_TYPE_WIRED_REPEATER_INDEX;else if(gCurSysMode==uciSystem.optValue.sysMode.wdsMode)b=LINK_TYPE_WIRELESS_REPEATER_INDEX;else switch(a[uciProto.fileName][uciProto.secName.wan][uciProto.optName.type]){case uciProto.optValue.proto.dynIp:b=
+LINK_TYPE_DHCP;break;case uciProto.optValue.proto.staticIp:b=LINK_TYPE_STATIC_IP;break;case uciProto.optValue.proto.pppoe:b=LINK_TYPE_PPPOE;break;default:b=LINK_TYPE_PPPOE}selectInit("netModeSel",k,b,da);da(b);b=a[uciProto.fileName][uciProto.secName.pppoe];ga.setValue(b[uciProto.optName.pppoeUsr]);ha.setValue(b[uciProto.optName.pppoePwd]);b=a[uciProto.fileName][uciProto.secName.sta];f.setValue(b[uciProto.optName.ip]);n.setValue(b[uciProto.optName.netmask]);y.setValue(b[uciProto.optName.gateway]);
+z.setValue(b[uciProto.optName.priDns]);A.setValue(b[uciProto.optName.sndDns]||"");T()});slp.modeSwitchSupport&&getBridgeStatus(function(a){a?($("#netModeSelUl").hide(),(new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.netMode},targetId:"staticWanSel"})).setValue(label.dhcp),$("#staticWanSel").show(),$(".notice, #subD, #cancleD").hide(),$("#bridgeWarning").show(),id("netModeSel").disable(!0)):$("#staticWanSel").hide()})})()})();
+</script><style type="text/css">div.page{position:relative;display:none}div.basicNetworkCon ul.selectUl{margin-top:28px}div.basicNetworkCon ul.inputCMPT{padding-left:84px}div.basicNetworkCon ul.inputCMPT li.inputLi{width:280px}p.networkAbnormal{display:none;position:absolute;left:85px;top:-92px;z-index:1}p.notice{font-size:13px;color:#666;padding-left:189px;line-height:20px}p#bridgeWarning{display:none;width:720px;margin-bottom:24px}.meshHelp{margin-top:24px;margin-left:84px}.meshHelpTip{width:376px;margin-left:132px;font-size:12px;color:#999}#radioGroup .radioLabel{display:inline-block;margin-left:16px}#radioGroup .radioLabel .radioLabel{margin-left:8px}#compatModeDesc{display:table-cell;vertical-align:middle;padding-left:12px;font-size:12px;color:#999}.routerCon{width:760px;background:#fff;border:1px solid #ccc;border-radius:4px;padding:24px}.routerCon::after{display:inline-block;vertical-align:middle;content:'';height:100%}.routerCon .routerImg{display:inline-block;background:url(../../web-static/images/wds_bridge.png);width:80px;height:80px;vertical-align:middle}.routerWifiInfo{display:inline-block;margin-left:40px;font-size:13px;color:#666;line-height:20px;vertical-align:middle}.wifiInfoCon{margin-top:16px}#relayAnotherRouter{margin-top:24px}.buttonGroup{padding-left:214px}#relayAnotherRouter{margin-left:216px}</style>

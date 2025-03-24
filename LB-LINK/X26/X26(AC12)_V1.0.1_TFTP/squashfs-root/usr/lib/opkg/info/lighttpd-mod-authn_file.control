@@ -1,0 +1,11 @@
+Package: lighttpd-mod-authn_file
+Version: 1.4.59-3
+Depends: libc, lighttpd
+Source: package/B-LINK/lighttpd
+License: BSD-3c
+LicenseFiles: COPYING
+Section: net
+Maintainer: W. Michael Petullo <mike@flyn.org>
+Architecture: ramips_24kec
+Installed-Size: 5540
+Description:  File-based authentication module

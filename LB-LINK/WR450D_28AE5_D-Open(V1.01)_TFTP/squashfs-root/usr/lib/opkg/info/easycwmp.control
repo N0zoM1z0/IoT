@@ -1,0 +1,8 @@
+Package: easycwmp
+Version: 1.8.6
+Depends: libc, libubus, libuci, libubox, libmicroxml, libjson-c, libcurl, curl
+Source: package/network/utils/easycwmp
+Section: utils
+Architecture: ramips_24kec
+Installed-Size: 66580
+Description:  An open source implementation of the client CWMP (TR-069) protocol

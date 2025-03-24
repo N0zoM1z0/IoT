@@ -1,0 +1,110 @@
+<script type="text/javascript">
+	var gBSHandler = {
+		ON: "1",
+		OFF: "0",
+		web:
+		{
+			pageBS: "WizardWirelessBS.htm",
+			pageNoBS: "WizardWireless3Band.htm",
+			container: "wizardCon"
+		},
+		phone:
+		{
+			pageBS: "PhoneWirelessWebBS.htm",
+			pageNoBS: "PhoneWirelessWeb.htm",
+			container: "phCon"
+		},
+		target:
+		{
+			pageBS: "WizardWirelessBS.htm",
+			pageNoBS: "WizardWireless3Band.htm",
+			container: "wizardCon"
+		},
+
+		init: function()
+		{
+			switch (slp.bandsProvided)
+			{
+			case slp.SINGLE:
+				this.web.pageBS = "WizardWireless.htm";
+				this.web.pageNoBS = "WizardWireless.htm";
+				this.phone.pageBS = "PhoneWirelessWeb.htm";
+				this.phone.pageNoBS = "PhoneWirelessWeb.htm";
+				break;
+			case slp.DOUBLE:
+				this.web.pageBS = "WizardWirelessBS.htm";
+				this.web.pageNoBS = "WizardWireless.htm";
+				this.phone.pageBS = "PhoneWirelessWebBS.htm";
+				this.phone.pageNoBS = "PhoneWirelessWeb.htm";
+				break;
+			case slp.TRIPLE:
+			default:
+				this.web.pageBS = "WizardWirelessBS.htm";
+				this.web.pageNoBS = "WizardWireless3Band.htm";
+				this.phone.pageBS = "PhoneWirelessBS.htm";
+				this.phone.pageNoBS = "PhoneWireless3Band.htm";
+				break;
+			}
+
+			if (OS.portable == true && OS.iPad == false && phoneSet["bContinuePCSet"] == false)
+			{
+				this.target.pageBS = this.phone.pageBS;
+				this.target.pageNoBS = this.phone.pageNoBS;
+				this.target.container = this.phone.container;
+			}
+			else
+			{
+				this.target.pageBS = this.web.pageBS;
+				this.target.pageNoBS = this.web.pageNoBS;
+				this.target.container = this.web.container;
+			}
+		}
+	};
+	var gBSOptions = [{str:label.wlanOn, value:gBSHandler.ON}, {str:label.wlanOff, value:gBSHandler.OFF}];
+
+	function changeBSPage(value)
+	{
+		var target = (gBSHandler.ON == value) ? gBSHandler.target.pageBS : gBSHandler.target.pageNoBS;
+		loadPage(target, gBSHandler.target.container);
+	}
+
+	(function(){
+		gBSHandler.init();
+
+		if (slp.bandSteeringProvided)
+		{
+			/* Fix Bug 256714 */
+			if (typeof wirelessCfgData != "undefined" && wirelessCfgData.localBs != undefined)
+			{
+				if (wirelessCfgData.localBs == 1)
+				{
+					loadPage(gBSHandler.target.pageBS, gBSHandler.target.container);
+				}
+				else
+				{
+					loadPage(gBSHandler.target.pageNoBS, gBSHandler.target.container);
+				}
+			}
+			else
+			{
+				var data = {};
+				data[uciWireless.fileName] = {};
+				data[uciWireless.fileName][KEY_NAME] = uciWireless.secName.wlanBS;
+				$.query(data, function(result){
+					if (result[ERR_CODE] != ENONE)
+					{
+						loadPage(gBSHandler.target.pageNoBS, gBSHandler.target.container);
+					}
+					else
+					{
+						changeBSPage(result[uciWireless.fileName][uciWireless.secName.wlanBS][uciWireless.optName.bsEnable]);
+					}
+				});
+			}
+		}
+		else
+		{
+			loadPage(gBSHandler.target.pageNoBS, gBSHandler.target.container);
+		}
+	})();
+</script>

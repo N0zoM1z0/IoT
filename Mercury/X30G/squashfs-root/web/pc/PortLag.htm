@@ -1,0 +1,618 @@
+<script type="text/javascript">
+    (function(){
+        var cancelSelBtn,confirmBtn,lagPortSwitch;
+        function RouterSelectModel(){
+            RouterSelectModel.prototype.init = function(rootElementId) {
+                this.initData = [];
+                this.lagCfg = {};
+                this.rootElementId = rootElementId;
+                this.addedRouterList = [];
+                this.lagEnable = "0";
+                var that = this;
+                lagPortSwitch = new Switch("lagSwitchCon", 0, function(state){
+                    that.switchLagPortState.call(that,state);
+                }, false);
+            }
+            RouterSelectModel.prototype.refreshInitData = function(callback){
+                var that = this;
+                var req = {};
+                var resData = {};
+                req[uciPortConfig.fileName] = {};
+                req[uciPortConfig.fileName][KEY_TABLE] = [];
+                req[uciPortConfig.fileName][KEY_NAME] = [];
+                req[uciPortConfig.fileName][KEY_TABLE][0] = uciPortConfig.secType.devInfo;
+                req[uciPortConfig.fileName][KEY_NAME][0] = uciPortConfig.secType.lag;
+                $.query(req, function(res) {
+                    if (!errHandler(res[ERR_CODE])) {
+                        return;
+                    }
+                    that.initData = res[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+                    that.lagCfg = res[uciPortConfig.fileName][uciPortConfig.secType.lag];
+                    that.lagEnable = that.lagCfg[uciPortConfig.optName.enable];
+                    callback();
+                });
+            }
+            RouterSelectModel.prototype.refreshAddedListCfg = function(ifSavePort){
+                var type = this.lagEnable == "1"? "display":"setting";
+                this.addedRouterList = [];
+                var capMac = this.getCapMac();
+                var lagList = this.lagCfg[uciPortConfig.optName.lagList];
+                var lagSettedSuccess = true;
+                var lagUnsetted = false;
+                if(!checkPortEnough(this.initData)){
+                    alarmDialog.show(label.portLessErr);
+                    lagPortSwitch.setState(0);
+                    $(".selectLagPortWrapper").hide();
+                    return;
+                }
+                if(lagList.length == 0){
+                    lagSettedSuccess = false;
+                    lagUnsetted = true;
+                }
+                for(var i=0;i<lagList.length;i++){
+                    var lagCfgMac = lagList[i][uciPortConfig.optName.lagDev].toUpperCase();
+                    var lagPhyList = lagList[i][uciPortConfig.optName.lagPhy];
+                    if(lagCfgMac == "FF-FF-FF-FF-FF-FF"){
+                        lagCfgMac = capMac;
+                    }
+                    for(var j=0;j<this.initData.length;j++){
+                        if(this.initData[j][uciPortConfig.dynOptName.mac] == lagCfgMac){
+                            if(this.checkDataSetCfg(this.initData[j][uciPortConfig.dynOptName.phyInfo],lagPhyList)){
+                                lagSettedSuccess = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if(lagSettedSuccess){
+                    var lagList = this.lagCfg[uciPortConfig.optName.lagList];
+                    for(var i=0;i<lagList.length;i++){
+                        if(lagList[i][uciPortConfig.optName.lagDev] == "FF-FF-FF-FF-FF-FF"){
+                            this.addRouterItem(capMac);
+                            this.refreshDataSetCfg(this.addedRouterList[i]["routerInitData"]["port"],lagList[i][uciPortConfig.optName.lagPhy]);
+                        }else{
+                            this.addRouterItem(lagList[i][uciPortConfig.optName.lagDev]);
+                            this.refreshDataSetCfg(this.addedRouterList[i]["routerInitData"]["port"],lagList[i][uciPortConfig.optName.lagPhy]);
+                        }
+                    }
+                    this.showRouterList(type);
+                    if(typeof ifSavePort != "undefined" && ifSavePort){
+                        $("#confirmSelect").click();
+                    }
+                }else{
+                    this.addRouterItem(capMac);
+                    this.showRouterList(type);
+                    if(!lagUnsetted){
+                        alarmDialog.show(label.wanSettedBusy);
+                    }
+                }
+            }
+            RouterSelectModel.prototype.checkDataSetCfg = function(portData,lagPhyList){
+                var lagSetBusy = false;
+                for(var i=0;i<lagPhyList.length;i++){
+                    if(portData[parseInt(lagPhyList[i])][uciPortConfig.dynOptName.role] != "lan" && portData[parseInt(lagPhyList[i])][uciPortConfig.dynOptName.role] != "lag"){
+                        lagSetBusy = true;
+                    }
+                }
+                return lagSetBusy;
+            }
+            RouterSelectModel.prototype.refreshDataSetCfg = function(portData,lagPhyList,feature){
+                var portDataSave = JSON.parse(JSON.stringify(portData));
+                for(var i=0;i<lagPhyList.length;i++){
+                    if(portData[parseInt(lagPhyList[i])]["state"] != "disable"){
+                        portData[parseInt(lagPhyList[i])]["name"] = label.lagPort;
+                        portData[parseInt(lagPhyList[i])]["state"] = "active";
+                    }
+                }
+            }
+            RouterSelectModel.prototype.getCapMac = function(){
+                for(var i=0;i<this.initData.length;i++){
+                    if(this.initData[i][uciPortConfig.dynOptName.cap] == uciPortConfig.dynOptValue.cap.cap){
+                        return this.initData[i][uciPortConfig.dynOptName.mac];
+                    }
+                }
+            }
+            RouterSelectModel.prototype.refreshPage = function(){
+                var that = this;
+                $(".selectLagPortInfo").hide();
+                this.refreshInitData(function(){
+                    if(that.lagEnable == "1"){
+                        lagPortSwitch.setState(1);
+                        $(".selectLagPortWrapper").show();
+                        that.refreshAddedListCfg();
+                    }else{
+                        lagPortSwitch.setState(0);
+                        $(".selectLagPortWrapper").hide();
+                    }
+                })
+            }
+            RouterSelectModel.prototype.switchLagPortState = function(state){
+                var that = this;
+                if(state == "1"){
+                    $(".selectLagPortInfo").show();
+                    $(".selectLagPortWrapper").show();
+                    loadingDialog.show({
+                        title: menuStr.portLag,
+                        content: {primary:label.wanSettingWait}
+                    });
+                    that.refreshInitData(function(){
+                        that.refreshAddedListCfg(true);
+                        loadingDialog.hide();
+                    });
+                }else{
+                    $(".selectLagPortWrapper").hide();
+                    loadingDialog.show({
+                        title: menuStr.portLag,
+                        content: {primary:label.wanSettingWait}
+                    });
+                    var req = {};
+                    req[uciPortConfig.fileName] = {};
+                    req[uciPortConfig.fileName][uciPortConfig.secType.lag] = {};
+                    req[uciPortConfig.fileName][uciPortConfig.secType.lag][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.off;
+                    $.modify(req,function(res){
+                        loadingDialog.hide();
+                        if(res[ERR_CODE] == ENONE){
+                            showToast(label.portLagClose);
+                            that.refreshAddedListCfg();
+                        }else{
+                            showToast(label.closeErr);
+                            $(".selectLagPortWrapper").show();
+                        }
+                    });
+                }
+            }
+            RouterSelectModel.prototype.showRouterList = function(type){
+                var that = this;
+                $("#"+this.rootElementId).html("");
+                for(var i=0;i<this.addedRouterList.length;i++){
+                    var selectDom = $('<ul class="inputCMPT medium selectRouterUl"><li class="inputLi"><span class="selectWrap"><span id="' + ("routerSel" + i) + '" class="select"><span class="value"></span><i class="arrow iconfont icon-folddropdown"></i></span></span></li><div class="deleteArea" id="' + ("deleteSel" + i) + '"><i class="iconfont icon-delete"></i><span>移除</span></div></ul>');
+                    var routerDom = $('<div class="routerItemArea"></div>');
+                    if(type == "setting"){
+                        $("#"+this.rootElementId).append(selectDom);
+                        selectInit("routerSel"+i, this.addedRouterList[i]["selectList"], this.addedRouterList[i]["mac"], function(value,con){
+                            var idIndex = (con.id).slice(9,con.id.length);
+                            if(that.addedRouterList[idIndex]["mac"] == value){
+                                return;
+                            } else {
+                                that.addedRouterList[idIndex]["mac"] = value;
+                                that.addedRouterList[idIndex]["routerInitData"] = that.generatePhyInfo(value,that.initData,"LAG");
+                                that.refreshSelectList();
+                                that.showRouterList("setting");
+                            }
+                        });
+                        if(this.addedRouterList.length < 2){
+                            $("#deleteSel"+i).remove();
+                        } else {
+                            $("#deleteSel"+i).click(function(){
+                                that.delRouterItem(that.addedRouterList[this.id.slice(9,this.id.length)]["mac"]);
+                            })
+                        }
+                    }
+                    $("#"+this.rootElementId).append(routerDom);
+                    this.addedRouterList[i].routerInitData.element = routerDom[0];
+                    this.addedRouterList[i].routerInitData.type = type;
+                    if(type == "setting"){
+                        this.addedRouterList[i].routerInitData.showRouterName = false;
+                    }else{
+                        this.addedRouterList[i].routerInitData.showRouterName = true;
+                    }
+                    this.addedRouterList[i].routerInitData.callback = function(portInfo){
+                        var activeCount = 0;
+                        for(var i=0;i<this.port.length;i++){
+                            if(this.port[i].state == "active"){
+                                activeCount++;
+                            }
+                        }
+                        switch (portInfo.state) {
+                            case 'disable':
+                                return;
+                            case 'normal':
+                                this.port[portInfo.index].name = "LAN";
+                                break;
+                            case 'active':
+                                if(activeCount <= 2){
+                                    this.port[portInfo.index].name = label.lagPort;
+                                }else{
+                                    this.port[portInfo.index].state = "normal";
+                                    showToast(label.wanPortBusy);
+                                }
+                                break;
+                        }
+                        that.showRouterList("setting");
+                    };
+                    var lagPort = new PortConfig();
+                    lagPort.init(this.addedRouterList[i].routerInitData);
+                }
+                if(type == "setting"){
+                    $("#addLagRouter").show();
+                    $("#portLagTips").hide();
+                    $(".routerItemArea").addClass("routerSettingArea");
+                    if(this.addedRouterList.length == this.initData.length){
+                        $("#addLagRouter").addClass("disable");
+                        $("#addLagRouterBtn").unbind("click");
+                    }else{
+                        $("#addLagRouter").removeClass("disable");
+                        $("#addLagRouterBtn").click(function(){
+                            that.addRouterItem();
+                            that.showRouterList('setting');
+                        })
+                    }
+                }else{
+                    $("#portLagTips").show();
+                    $(".routerItemArea").addClass("routerDisplayArea");
+                    $("#addLagRouter").hide();
+                }
+                that.initPageBtns(type);
+            }
+            RouterSelectModel.prototype.refreshBtnState = function(){
+                var lagSetted = true;
+                for(var i=0;i<this.addedRouterList.length;i++){
+                    var activeCount = 0;
+                    for(var j=0;j<this.addedRouterList[i]["routerInitData"]["port"].length;j++){
+                        if(this.addedRouterList[i]["routerInitData"]["port"][j].state == "active"){
+                            activeCount++;
+                        }
+                    }
+                    if(activeCount < 2){
+                        lagSetted = false;
+                    }
+                }
+                if(lagSetted){
+                    confirmBtn.disable(false);
+                }else{
+                    confirmBtn.disable(true);
+                }
+            }
+            RouterSelectModel.prototype.initPageBtns = function(type){
+                var that = this;
+                if(type == "setting"){
+                    $("#confirmSelect").show();
+                    $("#confirmSelect").css("display","inline-block");
+                    confirmBtn = new Button({
+                        text:btn.finish,
+                        onClick: function(){
+                            loadingDialog.show({
+                                title: menuStr.portLag,
+                                content: {primary:label.wanSettingWait}
+                            });
+                            var reqSave = {};
+                            reqSave[uciPortConfig.fileName] = {};
+                            reqSave[uciPortConfig.fileName][uciPortConfig.secType.lag] = {};
+                            reqSave[uciPortConfig.fileName][uciPortConfig.secType.lag][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+                            var lagPortToSave = [];
+                            for(var i=0;i<that.addedRouterList.length;i++){
+                                var lagCfg = {};
+                                if(that.addedRouterList[i]["mac"] == that.getCapMac()){
+                                    lagCfg["lag_dev"] = "FF-FF-FF-FF-FF-FF";
+                                }else{
+                                    lagCfg["lag_dev"] = that.addedRouterList[i]["mac"].toUpperCase();
+                                }
+                                lagCfg["lag_phy"] = [];
+                                for(var j=0;j<that.addedRouterList[i]["routerInitData"]["port"].length;j++){
+                                    if(that.addedRouterList[i]["routerInitData"]["port"][j].state == "active"){
+                                        lagCfg["lag_phy"].push(j.toString());
+                                    }
+                                }
+                                lagPortToSave.push(lagCfg);
+                            }
+                            reqSave[uciPortConfig.fileName][uciPortConfig.secType.lag][uciPortConfig.optName.lagList] = lagPortToSave;
+                            $.modify(reqSave,function(resCap){
+                                loadingDialog.hide();
+                                if(resCap[ERR_CODE] == ENONE){
+                                    for(var i=0;i<that.addedRouterList.length;i++){
+                                        that.addedRouterList[i]["routerInitData"]["showRouterName"] = true;
+                                    }
+                                    that.showRouterList("display");
+                                    $(".selectLagPortInfo").hide();
+                                    showToast(label.portLagOpen);
+                                }else if(resCap[ERR_CODE] == ELAGDIFFERR){
+                                    showToast(label.lagDiffErr);
+                                }else{
+                                    showToast(label.wanSetError);
+                                }
+                            });
+                        },
+                        type:Button.TYPE.PRIMARY,
+                        id:"confirmSelect",
+                        props:{width:"120px", marginLeft:"8px"}
+                    });
+                }else{
+                    $("#confirmSelect").hide();
+                }
+                cancelSelBtn = new Button({
+                    text:type == "setting" ? btn.cancel:btn.reSelPort,
+                    onClick: function(){
+                        if(type=="display"){
+                            for(var i=0;i<that.addedRouterList.length;i++){
+                                that.addedRouterList[i]["routerInitData"]["showRouterName"] = false;
+                            }
+                            that.showRouterList("setting");
+                            $(".selectLagPortInfo").show();
+                            $("#addLagRouter").show();
+                            $("#portLagTips").hide();
+                        }else{
+                            that.refreshPage();
+                        }
+                    },
+                    type:Button.TYPE.SECONDARY,
+                    id:"cancelSelect",
+                    props:{width:"120px"}
+                });
+                that.refreshBtnState();
+            }
+            RouterSelectModel.prototype.delRouterItem = function(mac) {
+                if(this.addedRouterList.length == 1){
+                    return;
+                }else{
+                    for(var i=0;i<this.addedRouterList.length;i++){
+                        if(this.addedRouterList[i]["mac"].toUpperCase() == mac.toUpperCase()){
+                            this.addedRouterList.splice(i,1);
+                            break;
+                        }
+                    }
+                    this.refreshSelectList();
+                    this.showRouterList("setting");
+                }
+            }
+            RouterSelectModel.prototype.addRouterItem = function(mac) {
+                if(this.addedRouterList.length == this.initData.length){
+                    return;
+                }
+                var addNewMac;
+                if(typeof mac != "undefined"){
+                    addNewMac = mac.toUpperCase();
+                }else{
+                    for(var i=0;i<this.initData.length;i++){
+                        if(this.findItemByTag(this.initData[i]["mac"],this.addedRouterList,"mac") == -1){
+                            addNewMac = this.initData[i]["mac"].toUpperCase();
+                        }
+                    }
+                }
+                if(this.findItemByTag(addNewMac,this.addedRouterList,"mac") != -1){
+                    return;
+                }
+                if(this.findItemByTag(addNewMac,this.initData,"mac") != -1){
+                    this.addedRouterList.push({
+                        mac:addNewMac.toUpperCase(),
+                        routerInitData: this.generatePhyInfo(addNewMac,this.initData,"LAG"),
+                        selectList: []
+                    })
+                }
+                this.refreshSelectList();
+            }
+            RouterSelectModel.prototype.refreshSelectList = function(){
+                for(var i=0;i<this.addedRouterList.length;i++){
+                    this.addedRouterList[i]["selectList"] = [];
+                }
+                for(var i=0;i<this.initData.length;i++){
+                    if(this.findItemByTag(this.initData[i][uciPortConfig.dynOptName.mac],this.addedRouterList,"mac") == -1){
+                        for(var j=0;j<this.addedRouterList.length;j++){
+                            this.addedRouterList[j]["selectList"].push({
+                                str: this.getCapMac() == this.initData[i][uciPortConfig.dynOptName.mac] ? '[主路由]' + this.initData[i][uciPortConfig.dynOptName.name] : this.initData[i][uciPortConfig.dynOptName.name],
+                                value: this.initData[i][uciPortConfig.dynOptName.mac]
+                            })
+                        }
+                    }else{
+                        for(var j=0;j<this.addedRouterList.length;j++){
+                            if(this.initData[i][uciPortConfig.dynOptName.mac] == this.addedRouterList[j]["mac"]){
+                                this.addedRouterList[j]["selectList"].push({
+                                    str: this.getCapMac() == this.initData[i][uciPortConfig.dynOptName.mac] ? '[主路由]' + this.initData[i][uciPortConfig.dynOptName.name] : this.initData[i][uciPortConfig.dynOptName.name],
+                                    value: this.initData[i][uciPortConfig.dynOptName.mac]
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+            RouterSelectModel.prototype.findItemByTag = function(val,list,tagName){
+                for(var i=0;i<list.length;i++){
+                    if(list[i][tagName] == val){
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            RouterSelectModel.prototype.generatePhyInfo = function(mac,devInfo,feature) {
+                var devInfoItem;
+                for(var i=0;i<devInfo.length;i++){
+                    if(devInfo[i][uciPortConfig.dynOptName.mac].toUpperCase() == mac.toUpperCase()){
+                        devInfoItem = devInfo[i];
+                    }
+                }
+                var routerInitData = {
+                    port: this.initPortData(devInfoItem,feature),
+                    powerPos: devInfoItem[uciPortConfig.dynOptName.powerPos],
+                    powerIdx: devInfoItem[uciPortConfig.dynOptName.powerIdx],
+                    routerName: devInfoItem[uciPortConfig.dynOptName.name],
+                    showRouterName: false,
+                    showOffLine: devInfoItem[uciPortConfig.dynOptName.online] == uciPortConfig.dynOptValue.online.offline
+                };
+                return routerInitData;
+            }
+            RouterSelectModel.prototype.initPortData = function(devInfoItem,feature){
+                var phyInfoList = devInfoItem[uciPortConfig.dynOptName.phyInfo];
+                var portData = [];
+                var sfpCapabilityList = devInfoItem[uciPortConfig.dynOptName.sfpCapability];
+                var port_num = phyInfoList.length;
+                for(var i=0;i<port_num;i++){
+                    portData[i] = {};
+                }
+                for(var i=0;i<phyInfoList.length;i++){
+                    if(phyInfoList[i]["role"].slice(0,3).toUpperCase() == feature){
+                        portData[i].state = "active";
+                        portData[i].name = PortConfig.prototype.transRoleName(phyInfoList[i]["role"]);
+                    }else if(phyInfoList[i]["role"].slice(0,3).toUpperCase() == "LAN"){
+                        portData[i].state = "normal";
+                        portData[i].name = "LAN";
+                    }else{
+                        portData[i].state = "disable";
+                        portData[i].name = PortConfig.prototype.transRoleName(phyInfoList[i]["role"]);
+                    }
+                    portData[i].rate = PortConfig.prototype.getPhySpeedByIndex(phyInfoList,i,sfpCapabilityList);
+                    portData[i].isSfp = phyInfoList[i].type.toUpperCase() == "SFP";
+                }
+                return portData;
+            }
+        }
+        var lagSelectModel = new RouterSelectModel();
+        var rootElementId = "routerList";
+        lagSelectModel.init(rootElementId);
+        lagSelectModel.refreshPage();
+
+        function checkPortEnough(devInfoList){
+            var freePortExist = false;
+            var freePortNum = 0;
+            for(var i=0;i<devInfoList.length;i++){
+                var phyInfoList = devInfoList[i][uciPortConfig.dynOptName.phyInfo];
+                freePortNum = 0;
+                for(var j=0;j<phyInfoList.length;j++){
+                    if(phyInfoList[j][uciPortConfig.dynOptName.role] == "lan" || phyInfoList[j][uciPortConfig.dynOptName.role] == "lag"){
+                        freePortNum++;
+                    }
+                }
+                if(freePortNum >= 2){
+                    freePortExist = true;
+                }
+            }
+            return freePortExist;
+        }
+        function errHandler(errCode){
+            var showStr = "";
+
+            switch (errCode) {
+                case ENONE:
+                    return true;
+                case EIPTVTABLEFULL:
+                    showStr = errStr.iptvTableFull;
+                    break;
+                case EIPTVENTRYCONFLIC:
+                    showStr = errStr.iptvEntryConflict;
+                    break;
+                case EIPTVENTRYNOTEXIST:
+                    showStr = errStr.iptvEntryNoExist;
+                    break;
+                case EIPTVLINKMODEERROR:
+                    showStr = errStr.iptvLinkModeError;
+                    break;
+                case EIPTVWORKMODEERROR:
+                    showStr = errStr.iptvWorkModeError;
+                    break;
+                case EIPTVVLANIDERROR:
+                    showStr = errStr.iptvVlanIdError;
+                    break;
+                case EIPTVWANINDEXERROR:
+                    showStr = errStr.iptvWanIndexError;
+                    break;
+            }
+
+            alarmDialog.show(showStr);
+            return false;
+        }
+    })();
+</script>
+<style type="text/css">
+.selectLagPortInfo{
+    font-size: 16px;
+    color: #333333;
+    font-weight: bold;
+}
+#addLagRouterBtn{
+    display:inline-block;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0px 16px;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 104px;
+    text-align: center;
+}
+#addLagRouterBtn i.iconfont{
+    font-size: 16px;
+    vertical-align: middle;
+    line-height: 30px;
+    color: #999999;
+}
+#addLagRouterBtn .addLagPort{
+    line-height: 30px;
+    font-size: 13px;
+    vertical-align: middle;
+    color: #333333;
+}
+#addLagRouter.disable #addLagRouterBtn{
+    border: 1px solid #E6E6E6;
+}
+#addLagRouter.disable #addLagRouterBtn i.iconfont{
+    color: #B3B3B3;
+}
+#addLagRouter.disable #addLagRouterBtn span{
+    color: #B3B3B3;
+}
+.addLagRouterInfo{
+    line-height: 30px;
+    font-size: 13px;
+    vertical-align: middle;
+    color: #999999;
+    margin-left: 7px;
+}
+.deleteArea{
+    display: inline-block;
+    position: absolute;
+    font-size: 13px;
+    left: 254px;
+    width: 48px;
+    top: 7px;
+    cursor: pointer;
+}
+.deleteArea span{
+    margin-left: 2px;
+}
+ul.selectRouterUl{
+    margin-top: 24px;
+}
+#addLagRouter{
+    margin-top: 24px;
+}
+.buttonGroup{
+    margin-top: 48px;
+}
+.routerDisplayArea{
+    margin-top: 24px;
+}
+#portLagTips{
+    font-family: PingFangSC-Regular;
+    font-size: 13px;
+    color: #999999;
+    letter-spacing: 0;
+    line-height: 20px;
+    font-weight: 400;
+    margin-top: 16px;
+}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.portLag%}</h1>
+		<div id="lagSwitchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+    <p class="description">{%titleDescriptionStr.portLagDescription%}</p>
+</div>
+<div class="selectLagPortWrapper">
+    <p class="selectLagPortInfo disNone">{%label.selectLagPortInfo%}</p>
+    <div id="routerList">
+    </div>
+    <div id="addLagRouter" class="disNone">
+        <div id="addLagRouterBtn">
+            <i class="iconfont icon-add"></i>
+            <span class="addLagPort">{%label.addLagPort%}</span>
+        </div>
+        <span class="addLagRouterInfo">{%label.addLagRouterInfo%}</span>
+    </div>
+    <div id="portLagTips" class="disNone">{%label.portLagTips%}</div>
+    <div class="buttonGroup">
+        <div id="cancelSelect"></div>
+        <div id="confirmSelect"></div>
+    </div>
+</div>

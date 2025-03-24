@@ -1,0 +1,53 @@
+﻿<style type="text/css">
+	div.phoneCon{
+		background:#FFFFFF;
+		box-sizing:border-box;
+		font-size:0;
+		min-height:100%;
+		overflow:hidden;
+		padding-bottom:60px;
+		position:relative;
+		width:100%;
+		text-align:center;
+	}
+	img.appLogo{
+		height:100px;
+		margin:80px auto 0px;
+		width:150px;
+	}
+	p.phoneApp{
+		color:#1B1C1F;
+		font-size:16px;
+		margin:0 auto 50px;
+		line-height: 30px;
+	}
+	#Con{
+		min-width:0px;
+	}
+</style>
+<script type="text/javascript">
+	id("downLoadApp").onclick = function(){
+		location.href = "https://app-srv.mercuryclouds.com.cn/appdown/mercurywifi";
+	};
+	id("continuePCSet").onclick = function(){
+		phoneSet["bContinuePCSet"] = true;
+
+		if (true == phoneSet["bPhoneWizardSet"])
+		{
+			phoneSet["bPhoneWizardSet"] = false;
+			loadPage("Content.htm", "Con");
+		}
+		else
+		{
+			showLogin();
+		}
+	};
+</script>
+<div class="phoneCon">
+	<img class="appLogo" src="../web-static/images/phoneCloud.png" />
+	<p class="phoneApp">{%label.phoneAppTip%}</p>
+	<div class="phFunc">
+		<label id="continuePCSet" class="appBtn">{%label.phoneAppBrowser%}</label>
+		<label id="downLoadApp" class="appBtn btnS">{%label.phoneAppDownload%}</label>
+	</div>
+</div>

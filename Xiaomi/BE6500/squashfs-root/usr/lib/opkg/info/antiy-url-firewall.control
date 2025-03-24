@@ -1,0 +1,8 @@
+Package: antiy-url-firewall
+Version: 1.0-1.0
+Depends: libc, kmod-connattr-antiy, miwifi-xthostlog, nfnlq-extension, libstdcpp, iptables-mod-conntrack-extra, connattr-label, firewall_cpp, luci-mod-func-antiy_url_fw, hotupgrade
+Source: package/miwifi/antiy-url-firewall
+Section: opt
+Architecture: arm_cortex-a7_neon-vfpv4
+Installed-Size: 668596
+Description:  TODO

@@ -1,0 +1,97 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.Services."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_services"
+
+entry_execute_method_root_services() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.Services."*)
+		common_execute_method_obj "$DMROOT.Services." "0"
+		
+		common_execute_method_obj "$DMROOT.Services.X_[VENDOR]_COM_DDNS." "0"
+		common_execute_method_param "$DMROOT.Services.X_[VENDOR]_COM_DDNS.Enable" "1" "device_ddns_get_enable" "device_ddns_set_enable" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.Services.X_[VENDOR]_COM_DDNS.Provider" "0" "device_ddns_get_provider" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Services.X_[VENDOR]_COM_DDNS.UserName" "1" "device_ddns_get_username" "device_ddns_set_username" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Services.X_[VENDOR]_COM_DDNS.Password" "1" "device_ddns_get_password" "device_ddns_set_password" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Services.X_[VENDOR]_COM_DDNS.DomainName" "1" "device_ddns_get_domainname" "device_ddns_set_domainname" "xsd:String" "0"
+		
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+restart_ddns() {
+	local restart_flag=`ps | grep restart_ddns | grep -v grep`
+	
+	if [ -z $restart_flag ];then
+		$UCI_COMMIT
+		/bin/restart_ddns.sh &
+	fi
+}
+
+device_ddns_get_enable() {
+	uci get ddns.myddns_ipv4.enabled
+}
+
+device_ddns_set_enable() {
+	local val=$1
+	
+	uci set ddns.myddns_ipv4.enabled="$val"
+	uci commmit ddns
+	
+	restart_ddns
+
+	return 0
+}
+
+device_ddns_get_provider() {
+	uci get ddns.myddns_ipv4.service_name
+}
+
+device_ddns_get_username() {
+	uci get ddns.myddns_ipv4.username
+}
+
+device_ddns_set_username() {
+	local val="$1"
+	
+	uci set ddns.myddns_ipv4.username="$val"
+	restart_ddns
+	
+	return 0
+}
+
+device_ddns_get_password() {
+	uci get ddns.myddns_ipv4.password
+}
+
+device_ddns_set_password() {
+	local val="$1"
+	
+	uci set ddns.myddns_ipv4.password="$val"
+	restart_ddns
+	
+	return 0
+}
+
+device_ddns_get_domainname() {
+	uci get ddns.myddns_ipv4.domain
+}
+
+device_ddns_set_domainname() {
+	local val="$1"
+	
+	uci set ddns.myddns_ipv4.domain="$val"
+	restart_ddns
+
+	return 0
+}

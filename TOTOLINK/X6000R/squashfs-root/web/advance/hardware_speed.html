@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="nat"></adv-child-menu>   
+  <div class="advance-box">
+	<br><br>
+	<div class="fun-box">
+	  <table class="table"> 
+		<tbody>
+		  <tr>
+		    <td class="fun-left"><b>{{ lang_t('config.hardware_speed') }}</b></td>
+		    <td><x-switch v-model="hnat_enable" @change="mtkhnatProcess"></x-switch></td>
+		  </tr>
+		  <tr>
+		    <td colspan="2" style="width:740px">{{ lang_t('config.msg12') }}</td>
+		  </tr>
+		  <tr>
+			<td colspan="2" style="width:740px">{{ lang_t('config.msg13') }}</td>
+		  </tr>
+	    </tbody>
+	  </table>
+    </div>
+    <div style="display: none;">
+      <form ref="save" class="form-horizontal" method="post"></form>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,hnat_enable:!1}},created:function(){var t=this;uiPost.SystemSettings(function(n){t.hnat_enable="1"==n.hnat_enable})},methods:{mtkhnatProcess:function(n){var t=this;n?Cstool.Msg({content:lang_t("config.on_speed_tips"),type:"confirm",ok:function(){uiPost.setHwnatCfg({hnat_enable:"1"},applyCallback)},cancel:function(){t.hnat_enable=!1}}):uiPost.setHwnatCfg({hnat_enable:"0"},applyCallback)}}}</script><script src="/static/js/main.js"></script></body></html>

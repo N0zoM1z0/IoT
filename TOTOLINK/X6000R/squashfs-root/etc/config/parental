@@ -1,0 +1,6 @@
+config parental 'parental'
+        option num '0'
+        option enable '0'
+
+config parental 'parental_surplus'
+        option num '0'

@@ -1,0 +1,548 @@
+<script type="text/javascript">
+	(function(){
+		var uciFile = uciDhcpd.fileName;
+		var uciUdhcpd = uciDhcpd.secName.udhcpd;
+		var uciEnable = uciDhcpd.optName.enable;
+		var uciStart = uciDhcpd.optName.poolStart;
+		var uciEnd = uciDhcpd.optName.poolEnd;
+		var uciLeaseTime = uciDhcpd.optName.leaseTime;
+		var uciGateway = uciDhcpd.optName.gateway;
+		var uciPriDns = uciDhcpd.optName.priDns;
+		var uciSndDns = uciDhcpd.optName.sndDns;
+		var uciAuto = uciDhcpd.optName.auto;
+
+		var lanIpaddr, lanNetmask, dhcpSvrCfg;
+		var dataGridLs, dataGridLsList = [];
+		var refreshDhcpClientType = "normal";
+
+		var ROUTER_MODE = 0;
+		var AP_MODE = 1;
+		var WDS_MODE = 2;
+		var curSysMode = ROUTER_MODE;
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVSTARTADDRPOOL:
+				showStr = errStr.dhcpsStrtAddrPoolErr;
+				break;
+			case EINVENDADDRPOOL:
+				showStr = errStr.dhcpsEndAddrPoolErr;
+				break;
+			case EINVLEASETIME:
+				showStr = errStr.dhcpsLeaseErr;
+				break;
+			case EDHCPDGTW:
+				showStr = errStr.gatewayErr;
+				break;
+			case EGTWNOTLANSUBNET:
+				showStr = errStr.dhcpsGateWayErr;
+				break;
+			case EDHCPDPRIDNS:
+				showStr = errStr.primDnsErr;
+				break;
+			case EDHCPDSNDDNS:
+				showStr = errStr.seDnsErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EINVMACFMT:
+				showStr = errStr.macFmtErr;
+				break;
+			case EINVMACZERO:
+				showStr = errStr.macZeroErr;
+				break;
+			case EINVMACBROAD:
+				showStr = errStr.macBroadErr;
+				break;
+			case EINVMACGROUP:
+				showStr = errStr.macGroupErr;
+				break;
+			case EMULTIWANENABLE:
+				showStr = errStr.dhcpsCloseConflict;
+				break;
+			case EWDSMODEOPEN:
+				showStr = errStr.wdsOnDhcpsOpen;
+				break;
+			case EAPMODEOPEN:
+				showStr = errStr.apOnDhcpsOpen;
+				break;
+			case EWDSMODECLOSE:
+				showStr = errStr.wdsOnDhcpsClose;
+				break;
+			case EAPMODECLOSE:
+				showStr = errStr.apOnDhcpsClose;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function requestData(){
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = [uciUdhcpd];
+			data[uciFile][KEY_TABLE] = [uciDhcpd.dynData.dhcpClient];
+
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = [uciNetwork.secName.lan];
+			if(slp.gSysModeSupport) {
+				data.system = {"name":"sys_mode"};
+			}
+
+			$.query(data, fillData);
+		}
+
+		function fillData(ALL_DATA){
+			/*初始化LAN口设置信息*/
+			var lan = ALL_DATA[uciNetwork.fileName][uciNetwork.secName.lan];
+			lanIpaddr = lan[uciNetwork.optName.ip];
+			lanNetmask = lan[uciNetwork.optName.netmask];
+
+			/* 显示DHCP服务器配置 */
+			var dhcpdCfg = ALL_DATA[uciFile][uciUdhcpd];
+			showDhcpCfg(dhcpdCfg);
+			if(slp.gSysModeSupport){
+				curSysMode = ALL_DATA.system.sys_mode.mode;
+				if (curSysMode != ROUTER_MODE) {
+					$(".relayErrorTip").show();
+					disableDhcpsSwitch(true);
+					disableDhcpsConfig(true);
+					$("#dhcpEquipmentTable").html("");
+					dhcpEquipmentTable = new Table({
+						targetId:'dhcpEquipmentTable',
+						title:label.dhcpEquipment,
+						head:[
+							{field:label.host, width:"0.25"},
+							{field:label.mac, width:"0.25"},
+							{field:label.ipAddr, width:"0.25"},
+							{field:label.availTime, width:"0.25"}
+						],
+						column:[
+							{name: uciDhcpd.optName.hostName, type:"str"},
+							{name: uciDhcpd.optName.mac, type: "mac"},
+							{name: uciDhcpd.optName.ip, type: "ip"},
+							{name: uciDhcpd.optName.expires, type: "timeP"}
+						],
+						tableOption:[
+							{icon: "icon-refresh", str: btn.refresh, type:"refresh", func:refreshClient}
+						],
+						deletable:false,
+						editable:false,
+						hasCheckBox:false,
+						addable:false,
+						disableState: true
+					});
+					if (curSysMode == AP_MODE) {
+						$("#relayTipText").text("上网方式为AP（有线中继）时，DHCP服务器默认自动，不可修改。");
+					} else {
+						$("#relayTipText").text("上网方式为桥接（无线中继）时，DHCP服务器默认自动，不可修改。");
+					}
+				}
+			}
+			/* 显示客户端列表 */
+			showDhcpClient(ALL_DATA);
+		}
+
+		function refreshClient(){
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_TABLE] = [uciDhcpd.dynData.dhcpClient];
+
+			refreshDhcpClientType = "refresh";
+			$.query(data, showDhcpClient);
+		}
+
+		function disableDhcpsSwitch(disabled)
+		{
+			dhcpOnRadio.disable(disabled);
+			dhcpOffRadio.disable(disabled);
+			dhcpAutoRadio.disable(disabled);
+		}
+
+		function disableDhcpsConfig(disabled)
+		{
+			oriAddr.disable(disabled);
+			desAddr.disable(disabled);
+			leaseTime.disable(disabled);
+			gatewayAddr.disable(disabled);
+			pridnsAddr.disable(disabled);
+			snddnsAddr.disable(disabled);
+			saveBtn.disable(disabled);
+		}
+
+		function showDhcpCfg(dhcpSvrCfg){
+			var enable = (dhcpSvrCfg[uciEnable] == "0" ? false : true);
+			var auto = (dhcpSvrCfg[uciAuto] == "0" ? false : true);
+
+			/* 桥模式下，不允许配置DHCP开关，若上联网关DHCP关闭，则本地DHCP自动开且用户可配置，若上联网关DHCP启用，则本地DHCP切换为自动关且不可编辑 */
+			if (slp.modeSwitchSupport)
+			{
+				getBridgeStatus(function(bridgeEnable){
+					/* 桥模式下禁止更改上网模式及其他设置 */
+					if (bridgeEnable)
+					{
+						disableDhcpsSwitch(true);
+						if (auto && !enable)
+						{
+							disableDhcpsConfig(true);
+						}
+					}
+				});
+			}
+
+			if (auto)
+			{
+				dhcpAutoRadio.setValue(true);
+			}
+			else
+			{
+				enable ? dhcpOnRadio.setValue(true) : dhcpOffRadio.setValue(true);
+			}
+
+			if (enable)
+			{
+				dhcpState.setValue(auto ? label.autoOpen : label.open, {"color":"#24B353"});
+			}
+			else
+			{
+				dhcpState.setValue(auto ? label.autoClose : label.close, {"color":"#FF3366"});
+			}
+
+			oriAddr.setValue(dhcpSvrCfg[uciStart]);
+			desAddr.setValue(dhcpSvrCfg[uciEnd]);
+			leaseTime.setValue(parseInt(parseInt(dhcpSvrCfg[uciLeaseTime]) / 60));
+			gatewayAddr.setValue(dhcpSvrCfg[uciGateway] || "0.0.0.0");
+			pridnsAddr.setValue(dhcpSvrCfg[uciPriDns] || "0.0.0.0");
+			snddnsAddr.setValue(dhcpSvrCfg[uciSndDns] || "0.0.0.0");
+		}
+
+		function showDhcpClient(ALL_DATA){
+			dataGridLsList = formatTableData(ALL_DATA[uciFile][uciDhcpd.dynData.dhcpClient]) || [];
+
+			/* REPLACE THE HOST_NAME WHICH IS NULL */
+			for (var i = 0; i < dataGridLsList.length; i++)
+			{
+				if (dataGridLsList[i].hostname.length == 0)
+				{
+					dataGridLsList[i].hostname = label.anonymousHost;
+				}
+			}
+
+			dhcpEquipmentTable.setDataSource(dataGridLsList);
+			dhcpEquipmentTable.loadData();
+
+			if (refreshDhcpClientType == "refresh")
+			{
+				showToast(label.refreshSuccess);
+			}
+
+			refreshDhcpClientType = "normal";
+		}
+
+		function checkTime(){
+			var MAX = 2880;
+			var MIN = 1;
+
+			if (!checkNum(this.input.value))
+			{
+				this.showNote(errStr.inputFmtErr);
+				return false;
+			}
+
+			if (this.input.value > MAX)
+			{
+				this.setValue(MAX.toString());
+			}
+			else if (this.input.value < MIN)
+			{
+				this.setValue(MIN.toString());
+			}
+
+			return true;
+		}
+
+		function checkIpAddrExt(){
+			var addr = this.input.value;
+
+			if (addr == "" || addr == "0.0.0.0")
+			{
+				return true;
+			}
+			else
+			{
+				return checkInputIp.call(this);
+			}
+		}
+
+		function checkIPSameNet(orIp, taIp, mask){
+			return (0 == ((transIp(orIp) & transIp(mask)) ^ (transIp(taIp) & transIp(mask))));
+		}
+
+		function onSave(){
+			var cfg = {}, cfgDhcpd = {}, cfgUdhcpd = {};
+			var gatewayVal, dnsPriVal, dnsBakVal, dhcpLsTime, startIp, endIp, dhcpsEnable, dhcpsAuto;
+			var checkRes = true;
+			var inputArr = [oriAddr, desAddr, leaseTime, gatewayAddr, pridnsAddr, snddnsAddr];
+
+			inputArr.forEach(function(o){
+				if (typeof o.getValue() == "string")
+				{
+					o.setValue(hideLeadingZeros(o.getValue()));
+				}
+
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			startIp = oriAddr.getValue();
+			endIp = desAddr.getValue();
+			dhcpLsTime = leaseTime.getValue();
+			gatewayVal = gatewayAddr.getValue();
+			dnsPriVal = pridnsAddr.getValue();
+			dnsBakVal = snddnsAddr.getValue();
+
+			dhcpsEnable = dhcpOnRadio.getValue() == true ? 1 : 0;
+			dhcpsAuto = dhcpAutoRadio.getValue() == true ? 1 : 0;
+
+			cfg[uciFile] = cfgDhcpd;
+			cfgDhcpd[uciUdhcpd] = cfgUdhcpd;
+
+			if (0 == dhcpsAuto)
+			{
+				cfgUdhcpd[uciEnable] = dhcpsEnable;
+			}
+
+			cfgUdhcpd["auto"] = dhcpsAuto;
+
+			if (!checkIPSameNet(startIp, lanIpaddr, lanNetmask) || ENONE != checkIpMask(startIp, lanNetmask))
+			{
+				oriAddr.showNote(errStr.inputStrtAddrPoolErr);
+				return;
+			}
+
+			if (!checkIPSameNet(endIp, lanIpaddr, lanNetmask) || ENONE != checkIpMask(endIp, lanNetmask))
+			{
+				desAddr.showNote(errStr.inputEndAddrPoolErr);
+				return;
+			}
+
+			/* 开始地址大于结束地址时对调起始地址 */
+			ipStart = transIp(startIp);
+			ipEnd = transIp(endIp);
+			if (ipStart > ipEnd)
+			{
+				oriAddr.setValue(endIp);
+				desAddr.setValue(startIp);
+
+				startIp = oriAddr.getValue();
+				endIp = desAddr.getValue();
+			}
+
+			if (("" != gatewayVal) && ("0.0.0.0" != gatewayVal))
+			{
+				if (ENONE != checkIpMask(gatewayVal, lanNetmask))
+				{
+					gatewayAddr.showNote(errStr.inputGatewayErr);
+					return;
+				}
+				else if (!checkIPSameNet(gatewayVal, lanIpaddr, lanNetmask))
+				{
+					gatewayAddr.showNote(errStr.inputGatewayLanSameNetErr);
+					return;
+				}
+			}
+
+			cfgUdhcpd[uciStart] = startIp;
+			cfgUdhcpd[uciEnd] = endIp;
+			cfgUdhcpd[uciLeaseTime] = dhcpLsTime * 60;
+			cfgUdhcpd[uciGateway] = gatewayVal;
+
+			if ("0.0.0.0" == dnsPriVal && "0.0.0.0" != dnsBakVal && "" != dnsBakVal)
+			{
+				pridnsAddr.setValue(dnsBakVal);
+				snddnsAddr.setValue(dnsPriVal);
+				dnsPriVal = pridnsAddr.getValue();
+				dnsBakVal = snddnsAddr.getValue();
+			}
+
+			cfgUdhcpd[uciPriDns] = dnsPriVal;
+			cfgUdhcpd[uciSndDns] = dnsBakVal;
+
+			if (slp.moduleSpec["wifison_mesh"] && slp.moduleSpec["wifison_mesh"] == 1 &&
+				dhcpOffRadio.getValue() == true)
+			{
+				confirmDialog.show({
+					content: label.dhcpCloseTipsMesh,
+					callback: function(choose){
+						if (choose)
+						{
+							readySend();
+						}
+					}
+				});
+			}
+			else
+			{
+				readySend();
+			}
+
+			function readySend(){
+				saveBtn.disable(true);
+				$.modify(cfg, function(result){
+					saveBtn.disable(false);
+					if (true == errHandle(result[ERR_CODE]))
+					{
+						showToast(label.saveSuccess);
+						requestData();
+					}
+				});
+			}
+		}
+
+		var dhcpOnRadio = new Radio({
+			targetId: "dhcpServerOn",
+			label: label.open,
+			name: "dhcpServer"
+		});
+		var dhcpOffRadio = new Radio({
+			targetId: "dhcpServerOff",
+			label: label.close,
+			name: "dhcpServer"
+		});
+		var dhcpAutoRadio = new Radio({
+			targetId: "dhcpServerAuto",
+			label: label.auto,
+			name: "dhcpServer"
+		});
+		var dhcpState = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dhcpServerState},
+			targetId:"basicArguments",
+			props:{type: "text"}
+		});
+		var oriAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.addrPoolStart},
+			targetId:"basicArguments",
+			check:{blur:checkInputIp},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var desAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.addrPoolEnd},
+			targetId:"basicArguments",
+			check:{blur:checkInputIp},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var leaseTime = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.addrLease},
+			targetId:"basicArguments",
+			tips:{value:label.unitMinute, className:"unit"},
+			hint:{value:label.dhcpLeaseMin},
+			check:{blur:checkTime},
+			props:{maxlength: '4', type: "text"}});
+		var gatewayAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway},
+			targetId:"basicArguments",
+			check:{blur:checkIpAddrExt},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var pridnsAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dns0},
+			targetId:"basicArguments",
+			check:{blur:checkIpAddrExt},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var snddnsAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dns1},
+			targetId:"basicArguments",
+			check:{blur:checkIpAddrExt},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+		var dhcpEquipmentTable = new Table({
+			targetId:'dhcpEquipmentTable',
+			title:label.dhcpEquipment,
+			head:[
+				{field:label.host, width:"0.25"},
+				{field:label.mac, width:"0.25"},
+				{field:label.ipAddr, width:"0.25"},
+				{field:label.availTime, width:"0.25"}
+			],
+			column:[
+				{name: uciDhcpd.optName.hostName, type:"str"},
+				{name: uciDhcpd.optName.mac, type: "mac"},
+				{name: uciDhcpd.optName.ip, type: "ip"},
+				{name: uciDhcpd.optName.expires, type: "timeP"}
+			],
+			tableOption:[
+				{icon: "icon-refresh", str: btn.refresh, type:"refresh", func:refreshClient}
+			],
+			deletable:false,
+			editable:false,
+			hasCheckBox:false,
+			addable:false
+		});
+
+		requestData();
+	})();
+</script>
+<style>
+span.abnormalState i.disc{
+	background:#ff3366;
+}
+span.abnormalState span.state{
+	color:#ff3366;
+}
+span#dhcpOff{
+	display: none;
+}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.DHCPServer%}</h1><i class="helpBtn iconfont icon-help" helpStr="dhcpServerHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.dhcpServerDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<div class="subTitle">
+	<h2>{%menuStr.DHCPServer%}</h2>
+	<span id="dhcpOff" class="abnormalState"><i class="disc"></i><span class="state">{%statusStr.offed%}</span></span>
+	<div id="radioGroup">
+		<div id="dhcpServerOn" class="radioLabel"></div>
+		<div id="dhcpServerOff" class="radioLabel"></div>
+		<div id="dhcpServerAuto" class="radioLabel"></div>
+	</div>
+</div>
+<div id="basicArguments"></div>
+<div id="save"></div>
+<div id="dhcpEquipmentTable" class="advanceTable"></div>

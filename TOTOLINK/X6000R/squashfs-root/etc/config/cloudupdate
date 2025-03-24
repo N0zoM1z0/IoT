@@ -1,0 +1,14 @@
+config cloudupdate cloudupdate
+	option cloud_update_host 'http://update.carystudio.com/device/upgrade/check'
+	option cloud_update_path '/device/upgrade/check'
+	option cloud_update_port '80'
+	option url ''
+	option newVersion ''
+	option netcheck    '0'
+	option timestamp   '0'
+	option status      'Idle'
+	option magicid     ''
+	option mode        '0'
+	option aprule      '0'
+	option time        '0'
+	

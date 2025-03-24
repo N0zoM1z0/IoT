@@ -1,0 +1,23 @@
+config core 'version'
+	# ROM ver
+	option ROM '1.0.29'
+	# channel
+	option CHANNEL 'release'
+	# hardware platform.
+	option HARDWARE 'RN02'
+	# CFE ver
+	option UBOOT '1.0.2'
+	# Linux Kernel ver
+	option LINUX '5.4'
+	# RAMFS ver
+	option RAMFS '0.0.1'
+	# SQUASHFS ver
+	option SQAFS '0.0.1'
+	# ROOTFS ver
+	option ROOTFS '0.0.1'
+	#build time
+	option BUILDTIME 'Thu, 18 Jul 2024 11:02:35 +0000'
+	#build timestamp
+	option BUILDTS '1721300555'
+	#build git tag
+	option GTAG 'commit eb455a6f56505a29a688d0d0ce3de5491513b39e'

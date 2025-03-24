@@ -1,0 +1,202 @@
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+    this.ConnectionStat = "";
+    this.ConnectionIPAddr = "";
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType ConnectionStatus ExternalIPAddress" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].ConnectionStat = "<!--#leaf "4"-->";
+    Connection[n].ConnectionIPAddr = "<!--#leaf "5"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType ConnectionStatus ExternalIPAddress" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].ConnectionStat = "<!--#leaf "4"-->";
+    Connection[n].ConnectionIPAddr = "<!--#leaf "5"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function L2TPTunnelListTuple()
+{    
+    this.Path = "";
+    this.Name = "";
+	this.Mode = "";
+	this.WanInterface = "";
+	this.LnsIP = "";
+}
+
+var tnl_idx = 0;
+var L2TPList = new Array();
+<!--#getobject "InternetGatewayDevice.Services.X_TRI_L2TP.TunnelList. TunnelName TunnelMode WanInterface LnsIP" -->
+L2TPList[tnl_idx] = new L2TPTunnelListTuple();
+L2TPList[tnl_idx].Path = "<!--#path -->";
+L2TPList[tnl_idx].Name = "<!--#leaf "1"-->";
+L2TPList[tnl_idx].Mode = "<!--#leaf "2"-->";
+L2TPList[tnl_idx].WanInterface = "<!--#leaf "3"-->";
+L2TPList[tnl_idx].LnsIP = "<!--#leaf "4"-->";
+tnl_idx++;
+<!--#endgetobject -->
+
+var G_Operation = "Add";
+var G_Path ;
+var ConnIdx;
+var WANConnection="";
+function uiAdd(){
+    if(L2TPList.length < 8){
+        ConnIdx=(L2TPList.length+1);
+        document.location.href='/page/applications/app_l2tp_edit.shtml?id='+ConnIdx+'&Op='+ G_Operation+'';
+    }else{
+        top.AlertMsg(getStr("LK_Tunnel_max8item"));
+    }
+}
+
+function genLocalIP(idx) {
+	for(var i=0; i<n; i++ )
+	{
+		if(L2TPList[idx].WanInterface == Connection[i].Path)
+		{
+			if(Connection[i].ConnectionStat == "Connected")
+				return Connection[i].ConnectionIPAddr;
+			else
+				break;	
+		}
+	}
+	return "-";
+}
+
+function getModeStr(idx) {
+
+	if( idx==2 )
+		return "LAC";
+	else if(idx==1)
+		return "LNS";
+	else
+		return "Unknown"
+}
+
+function createTunnelList(){
+    var trs = "";
+    var text = [];
+    var value = [];
+    var conn = 0;
+    for (i = 0; i < Connection.length; i++)
+    {
+        if(!isBridgedConn(Connection[i].ConnectionType) && Connection[i].ServiceList != 'TR069'){
+            text[conn] = Connection[i].Name;
+            value[conn] = i;
+            conn++;
+        }    
+    }
+    for(var i=0;i<L2TPList.length;i++){
+            var tr = "";
+			if(i%2 == 0)
+				tr += "<tr class='OddRowB'>";
+			else
+				tr += "<tr class='EvenRowB'>";
+
+            tr += "<td>"+(i+1)+"</td>";
+			tr += "<td>"+L2TPList[i].Name+"</td>";
+			tr += "<td>"+ getModeStr(L2TPList[i].Mode)+"</td>";
+			tr += "<td>"+L2TPList[i].LnsIP+"</td>";
+			tr += "<td>"+genLocalIP(i)+"</td>";
+			tr += "<td><img style='cursor:pointer' src='../../skin/edit.gif' name='edit' onclick='uiEdit(\"" +L2TPList[i].Path+"\",\"" +(i)+"\")'><img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +L2TPList[i].Path+ "\")'></td>";                          
+            tr += "</tr>";
+			trs += tr;            
+     
+    }
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="6">'+getStr('LK_NoRule')+'</td></tr>'
+	jQuery("#L2TPTunnelList").append(trs);
+}
+
+function uiDelete(path){
+	if(!validateCode())
+		return false;
+	top.ConfirmMsg(getStr('LK_net_confirmdelete'),"delete",path);
+}
+   
+function ConfirmMsgResult(type,func,path)
+{
+	if(func == "delete")
+	{
+		if(type == "yes")
+		{
+			var df=document.vpn_l2tp;
+			AddElements(df,'del_obj',path);
+			df.submit();
+		}
+		else
+		{
+			window.event.returnValue = false;
+		}
+	}
+} 
+function uiEdit(path,idx)
+{    
+    G_Path = path;
+    G_Operation = "Edit";
+    document.location.href='/page/applications/app_l2tp_edit.shtml?id='+idx+'&Op='+ G_Operation +'&G_Path='+ path+'';
+}
+
+function __init()
+{
+	createTunnelList();
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_L2TP'))</script>
+<table id='L2TPTunnelList' cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_TunnelName"></td>
+	<td langkey="LK_L2TPTunnelMode"></td>
+	<td langkey="LK_LNSIP"></td>
+	<td langkey="LK_ListenIP"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td><script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script></td></tr>
+</table>	
+<script>printEndContent()</script>    
+</form>
+<form method="post" name ="vpn_l2tp" action="/cgi-bin/setup.cgi?page/applications/app_l2tp.shtml">
+</form>
+</body>
+</html>

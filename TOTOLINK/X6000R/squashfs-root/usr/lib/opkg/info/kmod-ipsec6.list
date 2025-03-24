@@ -1,0 +1,5 @@
+/lib/modules/5.4.194/xfrm6_tunnel.ko
+/lib/modules/5.4.194/esp6.ko
+/lib/modules/5.4.194/ipcomp6.ko
+/etc/modules.d/32-ipsec6
+/lib/modules/5.4.194/ah6.ko

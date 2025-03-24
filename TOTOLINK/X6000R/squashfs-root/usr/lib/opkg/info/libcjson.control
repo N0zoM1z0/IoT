@@ -1,0 +1,10 @@
+Package: libcjson
+Version: 1
+Depends: libc
+Source: package/carystudio/libcjson
+SourceName: libcjson
+Section: CaryStudio Properties
+SourceDateEpoch: 1654938098
+Architecture: aarch64_cortex-a53
+Installed-Size: 12610
+Description:  cjson library

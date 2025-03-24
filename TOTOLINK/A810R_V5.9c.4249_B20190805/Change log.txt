@@ -1,0 +1,6 @@
+1. Solve the Google Chrome update version and can't log in to the router.
+2. Add support for English, Simplified Chinese, Traditional Chinese, Vietnamese, Russian Adaptive.
+3. Add IPTV and IPV6 features
+4. Add Netsniper: special Way (TTL)
+5. Add itolink.net domain access function.
+6. Solve the problem of DNS outage in Vietnam

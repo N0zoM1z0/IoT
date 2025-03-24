@@ -1,0 +1,10 @@
+Package: cs_stun
+Version: 1.0.0
+Depends: libc, libuci20130104, libjson-c5, libopenssl1.1, libcommon
+Source: package/carystudio/cs_stun
+SourceName: cs_stun
+Section: carystudio
+SourceDateEpoch: 1681464540
+Architecture: aarch64_cortex-a53
+Installed-Size: 8620
+Description:  CWMP STUN Client

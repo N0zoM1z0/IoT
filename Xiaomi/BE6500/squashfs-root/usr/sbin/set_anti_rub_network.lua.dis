@@ -1,0 +1,80 @@
+local L0, L1, L2, L3, L4
+function L0(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10
+  L4 = require
+  L5 = "xiaoqiang.util.XQPushUtil"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQWifiUtil"
+  L5 = L5(L6)
+  L6 = require
+  L7 = "xiaoqiang.util.XQSynchrodata"
+  L6 = L6(L7)
+  L7 = tonumber
+  L8 = A0
+  L7 = L7(L8)
+  A0 = L7
+  L7 = tonumber
+  L8 = A1
+  L7 = L7(L8)
+  A1 = L7
+  if A2 == "nil" then
+  end
+  L7 = tonumber
+  L8 = A2
+  L7 = L7(L8)
+  A2 = L7
+  if A3 == "nil" then
+  end
+  if A0 and A1 then
+    L7 = L6.syncProtectionStatus
+    L8 = A0
+    L9 = A1
+    L7(L8, L9)
+    if A0 == 1 then
+      if A1 == 1 and A3 then
+        L7 = L5.editWiFiMacfilterList
+        L8 = 1
+        L9 = {}
+        L10 = A3
+        L9[1] = L10
+        L10 = 0
+        L7(L8, L9, L10)
+      end
+      L7 = L5.setWiFiMacfilterModel
+      L8 = true
+      L9 = A1
+      L7(L8, L9)
+    elseif A0 == 0 then
+      L7 = L5.setWiFiMacfilterModel
+      L8 = false
+      L9 = A1
+      L7(L8, L9)
+    end
+  end
+  if A2 then
+    L7 = L4.pushConfig
+    L8 = "level"
+    L9 = A2
+    L7(L8, L9)
+  end
+  L7 = os
+  L7 = L7.execute
+  L8 = "/sbin/notice_tbus_device_maclist.sh"
+  L7(L8)
+end
+_setAntiRubNetwork = L0
+L0 = os
+L0 = L0.execute
+L1 = "sleep 1"
+L0(L1)
+L0 = _setAntiRubNetwork
+L1 = arg
+L1 = L1[1]
+L2 = arg
+L2 = L2[2]
+L3 = arg
+L3 = L3[3]
+L4 = arg
+L4 = L4[4]
+L0(L1, L2, L3, L4)

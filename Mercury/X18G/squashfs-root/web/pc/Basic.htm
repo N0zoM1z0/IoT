@@ -1,0 +1,413 @@
+<script type="text/javascript">
+	(function(){
+
+		cloudHistory = new CloudHistory({
+			isFormWizard: false,
+			container: "cloudPageCon",
+			track: [{
+				/* BIND MERCURY ID */
+				page: "CloudBindMEID.htm",
+				callback: function(){
+					id("cloudPageBack").style.display = "none";
+				}
+			},{
+				/* CREATE MERCURY ID */
+				page: "CloudCreateMEID.htm",
+				callback: function(){
+					id("cloudPageBack").style.display = "inline-block";
+					id("cloudPageBack").onclick = function(){cloudHistory.go(-1)};
+				}
+			},{
+				/* FORGET MERCURY ID PASSWORD */
+				page: "CloudForgetPwd.htm",
+				callback: function(){
+					id("cloudPageBack").style.display = "inline-block";
+					id("cloudPageBack").onclick = function(){cloudHistory.go(-2)};
+				}
+			},{
+				/* SHOW MERCURY ID STATE */
+				page: "CloudShowMEID.htm",
+				callback: function(){
+					id("cloudPageBack").style.display = "none";
+				}
+			},{
+				/* CHANGE MERCURY ID PASSWORD */
+				page: "CloudChangePwd.htm",
+				callback: function(){
+					id("cloudPageBack").style.display = "inline-block";
+					id("cloudPageBack").onclick = function(){cloudHistory.go(-1)};
+				}
+			}]
+		});
+
+		function MercuryIDSetting()
+		{
+			var data = {}, bindeStatus, username;
+			data[uciCloudConfig.fileName] = {};
+			data[uciCloudConfig.fileName][KEY_NAME] = [
+				uciCloudConfig.secName.deviceStatus,
+				uciCloudConfig.secName.bind
+			];
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					bindeStatus = result[uciCloudConfig.fileName][uciCloudConfig.secName.deviceStatus][uciCloudConfig.optName.bindStatus];
+					username = htmlEscape(result[uciCloudConfig.fileName][uciCloudConfig.secName.bind][uciCloudConfig.optName.username]);
+
+					cloudHistory.setState({
+						account: username,
+						bind: (bindeStatus == uciCloudConfig.optValue.bindStatusBind) ? true : false
+					});
+
+					if (true == cloudHistory.getState("bind"))
+					{
+						// SHOW THE MERCURY-ID-STATE PAGE
+						cloudHistory.cursor = 3;
+						cloudHistory.go(0);
+						cloudPageDialog.show();
+					}
+					else
+					{
+						// SHOW THE BIND-MERCURY-ID PAGE
+						cloudHistory.cursor = 0;
+						cloudHistory.go(0);
+						cloudPageDialog.show();
+					}
+
+					refreshNavBarCloudStatus();
+				}
+				else
+				{
+
+				}
+			});
+		}
+
+		/* 导航栏配置 */
+		var navList = [{
+			"id":"navHomePage",
+			"str":label.homePage,
+			"class":"iconfont icon-home",
+			"handle":function(){loadPage("Home.htm", "content");},
+			"pressable":true
+		},{
+			"id":"navHighSet",
+			"str":label.highSet,
+			"class":"iconfont icon-advancesetting",
+			"handle":function(){loadPage("Advance.htm", "content");},
+			"pressable":true
+		},{
+			"id":"navCloudAccount",
+			"str":label.cloudIdNoBind,
+			"class":"iconfont icon-mercuryid",
+			"handle":MercuryIDSetting,
+			"spanId":"mercuryId",
+			"pressable":false
+		},{
+			"id":"navCloudAccount",
+			"str":label.appName,
+			"class":"iconfont icon-download",
+			"handle":function(event){mercuryAppDialog.show(event);},
+			"pressable":false
+		},{
+			"id":"navLogout",
+			"str":label.logout,
+			"class":"iconfont icon-exit",
+			"handle":function(){
+				clearTimeout(cloudRefreshHandle);
+				$.logout();
+			},
+			"pressable":false
+		}];
+
+		function initNavBar()
+		{
+			var navBar = id("navBar");
+			var ofragment = document.createDocumentFragment();
+			var li, span, item, icon, tag;
+
+			for (var i = 0; i < navList.length; i++)
+			{
+				item = navList[i];
+				li = document.createElement("li");
+				li.className = "navItem";
+				li.id = item["id"];
+				ofragment.appendChild(li);
+
+				icon = document.createElement("i");
+				icon.className = item["class"];
+				li.appendChild(icon);
+
+				span = document.createElement("span");
+				span.innerHTML = item["str"];
+				li.appendChild(span);
+
+				tag = document.createElement("i");
+				tag.className = "navItemTag";
+				li.appendChild(tag);
+
+				if (item["spanId"])
+				{
+					span.id = item["spanId"];
+				}
+
+				li.onclick = (function(o){
+					return function(event){
+						if (o["pressable"]){
+							$("li.navItem").removeClass("active");
+							$(this).addClass("active");
+							o["handle"](event);
+						}
+						else {
+							o["handle"](event);
+						}
+					}
+				})(item);
+
+				$(li).on("showTag", function(event, state){
+					$(this).find("i.navItemTag").css("display", state ? "block" : "none");
+				})
+
+				if (i == navList.length - 1)
+				{
+					$(li).css("margin-right", "0px");
+				}
+			}
+
+			navBar.appendChild(ofragment);
+
+			if (menuConfig.menuTargetUrl != "")
+			{
+				loadPage("Advance.htm", "content");
+			}
+			else
+			{
+				$("li.navItem span")[0].click();
+			}
+		}
+
+		(function(){
+			/* 导航栏初始化 */
+			initNavBar();
+
+			/* 根据setting.js中配置判断是否显示andlink/elink logo & 和家亲二维码，并在需要时才加载资源 */
+			if (showAndlinkLogo)
+			{
+				$("#andlinkLogo").css("background", andlinkLogoBg).css("display", "inline-block");
+			}
+			else if (showElinkLogo)
+			{
+				$("#elinkLogo").css("background", elinkLogoBg).css("display", "inline-block");
+			}
+
+			var data = {};
+			data[uciCloudConfig.fileName] = {};
+			data[uciCloudConfig.fileName][KEY_NAME] = [
+				uciCloudConfig.secName.newFirmware,
+				uciCloudConfig.secName.bind,
+				uciCloudConfig.secName.deviceStatus,
+				uciCloudConfig.secName.bindTip
+			];
+
+			data[uciDeviceInfo.fileName] = {};
+			data[uciDeviceInfo.fileName][KEY_NAME] = uciDeviceInfo.secName.info;
+
+			data[cloudClientStatus.fileName] = {};
+			data[cloudClientStatus.fileName][KEY_NAME] = cloudClientStatus.secName.clientInfo;
+
+			$.query(data, function(res){
+				var fwNewNotify,
+					upgradeNotShow,
+					upgradeType,
+					bindNotShow,
+					bindeStatus,
+					connStatus,
+					username;
+				if (ENONE == res[ERR_CODE])
+				{
+					fwNewNotify = res[uciCloudConfig.fileName][uciCloudConfig.secName.newFirmware][uciCloudConfig.optName.fwNewNotify];
+					upgradeNotShow = res[uciCloudConfig.fileName][uciCloudConfig.secName.newFirmware][uciCloudConfig.optName.noShow];
+					upgradeType = res[uciCloudConfig.fileName][uciCloudConfig.secName.newFirmware][uciCloudConfig.optName.fwUpdateType];
+					bindNotShow = res[uciCloudConfig.fileName][uciCloudConfig.secName.bindTip][uciCloudConfig.optName.noShow];
+					bindeStatus = res[uciCloudConfig.fileName][uciCloudConfig.secName.deviceStatus][uciCloudConfig.optName.bindStatus];
+					connStatus = res[cloudClientStatus.fileName][cloudClientStatus.secName.clientInfo][cloudClientStatus.optName.connectStatus];
+					username = htmlEscape(res[uciCloudConfig.fileName][uciCloudConfig.secName.bind][uciCloudConfig.optName.username]);
+
+					/* 初始化页面数据 */
+					id("version").innerHTML += res[uciDeviceInfo.fileName][uciDeviceInfo.secName.info][uciDeviceInfo.optName.swVer];
+
+					cloudHistory.setState({
+						account: username,
+						bind: (bindeStatus == uciCloudConfig.optValue.bindStatusBind) ? true : false
+					});
+
+					refreshNavBarCloudStatus();
+
+					if (true == gOnlineUpgradeFail)
+					{
+						gOnlineUpgradeFail = false;
+					}
+					else if (fwNewNotify == uciCloudConfig.optValue.fwNewTrue &&
+							 upgradeType == uciCloudConfig.optValue.fwUpdateTypeNormal &&
+							 upgradeNotShow == uciCloudConfig.optValue.noShow.no)
+					{
+						pushCloudUpgradeDialog = true;
+					}
+					else if (bindeStatus != uciCloudConfig.optValue.bindStatusBind &&
+						connStatus == cloudClientStatus.optValue.connectStatus.connected &&
+						bindNotShow == uciCloudConfig.optValue.noShow.no)
+					{
+						pushCloudIDSuggestDialog = true;
+					}
+				}
+			});
+
+			refreshRoutine();
+		})();
+	})();
+</script>
+<style type="text/css">
+	.wrapper{
+		min-height:100%;
+	}
+	.main{
+		padding-bottom:88px;
+	}
+	#header{
+		position:fixed;
+		left:0;
+		right:0;
+		z-index:9999;
+		min-width:1000px;
+	}
+	@media screen and (max-width: 1000px){
+		#header{
+			position:relative !important;
+		}
+		#content{
+			padding-top:0 !important;
+		}
+	}
+	#header div.nav{
+		position:relative;
+		background-color:#262729;
+		height:52px;
+		padding:0 40px;
+	}
+	#header:after{
+		content:"";
+		display:block;
+		height:4px;
+		background-color:#ff4d79;
+	}
+	#content{
+		padding-top:56px;
+	}
+	#footer{
+		background-color:#f5f5f5;
+		color:#999;
+		font-size:13px;
+		text-align:center;
+		height:40px;
+		line-height:40px;
+		margin-top:-40px;
+		min-width:1000px;
+	}
+	#footer span{
+		margin-right:40px;
+	}
+	#footer a{
+		text-decoration:none;
+		color:#999;
+	}
+	#navBar{
+		float:right;
+		height:100%;
+	}
+	.nav .logo{
+		float:left;
+		height:24px;
+		margin-top:16px;
+		font-size: 0;
+	}
+	div.logo i{
+		display:inline-block;
+		width:130px;
+		height:100%;
+		vertical-align:middle;
+	}
+	div.logo i#mercuryLogo{
+		background:url(../web-static/images/basic.png) no-repeat;
+	}
+	div.logo span{
+		display:inline-block;
+		font-size:13px;
+		color:#fff;
+		line-height:24px;
+		vertical-align:middle;
+		margin-left:12px;
+	}
+	li.navItem{
+		float:left;
+		color:#ccc;
+		cursor:pointer;
+		position:relative;
+	}
+	li.navItem{
+		margin-left:12px;
+		margin-right:12px;
+	}
+	li.navItem span{
+		color:inherit;
+		font-size:13px;
+		display:inline-block;
+		height:20px;
+		padding:16px 0 16px 4px;
+	}
+	li.navItem i.iconfont{
+		font-size:16px;
+		vertical-align:middle;
+	}
+	li.navItem.active,
+	li.navItem:active,
+	li.navItem:hover{
+		color:#fff;
+	}
+	li.navItem i.navItemTag{
+		height: 4px;
+		width: 4px;
+		position: absolute;
+		right: -6px;
+		top: 16px;
+		background: #FF4C79;
+		border-radius: 2px;
+		display: none;
+	}
+	#mercuryId{
+		max-width:200px;
+		vertical-align:middle;
+		white-space:nowrap;
+		text-overflow:ellipsis;
+		overflow:hidden;
+	}
+</style>
+<div class="wrapper">
+	<div class="main">
+		<div id="header">
+			<div class="nav">
+				<div class="logo">
+					<i id="mercuryLogo"></i>
+					<i id="andlinkLogo"></i>
+					<i id="elinkLogo"></i>
+					<span>{%titleStr.hardwareinfo%}</span></div>
+				<ul id="navBar"></ul>
+			</div>
+		</div>
+		<div id="content"></div>
+	</div>
+</div>
+<div id="footer">
+		<span id="version">{%label.softVersion%}{%label.colon%}</span>
+		<a href="http://www.mercurycom.com.cn" target="_blank">{%label.officalAddr%}</a>
+</div>

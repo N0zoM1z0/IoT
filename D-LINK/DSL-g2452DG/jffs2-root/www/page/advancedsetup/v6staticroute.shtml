@@ -1,0 +1,274 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+function staticConnectionTuple(){
+    this.path="";
+    this.Enable="";
+    this.Status="";
+    this.DestIPv6Address="";
+    this.DestPrefixLength="";
+    this.GatewayIPv6Address="";
+    this.Interface="";
+    this.ForwardingMetric="";
+    this.StaticRoute="";
+    this.ErrorInfo="";    
+}
+var index = 0;
+var staticRoutingList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_IPv6Layer3Forwarding.IPv6Forwarding. Enable Status DestIPv6Address DestPrefixLength GatewayIPv6Address Interface ForwardingMetric StaticRoute X_CT-COM_ErrorInfo" -->
+staticRoutingList[index] = new staticConnectionTuple();
+staticRoutingList[index].path = "<!--#path -->";
+staticRoutingList[index].Enable = "<!--#leaf "1"-->";
+staticRoutingList[index].Status = "<!--#leaf "2"-->";
+staticRoutingList[index].DestIPv6Address = "<!--#leaf "3"-->";
+staticRoutingList[index].DestPrefixLength = "<!--#leaf "4"-->";
+staticRoutingList[index].GatewayIPv6Address = "<!--#leaf "5"-->";
+staticRoutingList[index].Interface = "<!--#leaf "6"-->";
+staticRoutingList[index].ForwardingMetric = "<!--#leaf "7"-->";
+staticRoutingList[index].StaticRoute = "<!--#leaf "8"-->";
+staticRoutingList[index].ErrorInfo = '<!--#leaf "9"-->';
+index++;
+<!--#endgetobject -->
+
+function ConnectionTuple()
+{    /* common */
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.IPMode = ""
+    this.ConnectionType = "";
+    this.DeviceName="";
+}
+
+var n = 0;
+var wanConnection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList X_CT-COM_IPMode ConnectionType" -->
+wanConnection[n] = new ConnectionTuple();
+wanConnection[n].Type = "IP";
+wanConnection[n].Path = "<!--#path -->";
+wanConnection[n].Name = "<!--#leaf "1"-->";
+wanConnection[n].ServiceList = "<!--#leaf "2"-->";
+wanConnection[n].IPMode = "<!--#leaf "3"-->";
+wanConnection[n].ConnectionType = "<!--#leaf "4"-->";
+n++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList X_CT-COM_IPMode ConnectionType" -->
+wanConnection[n] = new ConnectionTuple();
+wanConnection[n].Type = "PPP";
+wanConnection[n].Path = "<!--#path -->";
+wanConnection[n].Name = "<!--#leaf "1"-->";
+wanConnection[n].ServiceList = "<!--#leaf "2"-->";
+wanConnection[n].IPMode = "<!--#leaf "3"-->";
+wanConnection[n].ConnectionType = "<!--#leaf "4"-->";
+n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+    
+//获取桥连接名
+var m = 0;
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.1. Name" -->
+    wanConnection[n] = new ConnectionTuple();
+    wanConnection[n].Path = "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.1.";
+    wanConnection[n].Name = "LAN";
+    n++;
+    m++;
+<!--#endgetobject -->
+var G_Operation = "Add";
+var G_Path ;
+
+function getconnectionname(path){
+    var conn_name = "";
+    for (i = 0; i < wanConnection.length; i++)
+    {
+      if ((wanConnection[i].Path + wanConnection[i].Name )== path){
+           conn_name = wanConnection[i].Name;
+           break;
+      }
+    }
+    return conn_name;
+}
+
+function init(){
+	var text = [];
+    var value = [];
+    var url=window.location.search;
+    var i=url.indexOf('?');
+    var connection = "";
+	var conn = 0;
+
+    if(i==-1)
+        return null;
+    var arr = url.toString();
+    var strs = arr.split("&"); 
+    var str= strs[0].split("=");
+    var id=strs[1].split("=");
+    G_index =str[1];
+    G_Operation =id[1];
+	
+    if(G_Operation == 'Add'){
+	
+		for (i = 0; i < wanConnection.length; i++)
+		{
+			if(wanConnection[i].IPMode != '1'){
+				if(!isBridgedConn(wanConnection[i].ConnectionType)){
+					text[conn] = wanConnection[i].Name;
+					value[conn] = i;
+					conn++;
+				}
+			}
+		}
+		createOptions('selectConnectionName', text, value);
+	}else if(G_Operation == 'Edit'){
+        var path=strs[2].split("=");
+        G_Path =path[1]; 
+        Path = staticRoutingList[G_index].Interface
+		
+        connection = getconnectionname(Path);
+        setValue('INPUT_Enable', staticRoutingList[G_index].Status == "Enable" ? "1" : "0");
+        if(staticRoutingList[G_index].Enable=="0"){
+           $('INPUT_Enable').checked=false;
+        }else if(staticRoutingList[G_index].Enable=="1"){
+           $('INPUT_Enable').checked=true;    
+        }    
+        setValue("DestinationAddress", staticRoutingList[G_index].DestIPv6Address);
+        setValue("SubnetMask",staticRoutingList[G_index].DestPrefixLength);
+        setValue("staticRougingGateway", staticRoutingList[G_index].GatewayIPv6Address);
+        setValue("staticRougingMetrics", staticRoutingList[G_index].ForwardingMetric);
+		$('selectConnectionName').disabled = true;	
+	
+	
+     	text[0] = connection;
+    	value[0] = 0;
+    	createOptions('selectConnectionName', text,value);
+    	$('selectConnectionName').value = 0;    
+    }
+}
+
+
+function uiSubmit(){
+    var df = document.ipv6_rtroutecfgdataform; 
+    var node = $('selectConnectionName','INPUT_Enable','DestinationAddress','SubnetMask','staticRougingGateway','staticRougingMetrics');  
+    if(!(checkIpv6($('DestinationAddress')))){           
+        return false;
+    }
+    if(getValue('SubnetMask')<3 || getValue('SubnetMask')>128 || isAllNum(getValue('SubnetMask')) == 0 || getValue('SubnetMask') =="" ){           
+        top.AlertMsg(getStr("LK_DiagCheck"),'SubnetMask');
+        return false;
+    }
+    if(!(checkIpv6($('staticRougingGateway')))){           
+        return false;
+    }
+    if(getValue('staticRougingMetrics')<3 || getValue('staticRougingMetrics')>128 || isAllNum(getValue('staticRougingMetrics')) == 0 || getValue('staticRougingMetrics') =="" ){           
+        top.AlertMsg(getStr("LK_DiagCheck"),'staticRougingMetrics');
+        return false;
+    }      
+    if(!validateCode())
+        return false;
+    if(G_Operation == 'Add'){  
+	var object_path="InternetGatewayDevice.X_CT-COM_IPv6Layer3Forwarding.IPv6Forwarding.{i}.";
+        var wanConn = $('selectConnectionName').value;
+        if(wanConn == ''){
+            top.AlertMsg(getStr("LK_app_chooseWanConnect"));
+            return false;
+          }
+        AddElements(df, 'add_obj',object_path);
+        var wanPath = wanConnection[wanConn].Path+wanConnection[wanConn].Name;
+        if($('INPUT_Enable').checked== false){
+            AddElements(df, object_path+"Enable",0);
+        }else {
+            AddElements(df, object_path+"Enable",1);
+        }
+        AddElements(df, object_path+"Interface",wanPath);
+        AddElements(df, object_path+"DestIPv6Address",getValue('DestinationAddress'));
+        AddElements(df, object_path+"DestPrefixLength", getValue('SubnetMask'));
+        AddElements(df, object_path+"GatewayIPv6Address", getValue('staticRougingGateway'));
+        AddElements(df, object_path+"ForwardingMetric", getValue('staticRougingMetrics'));
+    }else if(G_Operation == 'Edit'){
+        var _path =G_Path; 
+        if($('INPUT_Enable').checked== false){
+            AddElements(df, _path+"Enable",0);
+        }else if($('INPUT_Enable').checked== true){
+            AddElements(df, _path+"Enable",1);
+        } 
+        AddElements(df, _path+"DestIPv6Address", getValue('DestinationAddress'));
+        AddElements(df, _path+"DestPrefixLength",getValue('SubnetMask'));
+        AddElements(df, _path+"GatewayIPv6Address",getValue('staticRougingGateway'));
+        AddElements(df, _path+"ForwardingMetric",getValue('staticRougingMetrics'));    
+    }
+    df.submit();    
+}
+function uiBack()
+{
+	document.location.href = "adv_v6staticroute.shtml"
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StaticRouteSetting'))</script>
+<table width="600" cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_ConnectionNamee"></td>
+	<td><select name="select" id="selectConnectionName">
+                <option ></option>
+              </select>
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable"></div><div class="div_right"></td>
+</tr>
+<tr>
+	<td langkey="LK_DestinationAddresss"></td>
+	<td><input type="text" maxlength=15 id="DestinationAddress"/></td>
+</tr>
+<tr>
+	<td langkey="LK_SubnetPrefixLengthh"></td>
+	<td><input type="text" maxlength=15 id="SubnetMask"/></td>
+</tr>
+<tr>
+	<td langkey="LK_Gatewayy"></td>
+	<td><input type="text" maxlength=15 id="staticRougingGateway"/></td>
+</tr>
+<tr>
+	<td langkey="LK_Metricss"></td>
+	<td><input type="text" maxlength=3 id="staticRougingMetrics"/></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>&nbsp;
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="ipv6_rtroutecfgdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_v6staticroute.shtml">
+</form>
+</body>
+</html>

@@ -1,0 +1,954 @@
+/* main */
+.dev_link {
+	transform: translate(-90px,0);
+	height: 40px;
+	color: #FFFFFF;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.dev_link p {
+	display: inline-block;
+	padding: 0 5px 0 4px;
+	
+}
+
+.dev_link .line {
+	margin: 0 10px;
+}
+
+.internet-set {
+	position: absolute;
+	top: 50px;
+	left: 20px;
+}
+
+.internet-set p,
+.internet-set button {
+	margin-top: 5px;
+}
+
+.wifi-setting {
+	position: absolute;
+	top: 85px;
+	left: 40%;
+	z-index: 99;
+}
+
+.wanOn {
+	position: absolute;
+	bottom: 108px;
+	left: 450px;
+	z-index: 99;
+}
+
+.lanOn1 {
+	position: absolute;
+	bottom: 108px;
+	left: 186px;
+	z-index: 99;
+}
+
+.lanOn2 {
+	position: absolute;
+	bottom: 108px;
+	left: 246px;
+	z-index: 99;
+}
+
+.lanOn3 {
+	position: absolute;
+	bottom: 108px;
+	left: 308px;
+	z-index: 99;
+}
+
+.lanOn4 {
+	position: absolute;
+	bottom: 108px;
+	left: 370px;
+	z-index: 99;
+}
+
+.wanInfo {
+	display: none;
+	position: absolute;
+	bottom: 15px;
+	left: 524px;
+	width: 300px;
+	border-radius: 8px;
+	background-color: #fff;
+	box-sizing: border-box;
+	padding: 30px;
+	box-shadow: 2px 2px 10px #2B3238;
+	z-index: 102;
+}
+
+#routerwanOn:hover~.wanInfo {
+	display: block;
+}
+
+.wanInfo ul li {
+	color: #666;
+	margin-bottom: 8px;
+}
+
+.wanInfo ul li label {
+	width: 38%;
+	display: inline-block;
+}
+
+.reset {
+	position: absolute;
+	bottom: 127px;
+	left: 548px;
+}
+
+.linkLine {
+	position: absolute;
+	bottom: 55px;
+	left: 68px;
+	z-index: 99;
+}
+
+.lineStus {
+	position: absolute;
+	bottom: 142px;
+	left: 48px;
+	z-index: 100;
+}
+
+.netDiagnosis {
+	position: absolute;
+	left: 110px;
+	bottom: 60px;
+	background-color: #F44336;
+	border-radius: 4px;
+	padding: 6px 10px;
+	color: #fff;
+	cursor: pointer;
+	z-index: 100;
+}
+
+.QRCode {
+	position: absolute;
+	top: 50px;
+	right: 40px;
+}
+
+.state5g {
+	position: absolute;
+	bottom: 50px;
+	left: 2px;
+}
+
+.state5g ul {
+	position: absolute;
+	top: 10px;
+	left: 0;
+}
+
+.state5g ul li {
+	margin-top: 12px;
+}
+
+.state5g ul li span {
+	display: inline-block;
+	width: 50%;
+	text-align: right;
+	margin-right: 10px;
+}
+
+.state5g ul li label {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: url(../img/signal.png);
+}
+
+.state5g ul li i {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: url(../img/signal.png) -33px 0px no-repeat;
+}
+
+.link-status {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+}
+
+.link-status ul {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 10px;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.link-status ul li {
+	width: 48%;
+	text-align: center;
+	margin: 8px 0;
+}
+
+.link-status ul li span {
+	display: inline-block;
+	font-weight: 550;
+	margin-top: 6px;
+}
+
+.router-img {
+	position: absolute;
+	bottom: 92px;
+	left: 167px;
+}
+
+.footer {
+	color: #fff;
+	margin: 20px 0;
+}
+
+.footer span {
+	display: inline-block;
+	margin-right: 6px;
+}
+
+/* 网络诊断 */
+.diagnosis {
+	margin: 25px 25px 0;
+}
+
+.diagnosis li {
+	margin-bottom: 15px;
+	overflow: hidden;
+}
+
+.diagnosis li label {
+	display: inline-block;
+	float: left;
+}
+
+.diagnosis li span {
+	display: inline-block;
+	float: right;
+}
+
+/* more */
+/* 网址黑名单 */
+.urlblack-item {
+	margin: 10px 0;
+}
+
+.urlblack-item h3 {
+	line-height: 35px;
+	padding-left: 6px;
+	color: #000;
+	font-size: 17px;
+	background-color: #e4e5e6;
+}
+
+.urlblack-item .urlblackBox {
+	padding: 15px;
+}
+
+
+.urlblackBox-right {
+	width: 55%;
+}
+
+.urlblackBox-right p {
+	margin: 0 0 8px 35px;
+}
+
+.macListContent {
+	position: absolute;
+	top: 38px;
+	left: 0;
+}
+
+.macListContent li {
+	width: 220px;
+	padding-left: 10px;
+	box-sizing: border-box;
+	background-color: #eee;
+}
+
+.macListContent li:hover {
+	background-color: #3A8EE6;
+	color: #fff;
+}
+
+.el-tabs__nav {
+	width: 100% !important;
+	transform: translateX(0px) !important;
+}
+
+.el-tabs__item {
+	color: #92d7ff !important;
+	width: 25%;
+	text-align: center;
+	font-size: 20px;
+}
+
+.el-tabs__active-bar {
+	width: 25% !important;
+}
+
+.is-active {
+	color: #fff !important;
+	width: 25%;
+}
+
+ul.tab_container {
+	margin-top: 25px;
+}
+
+ul.tab_container li {
+	display: none;
+	float: left;
+	width: 21%;
+	margin: 0 35px 12px 0;
+	text-align: center;
+	background-color: #fff;
+	border-radius: 5px;
+	cursor: pointer;
+	color: #283238;
+}
+
+ul.tab_container li i {
+	display: block;
+	width: 64px;
+	height: 64px;
+	background-image: url(../img/result.png);
+	margin: 7px auto;
+}
+
+ul.tab_container li:hover {
+	background-color: #409EFF;
+	color: #fff;
+}
+
+ul.tab_container li:hover i {
+	display: block;
+	width: 64px;
+	height: 64px;
+	margin: 7px auto;
+	background-image: url(../img/result_selected.png);
+}
+
+ul.tab_container li p {
+	height: 32px;
+	border-top: 1px solid #e6e6e6;
+	text-align: center;
+	line-height: 32px;
+}
+
+/* 外网设置 */
+#more_internet i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -819px;
+}
+
+#more_internet:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -4px 143px;
+}
+
+/* 局域网设置 */
+#more_lan i {
+	background-position: 0 -814px;
+}
+
+#more_lan:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px 291px;
+}
+
+/* qos */
+#more_QOS i {
+	background-position: 0px 582px;
+}
+
+#more_QOS:hover i {
+	background-position: 0 656px;
+}
+
+/* 5g上网设置 */
+#more_5g i {
+	background-image: url(../img/5g.png);
+}
+
+#more_5g:hover i {
+	background-image: url(../img/5g_selected.png);
+}
+
+/* 流量控制 */
+#more_assistant i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -5px;
+}
+
+#more_assistant:hover i {
+	background-image: url(../img/result_selected1.png);
+}
+
+/* pppoe服务器 */
+#more_pppoe i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -227px;
+}
+
+#more_pppoe:hover i {
+	background-image: url(../img/result_selected1.png);
+}
+
+/* mac克隆 */
+#macClone i {
+	background-position: 0 360px;
+}
+
+#macClone:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0 434px;
+}
+
+/* 高级dns */
+#advancedDNS i {
+	background-position: 0px -666px;
+}
+
+#advancedDNS:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0 804px;
+}
+
+/* ipv6 */
+#ipv6 i {
+	background-image: url(../img/ipv6.png);
+}
+
+#ipv6:hover i {
+	background-image: url(../img/ipv6_selected.png);
+}
+
+#iptv i {
+	background-image: url(../img/iptv.png);
+}
+
+#iptv:hover i {
+	background-image: url(../img/iptv_selected.png);
+}
+
+/* wifi设置 */
+#more_wifi i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -893px;
+}
+
+#more_wifi:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px 69px;
+}
+
+/* wifi模式 */
+#wifiMode i {
+	background-image: url(../img/wifiMode.png);
+	background-size: cover;
+}
+
+#wifiMode:hover i {
+	background-image: url(../img/wifiMode_select.png);
+	background-size: cover;
+}
+
+/* 访客网络 */
+#visitorNet i {
+	background-position: 0 -962px;
+}
+
+#visitorNet:hover i {
+	background-position: 0 582px;
+}
+
+/* 信道设置 */
+#channelSet i {
+	background-position: 0px -1406px;
+}
+
+#channelSet:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px 138px;
+}
+
+/* 2.4G信道优化 */
+#twoChannelOptimize i {
+	background-position: 0px -1258px;
+}
+
+#twoChannelOptimize:hover i {
+	background-position: 0px 286px;
+}
+
+/* 绑定列表 */
+#StaticList i {
+	background-position: 0px -1332px;
+}
+
+#StaticList:hover i {
+	background-position: 0px 212px;
+}
+
+/* wifi定时关闭 */
+#wifiTiming i {
+	background-image: url(../img/wftime.png);
+}
+
+#wifiTiming:hover i {
+	background-image: url(../img/wftime_selected.png);
+}
+
+/* 儿童保护 */
+#more_terminallist i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -301px;
+}
+
+#more_terminallist:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px 661px;
+}
+
+/* 网址黑名单 */
+#URL_blacklist i {
+	background-image: url(../img/url_selected.png);
+}
+
+#URL_blacklist:hover i {
+	background-image: url(../img/url.png);
+}
+
+/* 修改登录密码 */
+#adminPass i {
+	background-position: 0px -888px;
+}
+
+#adminPass:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px 656px;
+}
+
+/* 面板灯开关 */
+#LED i {
+	background-image: url(../img/wftime.png);
+}
+
+#LED:hover i {
+	background-image: url(../img/wftime_selected.png);
+}
+
+/* 世界时间 */
+#worldTime i {
+	background-image: url(../img/clock.png);
+}
+
+#worldTime:hover i {
+	background-image: url(../img/clock_selected.png);
+}
+
+/* 恢复出厂设置 */
+#restore i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -597px;
+}
+
+#restore:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px -523px;
+}
+
+/* 重启路由器 */
+#ReBoot i,
+#scheduleRestart i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -671px;
+}
+
+#ReBoot:hover i,
+#scheduleRestart:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px 365px;
+}
+
+/* 硬件加速 */
+#hardware i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -153px;
+}
+
+#hardware:hover i {
+	background-image: url(../img/result_selected1.png);
+	background-position: -5px -153px;
+}
+
+/* ftp */
+#ftp i {
+	background-position: 0px -74px;
+}
+
+#ftp:hover i {
+	background-position: 0px -74px;
+}
+
+/* samba */
+#samba i {
+	background-position: 0px -74px;
+}
+
+#samba:hover i {
+	background-position: 0px -74px;
+}
+
+/* pptp, l2tp */
+#pptp_vpnSet i,
+#vpnSet i {
+	background-position: 0px -148px;
+}
+
+#pptp_vpnSet:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px -148px;
+}
+
+/* dmz */
+#dmz i {
+	background-position: 0px -444px;
+}
+
+#dmz:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px -444px;
+}
+
+#upnp i {
+	background-position: 0px -370px;
+}
+
+#upnp:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px -370px;
+}
+
+/* tr069 */
+#tr069 i {
+	background-image: url(../img/result1.png);
+	background-position: -5px -523px;
+}
+
+#tr069:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px 64px;
+}
+
+
+/* 远程web管理 */
+#webadmin i {
+	background-image: url(../img/webadmin.png);
+}
+
+#webadmin:hover i {
+	background-image: url(../img/webadmin_selected.png);
+}
+
+/* 端口转发 */
+#forwarding i {
+	background-position: 0px -518px;
+}
+
+#forwarding:hover i {
+	background-image: url(../img/result_selected.png);
+	background-position: 0px -518px;
+}
+
+/* 虚拟服务器 */
+#vserver i {
+	background-position: 0px -592px;
+}
+
+#vserver:hover i {
+	background-position: 0px -592px;
+}
+
+/* 第三方插件 */
+#plugin i {
+	background-position: 0px -740px;
+}
+
+#plugin:hover i {
+	background-position: 0px -740px;
+}
+
+/* 共享WIFI */
+#shared i {
+	background-image: url(../img/shared.png);
+}
+
+#shared:hover i {
+	background-image: url(../img/shared_selected.png);
+}
+
+.feature-header {
+	color: #2b3238;
+	padding: 6px 12px 8px;
+	background-color: #f4f4f4;
+	border-bottom: 1px solid #c1c1c1;
+}
+
+.feature-header p {
+	line-height: 32px;
+}
+
+.feature-content {
+	/* height: 380px; */
+	height: auto;
+	padding: 15px 10px 25px;
+	overflow: auto;
+	color: #666666;
+	background-color: #FFFFFF;
+}
+
+/* @media screen and (max-height:820px){
+				.feature-content{
+					height: 400px;
+					overflow: auto;
+				}
+			} */
+
+.tips {
+	color: #ce443a;
+	margin-bottom: 6px;
+}
+
+.macInput {
+	width: 55px;
+	height: 30px;
+	border-radius: 5px;
+	text-indent: 15px;
+	border: 1px solid #c0c4cc;
+	outline: none;
+}
+
+/* 流量控制 */
+.flowTip {
+	padding: 12px 0;
+}
+
+.flow-progress {
+	position: relative;
+}
+
+.flow-progress p {
+	position: absolute;
+	right: 22%;
+	top: 38px;
+}
+
+.flow {
+	margin: 15px 0;
+}
+
+.flow-item {
+	margin-bottom: 15px;
+}
+
+.flow .flow-item>label {
+	width: 35%;
+	display: inline-block;
+	text-align: right;
+	margin-right: 20px;
+}
+
+/* setup */
+
+.graph {
+	text-align: center;
+}
+
+.showbox {
+	width: 100%;
+	margin: 22px auto 0;
+	background-color: #fff;
+	color: #666666;
+	border-radius: 14px;
+	padding-bottom: 20px;
+}
+
+.showbox-title {
+	background-color: #f5f5f5;
+	padding: 12px 10px;
+	color: #666666;
+}
+
+.showbox-title-right {
+	color: rgb(0, 204, 255);
+}
+
+
+.wifi_classify {
+	padding: 10px 0 12px;
+	border-bottom: 1px solid #d9d9d9;
+	width: 90%;
+	margin: 0 auto 8px;
+	color: #757575;
+	font-size: 18px;
+}
+
+.modeHelpTip li {
+	margin-bottom: 10px;
+}
+
+/* 管理密码 */
+.loginSet {
+	padding-top: 20px;
+}
+
+.loginSet-item {
+	margin-bottom: 15px;
+}
+
+.loginSet-item>label {
+	display: inline-block;
+	text-align: right;
+	margin-right: 15px;
+}
+
+/* terminal */
+
+.el-dialog__footer {
+	text-align: center;
+}
+
+/* .showbox {
+	width: 80%;
+	margin: 15px 0 0 20px;
+	background-color: #fff;
+	border-radius: 8px;
+	overflow: auto;
+} */
+
+.terList {
+	padding: 25px;
+}
+
+.terList-item {
+	margin-right: 40px;
+	color: #777;
+	font-size: 15px;
+	font-weight: 550;
+}
+
+.terList-item.active {
+	color: rgb(11, 183, 245);
+}
+
+.terBody h3 {
+	padding: 10px 15px;
+	background-color: #f4f4f4;
+	font-size: 15px;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	color: #000;
+}
+
+.device {
+	padding: 5px 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.device-item {
+	width: 25%;
+	margin-right: 15px;
+}
+
+.device-item:last-child {
+	margin-right: 0;
+}
+
+.device-item p {
+	margin: 0 6px 6px 0;
+}
+
+.dev-item {
+	overflow: hidden;
+	padding: 12px 18px;
+}
+
+.dev-item-speed {
+	margin-right: 30px;
+}
+
+.dev-item-speed i {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: url(../img/up.png) no-repeat;
+	vertical-align: middle;
+}
+
+/* 黑名单 */
+.blackHead {
+	overflow: hidden;
+	padding: 0 15px;
+}
+
+.blackHead-item {
+	width: 25%;
+	text-align: center;
+	float: left;
+	word-wrap:break-word; 
+	word-break:break-all; 
+}
+
+/* upgrade */
+.upgrade .showbox-item {
+	padding: 20px 0;
+} 
+
+.upgrade .showbox-title {
+	padding: 5px 30px;
+	color: #777;
+	background-color: #f4f4f4;
+	font-size: 18px;
+	margin: 20px 0;
+}
+.upgrade .showbox-item-box{
+	margin-bottom: 15px;
+	color: #666666;
+}
+.upgrade .showbox-item-box p{
+	display: inline-block;
+	margin-right: 20px;
+	width: 40%;
+	text-align: right;
+}
+ 
+/* 网络诊断 */
+.diagnosis li i{
+	font-size:20px;
+	float: right;
+}
+.diagnosis li i.el-icon-success{
+	color: #00FF00 !important;
+}
+.diagnosis li i.el-icon-error{
+	color: red !important;
+}
+
+.net-diagnosis-tip p{
+	margin-left: 25px;
+	color: red;
+	text-align: center;
+}

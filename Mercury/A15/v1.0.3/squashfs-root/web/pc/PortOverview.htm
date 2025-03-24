@@ -1,0 +1,11 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.portOverview%}</h1>
+	</div>
+</div>
+<div id="routerPortArea"></div><script type="text/javascript">(function(){(function(b){var a={},c=[];a[uciPortConfig.fileName]={};a[uciPortConfig.fileName][KEY_TABLE]=[];a[uciPortConfig.fileName][KEY_TABLE][0]=uciPortConfig.secType.devInfo;$.query(a,function(a){var d;a:{d=a[ERR_CODE];var f="";switch(d){case ENONE:d=!0;break a;default:f=errStr.unknown+d}alarmDialog.show(f);d=!1}d&&(c=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],b(c))})})(function(b){$("#routerPortArea").html("");for(var a=0;a<b.length;a++){var c=$('<div class="routerItem"></div>');
+b[a][uciPortConfig.dynOptName.cap]==uciPortConfig.dynOptValue.cap.cap?$("#routerPortArea").prepend(c):$("#routerPortArea").append(c);var e=[];(new PortConfig).initPortData(b[a][uciPortConfig.dynOptName.phyInfo],"ALL",e,b[a][uciPortConfig.dynOptName.sfpCapability]);(new PortConfig).init({element:c[0],type:"display",port:e,powerPos:b[a][uciPortConfig.dynOptName.powerPos],powerIdx:b[a][uciPortConfig.dynOptName.powerIdx],showRouterName:!0,routerName:b[a][uciPortConfig.dynOptName.name],showOffLine:b[a][uciPortConfig.dynOptName.online]!=
+uciPortConfig.dynOptValue.online.online})}})})();
+</script><style type="text/css">#routerPortArea{margin-top:48px}#routerPortArea .routerItem{margin-top:24px}div.title h1{padding-top:24px;padding-bottom:24px}</style>

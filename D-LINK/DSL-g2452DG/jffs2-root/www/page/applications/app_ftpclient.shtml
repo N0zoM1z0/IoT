@@ -1,0 +1,370 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=GB2312'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function USBpartionTuple()
+{
+    this.usbmounted = "";
+    this.usbmountpoint = "";
+}
+
+var index=0;
+USBpartionS = new Array();
+
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage."-->
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage.{i}.Partitions. Mounted MountPoint"-->
+USBpartionS[index] = new USBpartionTuple();
+USBpartionS[index].usbmounted = "<!--#leaf  "1"-->";
+USBpartionS[index].usbmountpoint = "<!--#leaf  "2"-->";
+index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+var password_changed=0;
+function Password_changed()
+{
+    password_changed=1;
+    return true;
+}
+function getStat(str)
+{
+    switch(str)
+    {
+        case "0": 
+        case "1": 
+            return getStr("LK_Downloading");
+        case "2": 
+            return getStr("LK_StorageAccessError");
+        case "3": 
+            return getStr("LK_NetworkError");
+        case "4": 
+            return getStr("LK_UserNamePasswordError");
+        case "5": 
+            return getStr("LK_SavePathError");
+        case "6": 
+            return getStr("LK_Thefilenotexist");
+        case "7": 
+            return getStr("LK_Complete");
+        case "8": 
+            return getStr("LK_Suspended");
+        case "9": 
+            return getStr("LK_Thefilealreadyexist");
+        case "10":
+            return getStr("LK_Nospaceleftondevice");
+        default:
+            break;
+    }
+}
+
+function createUsbDecOpt()
+{
+    var _text = [], _value = [];
+    for(i=0,_len=USBpartionS.length;i<_len;i++)
+    {
+        if(USBpartionS[i].usbmounted != '0')
+		{
+		    var _pre_mountpoint = USBpartionS[i].usbmountpoint.toUpperCase();
+			_text.push(_pre_mountpoint.substring(5));
+            _value.push(USBpartionS[i].usbmountpoint);
+        }
+    }
+    createOptions("SELECT_UsbPartion",_text,_value);
+}
+                    
+function init()
+{
+    createUsbDecOpt();
+}
+
+function uiSubmit()
+{
+	var vtmp;
+	if(index != 0)
+		vtmp=FTPClientS[0].ftpsign+1;
+	else
+		vtmp=1;
+
+	var j;
+	var df = document.dataform;
+	if(index == 10)
+	{
+		for(j = index-1;j >= 0; j--)
+		{
+			if(FTPClientS[j].ftpdownloadstate != "1")
+			{	
+				AddElements(df, "del_obj", FTPClientS[j].path);
+				break;
+			}
+		}
+	
+		if(j < 0)
+		{
+			top.AlertMsg(getStr("LK_ExceededcurrentText"));
+			return;
+		}
+	}
+	
+   
+	var node = $('INPUT_Username', 'INPUT_Password', 'INPUT_Url', 'INPUT_Port', 'SELECT_UsbPartion', 'INPUT_SavePath');
+	var re=/^ftp:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/*/;
+    
+	if(node[0].value == "")
+	{
+		node[0].value = "anonymous";
+	}
+	if(!re.test(node[2].value))
+	{
+		var ne=/^ftp:\/\/*\/*/;
+		if(!ne.test(node[2].value))
+		{
+		  top.AlertMsg(getStr("LK_DownloadURLText"));
+		  return;
+		}
+	}
+	else if(node[2].value == "")
+	{
+		top.AlertMsg(getStr("LK_DownloadURLText2"));
+		return;
+	}
+	if(node[3].value == "")
+	{
+		node[3].value = "21";
+	}
+	if(node[4].value == "")
+	{
+		top.AlertMsg(getStr("LK_NostorageText"));
+		return;
+	}
+    if(!validateCode())
+        return;
+    AddElements(df, "add_obj", "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.");
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.Username", node[0].value);
+    if(password_changed == 1)
+    {
+        AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.Password", node[1].value);
+    }
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.URL", node[2].value);
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.Port", node[3].value);
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.UsbPartion", node[4].value);
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.SavePath", node[5].value);
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.{i}.Sign", vtmp);
+    df.submit();
+}
+
+function FtpclientTuple()
+{
+    this.ftpusername = "";
+    this.ftppassword = "";
+    this.ftpURL = "";
+    this.ftpport = "";
+    this.ftpusbpartion = "";
+    this.ftpsavepath = "";
+    this.ftpprogress = "";
+    this.ftpdownloadstate = "";
+    this.ftpsign = 0;
+    this.path = "";
+}
+
+var index = 0;
+var FTPClientS = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_FTPClient.TaskList. Username URL Port UsbPartion SavePath Progress DownloadState Sign Flag"-->
+FTPClientS[index] = new FtpclientTuple();
+FTPClientS[index].ftpusername = "<!--#leaf  "1"-->";
+FTPClientS[index].ftpURL = "<!--#leaf  "2"-->";
+FTPClientS[index].ftpport = "<!--#leaf  "3"-->";
+FTPClientS[index].ftpusbpartion = "<!--#leaf  "4"-->";
+FTPClientS[index].ftpsavepath = "<!--#leaf  "5"-->";
+FTPClientS[index].ftpprogress = "<!--#leaf  "6"-->";
+FTPClientS[index].ftpdownloadstate = "<!--#leaf  "7"-->";
+FTPClientS[index].ftpsign = <!--#leaf  "8"-->;
+FTPClientS[index].path = "<!--#path -->";
+index++;
+<!--#endgetobject -->
+
+function task_del(s)
+{
+    if(!validateCode(2))
+        return;
+	df0 = document.dataform;
+	AddElements(df0, "del_obj", s);
+	df0.submit();
+}
+
+function showinformation()
+{
+	var len = FTPClientS.length;
+		for(var i = 0 ; i < len-1; i++)
+		{		
+			for(var j = 0 ; j < len-1-i; j++)
+			{
+				if(FTPClientS[j].ftpsign < FTPClientS[j+1].ftpsign)
+				{	
+					var val1=FTPClientS[j].ftpusername;
+					var val2=FTPClientS[j].ftppassword;
+					var val3=FTPClientS[j].ftpport;
+					var val4=FTPClientS[j].ftpURL;
+					var val5=FTPClientS[j].ftpsavepath;
+					var val6=FTPClientS[j].ftpprogress;
+					var val7=FTPClientS[j].ftpdownloadstate;
+					var val8=FTPClientS[j].ftpsign;
+					var val9=FTPClientS[j].path;
+				
+					FTPClientS[j].ftpusername=FTPClientS[j+1].ftpusername;
+					FTPClientS[j].ftppassword=FTPClientS[j+1].ftppassword;
+					FTPClientS[j].ftpport=FTPClientS[j+1].ftpport;
+					FTPClientS[j].ftpURL=FTPClientS[j+1].ftpURL;
+					FTPClientS[j].ftpsavepath=FTPClientS[j+1].ftpsavepath;
+					FTPClientS[j].ftpprogress=FTPClientS[j+1].ftpprogress;
+					FTPClientS[j].ftpdownloadstate=FTPClientS[j+1].ftpdownloadstate;
+					FTPClientS[j].ftpsign=FTPClientS[j+1].ftpsign;
+					FTPClientS[j].path=FTPClientS[j+1].path;
+				
+					FTPClientS[j+1].ftpusername=val1;
+					FTPClientS[j+1].ftppassword=val2;
+					FTPClientS[j+1].ftpport=val3;
+					FTPClientS[j+1].ftpURL=val4;
+					FTPClientS[j+1].ftpsavepath=val5;
+					FTPClientS[j+1].ftpprogress=val6;
+					FTPClientS[j+1].ftpdownloadstate=val7;
+					FTPClientS[j+1].ftpsign=val8;
+					FTPClientS[j+1].path=val9;
+				}
+			}
+		}
+					
+	var trs = "";	
+	if(len == 0)
+		trs = '<tr class="OddRowB"><td colspan="8">'+ getStr("LK_NoRule") +'</td></tr>';		
+    for(var i = 0 ; i < len; i++)
+    {
+
+		var tr = "";
+	if(i%2 == 0)
+		tr += "<tr class='OddRowB'>";
+	else 
+		tr += "<tr class='EvenROwB'>";
+		tr += "<td>" + FTPClientS[i].ftpusername + "</td>";
+		tr += "<td>" + FTPClientS[i].ftppassword + "</td>";
+		tr += "<td>" + FTPClientS[i].ftpport + "</td>";
+		tr += "<td>" + FTPClientS[i].ftpURL + "</td>";
+		tr += "<td>" + FTPClientS[i].ftpsavepath + "</td>";
+		tr += "<td>" + FTPClientS[i].ftpprogress + "</td>";
+		tr += "<td>" + getStat(FTPClientS[i].ftpdownloadstate) + "</td>";
+		switch(FTPClientS[i].path.slice(-2))
+		{
+			case "1.":
+				tr += "<td> <input type='button' class='Tributton' value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.1.\")'> </td>";
+				break;
+			case "2.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.2.\")'> </td>";
+				break;
+			case "3.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.3.\")'> </td>";
+				break;
+			case "4.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.4.\")'> </td>";
+				break;
+			case "5.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.5.\")'> </td>";
+				break;
+			case "6.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.6.\")'> </td>";
+				break;
+			case "7.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.7.\")'> </td>";
+				break;
+			case "8.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.8.\")'> </td>";
+				break;
+			case "9.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.9.\")'> </td>";
+				break;
+			case "0.":
+				tr += "<td> <input type='button' class='Tributton'  value='"+ getStr("LK_Delete") +"' onClick='task_del(\"InternetGatewayDevice.X_CT-COM_FTPClient.TaskList.10.\")'> </td>";
+				break;
+			default:
+				top.AlertMsg("errer! FTPClientS[i][50]="+FTPClientS[i].path[50]+"!");
+				break;
+		}
+		tr += "</tr>";
+		trs += tr;
+	}
+	jQuery("#td_download").append(trs);
+}
+
+function __init()
+{
+    showinformation();
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+ <body>
+     <form method="post" name ="dataform" action="/cgi-bin/setup.cgi?page/applications/app_ftpclient.shtml">
+    </form>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_FTPClientSettings'))</script>
+      <form>
+<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+	<tr>
+		<td width="150" langkey="LK_UserNamee"></td>
+		<td><input type="text" id="INPUT_Username"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_Passwordd"></td>
+		<td><input type="password" id="INPUT_Password" value="123456789ABCDEFG" onChange="Password_changed()"></td>
+	</tr>
+	<tr> 
+		<td langkey="LK_DownloadURLl"></td>
+		<td><input type="text" id="INPUT_Url" value="ftp://"></td>
+        </tr>
+	<tr>
+		<td langkey="LK_Portt"></td>
+		<td><input type="text" id="INPUT_Port" value="21"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_Devicee"></td>
+		<td><select id="SELECT_UsbPartion">
+                        <option> </option>
+                    </select>
+		</td>
+	</tr>
+	<tr>
+		<td langkey="LK_SavePathh"></td>
+		<td><input type="text" id="INPUT_SavePath" value="xdown"></td>
+	</tr>
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	<tr><td><script>PrintTriButton("button",getStr('LK_Download'),"uiSubmit()");</script></td></tr>	
+</table>
+	
+<script>SetContentTitle(getStr('LK_Thelatest10Text'));</script>
+<table cellspacing="0" cellpadding="0" class="ContentTableNoColor">	
+	<tr><td>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td></tr>
+    <tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+</table>   
+<table id="td_download" cellspacing="0" cellpadding="0" class="ContentBorder"> 
+	<tr class="TitleRow">
+		<td langkey="LK_UserName"></td>     
+		<td langkey="LK_Password"></td> 
+		<td langkey="LK_Port"></td> 
+		<td langkey="LK_DownloadURL"></td> 
+		<td langkey="LK_SavePath"></td> 
+		<td langkey="LK_Progress"></td> 
+		<td langkey="LK_Status"></td> 
+		<td langkey="LK_Action"></td> 
+	</tr>
+</table>
+        </form>
+</body></html>

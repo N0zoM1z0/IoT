@@ -1,0 +1,27 @@
+
+
+<div class="head">
+	<div class="title"><h1>{%menuStr.diagnostic%}</h1></div>
+	<p class="description">{%titleDescriptionStr.diagnosticDescription%}</p>
+</div>
+<div class="subTitle">
+	<h2>{%label.diagnosticType%}</h2>
+	<div id="diagnosticPing" class="radioLabel"></div>
+	<div id="diagnosticTracert" class="radioLabel"></div>
+</div>
+<div id="basicArguments"></div>
+<div id="pingArguments"></div>
+<div id="tracertArguments"></div>
+<div id="diagnosticBtn"></div>
+<div class="subTitle">
+	<h2>{%label.diagnosticResult%}</h2>
+</div>
+<div id="diagnosicResultCon"><div id="diagnosicResult"></div></div><script type="text/javascript">(function(){function u(a){switch(a[ERR_CODE]){case ENONE:var c=a.data||[];a=parseInt(a.status);var b="",k;for(k in c)c.hasOwnProperty(k)&&(b=b+c[k]+"\n");id("diagnosicResultCon").innerHTML=b.replace(/\r\n/gi,"<br />");switch(a){case v:d=$.setTimeout(l,DIAG_RESULT_FLASH_TIME);break;case w:clearTimeout(d);e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f});break;default:clearTimeout(d),e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f})}break;case EEXPT:clearTimeout(d);alarmDialog.show({content:errStr.systemErr});
+e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f});break;case EINVARG:clearTimeout(d);alarmDialog.show({content:errStr.instructErr});e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f});break;default:clearTimeout(d),alarmDialog.show({content:errStr.unknown+errNo}),e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f})}}function l(){var a={},c={},b={};a.diagnose=c;c.get=b;b.index=0;$.action(a,u)}function f(){if(x()){clearTimeout(d);var a={},c={},b={};a.diagnose=c;c.start=
+b;m.getValue()?(b.diag_type="ping",b.num=p.getValue(),b.size=q.getValue(),b.timeout=r.getValue(),b.addr=g.getValue()):(b.diag_type="tracert",b.addr=g.getValue(),b.hops=s.getValue());id("diagnosicResultCon").innerHTML="";$.action(a,function(a){switch(a[ERR_CODE]){case ENONE:e.setState({text:btn.end,type:Button.TYPE.SECONDARY,onClick:y});break;case ESYSBUSY:clearTimeout(d);alarmDialog.show(errStr.diagBusy);break;default:clearTimeout(d),alarmDialog.show(errStr.unknown+a[ERR_CODE])}});d=$.setTimeout(l,
+DIAG_RESULT_FLASH_TIME)}}function y(){e.setState({text:btn.start,type:Button.TYPE.PRIMARY,onClick:f});clearTimeout(d);var a={},c={};a.diagnose=c;c.stop=null;$.action(a,null,!0);d=$.setTimeout(l,DIAG_RESULT_FLASH_TIME)}function x(){var a=!0;(!0==m.getValue()?[g,p,q,r]:[g,s]).forEach(function(c){a=c.checkAll()&&a});return a}function h(a,c,b){var d=a.getValue();if(isNaN(d)||parseInt(d)<b)return!1;parseInt(d)>c&&a.setValue(c);return!0}function t(a){"Ping"==a?($("#pingArguments").css("display","block"),
+$("#tracertArguments").css("display","none")):($("#pingArguments").css("display","none"),$("#tracertArguments").css("display","block"))}var v=0,w=1,d=null,m=new Radio({targetId:"diagnosticPing",label:label.ping,value:"Ping",name:"diagnosticType",onClick:t});new Radio({targetId:"diagnosticTracert",label:label.tracert,value:"Tracert",name:"diagnosticType",onClick:t});var g=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.ipAddrDoname},targetId:"basicArguments",check:{blur:checkIpaddrOrDomain},
+props:{maxlength:"50",type:"text"}}),p=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.pingNum},targetId:"pingArguments",check:{blur:function(){return h(this,50,1)?!0:(this.showNote(errStr.pingNumErr),!1)}},hint:{value:label.pingNumRange},props:{maxlength:"2",type:"text",value:"4"}}),q=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.pingSize},targetId:"pingArguments",check:{blur:function(){return h(this,1472,4)?!0:(this.showNote(errStr.pingSizeErr),!1)}},hint:{value:label.pingSizeRange},
+props:{maxlength:"4",type:"text",value:"64"}}),r=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.pingOvertime},targetId:"pingArguments",check:{blur:function(){return h(this,2,1)?!0:(this.showNote(errStr.overtimeErr),!1)}},tips:{value:label.unitSecond,className:"unit"},hint:{value:label.pingOvertimeRange},props:{maxlength:"1",type:"text",value:"1"}}),s=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.trHops},targetId:"tracertArguments",check:{blur:function(){return h(this,30,1)?!0:
+(this.showNote(errStr.hopsErr),!1)}},hint:{value:label.tracertHopsRange},props:{maxlength:"2",type:"text",value:"20"}}),e=new Button({text:btn.start,onClick:f,type:Button.TYPE.PRIMARY,id:"diagnosticBtn",props:{width:"240px",margin:"12px 0 0 132px"}}),n;n=new NiceScroll({targetId:"diagnosicResultCon"});n.scrollTipOpacity(1);n.init();m.setValue(!0,null,!0)})();
+</script><style type="text/css">#diagnosicResultCon{width:760px;height:280px;font-size:13px;color:#333;border:1px solid #dfdfdf;white-space:pre}#diagnosicResult{padding:16px}</style>

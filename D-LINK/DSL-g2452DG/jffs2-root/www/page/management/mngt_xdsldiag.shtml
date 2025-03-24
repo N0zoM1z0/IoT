@@ -1,0 +1,58 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_ServiceManage. X_TRI_DebugToolEnable" --> 
+    var DebugToolEnable = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+	var df = document.app_bakCfgform;
+        AddElements(df, 'InternetGatewayDevice.DeviceInfo.X_CT-COM_ServiceManage.X_TRI_DebugToolEnable', getValue('INPUT_DebugToolEnable'));
+	df.submit();
+}
+function __init()
+{
+    setValue('INPUT_DebugToolEnable',DebugToolEnable);
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_xDSLDiag"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="200" langkey="LK_EnablexDSLDiagDebugToolss">
+			</td>
+			<td><input type="checkbox" id="INPUT_DebugToolEnable" name="INPUT_DebugToolEnable" ></td>
+		</tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2"><script>PrintTriButton("apply",getStr('LK_Apply'),"uiSubmit()")</script>
+			&nbsp;<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script>		
+	</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="app_bakCfgform" id="app_bakCfgform" action="/cgi-bin/setup.cgi?page/management/mngt_xdsldiag.shtml">
+</form>
+</body>
+</html>

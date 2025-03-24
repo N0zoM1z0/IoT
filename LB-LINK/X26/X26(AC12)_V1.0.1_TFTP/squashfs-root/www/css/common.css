@@ -1,0 +1,423 @@
+[v-cloak] {
+	display: none !important;
+}
+body {
+	padding-right: 0 !important;
+	background-color: #557cb7;
+}
+.wr1100 {
+	width: 1100px;
+	margin: 0 auto;
+}
+
+.notClick {
+	pointer-events: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+ /*ie*/
+ input::-ms-reveal {
+	display: none;
+}
+
+input::-ms-clear{
+	display: none;
+}
+
+  /*edge*/
+input::-o-clear{
+	display: none;
+}
+
+input,
+select {
+	width: 220px;
+	height: 30px;
+	line-height: 30px;
+	border-radius: 4px;
+	border: 1px solid #56595f;
+	color: #606266;
+	text-indent: 12px;
+	outline: 0;
+	box-sizing: border-box;
+	background-color: #fff;
+}
+
+input[type=radio],
+input[type=checkbox]{
+	width: auto;
+	height: auto;
+}
+
+input[disabled="disabled"],
+select[disabled="disabled"]{
+	background-color: #eee;
+}
+
+
+div.el-select,div.el-input {
+	width: 220px;
+}
+div.el-select div.el-input{
+	width: 100%;
+}
+
+div.el-select el-input input,
+div.el-input input{
+	width: 100%;
+}
+
+.el-input input,
+.el-input__icon {
+	height: 35px !important;
+	line-height: 35px !important;
+	text-indent: inherit !important;
+}
+
+
+div.el-form-item {
+	margin-bottom: 6px;
+}
+
+
+.sp-select {
+	width: 58vw;
+	height: 28px;
+	border-radius: 5px;
+	border: 1px solid rgb(133, 133, 133);
+	text-indent: 10px;
+	padding-right: 4px;
+	box-sizing: content-box;
+	outline: 0;
+	color: #333333;
+}
+
+
+.button-color {
+	background-color: #557cb7 !important;
+	color: #fff !important;
+}
+
+.topBar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 1100px;
+	height: 60px;
+	margin: 0 auto;
+}
+
+.topBar .topBar-left img{
+	width: 230px;
+}
+
+.topBar a span {
+	color: #fff;
+}
+
+.content {
+	width: 1100px;
+	height: 520px;
+	margin: 55px auto 0;
+}
+
+
+ul.menu {
+	width: 108px;
+	margin-top: 30px;
+	float: left;
+}
+
+ul.menu li {
+	text-align: center;
+	padding: 9px 0;
+	border: 1px solid #fff;
+	border-top: none;
+	cursor: pointer;
+}
+
+ul.menu li i {
+	display: block;
+	margin: 0 auto 6px;
+	width: 45px;
+	height: 45px;
+	background: url(../img/nav.png) -2px 0 no-repeat;
+}
+
+ul.menu li span {
+	display: block;
+	color: #fff;
+	height: 20px;
+	line-height: 20px;
+}
+
+ul.menu li span.active {
+	color: #89C8F3;
+}
+
+.content-right {
+	position: relative;
+	float: left;
+	margin-left: 60px;
+	color: #FFFFFF;
+	width: 84%;
+	height: 100%;
+}
+
+/* 弹框 */
+.layer {
+	position: fixed;
+	width: 100%;
+	top: 0;
+	height: 100vh;
+	z-index: 999;
+}
+
+.bulletFrame {
+	position: fixed;
+	top: 38%;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: 270px;
+	border-radius: 10px;
+	padding: 10px;
+	z-index: 9999;
+	background-color: #fff;
+	box-sizing: border-box;
+	font-weight: 550;
+	font-size: 14px;
+	box-shadow: 5px 3px 25px #000;
+}
+
+.bulletFrame-border {
+	border: 2px solid #ababab;
+	height: 100%;
+	border-radius: 12px;
+	background-color: #E3E3E3;
+	text-align: center;
+	padding: 25px 5px;
+}
+
+.bulletFrame img {
+	padding: 40px 0 10px;
+}
+
+.bulletFrame span {
+	display: inline-block;
+	line-height: 26px;
+	font-weight: 550;
+	font-size: 14px;
+	padding-top: 10px;
+}
+
+.bulletFrame button {
+	padding: 10px 15px;
+	background-color: #3A8EE6;
+	border-radius: 4px;
+	color: #fff;
+	cursor: pointer;
+}
+
+/* 外网设置 */
+ul.modeList {
+	width: 85%;
+	margin: 0 auto;
+	padding: 15px 0;
+	box-sizing: border-box;
+}
+
+ul.modeList li {
+	background-color: #6ec8f2;
+	text-align: left;
+	padding: 20px 12px;
+	cursor: pointer;
+}
+
+ul.modeList li:hover {
+	background-color: #e8e8e8;
+}
+
+ul.modeList li .el-radio__label {
+	font-size: 16px;
+}
+
+ul.modeList li .modeListTips {
+	color: #CE443A;
+	font-size: 13px;
+}
+
+ul.featureList {
+	margin: 0 auto;
+	width: 90%;
+	padding: 20px 0;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+ul.featureList li {
+	width: 32%;
+	float: left;
+	cursor: pointer;
+	font-size: 15px;
+	color: #777;
+}
+
+ul.featureList li:last-child {
+	margin-right: 0;
+}
+
+ul.featureList li.active {
+	color: rgb(11, 183, 245);
+}
+
+/* 超出部分省略号 */
+.ellipsis {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+/* loading框 */
+.frameLoading {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	width: 250px;
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
+	border-radius: 8px;
+	background-color: #f0e7e7;
+	box-shadow: 2px 4px 10px #333;
+	z-index: 999;
+}
+
+.sp-title {
+	padding: 10px 0;
+}
+
+.sp-title h3 {
+	font-size: 16px;
+	color: #666666;
+	margin-left: 12%;
+}
+
+div.noData{
+	text-align: center;
+	font-size: 16px;
+	margin: 10vh 0;
+}
+
+.wanPageInfo{
+	padding: 15px 15px 0 15px;
+	margin-top: 20px;
+}
+
+.wanPageInfo-item{
+	margin-bottom: 12px;
+	text-align: center;
+}
+.wanPageInfo-item span{
+	font-weight: bolder;
+	color: #222;
+	font-size: 15px;
+}
+.selectMode{
+	text-align:center;
+	text-decoration:underline;
+	color: #3d8af5;
+	cursor: pointer;
+	margin-bottom: 20px;
+}
+
+/* 向导设置页 */
+.setting {
+	padding: 12px;
+	box-sizing: border-box;
+	text-align: center;
+}
+.setting>p{
+	margin: 15px 0;
+	font-weight: 550;
+	font-size: 16px;
+	color: rgb(19, 18, 18);
+}
+.setting .setting-tips p{
+	line-height: 25px;
+}
+.setting .setting-tips p span{
+	font-size: 16px;
+	color: #3A8EE6;
+}
+
+.setting ul{
+	width: 60%;
+	margin: 20px auto;
+	border-radius: 6px;
+	border:1px solid #eee;
+	padding: 15px;
+	box-sizing: border-box;
+	text-align: left;
+}
+
+.setting ul h3{
+	width: 28%;
+	text-align: right;
+	margin-bottom: 12px;
+	font-size: 16px;
+}
+
+.setting ul li{
+	margin-bottom: 10px;
+}
+
+.setting ul li label{
+	display: inline-block;
+	width: 48%;
+	text-align: right;
+	margin-right: 6px;
+}
+
+.setting ul li span{
+	font-weight: 550;
+}
+.divider{
+	margin-top: 20px;
+	text-align: center;
+}
+.divider span{
+	display: inline-block;
+	width: 25%;
+	height: 1px;
+	background-color: rgb(95, 91, 91);
+}
+.divider label{
+	display: inline-block;
+	margin: 0 10px;
+	vertical-align: middle;
+}
+.setting-mode{
+	width: 350px;
+	margin: 20px auto;
+}
+.setting-mode li{
+	text-decoration: underline;
+	cursor: pointer;
+}
+.setting-mode li.active{
+	color: #3d8af5;
+}
+
+.wanset .el-input{
+	width: 250px;
+}

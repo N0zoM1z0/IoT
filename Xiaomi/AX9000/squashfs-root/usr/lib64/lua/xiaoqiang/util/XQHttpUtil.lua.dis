@@ -1,0 +1,230 @@
+local L0, L1, L2, L3, L4, L5, L6, L7
+L0 = module
+L1 = "xiaoqiang.util.XQHttpUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.XQLog"
+L2 = L2(L3)
+L3 = require
+L4 = "socket.http"
+L3 = L3(L4)
+L4 = pcall
+L5 = require
+L6 = "ssl.https"
+L4, L5 = L4(L5, L6)
+if not L4 and not L5 then
+  L6 = {}
+  L5 = L6
+end
+L6 = require
+L7 = "ltn12"
+L6 = L6(L7)
+function L7(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L3 = {}
+  L4, L5 = nil, nil
+  if A2 then
+    if L6 == "table" then
+      L4 = ""
+      for L9, L10 in L6, L7, L8 do
+        L11 = L4
+        L12 = L9
+        L13 = "="
+        L14 = L10
+        L15 = ";path=/;domain=.xiaomi.com;"
+        L4 = L11 .. L12 .. L13 .. L14 .. L15
+      end
+      L3.Cookie = L4
+    end
+  end
+  if L6 then
+    L5 = _UPVALUE0_
+  else
+    L5 = _UPVALUE1_
+  end
+  L6.code = ""
+  L6.headers = ""
+  L6.status = ""
+  L6.res = ""
+  L9, L10 = nil, nil
+  L11 = _UPVALUE2_
+  L11 = L11.isStrNil
+  L12 = L4
+  L11 = L11(L12)
+  if L11 then
+    L11 = _UPVALUE2_
+    L11 = L11.isStrNil
+    L12 = A1
+    L11 = L11(L12)
+    if L11 then
+      L11 = L5.request
+      L12 = A0
+      L11, L12, L13, L14 = L11(L12)
+      L10 = L14
+      L9 = L13
+    else
+      L11 = L5.request
+      L12 = A0
+      L13 = A1
+      L11, L12, L13, L14 = L11(L12, L13)
+      L10 = L14
+      L9 = L13
+    end
+  else
+    L11 = _UPVALUE2_
+    L11 = L11.isStrNil
+    L12 = A1
+    L11 = L11(L12)
+    if not L11 then
+      L11 = A0
+      L12 = A1
+      L11 = L11 .. L12
+      L13 = L11
+      L12 = L11.match
+      L14 = "?"
+      L12 = L12(L13, L14)
+      if L12 then
+        A0 = L11
+      else
+        L12 = A0
+        L13 = "?"
+        L14 = A1
+        A0 = L12 .. L13 .. L14
+      end
+    end
+    L11 = {}
+    L12 = L5.request
+    L13 = {}
+    L13.url = A0
+    L14 = _UPVALUE3_
+    L14 = L14.sink
+    L14 = L14.table
+    L15 = L11
+    L14 = L14(L15)
+    L13.sink = L14
+    L13.headers = L3
+    L12, L13, L14, L15 = L12(L13)
+    L10 = L15
+    L9 = L14
+    L12 = table
+    L12 = L12.concat
+    L13 = L11
+    L12 = L12(L13)
+  end
+  L11 = L8 or L11
+  if not L8 then
+    L11 = ""
+  end
+  L6.code = L11
+  L11 = L9 or L11
+  if not L9 then
+    L11 = ""
+  end
+  L6.headers = L11
+  L11 = L10 or L11
+  if not L10 then
+    L11 = ""
+  end
+  L6.status = L11
+  L11 = L7 or L11
+  if not L7 then
+    L11 = ""
+  end
+  L6.res = L11
+  L11 = _UPVALUE4_
+  L11 = L11.log
+  L12 = 7
+  L13 = L6
+  L11(L12, L13)
+  return L6
+end
+httpGetRequest = L7
+function L7(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L4 = {}
+  L5, L6 = nil, nil
+  if A2 then
+    if L7 == "table" then
+      L5 = ""
+      for L10, L11 in L7, L8, L9 do
+        L12 = L5
+        L13 = L10
+        L14 = "="
+        L15 = L11
+        L16 = ";path=/;domain=.xiaomi.com;"
+        L5 = L12 .. L13 .. L14 .. L15 .. L16
+      end
+      L4.Cookie = L5
+    end
+  end
+  L4["Content-type"] = "application/x-www-form-urlencoded"
+  if A3 then
+    L4["Content-type"] = A3
+  end
+  L4["Content-length"] = L7
+  if L7 then
+    L6 = _UPVALUE0_
+  else
+    L6 = _UPVALUE1_
+  end
+  L7.code = ""
+  L7.headers = ""
+  L7.status = ""
+  L7.res = ""
+  L10 = {}
+  L10.url = A0
+  L10.method = "POST"
+  L11 = _UPVALUE2_
+  L11 = L11.source
+  L11 = L11.string
+  L12 = A1
+  L11 = L11(L12)
+  L10.source = L11
+  L11 = _UPVALUE2_
+  L11 = L11.sink
+  L11 = L11.table
+  L12 = L8
+  L11 = L11(L12)
+  L10.sink = L11
+  L10.headers = L4
+  L10, L11, L12 = L9(L10)
+  L13 = table
+  L13 = L13.concat
+  L14 = L8
+  L13 = L13(L14)
+  L13 = L10 or L13
+  if not L10 then
+    L13 = ""
+  end
+  L7.code = L13
+  L13 = L11 or L13
+  if not L11 then
+    L13 = ""
+  end
+  L7.headers = L13
+  L13 = L12 or L13
+  if not L12 then
+    L13 = ""
+  end
+  L7.status = L13
+  L13 = L9 or L13
+  if not L9 then
+    L13 = ""
+  end
+  L7.res = L13
+  L13 = _UPVALUE3_
+  L13 = L13.log
+  L14 = 7
+  L15 = L7
+  L13(L14, L15)
+  return L7
+end
+httpPostRequest = L7

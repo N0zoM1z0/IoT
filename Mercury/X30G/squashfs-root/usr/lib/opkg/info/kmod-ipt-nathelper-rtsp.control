@@ -1,0 +1,8 @@
+Package: kmod-ipt-nathelper-rtsp
+Version: 4.4.60+2.14-4
+Depends: kernel (=4.4.60-1-5680aa684944bc0c51f69602aee97440), kmod-ipt-core, kmod-ipt-conntrack-extra, kmod-ipt-nat
+Source: tp_package/k_packages/xtables-addons
+Section: kernel
+Architecture: ipq
+Installed-Size: 9697
+Description:  RTSP Conntrack and NAT netfilter module

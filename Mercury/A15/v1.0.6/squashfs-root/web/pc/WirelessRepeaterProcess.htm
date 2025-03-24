@@ -1,0 +1,17 @@
+
+
+<div class="head wdsStep">
+	<div class="title">
+		<h1>{%label.wirelessRepeater%}</h1>
+	</div>
+	<ul class="stepTab">
+		<li class="underline"></li>
+		<li class="step"><i class="stepNum">1</i><span>{%btn.selectFrontRouter%}</span></li>
+		<li class="step"><i class="stepNum">2</i><span>{%label.wdsSettingLocal%}</span></li>
+	</ul>
+</div>
+<div id="WDSCon"></div>
+<div class="tipText contentTips"></div><script type="text/javascript">var firstPage="WirelessRepeaterFirst.htm",secondPage="WirelessRepeaterSecond.htm";
+function wdsSetLanIp(){$.modify({network:{lan:{ipaddr:gLanIP,netmask:gLanMask,ip_mode:"dynamic"}}},function(a){$.action({network:{apply_lan_config:null}},function(a){loadingDialog.hide(function(){loadingDialog.show({title:label.bridgingRootAP,content:{primary:label.linkSuccStr1+gLanIP+label.linkSuccStr2}});$.changeDomain(gLanIP);$.setTimeout(function(){window.location.href="http://"+gLanIP},6E4);$.setTimeout(function(){lanDetecting(function(){window.location.href="http://"+gLanIP})},4E3)})})})}
+function lanIpModeHandle(a){"manual"==gLanIPMode?confirmDialog.show({title:menuStr.wifiWDS,content:label.lanIPMode,callback:function(b){!0==b&&(gLanIPMode="dynamic",$.modify({network:{lan:{ip_mode:"dynamic"}}},null,!0),a())}}):a()}function initStaticTextObj(a,b){return $('<ul class="inputCMPT medium wdsTextState"><label class="outerLbl">'+a+'</label><li class="input static"><span>'+b+"</span></li></ul>")[0]}(function(){"undefined"!=typeof directSecondPage&&directSecondPage?stepPage(secondPage):stepPage(firstPage)})();
+</script><style type="text/css">div.head.wdsStep{border-bottom-width:0}div.head ul.stepTab{display:none}div.head.wdsStep ul.stepTab{display:block}ul.stepTab{height:40px;width:auto;border-bottom:2px solid #e6e6e6;box-sizing:border-box;position:relative}ul.stepTab li.step{display:inline-block;height:40px;width:160px;line-height:40px;vertical-align:middle}ul.stepTab li.step i.stepNum{display:inline-block;width:16px;height:16px;border-radius:9px;background-color:#ccc;vertical-align:middle;line-height:16px;text-align:center;font-style:normal;font-size:12px;color:#fafafa;margin-right:6px}ul.stepTab li.step span{vertical-align:middle;line-height:40px;font-size:14px;color:#666}ul.stepTab li.step.active span{color:#000;font-weight:bold}#WDSCon{position:relative}div.wdsScanStepBtn{text-align:right;margin-top:48px}div.wdsBasicInfo{padding:23px;border:1px solid #e0e0e0}i.wdsBasicInfoPic{width:80px;height:80px;display:inline-block;margin-right:24px;vertical-align:top}div.wdsBasicInfoContent{display:inline-block;vertical-align:top}div.wdsBasicInfoContent ul.medium.wdsTextState,div.wdsBasicInfoContent div.wdsTextState ul{margin-bottom:4px}div.wdsBasicInfoContent ul label{vertical-align:top!important}div.wdsBasicInfoContent ul li{vertical-align:top!important}div.wdsBasicInfoContent ul li span{line-height:32px;min-height:32px;color:#666;font-size:13px;display:block;width:470px;word-break:break-all}i.wdsRootAp{background:url(../web-static/images/wds_bridge.png) no-repeat scroll}i.wdsLocalAp{background:url(../web-static/images/wds_router.png) no-repeat scroll}#switchCon{display:none}p#highsetTitleError{margin:16px 0}</style>

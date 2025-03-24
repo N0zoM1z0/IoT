@@ -1,0 +1,149 @@
+#!/bin/sh
+#
+#
+
+
+PROC_FILE="/proc/flow_accel"
+
+usage()
+{
+	echo "Usage:"
+	echo "     $0 add value/mask accel"
+	echo "     $0 del value/mask accel"
+	echo "     $0 clr"
+	echo "     $0 show"
+	echo ""
+	echo "mask is a hex number, the default value is 0xffffffff"
+	echo ""
+	echo "accel:"
+	echo "  no"
+	echo "  sw"
+	echo "  hw"
+	echo ""
+	echo "example: $0 add 5/0xffffffff hw"
+	echo ""
+	echo ""
+}
+
+
+if [ $# -lt 1 ]; then
+	usage
+	exit
+fi
+
+
+op=$1
+vm=$2
+ac=$3
+
+if [ $# -ge 2 ] && [ ! -z "${vm}" ]; then
+	echo ${vm} | grep "/" > /dev/null
+	if [ $? -ne 0 ]; then
+		vm="${vm}/0xffffffff"
+	fi
+fi
+
+
+ac_encode()
+{
+	code=""
+	case "$1" in
+		"no")
+			code=0
+			;;
+
+		"sw")
+			code=1
+			;;
+		
+		"hw")
+			code=2
+			;;
+
+		*)
+			;;
+	esac
+
+	echo -n ${code}
+}
+
+add()
+{
+	if [ -z "${vm}" ] || [ -z "${ac}" ]; then
+		usage
+		return
+	fi
+
+	local accel=`ac_encode ${ac}`
+
+	if [ -z "${accel}" ]; then
+		usage
+		return
+	fi
+
+	echo -n "add ${vm} ${accel}" > ${PROC_FILE}
+}
+
+del()
+{
+	if [ -z "${vm}" ]; then
+		usage
+		return
+	fi
+	
+	local accel=`ac_encode ${ac}`
+
+	if [ -z "${accel}" ]; then
+		usage
+		return
+	fi
+
+	echo -n "del ${vm} ${accel}" > ${PROC_FILE}
+}
+
+clr()
+{
+	echo -n "clr" > ${PROC_FILE}
+}
+
+show()
+{
+	cat ${PROC_FILE}
+}
+
+
+###################################################################
+case "$1" in
+
+    "clr")
+        clr
+        ;;
+
+    "del")
+		if [ $# -lt 2 ]; then
+			usage
+			exit
+		fi
+
+        del
+        ;;
+    
+	"add")
+		if [ $# -lt 3 ]; then
+			usage
+			exit
+		fi
+
+        add
+        ;;
+
+	"show")
+        show
+        ;;
+
+    *)
+		usage
+        ;;
+
+esac
+

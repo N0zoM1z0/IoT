@@ -1,0 +1,8 @@
+Package: rtk_app
+Version: 0.1-1
+Depends: libc, kmod-rtl-cfg80211
+Source: tp_package/u_packages/rtk_app
+Section: Tool
+Architecture: rtl
+Installed-Size: 101848
+Description:  This Package is for realtek to set WLAN TX calibration parameters 

@@ -1,0 +1,13 @@
+config vpn 'pptp_l2tp'
+
+config mode 'wisp'
+	option wisp_type 'none'
+
+config mode 'repeater'
+	option repeater_type 'none'
+	option config_change '0'
+	option repeater_ready '0'
+
+config mode 'ap'
+	option config_change '0'
+	option ap_ready '0'

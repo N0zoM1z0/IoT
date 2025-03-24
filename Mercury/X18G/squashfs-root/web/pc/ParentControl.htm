@@ -1,0 +1,879 @@
+<script type="text/javascript">
+	(function(){
+		var pctlSwitch, parentMacTable, hostInfoTable, parentRuleTable, hostInfoDialog, curHostObj = {};
+		var parentList = [], parentShowList = [], hostList = [], parentRuleList = [], tableDataArray = [];
+		var SWITCH_ON = uciFirewall.optValue.parentCtrl.enable;
+		var SWITCH_OFF = uciFirewall.optValue.parentCtrl.disable;
+		var KEY_NAME = uciTimeSwitch.optName.name;
+		var KEY_MON = uciTimeSwitch.optName.mon;
+		var KEY_TUE = uciTimeSwitch.optName.tue;
+		var KEY_WED = uciTimeSwitch.optName.wed;
+		var KEY_THU = uciTimeSwitch.optName.thu;
+		var KEY_FRI = uciTimeSwitch.optName.fri;
+		var KEY_SAT = uciTimeSwitch.optName.sat;
+		var KEY_SUN = uciTimeSwitch.optName.sun;
+		var KEY_ENABLE = uciTimeSwitch.optName.enable;
+		var KEY_STARTTIME = uciTimeSwitch.optName.startTime;
+		var KEY_ENDTIME = uciTimeSwitch.optName.endTime;
+		var hostInfoMax = 0;
+
+		var isHNatOpen = false;
+		var isSupportHNat = false;
+
+		var weekMap = {
+			"mon": label.one,
+			"tue": label.two,
+			"wed": label.three,
+			"thu": label.four,
+			"fri": label.five,
+			"sat": label.six,
+			"sun": label.day
+		};
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case ETABLEEMPTY:
+				showStr = errStr.parentCtrlEmpty;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EENTRYEXIST:
+				showStr = errStr.entryExistErr;
+				break;
+			case EINVINSTRUCT:
+				showStr = errStr.instructErr;
+				break;
+			case ESYSTEM:
+				showStr = errStr.systemErr;
+				break;
+			case EFRTIMEPERIODBLANK:
+				showStr = errStr.timePeriodBlank;
+				break;
+			case EFRTIMEPERIODTOOLONG:
+				showStr = errStr.timePeriodTooLong;
+				break;
+			case EFRINVTPBEGINTIME:
+				showStr = errStr.invTlBeginTime;
+				break;
+			case EFRINVTPENDTIME:
+				showStr = errStr.invTlEndTime;
+				break;
+			case EFRTIMEPERIODREPEATBLANK:
+				showStr = errStr.tlRepeatBlank;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function transParentRuleData(){
+			var nextDay = "";
+			tableDataArray = [];
+			for (var i = 0; i < parentRuleList.length; i++)
+			{
+				nextDay = "";
+				tableDataArray[i] = {};
+
+				tableDataArray[i][KEY_NAME] = parentRuleList[i][KEY_NAME];
+				tableDataArray[i][SEC_NAME] = parentRuleList[i][SEC_NAME];
+
+				if (parentRuleList[i][KEY_STARTTIME] > parentRuleList[i][KEY_ENDTIME])
+				{
+					nextDay = label.lBrackets + label.timePeriodNextDay + label.rBrackets;
+				}
+
+				tableDataArray[i]["timeDesc"] = parentRuleList[i][KEY_STARTTIME] + label.timePeriodClose + "/" +
+												nextDay + parentRuleList[i][KEY_ENDTIME] + label.timePeriodOpen ;
+
+				tableDataArray[i]["weekDesc"] = ("0" == parentRuleList[i][KEY_MON] ? "" : weekMap["mon"])
+												+ ("0" == parentRuleList[i][KEY_TUE] ? "" : weekMap["tue"])
+												+ ("0" == parentRuleList[i][KEY_WED] ? "" : weekMap["wed"])
+												+ ("0" == parentRuleList[i][KEY_THU] ? "" : weekMap["thu"])
+												+ ("0" == parentRuleList[i][KEY_FRI] ? "" : weekMap["fri"])
+												+ ("0" == parentRuleList[i][KEY_SAT] ? "" : weekMap["sat"])
+												+ ("0" == parentRuleList[i][KEY_SUN] ? "" : weekMap["sun"]);
+			}
+		}
+
+		function getTimeRuleObjData(obj, index){
+			var data = {}, dataIndex, arrayIndex, startTime, endTime;
+
+			if (obj == undefined)
+			{
+				dataIndex = calcNextIndex(parentRuleList);
+
+				data.mode = "add";
+				data.index = dataIndex;
+				data.name = label.timeSection + dataIndex;
+				data.startHour = data.startMin = data.endHour = data.endMin = "00";
+				data.mon = data.tue = data.wed = data.thu = data.fri = data.sat = data.sun = true;
+			}
+			else
+			{
+				dataIndex = obj[SEC_NAME].replace(/.*_(\d)$/, "$1");
+				startTime = obj[KEY_STARTTIME].split(":");
+				endTime = obj[KEY_ENDTIME].split(":");
+
+				data.mode = "edit";
+				data.index = dataIndex;
+				data.arrayIndex = index;
+				data.itemName = obj[SEC_NAME];
+				data.name = obj.name;
+				data.startHour = startTime[0];
+				data.startMin = startTime[1];
+				data.endHour = endTime[0];
+				data.endMin = endTime[1];
+
+				data.mon = obj[KEY_MON] == "0" ? false : true;
+				data.tue = obj[KEY_TUE] == "0" ? false : true;
+				data.wed = obj[KEY_WED] == "0" ? false : true;
+				data.thu = obj[KEY_THU] == "0" ? false : true;
+				data.fri = obj[KEY_FRI] == "0" ? false : true;
+				data.sat = obj[KEY_SAT] == "0" ? false : true;
+				data.sun = obj[KEY_SUN] == "0" ? false : true;
+			}
+
+			return data;
+		}
+
+		function getCurHostInfo(hostInfoData)
+		{
+			var hostInfoTable = formatTableData(hostInfoData) || [], item;
+
+			for (var i = 0; i < hostInfoTable.length; i++)
+			{
+				item = hostInfoTable[i];
+
+				if (item[uciHostsInfo.optName.isCurHost] == "1")
+				{
+					curHostObj.name = item[uciHostsInfo.optName.hostname];
+					curHostObj.mac = item[uciHostsInfo.optName.mac].toUpperCase();
+					break;
+				}
+			}
+		}
+
+		function parentCtrlSwitchState(state)
+		{
+			var data = {}, module = {}, para = {};
+
+			if (SWITCH_ON == state)
+			{
+				if (isHNatOpen)
+				{
+					confirmDialog.show({
+						title: menuStr.parentControl,
+						content: label.hNatCloseForParentControl,
+						callback: function(choose){
+							if (true == choose){
+								var reqData = {};
+								reqData[uciHNat.fileName] = {};
+								reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+								reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] =
+									uciHNat.optValue.enable.off;
+
+								$.modify(reqData, function(res){
+									if (errHandle(res[ERR_CODE]))
+									{
+										showToast(label.hNatClosed);
+										isHNatOpen = false;
+										check();
+									}
+									else
+									{
+										pctlSwitch.setState(1 - state);
+									}
+								});
+							}
+							else
+							{
+								pctlSwitch.setState(1 - state);
+							}
+						}
+					});
+				}
+				else
+				{
+					check();
+				}
+			}
+			else
+			{
+				send();
+			}
+
+			function check(){
+				if (0 == parentList.length)
+				{
+					pctlSwitch.setState(1 - state);
+					alarmDialog.show(errStr.parentCtrlEmpty);
+					return;
+				}
+
+				/* GIVEN TIPS WHEN OPEN THE PARENT CONTROL FUNCTION*/
+				alarmDialog.show(label.parentCtrlNote);
+				send();
+			}
+
+			function send(){
+				data[uciFirewall.fileName] = module;
+				module[uciFirewall.secName.parentConfig] = para;
+				para[uciFirewall.optName.enable] = (SWITCH_ON == state) ? SWITCH_ON : SWITCH_OFF;
+
+				$.modify(data, function(result){
+					errHandle(result[ERR_CODE]);
+				});
+			}
+		}
+
+		function parentDevListInit(macListData, hostInfoData, onlyRenewHost)
+		{
+			var name, macValue, i, devIndex;
+			var listIndex = 0;
+			var linkDevList = formatTableData(hostInfoData);
+
+			hostList = [];
+
+			if (onlyRenewHost == undefined || onlyRenewHost != true)
+			{
+				parentList = [];
+				parentShowList = [];
+			}
+
+			for (i = 0; i < linkDevList.length; i++)
+			{
+				/* DO NOT LIST THE NON-HOST-NETWORK DEVICE */
+				if (1 < parseInt(linkDevList[i][uciHostsInfo.dynOptName.type]) ||
+					uciHostsInfo.optValue.isBlocked.yes == linkDevList[i][uciHostsInfo.dynOptName.blocked])
+				{
+					continue;
+				}
+
+				name = ("" == linkDevList[i][uciHostsInfo.dynOptName.hostName]) ?
+						label.anonymousHost : linkDevList[i][uciHostsInfo.dynOptName.hostName];
+				macValue = linkDevList[i][uciHostsInfo.dynOptName.mac].toUpperCase();
+
+				hostList[listIndex] = {
+					name: name,
+					mac: macValue
+				};
+
+				listIndex++;
+			}
+
+			if (onlyRenewHost != undefined && onlyRenewHost == true)
+			{
+				for (i = 0; i < parentList.length; i++)
+				{
+					macValue = parentList[i][uciFirewall.optName.srcMac].toUpperCase();
+
+					for (var j = 0; j < hostList.length; j++)
+					{
+						if (macValue == hostList[j].mac)
+						{
+							hostList.splice(j, 1);
+							break;
+						}
+					}
+				}
+
+				return;
+			}
+
+			parentList = formatTableData(macListData);
+			for (i = 0; i < parentList.length; i++)
+			{
+				macValue = parentList[i][uciFirewall.optName.srcMac].toUpperCase();
+				parentShowList[i] = {name: "", mac: ""};
+
+				for (var j = 0; j < hostList.length; j++)
+				{
+					if (macValue == hostList[j].mac)
+					{
+						parentShowList[i].name = hostList[j].name;
+						parentShowList[i].mac = hostList[j].mac;
+						hostList.splice(j, 1);
+						break;
+					}
+				}
+
+				if (parentShowList[i].mac == "")
+				{
+					parentShowList[i].name = label.anonymousHost;
+					parentShowList[i].mac = macValue;
+				}
+			}
+		}
+
+		function fillData(ALL_DATA)
+		{
+			var macListData = ALL_DATA[uciFirewall.fileName][uciFirewall.secType.parentMac];
+			var ruleData = ALL_DATA[uciFirewall.fileName][uciFirewall.secType.parentRule];
+			var configData = ALL_DATA[uciFirewall.fileName][uciFirewall.secType.parentConfig];
+			var hostInfoData = ALL_DATA[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info];
+
+			if (isSupportHNat && ALL_DATA[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] ==
+				uciHNat.optValue.enable.on)
+			{
+				isHNatOpen = true;
+			}
+
+			pctlSwitch.setState(configData[uciFirewall.optName.enable]);
+
+			getCurHostInfo(hostInfoData);
+
+			parentDevListInit(macListData, hostInfoData);
+
+			hostInfoTable.setDataSource(hostList);
+			hostInfoTable.loadData();
+
+			parentMacTable.setDataSource(parentShowList);
+			parentMacTable.loadData();
+
+			parentRuleList = formatTableData(ruleData);
+			transParentRuleData();
+			parentRuleTable.setDataSource(tableDataArray);
+			parentRuleTable.loadData();
+		}
+
+		function addParent()
+		{
+			hostInfoDialog.show();
+		}
+
+		function saveParent()
+		{
+			var selectData = hostInfoTable._getSelectItem();
+			var selIndexArr, existArr = [], tempParentList, count, errStrArr, errStr;
+			var data, module, para, obj;
+			var selLength = selectData.selArr.length;
+			//selArrStr: "", selArr: Array(0)
+
+			if (selLength == 0)
+			{
+				return;
+			}
+
+			selIndexArr = selectData.selArrStr.split("-");
+
+			for (var i = 0; i < selIndexArr.length; i++)
+			{
+				for (var j = 0; j < parentShowList.length; j++)
+				{
+					if (parentShowList[j].mac.toUpperCase() == hostList[selIndexArr[i]].mac.toUpperCase())
+					{
+						/* TODO: Maybe use Toast here */
+						errHandle(EENTRYEXIST);
+						return;
+					}
+				}
+			}
+
+			if (selLength + parentShowList.length > PARENT_DEVICE_NUM_MAX)
+			{
+				errHandle(ETABLEFULL);
+				return;
+			}
+
+			if (selLength == 1)
+			{
+				data = {}, module = {}, para = {};
+
+				data[uciFirewall.fileName] = module;
+				module[KEY_TABLE] = uciFirewall.secType.parentMac;
+				module[KEY_NAME] = module[KEY_TABLE] + "_" + calcNextIndex(parentList);
+				module[KEY_PARA] = para;
+
+				para[uciFirewall.optName.srcMac] = hostList[selIndexArr[0]].mac;
+
+				$.add(data, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						hostInfoDialog.hide(function(){
+							showToast(label.addSuccess);
+							requestData();
+						});
+					}
+				});
+			}
+			else{
+				tempParentList = $.extend(true, [], parentList);
+				count = 0, errStrArr = [], errStr = "";
+
+				function addFinish()
+				{
+					loadingDialog.hide(function(){
+						hostInfoDialog.hide(function(){
+							if (errStrArr.length == 0)
+							{
+								showToast(label.addSuccess);
+								requestData();
+							}
+							else
+							{
+								for (var k = 0; k < errStrArr.length; k++)
+								{
+									errStr += '<br />' + errStrArr[k];
+								}
+
+								alarmDialog.show(label.entryBelowAddFail + errStr);
+								requestData();
+							}
+						});
+					});
+				}
+
+				function addParentDevice(index)
+				{
+					data = {}, module = {}, para = {}, obj = {};
+					data[uciFirewall.fileName] = module;
+					module[KEY_TABLE] = uciFirewall.secType.parentMac;
+					module[KEY_NAME] = module[KEY_TABLE] + "_" + calcNextIndex(tempParentList);
+					module[KEY_PARA] = para;
+
+					para[uciFirewall.optName.srcMac] = hostList[selIndexArr[index]].mac;
+
+					$.add(data, function(result){
+						count++;
+						if (result[ERR_CODE] == ENONE)
+						{
+							if (count < selLength)
+							{
+								obj[SEC_NAME] = module[KEY_NAME];
+								tempParentList.push(obj);
+
+								addParentDevice(count);
+							}
+							else
+							{
+								addFinish();
+							}
+						}
+						else
+						{
+							errStrArr.push(hostList[selIndexArr[index]].name +
+									 label.lBrackets + hostList[selIndexArr[index]].mac + label.rBrackets);
+							if (count < selLength)
+							{
+								addParentDevice(count);
+							}
+							else
+							{
+								addFinish();
+							}
+						}
+					}, true, true);
+				}
+
+				loadingDialog.show({
+					title: menuStr.parentControl,
+					content: {primary:label.configging}
+				}, undefined, undefined, false, undefined);
+
+				addParentDevice(count);
+			}
+		}
+
+		function delParent(indexStr, callback)
+		{
+			var data = {}, module = {}, name = [], showStr;
+			var indexArr = indexStr.split("-");
+
+			data[uciFirewall.fileName] = module;
+			module[KEY_NAME] = name;
+
+			for (var idx = 0; idx < indexArr.length; idx++)
+			{
+				var secName = parentList[indexArr[idx]][SEC_NAME];
+				name[name.length] = secName;
+			}
+
+			if (indexArr.length == parentShowList.length)
+			{
+				showStr = label.allCanNotNettingWhenDelDevice + label.comma + label.confirmDelSelDevice + label.questionMark;
+			}
+			else if (indexArr.length == 1)
+			{
+				showStr = label.canNotNettingWhenDelDevice + label.comma + label.confirmDelDevice
+						  + label.quota + parentShowList[indexArr[0]].name + label.quota + label.questionMark;
+			}
+			else
+			{
+				showStr = label.canNotNettingWhenDelDevice + label.comma + label.confirmDelSelDevice + label.questionMark;
+			}
+
+			confirmDialog.show({
+				title: menuStr.parentControl,
+				content: showStr,
+				button: {confirmStr:btn.clear},
+				callback: function(choose){
+					if (true == choose){
+						$.del(data, function(result){
+							if (errHandle(result[ERR_CODE]))
+							{
+								showToast(label.deleteSuccess);
+								callback(true);
+								requestData();
+							}
+							else
+							{
+								callback(false);
+							}
+						});
+					}
+				}
+			});
+		}
+
+		function refreshHostInfo()
+		{
+			var data = {};
+
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.host_info;
+
+			$.query(data, function(result){
+				var hostInfoData = result[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info];
+
+				parentDevListInit(null, hostInfoData, true);
+
+				hostInfoTable.setDataSource(hostList);
+				hostInfoTable.loadData();
+
+				showToast(label.refreshSuccess);
+			});
+		}
+
+		function editParentRule(indexData, indexTable)
+		{
+			var data = parentRuleList[indexData];
+
+			var dataObj = getTimeRuleObjData(data, indexData);
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function addParentRule()
+		{
+			var dataObj = getTimeRuleObjData();
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function saveParentRule(data)
+		{
+			for (var n = 0; n < parentRuleList.length; n++)
+			{
+				if ((data.mon == false ? "0" : "1") == parentRuleList[n][KEY_MON] &&
+					(data.tue == false ? "0" : "1") == parentRuleList[n][KEY_TUE] &&
+					(data.wed == false ? "0" : "1") == parentRuleList[n][KEY_WED] &&
+					(data.thu == false ? "0" : "1") == parentRuleList[n][KEY_THU] &&
+					(data.fri == false ? "0" : "1") == parentRuleList[n][KEY_FRI] &&
+					(data.sat == false ? "0" : "1") == parentRuleList[n][KEY_SAT] &&
+					(data.sun == false ? "0" : "1") == parentRuleList[n][KEY_SUN] &&
+					(data.startHour + ":" + data.startMin) == parentRuleList[n][KEY_STARTTIME] &&
+					(data.endHour + ":" + data.endMin) == parentRuleList[n][KEY_ENDTIME])
+				{
+					if (!data.arrayIndex || data.arrayIndex != n)
+					{
+						showToast(label.sameRule);
+						return;
+					}
+				}
+			}
+
+			var KEY_LIST = [KEY_MON, KEY_TUE, KEY_WED, KEY_THU,
+							KEY_FRI, KEY_SAT, KEY_SUN];
+
+			var postData = {}, module = {}, para = {};
+			postData[uciFirewall.fileName] = module;
+
+			if ("add" == data.mode)
+			{
+				module[KEY_TABLE] = uciFirewall.secType.parentRule;
+				module[KEY_NAME] = module[KEY_TABLE] + "_" + data.index;
+				module[KEY_PARA] = para;
+			}
+			else
+			{
+				module[data.itemName] = para;
+			}
+
+			para[KEY_NAME] = data[KEY_NAME];
+
+			for (var i = 0; i < KEY_LIST.length; i++)
+			{
+				para[KEY_LIST[i]] = data[KEY_LIST[i]] == true ? "1" : "0";
+			}
+
+			para[KEY_STARTTIME] = data.startHour + ":" + data.startMin;
+			para[KEY_ENDTIME] = data.endHour + ":" + data.endMin;
+
+			if ("add" == data.mode)
+			{
+				$.add(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.addSuccess);
+							requestData();
+						});
+					}
+				});
+			}
+			else
+			{
+				$.modify(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.saveSuccess);
+							requestData();
+						});
+					}
+				});
+			}
+		}
+
+		function delParentRule(indexStr, callback)
+		{
+			var data = {}, module = {}, name = [];
+			data[uciFirewall.fileName] = module;
+			module[KEY_NAME] = name;
+
+			var indexArr = indexStr.split("-");
+
+			for (var index = 0; index < indexArr.length; index++)
+			{
+				var secName = parentRuleList[indexArr[index]][SEC_NAME];
+				name[name.length] = secName;
+			}
+
+			$.del(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.deleteSuccess);
+					requestData();
+				}
+			});
+		}
+
+		function requestData()
+		{
+			var data = {}, fwMod = {}, hostIntoMod = {};
+
+			data[uciFirewall.fileName] = fwMod;
+			fwMod[KEY_TABLE] = [uciFirewall.secType.parentMac, uciFirewall.secType.parentRule];
+			fwMod[KEY_NAME] = uciFirewall.secName.parentConfig;
+
+			data[uciHostsInfo.fileName] = hostIntoMod;
+			hostIntoMod[KEY_TABLE] = uciHostsInfo.dynData.host_info;
+
+			if (slp.moduleSpec["hnat"] == 1)
+			{
+				data[uciHNat.fileName] = {}
+				data[uciHNat.fileName][KEY_NAME] = uciHNat.secName.main;
+				isSupportHNat = true;
+			}
+
+			$.query(data, fillData);
+		}
+
+		pctlSwitch = new Switch("switchCon", SWITCH_ON, parentCtrlSwitchState, false);
+
+		parentMacTable = new Table({
+			targetId: 'parentMacTable',
+			title:label.parentDev,
+			head:[
+				{field:label.deviceName, width:"0.65"},
+				{field:label.mac, width:"0.35"}
+			],
+			column:[
+				{name: "name", type:"str", onRender: function(data, str){
+					if (curHostObj.mac != undefined && data.mac.toUpperCase() == curHostObj.mac)
+					{
+						return ('<span style="color:#FF3366;margin-right:2px;">[' + label.bHost + ']</span>' + str);
+					}
+					else
+					{
+						return str;
+					}
+				}},
+				{name: "mac", type:"str"}
+			],
+			hasCheckBox: true,
+			editable:false,
+			addable:false,
+			max: PARENT_DEVICE_NUM_MAX,
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.addDevice, func:addParent, selRelate: false}
+			],
+			clickList:{
+				"click_del_item":{func:delParent, asyn:true}
+			}
+		});
+
+		hostInfoDialog = new Dialog({
+			title: label.selectParent + label.lBrackets + '<div class="selectCount" id="parentDevSelectNum">0</div>' + label.rBrackets,
+			content: '<div class="selectParentTitleDesc">' +
+						'<span class="primary">' + label.parentSelectTitleDesc + '</span>' +
+						'<span class="secondary">' + label.parentSelectTips + '</span>' +
+					 '</div>' +
+					 '<div id="hostInfoTable"></div>',
+			size: component.Dialog.SIZE.MEDIUM,
+			type: component.Dialog.TYPE.CUSTOM,
+			hasCloseIcon: true,
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text:btn.cancelTip,
+					id:'hostInfoTableCancel',
+					onClick:function(){
+						hostInfoDialog.hide();
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.confirmTip,
+					id:'hostInfoTableSubmit',
+					onClick:function(){
+						saveParent();
+					}
+				}
+			],
+			renderCallBack: function(){
+				hostInfoTable = new Table({
+					targetId: 'hostInfoTable',
+					head:[
+						{field:label.deviceName, width:"0.55"},
+						{field:label.mac, width:"0.45"}
+					],
+					column:[
+						{name: "name", type:"str", onRender: function(data, str){
+							if (curHostObj.mac != undefined && data.mac.toUpperCase() == curHostObj.mac)
+							{
+								return ('<span style="color:#FF3366;margin-right:2px;">[' + label.bHost + ']</span>' + str);
+							}
+							else
+							{
+								return str;
+							}
+						}},
+						{name: "mac", type:"str"}
+					],
+					hasCheckBox: true,
+					editable:false,
+					addable:false,
+					deletable:false,
+					max: hostInfoMax,
+					tableOption:[
+						{icon:"icon-refresh", type: "refresh", str: btn.refresh, func:refreshHostInfo, selRelate: false}
+					],
+					numPerPage: 8
+				});
+
+				$(hostInfoTable).on("ev_sel_item", function(){
+					var num = hostInfoTable._getSelectItem().selArr.length;
+					$("#parentDevSelectNum").html(num);
+				}).on("ev_sel_none", function(){
+					$("#parentDevSelectNum").html(0);
+				});
+			}
+		});
+
+		parentRuleTable = new Table({
+			targetId: 'parentRuleTable',
+			title:label.childDevLimit,
+			head:[
+				{field:label.periodDesc, width:"0.34"},
+				{field:label.timeSection, width:"0.32"},
+				{field:label.repeatWeek, width:"0.34"}
+			],
+			column:[
+				{name:KEY_NAME, type:"str"},
+				{name:"timeDesc", type:"str"},
+				{name:"weekDesc", type:"str"}
+			],
+			hasCheckBox: true,
+			editable:false,
+			addable:false,
+			max: PARENT_CONTROL_RULE_NUM_MAX,
+			itemOption:[
+				{icon:"icon-edit", type: "edit", str: btn.edit, func:editParentRule}
+			],
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.add, func:addParentRule, selRelate: false}
+			],
+			clickList:{
+				"click_del_item":{func:delParentRule, asyn:true}
+			}
+		});
+
+		if (slp.bandsProvided == slp.TRIPLE)
+		{
+			hostInfoMax = (slp.moduleSpec.host_num_2g || 0) + (slp.moduleSpec.host_num_5g_1 || 0) + (slp.moduleSpec.host_num_5g_4 || 0);
+		}
+		else if (slp.bandsProvided == slp.DOUBLE)
+		{
+			hostInfoMax = (slp.moduleSpec.host_num_2g || 0) + (slp.moduleSpec.host_num_5g || 0);
+		}
+		else
+		{
+			hostInfoMax = slp.moduleSpec.host_num_2g || 0;
+		}
+
+		/* RESET TIME_PERIOD DIALOG */
+		timePeriodDialog.resetTpType(timePeriodDialog.tpType.PARENT_CONTROL);
+		timePeriodDialog.resetCommit(saveParentRule);
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.selectParentTitleDesc{
+		position: absolute;
+		top: 24px;
+		left: 24px;
+	}
+	div.selectParentTitleDesc span{
+		display: block;
+		height: 20px;
+		line-height: 20px;
+		font-size: 13px;
+	}
+	div.selectParentTitleDesc span.primary{
+		color: #333333;
+	}
+	div.selectParentTitleDesc span.secondary{
+		color: #999999;
+	}
+	#hostInfoTable div.tableTitleContainer{
+		margin-bottom: 16px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.parentControl%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="parentControlHelp"></i>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.parentControlDescription%}</p>
+</div>
+<div id="parentMacTable"></div>
+<div id="parentRuleTable" class="advanceTable"></div>

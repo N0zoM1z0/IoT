@@ -1,0 +1,31 @@
+﻿
+
+<h1 class="phoneTitle">{%label.syncPppoeCfgFromOld%}</h1>
+<div class="syncWarnCon">
+	<p id="syncWarn">{%label.syncPPPoEFail%}</p>
+</div>
+<ol class="phInputOl" id="prepareTip">
+	<li>{%label.syncPPPoETip1%}</li>
+	<li>{%label.syncPPPoETip2%}</li>
+</ol>
+<ol class="phInputOl" id="failTip">
+	<li>{%label.phSyncPPPoEFailTip1%}</li>
+	<li>{%label.phSyncPPPoEFailTip2%}</li>
+	<li>{%label.phSyncPPPoEFailTip3%}</li>
+</ol>
+<ul class="phInputUl" id="lineDownTip">
+	<li>{%label.syncFailLineDownTip%}</li>
+</ul>
+<ul class="phInputUl">
+	<li><img src="../web-static/images/phW2L.png" /></li>
+</ul>
+<p class="syncingTip">{%label.syncingPPPoE%}</p>
+<div class="phFunc">
+	<label id="sync" class="phOneBtn">{%btn.beginSync%}</label>
+	<label id="resync" class="phOneBtn">{%btn.retry%}</label>
+	<label id="back" class="phOneBtn backBtn">{%btn.back%}{%label.wizard%}</label>
+</div>
+<script type="text/javascript">(function(a){function e(){a.action({cfgsync:{get_pppoe_info:null}},function(b){if(ENONE!=b[ERR_CODE])f=a.setTimeout(e,1E3);else switch(b.code){case n:gPPPoESyncSuccess=!0;gPPPoESyncCfg.username=b.pppoe.username;gPPPoESyncCfg.password=b.pppoe.password;gPPPoESyncCfg.macaddr=b.pppoe.macaddr;loadPage("PhonePPPoEWeb.htm","phCon");break;case p:c(g);f=a.setTimeout(e,1E3);break;case q:clearTimeout(d);c(h);break;default:clearTimeout(d),c(k)}})}function l(){"resync"==this.id&&(m=!0);d=a.setTimeout(function(){clearTimeout(f);
+c(k)},12E4);c(g);a.action({cfgsync:{start_get_pppoe_info:null}},function(b){ENONE!=b[ERR_CODE]?(clearTimeout(d),c(h)):a.setTimeout(e,1E3)})}function c(b){switch(b){case g:a("#syncWarn, .phFunc").css("display","none");a(".syncingTip").css("display","block").html(m?label.resyncingPPPoE:label.syncingPPPoE);break;case k:a("#syncWarn, #failTip, .phFunc").css("display","block");a(".syncingTip, #sync, #prepareTip, #lineDownTip").css("display","none");a("#resync").css("display","inline-block");a("#syncWarn").html(label.syncPPPoEFail);
+break;case h:a("#syncWarn, #lineDownTip, .phFunc").css("display","block"),a(".syncingTip, #sync, #prepareTip, #failTip").css("display","none"),a("#resync").css("display","inline-block"),a("#syncWarn").html(label.syncFailLineDown)}}var m=!1,g=1,k=2,h=3,n=1E4,p=10001,q=-10002,d=null,f=null;id("back").onclick=function(){loadPage("PhonePPPoEWeb.htm","phCon")};id("sync").onclick=l;id("resync").onclick=l})(jQuery);
+</script><style type="text/css">ol.phInputOl{font-size:14px;padding-left:18px;width:272px;margin:0 auto;line-height:26px;color:#666}ul.phInputUl img{width:100%;padding-top:11px}div.phFunc{margin-top:36px}div.phFunc label.backBtn{margin-top:7px;background-color:#e0e0e0;background-image:none;color:#666}h1.phoneTitle{margin-bottom:0}div.syncWarnCon{font-size:12px;height:40px;line-height:40px;text-align:center;color:#f36}p.syncingTip{font-size:12px;height:24px;line-height:24px;text-align:center;color:#1785e6;margin-top:38px;display:none}#resync,#failTip,#syncWarn{display:none}#lineDownTip{font-size:14px;color:#666;display:none}</style>

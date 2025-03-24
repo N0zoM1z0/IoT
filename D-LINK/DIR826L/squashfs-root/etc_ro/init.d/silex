@@ -1,0 +1,68 @@
+#!/bin/sh
+silex_init()
+{
+	# come from rc/rc.c:  service_init(), depend on WCN before ...
+	#insmod /lib/modules/`uname -r`/kernel/drivers/usb/core/usbcore.ko
+	#insmod /lib/modules/`uname -r`/kernel/drivers/usb/host/ehci-hcd.ko
+	#insmod /lib/modules/`uname -r`/kernel/drivers/usb/host/ohci-hcd.ko
+	# come from rc/app.c:wcn_start()
+	#br=`nvram get lan_bridge`
+	br=br0
+	#hname=`nvram get hostname`
+	hname=`uenv get HW_BOARD_MODEL`
+	#echo -n 10240 > /proc/sys/vm/min_free_kbytes
+	echo "Initialize silex modules start"
+	mkdir -p /var/silex_shared
+	echo Initialize Hotplug
+	echo /sbin/hotplug > /proc/sys/kernel/hotplug
+	echo Starting sxuptpd
+	insmod /lib/modules/silex/sxuptp.ko
+	insmod /lib/modules/silex/sxuptp_idfilter.ko
+	insmod /lib/modules/silex/sxuptp_devfilter.ko
+	echo initializing USB device filter
+	cat /etc/silex/sxuptp_devices.allow > /proc/sxuptp/devices.allow
+	cat /etc/silex/sxuptp_devices.deny > /proc/sxuptp/devices.deny
+	insmod /lib/modules/silex/sxuptp_driver.ko
+	insmod /lib/modules/silex/jcp.ko
+	insmod /lib/modules/silex/jcp_cmd.ko
+	echo -n $br > /sys/module/sxuptp/parameters/netif
+	echo -n $hname > /sys/module/jcp_cmd/parameters/hostname
+	echo -n $hname > /sys/module/jcp_cmd/parameters/product
+}
+silex_stop()
+{
+	# come from app.c:wcn_stop()
+	sxmount umount
+	echo "STOP silex HotPlug"
+        killall hotplugd 2>/dev/null
+        rmmod jcp_cmd
+        rmmod jcp
+        rmmod sxuptp_driver
+        rmmod sxuptp_devfilter
+        rmmod sxuptp
+}
+case $1 in
+start)
+	if [ -f /tmp/silex_inited ];then
+		exit 0
+	fi
+	# hostplugd MUST waiting nic ready. or they will exit -3...
+	echo "Starting HotPlug"
+	/usr/sbin/hotplugd -D &
+	echo Initialize USB Storage
+	#insmod /lib/modules/`uname -r`/kernel/drivers/usb/storage/usb-storage.ko
+	echo Start JCPD 19541
+	/usr/sbin/jcpd -i br0
+	echo "" > /tmp/silex_inited
+        break
+        ;;
+stop)
+        break
+        ;;
+init)
+       	silex_init
+        break
+        ;;
+esac
+exit 0
+

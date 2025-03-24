@@ -1,0 +1,23 @@
+
+
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div id="wizardCon" class="wizardCon"></div>
+</div>
+<script type="text/javascript">var gWizardData={wanDetected:!1,wifiDisconnect:!1,wifiChanged:!1,iAmWifiDevice:!1,isBandSteeringOpen:!1,followPwd:[!1,!1,!1],networkConf:null,wifiConf:null,lanConf:null,gWifiCfgSave:null,wanSelectOptions:[{str:label.pppoe,value:LINK_TYPE_PPPOE},{str:label.staticIp,value:LINK_TYPE_STATIC_IP},{str:label.dhcp,value:LINK_TYPE_DHCP}]},gLanIP,gOldLanIP,gLanMask,gIsLanIpChanged=!1,gPbcEnable=0,gSysMode=0,gLanIPMode,gWifiCfgToSave={},gIsWifiDevice=!1,bWzdWanTypeDetected=!1;
+gIsWifiCfgBsChged=gIsWifiCfg5G4Chged=gIsWifiCfg5GChged=gIsWifiCfg2GChged=gIsWifiCfgChged=!1;slp.gSysModeSupport&&(gWizardData.wanSelectOptions=[{str:label.pppoe,value:LINK_TYPE_PPPOE},{str:label.staticIp,value:LINK_TYPE_STATIC_IP},{str:label.dhcp,value:LINK_TYPE_DHCP},{str:label.wiredRepeater,value:LINK_TYPE_WIRED_REPEATER},{str:label.wirelessRepeater,value:LINK_TYPE_WIRELESS_REPEATER}]);
+function wzdDone(){var a={};a[uciSystem.fileName]={};a[uciSystem.fileName][uciSystem.secName.sys]={};a[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory]=uciSystem.optValue.isFactory.no;$.modify(a)}function wzdStop(){wzdDone();"NO"==gBeInCNA?loadPage("Basic.htm","Con"):loadPage("WizardEnd.htm","wizardCon")}
+function wzdNetWorkModeChange(a,c){var b=[];b[LINK_TYPE_PPPOE]="WizardPPPoE.htm";b[LINK_TYPE_DHCP]="WizardDynamicIp.htm";b[LINK_TYPE_STATIC_IP]="WizardStaticIp.htm";b[LINK_TYPE_WIRED_REPEATER]="WizardWiredRepeater.htm";b[LINK_TYPE_WIRELESS_REPEATER]="WizardWirelessRepeater.htm";loadPage(b[a],"wizardCon",c)}
+function wzdWanDetect(){function a(){b=!0;clearTimeout(d)}function c(){$.action({network:{detect_wan_proto:null}},function(f){var e="";if(!0!=b)switch(e=slp.moduleSpec.wifison_mesh&&1==slp.moduleSpec.wifison_mesh?label.wanWzdCheckMesh:label.wanWzdCheckNoteH+label.wanWzdCheckNoteT,parseInt(f[uciNetwork.optName.proto])){case ERROR_INTERNEL_ERROR:case ERROR_INPUT_PARA_ERROR:case WAN_IFACE_NOT_LINK:"showed"==loadingDialog.status&&loadingDialog.hide(function(){alarmDialog.show({content:e,callback:a})});
+d=$.setTimeout(c,1E3);break;case WAN_TYPE_DETECTING:"showed"==alarmDialog.status&&alarmDialog.hide(function(){loadingDialog.show({title:label.confirmTitle,content:{primary:label.checkingWait}},void 0,void 0,!0,a)});d=$.setTimeout(c,1E3);break;case WAN_TYPE_STATIC:loadingDialog.hide(function(){id("netModeSel").changeSel(LINK_TYPE_STATIC_IP)});break;case WAN_TYPE_DHCP:loadingDialog.hide(function(){id("netModeSel").changeSel(LINK_TYPE_DHCP)});break;case WAN_TYPE_PPPOE:loadingDialog.hide(function(){id("netModeSel").changeSel(LINK_TYPE_PPPOE)})}})}
+var b=!1,d=null;loadingDialog.show({title:label.confirmTitle,content:{primary:label.checkingWait}},void 0,void 0,!0,a);c()}
+(function(){(function(){var a=$.Deferred(),c=$.Deferred(),b=$.Deferred();slp.protocol.getData({success:function(b){gWizardData.networkConf=b[uciProto.fileName];a.resolve()}});slp.host.getData({success:function(a){gWizardData.wifiConf=a[uciWireless.fileName];c.resolve()}});var d={};d[uciNetwork.fileName]={};d[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan;$.query(d,function(a){gWizardData.lanConf=a[uciNetwork.fileName];b.resolve()});$.when(a,c,b).done(function(){wzdNetWorkModeChange(1==slp.moduleSpec.elink?
+LINK_TYPE_DHCP:LINK_TYPE_PPPOE,wzdWanDetect)})})();(function(){$("#downloadAPP").click(function(a){a=a||window.event;cloudAppDialog.show(a)});$("div.wizardCon").on("click","span.wzdSkipDes",wzdStop)})();showAndlinkLogo&&$("#andlinkLogo").css("background",andlinkLogoBg).css("display","inline-block")})();
+</script><style type="text/css">p.downloadAPP i{font-size:16px;margin-right:4px}div.wizardHead i#mercuryLogo{background:url(../web-static/images/basic.png) no-repeat}</style>

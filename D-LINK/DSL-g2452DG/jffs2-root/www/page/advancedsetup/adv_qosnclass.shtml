@@ -1,0 +1,1235 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var op = "edit";
+var targetIndex = getQueryInt("i");
+
+if (isNaN(targetIndex)) {
+	targetIndex = -1;
+	op = "add";
+}
+
+function WanIPConnection()
+{
+	this._objpath = "";
+	this.name = { ID: "", PATH: "Name", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+function WanPPPConnection()
+{
+	this._objpath = "";
+	this.name = { ID: "", PATH: "Name", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+function WanConnDev()
+{
+	this._objpath = "";
+	this._ips = new WanIPConnection();
+	this._ppps = new WanPPPConnection();
+}
+
+var i1 = 0;
+var WanConnDevInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+WanConnDevInsts[i1] = new WanConnDev();
+WanConnDevInsts[i1]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.";
+WanConnDevInsts[i1]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._index = i1;
+i2 = 0;
+WanConnDevInsts[i1]._ipsInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name" -->
+WanConnDevInsts[i1]._ipsInsts[i2] = new WanIPConnection();
+WanConnDevInsts[i1]._ipsInsts[i2]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.{i}.WANIPConnection.";
+WanConnDevInsts[i1]._ipsInsts[i2].name.VAL = "<!--#leaf "1" -->";
+WanConnDevInsts[i1]._ipsInsts[i2]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._ipsInsts[i2]._index = i2;
+i2++;
+<!--#endgetobject -->
+i3 = 0;
+WanConnDevInsts[i1]._pppsInsts = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name" -->
+WanConnDevInsts[i1]._pppsInsts[i3] = new WanPPPConnection();
+WanConnDevInsts[i1]._pppsInsts[i3]._objpath = "InternetGatewayDevice.WANDevice." + (i1+1) + ".WANConnectionDevice.{i}.WANPPPConnection.";
+WanConnDevInsts[i1]._pppsInsts[i3].name.VAL = "<!--#leaf "1" -->";
+WanConnDevInsts[i1]._pppsInsts[i3]._inspath = "<!--#path -->";
+WanConnDevInsts[i1]._pppsInsts[i3]._index = i3;
+i3++;
+<!--#endgetobject -->
+i1++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function wanConnsGenerate()
+{
+	var opts = "";
+	for (var i = 0; i < WanConnDevInsts.length; i++) {
+		var wcd = WanConnDevInsts[i];
+
+		for (var j = 0; j < wcd._ipsInsts.length; j++) {
+			var conn = wcd._ipsInsts[j];
+			opts += "<option value='" + conn._inspath + "'>" + conn.name.VAL + "</option>";
+		}
+		
+		for (var j = 0; j < wcd._pppsInsts.length; j++) {
+			var conn = wcd._pppsInsts[j];
+			opts += "<option value='" + conn._inspath + "'>" + conn.name.VAL + "</option>";
+		}
+	}
+	document.write(opts);
+}
+
+function LanEthIf()
+{
+	this._objpath = "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.";
+	this.name = { ID: "", PATH: "X_CT-COM_Description", TYPE: "str", SBMT: "n", VAL: "" };
+}
+
+i1 = 0;
+var LanEthIfInsts = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig. X_CT-COM_Description" -->
+LanEthIfInsts[i1] = new LanEthIf();
+LanEthIfInsts[i1].name.VAL = "<!--#leaf "1" -->";
+LanEthIfInsts[i1]._inspath = "<!--#path -->";
+LanEthIfInsts[i1]._index = i1;
+i1++;
+<!--#endgetobject -->
+
+function lanConnsGenerate(insts)
+{
+	var opts = "";
+	for (var i = 0; i < insts.length; i++) {
+		var lan = insts[i];
+		opts += "<option value='" + lan._inspath + "'>" + lan.name.VAL + "</option>";
+	}
+	document.write(opts);
+}
+
+
+function PriorityQueue()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue.";
+	this.enable = { PATH: "Enable", TYPE: "int",
+		ID: "fake",
+		VAL: 0 };
+}
+
+i1 = 0;
+var PriorityQueueInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue. Enable" -->
+PriorityQueueInsts[i1] = new PriorityQueue();
+PriorityQueueInsts[i1].enable.VAL = <!--#leaf "1" -->;
+PriorityQueueInsts[i1]._inspath = "<!--#path -->";
+PriorityQueueInsts[i1]._index = i1;
+i1++;
+<!--#endgetobject -->
+
+function enabledQueueGenerate()
+{
+	var opts = "";
+	for (var i = 0; i < PriorityQueueInsts.length; i++) {
+		var pq = PriorityQueueInsts[i];
+		if (pq.enable.VAL) {
+			opts += "<option value='" + (i+1) + "'>" + (i+1) + "</option>";
+		}
+	}
+	document.write(opts);
+}
+
+function defaultNumberInit(item)
+{
+	var val = '';
+	if (item.VAL != -1) {
+		val = '' + item.VAL;
+	}
+
+	setValue(item.ID, val);
+}
+
+function set_default_number(item, form, objpath, obj)
+{
+    var val = -1;
+    AddElements(form, objpath + item.PATH, val);
+}
+
+function defaultNumberSubmit(item, form, objpath, obj)
+{
+	var val = getValue(item.ID);
+	if (val == "") {
+		val = "-1";
+	}
+
+	AddElements(form, objpath + item.PATH, val);
+}
+
+function ipMaskInit(item)
+{
+	var _ProType = $('SELECT_IpProtocolType').value;
+
+	if (_ProType == "IPv4") {
+		var len = parseInt(item.VAL);
+		if (isNaN(len)) {
+			item.VAL = "";
+		} else {
+			item.VAL = IPMaskLengthToStr(len);
+		}
+	}
+	setValue(item.ID, item.VAL);
+}
+
+function ifInit(item)
+{
+	if (item.VAL.length > 0) {
+		var c = item.VAL.charAt(item.VAL.length - 1);
+		if (c != '.') {
+			item.VAL += '.';
+		}
+	}
+	setValue(item.ID, item.VAL);
+}
+
+function ProtoInit(item)
+{
+	changeIcmpValue();
+	setValue(item.ID, item.VAL);
+}
+
+function MacCheck(item, fcls, proto)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+	if (!isMacValid(item.VAL)) {
+		return 2;
+	}
+	return 1;
+}
+
+function VlanCheck(item, fcls, proto)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+
+	var vlan = parseInt(item.VAL);
+	if (isNaN(vlan) || !isVlanValid(vlan)) {
+		return 2;
+	}
+	return 1;
+}
+
+function IPv4Check(item, fcls)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "")
+		return 0;
+	if (!isIPAddrValid(item.VAL)) {
+		return 2;
+	}
+
+	var mask = fcls[item.REL];
+	mask.VAL = getValue(mask.ID);
+	if (mask.VAL == "") {
+		mask.VAL = "255.255.255.255";
+	}
+	if (!isIPMaskValid(mask.VAL)) {
+		top.AlertMsg(mask.MSG_V4);
+		return 3;
+	}
+	mask.VAL = IPMaskStrToLength(mask.VAL);
+	return 1;
+
+}
+
+function IPv6Check(item, fcls)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "")
+		return 0;
+	if (!isIPv6AddrValid(item.VAL)) {
+		return 2;
+	}
+
+	var mask = fcls[item.REL];
+	mask.VAL = getValue(mask.ID);
+	if (mask.VAL == "") {
+		mask.VAL = "128";
+	}
+	mask.VAL = parseInt(mask.VAL);
+	if (!checkRange(mask.VAL,1, 0, 128)) {
+		top.AlertMsg(mask.MSG_V6);
+		return 3;
+	}
+	return 1;
+}
+
+function IPCheck(item, fcls, proto)
+{
+	if (proto == "IPv4") {
+		return IPv4Check(item, fcls);
+	} else {
+		return IPv6Check(item, fcls);
+	}
+}
+
+function TcCheck(item, fcls, proto)
+{
+	if (proto == "IPv4") {
+		return 0;
+	}
+
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+
+	var val = parseInt(item.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 255)) {
+		return 2;
+	}
+	return 1;
+}
+
+function FlCheck(item, fcls, proto)
+{
+	if (proto == "IPv4") {
+		return 0;
+	}
+
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+
+	var val = parseInt(item.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 1048575)) {
+		return 2;
+	}
+	return 1;
+}
+
+function PortCheck(item, fcls, proto)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+
+	var val = item.VAL = parseInt(item.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 65535)) {
+		return 2;
+	}
+
+	var max = fcls[item.REL];
+	max.VAL = getValue(max.ID);
+	if (max.VAL == "") {
+		max.VAL = item.VAL;
+		return 1;
+	}
+
+	val = max.VAL = parseInt(max.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 65535) || val < item.VAL) {
+		top.AlertMsg(max.MSG);
+		return 3;
+	}
+	return 1;
+}
+
+function IPTypeCheck(item, fcls, proto)
+{
+	return 0;
+}
+
+function InterfaceCheck(item, fcls, proto)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "") {
+		return 0;
+	}
+	return 1;
+}
+
+function EthPriCheck(item, fcls, proto)
+{
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "-1") {
+		return 0;
+	}
+
+	var val = parseInt(item.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 7)) {
+		return 2;
+	}
+	return 1;
+}
+
+function DscpCheck(item, fcls, proto)
+{
+	if (proto == "IPv6") {
+		return 0;
+	}
+
+	item.VAL = getValue(item.ID);
+	if (item.VAL == "-1") {
+		return 0;
+	}
+
+	var val = parseInt(item.VAL);
+	if (isNaN(val) || !checkRange(val,1, 0, 63)) {
+		return 2;
+	}
+	return 1;
+}
+
+function NormalSet(item, type, fcls, form)
+{
+	AddElements(form, "add_obj", type._objpath);
+	item.VAL = getValue(item.ID);
+	AddElements(form, type._inspath + type.type.PATH, item.TYPE);
+	AddElements(form, type._inspath + type.min.PATH, item.VAL);
+	AddElements(form, type._inspath + type.max.PATH, item.VAL);
+	AddElements(form, type._inspath + type.plist.PATH, fcls.proto.VAL);
+}
+
+function RelSet(item, type, fcls, form)
+{
+	AddElements(form, "add_obj", type._objpath);
+	AddElements(form, type._inspath + type.type.PATH, item.TYPE);
+	AddElements(form, type._inspath + type.min.PATH, item.VAL);
+	var rel = fcls[item.REL];
+	AddElements(form, type._inspath + type.max.PATH, rel.VAL);
+	AddElements(form, type._inspath + type.plist.PATH, fcls.proto.VAL);
+}
+
+function ProtoSet(type, fcls, form)
+{
+	AddElements(form, "add_obj", type._objpath);
+	AddElements(form, type._inspath + type.type.PATH, "");
+	AddElements(form, type._inspath + type.min.PATH, "");
+	AddElements(form, type._inspath + type.max.PATH, "");
+	AddElements(form, type._inspath + type.plist.PATH, fcls.proto.VAL);
+}
+
+
+function FlatClass()
+{
+	this.iptype = { ID: "SELECT_IpProtocolType", TYPE: "IPTYPE",
+		CHK: IPTypeCheck,
+		SBMT: "n", VAL: "IPv4" };
+	this.smac = { ID: "INPUT_sourceMAC", TYPE: "SMAC",
+		CHK: MacCheck,
+		MSG: "Format of source mac address is wrong.",
+		SBMT: NormalSet, VAL: "" };
+	this.dmac = { ID: "INPUT_destinationMAC", TYPE: "DMAC",
+		CHK: MacCheck,
+		MSG: "Format of destination mac address is wrong.",
+		SBMT: NormalSet, VAL: "" }
+	this.vlan = { ID: "INPUT_VLANID", TYPE: "VLAN",
+		CHK: VlanCheck,
+		MSG: "Vlan ID is invliad.",
+		SBMT: NormalSet, VAL: "" }; 
+	this.sip = { ID: "INPUT_SIP", TYPE: "SIP",
+		CHK: IPCheck,
+		MSG: "Source IP address is invalid.",
+		REL: "smsk",
+		SBMT: RelSet, VAL: "" }; 
+	this.smsk = { ID: "INPUT_SIPMask", TYPE: "", INIT: ipMaskInit,
+		CHK: "n",
+		MSG_V4: "Source IP address mask is invalid.",
+		MSG_V6: "Source Prefix is invalid.",
+		SBMT: "n", VAL: "" }; 
+	this.dip = { ID: "INPUT_DIP", TYPE: "DIP",
+		CHK: IPCheck,
+		MSG: "Destination IP address is invalid.",
+		REL: "dmsk",
+		SBMT: RelSet, VAL: "" };
+	this.dmsk = { ID: "INPUT_DIPMask", TYPE: "", INIT: ipMaskInit, 
+		CHK: "n",
+		MSG_V4: "Destination IP address mask is invalid.",
+		MSG_V6: "Destination Prefix is invalid.",
+		SBMT: "n", VAL: "" };
+	this.tc = { ID: "INPUT_TrafficClassCheck", TYPE: "TC",
+		CHK: TcCheck,
+		MSG: "TC is invliad.",
+		SBMT: NormalSet, VAL: "" };
+	this.fl = { ID: "INPUT_FlowLabel", TYPE: "FL",
+		CHK: FlCheck,
+		MSG: "Flow lable is invliad.",
+		SBMT: NormalSet, VAL: "" };
+	this.sport = { ID: "INPUT_SourcePort", TYPE: "SPORT",
+		CHK: PortCheck,
+		MSG: "Source port is invliad.",
+		REL: "sportm",
+		SBMT: RelSet, VAL: "" };
+	this.sportm = { ID: "INPUT_SourcePortRangeMax", TYPE: "",
+		CHK: "n",
+		MSG: "Max source port is invliad.",
+		SBMT: "n", VAL: "" };
+	this.dport = { ID: "INPUT_DestPort", TYPE: "DPORT",
+		CHK: PortCheck,
+		MSG: "Destination port is invliad.",
+		REL: "dportm",
+		SBMT: RelSet, VAL: "" };
+	this.dportm = { ID: "INPUT_DestPortRangeMax", TYPE: "",
+		CHK: "n",
+		MSG: "Max destination port is invliad.",
+		SBMT: "n", VAL: "" };
+	this.lan = { ID: "SELECT_LANInterface", TYPE: "LANInterface",
+		INIT: ifInit,
+		CHK: InterfaceCheck,
+		SBMT: NormalSet, VAL: "-1" };
+	this.wan = { ID: "SELECT_WANInterface", TYPE: "WANInterface",
+		INIT: ifInit,
+		CHK: InterfaceCheck,
+		SBMT: NormalSet, VAL: "-1" };
+	this.ethpri = { ID: "INPUT_802_1p", TYPE: "8021P",
+		CHK: EthPriCheck,
+		MSG: "Match 802.1P is invliad.",
+		SBMT: NormalSet, VAL: -1 };
+	this.dscp = { ID: "SELECT_DSCPCheck", TYPE: "DSCP",
+		CHK: DscpCheck,
+		MSG: "Match DSCP is invliad.",
+		SBMT: NormalSet, VAL: -1 };
+
+	// put it last: proto relies on ip type
+	this.proto = { ID: "SELECT_Protocol", TYPE: "",
+		INIT: ProtoInit,
+		CHK: "n",
+		SBMT: "n", VAL: "" };
+}
+
+function ClassType()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.{i}.type.";
+	this.type = { ID: "", PATH: "Type", TYPE: "str", SBMT: "y", VAL: "" };
+	this.min = { ID: "", PATH: "Min", TYPE: "str", SBMT: "y", VAL: "" };
+	this.max = { ID: "", PATH: "Max", TYPE: "str", SBMT: "y", VAL: "" };
+	this.plist = { ID: "", PATH: "ProtocolList", TYPE: "str", SBMT: "y", VAL: "" };
+}
+
+function Class()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.";
+	this.enable = { ID: "INPUT_Enable", PATH: "X_TRI-Enable", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.queue = { ID: "SELECT_classQueue", PATH: "ClassQueue", TYPE: "int", SBMT: "y", VAL: 1 };
+	this.dscp = { ID: "SELECT_DSCPMark", PATH: "DSCPMarkValue", TYPE: "int", SBMT: "n", VAL: -1 };
+	this.tc = { ID: "INPUT_TrafficClassMark", PATH: "X_TRI-TC", TYPE: "int",
+		INIT: defaultNumberInit, SBMT: "n", VAL: -1 };
+	this.ethpri = { ID: "SELECT_802_1PMark", PATH: "802-1_P_Value", TYPE: "int", SBMT: "y", VAL: -1 };
+	this._type = new ClassType();
+}
+
+i1 = 0;
+var ClassInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification. X_TRI-Enable ClassQueue DSCPMarkValue X_TRI-TC 802-1_P_Value" -->
+ClassInsts[i1] = new Class();
+ClassInsts[i1].enable.VAL = <!--#leaf "1" -->;
+ClassInsts[i1].queue.VAL = <!--#leaf "2" -->;
+ClassInsts[i1].dscp.VAL = <!--#leaf "3" -->;
+ClassInsts[i1].tc.VAL = <!--#leaf "4" -->;
+ClassInsts[i1].ethpri.VAL = <!--#leaf "5" -->;
+ClassInsts[i1]._inspath = "<!--#path -->";
+ClassInsts[i1]._index = i1;
+i2 = 0;
+ClassInsts[i1]._typeInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.Classification.{i}.type. Type Min Max ProtocolList" -->
+ClassInsts[i1]._typeInsts[i2] = new ClassType();
+ClassInsts[i1]._typeInsts[i2].type.VAL = "<!--#leaf "1" -->";
+ClassInsts[i1]._typeInsts[i2].min.VAL = "<!--#leaf "2" -->";
+ClassInsts[i1]._typeInsts[i2].max.VAL = "<!--#leaf "3" -->";
+ClassInsts[i1]._typeInsts[i2].plist.VAL = "<!--#leaf "4" -->";
+ClassInsts[i1]._typeInsts[i2]._inspath = "<!--#path -->";
+ClassInsts[i1]._typeInsts[i2]._index = i2;
+i2++;
+<!--#endgetobject -->
+i1++;
+<!--#endgetobject -->
+
+
+function onChgIpProType() {
+	var _ProType = $('SELECT_IpProtocolType').value;
+	
+	if(_ProType == 'IPv4'){
+		$('lang_sourceIpAddress').innerHTML = getStr("LK_SourceAddresss");
+		$('lang_destiIpAddress').innerHTML = getStr("LK_DestinationAddresss");
+		$('lang_sourceIpAddressMax').innerHTML = getStr("LK_SourceMaskk");
+		$('lang_destiIpAddressMax').innerHTML = getStr("LK_DestinationMaskk");
+		$('sip_tip').innerHTML = '(8.8.8.8)';
+		$('sip_mask_tip').innerHTML = '(255.255.255.0)';
+		$('dip_tip').innerHTML = '(8.8.8.8)';
+		$('dip_mask_tip').innerHTML = '(255.255.255.0)';
+	
+		$('IPv4_DSCPCheck').style.display = '';
+		$('IPv4_DSCPMark').style.display = '';
+		$('flow_label').style.display = 'none';
+		$('IPv6_TrafficClassCheck').style.display = 'none';
+		$('IPv6_TrafficClassMark').style.display = 'none';
+	}
+	else if(_ProType == 'IPv6'){
+		$('lang_sourceIpAddress').innerHTML = getStr("LK_Sourcev6Addresss");
+		$('lang_destiIpAddress').innerHTML = getStr("LK_DestinationAddresss");
+		$('lang_sourceIpAddressMax').innerHTML = getStr("LK_SourcePrefixLength");
+		$('lang_destiIpAddressMax').innerHTML = getStr("LK_DestinationPrefixLength");
+		$('sip_tip').innerHTML = '2001::101';
+		$('sip_mask_tip').innerHTML = '(0~128)';
+		$('dip_tip').innerHTML = '2001::101';
+		$('dip_mask_tip').innerHTML = '(0~128)';
+
+		$('IPv4_DSCPCheck').style.display = 'none';
+		$('IPv4_DSCPMark').style.display = 'none';
+		$('flow_label').style.display = '';
+		$('IPv6_TrafficClassCheck').style.display = '';
+		$('IPv6_TrafficClassMark').style.display = '';
+	}
+}
+
+function changeIcmpValue(){
+
+	var _ProType = $('SELECT_IpProtocolType').value;
+	var opts = $('SELECT_Protocol').options;
+
+	var value = "";
+	var tmp = "";
+	if (_ProType == "IPv4") {
+		value = "ICMP";
+		tmp = "IGMP";
+	} else {
+		value = "ICMPv6";
+		tmp = "MLD";
+	}
+	
+	for (var i = 0; i < opts.length; i++) {
+		var o = opts[i];
+		if (o.text == "ICMP" || o.text == "ICMPv6") {
+			o.text = value;
+			o.value = value;
+		}
+		if (o.text == "IGMP" || o.text == "MLD") {
+			o.text = tmp;
+			o.value = tmp;
+		}
+	}
+}
+
+function onProtoChange(reset)
+{
+	var nodes = ['INPUT_SourcePort','INPUT_SourcePortRangeMax','INPUT_DestPort','INPUT_DestPortRangeMax'];
+
+	var disabled_map = {
+	"-1": true,
+	"TCP": false,
+	"UDP": false,
+	"ICMP": true,
+	"IGMP": true,
+	"MLD": true,
+	"ICMPv6": true
+	};
+
+	var proto = $('SELECT_Protocol').value;
+	if (proto == "") {
+		proto = "-1";
+	}
+	var enable = disabled_map[proto];
+
+	for(var i = 0; i < nodes.length; i++) {
+		if (reset) {
+			$(nodes[i]).value = "";
+		}
+		$(nodes[i]).disabled = enable;
+	}
+}
+
+function inflateType(type, fcls)
+{
+	switch (type.type.VAL) {
+	case 'SMAC':
+		fcls.smac.VAL = type.min.VAL;
+		break;
+	case 'DMAC':
+		fcls.dmac.VAL = type.min.VAL;
+		break;
+	case 'VLAN':
+		fcls.vlan.VAL = type.min.VAL;
+		break;
+	case 'SIP':
+		fcls.sip.VAL = type.min.VAL;
+		fcls.smsk.VAL = type.max.VAL;
+		break;
+	case 'DIP':
+		fcls.dip.VAL = type.min.VAL;
+		fcls.dmsk.VAL = type.max.VAL;
+		break;
+	case 'TC':
+		fcls.tc.VAL = type.min.VAL;
+		break;
+	case 'FL':
+		fcls.fl.VAL = type.min.VAL;
+		break;
+	case 'SPORT':
+		fcls.sport.VAL = type.min.VAL;
+		fcls.sportm.VAL = type.max.VAL;
+		break;
+	case 'DPORT':
+		fcls.dport.VAL = type.min.VAL;
+		fcls.dportm.VAL = type.max.VAL;
+		break;
+	case 'IPTYPE':
+		fcls.iptype.VAL = type.min.VAL;
+		break;
+	case 'LANInterface':
+		fcls.lan.VAL = type.min.VAL;
+		break;
+	case 'WANInterface':
+		fcls.wan.VAL = type.min.VAL;
+		break;
+	case '8021P':
+		fcls.ethpri.VAL = type.min.VAL;
+		break;
+	case 'DSCP':
+		fcls.dscp.VAL = type.min.VAL;
+		break;
+	default:
+		break;
+	}
+}
+
+function getIpType(cls, fcls)
+{
+	var type = "IPv4";
+
+	if (fcls.sip.VAL.length > 0 && fcls.sip.VAL.indexOf(":") != -1) {
+		type = "IPv6";
+	}
+	
+	if (fcls.dip.VAL.length > 0 && fcls.dip.VAL.indexOf(":") != -1) {
+		type = "IPv6";
+	}
+
+	if (fcls.tc.VAL.length > 0 && fcls.tc.VAL != "-1") {
+		type = "IPv6";
+	}
+	
+	if (fcls.proto.VAL.length > 0 && fcls.proto.VAL == "ICMPv6") {
+		type = "IPv6";
+	}
+	
+	if (cls.tc.VAL != -1) {
+		type = "IPv6";
+	}
+	
+	return type;
+}
+
+function inflateTypes(cls, fcls)
+{
+	var proto = "DFT";
+	var types = cls._typeInsts;
+	for (var i = 0; i < types.length; i++) {
+		var type = types[i];
+		if (type.plist.VAL.length > 0) {
+			proto = type.plist.VAL;
+		}
+		inflateType(type, fcls);
+	}
+	fcls.proto.VAL = proto;
+	fcls.iptype.VAL = getIpType(cls, fcls);
+}
+
+function ClassUIInit(cls, fcls)
+{
+	if (isDefined(cls._typeInsts)) {
+		inflateTypes(cls, fcls);
+	}
+
+	ConfigObjectUIInit(cls);
+	ConfigObjectUIInit(fcls);
+}
+
+// ret:
+// 	0: not filled;
+//  1: check passed;
+//  2: check failed;
+//  3: related item check failed;
+function checkClassTypes(fcls)
+{
+	var checked = false;
+	var valid = true;
+	
+	var _ProType = $('SELECT_IpProtocolType').value;
+
+	for (var attr in fcls) {
+		var item = fcls[attr];
+		if (isUndefined(item.CHK) || item.CHK == "n")
+			continue;
+
+		var submit = item.SBMT;
+		item.SBMT = "n";
+
+		var ret = item.CHK(item, fcls, _ProType);
+		if (ret == 1) {
+			checked = true;
+			item.SBMT = submit;
+		} else if (ret == 2) {
+			valid = false;
+			if (isDefined(item.MSG)) {
+				top.AlertMsg(item.MSG);
+			}
+			break;
+		} else if (ret == 3) {
+			valid = false;
+			break;	
+		}
+	}
+
+	if (!checked) {
+		var proto = $('SELECT_Protocol').value;
+		checked = (proto != "-1");
+	}
+
+	if (valid && !checked) {
+		top.AlertMsg(getStr("LK_onematch"));
+		valid = false;
+	}
+	return valid;
+}
+
+function checkClassTarget(cls)
+{
+	var checked = false;
+
+	if (getValue(cls.queue.ID) != "-1")
+		checked = true;
+	
+	if (getValue(cls.ethpri.ID) != "-1")
+		checked = true;
+		
+	var _ProType = $('SELECT_IpProtocolType').value;
+	if (_ProType == "IPv4") {
+		var dscp = parseInt(getValue(cls.dscp.ID));
+		if (getValue(cls.dscp.ID) != "-1") {
+			checked = true;
+		}
+	} else {
+		var tc = parseInt(getValue(cls.tc.ID));
+		if (!isNaN(tc)) {
+			checked = true;
+		}
+		if (!checkRange(tc,1, 0, 255)) {
+			top.AlertMsg(getStr("LK_TCflagout"));
+			return false;
+		}
+		var sip = $('INPUT_SIP').value;
+		var dip = $('INPUT_DIP').value;
+		var base_tc = $('INPUT_TrafficClassCheck').value;
+		var tc_mark = $('INPUT_TrafficClassMark').value;
+		if(sip == "" && dip == "" && base_tc == "" && tc_mark == "")
+		{
+			top.AlertMsg(getStr("LK_sodipleast1"));
+			return false;
+		}
+	}
+
+	if (!checked) {
+		top.AlertMsg(getStr("LK_oneaction"));
+	}
+	return checked;
+}
+
+function ClassCheck(cls, fcls)
+{
+	var valid = true;
+	valid = valid && checkClassTypes(fcls);
+	valid = valid && checkClassTarget(cls);
+	return valid;
+}
+
+function ClassTargetPrepare(cls)
+{
+	var _ProType = $('SELECT_IpProtocolType').value;
+	if (_ProType == "IPv4") {
+		cls.dscp.SBMT = "y";
+        cls.tc.SBMT = set_default_number;
+	} else {
+		cls.tc.SBMT = defaultNumberSubmit;
+        cls.dscp.SBMT = set_default_number;
+	}
+}
+
+function getNewClass(olders, newers)
+{
+	for (var i in newers) {
+		var n = newers[i];
+		var exist = false;
+		
+		for (var j in olders) {
+			var o = olders[j];
+			if (n._inspath == o._inspath) {
+				exist = true;
+				break;
+			}
+		}
+
+		if (!exist) {
+			return n;
+		}
+	}
+	return null;
+}
+
+function ClassPrepareTypes(insnum, form, fcls)
+{
+	var type = new ClassType();
+	type._objpath = type._objpath.replace("{i}", insnum);
+	type._inspath = type._objpath + "{i}.";
+
+	fcls.proto.VAL = getValue(fcls.proto.ID);
+
+	var added = false;
+	for (var attr in fcls) {
+		var item = fcls[attr];
+		if (isUndefined(item.SBMT) || item.SBMT == "n")
+			continue;
+		added = true;
+		item.SBMT(fcls[attr], type, fcls, form);
+	}
+
+	if (!added) {
+		ProtoSet(type, fcls, form);
+	}
+}
+
+function ClassTypesAdd(data, status, xhr)
+{
+	if (status != "success") {
+		top.AlertMsg(getStr("LK_Addclassfailed"));
+		return;
+	}
+
+	var newClassInsts = eval(data);
+	var cls = getNewClass(ClassInsts, newClassInsts);
+	
+	if (cls == null) {
+		top.AlertMsg(getStr("LK_Addclassfailed"));
+		return;
+	}
+
+	var insnum = getInstNoAtTail(cls._inspath);
+	var form = document.dataform;
+	var fcls = new FlatClass();
+
+	// check it again to init the SBMT attr
+	// of fcls config items.
+	if (!ClassCheck(cls, fcls))
+		return;
+
+	ClassPrepareTypes(insnum, form, fcls);
+
+	//kick op-func on by SET to cls
+	ClassTargetPrepare(cls);
+	ConfigObjectPrepareSet(cls, form);
+
+	form.submit();
+}
+
+function ClassAdd(cls)
+{
+	var form = document.createElement('form');
+	form.id = 'newclass';
+	form.method = "POST";
+	form.action = "/cgi-bin/setup.cgi?/page/advancedsetup/adv_qosnclass_addret.shtml";
+
+	//add cls first to get the path for type node
+	ConfigObjectPrepareAdd(cls, form);
+
+	// add class first to get the instance number
+	jQuery.post(
+		"/cgi-bin/setup.cgi?/page/advancedsetup/adv_qosnclass_addret.shtml",
+		jQuery(form).serialize(),
+		ClassTypesAdd
+	);
+}
+
+function ClassTypeCleanUp(types, form)
+{
+	for (var i = 0; i < types.length; i++) {
+		var t = types[i];
+		ConfigObjectPrepareDel(t, form);
+	}
+}
+
+function ClassEdit(cls, fcls)
+{
+	var form = document.dataform;
+	
+	ClassTargetPrepare(cls);
+	ConfigObjectPrepareSet(cls, form);
+
+	// clean up all old types	
+	ClassTypeCleanUp(cls._typeInsts, form);
+	
+	var insnum = getInstNoAtTail(cls._inspath);
+	ClassPrepareTypes(insnum, form, fcls);
+
+	form.submit();
+}
+function uiBack()
+{
+	document.location.href = "adv_qoscliffication.shtml";
+}
+function init()
+{
+	var cls = new Class();
+	var fcls = new FlatClass();
+	if (op == "edit") {
+		cls = ClassInsts[targetIndex];
+	}
+	ClassUIInit(cls, fcls);
+
+	onChgIpProType();
+	changeIcmpValue();
+	onProtoChange(false);
+}
+
+function uiSubmit()
+{
+	var cls = new Class();
+	var fcls = new FlatClass();
+	if (op == "edit") {
+		cls = ClassInsts[targetIndex];
+	}
+	if (!ClassCheck(cls, fcls))
+		return;
+	if(!validateCode())
+		return false;
+	if (op == "add") {
+		ClassAdd(cls);
+	} else {
+		ClassEdit(cls, fcls);	
+	}
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_QoSClassificationSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable" ></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_ClassificationTrafficBase'))</script>		
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_IPVersionn"></td>
+	<td><select id="SELECT_IpProtocolType" onChange="onChgIpProType();changeIcmpValue();">
+		<option value="IPv4">IPv4</option>
+		<option value="IPv6">IPv6</option>
+	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_LANInterfacee"></td>
+	<td><select id="SELECT_LANInterface" style="width:70px">
+		<option value=''>-</option>
+		<script type="text/javascript">
+		lanConnsGenerate(LanEthIfInsts);
+		</script>
+	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_WANConnection_Colon"></td>
+	<td><select id="SELECT_WANInterface" style="width:70px">
+		<option value=''>-</option>
+		<script type="text/javascript">
+		wanConnsGenerate();
+		</script>
+	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_SourceMACc"></td>
+	<td><input type="text" id="INPUT_sourceMAC"> (00:22:33:aa:bb:cc)</td>
+</tr>
+<tr>
+	<td langkey="LK_DestinationMACc"></td>
+	<td><input type="text" id="INPUT_destinationMAC"> (00:22:33:aa:bb:cc)</td>
+</tr>
+<tr>
+	<td langkey="LK_VLANn"></td>
+	<td><input type="text" id="INPUT_VLANID"></td>
+</tr>
+<tr>
+	<td langkey="LK_8021Pp"></td>
+	<td><select id="INPUT_802_1p" style="width:70px">
+		<option value="-1">-</option>
+		<option value="0">0</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+	</select></td>
+</tr>
+<tr>
+	<td id="lang_sourceIpAddress"></td>
+	<td><input type="text" id="INPUT_SIP"> <span id="sip_tip"></span></td>
+</tr>
+<tr>
+	<td id="lang_sourceIpAddressMax"></td>
+	<td><input type="text" id="INPUT_SIPMask"> <span id="sip_mask_tip"></span></td>
+</tr>
+<tr>
+	<td id="lang_destiIpAddress"></td>
+	<td><input type="text" id="INPUT_DIP"> <span id="dip_tip"></span></td>
+</tr>
+<tr>
+	<td id="lang_destiIpAddressMax"></td>
+	<td><input type="text" id="INPUT_DIPMask"> <span id="dip_mask_tip"></span></td>
+</tr>
+<tr id="IPv4_DSCPCheck">
+	<td langkey="LK_DSCPp"></td>
+	<td><select id="SELECT_DSCPCheck">
+		<option value="-1">-</option>
+		<option value="0">Default</option>
+		<option value="10">AF11(001010)</option>
+		<option value="12">AF12(001100)</option>
+		<option value="14">AF13(001110)</option>
+		<option value="18">AF21(010010)</option>
+		<option value="20">AF22(010100)</option>
+		<option value="22">AF23(010110)</option>
+		<option value="26">AF31(011010)</option>
+		<option value="28">AF32(011100)</option>
+		<option value="30">AF33(011110)</option>
+		<option value="34">AF41(100010)</option>
+		<option value="36">AF42(100100)</option>
+		<option value="38">AF43(100110) </option>
+		<option value="8">CS1(001000)</option>
+		<option value="16">CS2(010000)</option>
+		<option value="24">CS3(011000)</option>
+		<option value="32">CS4(100000)</option>
+		<option value="40">CS5(101000)</option>
+		<option value="48">CS6(110000)</option>
+		<option value="56">CS7(111000)</option>
+		<option value="46">EF(101110)</option>
+	</select></td>
+</tr>
+<tr id="IPv6_TrafficClassCheck">
+	<td langkey="LK_TCc"></td>
+	<td><input type="text" id="INPUT_TrafficClassCheck">&nbsp;(0-255)</td>
+</tr>
+<tr id="flow_label">
+	<td langkey="LK_FlowLabell"></td>
+	<td><input type="text" id="INPUT_FlowLabel">&nbsp;(0-1048575)</td>
+</tr>
+<tr>
+	<td langkey="LK_IPProtocolTypee"></td>
+	<td><select id="SELECT_Protocol" onChange="onProtoChange(true)"  style="width:70px">
+		<option value="-1">-</option>
+		<option value="TCP">TCP</option>
+		<option value="UDP">UDP</option>
+		<!--option value="RTP">RTP</option-->
+		<option value="ICMP">ICMP</option>
+		<option value="IGMP">IGMP</option>
+	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_SourcePortRangee"></td>
+	<td><input type="text" id="INPUT_SourcePort"> - <input type="text" id="INPUT_SourcePortRangeMax"></td>
+</tr>
+<tr>	
+	<td langkey="LK_DestinationPortRangee"></td>
+	<td><input type="text" id="INPUT_DestPort"> - <input type="text" id="INPUT_DestPortRangeMax"></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_ClassificationMatchResult'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Queuee"></td>
+	<td><select id="SELECT_classQueue" style="width:70px">
+		<option value="-1">-</option>
+		<script type="text/javascript">
+			enabledQueueGenerate();
+		</script>
+	</select></td>
+</tr>
+<tr id="IPv4_DSCPMark">
+	<td langkey="LK_DSCPp"></td>
+	<td><select id="SELECT_DSCPMark">
+		<option value='-1'>-</option>
+		<option value="0">Default</option>
+		<option value="10">AF11(001010)</option>
+		<option value="12">AF12(001100)</option>
+		<option value="14">AF13(001110)</option>
+		<option value="18">AF21(010010)</option>
+		<option value="20">AF22(010100)</option>
+		<option value="22">AF23(010110)</option>
+		<option value="26">AF31(011010)</option>
+		<option value="28">AF32(011100)</option>
+		<option value="30">AF33(011110)</option>
+		<option value="34">AF41(100010)</option>
+		<option value="36">AF42(100100)</option>
+		<option value="38">AF43(100110) </option>
+		<option value="8">CS1(001000)</option>
+		<option value="16">CS2(010000)</option>
+		<option value="24">CS3(011000)</option>
+		<option value="32">CS4(100000)</option>
+		<option value="40">CS5(101000)</option>
+		<option value="48">CS6(110000)</option>
+		<option value="56">CS7(111000)</option>
+		<option value="46">EF(101110)</option>
+	</select></td>
+</tr>
+<tr id="IPv6_TrafficClassMark">
+	<td langkey="LK_TCMarkk"></td>
+	<td><input type="text" id="INPUT_TrafficClassMark"> (0-255)</td>
+</tr>
+<tr>
+	<td langkey="LK_8021PTagg"></td>
+	<td><select id="SELECT_802_1PMark" style="width:70px">
+		<option value="-1">-</option>
+		<option value="0">0</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+	</select></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+	<script>PrintTriButton('back',getStr('LK_Back'),"uiBack()");</script>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()")</script>
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name="dataform" action="/cgi-bin/setup.cgi?/page/advancedsetup/adv_qoscliffication.shtml">
+</form>
+</body></html>

@@ -1,0 +1,172 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function uiSubmit()
+{
+    var FaxPT=getValue("Frm_FaxPTValue");
+    var FaxCodec=getValue("Frm_FaxCodecValue");
+    var cResult;
+
+    var df=$('fSubmit');
+    
+	if(!validateCode())
+		return false;
+
+    if($('Frm_Enable').checked==false)
+    {
+        if((FaxCodec!="G711U") && (FaxCodec!="G711A"))
+        {
+            msg=getmsg(301);
+            top.AlertMsg(msg);
+            return false;
+        }
+
+        if(FaxCodec=="G711A")
+        {
+            if(FaxPT!=8)
+            {
+                cResult=checkIntegerRange(getValue("Frm_FaxPTValue"), 96, 127);
+                if(cResult==-1)
+                {
+                    msg=getmsg(101);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+                else if(cResult==-2)
+                {
+                    msg=getmsg(115);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+                else if(cResult==-3)
+                {
+                    msg=getmsg(302);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+            }
+        }
+        else if(FaxCodec=="G711U")
+        {
+            if(FaxPT!=0)
+            {
+                cResult=checkIntegerRange(getValue("Frm_FaxPTValue"), 96, 127);
+                if(cResult==-1)
+                {
+                    msg=getmsg(101);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+                else if(cResult==-2)
+                {
+                    msg=getmsg(115);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+                else if(cResult==-3)
+                {
+                    msg=getmsg(303);
+                    top.AlertMsg(msg);
+                    return false;
+                }
+            }
+        }
+        jslDisable("Btn_Submit","Btn_Cancel");
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_G711FAX.PT", FaxPT);
+        if(FaxCodec=="G711A")
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_G711FAX.Codec", "PCMA");
+        else
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_G711FAX.Codec", "PCMU");
+    }
+    else
+    {
+        jslDisable("Btn_Submit","Btn_Cancel");
+    }
+    
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.FaxT38.Enable", $('Frm_Enable').checked ? 1 : 0);
+    
+    df.submit();
+}
+
+var isEnabled = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.FaxT38.Enable"-->";
+var faxPt = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_G711FAX.PT"-->";
+var faxCodec = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_CT-COM_G711FAX.Codec"-->";
+
+function pageGetValue()
+{
+	if(isEnabled=='1')
+        $('Frm_Enable').checked=true;
+    else 
+        $('Frm_Enable').checked=false;
+
+    change_fax_type();
+}
+
+function change_fax_type()
+{
+    var fax_type=$('Frm_Enable').checked;
+    if(fax_type==false)
+    {
+	    jslEnDisplay("TR_FAXPT","TR_FaxCodec");
+	    setValue("Frm_FaxPTValue", faxPt);
+	    if(faxCodec=="PCMA")
+	        setValue("Frm_FaxCodecValue", "G711A");
+	    else
+	        setValue("Frm_FaxCodecValue", "G711U");
+	}
+	else if(fax_type==true)
+	{
+	    jslDiDisplay("TR_FAXPT","TR_FaxCodec");
+	}
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_BasicSetup'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipfax.shtml">
+</form>
+<table id="TestContent" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+<td width="150" langkey="LK_EnableT38"></td>
+<td>
+<input id="Frm_Enable" name="Frm_Enable" type="checkbox" value="" onchange="change_fax_type()">
+</td>
+</tr>
+<tr id="TR_FAXPT">
+<td>Fax PT:</td>
+<td><input type="text" id="Frm_FaxPTValue" class="inputId"></td>
+</tr>
+<tr id="TR_FaxCodec">
+<td>Fax Codec:</td>
+<td><input type="text" id="Frm_FaxCodecValue" class="inputId"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

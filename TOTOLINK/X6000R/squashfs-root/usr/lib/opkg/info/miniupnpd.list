@@ -1,0 +1,8 @@
+/usr/sbin/miniupnpd
+/etc/config/upnpd
+/usr/sbin/ip6tables_removeall.sh
+/etc/hotplug.d/iface/50-miniupnpd
+/usr/sbin/iptables_init.sh
+/usr/sbin/iptables_removeall.sh
+/etc/init.d/miniupnpd
+/usr/sbin/ip6tables_init.sh

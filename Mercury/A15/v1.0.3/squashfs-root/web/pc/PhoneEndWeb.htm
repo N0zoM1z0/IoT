@@ -1,0 +1,35 @@
+﻿
+
+<div class="phEndCon textCenter disNones" id="detecting">
+	<img class="detectErr" src="../web-static/images/phoneSuccess.png" />
+	<p class="detectTip detecting">{%label.phoneWizardEnd%}</p>
+	<p class="detectTip disNone" id="iPhoneNote">{%label.phoneAppleEnd%}</p>
+	<p class="detectTipTwo detecting disNone" id="detectNote">{%label.phoneWlanReload%}</p>
+	<div class="wifiInfoCon disNone" id="commonTip">
+		<p id="wifiName" class="detectTip"></p>
+		<p id="wifiPwd" class="NamePwdGap detectTip"></p>
+		<p id="wifiName5G" class="InfoGap detectTip"></p>
+		<p id="wifiPwd5G" class="NamePwdGap detectTip"></p>
+	</div>
+	<div id="bsTip" class="wifiInfoCon disNone">
+		<p id="wifiNameBs" class="detectTip"></p>
+		<p id="wifiPwdBs" class="NamePwdGap detectTip"></p>
+	</div>
+</div>
+<div class="phEndCon textCenter disNone" id="setOk">
+	<img class="detectErr" src="../web-static/images/phoneSuccess.png" />
+	<p class="detectTip detecting">{%label.phoneWizardEnd%}</p>
+	<p class="detectTipTwo detecting disNone" id="iPhone">{%label.phoneAppleEnd%}</p>
+	<div id="android" class="disNone">
+		<p class="detectTipTwo detecting">{%label.phoneAppTipB%}</p>
+		<label id="continuePCSet" class="appBtn">{%label.phoneEndBrowser%}</label>
+		<label id="downLoadApp" class="appBtn btnS">{%label.phoneEndDownload%}</label>
+	</div>
+</div>
+<script type="text/javascript">function init(){function h(){phoneSet.bPhoneWizardSet=!0;loadLgLessPage("PhoneAppWeb.htm","Con",void 0,void 0)}function k(){if(gIsWifiCfgChged){if(slp.bandSteeringProvided&&gWifiCfgToSave[b][c]&&gWifiCfgToSave[b][c][l]==m){$("#bsTip").css("display","block");var a=gWifiCfgToSave[b][c][e];void 0==a||0==a.length?$("#wifiPwdBs").css("display","none"):($("#wifiPwdBs").text(label.wirelessPwd+label.colon+a),$("#wifiPwdBs").attr("title",label.wirelessPwd+label.colon+a));$("#wifiNameBs").text(label.wirelessName+
+label.colon+gWifiCfgToSave[b][c][d]);$("#wifiNameBs").attr("title",label.wirelessName+label.colon+gWifiCfgToSave[b][c][d])}else{$("#commonTip").css("display","block");a=gWifiCfgToSave[b][f][e];if(slp.bandsProvided==slp.DOUBLE)var g=gWifiCfgToSave[b][n][e];slp.bandsProvided==slp.DOUBLE?($("#wifiName").text(label.wirelessName2G+label.colon+gWifiCfgToSave[b][f][d]),$("#wifiName5G").text(label.wirelessName5G+label.colon+gWifiCfgToSave[b][n][d]),$("#wifiName5G").css("display","block")):$("#wifiName").text(label.wirelessName+
+label.colon+gWifiCfgToSave[b][f][d]);void 0==a||0==a.length?$("#wifiPwd").css("display","none"):$("#wifiPwd").text(label.wirelessPwd2G+label.colon+a);void 0==g||0==g.length?$("#wifiPwd5G").css("display","none"):$("#wifiPwd5G").text(label.wirelessPwd5G+label.colon+g)}(slp.bandSteeringProvided&&gWifiCfgToSave[b][c]&&gWifiCfgToSave[b][c][l]==m&&gIsWifiCfgChged||gIsWifiCfgChged2g&&1==g_host_conn_type&&0==g_host_conn_mode||gIsWifiCfgChged5g&&1==g_host_conn_type&&1==g_host_conn_mode)&&$("#detectNote").css("display",
+"block");$("#detecting").css("display","block");$("#setOk").css("display","none");"NO"!=gBeInCNA?$("#iPhoneNote").css("display","block"):p?phoneDfsDialog.show(q,function(){$.setTimeout(function(){lanDetecting(function(){h()})},4E3)}):$.setTimeout(function(){lanDetecting(function(){h()})},4E3)}else $("#detecting").css("display","none"),$("#setOk").css("display","block"),"NO"!=gBeInCNA?$("#iPhone").css("display","block"):$("#android").css("display","block")}var q=0,p=!1,b=uciWireless.fileName,f=uciWireless.dynData.host_2g,
+n=uciWireless.dynData.host_5g,c=uciWireless.secName.wlanBS,d=uciWireless.dynOptName.ssid,e=uciWireless.dynOptName.key,l=uciWireless.optName.bsEnable,m=uciWireless.optValue.bsEnable.enable;wzdDone();!0==gIsWifiCfgChged?$.modify(gWifiCfgToSave,function(a){a[ERR_CODE]==ENONE&&a.dfs_wait_time&&0!=a.dfs_wait_time&&(q=parseInt(a.dfs_wait_time),p=!0);k()}):k();id("downLoadApp").onclick=function(){location.href="https://app-srv.mercuryclouds.com.cn/appdown/mercurywifi"};id("continuePCSet").onclick=function(){phoneSet.bPhoneWizardSet=
+!1;loadPage("Content.htm","Con")}}init();
+</script><style type="text/css">div.phEndCon{margin:0 auto;width:290px}img.detectingGif{height:30px;margin:120px auto 0;width:30px}p.detectTip{color:#1b1c1f;font-size:16px;text-align:center;word-break:break-all;word-wrap:break-word}p.detectTipTwo{color:#8d9199;font-size:14px;text-align:center;word-break:break-all;word-wrap:break-word;margin-bottom:50px}.textCenter{text-align:center}.bold{font-size:15px!important;font-weight:bold}p.detecting{margin-top:20px}img.detectErr{height:80px;margin:120px auto 0;width:83px}div.wifiInfoCon{border:1px solid #d5d9e0;padding:20px 15px}div.wifiInfoCon p{font-size:14px;color:#5e6166}p.NamePwdGap{margin-top:5px}p.InfoGap{margin-top:15px}#wifiName5G{display:none}</style>

@@ -1,0 +1,8 @@
+Package: kmod-xt_multiurl
+Version: 4.4.176+1.0
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Source: tp_package/k_packages/xt_multiurl
+Section: ko util
+Architecture: rtl
+Installed-Size: 1752
+Description:  tp-link url matched kernel module	

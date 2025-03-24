@@ -1,0 +1,9 @@
+Package: qca-wrapd
+Version: miwifi_git-1
+Depends: libc, libpthread, libnl, qca-cfg80211
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/qca/net/qca-wrapd
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7
+Installed-Size: 42073
+Description:  User Space application to support QWRAP feature

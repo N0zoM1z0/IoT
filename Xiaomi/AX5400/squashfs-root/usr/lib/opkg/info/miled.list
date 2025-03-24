@@ -1,0 +1,4 @@
+/etc/config/miled
+/lib/config_post_ota/miled_cfg_update.sh
+/usr/sbin/miled
+/etc/init.d/miled

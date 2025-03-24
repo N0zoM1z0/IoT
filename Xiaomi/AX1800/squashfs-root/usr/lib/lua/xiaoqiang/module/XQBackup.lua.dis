@@ -1,0 +1,1084 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23
+L0 = module
+L1 = "xiaoqiang.module.XQBackup"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = "/tmp/cfg_backup.des"
+L1 = "/tmp/cfg_backup.mbu"
+L2 = "/tmp/cfgbackup.tar.gz"
+L3 = "bkcfg_tmp"
+L4 = "/tmp/bkcfg_tmp/cfg_backup.des"
+L5 = "/tmp/bkcfg_tmp/cfg_backup.mbu"
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "xiaoqiang.common.XQFunction"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = "7kl4n23mnm678m890s9dfklnmdqmwenq"
+  L3 = string
+  L3 = L3.sub
+  L4 = L0.bdataGet
+  L5 = "SN"
+  L6 = "0529486"
+  L4 = L4(L5, L6)
+  L5 = 1
+  L6 = 5
+  L3 = L3(L4, L5, L6)
+  sn = L3
+  L3 = string
+  L3 = L3.sub
+  L4 = L0.bdataGet
+  L5 = "color"
+  L6 = "1000"
+  L4 = L4(L5, L6)
+  L5 = 1
+  L6 = 3
+  L3 = L3(L4, L5, L6)
+  color = L3
+  L3 = L1.trim
+  L4 = string
+  L4 = L4.lower
+  L5 = L1.exec
+  L6 = "getmac|awk -F ',' '{print $1}'|sed 's/://g'"
+  L5, L6 = L5(L6)
+  L4, L5, L6 = L4(L5, L6)
+  L3 = L3(L4, L5, L6)
+  mac1 = L3
+  L3 = L1.trim
+  L4 = string
+  L4 = L4.lower
+  L5 = L1.exec
+  L6 = "getmac|awk -F ',' '{print $2}'|sed 's/://g'"
+  L5, L6 = L5(L6)
+  L4, L5, L6 = L4(L5, L6)
+  L3 = L3(L4, L5, L6)
+  mac2 = L3
+  L3 = sn
+  if L3 ~= nil then
+    L3 = color
+    if L3 ~= nil then
+      L3 = mac1
+      if L3 ~= nil then
+        L3 = mac2
+        if L3 ~= nil then
+          L3 = sn
+          L4 = mac1
+          L5 = mac2
+          L6 = color
+          L2 = L3 .. L4 .. L5 .. L6
+        end
+      end
+    end
+  end
+  return L2
+end
+function L7()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L1.name = ""
+  L1.location = ""
+  L1.password = ""
+  L3 = L0
+  L2 = L0.get
+  L4 = "xiaoqiang"
+  L5 = "common"
+  L6 = "ROUTER_NAME"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L1.name = L2
+  L3 = L0
+  L2 = L0.get
+  L4 = "xiaoqiang"
+  L5 = "common"
+  L6 = "ROUTER_LOCALE"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L1.location = L2
+  L3 = L0
+  L2 = L0.get
+  L4 = "account"
+  L5 = "common"
+  L6 = "admin"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L1.password = L2
+  return L1
+end
+function L8()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.util.XQWifiUtil"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = {}
+  L1["24g"] = L2
+  L2 = {}
+  L1["5g"] = L2
+  L2 = L0.getWifiBasicInfo
+  L3 = 1
+  L2 = L2(L3)
+  L1["24g"] = L2
+  L2 = L0.getWifiBasicInfo
+  L3 = 2
+  L2 = L2(L3)
+  L1["5g"] = L2
+  return L1
+end
+function L9()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = "/etc/config/vlan_service"
+  L3 = L0.stat
+  L4 = L2
+  L3 = L3(L4)
+  if L3 then
+    L4 = L1
+    L3 = L1.get_all
+    L5 = "vlan_service"
+    L3 = L3(L4, L5)
+    return L3
+  end
+  L3 = nil
+  return L3
+end
+function L10()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L3 = L0
+  L2 = L0.get_all
+  L4 = "network"
+  L5 = "wan"
+  L2 = L2(L3, L4, L5)
+  if not L2 then
+    L2 = {}
+    L2.proto = "dhcp"
+    L2.ifname = "eth0.2"
+  end
+  L3 = _UPVALUE0_
+  L3 = L3()
+  L1.wan = L2
+  if L3 then
+    L1.vlan_service = L3
+  end
+  return L1
+end
+function L11()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L2 = {}
+  L1.network = L2
+  L2 = {}
+  L1.dhcp = L2
+  L3 = L0
+  L2 = L0.get_all
+  L4 = "network"
+  L5 = "lan"
+  L2 = L2(L3, L4, L5)
+  L1.network = L2
+  L3 = L0
+  L2 = L0.get_all
+  L4 = "dhcp"
+  L5 = "lan"
+  L2 = L2(L3, L4, L5)
+  L1.dhcp = L2
+  return L1
+end
+function L12()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "xiaoqiang.util.XQWifiUtil"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQPushUtil"
+  L1 = L1(L2)
+  L2 = L1.pushSettings
+  L2 = L2()
+  L3 = {}
+  L4 = L2.auth
+  if L4 then
+    L4 = 1
+    if L4 then
+      goto lbl_17
+    end
+  end
+  L4 = 0
+  ::lbl_17::
+  L3.enable = L4
+  L3.mode = 0
+  L4 = L0.getWiFiMacfilterModel
+  L4 = L4()
+  L3.mode = L4
+  L4 = L0.getCurrentMacfilterList
+  L4 = L4()
+  L3.list = L4
+  return L3
+end
+function L13()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = require
+  L1 = "xiaoqiang.util.XQDeviceUtil"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.cbi.datatypes"
+  L1 = L1(L2)
+  L2 = {}
+  L3 = L0.getDeviceMacsFromDB
+  L3 = L3()
+  for L7, L8 in L4, L5, L6 do
+    if 50 < L7 then
+      break
+    end
+    L9 = L1.macaddr
+    L10 = L8
+    L9 = L9(L10)
+    if L9 then
+      L9 = table
+      L9 = L9.insert
+      L10 = L2
+      L11 = L8
+      L9(L10, L11)
+    end
+  end
+  return L4(L5)
+end
+function L14(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  if A0 then
+    L2 = A0.name
+    if L2 then
+      L3 = L1
+      L2 = L1.set
+      L4 = "xiaoqiang"
+      L5 = "common"
+      L6 = "ROUTER_NAME"
+      L7 = A0.name
+      L2(L3, L4, L5, L6, L7)
+    end
+    L2 = A0.location
+    if L2 then
+      L3 = L1
+      L2 = L1.set
+      L4 = "xiaoqiang"
+      L5 = "common"
+      L6 = "ROUTER_LOCALE"
+      L7 = A0.location
+      L2(L3, L4, L5, L6, L7)
+    end
+    L3 = L1
+    L2 = L1.commit
+    L4 = "xiaoqiang"
+    L2(L3, L4)
+    L2 = A0.password
+    if L2 then
+      L3 = L1
+      L2 = L1.set
+      L4 = "account"
+      L5 = "common"
+      L6 = "admin"
+      L7 = A0.password
+      L2(L3, L4, L5, L6, L7)
+      L3 = L1
+      L2 = L1.commit
+      L4 = "account"
+      L2(L3, L4)
+    end
+  end
+end
+function L15(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  if A0 then
+    L2 = A0["24g"]
+    L3 = A0["5g"]
+    if L2 then
+      L4 = tonumber
+      L5 = L2.on
+      L4 = L4(L5)
+      if L4 == 0 then
+        L4 = 1
+        if L4 then
+          goto lbl_19
+        end
+      end
+      L4 = 0
+      ::lbl_19::
+      L5 = L1.setWifiBasicInfo
+      L6 = 1
+      L7 = L2.ssid
+      L8 = L2.password
+      L9 = L2.encryption
+      L10 = L2.channel
+      L11 = L2.txpwr
+      L12 = L2.hidden
+      L13 = L4
+      L14 = L2.bandwidth
+      L15 = L2.bsd
+      L16 = L2.txbf
+      L5(L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16)
+    end
+    if L3 then
+      L4 = tonumber
+      L5 = L3.on
+      L4 = L4(L5)
+      if L4 == 0 then
+        L4 = 1
+        if L4 then
+          goto lbl_43
+        end
+      end
+      L4 = 0
+      ::lbl_43::
+      L5 = L1.setWifiBasicInfo
+      L6 = 2
+      L7 = L3.ssid
+      L8 = L3.password
+      L9 = L3.encryption
+      L10 = L3.channel
+      L11 = L3.txpwr
+      L12 = L3.hidden
+      L13 = L4
+      L14 = L3.bandwidth
+      L15 = L3.bsd
+      L16 = L3.txbf
+      L5(L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16)
+    end
+  end
+end
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = require
+  L3 = "xiaoqiang.XQLog"
+  L2 = L2(L3)
+  L3 = require
+  L3 = L3(L4)
+  if A0 then
+    if L4 then
+      L7 = "wan"
+      L4(L5, L6, L7)
+      L7 = "interface"
+      L8 = "wan"
+      L9 = A0.wan
+      L4(L5, L6, L7, L8, L9)
+      L4(L5, L6)
+    end
+  end
+  if A0 then
+    if L4 then
+      for L7, L8 in L4, L5, L6 do
+        L9 = L2.log
+        L10 = 7
+        L11 = L7
+        L12 = L8
+        L9(L10, L11, L12)
+        L10 = L1
+        L9 = L1.delete
+        L11 = "vlan_service"
+        L12 = L7
+        L9(L10, L11, L12)
+        L10 = L1
+        L9 = L1.section
+        L11 = "vlan_service"
+        L12 = L8[".type"]
+        L13 = L7
+        L14 = L8
+        L9(L10, L11, L12, L13, L14)
+      end
+      L4(L5, L6)
+      L4(L5)
+    end
+  end
+end
+function L17(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  if A0 then
+    L2 = A0.network
+    L3 = A0.dhcp
+    if L2 then
+      L5 = L1
+      L4 = L1.delete
+      L6 = "network"
+      L7 = "lan"
+      L4(L5, L6, L7)
+      L5 = L1
+      L4 = L1.section
+      L6 = "network"
+      L7 = "interface"
+      L8 = "lan"
+      L9 = L2
+      L4(L5, L6, L7, L8, L9)
+      L5 = L1
+      L4 = L1.commit
+      L6 = "network"
+      L4(L5, L6)
+    end
+    if L3 then
+      L5 = L1
+      L4 = L1.delete
+      L6 = "dhcp"
+      L7 = "lan"
+      L4(L5, L6, L7)
+      L5 = L1
+      L4 = L1.section
+      L6 = "dhcp"
+      L7 = "dhcp"
+      L8 = "lan"
+      L9 = L3
+      L4(L5, L6, L7, L8, L9)
+      L5 = L1
+      L4 = L1.commit
+      L6 = "dhcp"
+      L4(L5, L6)
+    end
+  end
+end
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQPushUtil"
+  L2 = L2(L3)
+  if A0 then
+    L3 = A0.mode
+    L4 = A0.list
+    L5 = A0.enable
+    L6 = L1.getCurrentMacfilterList
+    L6 = L6()
+    L7 = L1.getWiFiMacfilterModel
+    L7 = L7()
+    if L6 then
+      L8 = L1.editWiFiMacfilterList
+      L9 = L7 - 1
+      L10 = L6
+      L11 = 1
+      L8(L9, L10, L11)
+    end
+    L8 = L2.pushConfig
+    L9 = "auth"
+    L10 = L5
+    L8(L9, L10)
+    L8 = L1.setWiFiMacfilterModel
+    L9 = L5
+    L10 = L3 - 1
+    L8(L9, L10)
+    if L4 then
+      L8 = L1.editWiFiMacfilterList
+      L9 = L3 - 1
+      L10 = L4
+      L11 = 0
+      L8(L9, L10, L11)
+    end
+  end
+end
+function L19(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = require
+  L2 = "xiaoqiang.util.XQSysUtil"
+  L1 = L1(L2)
+  L2 = require
+  L2 = L2(L3)
+  if A0 then
+    if L3 == "table" then
+      for L6, L7 in L3, L4, L5 do
+        L8 = L2.macaddr
+        L9 = L6
+        L8 = L8(L9)
+        if L8 then
+          L8 = L1.setMacFilter
+          L9 = L6
+          L10 = tostring
+          L11 = L7.lan
+          L10 = L10(L11)
+          L11 = tostring
+          L12 = L7.wan
+          L11 = L11(L12)
+          L12 = tostring
+          L13 = L7.admin
+          L12 = L12(L13)
+          L13 = tostring
+          L14 = L7.pridisk
+          L13, L14 = L13(L14)
+          L8(L9, L10, L11, L12, L13, L14)
+        end
+      end
+    end
+  end
+end
+L20 = {}
+L21 = _
+L22 = "\232\183\175\231\148\177\229\153\168\229\144\141\231\167\176\229\146\140\232\183\175\231\148\177\229\153\168\231\174\161\231\144\134\229\175\134\231\160\129"
+L21 = L21(L22)
+L20.mi_basic_info = L21
+L21 = _
+L22 = "Wi-Fi\232\174\190\231\189\174(Wi-Fi\229\144\141\231\167\176\227\128\129Wi-Fi\229\175\134\231\160\129)"
+L21 = L21(L22)
+L20.mi_wifi_info = L21
+L21 = _
+L22 = "\228\184\138\231\189\145\232\174\190\231\189\174(\230\139\168\229\143\183\230\150\185\229\188\143\229\146\140\229\174\189\229\184\166\232\180\166\229\143\183\229\175\134\231\160\129)"
+L21 = L21(L22)
+L20.mi_network_info = L21
+L21 = _
+L22 = "DHCP\230\156\141\229\138\161\229\146\140\229\177\128\229\159\159\231\189\145IP\232\174\190\231\189\174"
+L21 = L21(L22)
+L20.mi_lan_info = L21
+L21 = {}
+L21.mi_basic_info = L7
+L21.mi_wifi_info = L8
+L21.mi_network_info = L10
+L21.mi_lan_info = L11
+L21.mi_arn_info = L12
+L21.mi_access_info = L13
+L22 = {}
+L22.mi_basic_info = L14
+L22.mi_wifi_info = L15
+L22.mi_network_info = L16
+L22.mi_lan_info = L17
+L22.mi_arn_info = L18
+L22.mi_access_info = L19
+function L23(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = require
+  L4 = "json"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "aeslua"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "nixio.fs"
+  L5 = L5(L6)
+  L6 = require
+  L7 = "luci.sys"
+  L6 = L6(L7)
+  L7 = "/tmp/syslogbackup/"
+  L8 = _UPVALUE0_
+  L8 = L8()
+  L10 = L2
+  L9 = L2.get
+  L11 = "network"
+  L12 = "lan"
+  L13 = "ipaddr"
+  L9 = L9(L10, L11, L12, L13)
+  L9 = L9 or L9
+  function L10()
+    local L0, L1, L2, L3
+    L0 = _UPVALUE0_
+    L0 = L0.process
+    L0 = L0.info
+    L1 = "uid"
+    L0 = L0(L1)
+    L1 = _UPVALUE1_
+    L1 = L1.stat
+    L2 = _UPVALUE2_
+    L3 = "uid"
+    L1 = L1(L2, L3)
+    L0 = L0 == L1
+    return L0
+  end
+  sane = L10
+  function L10()
+    local L0, L1, L2
+    L0 = _UPVALUE0_
+    L0 = L0.mkdir
+    L1 = _UPVALUE1_
+    L2 = 700
+    L0(L1, L2)
+  end
+  prepare = L10
+  L10 = sane
+  L10 = L10()
+  if not L10 then
+    L10 = prepare
+    L10()
+  else
+    L10 = os
+    L10 = L10.execute
+    L11 = "rm "
+    L12 = L7
+    L13 = "*.tar.gz >/dev/null 2>/dev/null"
+    L11 = L11 .. L12 .. L13
+    L10(L11)
+  end
+  L10 = L3.encode
+  L11 = A1
+  L10 = L10(L11)
+  L11 = L3.encode
+  L12 = A0
+  L11 = L11(L12)
+  L12 = L4.encrypt
+  L13 = L8
+  L14 = L10
+  L12 = L12(L13, L14)
+  L13 = os
+  L13 = L13.date
+  L14 = "%Y-%m-%d--%X"
+  L15 = os
+  L15 = L15.time
+  L15, L16, L17, L18 = L15()
+  L13 = L13(L14, L15, L16, L17, L18)
+  L14 = ".tar.gz"
+  L13 = L13 .. L14
+  L14 = L5.writefile
+  L15 = _UPVALUE1_
+  L16 = L12
+  L14(L15, L16)
+  L14 = L5.writefile
+  L15 = _UPVALUE2_
+  L16 = L11
+  L14(L15, L16)
+  L14 = os
+  L14 = L14.execute
+  L15 = "cd /tmp; tar -czf "
+  L16 = L7
+  L17 = L13
+  L18 = " cfg_backup.des cfg_backup.mbu >/dev/null 2>/dev/null"
+  L15 = L15 .. L16 .. L17 .. L18
+  L14(L15)
+  L14 = os
+  L14 = L14.execute
+  L15 = "rm "
+  L16 = _UPVALUE1_
+  L17 = " >/dev/null 2>/dev/null"
+  L15 = L15 .. L16 .. L17
+  L14(L15)
+  L14 = os
+  L14 = L14.execute
+  L15 = "rm "
+  L16 = _UPVALUE2_
+  L17 = " >/dev/null 2>/dev/null"
+  L15 = L15 .. L16 .. L17
+  L14(L15)
+  L14 = L9
+  L15 = "/backup/log/"
+  L16 = L13
+  L14 = L14 .. L15 .. L16
+  return L14
+end
+save_info = L23
+function L23()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L2 = L0.get_list
+  L6 = "item"
+  L2 = L2(L3, L4, L5, L6)
+  if L2 then
+    for L6, L7 in L3, L4, L5 do
+      L8 = _UPVALUE0_
+      L8 = L8[L7]
+      if L8 then
+        L8 = _UPVALUE0_
+        L8 = L8[L7]
+        L1[L7] = L8
+      end
+    end
+  end
+  return L1
+end
+defaultKeys = L23
+function L23(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = nil
+  if not A0 then
+    L3 = L1.get_list
+    L7 = "item"
+    L3 = L3(L4, L5, L6, L7)
+    L2 = L3
+  else
+    L2 = A0
+  end
+  L3 = {}
+  if L2 then
+    for L7, L8 in L4, L5, L6 do
+      L9 = _UPVALUE0_
+      L9 = L9[L8]
+      if L9 then
+        L10 = L9
+        L10 = L10()
+        L3[L8] = L10
+      end
+    end
+    return L4(L5, L6)
+  end
+  return L4
+end
+backup = L23
+function L23(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "nixio.fs"
+  L1 = L1(L2)
+  L2 = L1.lstat
+  L3 = A0
+  L2, L3, L4, L5 = L2(L3)
+  if L2 then
+    L6 = L2.type
+    if L6 ~= "dir" then
+      L6 = L2.type
+      if L6 ~= "lnk" then
+        goto lbl_17
+      end
+    end
+  end
+  L6 = false
+  do return L6 end
+  ::lbl_17::
+  L6 = true
+  return L6
+end
+check_file = L23
+function L23(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = require
+  L2 = "nixio.fs"
+  L1 = L1(L2)
+  L2 = A0
+  L2 = L2 or L2
+  L3 = L1.access
+  L4 = L2
+  L3 = L3(L4)
+  if not L3 then
+    L3 = 1
+    return L3
+  end
+  L3 = os
+  L3 = L3.execute
+  L4 = "tar -tzvf "
+  L5 = L2
+  L6 = " | grep ^l >/dev/null 2>&1"
+  L4 = L4 .. L5 .. L6
+  L3 = L3(L4)
+  if L3 == 0 then
+    L4 = os
+    L4 = L4.execute
+    L5 = "rm -rf "
+    L6 = L2
+    L5 = L5 .. L6
+    L4(L5)
+    L4 = 2
+    return L4
+  end
+  L4 = os
+  L4 = L4.execute
+  L5 = "tar -tzvf "
+  L6 = L2
+  L7 = " | grep -v '\\.des$' | grep -v '\\.mbu$' >/dev/null 2>&1"
+  L5 = L5 .. L6 .. L7
+  L4 = L4(L5)
+  if L4 == 0 then
+    L5 = os
+    L5 = L5.execute
+    L6 = "rm -rf "
+    L7 = L2
+    L6 = L6 .. L7
+    L5(L6)
+    L5 = 22
+    return L5
+  end
+  L5 = io
+  L5 = L5.popen
+  L6 = "tar -tzvf "
+  L7 = L2
+  L8 = " | grep -c '\\.des$'"
+  L6 = L6 .. L7 .. L8
+  L5 = L5(L6)
+  L7 = L5
+  L6 = L5.read
+  L8 = "*a"
+  L6 = L6(L7, L8)
+  L8 = L5
+  L7 = L5.close
+  L7(L8)
+  L7 = tonumber
+  L8 = L6
+  L7 = L7(L8)
+  if L7 ~= 1 then
+    L7 = os
+    L7 = L7.execute
+    L8 = "rm -rf "
+    L9 = L2
+    L8 = L8 .. L9
+    L7(L8)
+    L7 = 2
+    return L7
+  end
+  L7 = io
+  L7 = L7.popen
+  L8 = "tar -tzvf "
+  L9 = L2
+  L10 = " | grep -c '\\.mbu$'"
+  L8 = L8 .. L9 .. L10
+  L7 = L7(L8)
+  L5 = L7
+  L8 = L5
+  L7 = L5.read
+  L9 = "*a"
+  L7 = L7(L8, L9)
+  L6 = L7
+  L8 = L5
+  L7 = L5.close
+  L7(L8)
+  L7 = tonumber
+  L8 = L6
+  L7 = L7(L8)
+  if L7 ~= 1 then
+    L7 = os
+    L7 = L7.execute
+    L8 = "rm -rf "
+    L9 = L2
+    L8 = L8 .. L9
+    L7(L8)
+    L7 = 3
+    return L7
+  end
+  L7 = os
+  L7 = L7.execute
+  L8 = "cd /tmp; mkdir "
+  L9 = _UPVALUE1_
+  L10 = "; tar -xzf "
+  L11 = L2
+  L12 = " -C /tmp/"
+  L13 = _UPVALUE1_
+  L14 = " >/dev/null 2>&1"
+  L8 = L8 .. L9 .. L10 .. L11 .. L12 .. L13 .. L14
+  L7(L8)
+  L7 = os
+  L7 = L7.execute
+  L8 = "rm "
+  L9 = L2
+  L10 = " >/dev/null 2>&1"
+  L8 = L8 .. L9 .. L10
+  L7(L8)
+  L7 = check_file
+  L8 = _UPVALUE2_
+  L7 = L7(L8)
+  if not L7 then
+    L7 = os
+    L7 = L7.execute
+    L8 = "rm -rf /tmp/"
+    L9 = _UPVALUE1_
+    L8 = L8 .. L9
+    L7(L8)
+    L7 = 2
+    return L7
+  end
+  L7 = check_file
+  L8 = _UPVALUE3_
+  L7 = L7(L8)
+  if not L7 then
+    L7 = os
+    L7 = L7.execute
+    L8 = "rm -rf /tmp/"
+    L9 = _UPVALUE1_
+    L8 = L8 .. L9
+    L7(L8)
+    L7 = 3
+    return L7
+  end
+  L7 = os
+  L7 = L7.execute
+  L8 = "mv /tmp/"
+  L9 = _UPVALUE1_
+  L10 = "/* /tmp; rm -rf /tmp/"
+  L11 = _UPVALUE1_
+  L8 = L8 .. L9 .. L10 .. L11
+  L7(L8)
+  L7 = 0
+  return L7
+end
+extract = L23
+function L23()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "json"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = L0.access
+  L4 = _UPVALUE0_
+  L3 = L3(L4)
+  if not L3 then
+    L3 = nil
+    return L3
+  end
+  L3 = L0.readfile
+  L4 = _UPVALUE0_
+  L3 = L3(L4)
+  L4 = pcall
+  L5 = L1.decode
+  L6 = L3
+  L4, L5 = L4(L5, L6)
+  if L4 and L5 then
+    L6 = {}
+    L7 = {}
+    L6.keys = L7
+    L7 = {}
+    L6.unknown = L7
+    L8 = L2
+    L7 = L2.get_list
+    L7 = L7(L8, L9, L10, L11)
+    L8 = {}
+    for L12, L13 in L9, L10, L11 do
+      L8[L13] = true
+    end
+    for L12, L13 in L9, L10, L11 do
+      L14 = L8[L13]
+      if L14 then
+        L14 = L6.keys
+        L15 = _UPVALUE1_
+        L15 = L15[L13]
+        L14[L13] = L15
+      else
+        L14 = table
+        L14 = L14.insert
+        L15 = L6.unknown
+        L16 = L13
+        L14(L15, L16)
+      end
+    end
+    return L6
+  else
+    L6 = nil
+    return L6
+  end
+end
+getdes = L23
+function L23(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21
+  L2 = require
+  L3 = "json"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "nixio.fs"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "aeslua"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "luci.model.uci"
+  L5 = L5(L6)
+  L5 = L5.cursor
+  L5 = L5()
+  L6 = A0
+  L6 = L6 or L6
+  L7 = L3.access
+  L8 = L6
+  L7 = L7(L8)
+  if not L7 then
+    L7 = 1
+    return L7
+  end
+  L7 = _UPVALUE1_
+  L7 = L7()
+  L8 = L3.readfile
+  L9 = L6
+  L8 = L8(L9)
+  L9 = os
+  L9 = L9.execute
+  L10 = "rm "
+  L11 = L6
+  L12 = " >/dev/null 2>/dev/null"
+  L10 = L10 .. L11 .. L12
+  L9(L10)
+  L9 = L4.decrypt
+  L10 = L7
+  L11 = L8
+  L9 = L9(L10, L11)
+  if not L9 then
+    L10 = 2
+    return L10
+  end
+  L10 = pcall
+  L11 = L2.decode
+  L12 = L9
+  L10, L11 = L10(L11, L12)
+  if not L10 then
+    L12 = 2
+    return L12
+  end
+  L12 = nil
+  if not A1 then
+    L16 = "backup"
+    L17 = "item"
+    L12 = L13
+  else
+    L12 = A1
+  end
+  if L12 then
+    for L16, L17 in L13, L14, L15 do
+      L18 = _UPVALUE2_
+      L18 = L18[L17]
+      L19 = L11[L17]
+      if L18 and L19 then
+        L20 = L18
+        L21 = L19
+        L20(L21)
+      end
+    end
+  end
+  return L13
+end
+restore = L23

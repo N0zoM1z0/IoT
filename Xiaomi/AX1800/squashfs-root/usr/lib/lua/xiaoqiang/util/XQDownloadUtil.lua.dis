@@ -1,0 +1,841 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+L0 = module
+L1 = "xiaoqiang.util.XQDownloadUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.XQPreference"
+L2 = L2(L3)
+L3 = require
+L4 = "json"
+L3 = L3(L4)
+L4 = require
+L5 = "luci.util"
+L4 = L4(L5)
+L5 = require
+L6 = "xiaoqiang.XQLog"
+L5 = L5(L6)
+L6 = require
+L7 = "xiaoqiang.util.XQCryptoUtil"
+L6 = L6(L7)
+L7 = "/tmp/rom.bin"
+L8 = "DOWNLOAD_TYPE"
+PREF_DOWNLOAD_TYPE = L8
+L8 = "DOWNLOAD_FILE_PATH"
+PREF_DOWNLOAD_FILE_PATH = L8
+L8 = "ps w | grep wget | awk '{print $1}'"
+L9 = "/tmp/"
+L10 = "wget -t3 -T10 --spider '%s' -o %s"
+L11 = "cat %s | grep Length | awk '{print $2}'"
+function L12(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = nil
+    return L1
+  end
+  L1 = require
+  L2 = "luci.fs"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.sys"
+  L2 = L2(L3)
+  L3 = L2.uniqueid
+  L4 = 8
+  L3 = L3(L4)
+  L4 = _UPVALUE1_
+  L5 = L3
+  L4 = L4 .. L5
+  L5 = string
+  L5 = L5.format
+  L6 = _UPVALUE2_
+  L7 = A0
+  L8 = L4
+  L5 = L5(L6, L7, L8)
+  L6 = os
+  L6 = L6.execute
+  L7 = L5
+  L6 = L6(L7)
+  if L6 then
+    L6 = string
+    L6 = L6.format
+    L7 = _UPVALUE3_
+    L8 = L4
+    L6 = L6(L7, L8)
+    L7 = tonumber
+    L8 = _UPVALUE4_
+    L8 = L8.exec
+    L9 = L6
+    L8, L9 = L8(L9)
+    L7 = L7(L8, L9)
+    L8 = L1.unlink
+    L9 = L4
+    L8(L9)
+    if L7 then
+      return L7
+    end
+  end
+  L6 = L1.unlink
+  L7 = L4
+  L6(L7)
+  L6 = nil
+  return L6
+end
+wgetCheckDownloadFilesize = L12
+function L12(A0)
+  local L1, L2, L3
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = os
+  L1 = L1.execute
+  L2 = _UPVALUE1_
+  L2 = L2.DOWNLOAD_RESOURCE_CHECK
+  L3 = A0
+  L2 = L2 .. L3
+  L1 = L1(L2)
+  if L1 ~= 0 then
+    L2 = false
+    return L2
+  end
+  L2 = true
+  return L2
+end
+_checkResource = L12
+function L12(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = _checkResource
+  L2 = A0
+  L1 = L1(L2)
+  if not L1 then
+    L1 = _UPVALUE1_
+    L1 = L1.log
+    L2 = 6
+    L3 = "Wget --spider : Bad url "
+    L4 = A0
+    L3 = L3 .. L4
+    L1(L2, L3)
+    L1 = false
+    return L1
+  end
+  L1 = _UPVALUE2_
+  L1 = L1.set
+  L2 = PREF_DOWNLOAD_TYPE
+  L3 = 2
+  L1(L2, L3)
+  L1 = require
+  L2 = "xiaoqiang.util.XQSysUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.fs"
+  L2 = L2(L3)
+  L3 = nil
+  L4 = _UPVALUE2_
+  L4 = L4.get
+  L5 = _UPVALUE3_
+  L5 = L5.PREF_ROM_FULLSIZE
+  L6 = nil
+  L4 = L4(L5, L6)
+  if L4 then
+    L5 = tonumber
+    L6 = L4
+    L5 = L5(L6)
+    L4 = L5
+    L5 = L1.checkTmpSpace
+    L6 = L4
+    L5 = L5(L6)
+    if L5 then
+      L3 = _UPVALUE4_
+    else
+      L5 = false
+      return L5
+    end
+  else
+    L5 = false
+    return L5
+  end
+  L5 = _UPVALUE2_
+  L5 = L5.set
+  L6 = PREF_DOWNLOAD_FILE_PATH
+  L7 = L3
+  L5(L6, L7)
+  L5 = L2.access
+  L6 = L3
+  L5 = L5(L6)
+  if L5 then
+    L5 = L2.unlink
+    L6 = L3
+    L5(L6)
+  end
+  L5 = "wget -t3 -T30 '"
+  L6 = A0
+  L7 = "' -O "
+  L8 = L3
+  L5 = L5 .. L6 .. L7 .. L8
+  L6 = _UPVALUE5_
+  L6 = L6.exec
+  L7 = L5
+  L6(L7)
+  L6 = _UPVALUE6_
+  L6 = L6.md5File
+  L7 = L3
+  L6 = L6(L7)
+  L7 = L3
+  return L6, L7
+end
+_wgetDownload = L12
+function L12(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = _UPVALUE1_
+    L1 = L1.set
+    L2 = _UPVALUE2_
+    L2 = L2.PREF_PAUSED_IDS
+    L3 = ""
+    L1(L2, L3)
+    return
+  end
+  L1 = _UPVALUE1_
+  L1 = L1.set
+  L2 = _UPVALUE2_
+  L2 = L2.PREF_PAUSED_IDS
+  L3 = A0
+  L1(L2, L3)
+  L1 = {}
+  L1.api = 505
+  L1.idList = A0
+  L2 = _UPVALUE0_
+  L2 = L2.thrift_tunnel_to_datacenter
+  L3 = _UPVALUE3_
+  L3 = L3.encode
+  L4 = L1
+  L3, L4 = L3(L4)
+  L2(L3, L4)
+end
+_pauseDownload = L12
+function L12(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    return
+  end
+  L1 = {}
+  L1.api = 506
+  L1.idList = A0
+  L2 = _UPVALUE0_
+  L2 = L2.thrift_tunnel_to_datacenter
+  L3 = _UPVALUE1_
+  L3 = L3.encode
+  L4 = L1
+  L3, L4 = L3(L4)
+  L2(L3, L4)
+end
+_resumeDownload = L12
+function L12(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    return
+  end
+  L1 = {}
+  L1.api = 507
+  L1.idList = A0
+  L1.deletefile = true
+  L2 = _UPVALUE0_
+  L2 = L2.thrift_tunnel_to_datacenter
+  L3 = _UPVALUE1_
+  L3 = L3.encode
+  L4 = L1
+  L3, L4 = L3(L4)
+  L2(L3, L4)
+end
+_deleteDownload = L12
+function L12(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "misc"
+  L6 = "hardware"
+  L7 = "rom_down_path"
+  L3 = L3(L4, L5, L6, L7)
+  L4 = A1 or L4
+  if not A1 then
+    L4 = 1
+  end
+  L5 = _UPVALUE0_
+  L5 = L5.set
+  L6 = PREF_DOWNLOAD_TYPE
+  L7 = 1
+  L5(L6, L7)
+  L5 = {}
+  L5.api = 504
+  L5.url = A0
+  L5.type = 1
+  L5.redownload = 0
+  L5.hidden = true
+  L5.path = L3
+  L5.dupId = ""
+  L6 = {}
+  L7 = {}
+  if L4 == 1 then
+    L8 = _UPVALUE1_
+    L8 = L8.thrift_tunnel_to_datacenter
+    L9 = "{\"api\":503,\"hidden\":true}"
+    L8 = L8(L9)
+    if L8 then
+      L9 = L8.code
+      if L9 == 0 then
+        L9 = table
+        L9 = L9.foreach
+        L10 = L8.uncompletedList
+        L9(L10, L11)
+        L7 = L8.completedList
+    end
+    else
+      L9 = _UPVALUE2_
+      L9 = L9.log
+      L10 = 6
+      L9(L10, L11)
+      L9 = false
+      L10 = false
+      return L9, L10, L11
+    end
+  end
+  L8 = table
+  L8 = L8.concat
+  L9 = L6
+  L10 = ";"
+  L8 = L8(L9, L10)
+  L6 = L8
+  L8 = _pauseDownload
+  L9 = L6
+  L8(L9)
+  L8 = _UPVALUE1_
+  L8 = L8.thrift_tunnel_to_datacenter
+  L9 = _UPVALUE3_
+  L9 = L9.encode
+  L10 = L5
+  L9, L10, L14, L15, L16, L20, L21, L22, L23, L24 = L9(L10)
+  L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24)
+  if not L8 then
+    L9 = false
+    L10 = false
+    return L9, L10, L11
+  end
+  if L8 then
+    L9 = L8.code
+    if L9 ~= 2010 then
+      L9 = L8.code
+      if L9 ~= 0 then
+        L9 = _UPVALUE2_
+        L9 = L9.log
+        L10 = 6
+        L9(L10, L11)
+        L9 = false
+        L10 = false
+        return L9, L10, L11
+      end
+    end
+  end
+  L9 = L8.code
+  if L9 == 2010 then
+    L9 = require
+    L10 = "luci.fs"
+    L9 = L9(L10)
+    L10 = nil
+    for L14, L15 in L11, L12, L13 do
+      L16 = L15.id
+      if L16 == L17 then
+        L10 = L15.localFileName
+      end
+    end
+    if not L11 then
+      if L11 then
+        L8.code = 0
+        L11(L12, L13)
+    end
+    else
+      L11(L12, L13)
+      L5.dupId = L11
+      L5.redownload = 1
+      L14, L15, L16, L20, L21, L22, L23, L24 = L12(L13)
+      L8 = L11
+    end
+  end
+  L9 = nil
+  if not L8 then
+    L10 = false
+    return L10, L11, L12
+  end
+  if L8 then
+    L10 = L8.code
+    if L10 ~= 0 then
+      L10 = false
+      return L10, L11, L12
+  end
+  else
+    L10 = L8.info
+    L9 = L10.id
+  end
+  L10 = _UPVALUE0_
+  L10 = L10.set
+  L10(L11, L12)
+  L10 = 0
+  while "isStrNil" do
+    L14 = os
+    L14 = L14.execute
+    L15 = "sleep 3"
+    L14(L15)
+    L14 = _UPVALUE1_
+    L14 = L14.thrift_tunnel_to_datacenter
+    L15 = "{\"api\":503,\"hidden\":true}"
+    L14 = L14(L15)
+    if L14 then
+      L15 = L14.code
+      if L15 == 0 then
+        L15 = L14.completedList
+        L16 = L14.uncompletedList
+        L17(L18, L19)
+        for L20, L21 in L17, L18, L19 do
+          if L9 then
+            L22 = L21.id
+            if L22 == L9 then
+              goto lbl_214
+            end
+          end
+          if not L9 then
+            L22 = L21.address
+            ::lbl_214::
+            if L22 == A0 then
+              if not L9 then
+                L9 = L21.id
+                L22 = _UPVALUE0_
+                L22 = L22.set
+                L23 = _UPVALUE4_
+                L23 = L23.PREF_ROM_DOWNLOAD_ID
+                L24 = L9
+                L22(L23, L24)
+              end
+              L22 = L21.fileDownloadedSize
+              if L12 == L22 then
+                L10 = L10 + 1
+              else
+                L10 = 0
+              end
+              L22 = L21.datacenterErrorCode
+              if L22 ~= 0 then
+                L22 = _resumeDownload
+                L23 = L6
+                L22(L23)
+                L22 = _deleteDownload
+                L23 = L9
+                L22(L23)
+                L22 = false
+                L23 = nil
+                L24 = L12
+                return L22, L23, L24
+              else
+                L22 = L21.downloadStatus
+                if L22 == 4 then
+                  L22 = _resumeDownload
+                  L23 = L6
+                  L22(L23)
+                  L22 = _UPVALUE5_
+                  L22 = L22.md5File
+                  L23 = L21.localFileName
+                  L22 = L22(L23)
+                  L23 = L21.localFileName
+                  L24 = L21.fileDownloadedSize
+                  return L22, L23, L24
+                else
+                  L22 = L21.downloadStatus
+                  if L22 == 16 then
+                    L22 = _resumeDownload
+                    L23 = L6
+                    L22(L23)
+                    L22 = _deleteDownload
+                    L23 = L9
+                    L22(L23)
+                    L22 = false
+                    L23 = nil
+                    L24 = L12
+                    return L22, L23, L24
+                  elseif 60 < L10 then
+                    L22 = _resumeDownload
+                    L23 = L6
+                    L22(L23)
+                    L22 = _deleteDownload
+                    L23 = L9
+                    L22(L23)
+                    L22 = _UPVALUE2_
+                    L22 = L22.log
+                    L23 = 6
+                    L24 = "xunlei download timeout, will switch to wget"
+                    L22(L23, L24)
+                    L22 = false
+                    L23 = nil
+                    L24 = L21.fileDownloadedSize
+                    return L22, L23, L24
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    if L13 == 0 then
+    end
+    if 60 < L11 then
+      L15 = _resumeDownload
+      L16 = L6
+      L15(L16)
+      L15 = _deleteDownload
+      L16 = L9
+      L15(L16)
+      L15 = _UPVALUE2_
+      L15 = L15.log
+      L16 = 6
+      L15(L16, L17)
+      L15 = false
+      L16 = nil
+      return L15, L16, L17
+    end
+  end
+end
+_xunleiDownload = L12
+function L12(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if L3 then
+    L3 = false
+    return L3
+  end
+  L3 = string
+  L3 = L3.find
+  L4 = A0
+  L5 = "[^%w:/?&%%.=#_-]"
+  L3 = L3(L4, L5)
+  if L3 then
+    L3 = false
+    return L3
+  end
+  if A2 == nil then
+    L3 = true
+    if L3 then
+      goto lbl_24
+    end
+  end
+  L3 = A2
+  ::lbl_24::
+  L4 = _UPVALUE1_
+  L4 = L4.log
+  L5 = 6
+  L6 = "Xunlei download start..."
+  L4(L5, L6)
+  L4 = _xunleiDownload
+  L5 = A0
+  L6 = A1
+  L4, L5, L6 = L4(L5, L6)
+  if L4 and L5 then
+    L7 = L4
+    L8 = L5
+    return L7, L8
+  end
+  if L3 and L4 == false and L6 and L6 == 0 then
+    L7 = _UPVALUE1_
+    L7 = L7.log
+    L8 = 6
+    L9 = "Xunlei download failed, start wget..."
+    L7(L8, L9)
+    L7 = _wgetDownload
+    L8 = A0
+    L7, L8 = L7(L8)
+    L5 = L8
+    L4 = L7
+    if L4 then
+      L7 = _UPVALUE1_
+      L7 = L7.log
+      L8 = 6
+      L9 = "Wget finished"
+      L7(L8, L9)
+      L7 = L4
+      L8 = L5
+      return L7, L8
+    else
+      L7 = _UPVALUE1_
+      L7 = L7.log
+      L8 = 6
+      L9 = "Wget failed"
+      L7(L8, L9)
+    end
+  end
+  L7 = false
+  return L7
+end
+syncDownload = L12
+function L12(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L1 = _UPVALUE0_
+  L1 = L1.thrift_tunnel_to_datacenter
+  L2 = "{\"api\":503,\"hidden\":true}"
+  L1 = L1(L2)
+  if L1 then
+    L2 = L1.code
+    if L2 == 0 then
+      L2 = L1.completedList
+      L3 = L1.uncompletedList
+      L4(L5, L6)
+      for L7, L8 in L4, L5, L6 do
+        L9 = L8.id
+        if L9 == A0 then
+          L9 = L8.downloadStatus
+          if L9 == 4 then
+            L9 = 100
+            return L9
+          else
+            L9 = L8.downloadStatus
+            if L9 == 16 then
+              L9 = 0
+              return L9
+            else
+              L9 = L8.fileTotalSize
+              if L9 <= 0 then
+                L9 = 0
+                return L9
+              end
+              L9 = L8.fileDownloadedSize
+              L9 = 100 * L9
+              L10 = L8.fileTotalSize
+              L9 = L9 / L10
+              if 100 < L9 then
+                L10 = 100
+                return L10
+              else
+                L10 = math
+                L10 = L10.floor
+                L11 = L9
+                return L10(L11)
+              end
+            end
+          end
+        end
+      end
+      return L4
+  end
+  else
+    L2 = 0
+    return L2
+  end
+end
+_xunleiDownloadPercent = L12
+function L12(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = _UPVALUE0_
+  L1 = L1.get
+  L2 = PREF_DOWNLOAD_FILE_PATH
+  L3 = nil
+  L1 = L1(L2, L3)
+  L2 = tonumber
+  L3 = _UPVALUE0_
+  L3 = L3.get
+  L4 = _UPVALUE1_
+  L4 = L4.PREF_ROM_FULLSIZE
+  L5 = nil
+  L3, L4, L5, L6, L7, L8 = L3(L4, L5)
+  L2 = L2(L3, L4, L5, L6, L7, L8)
+  if L1 and L2 and 0 < L2 then
+    L3 = require
+    L4 = "luci.fs"
+    L3 = L3(L4)
+    L4 = require
+    L5 = "nixio.fs"
+    L4 = L4(L5)
+    L5 = nil
+    L6 = L4.access
+    L7 = L1
+    L6 = L6(L7)
+    if L6 then
+      L6 = math
+      L6 = L6.modf
+      L7 = L3.stat
+      L8 = L1
+      L7 = L7(L8)
+      L7 = L7.size
+      L6 = L6(L7)
+      L7 = math
+      L7 = L7.modf
+      L8 = L6 / L2
+      L8 = L8 * 100
+      L7 = L7(L8)
+      L5 = L7
+      if L5 < 1 and 0 < L5 then
+        L5 = 1
+      elseif 100 < L5 then
+        L5 = 100
+      end
+    end
+    return L5
+  end
+  L3 = 0
+  return L3
+end
+_wgetDownloadPercent = L12
+function L12(A0)
+  local L1, L2, L3
+  L1 = tonumber
+  L2 = _UPVALUE0_
+  L2 = L2.get
+  L3 = PREF_DOWNLOAD_TYPE
+  L2 = L2(L3)
+  L3 = nil
+  L1 = L1(L2, L3)
+  if L1 then
+    if L1 == 1 then
+      L2 = _xunleiDownloadPercent
+      L3 = A0
+      return L2(L3)
+    elseif L1 == 2 then
+      L2 = _wgetDownloadPercent
+      L3 = A0
+      return L2(L3)
+    end
+  end
+  L2 = 0
+  return L2
+end
+downloadPercent = L12
+function L12(A0)
+  local L1, L2, L3, L4
+  L1 = _resumeDownload
+  L2 = _UPVALUE0_
+  L2 = L2.get
+  L3 = _UPVALUE1_
+  L3 = L3.PREF_PAUSED_IDS
+  L4 = ""
+  L2, L3, L4 = L2(L3, L4)
+  L1(L2, L3, L4)
+  L1 = _UPVALUE2_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  else
+    L1 = {}
+    L1.api = 507
+    L1.idList = A0
+    L1.deletefile = true
+    L2 = _UPVALUE2_
+    L2 = L2.thrift_tunnel_to_datacenter
+    L3 = _UPVALUE3_
+    L3 = L3.encode
+    L4 = L1
+    L3, L4 = L3(L4)
+    L2 = L2(L3, L4)
+    if L2 then
+      L3 = L2.code
+      if L3 == 0 then
+        L3 = true
+        return L3
+    end
+    else
+      L3 = false
+      return L3
+    end
+  end
+end
+_cancelXunleiDownload = L12
+function L12(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L4, L5, L6, L7, L8, L9 = L2(L3)
+  for L4, L5 in L1, L2, L3 do
+    if L5 then
+      L6 = os
+      L6 = L6.execute
+      L7 = "kill "
+      L8 = _UPVALUE0_
+      L8 = L8.trim
+      L9 = L5
+      L8 = L8(L9)
+      L7 = L7 .. L8
+      L6(L7)
+    end
+  end
+  L4 = nil
+  if L2 then
+    L4 = L2
+    if L3 then
+      L4 = L2
+      L3(L4)
+    end
+  end
+  return L3
+end
+_cancelWgetDownload = L12
+function L12(A0)
+  local L1, L2, L3
+  L1 = tonumber
+  L2 = _UPVALUE0_
+  L2 = L2.get
+  L3 = PREF_DOWNLOAD_TYPE
+  L2 = L2(L3)
+  L3 = nil
+  L1 = L1(L2, L3)
+  if L1 then
+    if L1 == 1 then
+      L2 = _cancelXunleiDownload
+      L3 = A0
+      return L2(L3)
+    elseif L1 == 2 then
+      L2 = _cancelWgetDownload
+      L3 = A0
+      return L2(L3)
+    end
+  end
+  L2 = false
+  return L2
+end
+cancelDownload = L12

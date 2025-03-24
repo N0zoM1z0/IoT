@@ -1,0 +1,264 @@
+<script type="text/javascript">
+	var gWizardData = {
+		wanDetected: false, 		/* WAN口自动检测是否已执行过 */
+		wifiDisconnect: false, 		/* 无线参数是否已断开 */
+		wifiChanged: false,
+		iAmWifiDevice: false,
+		isBandSteeringOpen: false,
+		followPwd: [
+			false,
+			false,
+			false
+		],                 			/* 是否与2.4G Wi-Fi密码保持一致，数组成员依次表示5G、5G1、5G2 */
+		networkConf: null, 			/* 上网设置参数 */
+		wifiConf: null,    			/* Wi-Fi设置参数 */
+		lanConf: null,     			/* LAN口参数，设置WAN IP时判断是否冲突 */
+		gWifiCfgSave: null,			/* 保存要发送的Wi-Fi设置参数 */
+		wanSelectOptions: [{
+			str:label.pppoe,
+			value:LINK_TYPE_PPPOE
+		},{
+			str:label.staticIp,
+			value:LINK_TYPE_STATIC_IP
+		},{
+			str:label.dhcp,
+			value:LINK_TYPE_DHCP
+		}] /* 上网方式选项 */
+	};
+	var gLanIP, gOldLanIP;
+	var gLanMask;
+	var gIsLanIpChanged = false;
+	var gPbcEnable = 0;
+	var gSysMode = 0;
+	var gLanIPMode;
+	var gWifiCfgToSave = {};
+	var gIsWifiDevice = false;
+	var bWzdWanTypeDetected = false;
+	gIsWifiCfgChged = false;
+	gIsWifiCfg2GChged = false;
+	gIsWifiCfg5GChged = false;
+	gIsWifiCfg5G4Chged = false;
+	gIsWifiCfgBsChged = false;
+
+
+	if (slp.gSysModeSupport) {
+		gWizardData.wanSelectOptions =  [{
+			str:label.pppoe,
+			value:LINK_TYPE_PPPOE
+		},{
+			str:label.staticIp,
+			value:LINK_TYPE_STATIC_IP
+		},{
+			str:label.dhcp,
+			value:LINK_TYPE_DHCP
+		},{
+			str: label.wiredRepeater, 
+			value: LINK_TYPE_WIRED_REPEATER
+		},{
+			str:label.wirelessRepeater, 
+			value: LINK_TYPE_WIRELESS_REPEATER
+		}]
+	}
+	function wzdDone()
+	{
+		var data = {};
+
+		data[uciSystem.fileName] = {};
+		data[uciSystem.fileName][uciSystem.secName.sys] = {};
+		data[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory] = uciSystem.optValue.isFactory.no;
+
+		$.modify(data);
+	}
+
+	function wzdStop()
+	{
+		wzdDone();
+
+		if (gBeInCNA == "NO")
+		{
+			loadPage('Basic.htm', "Con");
+		}
+		else
+		{
+			loadPage("WizardEnd.htm", "wizardCon");
+		}
+	}
+
+	function wzdNetWorkModeChange(type, callback)
+	{
+		var wanTypes = [];
+		wanTypes[LINK_TYPE_PPPOE] = 'WizardPPPoE.htm';
+		wanTypes[LINK_TYPE_DHCP] = 'WizardDynamicIp.htm';
+		wanTypes[LINK_TYPE_STATIC_IP] = 'WizardStaticIp.htm';
+		wanTypes[LINK_TYPE_WIRED_REPEATER] = "WizardWiredRepeater.htm";
+		wanTypes[LINK_TYPE_WIRELESS_REPEATER] = "WizardWirelessRepeater.htm"
+
+		loadPage(wanTypes[type], "wizardCon", callback);
+	}
+
+	function wzdWanDetect()
+	{
+		var wzdClosed = false;
+		var wanDetectHd = null;
+		var wanDetectWaitHd = null;
+
+		function wzdWanCloseLoadingHd()
+		{
+			wzdClosed = true;
+			clearTimeout(wanDetectHd);
+		}
+
+		loadingDialog.show({
+			title: label.confirmTitle,
+			content: {primary: label.checkingWait}
+		}, undefined, undefined, true, wzdWanCloseLoadingHd);
+
+		function doDetect(){
+			$.action({network:{detect_wan_proto:null}}, function(resp){
+				var alarmCentent = "";
+
+				if (true == wzdClosed)
+				{
+					return;
+				}
+
+				if (slp.moduleSpec["wifison_mesh"] && slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					alarmCentent = label.wanWzdCheckMesh;
+				}
+				else
+				{
+					alarmCentent = label.wanWzdCheckNoteH + label.wanWzdCheckNoteT;
+				}
+
+				var wanType = parseInt(resp[uciNetwork.optName.proto]);
+				//根据WAN口协议类型显示对应的页面
+				switch(wanType)
+				{
+				case ERROR_INTERNEL_ERROR:
+				case ERROR_INPUT_PARA_ERROR:
+				case WAN_IFACE_NOT_LINK:
+					if (loadingDialog.status == "showed")
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show({
+								content:alarmCentent,
+								callback:wzdWanCloseLoadingHd
+							});
+						});
+					}
+					wanDetectHd = $.setTimeout(doDetect, 1000);
+					return;
+				case WAN_TYPE_DETECTING:
+					if (alarmDialog.status == "showed")
+					{
+						alarmDialog.hide(function(){
+							loadingDialog.show({
+								title: label.confirmTitle,
+								content: {primary: label.checkingWait}
+							}, undefined, undefined, true, wzdWanCloseLoadingHd);
+						});
+					}
+					wanDetectHd = $.setTimeout(doDetect, 1000);
+					return;
+				case WAN_TYPE_STATIC:
+					loadingDialog.hide(function(){
+						id("netModeSel").changeSel(LINK_TYPE_STATIC_IP);
+					});
+					break;
+				case WAN_TYPE_DHCP:
+					loadingDialog.hide(function(){
+						id("netModeSel").changeSel(LINK_TYPE_DHCP);
+					});
+					break;
+				case WAN_TYPE_PPPOE:
+					loadingDialog.hide(function(){
+						id("netModeSel").changeSel(LINK_TYPE_PPPOE);
+					});
+					break;
+				default:
+					return;
+				}
+			});
+		}
+
+		doDetect();
+	}
+
+	(function(){
+		function dataFetch()
+		{
+			var dfdProto = $.Deferred(),
+				dfdWifi = $.Deferred(),
+				dfdLan = $.Deferred();
+
+			/* 获取上网信息 */
+			slp.protocol.getData({
+				success: function(resp){
+					gWizardData.networkConf = resp[uciProto.fileName];
+					dfdProto.resolve();
+				}
+			});
+
+			/* 获取主人网络信息 */
+			slp.host.getData({
+				success: function(resp){
+					gWizardData.wifiConf = resp[uciWireless.fileName];
+					dfdWifi.resolve();
+				}
+			});
+
+			/* 获取LAN口信息 */
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+			$.query(data, function(resp){
+				gWizardData.lanConf = resp[uciNetwork.fileName];
+				dfdLan.resolve();
+			});
+
+			/* 等待数据全部返回 */
+			$.when(dfdProto, dfdWifi, dfdLan).done(function(){
+				/* 对于电信机型，默认加载DHCP页面；而普通机型加载PPPoE页面 */
+				/* 加载完页面后自动进行WAN口探测 */
+				var defaultMode = (slp.moduleSpec.elink == 1) ? LINK_TYPE_DHCP : LINK_TYPE_PPPOE;
+				wzdNetWorkModeChange(defaultMode, wzdWanDetect);
+			});
+		}
+
+		function bindEvent()
+		{
+			$("#downloadAPP").click(function(event){
+				var event = event || window.event;
+				cloudAppDialog.show(event);
+			});
+			$("div.wizardCon").on("click", "span.wzdSkipDes", wzdStop);
+		}
+
+		dataFetch();
+		bindEvent();
+
+		/* 根据setting.js中配置判断是否显示andlink logo & 和家亲二维码，并在需要时才加载资源 */
+		showAndlinkLogo && $("#andlinkLogo").css("background", andlinkLogoBg).css("display", "inline-block");
+	})();
+</script>
+<style type="text/css">
+	p.downloadAPP i{
+		font-size:16px;
+		margin-right:4px;
+	}
+	div.wizardHead i#mercuryLogo{
+		background:url(../web-static/images/basic.png) no-repeat;
+	}
+</style>
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div id="wizardCon" class="wizardCon"></div>
+</div>

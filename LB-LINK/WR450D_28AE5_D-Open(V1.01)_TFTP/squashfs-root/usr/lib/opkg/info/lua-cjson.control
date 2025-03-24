@@ -1,0 +1,8 @@
+Package: lua-cjson
+Version: 2.1.0-1
+Depends: libc, lua
+Source: package/network/services/lua-cjson
+Section: lang
+Architecture: ramips_24kec
+Installed-Size: 11915
+Description:  Lua CJSON is a fast JSON encoding/parsing module for Lua.

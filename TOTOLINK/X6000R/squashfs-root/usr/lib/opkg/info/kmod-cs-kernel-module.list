@@ -1,0 +1,6 @@
+/lib/modules/5.4.194/http_hook.ko
+/lib/modules/5.4.194/dhcp_hook.ko
+/lib/modules/5.4.194/dns_hook.ko
+/etc/modules.d/60-cs-kernel-module
+/lib/modules/5.4.194/host_filter.ko
+/etc/modules-boot.d/60-cs-kernel-module

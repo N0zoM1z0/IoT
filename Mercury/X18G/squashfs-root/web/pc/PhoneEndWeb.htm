@@ -1,0 +1,225 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		function wzdEndJumpHandle()
+		{
+			phoneSet["bPhoneWizardSet"] = true;
+			loadPage("PhoneAppWeb.htm", "Con", undefined, false);
+		}
+
+		wzdDone();
+
+		/* 如果无线配置更改，保存无线配置 */
+		if (true == gIsWifiCfgChged)
+		{
+			$.modify(gWifiCfgToSave);
+		}
+
+		id("downLoadApp").onclick = function(){
+			location.href = "https://app-srv.mercuryclouds.com.cn/appdown/mercurywifi";
+		};
+		id("continuePCSet").onclick = function(){
+			phoneSet["bPhoneWizardSet"] = false;
+			loadPage("Content.htm", "Con");
+		};
+
+		if (gIsWifiCfgChged)
+		{
+			var uciFile = uciWireless.fileName;
+			var uciSecWifi2G = uciWireless.dynData.host_2g;
+			var uciSecWifi5G = uciWireless.dynData.host_5g;
+			var uciSecWifiBs = uciWireless.secName.wlanBS;
+			var optSsid = uciWireless.dynOptName.ssid;
+			var optKey = uciWireless.dynOptName.key;
+			var optBsEnable = uciWireless.optName.bsEnable;
+			var ENABLE = uciWireless.optValue.bsEnable.enable;
+
+			if (slp.bandSteeringProvided &&
+				gWifiCfgToSave[uciFile][uciSecWifiBs] &&
+				gWifiCfgToSave[uciFile][uciSecWifiBs][optBsEnable] == ENABLE)
+			{
+				$("#bsTip").css("display", "block");
+
+				var wifiPwdBs = gWifiCfgToSave[uciFile][uciSecWifiBs][optKey];
+				if ((undefined == wifiPwdBs) || (0 == wifiPwdBs.length))
+				{
+					$("#wifiPwdBs").css("display", "none");
+				}
+				else
+				{
+					$("#wifiPwdBs").text(label.wirelessPwd + label.colon + wifiPwdBs);
+					$("#wifiPwdBs").attr("title", label.wirelessPwd + label.colon + wifiPwdBs);
+				}
+
+				$("#wifiNameBs").text(label.wirelessName + label.colon + gWifiCfgToSave[uciFile][uciSecWifiBs][optSsid]);
+				$("#wifiNameBs").attr("title", label.wirelessName + label.colon + gWifiCfgToSave[uciFile][uciSecWifiBs][optSsid]);
+			}
+			else
+			{
+				$("#commonTip").css("display", "block");
+
+				var wifiPwdCfg = gWifiCfgToSave[uciFile][uciSecWifi2G][optKey];
+				if (slp.bandsProvided == slp.DOUBLE)
+				{
+					var wifiPwdCfg5G = gWifiCfgToSave[uciFile][uciSecWifi5G][optKey];
+				}
+
+				if (slp.bandsProvided == slp.DOUBLE)
+				{
+					$("#wifiName").text(label.wirelessName2G + label.colon + gWifiCfgToSave[uciFile][uciSecWifi2G][optSsid]);
+					$("#wifiName5G").text(label.wirelessName5G + label.colon + gWifiCfgToSave[uciFile][uciSecWifi5G][optSsid]);
+					$("#wifiName5G").css("display", "block");
+				}
+				else
+				{
+					$("#wifiName").text(label.wirelessName + label.colon + gWifiCfgToSave[uciFile][uciSecWifi2G][optSsid]);
+				}
+
+
+				if ((undefined == wifiPwdCfg) || (0 == wifiPwdCfg.length))
+				{
+					$("#wifiPwd").css("display", "none");
+				}
+				else
+				{
+					$("#wifiPwd").text(label.wirelessPwd2G + label.colon + wifiPwdCfg);
+				}
+
+				if ((undefined == wifiPwdCfg5G) || (0 == wifiPwdCfg5G.length))
+				{
+					$("#wifiPwd5G").css("display", "none");
+				}
+				else
+				{
+					$("#wifiPwd5G").text(label.wirelessPwd5G + label.colon + wifiPwdCfg5G);
+				}
+			}
+
+			if ((slp.bandSteeringProvided &&
+				gWifiCfgToSave[uciFile][uciSecWifiBs] &&
+				gWifiCfgToSave[uciFile][uciSecWifiBs][optBsEnable] == ENABLE && gIsWifiCfgChged)
+				|| (gIsWifiCfgChged2g && 1 == g_host_conn_type && 0 == g_host_conn_mode)
+				|| (gIsWifiCfgChged5g && 1 == g_host_conn_type && 1 == g_host_conn_mode))
+			{
+				$("#detectNote").css("display", "block");
+			}
+
+			/* 无线配置已更改，无线将会断开，显示重连提示页面 */
+			$("#detecting").css("display", "block");
+			$("#setOk").css("display", "none");
+
+			if ("NO" != gBeInCNA)
+			{
+				$("#iPhoneNote").css("display", "block");
+				return;
+			}
+
+			/* 延迟4s进行LAN口探测，检查无线是否重新连接上 */
+			$.setTimeout(function(){
+				lanDetecting(function(){
+					wzdEndJumpHandle();
+				});
+			}, 4000);
+		}
+		else
+		{
+			/* 无线配置未更改，显示提示页面需区分是否Apple设备 */
+			$("#detecting").css("display", "none");
+			$("#setOk").css("display", "block");
+
+			if ("NO" != gBeInCNA)
+			{
+				$("#iPhone").css("display", "block");
+			}
+			else
+			{
+				$("#android").css("display", "block");
+			}
+		}
+	}
+	init();
+</script>
+<style type="text/css">
+	div.phEndCon{
+		margin:0 auto;
+		width:290px;
+	}
+	img.detectingGif{
+		height:30px;
+		margin:120px auto 0;
+		width:30px;
+	}
+	p.detectTip{
+		color:#1B1C1F;
+		font-size:16px;
+		text-align:center;
+		word-break:break-all;
+		word-wrap:break-word;
+	}
+	p.detectTipTwo{
+		color:#8D9199;
+		font-size:14px;
+		text-align:center;
+		word-break:break-all;
+		word-wrap:break-word;
+		margin-bottom:50px;
+	}
+	.textCenter{
+		text-align:center;
+	}
+	.bold{
+		font-size:15px !important;
+		font-weight:bold;
+	}
+	p.detecting{
+		margin-top:20px;
+	}
+	img.detectErr{
+		height:80px;
+		margin:120px auto 0;
+		width:83px;
+	}
+	div.wifiInfoCon{
+		border:1px solid #D5D9E0;
+		padding:20px 15px;
+	}
+	div.wifiInfoCon p{
+		font-size:14px;
+		color:#5E6166;
+	}
+	p.NamePwdGap{
+		margin-top:5px;
+	}
+	p.InfoGap{
+		margin-top:15px;
+	}
+	#wifiName5G{
+		display: none;
+	}
+</style>
+<div class="phEndCon textCenter disNones" id="detecting">
+	<img class="detectErr" src="../web-static/images/phoneSuccess.png" />
+	<p class="detectTip detecting">{%label.phoneWizardEnd%}</p>
+	<p class="detectTip disNone" id="iPhoneNote">{%label.phoneAppleEnd%}</p>
+	<p class="detectTipTwo detecting disNone" id="detectNote">{%label.phoneWlanReload%}</p>
+	<div class="wifiInfoCon disNone" id="commonTip">
+		<p id="wifiName" class="detectTip"></p>
+		<p id="wifiPwd" class="NamePwdGap detectTip"></p>
+		<p id="wifiName5G" class="InfoGap detectTip"></p>
+		<p id="wifiPwd5G" class="NamePwdGap detectTip"></p>
+	</div>
+	<div id="bsTip" class="wifiInfoCon disNone">
+		<p id="wifiNameBs" class="detectTip"></p>
+		<p id="wifiPwdBs" class="NamePwdGap detectTip"></p>
+	</div>
+</div>
+<div class="phEndCon textCenter disNone" id="setOk">
+	<img class="detectErr" src="../web-static/images/phoneSuccess.png" />
+	<p class="detectTip detecting">{%label.phoneWizardEnd%}</p>
+	<p class="detectTipTwo detecting disNone" id="iPhone">{%label.phoneAppleEnd%}</p>
+	<div id="android" class="disNone">
+		<p class="detectTipTwo detecting">{%label.phoneAppTipB%}</p>
+		<label id="continuePCSet" class="appBtn">{%label.phoneEndBrowser%}</label>
+		<label id="downLoadApp" class="appBtn btnS">{%label.phoneEndDownload%}</label>
+	</div>
+</div>

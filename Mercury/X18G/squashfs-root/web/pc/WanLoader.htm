@@ -1,0 +1,457 @@
+﻿<script type="text/javascript">
+	var wanPortWidth = 40;
+	var lanPortWidth = 40;
+	var lanWanMargin = 8;
+	var autoLanWanLabelWidth = 60;
+	var autoLanWanLabelMargin = 2;
+
+	var wanOptions = [
+		{str:label.pppoe, value:LINK_TYPE_PPPOE},
+		{str:label.staticIp, value:LINK_TYPE_STATIC_IP},
+		{str:label.dhcp,value:LINK_TYPE_DHCP}
+	];
+	var rateOptions = (function(){
+		var autoStr = "";
+		var bandWidth = slp.moduleSpec["eth_bandwidth"];
+
+		if (bandWidth && 1000 == bandWidth)
+		{
+			autoStr = label.dupAuto1000;
+		}
+		else
+		{
+			autoStr = label.dupAuto100;
+		}
+
+		return [
+			{str:autoStr, value:"auto"},
+			{str:label.dup10MF, value:"10F"},
+			{str:label.dup10MH, value:"10H"}
+		];
+	})();
+
+	var highSetWanType, highSetLanConf;
+
+	function setLinkState(linked, message)
+	{
+		var $linkState = $("#linkState");
+
+		$linkState[0].className = linked ? "normalState": "abnormalState";
+		$linkState.find("span.state").html(message);
+	}
+
+	function loadPageByIndex(index)
+	{
+		var subpages = ["DynamicIp.htm", "StaticIp.htm", "PPPoE.htm"];
+
+		if ("" == index.toString())
+		{
+			index = LINK_TYPE_PPPOE;
+		}
+
+		loadPage(subpages[index], "subContent", advanceAutoFit);
+	}
+
+	/* 切换端口示意图 */
+	function switchPortImage(isAutoWan)
+	{
+		if (isAutoWan)
+		{
+			$("#portImageAuto").show();
+			$("#portImageFixed").hide();
+		}
+		else
+		{
+			$("#portImageAuto").hide();
+			$("#portImageFixed").show();
+		}
+	}
+
+	/* 初始化端口示意图 */
+	function initPortImage()
+	{
+		/* 初始化自动WAN口端口拓扑图 */
+		for (var i = 0; i < PORT_ORDER.length; i++)
+		{
+			switch (PORT_ORDER[i])
+			{
+				case "POWER":
+					$("#portImageAuto").append("<span class='port powerPort'><i></i><label>{%label.power%}</label></span>");
+					break;
+				case "RESET":
+					$("#portImageAuto").append("<span class='port resetPort'><i></i><label>{%label.reset%}</label></span>");
+					break;
+				case "MESH":
+					$("#portImageAuto").append("<span class='port meshPort'><i></i><label>{%label.mesh%}</label></span>");
+					break;
+				case "TURBO":
+					$("#portImageAuto").append("<span class='port meshPort'><i></i><label>{%label.turbo%}</label></span>");
+					break;
+				case "RESET&MESH":
+					$("#portImageAuto").append("<span class='port resetMeshPort'><i></i><label>{%label.resetMesh%}</label></span>");
+					break;
+				case "WAN":
+					$("#portImageAuto").append("<span class='port wanPort selectedPort'><i></i></span>");
+					break;
+				case "LAN":
+					for (var j = 1; j <= LAN_PORT_NUM; j++)
+					{
+						$("#portImageAuto").append("<span class='port lanPort selectedPort'><i></i></span>");
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+		var lanWanWidth = lanPortWidth * LAN_PORT_NUM + wanPortWidth + LAN_PORT_NUM * lanWanMargin;
+		var borderWidh = (lanWanWidth - autoLanWanLabelWidth - autoLanWanLabelMargin * 2) / 2;
+		var lanWanCombo = '<span class="lanWanCombo">'+
+							'<span class="border leftBorder"></span>' +
+							'<label>WAN/LAN</label>' +
+							'<span class="border rightBorder"></span>' +
+						'</span>';
+		$("#portImageAuto .selectedPort i").css("margin-bottom", "18px");
+		$("#portImageAuto .selectedPort i").eq(0).css("margin-bottom", "5px");
+		$("#portImageAuto .selectedPort").eq(0).append(lanWanCombo);
+		$("#portImageAuto .selectedPort .lanWanCombo").eq(0).css("width", lanWanWidth);
+		$("#portImageAuto .selectedPort .border").css("width", borderWidh);
+
+		/* 初始化固定WAN口端口拓扑图 */
+		for (var i = 0; i < PORT_ORDER.length; i++)
+		{
+			switch (PORT_ORDER[i])
+			{
+				case "POWER":
+					$("#portImageFixed").append("<span class='port powerPort'><i></i><label>{%label.power%}</label></span>");
+					break;
+				case "RESET":
+					$("#portImageFixed").append("<span class='port resetPort'><i></i><label>{%label.reset%}</label></span>");
+					break;
+				case "MESH":
+					$("#portImageFixed").append("<span class='port meshPort'><i></i><label>{%label.mesh%}</label></span>");
+					break;
+				case "TURBO":
+					$("#portImageFixed").append("<span class='port meshPort'><i></i><label>{%label.turbo%}</label></span>");
+					break;
+				case "RESET&MESH":
+					$("#portImageFixed").append("<span class='port resetMeshPort'><i></i><label>{%label.resetMesh%}</label></span>");
+					break;
+				case "WAN":
+					$("#portImageFixed").append("<span class='port wanPort'><i></i><label>{%label.wan%}</label></span>");
+					break;
+				case "LAN":
+					if (LAN_PORT_NUM == 1)
+					{
+						$("#portImageFixed").append("<span class='port lanPort'><i></i><label>{%label.lan%}</label></span>");
+					}
+					else
+					{
+						for (var j = 1; j <= LAN_PORT_NUM; j++)
+						{
+							$("#portImageFixed").append("<span class='port lanPort'><i></i><label>" + label["lanPort" + j] + "</label></span>");
+						}
+					}
+					break;
+				default:
+					break;
+			}
+
+			$("#portImageFixed .wanPort").addClass("selectedPort");
+		}
+	}
+
+	function speedConversion(speed)
+	{
+		var kSpeed = 1;
+		var mSpeed = kSpeed * 1024;
+		var gSpeed = mSpeed * 1024;
+		var unit;
+
+		if (null == speed)
+		{
+			return null;
+		}
+
+		speed = parseInt(speed);
+
+		if (speed >= gSpeed)
+		{
+			speed = (speed/gSpeed).toFixed(2);
+			unit = "GB/s";
+		}
+		else if (speed >= mSpeed)
+		{
+			speed = (speed/mSpeed).toFixed(1);
+			unit = "MB/s";
+		}
+		else
+		{
+			speed = (speed/kSpeed).toFixed(0);
+			unit = "KB/s";
+		}
+
+		return {
+			speed: speed,
+			unit: unit
+		};
+	}
+
+	function wanCheckWDS(callBack, alertCallback){
+		slp.wds.getData({
+			success: function(res){
+				var item,
+					wdsOn = false;
+
+				for (var name in res[uciWireless.fileName])
+				{
+					item = res[uciWireless.fileName][name];
+					if (item[uciWireless.dynOptName.enable] == 1)
+					{
+						wdsOn = true;
+						break;
+					}
+				}
+
+				if (wdsOn)
+				{
+					alarmDialog.show({content:label.wanWDSTip});
+					typeof alertCallback == "function" && alertCallback();
+				}
+				else
+				{
+					typeof callBack == "function" && callBack();
+				}
+			},
+			fail: function(){
+				typeof callBack == "function" && callBack();
+			}
+		});
+	}
+
+	(function(){
+		var data = {};
+
+		data[uciProto.fileName] = {};
+		data[uciProto.fileName][KEY_NAME] = uciProto.secName.wan;
+		data[uciNetwork.fileName] = {};
+		data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+
+		$.query(data, function(dataObj){
+			var wanProto = uciProto.optValue.proto;
+			var wanType = dataObj[uciProto.fileName][uciProto.secName.wan][uciProto.optName.type];
+			var index = LINK_TYPE_PPPOE;
+			highSetWanType = wanType;
+			highSetLanConf = dataObj[uciNetwork.fileName][uciNetwork.secName.lan];
+
+			switch (wanType)
+			{
+			case wanProto.dynIp:
+				index = LINK_TYPE_DHCP;
+				break;
+			case wanProto.staticIp:
+				index = LINK_TYPE_STATIC_IP;
+				break;
+			case wanProto.pppoe:
+			default:
+				index = LINK_TYPE_PPPOE;
+			}
+
+			loadPageByIndex(index);
+		});
+	})();
+</script>
+<style type="text/css">
+	ul.dashBoard{
+		margin-bottom:-24px;
+	}
+	ul.dashBoard li.board{
+		float:left;
+		width:370px;
+		height:78px;
+		border:1px solid #e6e6e6;
+		border-radius:4px;
+	}
+	ul.dashBoard li + li{
+		margin-left:16px;
+	}
+	li.board i{
+		font-size:24px;
+		color:#999;
+		margin:0 4px 0 16px;
+		vertical-align:middle;
+	}
+	li.board span.speed{
+		font-size:36px;
+		color:#666;
+		line-height:80px;
+		vertical-align:middle;
+		font-weight: bold;
+	}
+	li.board p.speedText{
+		display:inline-block;
+		vertical-align:middle;
+		margin-left:8px;
+		width:65px;
+	}
+	p.speedText span{
+		float:left;
+		width:100%;
+		font-size:12px;
+		color:#666;
+		line-height:18px;
+	}
+	span.normalState i.disc{
+		background:#24b353;
+	}
+	span.normalState span.state{
+		color:#24b353;
+	}
+	span.abnormalState i.disc{
+		background:#ff3366;
+	}
+	span.abnormalState span.state{
+		color:#ff3366;
+	}
+	div.buttonGroup{
+		padding:12px 0 0 132px;
+		font-size:0;
+	}
+	span.wanPortDetectTip{
+		font-size:13px;
+		color: #666666;
+		display: block;
+		line-height:20px;
+		height:20px;
+		margin-top:4px;
+		margin-bottom:12px;
+	}
+	i.wanPortDetectImg{
+		margin-left:132px;
+		width:240px;
+		height:104px;
+		display:block;
+	}
+	div.portImage {
+		position: relative;
+		display: inline-block;
+		padding: 24px 0;
+		margin-left: 132px;
+		background: #FFFFFF;
+		border: 1px solid #E6E6E6;
+		border-radius: 4px;
+	}
+	span.port {
+		display: inline-block;
+		height: 58px;
+		text-align: center;
+	}
+	span.port i {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		margin-bottom: 6px;
+	}
+	span.port label {
+		font-size: 12px;
+		color: #808080;
+	}
+	span.port.selectedPort i {
+		background: url(../web-static/images/port.png) no-repeat -40px 0;
+	}
+	span.resetPort {
+		width: 64px;
+	}
+	span.resetPort i {
+		background: url(../web-static/images/port.png) no-repeat -80px 0;
+	}
+	span.lanPort {
+		width: 40px;
+	}
+	span.lanPort i {
+		background: url(../web-static/images/port.png) no-repeat 0 0;
+	}
+	span.lanPort.selectedLAN i {
+		background: url(../web-static/images/port.png) no-repeat -40px 0;
+	}
+	span.wanPort {
+		width: 40px;
+	}
+	span.wanPort i {
+		background: url(../web-static/images/port.png) no-repeat 0 0;
+	}
+	span.powerPort {
+		width: 64px;
+	}
+	span.powerPort i {
+		background: url(../web-static/images/port.png) no-repeat -120px 0;
+	}
+	span.meshPort {
+		width: 64px;
+	}
+	span.meshPort i {
+		background: url(../web-static/images/port.png) no-repeat -265px 0;
+	}
+	span.resetMeshPort {
+		width: 88px;
+	}
+	span.resetMeshPort i {
+		background: url(../web-static/images/port.png) no-repeat -305px 0;
+	}
+	span.lanPort:first-child,
+	span.wanPort:first-child {
+		margin-left: 12px;
+	}
+	span.lanPort:nth-last-child(1),
+	span.wanPort:nth-last-child(1) {
+		margin-right: 12px;
+	}
+	span.resetPort + span.lanPort,
+	span.resetPort + span.wanPort,
+	span.powerPort + span.lanPort,
+	span.powerPort + span.wanPort {
+		margin-left: 12px;
+	}
+	span.lanPort + span.resetPort,
+	span.wanPort + span.resetPort,
+	span.lanPort + span.powerPort,
+	span.wanPort + span.powerPort {
+		margin-left: 12px;
+	}
+	span.lanPort + span.wanPort,
+	span.wanPort + span.lanPort,
+	span.lanPort + span.lanPort {
+		margin-left: 8px;;
+	}
+	span.lanWanCombo {
+		display: inline-block;
+		width: 200px;
+		height: 16px;
+	}
+	span.lanWanCombo .border {
+		display: inline-block;
+		height: 6px;
+		width: 40px;
+		margin-top: 2px;
+		vertical-align: top;
+		border-bottom: 1px solid #e6e6e6;
+		box-sizing: border-box;
+	}
+	span.lanWanCombo span.leftBorder {
+		border-left: 1px solid #e6e6e6;
+	}
+	span.lanWanCombo span.rightBorder {
+		border-right: 1px solid #e6e6e6;
+	}
+	span.lanWanCombo label {
+		display: inline-block;
+		width: 60px;
+		height: 16px;
+		margin: 0 2px;
+	}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.wanSet%}</h1><i class="helpBtn iconfont icon-help"></i></div>
+	<p class="description">{%titleDescriptionStr.wanSetDescription%}</p>
+</div>
+<div id="subContent"></div>

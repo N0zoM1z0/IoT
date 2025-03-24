@@ -1,0 +1,50 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/system.sh
+
+usage() {
+	echo "getmac <wl1|wl0|lan|wan>"
+	echo "example: getmac"
+	echo "         getmac wan"
+}
+
+# GMAC MAC address offset, as defined in raether.h
+#define LAN_OFFSET    0xE000
+#define WAN_OFFSET    0xE006
+#define WL0_OFFSET    0x8004
+WL1_OFFSET=0x4
+WL0_OFFSET=0xA
+LAN_OFFSET=0x3FFF4
+WAN_OFFSET=0x3FFFA
+
+factory_mtd_name="Factory"
+dev_name="$(find_mtd_part factory_mtd_name)"
+[ -z "$dev_name" ] && dev_name="/dev/mtdblock3"
+
+ethaddr_lan=$(hexdump -C -s $LAN_OFFSET -n 6 $dev_name | awk 'NR<2 {print $2":"$3":"$4":"$5":"$6":"$7}')
+ethaddr_wan=$(hexdump -C -s $WAN_OFFSET -n 6 $dev_name | awk 'NR<2 {print $2":"$3":"$4":"$5":"$6":"$7}')
+wl1addr=$(hexdump -C -s $WL1_OFFSET -n 6 $dev_name | awk 'NR<2 {print $2":"$3":"$4":"$5":"$6":"$7}')
+wl0addr=$(hexdump -C -s $WL0_OFFSET -n 6 $dev_name | awk 'NR<2 {print $2":"$3":"$4":"$5":"$6":"$7}')
+
+case $1 in
+	-h)
+		usage
+		;;
+	wl0)
+		echo "$wl0addr"
+		;;
+	wl1)
+		echo "$wl1addr"
+		;;
+	wan|eth)
+		echo "$ethaddr_wan"
+		;;
+	lan)
+		echo "$ethaddr_lan"
+		;;
+	*)
+		echo "$ethaddr_wan,$ethaddr_lan,$wl1addr,$wl0addr"
+		;;
+esac
+

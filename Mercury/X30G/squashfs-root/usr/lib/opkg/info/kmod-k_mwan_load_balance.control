@@ -1,0 +1,8 @@
+Package: kmod-k_mwan_load_balance
+Version: 4.4.60+1.0
+Depends: kernel (=4.4.60-1-5680aa684944bc0c51f69602aee97440)
+Source: tp_package/k_packages/k_mwan_load_balance
+Section: ko util
+Architecture: ipq
+Installed-Size: 18586
+Description:  tp-link multi wan load balance module

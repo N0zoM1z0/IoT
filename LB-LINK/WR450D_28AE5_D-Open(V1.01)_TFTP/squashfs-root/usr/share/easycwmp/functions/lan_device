@@ -1,0 +1,2101 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.LANDevice."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_LANDevice"
+
+entry_execute_method_root_LANDevice() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.LANDevice."*)
+		common_execute_method_obj "$DMROOT.LANDevice." "0"
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceNumberOfEntries" "0" "lan_device_get_ether_num" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANUSBInterfaceNumberOfEntries" "0" "lan_device_get_usb_num" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANWLANConfigurationNumberOfEntries" "0" "lan_device_get_wlan_num" "" "xsd:unsignedInt" "0"
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANHostConfigManagement." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.MACAddress" "0" "lan_host_get_mac" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPServerConfigurable" "1" "lan_host_get_dhcp_configurable" "lan_host_set_dhcp_configurable" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPServerEnable" "1" "lan_host_get_dhcp_enable" "lan_host_set_dhcp_enable" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.MinAddress" "1" "lan_host_get_dhcp_minaddress" "lan_host_set_dhcp_minaddress" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.MaxAddress" "1" "lan_host_get_dhcp_maxaddress" "lan_host_set_dhcp_maxaddress" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.ReservedAddresses" "1" "lan_host_get_dhcp_reserved" "lan_host_set_dhcp_reserved" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.SubnetMask" "1" "lan_host_get_subnetmask" "lan_host_set_subnetmask" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DNSServers" "1" "lan_host_get_dnsservers" "lan_host_set_dnsservers" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DomainName" "1" "lan_host_get_domainname" "lan_host_set_domainname" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPRouters" "1" "lan_host_get_iprouters" "lan_host_set_iprouters" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPLeaseTime" "1" "lan_host_get_dhcp_leasetime" "lan_host_set_dhcp_leasetime" "xsd:int" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.UseAllocatedWAN" "1" "lan_host_get_allocatedwan" "lan_host_set_allocatedwan" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.AssociatedConnection" "1" "lan_host_get_associatedconnection" "lan_host_set_associatedconnection" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.PassthroughLease" "1" "lan_host_get_passthroughlease" "lan_host_set_passthroughlease" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.PassthroughMACAddress" "1" "lan_host_get_passthroughmacaddress" "lan_host_set_passthroughmacaddress" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.AllowedMACAddresses" "1" "lan_host_get_allowedmacaddresses" "lan_host_set_allowedmacaddresses" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterfaceNumberOfEntries" "0" "lan_host_get_ipinterfacenumberofentries" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddressNumberOfEntries" "0" "lan_host_get_dhcpstaticaddressnumberofentries" "" "xsd:unsignedInt" "0"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterface.1." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterface.1.Enable" "1" "ipinterface_get_enable" "ipinterface_set_enable" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceIPAddress" "1" "ipinterface_get_ipinterfaceipaddress" "ipinterface_set_ipinterfaceipaddress" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceSubnetMask" "1" "ipinterface_get_ipinterfacesubnetmask" "ipinterface_set_ipinterfacesubnetmask" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceAddressingType" "1" "ipinterface_get_ipinterfaceaddressingtype" "ipinterface_set_ipinterfaceaddressingtype" "xsd:String" "0"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress." "1" "" "" "lan_device_browse_instances_dhcp_staticaddress $1"
+		
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Enable" "1" "lan_device_get_interconfig_enable" "lan_device_set_interconfig_enable" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Status" "0" "lan_device_get_interconfig_status" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Name" "0" "lan_device_get_interconfig_name" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.MACAddress" "0" "lan_device_get_interconfig_macaddr" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.MACAddressControlEnabled" "1" "lan_device_get_interconfig_macaddrcontrolenable" "lan_device_set_interconfig_macaddrcontrolenable" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.MaxBitRate" "1" "lan_device_get_interconfig_maxrate" "lan_device_set_interconfig_maxrate" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.DuplexMode" "1" "lan_device_get_interconfig_duplexmode" "lan_device_set_interconfig_duplexmode" "xsd:String"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.BytesSent" "0" "lan_device_get_interstats_bytesent" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.BytesReceived" "0" "lan_device_get_interstats_bytesreceived" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.PacketsSent" "0" "lan_device_get_interstats_packetssent" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.PacketsReceived" "0" "lan_device_get_interstats_packetsreceived" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.ErrorsSent" "0" "lan_device_get_interstats_errorssent" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANEthernetInterfaceConfig.1.Stats.ErrorsReceived" "0" "lan_device_get_interstats_errorsreceived" "" "xsd:unsignedInt"
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration." "1" "lan_device_add_wlan_iface" "" "lan_device_browse_instances_wlan_iface $1"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.Hosts." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.HostNumberOfEntries" "0" "lan_device_get_host_numberofentries" "" "xsd:unsignedInt"	
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.Hosts.Host." "1" "" "" "lan_device_browse_instances_hosts_host $1"
+		
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_landevice_wlanconfig() {
+	local j="$2"
+	local iface="$3"
+	case_param "$1" belongto "$DMROOT.LANDevice.1.WLANConfiguration.$j." && {
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j." "1" "" "lan_device_delete_wlan_iface $iface"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Enable" "1" "lan_device_get_wlan_enable $iface" "lan_device_set_wlan_enable $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Status" "0" "lan_device_get_wlan_status $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Name" "0" "lan_device_get_wlan_name $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.BSSID" "0" "lan_device_get_wlan_bssid $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.MaxBitRate" "1" "lan_device_get_wlan_maxbitrate $iface" "lan_device_set_wlan_maxbitrate $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.X_[VENDOR]_COM_WifiSupportedFrequencyBands" "1" "lan_device_get_wlan_supportfrebands $iface" "lan_device_set_wlan_supportfrebands $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.X_[VENDOR]_COM_OperatingFrequencyBand" "1" "lan_device_get_wlan_operatingfrequencyband $iface" "lan_device_set_wlan_operatingfrequencyband $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.X_[VENDOR]_COM_OperatingChannelBandwidth" "1" "lan_device_get_wlan_operatingchannelbandwidth $iface" "lan_device_set_wlan_operatingchannelbandwidth $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.X_[VENDOR]_COM_AutoChannelRefreshPeriod" "1" "lan_device_get_wlan_autoChannelrefreshperiod $iface" "lan_device_set_wlan_autoChannelrefreshperiod $iface" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Channel" "1" "lan_device_get_wlan_channel $iface" "lan_device_set_wlan_channel $iface" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AutoChannelEnable" "1" "lan_device_get_wlan_autochannelenable $iface" "lan_device_set_wlan_autochannelenable $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.SSID" "1" "lan_device_get_wlan_ssid $iface" "lan_device_set_wlan_ssid $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.BeaconType" "1" "lan_device_get_wlan_beacontype $iface" "lan_device_set_wlan_beacontype $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.MACAddressControlEnabled" "1" "lan_device_get_wlan_macaddresscontrolenabled $iface" "lan_device_set_wlan_macaddresscontrolenabled $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Standard" "0" "lan_device_get_wlan_standard $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.KeyPassphrase" "1" "lan_device_get_wlan_keypassphrase $iface" "lan_device_set_wlan_keypassphrase $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.WPAEncryptionModes" "1" "lan_device_get_wlan_wpaencryptionmodes $iface" "lan_device_set_wlan_wpaencryptionmodes $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.WPAAuthenticationMode" "1" "lan_device_get_wlan_wpaauthenticationmode $iface" "lan_device_set_wlan_wpaauthenticationmode $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.IEEE11iEncryptionModes" "1" "lan_device_get_wlan_ieee11iencryptionmodes $iface" "lan_device_set_wlan_ieee11iencryptionmodes $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.IEEE11iAuthenticationMode" "1" "lan_device_get_wlan_ieee11iauthenticationmode $iface" "lan_device_set_wlan_ieee11iauthenticationmode $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PossibleChannels" "0" "lan_device_get_wlan_possiblechannels $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.BasicDataTransmitRates" "1" "lan_device_get_wlan_basicdatatransmitrates $iface" "lan_device_set_wlan_basicdatatransmitrates $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.OperationalDataTransmitRates" "1" "lan_device_get_wlan_operationaldatatransmitrates $iface" "lan_device_set_wlan_operationaldatatransmitrates $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PossibleDataTransmitRates" "0" "lan_device_get_wlan_possibledatatransmitrates $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.BeaconAdvertisementEnabled" "1" "lan_device_get_wlan_beaconadvertisementenabled $iface" "lan_device_set_wlan_beaconadvertisementenabled $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.SSIDAdvertisementEnabled" "1" "lan_device_get_wlan_ssidadvertisementenabled $iface" "lan_device_set_wlan_ssidadvertisementenabled $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.RadioEnabled" "1" "lan_device_get_wlan_radioenabled $iface" "lan_device_set_wlan_radioenabled $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TransmitPowerSupported" "0" "lan_device_get_wlan_transmitpowersupported $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TransmitPower" "1" "lan_device_get_wlan_transmitpower $iface" "lan_device_set_wlan_transmitpower $iface" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AutoRateFallBackEnabled" "1" "lan_device_get_wlan_autoratefallbackenabled $iface" "lan_device_set_wlan_autoratefallbackenabled $iface" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.LocationDescription" "1" "lan_device_get_wlan_locationdescription $iface" "lan_device_set_wlan_locationdescription $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.RegulatoryDomain" "1" "lan_device_get_wlan_regulatorydomain $iface" "lan_device_set_wlan_regulatorydomain $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalPSKFailures" "0" "lan_device_get_wlan_totalpskfailures $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalIntegrityFailures" "0" "lan_device_get_wlan_totalintegrityfailures $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.ChannelsInUse" "0" "lan_device_get_wlan_channelsinuse $iface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.DeviceOperationMode" "1" "lan_device_get_wlan_deviceoperationmode $iface" "lan_device_set_wlan_deviceoperationmode $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.DistanceFromRoot" "1" "lan_device_get_wlan_distancefromroot $iface" "lan_device_set_wlan_distancefromroot $iface" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PeerBSSID" "1" "lan_device_get_wlan_peerBssid $iface" "lan_device_set_wlan_peerBssid $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AuthenticationServiceMode" "1" "lan_device_get_wlan_authenticationservicemode $iface" "lan_device_set_wlan_authenticationservicemode $iface" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalBytesSent" "0" "lan_device_get_wlan_totalbytessent $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalBytesReceived" "0" "lan_device_get_wlan_totalbytesreceived $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalPacketsSent" "0" "lan_device_get_wlan_totalpacketssent $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalPacketsReceived" "0" "lan_device_get_wlan_totalpacketsreceived $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.TotalAssociations" "0" "lan_device_get_wlan_totalassociations $iface" "" "xsd:unsignedInt"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j.Stats." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Stats.ErrorsSent" "0" "lan_device_get_wlan_stats_errorssent $iface" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.Stats.ErrorsReceived" "0" "lan_device_get_wlan_stats_errorsreceived $iface" "" "xsd:unsignedInt"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j.WPS." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.WPS.Enable" "1" "lan_device_get_wlan_wps_enable $iface" "lan_device_set_wlan_wps_enable $iface" "xsd:boolean"
+		
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice." "1" "" "" "lan_device_browse_instances_wlan_associateddevice $1 $j"
+		
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j.PreSharedKey.1." "0"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PreSharedKey.1.PreSharedKey" "1" "lan_device_get_wlan_presharedkey_presharedkey" "lan_device_set_wlan_presharedkey_presharedkey" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PreSharedKey.1.KeyPassphrase" "1" "lan_device_get_wlan_presharedkey_keypassphrase" "lan_device_set_wlan_presharedkey_keypassphrase" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.PreSharedKey.1.AssociatedDeviceMACAddress" "1" "lan_device_get_wlan_presharedkey_associateddevicemacaddress" "lan_device_set_wlan_presharedkey_associateddevicemacaddress" "xsd:String"
+		
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_landevice_wlan_associateddevice() {
+	local j="$2"
+	local mac="$3"
+	local ip="$4"
+	local i="$5"
+	case_param "$1" belongto "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i." && {
+		common_execute_method_obj "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i." "1" "" ""
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.AssociatedDeviceMACAddress" "0" "lan_device_get_associateddevicemacaddress $mac" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.AssociatedDeviceIPAddress" "0" "lan_device_get_associateddeviceipaddress $ip" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.AssociatedDeviceAuthenticationState" "0" "lan_device_get_associateddeviceauthenticationstate" "" "xsd:boolean"
+		
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.LastRequestedUnicastCipher" "0" "lan_device_get_lastrequestedunicastcipher" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.LastRequestedMulticastCipher" "0" "lan_device_get_lastrequestedmulticastcipher" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.LastPMKId" "0" "lan_device_get_lastpmkid" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.WLANConfiguration.$j.AssociatedDevice.$i.LastDataTransmitRate" "0" "lan_device_get_lastdatatransmitrate" "" "xsd:String"
+		
+		
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+
+sub_entry_landevice_dhcp_staticaddress() {
+	local j="$2"
+	
+	case_param "$1" belongto "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress.$j." && {
+		common_execute_method_obj "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress.$j." "1" "" ""
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress.$j.Enable" "1" "lan_device_get_dhcpstaticaddress_enable $j" "lan_device_set_dhcpstaticaddress_enable $j" "xsd:boolean"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress.$j.Chaddr" "1" "lan_device_get_dhcpstaticaddress_chaddr $j" "lan_device_set_dhcpstaticaddress_chaddr $j" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.LANHostConfigManagement.DHCPStaticAddress.$j.Yiaddr" "1" "lan_device_get_dhcpstaticaddress_yiaddr $j" "lan_device_set_dhcpstaticaddress_yiaddr $j" "xsd:String"
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_landevice_hosts_host() {
+	local j="$2"
+	local ip="$3"
+	local mac="$4"
+	local HostName="$5"
+	local Layer2Interface="$6"
+	local InterfaceType="$7"
+	
+	case_param "$1" belongto "$DMROOT.LANDevice.1.Hosts.Host.$j." && {
+		common_execute_method_obj "$DMROOT.LANDevice.1.Hosts.Host.$j." "1" "" ""
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.IPAddress" "0" "lan_device_get_hosts_ipaddress $ip" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.AddressSource" "0" "lan_device_get_hosts_addresssource $mac" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.LeaseTimeRemaining" "0" "lan_device_get_hosts_leasetimeremaining $mac" "" "xsd:int"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.MACAddress" "0" "lan_device_get_hosts_macaddress $mac" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.Layer2Interface" "0" "lan_device_get_hosts_layer2interface $Layer2Interface" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.HostName" "0" "lan_device_get_hosts_hostname $HostName" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.InterfaceType" "0" "lan_device_get_hosts_interfacetype $InterfaceType" "" "xsd:String"
+		common_execute_method_param "$DMROOT.LANDevice.1.Hosts.Host.$j.Active" "0" "lan_device_get_hosts_active" "" "xsd:boolean"
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#     Data model browse instances     #
+#######################################
+lan_device_browse_instances_wlan_associateddevice() {
+	local i
+	local k=1
+	local mac
+	local ip
+	local j=$2
+	
+	while read line
+	do
+		i=`echo $line | awk -F ',' '{ print $12 }'`
+		if [ "$i" == "1" ];then
+			mac=`echo $line | awk -F ',' '{ print $2 }'`
+			ip=`echo $line | awk -F ',' '{ print $3 }'`
+			
+			sub_entry_landevice_wlan_associateddevice "$1" "$j" "$mac" "$ip" "$k"
+			
+			let k++
+		fi
+	
+	done < /tmp/etc_ro/dev_info
+}
+
+lan_device_browse_instances_wlan_iface() {
+	local iface ifaces=`$UCI_SHOW wireless | grep "wireless\.@wifi-iface\[.*\]=wifi-iface" | awk -F'[.=]' '{print $2}'` 
+	for iface in $ifaces; do
+		local j=`lan_device_update_instance $iface`
+		sub_entry_landevice_wlanconfig "$1" "$j" "$iface"
+	done
+	return 0
+}
+
+lan_device_browse_instances_hosts_host() {
+	local i
+	local j=1
+	local ip
+	local mac
+	local Layer2Interface
+	local HostName
+	local InterfaceType
+	
+	while read line
+	do
+		ip=`echo $line | awk -F ',' '{ print $3}'`
+		mac=`echo $line | awk -F ',' '{ print $2}'`
+		HostName=`echo $line | awk -F ',' '{ print $8}'`
+		i=`echo $line | awk -F ',' '{ print $12}'`
+		
+		if [ "$i" == "1" ];then
+			InterfaceType="802.11"
+			Layer2Interface="mt7628"
+		else
+			InterfaceType="Ethernet"
+			Layer2Interface=`$UCI_GET network.lan.ifname`
+		fi
+		
+		sub_entry_landevice_hosts_host "$1" "$j" "$ip" "$mac" "$HostName" "$Layer2Interface" "$InterfaceType"
+		
+		let j++
+	
+	done < /tmp/etc_ro/dev_info
+}
+
+lan_device_browse_instances_dhcp_staticaddress() {
+	local i=1
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			sub_entry_landevice_dhcp_staticaddress "$1" "$i"
+			let i++
+		fi
+	done < /etc/dhcp_static_address
+	
+	return 0
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+restart_dnsmasq() {
+	local restart_flag=`ps | grep restart_dnsmasq | grep -v grep`
+	
+	if [ -z $restart_flag ];then
+		$UCI_COMMIT
+		/bin/restart_dnsmasq.sh &
+	fi
+}
+
+restart_network() {
+	local restart_flag=`ps | grep restart_network | grep -v grep`
+	
+	if [ -z $restart_flag ];then
+		$UCI_COMMIT
+		/bin/restart_network.sh &
+	fi
+}
+
+lan_device_get_hosts_ipaddress() {
+	local ip="$1"
+	
+	echo "$ip"
+}
+
+lan_device_get_hosts_addresssource() {
+	local found="0"
+	local mac="$1"
+	local getmac
+	
+	while read line
+	do
+		getmac=`echo $line | awk -F ' ' '{ print $2 }'`
+		
+		if [ "$getmac" == "$mac" ];then
+			found="1"
+			break
+		fi
+		
+	done < /tmp/dhcp.leases
+	
+	if [ "$found" == "1" ];then
+		echo "DHCP"
+	else
+		echo "Static"
+	fi
+}
+
+lan_device_get_hosts_leasetimeremaining() {
+	local mac="$1"
+	local getmac
+	local gettime
+	local nowtime=`date +%s`
+	local leasetime
+	
+	while read line
+	do
+		getmac=`echo $line | awk -F ' ' '{ print $2 }'`
+		
+		if [ "$getmac" == "$mac" ];then
+			gettime=`echo $line | awk -F ' ' '{ print $1 }'`
+			leasetime=`expr $gettime - $nowtime`
+			break
+		fi
+	done < /tmp/dhcp.leases
+}
+
+lan_device_get_hosts_macaddress() {
+	local mac="$1"
+	
+	echo "$mac"
+}
+
+lan_device_get_hosts_layer2interface() {
+	local layer2interface="$1"
+	
+	echo "$layer2interface"
+}
+
+lan_device_get_hosts_hostname() {
+	hostname="$1"
+	
+	echo "$hostname"
+}
+
+lan_device_get_hosts_interfacetype() {
+	local interfacetype="$1"
+	
+	echo "$interfacetype"
+}
+
+lan_device_get_hosts_active() {
+	echo "1"
+}
+
+lan_device_get_host_numberofentries() {
+	if [ ! -s /tmp/etc_ro/dev_info ];then
+		echo "0"
+	else
+		while read line
+		do
+			echo $line | awk -F ',' '{ print $1 }'
+			break
+		done < /tmp/etc_ro/dev_info
+	fi
+}
+
+lan_device_get_associateddevicemacaddress() {
+	local mac="$1"
+
+	echo "$mac"
+}
+
+lan_device_get_associateddeviceipaddress() {
+	local ip="$1"
+	
+	echo "$ip"
+}
+
+lan_device_get_associateddeviceauthenticationstate() {
+	echo "1"
+}
+
+lan_device_get_lastrequestedunicastcipher() {
+	echo ""
+}
+
+lan_device_get_lastrequestedmulticastcipher() {
+	echo ""
+}
+
+lan_device_get_lastpmkid() {
+	echo ""
+}
+
+lan_device_get_lastdatatransmitrate() {
+	echo ""
+}
+
+lan_device_get_interstats_bytesent() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	
+	ifconfig $lan_ifname | grep "TX bytes" | awk -F ' ' '{ print $6 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interstats_bytesreceived() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	ifconfig $lan_ifname | grep "TX bytes" | awk -F ' ' '{ print $2 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interstats_packetssent() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	ifconfig $lan_ifname | grep "TX packets" | awk -F ' ' '{ print $2 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interstats_packetsreceived() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	ifconfig $lan_ifname | grep "RX packets" | awk -F ' ' '{ print $2 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interstats_errorssent() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	ifconfig $lan_ifname | grep "TX packets" | awk -F ' ' '{ print $3 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interstats_errorsreceived() {
+	local lan_ifname=`$UCI_GET network.lan.ifname`
+	ifconfig $lan_ifname | grep "RX packets" | awk -F ' ' '{ print $3 }' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_interconfig_enable() {
+	local val=`ubus call network.interface.lan  status |  grep "\"up\":" | awk -F ':' '{ print $2 }' | sed 's/[^a-z]*//g'`
+	
+	if [ "$val" == "true" ];then
+		echo "1"
+	else
+		echo "0"	
+	fi
+}
+
+lan_device_set_interconfig_enable() {
+	local val=$1
+	
+	if [ "$val" == "1" ];then
+		ubus call network.interface.lan up
+	else
+		ubus call network.interface.lan down
+	fi
+	
+	return 0
+}
+
+lan_device_get_interconfig_status() {
+	echo "Up"
+}
+
+lan_device_get_interconfig_name() {
+	$UCI_GET network.lan.ifname
+}
+
+lan_device_get_interconfig_macaddr() {
+	$UCI_GET network.lan.macaddr
+}
+
+lan_device_get_interconfig_macaddrcontrolenable() {
+	echo "0"
+}
+
+lan_device_set_interconfig_macaddrcontrolenable() {
+	local val=$1
+	
+	return 0
+}
+
+lan_device_get_interconfig_maxrate() {
+	echo "100"
+}
+
+lan_device_set_interconfig_maxrate() {
+	local val=$1
+	
+	return 0
+}
+
+lan_device_get_interconfig_duplexmode() {
+	echo "Auto"
+}
+
+lan_device_set_interconfig_duplexmode() {
+	local val=$1
+	
+	return 0
+}
+
+lan_device_get_dhcpstaticaddress_yiaddr() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+			local i=1
+			local j="$1"
+			
+			while read line
+			do
+				if [ ${#line} -gt 0 ];then
+					if [ "$i" == "$j" ];then
+						echo "$line" | awk -F ' ' '{print $1}'
+						break
+					fi
+					
+					let i++
+				fi
+			done < /etc/dhcp_static_address
+			
+			break
+		}	
+		
+		usleep 30000
+	done
+}
+
+lan_device_set_dhcpstaticaddress_yiaddr() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+			local cnt="$1"
+			local set_val="$2"
+			
+			local i=0
+			
+			if [ "$set_val" == "$get_ip" ];then
+				return 0
+			fi
+			
+			while read line
+			do
+				if [ ${#line} -gt 0 ];then
+					let i++
+					
+					if [ $cnt -eq $i ];then
+						local get_ip=`echo "$line" | awk -F ' ' '{print $1}'`
+						local get_mac=`echo "$line" | awk -F ' ' '{print $2}'`
+						local get_enable=`echo "$line" | awk -F ' ' '{print $3}'`
+						echo "$set_val $get_mac $get_enable" >> /tmp/dhcp_static_address
+					else
+						echo "$line" >> /tmp/dhcp_static_address
+					fi
+				fi
+			done < /etc/dhcp_static_address
+			
+			rm -rf /etc/dhcp_static_address
+			mv /tmp/dhcp_static_address /etc/
+			
+			if [ "$get_enable" == "1" ];then
+				i=0
+				while true
+				do
+					ip=`uci get dhcp.@host[$i].ip`
+					mac=`uci get dhcp.@host[$i].mac`
+					
+					if [ -z $ip -o -z $mac ];then
+						break
+					fi
+					
+					if [ "$get_ip" == "$ip" -a "$get_mac" == "$mac" ];then
+						uci set dhcp.@host[$i].ip="$set_val"
+						uci commit dhcp
+						break
+					fi
+					
+					let i++
+				done
+			fi
+			
+			break
+		}	
+		
+		usleep 60000
+	done
+
+	restart_dnsmasq
+
+	return 0
+}
+
+lan_device_get_dhcpstaticaddress_chaddr() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+			local i=1
+			local j="$1"
+			
+			while read line
+			do
+				if [ ${#line} -gt 0 ];then
+					if [ "$i" == "$j" ];then
+						echo "$line" | awk -F ' ' '{print $2}'
+						break
+					fi
+					
+					let i++
+				fi
+			done < /etc/dhcp_static_address
+			
+			break
+		}	
+		
+		usleep 20000
+	done
+}
+
+lan_device_set_dhcpstaticaddress_chaddr() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+				local cnt="$1"
+				local set_val="$2"
+				
+				local i=0
+				
+				if [ "$set_val" == "$get_mac" ];then
+					return 0
+				fi
+				
+				while read line
+				do
+					if [ ${#line} -gt 0 ];then
+						let i++
+						
+						if [ $cnt -eq $i ];then
+							local get_ip=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_mac=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_enable=`echo "$line" | awk -F ' ' '{print $3}'`
+						
+							echo "$get_ip $set_val $get_enable" >> /tmp/dhcp_static_address
+						else
+							echo "$line" >> /tmp/dhcp_static_address
+						fi
+					fi
+				done < /etc/dhcp_static_address
+				
+				rm -rf /etc/dhcp_static_address
+				mv /tmp/dhcp_static_address /etc/
+				
+				if [ "$get_enable" == "1" ];then
+					i=0
+					while true
+					do
+						ip=`uci get dhcp.@host[$i].ip`
+						mac=`uci get dhcp.@host[$i].mac`
+						
+						if [ -z $ip -o -z $mac ];then
+							break
+						fi
+						
+						if [ "$get_ip" == "$ip" -a "$get_mac" == "$mac" ];then
+							uci set dhcp.@host[$i].mac="$set_val"
+							uci commit dhcp
+							break
+						fi
+						
+						let i++
+					done
+				fi
+				
+			break
+		}	
+		
+		usleep 50000
+	done
+	
+	restart_dnsmasq
+
+	return 0
+}
+
+lan_device_get_dhcpstaticaddress_enable() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+			local i=1
+			local j="$1"
+			
+			while read line
+			do
+				if [ ${#line} -gt 0 ];then
+					if [ "$i" == "$j" ];then
+						echo "$line" | awk -F ' ' '{print $3}'
+						break
+					fi
+					
+					let i++
+				fi
+			done < /etc/dhcp_static_address
+			
+			break
+		}	
+		
+		usleep 10000
+	done
+}
+
+lan_device_set_dhcpstaticaddress_enable() {
+	local lockfile="/tmp/lockfile"
+	exec 200>$lockfile
+	while true
+	do
+		flock -n 200 && {
+				local cnt="$1"
+				local set_val="$2"
+				
+				local ip
+				local mac
+				
+				local i=0
+				
+				if [ "$set_val" == "$get_enable" ];then
+					return 0
+				fi
+				
+				while read line
+				do
+					if [ ${#line} -gt 0 ];then
+						let i++
+						
+						if [ $cnt -eq $i ];then
+								local get_ip=`echo "$line" | awk -F ' ' '{print $1}'`
+								local get_mac=`echo "$line" | awk -F ' ' '{print $2}'`
+								local get_enable=`echo "$line" | awk -F ' ' '{print $3}'`
+							echo "$get_ip $get_mac $set_val" >> /tmp/dhcp_static_address
+						else
+							echo "$line" >> /tmp/dhcp_static_address
+						fi
+					fi
+				done < /etc/dhcp_static_address
+				
+				rm -rf /etc/dhcp_static_address
+				mv /tmp/dhcp_static_address /etc/
+				
+				if [ "$get_enable" == "1" ];then
+					i=0
+					while true
+					do
+						ip=`uci get dhcp.@host[$i].ip`
+						mac=`uci get dhcp.@host[$i].mac`
+						
+						if [ -z $ip -o -z $mac ];then
+							break
+						fi
+						
+						if [ "$get_ip" == "$ip" -a "$get_mac" == "$mac" ];then
+							uci del dhcp.@host[$i]
+							uci commit dhcp
+							break
+						fi
+						
+						let i++
+					done
+				else
+					local section=`uci add dhcp host` 
+			
+					uci set dhcp.$section.name="DhcpStaticAddresses"
+					uci set dhcp.$section.dns="1"
+					uci set dhcp.$section.mac="$get_mac"
+					uci set dhcp.$section.ip="$get_ip"
+					uci commit dhcp
+				fi
+					
+			break
+		}	
+		
+		usleep 40000
+	done
+
+	restart_dnsmasq
+	
+	return 0
+}
+
+ipinterface_get_ipinterfaceaddressingtype() {
+	$UCI_GET network.lan.proto
+}
+
+ipinterface_set_ipinterfaceaddressingtype() {
+	local val=$1
+	
+	$UCI_SET network.lan.proto=$val
+	
+	return 0
+}
+
+ipinterface_get_ipinterfacesubnetmask() {
+	$UCI_GET network.lan.netmask
+}
+
+ipinterface_set_ipinterfacesubnetmask() {
+	local val=$1
+	
+	$UCI_SET network.lan.netmask=$val
+	
+	return 0
+}
+
+ipinterface_get_ipinterfaceipaddress() {
+	$UCI_GET network.lan.ipaddr
+}
+
+ipinterface_set_ipinterfaceipaddress() {
+	local val=$1
+	
+	$UCI_SET network.lan.ipaddr=$val
+	
+	return 0
+}
+
+ipinterface_get_enable() {
+	local val=`ubus call network.interface.lan  status |  grep "\"up\":" | awk -F ':' '{ print $2 }' | sed 's/[^a-z]*//g'`
+	
+	if [ "$val" == "true" ];then
+		echo "1"
+	else
+		echo "0"	
+	fi
+}
+
+ipinterface_set_enable() {
+	local val=$1
+	
+	if [ "$val" == "1" ];then
+		ubus call network.interface.lan up
+	else
+		ubus call network.interface.lan down
+	fi
+	
+	return 0
+}
+
+lan_host_get_dhcpstaticaddressnumberofentries() {
+	local i=0
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+		fi
+	done < /etc/dhcp_static_address
+	
+	echo "$i"
+}
+
+lan_host_get_ipinterfacenumberofentries() {
+	echo "1"
+}
+
+lan_host_get_allowedmacaddresses() {
+	echo ""
+}
+
+lan_host_set_allowedmacaddresses() {
+	local val=$1
+	
+	return 0
+}
+
+lan_host_get_passthroughmacaddress() {
+	echo ""
+}
+
+lan_host_set_passthroughmacaddress() {
+	local val=$1
+	
+	return 0
+}
+
+lan_host_get_passthroughlease() {
+	echo ""
+}
+
+lan_host_set_passthroughlease() {
+	local val=$1
+	
+	return 0
+}
+
+lan_host_get_associatedconnection() {
+	echo ""
+}
+
+lan_host_set_associatedconnection() {
+	local val=$1
+	
+	return 0
+}
+
+lan_host_get_allocatedwan() {
+	echo "Normal"
+}
+
+lan_host_set_allocatedwan() {
+	local val=$1
+	
+	return 0
+}
+
+lan_host_get_dhcp_leasetime() {
+	local lease_value=`$UCI_GET dhcp.lan.leasetime | sed 's/[^0-9]//'`
+	local hour_value=`$UCI_GET dhcp.lan.leasetime | grep "h"`
+	local min_value=`$UCI_GET dhcp.lan.leasetime | grep "m"`
+	local lease_infinite=`$UCI_GET dhcp.lan.leasetime`
+	
+	if [ "$lease_infinite" == "infinite" ];then
+		echo "-1"
+	else
+		if [ -n "$hour_value" ];then
+			echo $(($lease_value * 60 * 60))
+		elif [ -n "$min_value" ];then
+			echo $(($lease_value * 60))
+		else
+			echo $lease_value
+		fi
+	fi
+}
+
+lan_host_set_dhcp_leasetime() {
+	local val=$1
+	local leasetime=$1"s"
+	
+	if [ "$val" == "-1" ];then
+		$UCI_SET dhcp.lan.leasetime="infinite"
+	else
+		$UCI_SET dhcp.lan.leasetime=$leasetime
+	fi
+	
+	restart_dnsmasq
+
+	return 0
+}
+
+lan_host_get_iprouters() {
+	uci get network.lan.gateway
+}
+
+lan_host_set_iprouters() {
+	local val=$1
+	
+	uci set network.lan.gateway="$val"
+	restart_network
+	
+	return 0
+}
+
+lan_host_get_domainname() {
+	local dhcp_option=`uci get dhcp.lan.dhcp_option`
+	local i=1
+	local val
+	local t
+	local return_value
+	
+	while true
+	do
+		if [ -z "$dhcp_option" ];then
+			echo ""
+			break
+		fi
+	
+		val=`echo "$dhcp_option" | awk -v t="$i" -F ' ' '{print $t}'`
+	
+		if [ -z "$val" ];then
+			echo ""
+			break
+		fi
+	
+		flag=`echo "$val" | awk -F ',' '{print $1}'`
+	
+		if [ "$flag" == "15" ];then
+			return_value=`echo "$val" | awk -F ',' '{print $2}'`
+			echo "$return_value"
+			break
+	fi
+	
+	let i++
+	done
+}
+
+lan_host_set_domainname() {
+	local dhcp_option=`uci get dhcp.lan.dhcp_option`
+	local i=1
+	
+	while true
+	do
+		if [ -z "$dhcp_option" ];then
+			break
+		fi
+	
+		val=`echo "$dhcp_option" | awk -v t="$i" -F ' ' '{print $t}'`
+	
+		if [ -z "$val" ];then
+			break
+		fi
+	
+		flag=`echo "$val" | awk -F ',' '{print $1}'`
+	
+		if [ "$flag" == "15" ];then
+			uci del_list dhcp.lan.dhcp_option="$val"
+			uci commit dhcp
+			break
+		fi
+	
+		let i++
+	done
+	
+	uci add_list dhcp.lan.dhcp_option="15,$1"
+	restart_dnsmasq
+	
+	return 0
+}
+
+lan_host_get_dnsservers() {
+	local dhcp_option=`uci get dhcp.lan.dhcp_option`
+	local i=1
+	local val
+	local t
+	local return_value
+	
+	while true
+	do
+		if [ -z "$dhcp_option" ];then
+			echo ""
+			break
+		fi
+	
+		val=`echo "$dhcp_option" | awk -v t="$i" -F ' ' '{print $t}'`
+	
+		if [ -z "$val" ];then
+			echo ""
+			break
+		fi
+	
+		flag=`echo "$val" | awk -F ',' '{print $1}'`
+	
+		if [ "$flag" == "6" ];then
+			dns1=`echo "$val" | awk -F ',' '{print $2}'`
+			dns2=`echo "$val" | awk -F ',' '{print $3}'`
+			dns3=`echo "$val" | awk -F ',' '{print $4}'`
+			
+			if [ -n "$dns1" ];then
+				return_value="$dns1"
+			fi
+			
+			if [ -n "$dns2" ];then
+				return_value="$dns1,$dns2"
+			fi
+			
+			if [ -n "$dns3" ];then
+				return_value="$dns1,$dns2,$dns3"
+			fi
+			
+			echo "$return_value"
+			break
+	fi
+	
+	let i++
+	done
+}
+
+lan_host_set_dnsservers() {
+	local dhcp_option=`uci get dhcp.lan.dhcp_option`
+	local i=1
+	
+	while true
+	do
+		if [ -z "$dhcp_option" ];then
+			break
+		fi
+	
+		val=`echo "$dhcp_option" | awk -v t="$i" -F ' ' '{print $t}'`
+	
+		if [ -z "$val" ];then
+			break
+		fi
+	
+		flag=`echo "$val" | awk -F ',' '{print $1}'`
+	
+		if [ "$flag" == "6" ];then
+			uci del_list dhcp.lan.dhcp_option="$val"
+			uci commit dhcp
+			break
+		fi
+	
+		let i++
+	done
+	
+	uci add_list dhcp.lan.dhcp_option="6,$1"
+	restart_dnsmasq
+	
+	return 0
+}
+
+lan_host_get_subnetmask() {
+	$UCI_GET network.lan.netmask
+}
+
+lan_host_set_subnetmask() {
+	local val=$1
+	
+	$UCI_SET network.lan.netmask=$val
+	
+	restart_network
+	
+	return 0
+}
+
+lan_host_get_dhcp_reserved() {
+	local i=0
+	local val
+	local separated=","
+	local get_host
+	local get_ip
+	local get_name
+	
+	while true
+	do
+		get_host=`uci get dhcp.@host[$i]`
+	
+		if [ -z $get_host ];then
+			break
+		fi
+	
+		get_name=`uci get dhcp.@host[$i].name`
+	
+		if [ "$get_name" == "ReservedAddresses" ];then
+			get_ip=`uci get dhcp.@host[$i].ip`
+	
+			if [ -z $val ];then
+				val=$get_ip
+			else
+				val=$val$separated$get_ip
+			fi
+		fi
+	
+		let i++
+	done
+	
+	echo "$val"
+}
+
+lan_host_set_dhcp_reserved() {
+	local val=$1
+	local section=`uci add dhcp host` 
+
+	uci set dhcp.$section.name="ReservedAddresses"
+	uci set dhcp.$section.dns="1"
+	uci set dhcp.$section.mac="00:00:00:00:00:00"
+	uci set dhcp.$section.ip="$val"
+
+	restart_dnsmasq
+	return 0
+}
+
+lan_host_get_dhcp_maxaddress() {
+	local val_start=`$UCI_GET dhcp.lan.start`
+	local val_limit=`$UCI_GET dhcp.lan.limit`
+	local ip4=$(($val_start + $val_limit))
+	local ip=`uci get network.lan.ipaddr`
+	local ip1=`echo $ip | awk -F '.' '{print $1}'`
+	local ip2=`echo $ip | awk -F '.' '{print $2}'`
+	local ip3=`echo $ip | awk -F '.' '{print $3}'`
+	
+	echo "$ip1.$ip2.$ip3.$ip4"
+}
+
+lan_host_set_dhcp_maxaddress() {
+	local val=$1
+	local get_val=`echo $val | awk -F '.' '{print $4}'`
+	local val_start=`$UCI_GET dhcp.lan.start`
+	local val_limit
+	
+	if [ -z "$get_val" ];then
+		val_limit=$(($val - $val_start))
+	else
+		val_limit=$(($get_val - $val_start))
+	fi
+	
+	$UCI_SET dhcp.lan.limit=$val_limit
+	restart_dnsmasq
+	
+	return 0
+}
+
+lan_host_get_dhcp_minaddress() {
+	local ip=`uci get network.lan.ipaddr`
+	local ip1=`echo $ip | awk -F '.' '{print $1}'`
+	local ip2=`echo $ip | awk -F '.' '{print $2}'`
+	local ip3=`echo $ip | awk -F '.' '{print $3}'`
+	local ip4=`$UCI_GET dhcp.lan.start`
+	
+	echo "$ip1.$ip2.$ip3.$ip4"
+}
+
+lan_host_set_dhcp_minaddress() {
+	local val=$1
+	local set_val=`echo $val | awk -F '.' '{print $4}'`
+	local val_start=`$UCI_GET dhcp.lan.start`
+	local val_limit=`$UCI_GET dhcp.lan.limit`
+	local val_max=$(($val_start + $val_limit))
+	local limit_set
+	
+	if [ -z "$set_val" ];then
+		$UCI_SET dhcp.lan.start="$val"
+		limit_set=$(($val_max - $val))
+	else
+		$UCI_SET dhcp.lan.start="$set_val"
+		limit_set=$(($val_max - $set_val))
+	fi
+	
+	$UCI_SET dhcp.lan.limit="$limit_set"
+	
+	restart_dnsmasq
+	
+	return 0
+}
+
+lan_host_get_dhcp_enable() {
+	local val=`$UCI_GET dhcp.lan.ignore`
+	
+	if [ "$val" == "1" ];then
+		echo "0"
+	else
+		echo "1"
+	fi
+}
+
+lan_host_set_dhcp_enable() {
+	local val=$1
+	
+	if [ "$val" == "1" ];then
+		$UCI_SET dhcp.lan.ignore="0"
+	else
+		$UCI_SET dhcp.lan.ignore="1"
+	fi
+	
+	restart_dnsmasq
+	
+	return 0
+}
+
+lan_host_get_dhcp_configurable() {
+	local val=`$UCI_GET dhcp.lan.configurable`
+	
+	if [ -z $val ];then
+		echo "0"
+	else
+		echo "$val"
+	fi
+}
+
+lan_host_set_dhcp_configurable() {
+	local val=$1
+	$UCI_SET dhcp.lan.configurable="$val"
+	$UCI_COMMIT
+	
+	if [ "$val" == "0" ];then
+		rm -rf /etc/config/dhcp
+		cp /etc/dhcp /etc/config
+		restart_dnsmasq
+	fi
+	
+	return 0
+}
+
+lan_host_get_mac() {
+	$UCI_GET network.lan.macaddr
+}
+
+lan_device_get_ether_num() {
+	echo "1"
+}
+
+lan_device_get_usb_num() {
+	echo "0"
+}
+
+lan_device_get_wlan_num() {
+	local i=0
+	local wifi_iface
+	
+	while true
+	do
+		wifi_iface=`$UCI_GET wireless.@wifi-iface[$i]`
+	
+		if [ "$wifi_iface" != "wifi-iface" ];then
+			echo "$i"
+			break
+		fi
+	
+		let i++
+	done
+}
+
+lan_device_get_wlan_enable() {
+	local iface="$1"
+	
+	local val=`$UCI_GET wireless.$iface.disabled 2> /dev/null`
+	[ "$val" = "1" ] && echo "0" || echo "1"
+}
+
+lan_device_set_wlan_enable() {
+	local val="$2"
+	local iface="$1"
+	local ifname=`uci get wireless.$iface.ifname`
+	
+	common_set_bool "wireless.$iface.disabled" "$val" "0" "1"
+	uci commit
+	
+	if [ "$val" == "0" ];then
+		/sbin/apply_wifi_single.sh $ifname disable &
+	else
+		/sbin/apply_wifi_single.sh $ifname enable &
+	fi
+
+	return 0
+}
+
+lan_device_get_wlan_status() {
+	local iface="$1"
+	
+	local val=`$UCI_GET wireless.$iface.disabled 2> /dev/null`
+	
+	[ "$val" = "1" ] && echo "Disabled" || echo "Up"
+}
+
+lan_device_get_wlan_name() {
+	local iface="$1"
+	
+	$UCI_GET wireless.$iface.ifname 
+}
+
+lan_device_get_wlan_bssid() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig -a $val | grep HWaddr | awk -F ' ' '{ print $5}'
+}
+
+lan_device_get_wlan_maxbitrate() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.ifname`
+	
+	iwconfig $val | grep "Bit Rate" | awk -F '=' '{ print $2}' | awk -F ' ' '{ print $1}'
+}
+
+lan_device_set_wlan_maxbitrate() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0
+}
+
+lan_device_get_wlan_supportfrebands() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.device`
+	
+	if [ "$val" == "mt7628" ];then
+		echo "2.4GHz"
+	else
+		echo "5GHz"
+	fi
+}
+
+lan_device_set_wlan_supportfrebands() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_operatingfrequencyband() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.device`
+	
+	if [ "$val" == "mt7628" ];then
+		echo "2.4GHz"
+	else
+		echo "5GHz"
+	fi	
+}
+
+lan_device_set_wlan_operatingfrequencyband() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_operatingchannelbandwidth() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.device`
+	local type
+	
+	if [ "$ifname" == "mt7628" ];then
+		type=`uci get misc.wifi.dw_g24`
+	else
+		type=`uci get misc.wifi.dw_g5`
+	fi	
+	
+	if [ "$type" == "1" ];then
+		echo "20MHz"
+	elif [ "$type" == "2" ];then 	
+		echo "40MHz"
+	else
+		echo "Auto"	
+	fi
+}
+
+lan_device_set_wlan_operatingchannelbandwidth() {
+	local val="$2"
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	local wifiname=`$UCI_GET wireless.$iface.ifname`
+	local type
+	
+	if [ "$val" == "20MHz" ];then
+		type=1
+	elif [ "$val" == "40MHz" ];then 
+		type=2
+	else
+		type=0
+	fi	
+	
+	if [ "$device" == "mt7628" ];then
+		uci set misc.wifi.dw_g24=$type
+	
+		if [ $type -eq 0 ];then
+			uci set wireless.$device.bw=1
+			uci set wireless.$device.ht_bsscoexist=1
+		elif [ $type -eq 1 ];then
+			uci set wireless.$device.bw=0
+			uci set wireless.$device.ht_bsscoexist=0	
+		else
+			uci set wireless.$device.bw=1
+			uci set wireless.$device.ht_bsscoexist=0		
+		fi
+	else
+		uci set misc.wifi.dw_g5=$type
+		
+		local channel=`uci get wireless.$device.channel`
+		
+		if [ "$channel" == "165" ];then
+			uci set wireless.$device.wifimode=8
+		else
+			if [ $type -eq 0 ];then
+				uci set wireless.$device.bw=1
+				uci set wireless.$device.vht_bw=1
+				uci set wireless.$device.ht_bsscoexist=1
+				uci set wireless.$device.wifimode=14
+			elif [ $type -eq 1 ];then
+				uci set wireless.$device.bw=0
+				uci set wireless.$device.vht_bw=0
+				uci set wireless.$device.ht_bsscoexist=1
+				uci set wireless.$device.wifimode=8				
+			else
+				uci set wireless.$device.bw=1
+				uci set wireless.$device.vht_bw=0
+				uci set wireless.$device.ht_bsscoexist=0
+				uci set wireless.$device.wifimode=14				
+			fi
+		fi
+	fi
+	
+	uci commit wireless
+	uci commit misc
+		
+	/sbin/apply_wifi_single.sh $wifiname channel &
+	return 0		
+}
+
+lan_device_get_wlan_autoChannelrefreshperiod() {
+	echo "0"
+}
+
+lan_device_set_wlan_autoChannelrefreshperiod() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_channel() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.ifname`
+	
+	iwconfig $val | grep Channel | awk -F ' ' '{ print $2 }' | awk -F '=' '{ print $2 }'
+}
+
+lan_device_set_wlan_channel() {
+	local val="$2"
+	local iface="$1"
+	local device_name=`$UCI_GET wireless.$iface.device`
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	$UCI_SET wireless.$device_name.channel=$val
+	
+	iwpriv $ifname set Channel=$val
+	
+	return 0
+}
+
+lan_device_get_wlan_ssid() {
+	local iface="$1"
+	
+	$UCI_GET wireless.$iface.ssid
+}
+
+lan_device_set_wlan_ssid() {
+	local val="$2"
+	local iface="$1"
+	local device_name=`$UCI_GET wireless.$iface.device`
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	$UCI_SET wireless.$iface.ssid="$val"
+	
+	if [ "$device_name" == "mt7628" ];then
+		iwpriv $ifname set SSIDSingle="$val"
+	else
+		iwpriv $ifname set SSID="$val"
+	fi
+	
+	return 0
+}
+
+lan_device_get_wlan_autochannelenable() {
+	local iface="$1"
+	local device_name=`$UCI_GET wireless.$iface.device`
+	local channel=`$UCI_GET wireless.$device_name.channel`
+	
+	if [ "$channel" == "0" ];then
+		echo "1"
+	else
+		echo "0"
+	fi
+}
+
+lan_device_set_wlan_autochannelenable() {
+	local val="$2"
+	local iface="$1"
+	local device_name=`$UCI_GET wireless.$iface.device`
+	
+	if [ "$val" == "1" ];then
+		$UCI_SET wireless.$device_name.channel=0
+	else
+		$UCI_SET wireless.$device_name.channel=6
+	fi
+	
+	return 0	
+}
+
+lan_device_get_wlan_beacontype() {
+	echo "None"
+}
+
+lan_device_set_wlan_beacontype() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_macaddresscontrolenabled() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.macfilter`	
+	
+	if [ "val" == "disable" ];then
+		echo "0"
+	else
+		echo "1"
+	fi
+}
+
+lan_device_set_wlan_macaddresscontrolenabled() {
+	local val="$2"
+	local iface="$1"
+	
+	if [ "$val" == "1" ];then
+		$UCI_SET wireless.$iface.macfilter="enable"
+	else
+		$UCI_SET wireless.$iface.macfilter="disable"
+	fi
+	
+	return 0
+}
+
+lan_device_get_wlan_standard() {
+	local iface="$1"
+	local device=`uci get wireless.$iface.device`
+	
+	if [ "$device" == "mt7628" ];then
+		echo "n"
+	else
+		echo "ac"
+	fi
+}
+
+lan_device_get_wlan_keypassphrase() {
+	local iface="$1"
+	local encryption=`$UCI_GET wireless.$iface.encryption`
+	
+	if [ "$encryption" == "none" ];then
+		echo ""
+	else
+		$UCI_GET wireless.$iface.key
+	fi
+}
+
+lan_device_set_wlan_keypassphrase() {
+	local key="$2"
+	local iface="$1"
+	local ifc_name=`uci get wireless.$iface.ifname`
+	local encryption=`uci get wireless.$iface.encryption`
+	local encryptype
+	
+	$UCI_SET wireless.$iface.key="$key"
+	
+	case "$encryption" in
+        *tkip+ccmp*)
+            encryptype="TKIPAES";;
+        *tkip*)
+            encryptype="TKIP";;    
+        *ccmp*)
+            encryptype="AES";;    
+        *wep*)
+            encryptype="WEP"
+            key=`uci get wireless.$iface.key1`
+            ;;    
+        *)
+            encryptype="NONE";;
+    esac
+    
+    case "$encryptype" in                                                           
+        WEP)                                                               
+            iwpriv $ifc_name set DefaultKeyID=1                            
+            iwpriv $ifc_name set Key1=$key                                 
+            ;;                                                             
+        *)                                                                 
+            iwpriv $ifc_name set WPAPSK=$key                               
+            ;;                                                             
+    esac
+	
+	return 0
+}
+
+lan_device_get_wlan_wpaencryptionmodes() {
+	local iface="$1"
+	local encryption=`uci get wireless.$iface.encryption`
+	
+	case "$encryption" in
+        *tkip+ccmp*)
+            echo "TKIPandAESEncryption";;
+        *tkip*)
+            echo "TKIPEncryption";;    
+        *ccmp*)
+            echo "AESEncryption";;    
+        *wep*)
+            echo "WEPEncryption"
+            ;;
+    esac
+}
+
+lan_device_set_wlan_wpaencryptionmodes() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0
+}
+
+lan_device_get_wlan_wpaauthenticationmode() {
+	echo "PSKAuthentication"
+}
+
+lan_device_set_wlan_wpaauthenticationmode() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_ieee11iencryptionmodes() {
+	echo "WEPandTKIPEncryption"
+}
+
+lan_device_set_wlan_ieee11iencryptionmodes() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_ieee11iauthenticationmode() {
+	echo "PSKAuthentication"
+}
+
+lan_device_set_wlan_ieee11iauthenticationmode() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_possiblechannels() {
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	if [ "$device" == "mt7628" ];then
+		echo "1,2,3,4,5,6,7,8,9,10,11"
+	else
+		echo "149,153,157,161"
+	fi
+}
+
+lan_device_get_wlan_basicdatatransmitrates() {
+	echo "1,2,5.5,11"
+}
+
+lan_device_set_wlan_basicdatatransmitrates() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_operationaldatatransmitrates() {
+	echo "1,2,5.5,11"
+}
+
+lan_device_set_wlan_operationaldatatransmitrates() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_possibledatatransmitrates() {
+	echo "1,2,5.5,11"
+}
+
+lan_device_get_wlan_beaconadvertisementenabled() {
+	echo "1"
+}
+
+lan_device_set_wlan_beaconadvertisementenabled() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0			
+}
+
+lan_device_get_wlan_ssidadvertisementenabled() {
+	echo "1"
+}
+
+lan_device_set_wlan_ssidadvertisementenabled() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_radioenabled() {
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_GET wireless.$device.radio
+}
+
+lan_device_set_wlan_radioenabled() {
+	local val="$2"
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_SET wireless.$device.radio="$val"
+	
+	return 0
+}
+
+lan_device_get_wlan_transmitpowersupported() {
+	echo "0,25,50,75,100"
+}
+
+lan_device_get_wlan_transmitpower() {
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_GET wireless.$device.txpower	
+}
+
+lan_device_set_wlan_transmitpower() {
+	local val="$2"
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_SET wireless.$device.txpower="$val"
+	
+	return 0	
+}
+
+lan_device_get_wlan_autoratefallbackenabled() {
+	echo "1"
+}
+
+lan_device_set_wlan_autoratefallbackenabled() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_locationdescription() {
+	echo ""
+}
+
+lan_device_set_wlan_locationdescription() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_regulatorydomain() {
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_GET wireless.$device.country		
+}
+
+lan_device_set_wlan_regulatorydomain() {
+	local val="$2"
+	local iface="$1"
+	local device=`$UCI_GET wireless.$iface.device`
+	
+	$UCI_SET wireless.$device.country="$val"
+	
+	return 0		
+}
+
+lan_device_get_wlan_totalpskfailures() {
+	echo "0"
+}
+
+lan_device_get_wlan_totalintegrityfailures() {
+	echo "0"
+}
+
+lan_device_get_wlan_channelsinuse() {
+	local iface="$1"
+	local val=`$UCI_GET wireless.$iface.ifname`
+	
+	iwconfig $val | grep Channel | awk -F ' ' '{ print $2 }' | awk -F '=' '{ print $2 }'	
+}
+
+lan_device_get_wlan_deviceoperationmode() {
+	local iface="$1"
+	local mode=`$UCI_GET wireless.$iface.mode`
+	
+	if [ "$mode" == "ap" ];then
+		echo "InfrastructureAccessPoint"
+	elif [ "$mode" == "bridge" ];then
+		echo "WirelessBridge"
+	elif [ "$mode" == "repeater" ];then
+		echo "WirelessRepeater"	
+	elif [ "$mode" == "station" ];then
+		echo "WirelessStation"	
+	fi
+}
+
+lan_device_set_wlan_deviceoperationmode() {
+	local val="$2"
+	local iface="$1"
+	
+	if [ "$val" == "InfrastructureAccessPoint" ];then
+		$UCI_SET wireless.$iface.mode="ap"
+	elif [ "$val" == "WirelessBridge" ];then
+		$UCI_SET wireless.$iface.mode="bridge"
+	elif [ "$val" == "WirelessRepeater" ];then
+		$UCI_SET wireless.$iface.mode="repeater"
+	elif [ "$val" == "WirelessStation" ];then
+		$UCI_SET wireless.$iface.mode="station"
+	fi
+	
+	return 0
+}
+
+lan_device_get_wlan_distancefromroot() {
+	echo "0"
+}
+
+lan_device_set_wlan_distancefromroot() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0		
+}
+
+lan_device_get_wlan_peerBssid() {
+	echo ""
+}
+
+lan_device_set_wlan_peerBssid() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_authenticationservicemode() {
+	echo "None"
+}
+
+lan_device_set_wlan_authenticationservicemode() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_totalbytessent() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig -a $ifname | grep "TX bytes" | awk -F ' ' '{ print $6}' | awk -F ':' '{ print $2}'
+}
+
+lan_device_get_wlan_totalbytesreceived() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig -a $ifname | grep "TX bytes" | awk -F ' ' '{ print $2}' | awk -F ':' '{ print $2}'	
+}
+
+lan_device_get_wlan_totalpacketssent() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig -a $ifname | grep "TX packets" | awk -F ' ' '{ print $2}' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_wlan_totalpacketsreceived() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig -a $ifname | grep "RX packets" | awk -F ' ' '{ print $2}' | awk -F ':' '{ print $2 }'
+}
+
+lan_device_get_wlan_totalassociations() {
+	echo "0"
+}
+
+lan_device_get_wlan_stats_errorssent() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`	
+	
+	ifconfig $ifname | grep "TX packets" | awk -F ' ' '{ print $3}' | awk -F ':' '{ print $2}'
+}
+
+lan_device_get_wlan_stats_errorsreceived() {
+	local iface="$1"
+	local ifname=`$UCI_GET wireless.$iface.ifname`
+	
+	ifconfig $ifname | grep "RX packets" | awk -F ' ' '{ print $3}' | awk -F ':' '{ print $2}'
+}
+
+lan_device_get_wlan_wps_enable() {
+	echo "0"
+}
+
+lan_device_set_wlan_wps_enable() {
+	local val="$2"
+	local iface="$1"
+	
+	return 0	
+}
+
+lan_device_get_wlan_presharedkey_presharedkey() {
+	echo ""
+}
+
+lan_device_set_wlan_presharedkey_presharedkey() {
+	return 0
+}
+
+lan_device_get_wlan_presharedkey_keypassphrase() {
+	echo ""
+}
+
+lan_device_set_wlan_presharedkey_keypassphrase() {
+	return 0
+}
+
+lan_device_get_wlan_presharedkey_associateddevicemacaddress() {
+	echo ""
+}
+
+lan_device_set_wlan_presharedkey_associateddevicemacaddress() {
+	return 0
+}
+
+lan_device_set_wlan_cfg() {
+	local cfg="$1"
+	local val="$2"
+	$UCI_SET $cfg="$val"
+	return 0
+}
+
+lan_device_get_wlan_max_instance() {
+	local max=`$UCI_SHOW wireless | grep "wireless\.@wifi-iface\[[0-9]\+\].instance=" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
+	echo ${max:-0}
+}
+
+lan_device_update_instance() {
+	local iface="$1"
+	local instance=`$UCI_GET wireless.$iface.instance`
+	if [ -z "$instance" ]; then
+		instance=`lan_device_get_wlan_max_instance`
+		$UCI_SET wireless.$iface.instance=$((++instance))
+		$UCI_COMMIT
+	fi
+	echo $instance
+}
+
+lan_device_add_wlan_iface() {
+	local instance=`lan_device_get_wlan_max_instance`
+	local ifname_instance=`$UCI_SHOW wireless | grep "wireless\.@wifi-iface\[[0-9]\+\].ifname" | grep -v "rai" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
+	
+	local wifi_iface=`$UCI_ADD wireless wifi-iface`
+	$UCI_SET wireless.$wifi_iface.device=mt7628
+	$UCI_SET wireless.$wifi_iface.ifname=ra$((++ifname_instance))
+	$UCI_SET wireless.$wifi_iface.network=lan
+	$UCI_SET wireless.$wifi_iface.mode=ap
+	$UCI_SET wireless.$wifi_iface.encryption=none
+	$UCI_SET wireless.$wifi_iface.maxassoc=0
+	$UCI_SET wireless.$wifi_iface.hidden=0
+	$UCI_SET wireless.$wifi_iface.macfilter=disable
+	$UCI_SET wireless.$wifi_iface.disabled=0
+	$UCI_SET wireless.$wifi_iface.ssid=DefaultSSID
+	$UCI_SET wireless.$wifi_iface.instance=$((++instance))
+	$UCI_COMMIT
+	echo $instance
+}
+
+lan_device_delete_wlan_iface() {
+	local iface="$1"
+	$UCI_DELETE wireless.$iface
+	$UCI_COMMIT
+	return 0
+}

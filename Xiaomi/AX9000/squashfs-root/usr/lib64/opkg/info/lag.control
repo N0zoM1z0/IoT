@@ -1,0 +1,8 @@
+Package: lag
+Version: 1-1.0
+Depends: libc
+Source: package/miwifi/lag
+Section: util
+Architecture: aarch64_cortex-a53
+Installed-Size: 1989
+Description:  miwifi wan lan aggregation utils

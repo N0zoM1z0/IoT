@@ -1,0 +1,32 @@
+
+
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<i class="wizardLogo" id="elinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div class="wizardCon">
+		<div class="loginContainer">
+			<h1 id="loginTitle">{%label.inputAdminPwd%}</h1>
+			<div id="usernameInput"></div>
+			<div id="passwordInput"></div>
+			<div id="sub"></div>
+			<p class="forgetPwd"><span id="showGuide">{%label.loginPwdLost%}{%label.questionMark%}</span></p>
+			<div id="andlinkQRcode">
+				<img/>
+			</div>
+		</div>
+		<i class="surfingPeople"></i>
+	</div>
+</div><script type="text/javascript">(function(){function d(a){c=$.authRltObj.time;switch(a){case ESYSLOCKED:case ESYSLOCKEDFOREVER:window.top.location.reload();break;case EUNAUTH:a=void 0==c?e.cnt:c;if(e.cnt==a)break;a<=e.minTipCnt?"undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT?b.showNote(label.loginUsrPwdErrorTipH+a+label.loginErrorTipT):b.showNote(label.loginErrorTipH+a+label.loginErrorTipT):"undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT?b.showNote(label.loginUsrPwdErr):b.showNote(label.loginPwdErr)}}function g(){var a=
+b.input.value;if("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT){var c=f.input.value;if(0==c.length){f.showNote(errStr.inputUsr);return}}a.length<SYS_LOGIN_PWD_LENGTH_MIN?b.showNote(errStr.inputPwdLen):"undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT?$.authUsrPwd(c,$.orgAuthPwd(a),function(a){a==ENONE?(f.setValue(""),b.setValue(""),$.authRltObj.bHandLg=!0,unloadLogin()):d(parseInt($.authRltObj.code))}):$.auth($.orgAuthPwd(a),function(a){a==ENONE?(b.setValue(""),$.authRltObj.bHandLg=
+!0,unloadLogin()):d(parseInt($.authRltObj.code))})}function h(a){a=a||window.event;if(13==a.keyCode)return g()}var e={cnt:10,minTipCnt:3},c;if("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT){$("#loginTitle").text(label.welcome);var f=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.loginUsr,position:Input.LABEL.INNER},targetId:"usernameInput",check:{keyup:h},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"text"}})}var b=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.loginPwd,
+position:Input.LABEL.INNER},targetId:"passwordInput",check:{keyup:h},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password"}});new Button({text:btn.confirmTip,onClick:g,type:Button.TYPE.PRIMARY,id:"sub"});var k=new Dialog({title:label.loginPwdLost,size:Dialog.SIZE.MEDIUM,type:Dialog.TYPE.CUSTOM,content:'<span class="showGuideTitle">'+label.loginPwdLostTip+'</span><div class="showGuideStepCon"><i class="showGuideStepPic"></i><span class="showGuideStep first">'+label.loginPwdLostTipOne+'</span><span class="showGuideStep">'+
+label.loginPwdLostTipTwo+'</span><span class="showGuideStep last">'+label.loginPwdLostTipThree+"</span></div>",bottom:[{type:component.Button.TYPE.PRIMARY,text:btn.knowIt,id:"showGuideCancel",onClick:function(){k.hide()}}]});id("showGuide").onclick=function(){k.show()};id("downloadAPP").onclick=function(a){a=a||window.event;cloudAppDialog.show(a)};window.setTimeout(function(){ieUnsupportCheck(function(){c=$.authRltObj.time;$.setTimeout(function(){d(parseInt($.authRltObj.code))},0)})});showAndlinkLogo?
+$("#andlinkLogo").css("background",andlinkLogoBg).css("display","inline-block"):showElinkLogo&&$("#elinkLogo").css("background",elinkLogoBg).css("display","inline-block");showAndlinkQRcode&&$("#andlinkQRcode img").attr("src",andlinkQRcodeSrc)&&$("#andlinkQRcode").show()})();
+</script><style type="text/css">div.loginContainer{display:inline-block;*display:inline;*zoom:1;width:280px;padding:120px 120px 0 80px}div.loginContainer h1{font-size:36px;font-weight:bold;color:#333;line-height:48px;margin-bottom:80px}#sub{width:100%;margin-top:64px}i.surfingPeople{background:url(../web-static/images/login.png) no-repeat scroll;display:inline-block;*display:inline;*zoom:1;width:400px;height:440px;margin-top:80px;vertical-align:top}p.forgetPwd{font-size:13px;color:#999;margin-top:16px}p.forgetPwd span{line-height:20px;padding-right:8px;cursor:pointer}span.showGuideTitle{display:block;height:20px;line-height:20px;font-size:13px;margin-bottom:24px}div.showGuideStepCon{width:480px;text-align:center;margin:0 auto}div.showGuideStepCon i.showGuideStepPic{background:url(../web-static/images/basic.png) -0px -622px no-repeat scroll;width:480px;height:80px;display:block;margin-bottom:8px}div.showGuideStepCon span.showGuideStep{width:120px;font-size:12px;color:#666;text-align:center;margin:0 30px;line-height:18px;display:inline-block;vertical-align:top}div.showGuideStepCon span.showGuideStep.first{margin-left:0}div.showGuideStepCon span.showGuideStep.last{margin-right:0}div.wizardHead i#mercuryLogo{background:url(../web-static/images/basic.png) no-repeat}</style>

@@ -1,0 +1,163 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var G_RIPEnabled ='<!--#getsingle "InternetGatewayDevice.X_CT-COM_DynamicRouting.Enable" -->';
+function ConnectionTuple()
+{    
+    this.Path = "";
+    this.ConnectionStatus = "";
+    this.name = "";
+    this.Enable = "";
+    this.AddressingType="";
+    this.RIPngEnabled="";
+    this.RipPassive="";
+    this.IPMode="";
+    this.ConnectionType="";
+    this.IPv6ConnStatus="";
+    this.ConnectionTrigger="";
+    this.ServiceList = "";
+}
+var G_InternetWanType = "Ethernet";
+var G_wanConnction = new Array();
+var index = 0;
+<!--#getobject_noop "InternetGatewayDevice.WANDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. X_CT-COM_IPv6ConnStatus Name Enable AddressingType RIPngEnabled RipPassive X_CT-COM_IPMode ConnectionType X_CT-COM_ServiceList" -->
+    G_wanConnction[index] = new ConnectionTuple();
+    G_wanConnction[index].Path = "<!--#path -->";
+    G_wanConnction[index].ConnectionStatus = "<!--#leaf "1"-->";
+    G_wanConnction[index].name = "<!--#leaf "2"-->";
+    G_wanConnction[index].Enable = "<!--#leaf "3"-->";
+    G_wanConnction[index].AddressingType = "<!--#leaf "4"-->";
+    G_wanConnction[index].RIPngEnabled = "<!--#leaf "5"-->";
+    G_wanConnction[index].RipPassive = "<!--#leaf "6"-->";
+    G_wanConnction[index].IPMode = "<!--#leaf "7"-->";
+    G_wanConnction[index].ConnectionType = "<!--#leaf "8"-->";
+    G_wanConnction[index].ServiceList = "<!--#leaf "9"-->";
+    index++;
+<!--#endgetobject -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. X_CT-COM_IPv6ConnStatus Name Enable ConnectionTrigger RIPngEnabled RipPassive X_CT-COM_IPMode ConnectionType X_CT-COM_ServiceList" -->
+    G_wanConnction[index] = new ConnectionTuple();
+    G_wanConnction[index].Path = "<!--#path -->";
+    G_wanConnction[index].IPv6ConnStatus = "<!--#leaf "1"-->";
+    G_wanConnction[index].name = "<!--#leaf "2"-->";
+    G_wanConnction[index].Enable = "<!--#leaf "3"-->";
+    G_wanConnction[index].ConnectionTrigger = "<!--#leaf "4"-->";
+    G_wanConnction[index].RIPngEnabled = "<!--#leaf "5"-->";
+    G_wanConnction[index].RipPassive = "<!--#leaf "6"-->";
+    G_wanConnction[index].IPMode = "<!--#leaf "7"-->";
+    G_wanConnction[index].ConnectionType = "<!--#leaf "8"-->";
+    G_wanConnction[index].ServiceList = "<!--#leaf "9"-->";
+    index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function isWanConnectionFiltered(conn)
+{
+	if ( isBridgedConn(conn.ConnectionType) || !isINTERNETService(conn.ServiceList)
+		|| conn.IPMode == '1'
+		) {
+		return true;
+	}
+	return false;
+}
+
+function createTable(){
+	var trs = "";
+	var j= 0;
+    for(var i = 0; i < G_wanConnction.length; i++){
+		
+		if (isWanConnectionFiltered(G_wanConnction[i]))
+        {
+            continue;
+		}
+
+        var tr = "";
+		if(j%2 == 0)
+				tr += "<tr class='OddRowB'>";
+			else
+				tr += "<tr class='EvenRowB'>";
+		j++
+		tr += "<td scope='col'>"+G_wanConnction[i].name+"</td>";
+        if(G_wanConnction[i].RIPngEnabled ==0  || G_wanConnction[i].RIPngEnabled == "" ){
+		tr += "<td scope='col' ><input type='checkbox' id='index" + i + "'></td>";
+        }else if(G_wanConnction[i].RIPngEnabled ==1  || G_wanConnction[i].RIPngEnabled == "1" ){
+		tr += "<td scope='col' ><input type='checkbox' id='index" + i + "' checked></td>";
+		}                  
+        tr += "</tr>";
+		trs += tr;
+    }
+	
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="3">'+getStr('LK_NoRule')+'</td></tr>';
+	jQuery("#tableIPv6DynamicRoutings").append(trs);
+}
+
+function init(){
+}
+
+function uiSubmit(){
+	if(!validateCode())
+			return false;
+    var df = document.tableIPv6DynamicRoutings;
+	
+    for (var i = 0; i < G_wanConnction.length; i++){
+		if (isWanConnectionFiltered(G_wanConnction[i]))
+        {
+            continue;
+		}
+		
+		var RIPngEnabled="index"+ i;
+        var G_path=G_wanConnction[i].Path;
+        AddElements(df, G_path+"RIPngEnabled ",getValue(RIPngEnabled));
+    }
+    
+    df.submit();  
+}
+
+function __init()
+{
+    createTable();
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());         
+
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_DynamicRoute'))</script>
+<table id='tableIPv6DynamicRoutings' width="200" cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td width="100" langkey="LK_Port"></td>
+	<td langkey="LK_Enable"></td>
+</tr>
+</table>
+<table class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="tableIPv6DynamicRoutings" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_v6dynamicroute.shtml">
+</form>
+</body>
+</html>

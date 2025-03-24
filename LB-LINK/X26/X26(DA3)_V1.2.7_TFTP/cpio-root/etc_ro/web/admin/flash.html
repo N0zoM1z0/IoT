@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]>
+<html class="ie6" lang="zh-cn"><![endif]-->
+<!--[if IE 7 ]>
+<html class="ie7" lang="zh-cn"><![endif]-->
+<!--[if IE 8 ]>
+<html class="ie8" lang="zh-cn"><![endif]-->
+<!--[if IE 9 ]>
+<html class="ie9" lang="zh-cn"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class="w3c"><!--<![endif]-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link type="text/css" href="css/default.css" rel="stylesheet" />
+    <link type="text/css" href="css/new_style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/router.css" />
+    <link href="css/form.css" rel="stylesheet" />
+    <style>
+        .menu .i-5{background:url("images/term.png") no-repeat 0 3px;}
+        #shadow_Form .inpt,#shadow_Form .selection{width: 80%;}
+        .addon_container li .ext-item_top .on{color:#fff;background:#0bb7f5;}
+        .ext-item_top{width:250px;background-color: #fff;border-radius:5px;text-align: center;padding:5px;overflow: hidden}
+        .addon_container li .ext-item_top span{display: inline-block;cursor:pointer; background:#ccc;width: 35%;margin: 0;height: 30px;line-height:30px;border-radius:5px;}
+        #serialDw,#dogDw,#shadowDw{float:left;}
+        #serial_un,#dog_un,#shadow_un{float:right;}
+        #helpT{position:absolute;right:18px;color:#0bb6f4;}
+        .tab_container li .wifi_dog span{background-position: -5px -449px;}
+        .tab_container li .wifi_dog .float_info .bg-white{background-position: -5px -449px;}
+        .tab_container li .shadow span{background-position: -5px -5px;}
+        .tab_container li .shadow .float_info .bg-white{background-position: -5px -5px;}
+        .ins_div{position:absolute;top:13px;left:0;}
+        .ins_div span{display: inline !important;background: none !important;color:#00a2e9;}
+    </style>
+    <!--[if IE 7]>
+    <script src="js/Respond.min.js"></script>
+    <![endif]-->
+    <!--[if IE 8]>
+    <script src="js/Respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div style="display: none;"><img src="/admin/images/122.gif"></div>
+<div class="top">
+    <a class="logo-box"><img id='hostLogo' width="166" /></a>
+</div>
+<div class="menu">
+    <a href="main.html"><span id="hostPage"></span><i class="png_ie i-1"></i></a>
+    <a href="more.html" class="selected"><span id="MoreFunction"></span><i class="png_ie i-3"></i></a>
+    <a href="setup.html"><span id="ChangeMode"></span><i class="png_ie i-2"></i></a>
+    <a href="terminal.html"><span id="term"></span><i class="png_ie i-5"></i></a>
+    <a href="upload_firmware.html"><span id="getNew"></span><i class="png_ie i-4"></i></a>
+</div>
+<div class="section_show" id="app_section">
+    <div id="detail_area">
+        <div id="app_list">
+            <div class="addon_container tab_container">
+                <div class="tab_item_container">
+                    <div class="tab_title"><h3><span id="plugin_title"></span></h3></div>
+                    <ul>
+                        <li><div class="ext-item_top"><input type="hidden" value="net_serial"><span id="serialDw"></span><span id="serial_un"></span></div>
+                            <div class="ext-item serial" id="serial">
+                            <p></p>
+                            <div class="menu_text"></div>
+                            <div class="float_info"><div class="detail"></div></div>
+                        </div></li>
+                        <li><div class="ext-item_top"><input type="hidden" value="wifidog"><span id="dogDw"></span><span id="dog_un"></span></div>
+                            <div class="ext-item wifi_dog" id="wifi_dog">
+                            <span></span>
+                            <div class="menu_text">WiFidog</div>
+                            <div class="float_info"><p class="bg-white"></p></div>
+                        </div></li>
+                        <li><div class="ext-item_top"><input type="hidden" value="shadowsocks"><span id="shadowDw"></span><span id="shadow_un"></span></div>
+                            <div class="ext-item shadow" id="shadow">
+                            <span></span>
+                            <div class="menu_text"></div>
+                            <div class="float_info"><p class="bg-white"></p></div>
+                        </div></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 串口透析 -->
+<div id="setSerial" style="display:none;width:auto;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="serialtitle"></h4>
+        </div>
+        <div class="modal-body" id="dialoglan" style="text-align:center;font-size:15px;">
+            <div>
+                <form id="serial_Form" role="form">
+                    <input type="hidden" name="type" value="setserialinfo" />
+                    <ul class="listform">
+                        <li>
+                            <span class="sp-l workMode"></span>
+                            <span class="sp-r">
+									<input type="radio" onclick="getSerStatus(true)" name="ser_status" id="serOn" value="1" style="margin: 0px 0px 5px;cursor:pointer" />
+									<a class="visitor_on"></a>
+									<input   type="radio" onclick="getSerStatus(false)" id="serOff" value="0" name="ser_status" style="margin: 0px 0px 5px;cursor:pointer" />
+									<a class="visitor_off"></a>
+								</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="ser_span"></span>
+                            <span class="sp-r">
+								<select name='network' class="selection" id="ser_type" onchange="isServer(this)">
+									<option value="TCP">TCP</option>
+									<option value="UDP">UDP</option>
+								</select>
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="port_span"></span>
+                            <span class="sp-r">
+								<label for="port" id="portlabel"></label>
+								<input class="inpt" id="port"  name="port" maxlength="5" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="baud_span"></span>
+                            <span class="sp-r">
+								<select class="selection" name="baud" id="baud">
+									<option value="14400">14400</option>
+									<option value="19200">19200</option>
+									<option value="38400">38400</option>
+									<option value="57600">57600</option>
+									<option value="115200">115200</option>
+								</select>
+							</span>
+                        </li>
+                        <li class="tcp_item">
+                            <span class="sp-l" id="auth_span"></span>
+                            <span class="sp-r">
+								<label for="auth" id="auth_label"></label>
+								<input class="inpt tcp_inpt" maxlength="150" id="auth" name="auth" />
+							</span>
+                        </li>
+                        <li class="tcp_item">
+                            <span class="sp-l" id="heart_span"></span>
+                            <span class="sp-r">
+								<label for="heart" id="heart_label"></label>
+								<input class="inpt tcp_inpt" maxlength="150" id="heart" name="heart" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="domain_span"></span>
+                            <span class="sp-r">
+								<label for="domain" id="domainlabel"></label>
+								<input class="inpt" maxlength="128" id="domain" name="domain" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="stop_span"></span>
+                            <span class="sp-r">
+									<label for="stop" id="stop_label"></label>
+									<input class="inpt" maxlength="1" id="stop" name="stop" />
+								</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="verify_span"></span>
+                            <span class="sp-r">
+								<label for="verify" id="verify_label"></label>
+								<input class="inpt" maxlength="1" id="verify" name="verify" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="data_span"></span>
+                            <span class="sp-r">
+								<label for="data" id="data_label"></label>
+								<input class="inpt" maxlength="1" id="data" name="data" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="COM_span"></span>
+                            <span class="sp-r">
+									<select name='COM' class="selection" id="COM">
+									<option value="ttyS0">ttyS0</option>
+									<option value="ttyS1">ttyS1</option>
+								</select>
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="flow_span"></span>
+                            <span class="sp-r">
+								<label for="flow" id="flow_label"></label>
+								<input class="inpt" maxlength="1" id="flow" name="flow" />
+							</span>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="buttonbox">
+            <a id="serialcancel" class="cannel btn list-btn WCancel"></a>
+            <a id="set_serial" class="btn list-btn WApply"></a>
+        </div>
+    </div>
+</div>
+<!--串口透析 end-->
+<!-- wifidog -->
+<div id="setWifidog" style="display:none;width:auto;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" >Wifi Dog</h4>
+        </div>
+        <div class="modal-body" style="text-align:center;font-size:15px;">
+            <div>
+                <form id="wifidog_Form" role="form">
+                    <input type="hidden" name="type" value="setwifidoginfo" />
+                    <ul class="listform">
+                        <li>
+                            <span class="sp-l workMode"></span>
+                            <span class="sp-r">
+                                <input type="radio" name="status" id="wifidog_On" value="1" style="margin: 0px 0px 5px;cursor:pointer" />
+                                <a class="visitor_on"></a>
+                                <input   type="radio" id="wifidog_Off" value="0" name="status" style="margin: 0px 0px 5px;cursor:pointer" />
+                                <a class="visitor_off"></a>
+                            </span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="url_span">URL</span>
+                            <span class="sp-r">
+								<label for="url_input" id="url_label"></label>
+								<input class="inpt" id="url_input"  name="url" maxlength="64" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="path_span"></span>
+                            <span class="sp-r">
+                                <label for="path" id="path_label"></label>
+                                <input class="inpt" maxlength="64" id="path" name="path" />
+                            </span>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="buttonbox">
+            <a id="wifidog_cancel" class="cannel btn list-btn WCancel"></a>
+            <a id="set_wifidog" class="btn list-btn WApply"></a>
+        </div>
+    </div>
+</div>
+<!-- end wifidog -->
+<!-- 翻墙 -->
+<div id="set_shadow" style="display:none;width:auto;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="shadow_title"></h4>
+        </div>
+        <div class="modal-body" style="text-align:center;font-size:15px;">
+            <div>
+                <a href="http://down.b-link.net.cn/help/socks.html" target="_blank" id="helpT"></a>
+                <form id="shadow_Form" role="form">
+                    <input type="hidden" name="type" value="setshadowinfo" />
+                    <ul class="listform" style="width:75%">
+                        <li>
+                            <span class="sp-l workMode"></span>
+                            <span class="sp-r" style="padding-left: 15px;">
+                                <input type="radio" name="status" id="shadow_On" value="1" style="margin: 0px 0px 5px;cursor:pointer" />
+                                <a class="visitor_on"></a>
+                                <input   type="radio" id="shadow_Off" value="0" name="status" style="margin: 0px 0px 5px;cursor:pointer" />
+                                <a class="visitor_off"></a>
+                            </span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="server_address"></span>
+                            <span class="sp-r">
+								<label for="address_input" id="address_label"></label>
+								<input class="inpt" id="address_input"  name="server" maxlength="64" />
+							</span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="Por_span"></span>
+                            <span class="sp-r">
+                                <label for="shadow_port" id="Por_label"></label>
+                                <input class="inpt" maxlength="5" id="shadow_port" name="port" />
+                            </span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="pwd_span"></span>
+                            <span class="sp-r">
+                                <label for="shadow_password" id="pwd_label"></label>
+                                <input class="inpt" maxlength="64" id="shadow_password" name="passwd" />
+                            </span>
+                        </li>
+                        <li>
+                            <span class="sp-l" id="pwd_type"></span>
+                            <span class="sp-r">
+                                <select name="pwdtype" id="pwdType" class="selection">
+                                    <option value="aes-128-cfb">aes-128-cfb</option>
+                                    <option value="aes-128-ctr">aes-128-ctr</option>
+                                    <option value="aes-128-gcm">aes-128-gcm</option>
+                                    <option value="aes-192-cfb">aes-192-cfb</option>
+                                    <option value="aes-192-ctr">aes-192-ctr</option>
+                                    <option value="aes-192-gcm">aes-192-gcm</option>
+                                    <option value="aes-256-cfb">aes-256-cfb</option>
+                                    <option value="aes-256-ctr">aes-256-ctr</option>
+                                    <option value="aes-256-gcm">aes-256-gcm</option>
+                                    <option value="abf-cfb">bf-cfb</option>
+                                    <option value="camellia-128-cfb">camellia-128-cfb</option>
+                                    <option value="camellia-192-cfb">camellia-192-cfb</option>
+                                    <option value="camellia-256-cfb">camellia-256-cfb</option>
+                                    <option value="cast5-cfb">cast5-cfb</option>
+                                    <option value="chacha20">chacha20</option>
+                                    <option value="chacha20-ietf">chacha20-ietf</option>
+                                    <option value="chacha20-ietf-poly1305">chacha20-ietf-poly1305</option>
+                                    <option value="des-cfb">des-cfb</option>
+                                    <option value="idea-cfb">idea-cfb</option>
+                                    <option value="rc2-cfb">rc2-cfb</option>
+                                    <option value="rc4">rc4</option>
+                                    <option value="rc4-md5">rc4-md5</option>
+                                    <option value="salsa20">salsa20</option>
+                                    <option value="seed-cfb">seed-cfb</option>
+                                    <option value="table">table</option>
+                                </select>
+                            </span>
+                        </li>
+                    </ul>
+                </form>
+                <div style="color:rgb(206, 68, 58);text-align:center;;" id="shadow_tip"></div>
+            </div>
+        </div>
+        <div class="buttonbox">
+            <a id="shadow_cancel" class="cannel btn list-btn WCancel"></a>
+            <a id="shadow_button" class="btn list-btn WApply"></a>
+        </div>
+    </div>
+</div>
+<!-- end 翻墙 -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/lang_public.js"></script>
+<script type="text/javascript" src="js/lang_more.js"></script>
+<script type="text/javascript" src="js/share.js"></script>
+<script type="text/javascript" src="js/layer/layer.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script>
+    var shadow_Flag,set_restore=0;
+    if(getLang()=='zhcn'){var curlang=lang.zhcn;}else{var curlang=lang.en;}
+    if(getLang()=='zhcn'){var curlangs=langs.zhcn;}else{var curlangs=langs.en;}
+    getPage();
+    getPages();
+    function showanimation(type,obj,num){
+        if(type==1){
+            window.animation=layer.open({
+                type: 1,
+                closeBtn: 0, //不显示关闭按钮
+                shift: 3,
+                offset:'160px',
+                area: '240px',
+                scrollbar: false,
+                title: false,
+                shade: [0.7, '#000'],
+                skin:"message_layer_h",
+                content: '<div style="display:block;" id="message_layer"><div id="msg_type" class="success"><img src="/admin/images/122.gif" /></div><div id="msg" class="word"></div></div>'
+            });
+            $("#msg_type").children("img").attr("src","/admin/images/122.gif");
+        }
+        if(type==2){
+            if(obj==null||obj==""||(!obj)){
+                $("#msg_type").children("img").attr("src","/admin/images/msg-error.png");
+                $("#msg").html(curlang.info3);
+                setTimeout(function(){layer.close(window.animation);},2000);
+                return;
+            }
+            else{
+                if((typeof obj)=="object"){var msg=obj;}
+                else{var msg=eval('('+obj+')'); }
+                if(msg.result==0){
+                    if(num==1){
+                        $("#msg_type").children("img").attr("src","/admin/images/msg-success.png");
+                        $("#msg").html(curlang.info1);
+                        setTimeout(function(){layer.close(window.animation);},2000);
+                    }else{
+                        $("#msg_type").children("img").attr("src","/admin/images/msg-success.png");
+                        $("#msg").html(curlang.info2);
+                        setTimeout(function(){layer.close(window.animation);},2000);
+                    }
+                }else if(msg.result==6){
+                    $("#msg_type").children("img").attr("src","/admin/images/msg-error.png");
+                    $("#msg").html(curlang.dns_result);
+                    setTimeout(function(){layer.close(window.animation);},2000);
+                }else{
+                    $("#msg_type").children("img").attr("src","/admin/images/msg-error.png");
+                    $("#msg").html(curlang.info3);
+                    setTimeout(function(){layer.close(window.animation);},2000);
+                }
+            }
+        }
+        if(type==3){
+            $("#msg_type").children("img").attr("src","/admin/images/msg-error.png");
+            $("#msg").html(curlang.info3);
+            setTimeout(function(){layer.close(window.animation);},2000);
+        }
+        if(type==4){
+            $("#msg_type").children("img").attr("src","/admin/images/msg-success.png");
+            $("#msg").html(curlang.Success);
+            setTimeout(function(){layer.close(animation);restart('reboot');},2000);
+        }
+        if(type==5){
+            $("#msg_type").children("img").attr("src","/admin/images/msg-success.png");
+            $("#msg").html(curlang.info2);
+            setTimeout(function(){layer.close(window.animation);},2000);
+        }
+        if(type==6){
+            window.manimation=layer.open({
+                type: 1,
+                closeBtn: 0, //不显示关闭按钮
+                shift: 3,
+                offset:'160px',
+                area: '240px',
+                scrollbar: false,
+                title: false,
+                shade: [0.7, '#000'],
+                skin:"message_layer_mh",
+                content: '<div style="display:block" id="message_layer"><div id="msg_type" class="success"><img src="/admin/images/msg-success.png" /></div><div id="msg" class="word"></div></div>'
+            });
+            $("#msg").html(curlang.info2);
+            setTimeout(function(){layer.close(window.manimation);},2000);
+        }
+        if(type==7){
+            $("#msg_type").children("img").attr("src","/admin/images/msg-success.png");
+            setTimeout(function(){layer.close(window.animation);},1000);
+        }
+    }
+    //输入框焦点
+    $(".inpt").focusin(function() {
+        $(this).siblings("label").hide();
+    }).focusout(function() {
+        if ($(this).val() == '') {
+            $(this).siblings("label").show();
+        }
+    });
+    function seriallayer() {
+        layer.open({
+            type: 1,
+            title: false,
+            shade: [0.7, '#000'],
+            closeBtn: false,
+            offset:'11%',
+            area:['550px','85%'],
+            content: $("#setSerial"),
+            skin: 'cy-class'
+        });
+        getData_serial_info();
+    }
+    function wifidoglayer() {
+        layer.open({
+            type: 1,
+            title: false,
+            shade: [0.7, '#000'],
+            closeBtn: false,
+            offset:'150px',
+            area:'500px',
+            content: $("#setWifidog"),
+            skin: 'cy-class'
+        });
+        get_wifiDog();
+    }
+    function shadowlayer() {
+        layer.open({
+            type: 1,
+            title: false,
+            shade: [0.7, '#000'],
+            closeBtn: false,
+            offset:'150px',
+            area:'530px',
+            content: $("#set_shadow"),
+            skin: 'cy-class'
+        });
+        get_shadow_info();
+    }
+    $("#set_serial").click(function () {
+        onform_serial();
+    });
+    $("#set_wifidog").click(function () {
+        noform_wifiDog();
+    });
+    $("#shadow_button").click(function () {
+        noform_shadow();
+    });
+    $("#wifidog_cancel").click(function () {
+        get_wifiDog();
+    })
+    $("#shadow_cancel").click(function () {
+        get_shadow_info();
+    });
+    //取消按钮
+    $(".cannel").click(function() {
+        layer.closeAll();
+    })
+    //取消按钮
+    $(".close").click(function(){
+        layer.closeAll();
+    });
+    getFlashinfo();
+    //flash
+    function getFlashinfo() {
+        $("#serial").unbind("click");
+        $("#wifi_dog").unbind("click");
+        $("#shadow").unbind("click");
+        showanimation(1);
+        $("#msg").html(curlangs.Pease_flash);
+        $.ajax({
+            type:"get",
+            url:"/goform/get_flash_plugin",
+            data:{"type":"getplugstatus"},
+            dataType:"json",
+            success:function(msg){
+                if(msg==null||msg==""||msg==undefined){
+                    return;
+                }
+                var data;
+                if((typeof msg)=="object"){data=msg;}
+                else{
+                    data=eval('('+msg+')');
+                }
+                var list=data.list;
+                if(list==null||list==""||list==undefined){
+                    showanimation(7);
+                    $("#msg").html(curlang.Pease_error);
+                }else{
+                    showanimation(7);
+                    $("#msg").html(curlang.Pease_success);
+                }
+                mode_terminal();
+                for(var i=0;i<list.length;i++) {
+                    if(list[i].fun=="net_serial"){
+                        $("#serial").parent("li").css("display","block");
+                        if(list[i].enable==1){
+                            $("#serialDw").html(curlang.Installed);
+                            $("#serial_un").addClass("on");
+                            $("#serialDw").unbind("click");
+                            $("#serial_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                            });
+                            $("#serial").click(function() {
+                                seriallayer();
+                            });
+                        }else{
+                            $("#serialDw").html(curlang.NotInstalled);
+                            $("#serialDw").addClass("on");
+                            $("#serial_un").unbind("click");
+                            $("#serialDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                            $("#serial").unbind("click");
+                        }
+                    }
+                    if(list[i].fun=="wifidog"){
+                        $("#wifi_dog").parent("li").css("display","block");
+                        if(list[i].enable==1){
+                            $("#dogDw").html(curlang.Installed);
+                            $("#dog_un").addClass("on");
+                            $("#dogDw").unbind("click");
+                            $("#dog_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                                onform_wifidogoff();
+                            });
+                            $("#wifi_dog").click(function() {
+                                wifidoglayer();
+                            });
+                            get_wifiDog();
+                        }else{
+                            $("#dogDw").html(curlang.NotInstalled);
+                            $("#dogDw").addClass("on");
+                            $("#dogDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                            $("#dog_un").unbind("click");
+                            $("#wifi_dog").unbind("click");
+                        }
+                    }
+                    if(list[i].fun=="shadowsocks"){
+                        $("#shadow").parent("li").css("display","block");
+                        if(list[i].enable==1){
+                            $("#shadowDw").html(curlang.Installed);
+                            $("#shadow_un").addClass("on");
+                            $("#shadow_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                                onform_shadowoff();
+                            });
+                            $("#shadowDw").unbind("click");
+                            $("#shadow").click(function() {
+                                shadowlayer();
+                            });
+                            get_shadow_info();
+                        }else{
+                            $("#shadowDw").html(curlang.NotInstalled);
+                            $("#shadow").unbind("click");
+                            $("#shadowDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                            $("#shadowDw").addClass("on");
+                            $("#shadow_un").unbind("click");
+                        }
+                    }
+                }
+            },
+            error:function(msg){}
+        })
+    }
+    function onformFlash(obj){
+        set_restore=1;
+        showanimation(1);
+        var enable;
+        if(shadow_Flag){
+            enable=1;
+            $("#msg").html(curlang.is_installed);
+        }else{
+            enable=0;
+            $("#msg").html(curlang.is_uninstall);
+        }
+        var inp_name=$(obj).siblings("input[type=hidden]").val();
+        $.ajax({
+            type:"post",
+            url:"/goform/set_flash_plugin",
+            data:{"type":"setplugstatus","fun":inp_name,"enable":enable},
+            dataType:"json",
+            success:function (msg) {
+                if((typeof msg)=="object"){var data=msg;}
+                else{var data=eval('('+msg+')');}
+                if(data.result==0){
+                    setTimeout(function(){set_restore=0;},2000);
+                    $(obj).unbind("click");
+                    $(obj).removeClass('on').siblings().addClass("on");
+                    if(enable==0){
+                        showanimation(7);
+                        $("#msg").html(curlang.uninstall_sce);
+                        $(obj).parent().siblings().unbind("click");
+                        if($(obj).context.id=="serial_un"){
+                            $("#serialDw").html(curlang.NotInstalled);
+                            $("#serialDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                        }
+                        if($(obj).context.id=="dog_un"){
+                            $("#dogDw").html(curlang.NotInstalled);
+                            $("#dogDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                        }
+                        if($(obj).context.id=="shadow_un"){
+                            $("#shadowDw").html(curlang.NotInstalled);
+                            $("#shadowDw").click(function () {
+                                shadow_Flag=true;
+                                onformFlash(this);
+                            });
+                        }
+                    }else{
+                        showanimation(7);
+                        $("#msg").html(curlang.installed_sce);
+                        if($(obj).context.id=="serialDw"){
+                            $("#serialDw").html(curlang.Installed);
+                            $("#serial_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                            });
+                        }
+                        if($(obj).context.id=="dogDw"){
+                            $("#dogDw").html(curlang.Installed);
+                            $("#dog_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                                onform_wifidogoff();
+                            });
+                        }
+                        if($(obj).context.id=="shadowDw"){
+                            $("#shadowDw").html(curlang.Installed);
+                            $("#shadow_un").click(function () {
+                                shadow_Flag=false;
+                                onformFlash(this);
+                                onform_shadowoff();
+                            });
+                        }
+                        if($(obj).context.id=="serialDw"){
+                            $("#serial").unbind("click");
+                            $("#serial").click(function(){seriallayer();});
+                        }
+                        if($(obj).context.id=="dogDw"){
+                            $("#wifi_dog").unbind("click");
+                            $("#wifi_dog").click(function(){wifidoglayer();});
+                        }
+                        if($(obj).context.id=="shadowDw"){
+                            $("#shadow").unbind("click");
+                            $("#shadow").click(function(){shadowlayer();});
+                        }
+                    }
+                }else{
+                    showanimation(3,data,0);
+                    if(enable==1){
+                        $(obj).parent().siblings().unbind("click");
+                    }
+                }
+            },
+            error:function(msg){
+                showanimation(3,"0",0);
+            }
+        });
+    }
+    //卸载后只提交关闭状态的值不造成冲突
+    function onform_wifidogoff() {
+        $.ajax({
+            type:"post",
+            url:"/goform/set_wifidog_plugin",
+            data:{"type":"setwifidoginfo","status":0},
+            dataType:"json",
+            success:function () {},
+            error:function () {}
+        })
+    }
+    function onform_shadowoff() {
+        $.ajax({
+            type:"post",
+            url:"/goform/set_shadow_plugin",
+            data:{"type":"setshadowinfo","status":0},
+            dataType:"json",
+            success:function () {},
+            error:function () {}
+        })
+    }
+    //串口拓传
+    function isServer(obj){
+        if($(obj).val()=="TCP"){
+            $(".tcp_item").css("display","block");
+            $(".tcp_inpt").attr("disabled",false);
+        }else{
+            $(".tcp_item").css("display","none");
+            $(".tcp_inpt").attr("disabled",true);
+        }
+    }
+
+    function getSerStatus(bool){
+        if(bool){
+            $("#ser_type").attr('disabled',false);
+            $("#ser_type").removeClass("selection-disabled");
+            $("#port").attr('disabled',false);
+            $("#port").removeClass("inpt-disabled");
+            $("#portlabel").css('cursor','text');
+            $("#baud").attr('disabled',false);
+            $("#baud").removeClass("selection-disabled");
+            $("#auth").attr('disabled',false);
+            $("#auth").removeClass("inpt-disabled");
+            $("#auth_label").css('cursor','text');
+            $("#heart").attr('disabled',false);
+            $("#heart").removeClass("inpt-disabled");
+            $("#heart_label").css('cursor','text');
+            $("#domain").attr('disabled',false);
+            $("#domain").removeClass("inpt-disabled");
+            $("#domainlabel").css('cursor','text');
+            $("#stop").attr('disabled',false);
+            $("#stop").removeClass("inpt-disabled");
+            $("#stop_label").css({'cursor':'text',"display":"block"});
+            $("#stop").focus();
+            $("#verify").attr('disabled',false);
+            $("#verify").removeClass("inpt-disabled");
+            $("#verify_label").css({'cursor':'text',"display":"block"});
+            $("#verify").focus();
+            $("#data").attr('disabled',false);
+            $("#data").removeClass("inpt-disabled");
+            $("#data_label").css({'cursor':'text',"display":"block"});
+            $("#data").focus();
+            $("#COM").attr('disabled',false);
+            $("#COM").removeClass("selection-disabled");
+            $("#flow").attr('disabled',false);
+            $("#flow").removeClass("inpt-disabled");
+            $("#flow_label").css({'cursor':'text',"display":"block"});
+            $("#flow").focus();
+        }else{
+            $("#ser_type").attr('disabled',true);
+            $("#ser_type").addClass("selection-disabled");
+            $("#port").attr('disabled',true);
+            $("#port").addClass("inpt-disabled");
+            $("#portlabel").css('cursor','text');
+            $("#baud").attr('disabled',true);
+            $("#baud").addClass("selection-disabled");
+            $("#auth").attr('disabled',true);
+            $("#auth").addClass("inpt-disabled");
+            $("#auth_label").css('cursor','text');
+            $("#heart").attr('disabled',true);
+            $("#heart").addClass("inpt-disabled");
+            $("#heart_label").css('cursor','text');
+            $("#domain").attr('disabled',true);
+            $("#domain").addClass("inpt-disabled");
+            $("#domainlabel").css('cursor','text');
+            $("#stop").attr('disabled',true);
+            $("#stop").addClass("inpt-disabled");
+            $("#verify").attr('disabled',true);
+            $("#verify").addClass("inpt-disabled");
+            $("#verify_label").css('cursor','text');
+            $("#data").attr('disabled',true);
+            $("#data").addClass("inpt-disabled");
+            $("#data_label").css('cursor','text');
+            $("#COM").attr('disabled',true);
+            $("#COM").addClass("selection-disabled");
+            $("#flow").attr('disabled',true);
+            $("#flow").addClass("inpt-disabled");
+            $("#flow_label").css('cursor','text');
+        }
+    }
+    function SetSerStatus(Status){
+        if(Status==1){
+            $("#serOn").trigger("click");
+            $("#ser_type").attr('disabled',false);
+            $("#ser_type").removeClass("selection-disabled");
+            $("#port").attr('disabled',false);
+            $("#port").removeClass("inpt-disabled");
+            $("#portlabel").css('cursor','text');
+            $("#baud").attr('disabled',false);
+            $("#baud").removeClass("selection-disabled");
+            $("#auth").attr('disabled',false);
+            $("#auth").removeClass("inpt-disabled");
+            $("#auth_label").css('cursor','text');
+            $("#heart").attr('disabled',false);
+            $("#heart").removeClass("inpt-disabled");
+            $("#heart_label").css('cursor','text');
+            $("#domain").attr('disabled',false);
+            $("#domain").removeClass("inpt-disabled");
+            $("#domainlabel").css('cursor','text');
+            $("#stop").attr('disabled',false);
+            $("#stop").removeClass("inpt-disabled");
+            $("#stop").focus();
+            $("#verify").attr('disabled',false);
+            $("#verify").removeClass("inpt-disabled");
+            $("#verify_label").css('cursor','text');
+            $("#verify").focus();
+            $("#data").attr('disabled',false);
+            $("#data").removeClass("inpt-disabled");
+            $("#data_label").css('cursor','text');
+            $("#COM").attr('disabled',false);
+            $("#COM").removeClass("selection-disabled");
+            $("#flow").attr('disabled',false);
+            $("#flow").removeClass("inpt-disabled");
+            $("#flow_label").css('cursor','text');
+            $("#flow").focus();
+        }else{
+            $("#serOff").trigger("click");
+            $("#ser_type").attr('disabled',true);
+            $("#ser_type").addClass("selection-disabled");
+            $("#port").attr('disabled',true);
+            $("#port").addClass("inpt-disabled");
+            $("#portlabel").css('cursor','text');
+            $("#baud").attr('disabled',true);
+            $("#baud").addClass("selection-disabled");
+            $("#auth").attr('disabled',true);
+            $("#auth").addClass("inpt-disabled");
+            $("#auth_label").css('cursor','text');
+            $("#heart").attr('disabled',true);
+            $("#heart").addClass("inpt-disabled");
+            $("#heart_label").css('cursor','text');
+            $("#domain").attr('disabled',true);
+            $("#domain").addClass("inpt-disabled");
+            $("#domainlabel").css('cursor','text');
+            $("#stop").attr('disabled',true);
+            $("#stop").addClass("inpt-disabled");
+            $("#stop_label").css({'cursor':'text',"display":"none"});
+            $("#verify").attr('disabled',true);
+            $("#verify").addClass("inpt-disabled");
+            $("#verify_label").css({'cursor':'text',"display":"none"});
+            $("#data").attr('disabled',true);
+            $("#data").addClass("inpt-disabled");
+            $("#data_label").css({'cursor':'text',"display":"none"});
+            $("#COM").attr('disabled',true);
+            $("#COM").addClass("selection-disabled");
+            $("#flow").attr('disabled',true);
+            $("#flow").addClass("inpt-disabled");
+            $("#flow_label").css({'cursor':'text',"display":"none"});
+        }
+    }
+    function getData_serial_info(){
+        $.ajax({
+            type:'get',
+            url:'/goform/get_serial_cfg',
+            data: 'type=getserialinfo',
+            dataType:"json",
+            success: function(msg) {
+                if(msg==""||msg=="undefine"||msg==null){
+                    return;
+                }
+                if((typeof msg)=="object"){var data=msg;}
+                else{
+                    var data=eval('('+msg+')');
+                }
+                if(data.result==6){
+                    layer.msg(curlang.dns_result, {icon: 5});
+                    var Serial=setInterval(function(){layer.closeAll();},3000);
+                    clearInterval(Serial);
+                    return;
+                }
+                $("#ser_type").val(data.network);
+                $("#ser_type").trigger("change");
+                $("#baud").val(data.baud);
+                if(data.port!=""){
+                    $("#port").val(data.port);
+                    $("#port").focus();
+                }
+                if(data.domain!=""){
+                    $("#domain").val(data.domain);
+                    $("#domain").focus();
+                }
+                if(data.auth){
+                    if(data.auth!=""){
+                        $("#auth").val(data.auth);
+                        $("#auth").focus();
+                    }
+                }
+                if(data.heart){
+                    if(data.heart!=""){
+                        $("#heart").val(data.heart);
+                        $("#heart").focus();
+                    }
+                }
+                $("#COM").val(data.COM);
+                if(data.stop!==""){
+                    $("#stop").val(data.stop);
+                    $("#stop").focus();
+                }
+                if(data.data!=""){
+                    $("#data").val(data.data);
+                    $("#data").focus();
+                }
+                if(data.verify!==""){
+                    $("#verify").focus();
+                    $("#verify").val(data.verify);
+                }
+                if(data.flow!=""){
+                    $("#flow").val(data.flow);
+                    $("#flow").focus();
+                }
+
+                SetSerStatus(data.ser_status);
+            },
+            error:function(msg)
+            {
+            }
+        })
+    }
+    function checkserial(){
+        var port=$("#port").val();
+        var domain=$("#domain").val();
+        var verify=$("#verify").val();
+        var stop=$("#stop").val();
+        var data=$("#data").val();
+        var flow=$("#flow").val();
+        var PORT=CheckPort(port);
+        $("#port").focus();
+        if(!PORT){return false;}
+        var Domain=IsURL(domain);
+        $("#domain").focus();
+        if(!Domain){return false;}
+        function Verify(number) {
+            var verifyreg=/^[0-4]$/;
+            if(number==""){
+                layer.msg(curlang.Enter_NULL, {icon: 5});
+                return false;
+            }
+            if(!(verifyreg.test(number))){
+                layer.msg(curlang.numbers, {icon: 5});
+                return false;
+            }
+            return true;
+        }
+        var VERIFY=Verify(verify);
+        $("#verify").focus();
+        if(!VERIFY){return false;}
+        function Stop(number) {
+            var stopreg=/^[1-2]$/;
+            if(number==""){
+                layer.msg(curlang.Enter_NULL, {icon: 5});
+                return false;
+            }
+            if(!(stopreg.test(number))){
+                layer.msg(curlang.numbers, {icon: 5});
+                return false;
+            }
+            return true;
+        }
+        var STOP=Stop(stop);
+        $("#stop").focus();
+        if(!STOP){return false;}
+        function Data(number) {
+            var datareg=/^[5-8]$/;
+            if(number==""){
+                layer.msg(curlang.Enter_NULL, {icon: 5});
+                return false;
+            }
+            if(!(datareg.test(number))){
+                layer.msg(curlang.numbers, {icon: 5});
+                return false;
+            }
+            return true;
+        }
+        var DATA=Data(data);
+        $("#data").focus();
+        if(!DATA){return false;}
+        function Flow(number) {
+            var flowreg=/^[0-2]$/;
+            if(number==""){
+                layer.msg(curlang.Enter_NULL, {icon: 5});
+                return false;
+            }
+            if(!(flowreg.test(number))){
+                layer.msg(curlang.numbers, {icon: 5});
+                return false;
+            }
+            return true;
+        }
+        var FLOW=Flow(flow);
+        $("#flow").focus();
+        if(!FLOW){return false;}
+        if($("#ser_type").val()=="TCP"){
+            if(domain==""){
+                layer.msg(curlang.Enter_NULL, {icon: 5});
+                $("#domain").focus();
+                return false;
+            }
+        }
+        return true;
+    }
+    function onform_serial(){
+        if($("#serOn").prop('checked')){
+            if(!checkserial()){
+                return;
+            }
+        }
+        $.ajax({
+            type:'post',
+            url:'/goform/set_serial_cfg',
+            data: $("#serial_Form").serialize(),
+            dataType:"json",
+            success: function(msg) {
+                if(msg==null||msg==""||msg==undefined){
+                    return;
+                }else{
+                    //showMessig(msg,0);
+                    //sleep(0);
+                    showanimation(6);
+                    showanimation(2,msg,0);
+                }
+            },
+            error:function(msg)
+            {
+                showanimation(6);
+                showanimation(3,'0',0);
+            }
+        });
+    }
+    //wifi dog
+    function wifidog_switch(num) {
+        if(num==1){
+            $("#url_label").css("display","block");
+            $("#path_label").css("display","block");
+            $("#url_input").attr("disabled",false);
+            $("#url_input").removeClass("inpt-disabled");
+            $("#url_input").focus();
+            $("#path").attr("disabled",false);
+            $("#path").removeClass("inpt-disabled");
+            $("#path").focus();
+
+        }else{
+            $("#url_input").attr("disabled",true);
+            $("#url_input").addClass("inpt-disabled");
+            $("#path").attr("disabled",true);
+            $("#path").addClass("inpt-disabled");
+            $("#url_label").css("display","none");
+            $("#path_label").css("display","none");
+        }
+    }
+    $("#wifidog_On").click(function () {
+        wifidog_switch(1);
+    });
+    $("#wifidog_Off").click(function () {
+        wifidog_switch(0);
+    });
+    function get_wifiDog() {
+        $.ajax({
+            type:"get",
+            url:"/goform/get_wifidog_plugin",
+            data:{"type":" getwifidoginfo"},
+            dataType:"json",
+            success:function(msg){
+                if(msg==""||msg=="undefine"||msg==null){
+                    return;
+                }
+                if((typeof msg)=="object"){var data=msg;}
+                else{
+                    var data=eval('('+msg+')');
+                }
+                $("#url_input").val(data.url);
+                $("#path").val(data.path);
+                $("#url_input").focus();
+                $("#path").focus();
+                if(data.status==1){
+                    $("#wifidog_On").prop("checked",true);
+                    wifidog_switch(1);
+                    if ($("#wifidog_On").prop("checked") && $("#shadow_On").prop("checked")) {
+                        layer.msg(curlang.dog_shadow_tip,{icon:5});
+                    }
+                }else{
+                    $("#wifidog_Off").prop("checked",true);
+                    wifidog_switch(0);
+                }
+            },
+            error:function(msg){
+                showanimation(3,"0",0);
+            }
+        })
+    }
+    function wifidog_check(path_val){
+        if(path_val==""){
+            layer.msg(curlang.Enter_NULL, {icon: 5});
+            return false;
+        }
+        return true;
+    }
+    function noform_wifiDog() {
+        if ($("#wifidog_On").prop("checked") && $("#shadow_On").prop("checked")) {
+            layer.msg(curlang.dog_shadow_tip,{icon:5});
+            return;
+        }
+        if( $("#wifidog_On").prop("checked")) {
+            var urlDomain = $("#url_input").val();
+            var url_path = $("#path").val();
+            if (!wifidog_check(urlDomain)) {
+                $("#url_input").focus();
+                return false;
+            }
+            if (!wifidog_check(url_path)) {
+                $("#path").focus();
+                return false;
+            }
+        }
+        $.ajax({
+            type:"post",
+            url:"/goform/set_wifidog_plugin",
+            data: $("#wifidog_Form").serialize(),
+            dataType:"json",
+            success:function(msg){
+                if(msg==""||msg=="undefine"||msg==null){
+                    return;
+                }
+                if((typeof msg)=="object"){var data=msg;}
+                else{
+                    var data=eval('('+msg+')');
+                }
+                if(data.result==0){
+                    showanimation(6);
+                    showanimation(2,data,0);
+                }else{
+                    showanimation(6);
+                    showanimation(3,data,0);
+                }
+            },
+            error:function (msg) {
+                showanimation(6);
+                showanimation(3,"0",0);
+            }
+        })
+    }
+    //翻墙
+    function shadow_switch(num) {
+        if(num==1){
+            $("#address_label").css("display","block");
+            $("#Por_label").css("display","block");
+            $("#pwd_label").css("display","block");
+            $("#address_input").attr("disabled",false);
+            $("#address_input").removeClass("inpt-disabled");
+            $("#address_input").focus();
+            $("#shadow_port").attr("disabled",false);
+            $("#shadow_port").removeClass("inpt-disabled");
+            $("#shadow_port").focus();
+            $("#shadow_password").attr("disabled",false);
+            $("#shadow_password").removeClass("inpt-disabled");
+            $("#shadow_password").focus();
+            $("#pwdType").attr("disabled",false);
+            $("#pwdType").removeClass("selection-disabled");
+
+        }else{
+            $("#address_input").attr("disabled",true);
+            $("#address_input").addClass("inpt-disabled");
+            $("#shadow_port").attr("disabled",true);
+            $("#shadow_port").addClass("inpt-disabled");
+            $("#shadow_password").attr("disabled",true);
+            $("#shadow_password").addClass("inpt-disabled");
+            $("#pwdType").attr("disabled",true);
+            $("#pwdType").addClass("selection-disabled");
+            $("#address_label").css("display","none");
+            $("#Por_label").css("display","none");
+            $("#pwd_label").css("display","none");
+        }
+    }
+    $("#shadow_On").click(function(){
+        shadow_switch(1);
+    });
+    $("#shadow_Off").click(function(){
+        shadow_switch(0);
+    });
+    function get_shadow_info() {
+        $.ajax({
+            type:"get",
+            url:"/goform/get_shadow_plugin",
+            data:{"type":"getshadowinfo"},
+            dataType:"json",
+            success:function(msg){
+                if (msg == "" || msg == "undefine" || msg == null) {
+                    return;
+                }
+                if ((typeof msg) == "object") {
+                    var data = msg;
+                }
+                else {
+                    var data = eval('(' + msg + ')');
+                }
+                $("#address_input").val(data.server);
+                $("#address_input").focus();
+                $("#shadow_port").val(data.port);
+                $("#shadow_port").focus();
+                $("#shadow_password").val(data.passwd);
+                $("#shadow_password").focus();
+                $("#pwdType").val(data.pwdtype);
+                if (data.status == 1) {
+                    $("#shadow_On").prop("checked", true);
+                    shadow_switch(1);
+                    if ($("#wifidog_On").prop("checked") && $("#shadow_On").prop("checked")) {
+                        layer.msg(curlang.dog_shadow_tip,{icon:5});
+                    }
+                } else {
+                    $("#shadow_Off").prop("checked", true);
+                    shadow_switch(0);
+                }
+            },
+           error:function(msg){
+               showanimation(3,"0",0);
+           }
+       })
+    }
+    function noform_shadow() {
+        //wifidog和国际代理冲突处理
+        if ($("#wifidog_On").prop("checked") && $("#shadow_On").prop("checked")) {
+            layer.msg(curlang.dog_shadow_tip,{icon:5});
+            return;
+        }
+        if( $("#shadow_On").prop("checked")) {
+            var serverDomain = $("#address_input").val();
+            var server_port = $("#shadow_port").val();
+            var pwd = $("#shadow_password").val();
+            if (!wifidog_check(serverDomain)) {
+                $("#address_input").focus();
+                return false;
+            }
+            if (!CheckPort(server_port)) {
+                $("#shadow_port").focus();
+                return false;
+            }
+            if (!CheckPPPOEPass(pwd)) {
+                $("#shadow_password").focus();
+                return false;
+            }
+        }
+        $.ajax({
+            type:"post",
+            url:"/goform/set_shadow_plugin",
+            data: $("#shadow_Form").serialize(),
+            dataType:"json",
+            success:function(msg){
+                if(msg==""||msg=="undefine"||msg==null){
+                    return;
+                }
+                if((typeof msg)=="object"){var data=msg;}
+                else{
+                    var data=eval('('+msg+')');
+                }
+                if(data.result==0){
+                    showanimation(6);
+                }else{
+                    showanimation(6);
+                    showanimation(3,data,0);
+                }
+            },
+            error:function (msg) {
+                showanimation(6);
+                showanimation(3,"0",0);
+            }
+        })
+    }
+    //根据模式显示终端
+    function mode_terminal(){
+        $.ajax({
+            type: 'get',
+            url: '/goform/get_easy_cfg',
+            dataType:"json",
+            success: function(msg){
+                if(msg=="" || msg=="undefine"){
+                    return;
+                }
+                if((typeof msg)=="object"){var data=msg;}
+                else{
+                    var data=eval('('+msg+')');
+                }
+                if(data.operationmode.toString()=="repeater"){
+                    $(".menu a").eq(3).css("display","none");
+                }
+                if(data.operationmode.toString()=="client"){
+                    $(".menu a").eq(3).css("display","none");
+                }
+                if(data.operationmode.toString()=="bridge"){
+                    $(".menu a").eq(3).css("display","none");
+                }
+            },
+            error:function(msg){
+
+            }
+        })
+    }
+    //状态查询
+    function getweblink(){
+        function getlinkmsg(){
+            $.ajax({
+                type:'get',
+                url:'/goform/get_lang_cfg',
+                dataType:"json",
+                success: function(msg) {
+                    window.location="../login.asp";
+                },
+                error:function(msg)
+                {
+                }
+            })
+        }
+        setInterval(getlinkmsg,2000);
+    }
+    function getLoginStatus()
+    {
+        if(set_restore == 0)
+        {
+            $.ajax({
+                type:'get',
+                url:'/goform/webheartbeat',
+                timeout: 5000,
+                dataType:"json",
+                success: function(msg) {
+                    if((typeof msg)=="object"){var data=msg;}
+                    else{
+                        var data=eval('('+msg+')');
+                    }
+                    if(data.result==8){
+                        window.location="../login.asp";
+                    }else{}
+                },
+                error:function(msg)
+                {
+                    getweblink();
+                }
+            })
+        }
+    }
+    // setInterval(getLoginStatus,8000);
+</script>
+</body>
+</html>

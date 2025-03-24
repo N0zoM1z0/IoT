@@ -1,0 +1,18 @@
+#!/bin/sh
+# Copyright (C) 2006 OpenWrt.org
+# Copyright (C) 2010 Vertical Communications
+
+do_mount_root() {
+	echo "[RESTORE-DEBUG-INFO] Enter mount_root" > /dev/console
+	mount_root
+	echo "[RESTORE-DEBUG-INFO] Done mount_root" > /dev/console
+	boot_run_hook preinit_mount_root
+	echo "[RESTORE-DEBUG-INFO] Done preinit_mount_root" > /dev/console
+	[ -f /sysupgrade.tgz ] && {
+		echo "- config restore -"
+		cd /
+		tar xzf /sysupgrade.tgz
+	}
+}
+
+[ "$INITRAMFS" = "1" ] || boot_hook_add preinit_main do_mount_root

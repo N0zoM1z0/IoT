@@ -1,0 +1,8 @@
+Package: kmod-dn_login
+Version: 4.4.176+1.0
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Source: tp_package/k_packages/dn_login
+Section: ko util
+Architecture: rtl
+Installed-Size: 9864
+Description:  tp-link domain name login module

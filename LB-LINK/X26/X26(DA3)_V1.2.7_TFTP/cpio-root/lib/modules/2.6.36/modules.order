@@ -1,0 +1,6 @@
+kernel/crypto/aes_generic.ko
+kernel/crypto/ansi_cprng.ko
+kernel/drivers/scsi/scsi_wait_scan.ko
+kernel/drivers/net/wireless/mt7613b_wifi_ap/mt7613b_wifi.ko
+kernel/drivers/net/BL_DNS/domain_login.ko
+kernel/drivers/net/flow_manage/flow_manage.ko

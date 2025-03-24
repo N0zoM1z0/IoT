@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LB-LINK</title>
+		<link rel="icon" type="image/x-icon" href="/opsw/img/wireless_icon.png" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/main.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/elementUi.css" />
+		<script src="/opsw/js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/tr.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hostUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "")%>';
+			var hostUrlSystem = '<%=luci.dispatcher.build_url("admin", "system", "")%>';
+			var hostDomain = '<%=luci.dispatcher.get_host_domain()%>';
+			var login_user = '<%=luci.dispatcher.get_login_user()%>';
+			var menu_idx = '<%=luci.dispatcher.get_menu_idx()%>';
+			var model_type = <%=luci.dispatcher.get_devmodel_type()%>;
+		</script>
+		<script src="/opsw/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/verify.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="container" style="display: none;" :style="{display:'block'}">
+			<div class="header flex flex-center">
+				<div class="navBar flex flex-align flex-between">
+					<div class="navBar-left">
+						<a>
+							<img src="/opsw/img/logo.png">
+						</a>
+					</div>
+					<ul class="navBar-right flex" style="margin: 0 20px;">
+						<li :style="tabIndex==0 ? {backgroundColor: '#ECECEC'} : ''" @click="tabIndex=0">
+							<a href="main.html">
+								<span>{{$t("home")}}</span>
+							</a>
+						</li>
+						<li :style="tabIndex==1 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("setup")}}</span>
+							<div class="li-dropDown">
+								<a href="wizard.html">
+									<div class="dropDown-item">{{$t("wizard")}}</div>
+								</a>
+								<div class="dropDown-item" @click="toSetup(1)">{{$t("internet_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(2)">{{$t("wireless_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(3)">{{$t("network_set")}}</div>
+							</div>
+						</li>
+						<li :style="tabIndex==2 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("Advanced")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toFeatures(0)" v-if="model_type!=2">{{$t("engine")}}</div>
+								<div class="dropDown-item" @click="toFeatures(1)">{{$t("firewall")}}</div>
+								<div class="dropDown-item" @click="toFeatures(2)">{{$t("portForward")}}</div>
+								<div class="dropDown-item" @click="toFeatures(3)">{{$t("website_filter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(4)">{{$t("staticRouter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(5)">{{$t("dynamicDns")}}</div>
+							</div>
+						</li>
+						<li :style="tabIndex==3 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("management")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toManage(0)">{{$t("onTimer")}}</div>
+								<div class="dropDown-item" @click="toManage(1)">{{$t("systemLog")}}</div>
+								<div class="dropDown-item" @click="toManage(2)">{{$t("systemAdmin")}}</div>
+								<div class="dropDown-item" @click="toManage(3)">{{$t("upgrade")}}</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+			    <div class="language">
+			    	<label>{{ $t("language") }}:</label>
+			    	<el-select v-model="curLanguage" @change="setLanguage" :placeholder="$t('plsChoose')" style="margin-left:5px;">
+			    		<el-option :key="0" value="TR" label="Turkey"></el-option>
+			    		<el-option :key="1" value="EN" label="English"></el-option>
+			    	</el-select>
+			    </div>
+			</div>
+			<!-- 头部 -->
+			<div style="background-color: #F7F7F7;">
+				<div class="Features_tips WR900">
+					<h2>{{feature_title}}</h2>
+					<div class="wallimage">
+						<img :src="feature_img" width="195" height="119">
+					</div>
+					<div class="directions">
+						{{feature_description}}
+					</div>
+				</div>
+			</div>
+			<!-- Qos -->
+			<div v-if="menu_idx=='0'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('settings')}} >> {{$t('QoS_Engine')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li class="btn" @click="qosSave">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<ul class="modeList" style="padding-bottom: 20px;border-bottom: 1px solid #999;">
+							<li class="ac">
+								{{$t('Bandwidth')}}
+							</li>
+							<li>
+								<label>{{$t('Uplink_Speed')}}:</label>
+								<el-input type="number" class="width-220" v-model="qosMsg.upload" :placeholder="$t('content_notNull')"></el-input>
+								<i class="el-icon-info cur-point" @click="QoSDialog=true;" style="font-size: 22px;"></i>
+							</li>
+							<li>
+								<label>{{$t('Downlink_Speed')}}:</label>
+								<el-input type="number" class="width-220" v-model="qosMsg.download" :placeholder="$t('content_notNull')"></el-input>
+							</li>
+						</ul>
+						<div class="ar" style="margin:15px 0;">
+							<button class="btn" @click="qosAddDialog=true;qosAddForm.qos_pri=1;getTerminalList();">{{$t('Add')}}</button>
+						</div>
+						<template>
+							<el-table :data="qosMsg.qos_pri_list" border height="300" style="width: 100%;" :key="1">
+								<el-table-column label="IP" prop="ip" width="180" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column label="MAC" prop="mac" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column :label="$t('Priority')" prop="qos_pri" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<span v-if="scope.row.qos_pri==1">{{$t('Medium')}}</span>
+										<span v-if="scope.row.qos_pri==2">{{$t('High')}}</span>
+										<span v-if="scope.row.qos_pri==3">{{$t('Highest')}}</span>
+									</template>
+								</el-table-column>
+								<el-table-column fixed="right" :label="$t('Operation')" width="170" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;" @click="qosEdit(scope.row,scope.$index)"></i>
+										<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;" @click="qosDelete(scope.$index)"></i>
+									</template>
+								</el-table-column>
+							</el-table>
+						</template>
+					</div>
+				</div>
+			</div>
+			<!-- 防火墙 -->
+			<div v-if="menu_idx=='1'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('settings')}} >> {{$t('Firewall_set')}} >> {{$t('Advanced')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li :class="{active:firewall_type==0}" @click="getFirewall(0)">{{$t('Advanced')}}</li>
+							<li :class="{active:firewall_type==1}" @click="getFirewall(1)">{{$t('ipv4Rules')}}</li>
+							<!-- <li :class="{active:firewall_type==2}" @click="getFirewall(2)">IPv6 Rules</li> -->
+							<li class="btn" @click="firewallSave">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<!-- 高级设置 -->
+						<div v-if="firewall_type==0">
+							<ul class="modeList">
+								<li>
+									<label>{{$t('Enable_DMZ')}}:</label>
+									<el-switch v-model="firewall_advanced.dmz_enabled" active-color="#13ce66">
+									</el-switch>
+								</li>
+								<li v-if="firewall_advanced.dmz_enabled">
+									<label>{{$t('DMZ_IP_Address')}}:</label>
+									<input type="text" v-model="firewall_advanced.dmz_ip" />
+									<template>
+										<el-select v-model="firewall_advanced.dmz_ip" :placeholder="$t('plsChoose')">
+											<el-option :key="0" value="" :label="$t('manual')"></el-option>
+											<el-option v-for="(item,index) in clientList" :key="index+1" :value="item.ip" :label="item.ip+ ' (' + item.hostname + ')' "></el-option>
+										</el-select>
+									</template>
+								</li>
+							</ul>
+							<ul class="modeList" style="border: none;">
+							</ul>
+						</div>
+						<!-- ipv4 -->
+						<div v-if="firewall_type==1">
+							<li style="margin:15px 0;overflow: hidden;">
+								<template>
+									<el-select v-model="firewall_ipv4.mode" :placeholder="$t('plsChoose')" class="fl" style="width: 380px;">
+										<el-option :key="0" value="0" :label="$t('IPv4_Filtering_OFF')"></el-option>
+										<el-option :key="1" value="1" :label="$t('IPv4_Filtering_OFF_ALLOW')"></el-option>
+										<el-option :key="2" value="2" :label="$t('IPv4_Filtering_OFF_DENY')"></el-option>
+									</el-select>
+								</template>
+								<div class="fr">
+									<button class="btn" @click="firewallAddDialog_ipv4=true;">{{$t('addRule')}}</button>
+								</div>
+							</li>
+							<template>
+								<el-table :data="firewall_ipv4.list" border height="500" style="width: 100%;" :key="0">
+									<el-table-column prop="name" :label="$t('name')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="mac" :label="$t('Source_MAC')" align="center" width="100" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="srcifc" :label="$t('Source_Interface')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="srcip" :label="$t('Source_IP')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="dstifc" :label="$t('Destination_Interface')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="dstip" :label="$t('Destination_IP')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="protocol" :label="$t('Protocol')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="port" :label="$t('Port')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column :label="$t('Operation')" align="center" width="130" :resizable="false">
+										<template slot-scope="scope">
+											<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;" @click="firewallEdit(scope.row,scope.$index)"></i>
+											<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;" @click="firewall_ipv4.list.splice(scope.$index, 1)"></i>
+										</template>
+									</el-table-column>
+								</el-table>
+							</template>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 端口转发 -->
+			<div v-if="menu_idx=='2'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('Features')}} >> {{$t('portForward')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li :class="{active:portType==0}" @click="portType=0">{{$t('portForward')}}</li>
+							<!-- <li :class="{active:portType==1}" @click="portType=1">Virtual Server</li> -->
+							<li class="btn" @click="setPortMsg">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<div v-if="portType==0">
+							<li style="margin:15px 0;text-align: right;">
+								<button class="btn" @click="portAdd">{{$t('addRule')}}</button>
+							</li>
+							<template>
+								<el-table :data="portList" border height="300" style="width: 100%;" :key="2">
+									<el-table-column prop="name" :label="$t('name')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="ip" label="LAN IP" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="lanport" :label="$t('lanPort_br')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="wanport" :label="$t('wanPort_br')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="protocol" :label="$t('Protocol')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column :label="$t('Operation')" width="200" align="center" :resizable="false">
+										<template slot-scope="scope">
+											<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;" @click="portEdit(scope.row,scope.$index)"></i>
+											<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;" @click="portDelete(scope.$index)"></i>
+										</template>
+									</el-table-column>
+								</el-table>
+							</template>
+						</div>
+						<div v-if="portType==1">
+							<li style="margin:15px 0;text-align: right;">
+								<button class="btn">{{$t('addRule')}}</button>
+							</li>
+							<template>
+								<el-table :data="portList" border height="500" style="width: 100%;" :key="2">
+									<el-table-column prop="Status" :label="$t('status')" width="180" align="center" width="60" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="Name" :label="$t('name')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="Local IP" :label="$t('localIp')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="TCP Port" :label="$t('tcpPort')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="UDP Port" :label="$t('udpPort')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column prop="Schedule" :label="$t('Schedule')" align="center" :resizable="false">
+									</el-table-column>
+									<el-table-column :label="$t('Operation')" width="200" align="center" :resizable="false">
+										<template slot-scope="scope">
+											<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;"></i>
+											<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;"></i>
+										</template>
+									</el-table-column>
+								</el-table>
+							</template>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 网站过滤 -->
+			<div v-if="menu_idx=='3'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('Features')}} >> {{$t('website_filter')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li class="btn" @click="urlSave">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<li style="margin:15px 0;text-align: right;">
+							<button class="btn" @click="urlAddDialog=true;">{{$t('addRule')}}</button>
+						</li>
+						<template>
+							<el-table :data="urlList" border height="300" style="width: 100%;" :key="2">
+								<el-table-column prop="url" :label="$t('Website_URL')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column :label="$t('Operation')" width="200" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;" @click="urlEdit(scope.row,scope.$index)"></i>
+										<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;" @click="urlDelete(scope.$index)"></i>
+									</template>
+								</el-table-column>
+							</el-table>
+						</template>
+					</div>
+				</div>
+			</div>
+			<!-- 静态路由 -->
+			<div v-if="menu_idx=='4'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('Features')}} >> {{$t('staticRouter')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li class="btn" @click="setStaticRoute">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<li class="ar" style="margin:15px 0;">
+							<button class="btn" @click="routeAdd">{{$t('addRule')}}</button>
+						</li>
+						<template>
+							<el-table :data="routeList" border height="500" style="width: 100%;" :key="2">
+								<el-table-column prop="state" :label="$t('status')" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<span v-if="scope.row.state">{{$t('on')}}</span>
+										<span v-else>{{$t('off')}}</span>
+									</template>
+								</el-table-column>
+								<el-table-column prop="name" :label="$t('name')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column prop="net" :label="$t('Destination_Network')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column prop="netmask" :label="$t('Mask')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column prop="gateway" :label="$t('Gateway')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column prop="metric" :label="$t('Metric')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column :label="$t('Operation')" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<i class="el-icon-edit" style="font-size: 24px;margin:0 10px;" @click="routeEdit(scope.row,scope.$index)"></i>
+										<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;" @click="routeDelete(scope.row,scope.$index)"></i>
+									</template>
+								</el-table-column>
+							</el-table>
+						</template>
+					</div>
+				</div>
+			</div>
+			<!-- 动态dns -->
+			<div v-if="menu_idx=='5'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('Features')}} >> {{$t('dynamicDns')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li class="btn" @click="setDNSMsg">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<ul class="modeList">
+							<li>
+								<label>{{$t('Enable_Dynamic_DNS')}}:</label>
+								<el-switch v-model="dnsMsg.enabled" active-color="#13ce66">
+								</el-switch>
+							</li>
+							<li>
+								<label>{{$t('status')}}:</label>
+								<span v-if="dnsMsg.status==1">{{$t('connected')}}</span>
+								<span v-else>{{$t('disconnected')}}</span>
+							</li>
+						</ul>
+						<div v-if="dnsMsg.enabled">
+							<ul class="modeList">
+								<li>
+									<label>{{$t('Server_Address')}}:</label>
+									<input type="text" v-model="dnsMsg.service_name" :disabled="dnsMsg.service_name=='noip.com' || dnsMsg.service_name=='dyndns.org'" />
+									<template>
+										<el-select v-model="dnsMsg.service_name" class="width-220" :placeholder="$t('plsChoose')">
+											<el-option :key="0" value="noip.com" label="noip.com"></el-option>
+											<el-option :key="1" value="dyndns.org" label="dyndns.org"></el-option>
+											<el-option :key="2" value="" :label="$t('manual')"></el-option>
+										</el-select>
+									</template>
+								</li>
+								<li>
+									<label>{{$t('hostname')}}:</label>
+									<el-input v-model="dnsMsg.domain" class="width-220" :placeholder="$t('content_notNull')"></el-input>
+								</li>
+								<li>
+									<label>{{$t('username')}}:</label>
+									<el-input v-model="dnsMsg.username" class="width-220" :placeholder="$t('content_notNull')"></el-input>
+								</li>
+								<li>
+									<label>{{$t('password')}}:</label>
+									<el-input v-model="dnsMsg.password" class="width-220" :placeholder="$t('content_notNull')"></el-input>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer ac WR900">
+				<p class="copyright">{{$t('copyRightTip')}}</p>
+			</div>
+			<!-- QoS信息提示弹框 -->
+			<el-dialog title="" :visible.sync="QoSDialog" width="700px">
+				<p class="fs-15 fw_bold" style="padding-bottom:50px;line-height: 22px;">
+					{{$t('qosTip')}}
+				</p>
+				<div class="ac">
+					<button class="btn" @click="QoSDialog=false;">{{$t('OK')}}</button>
+				</div>
+			</el-dialog>
+			<!-- qos新增弹框 -->
+			<el-dialog :title="$t('Add')" :visible.sync="qosAddDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item label="IP">
+						<el-input v-model="qosAddForm.ip" class="width-220"></el-input>
+						<template>
+							<el-select v-model="qosAddForm.ip" class="width-220" @change="qosIpChange">
+								<el-option :key="clientList.length+1" value="" :label="$t('_IP_Address')"></el-option>
+								<el-option v-for="(item,index) in clientList" :key="index" :value="item.ip" :label="item.ip"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+					<el-form-item label="MAC">
+						<el-input v-model="qosAddForm.mac" class="width-220"></el-input>
+						<template>
+							<el-select v-model="qosAddForm.mac" class="width-220" @change="qosMacChange">
+								<el-option :key="0" value="" :label="$t('_MAC_Address')"></el-option>
+								<el-option v-for="(item,index) in clientList" :key="index+1" :value="item.mac" :label="item.mac"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Priority')">
+						<template>
+							<el-select v-model="qosAddForm.qos_pri" class="width-220">
+								<el-option :key="1" :value="1" :label="$t('Medium')"></el-option>
+								<el-option :key="2" :value="2" :label="$t('High')"></el-option>
+								<el-option :key="3" :value="3" :label="$t('Highest')"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="qosAddDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="qosQueryAdd">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- qos编辑弹框 -->
+			<el-dialog :title="$t('edit')" :visible.sync="qosEditDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item label="ip">
+						<el-input v-model="qosEditForm.ip" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item label="mac">
+						<el-input v-model="qosEditForm.mac" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item label="priority">
+						<template>
+							<el-select v-model="qosEditForm.qos_pri" class="width-220">
+								<el-option :key="1" :value="1" :label="$t('Medium')"></el-option>
+								<el-option :key="2" :value="2" :label="$t('High')"></el-option>
+								<el-option :key="3" :value="3" :label="$t('Highest')"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="qosEditDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="qosQueryEdit">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 端口转发新增弹框 -->
+			<el-dialog :title="$t('Add')" :visible.sync="portAddDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="portAddForm.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item label="LAN IP">
+						<el-input v-model="portAddForm.ip" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('wanPort')">
+						<el-input type="number" v-model="portAddForm.wanport" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('lanPort')">
+						<el-input type="number" v-model="portAddForm.lanport" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Protocol')">
+						<template>
+							<el-select v-model="portAddForm.protocol" class="width-220">
+								<el-option :key="1" value="TCP" label="TCP"></el-option>
+								<el-option :key="2" value="UDP" label="UDP"></el-option>
+								<el-option :key="3" value="TCP+UDP" label="TCP+UDP"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="portAddDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="portQueryAdd">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 端口转发编辑弹框 -->
+			<el-dialog :title="$t('edit')" :visible.sync="portEditDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="portEditForm.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item label="LAN IP">
+						<el-input v-model="portEditForm.ip" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('wanPort')">
+						<el-input type="number" v-model="portEditForm.wanport" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('lanPort')">
+						<el-input type="number" v-model="portEditForm.lanport" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Protocol')">
+						<template>
+							<el-select v-model="portEditForm.protocol" class="width-220">
+								<el-option :key="1" value="TCP" label="TCP"></el-option>
+								<el-option :key="2" value="UDP" label="UDP"></el-option>
+								<el-option :key="3" value="TCP+UDP" label="TCP+UDP"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="portEditDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="portQueryEdit">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- url过滤新增弹框 -->
+			<el-dialog :title="$t('Add')" :visible.sync="urlAddDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="140px" @submit.native.prevent>
+					<el-form-item label="URL">
+						<el-input v-model="urlAddForm.url" style="width: 420px;"></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="urlAddDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="urlQueryAdd">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- url过滤编辑弹框 -->
+			<el-dialog :title="$t('edit')" :visible.sync="urlEditDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="140px" @submit.native.prevent>
+					<el-form-item label="URL">
+						<el-input v-model="urlEditForm.url" style="width: 420px;"></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="urlEditDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="urlQueryEdit">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 防火墙新增弹框 -->
+			<el-dialog :title="$t('Create_New_Rule')" :visible.sync="firewallAddDialog_ipv4" width="700px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="firewallAddForm_ipv4.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Filter_Type')">
+						<template>
+							<el-radio-group v-model="filterType">
+							    <el-radio :label="0">{{$t('MAC_Filter')}}</el-radio>
+							    <el-radio :label="1">{{$t('IP_Filter')}}</el-radio>
+							 </el-radio-group>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Source_Mac')">
+						<el-input v-model="firewallAddForm_ipv4.mac" class="width-220" :disabled="filterType!=0"></el-input>
+						<template>
+							<el-select v-model="firewallAddForm_ipv4.mac" :placeholder="$t('plsChoose')" :disabled="filterType!=0" style="width: 180px;">
+								<el-option :key="0" value="" :label="$t('_MAC_Address')"></el-option>
+								<el-option v-for="(item,index) in clientList" :key="index+1" :value="item.mac" :label="item.mac"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Source_IP')">
+						<template>
+							<el-select v-model="firewallAddForm_ipv4.srcifc" :placeholder="$t('plsChoose')" :disabled="filterType!=1" style="width: 180px;">
+								<el-option :key="0" value="wan" label="WAN"></el-option>
+								<el-option :key="1" value="lan" label="LAN"></el-option>
+							</el-select>
+							<el-input v-model="firewallAddForm_ipv4.srcip" class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Destination_IP')">
+						<template>
+							<el-select v-model="firewallAddForm_ipv4.dstifc" :placeholder="$t('plsChoose')" :disabled="filterType!=1" style="width: 180px;">
+								<el-option :key="0" value="wan" label="WAN"></el-option>
+								<el-option :key="1" value="lan" label="LAN"></el-option>
+							</el-select>
+							<el-input v-model="firewallAddForm_ipv4.dstip" class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Port')">
+						<template>
+							<el-select v-model="firewallAddForm_ipv4.protocol" :placeholder="$t('plsChoose')" :disabled="filterType!=1" style="width: 180px;">
+								<el-option :key="0" value="tcp" label="TCP"></el-option>
+								<el-option :key="1" value="udp" label="UDP"></el-option>
+								<el-option :key="2" value="tcp+udp" label="TCP+UDP"></el-option>
+							</el-select>
+							<el-input type="number" v-model="firewallAddForm_ipv4.port"class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="firewallAddDialog_ipv4 = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="firewallQueryAdd">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 防火墙编辑弹框 -->
+			<el-dialog :title="$t('Edit_New_Rule')" :visible.sync="firewallEditDialog_ipv4" width="700px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('name')">
+						<el-input v-model="firewallEditForm_ipv4.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Filter_Type')">
+						<template>
+						<el-radio-group v-model="filterType" @change="filterTypeChange">
+						    <el-radio :label="0">{{$t('MAC_Filter')}}</el-radio>
+						    <el-radio :label="1">{{$t('IP_Filter')}}</el-radio>
+						 </el-radio-group>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Source_Mac')">
+						<el-input v-model="firewallEditForm_ipv4.mac" class="width-220" :disabled="filterType!=0"></el-input>
+						<template>
+							<el-select v-model="firewallEditForm_ipv4.mac" :placeholder="$t('plsChoose')" :disabled="filterType!=0" style="width: 180px;">
+								<el-option :key="0" value="" :label="$t('_MAC_Address')"></el-option>
+								<el-option v-for="(item,index) in clientList" :key="index+1" :value="item.mac" :label="item.mac"></el-option>
+							</el-select>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Source_IP')">
+						<template>
+							<el-select v-model="firewallEditForm_ipv4.srcifc" :placeholder="$t('plsChoose')" :disabled="filterType!=1" style="width: 180px;">
+								<el-option :key="0" value="wan" label="WAN"></el-option>
+								<el-option :key="1" value="lan" label="LAN"></el-option>
+							</el-select>
+							<el-input v-model="firewallEditForm_ipv4.srcip" class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Destination_IP')">
+						<template>
+							<el-select v-model="firewallEditForm_ipv4.dstifc" :placeholder="$t('plsChoose')" :disabled="filterType!=1">
+								<el-option :key="0" value="wan" label="WAN"></el-option>
+								<el-option :key="1" value="lan" label="LAN"></el-option>
+							</el-select>
+							<el-input v-model="firewallEditForm_ipv4.dstip" class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+					<el-form-item :label="$t('Port')">
+						<template>
+							<el-select v-model="firewallEditForm_ipv4.protocol" :placeholder="$t('plsChoose')" :disabled="filterType!=1">
+								<el-option :key="0" value="tcp" label="TCP"></el-option>
+								<el-option :key="1" value="udp" label="UDP"></el-option>
+								<el-option :key="2" value="tcp+udp" label="TCP+UDP"></el-option>
+							</el-select>
+							<el-input type="number" v-model="firewallEditForm_ipv4.port" class="width-220" :disabled="filterType!=1"></el-input>
+						</template>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="firewallEditDialog_ipv4 = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="firewallQueryEdit">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 静态路由新增弹框 -->
+			<el-dialog :title="$t('Create_New_Route')" :visible.sync="routeAddDialog" width="670px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('status')">
+						<el-switch v-model="routeAddForm.state" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+					<el-form-item :label="$t('name')">
+						<el-input v-model="routeAddForm.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Destination_Network')" width="100">
+						<el-input v-model="routeAddForm.net" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Mask')">
+						<el-input v-model="routeAddForm.netmask" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Gateway')">
+						<el-input v-model="routeAddForm.gateway" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Metric')">
+						<el-input type="number" v-model="routeAddForm.metric" class="width-220"></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="routeAddDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="routeQueryAdd">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 静态路由编辑弹框 -->
+			<el-dialog :title="$t('Edit_New_Route')" :visible.sync="routeEditDialog" width="700px" :close-on-click-modal="false">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('status')">
+						<el-switch v-model="routeEditForm.state" active-color="#13ce66">
+						</el-switch>
+					</el-form-item>
+					<el-form-item :label="$t('name')">
+						<el-input v-model="routeEditForm.name" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Destination_Network')">
+						<el-input v-model="routeEditForm.net" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Mask')">
+						<el-input v-model="routeEditForm.netmask" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Gateway')">
+						<el-input v-model="routeEditForm.gateway" class="width-220"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('Metric')">
+						<el-input type="number" v-model="routeEditForm.metric" class="width-220"></el-input>
+					</el-form-item>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="routeEditDialog = false">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="routeQueryEdit">{{$t('confirm')}}</el-button>
+				</span>
+			</el-dialog>
+			<div class="layer" v-if="layerShow"></div>
+			<div class="bulletFrame" v-if="layerShow">
+				<div class="bulletFrame-border">
+					<img src="/opsw/img/loading.gif" v-if="isCount==2">
+					<p class="bulletFrame-time" v-if="isCount==2">{{countdown}} {{$t('Second')}}</p>
+					<span>{{tips}}</span>
+					<div style="margin-top:35px;" v-if="isCount==0">
+						<button @click="layerShow=false;">{{$t('confirm')}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/opsw/js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		  getData();
+		  function getData(){
+			  var self = vm;
+			  self.tabIndex = 2;
+			  clearInterval(self.systemTimer);
+			  switch (menu_idx) {
+			  	case '0':
+			  		var img = '/opsw/img/page_QoS.png';
+			  		self.getHeadMsg(2, self.$t("engine"), img, self.$t("directions_QoS"));
+			  		self.getQosMsg();
+			  		break;
+			  	case '1':
+			  		var img = '/opsw/img/wall.png';
+			  		self.getHeadMsg(2, self.$t("Firewall_set"), img, self.$t("directions_firewall"));
+			  		self.getNetwork();
+			  		self.getFirewall(0);
+			  		break;
+			  	case '2':
+			  		var img = '/opsw/img/page_PortForwarding.png';
+			  		self.getHeadMsg(2, self.$t("portForward"), img, self.$t("port_directions"));
+			  		self.getNetwork();
+			  		self.getPortMsg();
+			  		break;
+			  	case '3':
+			  		var img = '/opsw/img/page_websiteFilter.png';
+			  		self.getHeadMsg(2, self.$t("website_filter"), img, self.$t("filter_directions"));
+			  		self.getUrlFilter();
+			  		break;
+			  	case '4':
+			  		var img = '/opsw/img/page_StaticRoute.png';
+			  		self.getHeadMsg(2, self.$t("staticRouter"), img, self.$t("router_directions"));
+			  		self.getStaticRoute();
+			  		break;
+			  	case '5':
+			  		var img = '/opsw/img/page_DDNS.png';
+			  		self.getHeadMsg(2, self.$t("dynamicDns"), img, self.$t("dns_directions"));
+			  		self.getDNSMsg();
+			  		break;
+			  }
+		  }
+			
+		</script>
+	</body>
+</html>

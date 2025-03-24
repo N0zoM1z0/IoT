@@ -1,0 +1,323 @@
+<script type="text/javascript">
+	(function(){
+		var connectingCount = 0;
+		var updateStatusHandle;
+		var wdsOpened = false;
+		var wdsEnable = gRootAPInfo[curWdsBand].enable == "1" ? 1 : 0;
+		var bsEnable = false;
+		var fakeCurWdsBand = curWdsBand;
+		var dom;
+
+		if (slp.bandSteeringProvided && "1" == gLocalAPInfo[BAND_STEER].bs_enable)
+		{
+			bsEnable = true;
+			fakeCurWdsBand = BAND_STEER;
+		}
+
+		bInWizard = false;
+
+		function changeLinkState(type, str)
+		{
+			var removeClass;
+			removeClass = type == "success" ? "error" : "success";
+
+			$("span.stateLi").removeClass(removeClass).addClass(type);
+			$("#stateText").text(str);
+		}
+
+		function sendData(data){
+			connectingCount = 1;
+			clearTimeout(updateStatusHandle);
+
+			$.modify(data, function(result){
+				if (ENONE !== result[ERR_CODE]){
+					errHandle(result[ERR_CODE]);
+				}
+				else
+				{
+					var actionData = gWDSModel[curWdsBand].wds_start({"set_ip_immediate": "1"});
+					$.action(actionData, function(ret){
+						var errNo = ret[ERR_CODE];
+						if (ENONE !== errNo) {
+							errHandle(errNo);
+							return;
+						}
+
+						if (true == wdsOpened){
+							var bLinkStatusHd = null;
+
+							loadingDialog.show({
+									title: label.bridgingRootAP,
+									content: {primary: label.bridgingAndWait}
+								}, null, null, true, function(){
+									wdsOpened = false;
+									switchBtn.setState(0);
+									wdsCanceldHandle();
+							});
+
+							if (true == bWirelessLinked){
+								var bShowLoading = false;
+								var linkDetectCount = 1;
+
+								function bLinkStatusDetect()
+								{
+									if (linkDetectCount > 3 && bShowLoading == false)
+									{
+										var pwdStr = "";
+										var showStr = label.unlinkEpt;
+
+										if (gLocalAPInfo[curEqtBand].encryption == "1") {
+											pwdStr = "<br />" + label.wirelessPwd + label.colon + gLocalAPInfo[curEqtBand].key;
+										}
+
+										showStr += label.wirelessName + label.colon + gLocalAPInfo[curEqtFreq].ssid + pwdStr;
+										bShowLoading = true;
+
+										loadingDialog.hide(function(){
+											loadingDialog.show({
+												content:{primary:showStr}
+											});
+										});
+									}
+
+									$.detect(function(){
+										if (false == $.result.timeout){
+											loadingDialog.show({
+												title: label.bridgingRootAP,
+												content: {primary: label.bridgingAndWait}
+											});
+
+											clearTimeout(updateStatusHandle);
+											connectingCount = 1;
+											updateStatusHandle = $.setTimeout(getWdsStatus, 1000);
+										}
+									});
+
+									linkDetectCount++;
+									bLinkStatusHd = $.setTimeout(bLinkStatusDetect, 2000);
+								}
+
+								clearTimeout(bLinkStatusHd);
+								$.setTimeout(bLinkStatusDetect, 4000);
+							}
+							else
+							{
+								clearTimeout(updateStatusHandle);
+								connectingCount = 1;
+								updateStatusHandle = $.setTimeout(getWdsStatus, 5000);
+							}
+						}
+						else{
+							updateStatusHandle = $.setTimeout(getWdsStatus, 1000);
+						}
+					});
+				}
+			}, true);
+		}
+
+		function saveHandle(){
+			function makeConfData()
+			{
+				var enableVal = switchBtn.state.toString();
+				var data = gWDSModel[curWdsBand].set_wds({"enable": enableVal});
+
+				wdsOpened = enableVal == "1" ? true : false;
+				gRootAPInfo[curWdsBand].enable = enableVal;
+				sendData(data);
+			}
+
+			if (1 == switchBtn.state && bsEnable && "0" == gLocalAPInfo[fakeCurWdsBand].wifi_enable ||
+				1 == switchBtn.state && !bsEnable && "0" == gLocalAPInfo[fakeCurWdsBand].enable)
+			{
+				confirmDialog.show({
+					title:menuStr.wifiWDS,
+					content:label.alertWifiOpen,
+					callback:function(choose){
+						if (true == choose)
+						{
+							var openHostWifiArg = {"wireless": {}};
+
+							if (bsEnable)
+							{
+								openHostWifiArg.wireless.wlan_bs = {"wifi_enable": "1"};
+							}
+							else
+							{
+								var name = gKeyNames.wlan_host[fakeCurWdsBand];
+								openHostWifiArg.wireless[name] = {"enable":"1"};
+							}
+
+							$.modify(openHostWifiArg, function(result){//TODO:此处可能有坑
+								if (bsEnable)
+								{
+									gLocalAPInfo[fakeCurWdsBand].wifi_enable = "1";
+								}
+								else
+								{
+									gLocalAPInfo[fakeCurWdsBand].enable = "1";
+								}
+
+								$.setTimeout(makeConfData, 2000);
+							});
+						}
+						else
+						{
+							switchBtn.setState(0);
+						}
+					}
+				});
+			}
+			else
+			{
+				makeConfData();
+			}
+		}
+
+		function setWdsState(state){
+			lanIpModeHandle(saveHandle);
+		}
+
+		function getWdsStatus(){
+			var data = gWDSModel[curWdsBand].wlan_wds_status;
+			$.query(data, function(result){
+				var status = parseInt(result.wireless[data.wireless.name].status);
+
+				if (connectingCount > 20){
+					if (true == wdsOpened) {
+						wdsOpened = false;
+						loadingDialog.hide(function(){
+							confirmDialog.show({
+								title:label.bridgingRootAP,
+								content:label.linkFailed,
+								callback:function(choose){
+									if (true == choose){
+										loadingDialog.show({
+											title: label.bridgingRootAP,
+											content: {primary: label.bridgingAndWait}
+											}, null, null, true, function(){
+												wdsOpened = false;
+												switchBtn.setState(1);
+												wdsCanceldHandle();
+										});
+
+										wdsOpened = true;
+										connectingCount = 1;
+										clearTimeout(updateStatusHandle);
+										updateStatusHandle = $.setTimeout(getWdsStatus, 1000);
+									}
+									else
+									{
+										wdsOpened = false;
+										switchBtn.setState(0);
+										wdsCanceldHandle();
+									}
+								}
+							});
+						});
+					}
+				}
+
+				switch (status)
+				{
+				case 0:
+					connectingCount++;
+					changeLinkState("error", wdsLinkStatus[WDS_LINK_DISCONNECTED]);
+					break;
+				case 1:
+					connectingCount++;
+					changeLinkState("error", wdsLinkStatus[WDS_LINK_CONNECTING]);
+					break;
+				case 2:
+					connectingCount = 1;
+					changeLinkState("success", wdsLinkStatus[WDS_LINK_CONNECTED]);
+
+					if (true == wdsOpened){
+						wdsOpened = false;
+						dhcpsRetryCounts = 1;
+						getDhcpsHd = $.setTimeout(wdsGetIpDhcpsStatus, 100);
+					}
+					break;
+				default:
+					break;
+				}
+
+				updateStatusHandle = $.setTimeout(getWdsStatus, 2000);
+			}, undefined, true);
+		}
+
+		dom = initStaticTextObj(label.wirelessName, htmlEscape(gRootAPInfo[curWdsBand].ssid));
+		dom.title = gRootAPInfo[curWdsBand].ssid;
+		$("div.wdsResult div.wdsRootAp").append(dom);
+
+		dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gRootAPInfo[curWdsBand].encryption == 0 ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key));
+		dom.title = gRootAPInfo[curWdsBand].encryption == 0 ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key;
+		$(dom).css("margin-bottom", "0px");
+		$("div.wdsResult div.wdsRootAp").append(dom);
+
+		dom = initStaticTextObj(label.wirelessName, htmlEscape(gLocalAPInfo[fakeCurWdsBand].ssid));
+		dom.title = gLocalAPInfo[fakeCurWdsBand].ssid;
+		$("div.wdsResult div.wdsLocalAp").append(dom);
+
+		dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gLocalAPInfo[fakeCurWdsBand].encryption == 0 ? label.wirelessNoSecurity : gLocalAPInfo[fakeCurWdsBand].key));
+		dom.title = gLocalAPInfo[fakeCurWdsBand].encryption == 0 ? label.wirelessNoSecurity : gLocalAPInfo[fakeCurWdsBand].key;
+		$("div.wdsResult div.wdsLocalAp").append(dom);
+
+		var modifyWdsBtn = new Button({
+			text:btn.wdsModify,
+			onClick:function(){
+				backFromEndPage = true;
+				stepPage(firstPage);
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"modifyWds",
+			props:{width:"240px", marginTop:"48px"}
+		});
+
+		var switchBtn = new Switch("switchCon", wdsEnable, setWdsState, false);
+
+		$.query({"dhcpd":{"name":["udhcpd"]}}, function(result){
+			var isLanDhcpsEnable = parseInt(result.dhcpd.udhcpd.enable);
+			var isDhcpsAuto = parseInt(result.dhcpd.udhcpd.auto);
+
+			dom = initStaticTextObj(label.dhcpServerState, (isDhcpsAuto ? statusStr.auto : (isLanDhcpsEnable ? statusStr.opened : statusStr.offed)));
+			$("div.wdsResult div.wdsLocalAp").append(dom);
+
+			dom = initStaticTextObj(label.lanIPAddr, gLanIP);
+			$(dom).css("margin-bottom", "0px");
+			$("div.wdsResult div.wdsLocalAp").append(dom);
+
+			getWdsStatus();
+		});
+	})();
+</script>
+<style type="text/css">
+	#switchCon{
+		display: inline-block !important;
+	}
+	#stateLi{
+		height: 24px;
+		display: inline-block;
+		margin-left: 16px;
+		font-size: 13px;
+		line-height: 24px;
+		vertical-align: middle;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.wdsStatus%}</h2><span class="stateLi error"><i class="circle"></i><span id="stateText"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.wdsHost%}</h2>
+</div>
+<div class="wdsBasicInfo wdsResult">
+	<i class="wdsBasicInfoPic wdsRootAp"></i>
+	<div class="wdsBasicInfoContent wdsRootAp"></div>
+</div>
+<div class="subTitle">
+	<h2>{%label.wdsRouter%}</h2>
+</div>
+<div class="wdsBasicInfo wdsResult">
+	<i class="wdsBasicInfoPic wdsLocalAp"></i>
+	<div class="wdsBasicInfoContent wdsLocalAp"></div>
+</div>
+<div id="modifyWds"></div>

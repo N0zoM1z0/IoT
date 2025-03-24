@@ -1,0 +1,8 @@
+Package: miwifi-dualwifi
+Version: 2022-01-13-1
+Depends: libc
+Source: package/miwifi/miwifi-dualwifi
+Section: dualwifi
+Architecture: all
+Installed-Size: 2241
+Description:  This package provides dual wifi recv/send package

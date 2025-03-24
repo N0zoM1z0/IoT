@@ -1,0 +1,8 @@
+Package: miled
+Version: 1-1.0
+Depends: libc, libubus, libuci
+Source: package/miwifi/miled
+Section: util
+Architecture: aarch64_cortex-a53
+Installed-Size: 8880
+Description:  Manage X-shaped led lights.

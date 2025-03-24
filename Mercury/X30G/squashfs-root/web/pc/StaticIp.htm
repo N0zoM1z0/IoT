@@ -1,0 +1,669 @@
+<script type="text/javascript">
+	(function(){
+		var speedNull = "---";
+		var updateTimerHandle = null;
+		var protocolData, portDetectData;
+		var isPortDetectOpen = false;
+		var wanSecName,staSecName;
+		if (typeof WAN_INDEX != "undefined" && WAN_INDEX == 2){
+			wanSecName = uciProto.secName.wan2;
+			staSecName = uciProto.secName.sta2;
+		} else {
+			wanSecName = uciProto.secName.wan;
+			staSecName = uciProto.secName.sta;
+		}
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EINVMASK:
+				showStr = errStr.maskErr;
+				break;
+			case EINVNETID:
+				showStr = errStr.ipAddrNetIdErr;
+				break;
+			case EINVHOSTID:
+				showStr = errStr.ipAddrHostIdErr;
+				break;
+			case EINVIPMASKPAIR:
+				showStr = errStr.ipAddrMaskNotMatch;
+				break;
+			case ECOMFLICTNET:
+				showStr = errStr.ipAddrLanWanConflict;
+				break;
+			case EINVGTW:
+				showStr = errStr.gatewayErr;
+				break;
+			case EINVMTU:
+				showStr = errStr.stcMtuErr;
+				break;
+			case EINVFDNSVR:
+				showStr = errStr.primDnsErr;
+				break;
+			case EINVSDNSVR:
+				showStr = errStr.seDnsErr;
+				break;
+			case ECONFLICTGATEWAY:
+				gateway.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case ECONFLICTFDNS:
+				priDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case ECONFLICTSDNS:
+				sndDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			if (alarmDialog.status == "idle")
+			{
+				alarmDialog.show(showStr);
+			}
+			return false;
+		}
+
+		function checkLanConflict(ipVal, maskVal)
+		{
+			var lanIp = transIp(highSetLanConf[uciNetwork.optName.ip]), lanMask = transIp(highSetLanConf[uciNetwork.optName.netmask]);
+			var stcIp = transIp(ipVal), stcMask = transIp(maskVal);
+
+			return (0 == ((lanIp ^ stcIp) & lanMask & stcMask)) ? ECOMFLICTNET : ENONE;
+		}
+
+		function checkIpAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (!checkInputIp.call(this))
+			{
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+
+		function checkMaskAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcMaskEmpty);
+				return false;
+			}
+			else if (ENONE != checkMask(this.input.value))
+			{
+				this.showNote(errStr.wzdStcMaskErr);
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+
+		function checkIpMaskRelate()
+		{
+			if ("" != netmask.getValue() 					&&
+				"0.0.0.0" != netmask.getValue()			&&
+				"" != ipAddr.getValue()						&&
+				"0.0.0.0" != ipAddr.getValue()				&&
+				ENONE == checkMask(netmask.getValue())		&&
+				ENONE == checkIp(ipAddr.getValue()))
+			{
+				if (ENONE != checkIpMask(ipAddr.getValue(), netmask.getValue()))
+				{
+					netmask.showNote(errStr.wzdStcIpMaskNotMatch);
+					return false;
+				}
+				else
+				{
+					netmask.closeNote();
+				}
+
+				if (ENONE != checkLanConflict(ipAddr.getValue(), netmask.getValue()))
+				{
+					ipAddr.showNote(errStr.wzdStcIpLanConflict);
+					return false;
+				}
+				else
+				{
+					ipAddr.closeNote();
+				}
+			}
+
+			return true;
+		}
+
+		function commonCheck(blank, error)
+		{
+			if ("" == this.input.value)
+			{
+				/* 不允许为空 */
+				if (blank)
+				{
+					this.showNote(blank);
+					return false;
+				}
+			}
+			else if (ENONE != checkIp(this.input.value))
+			{
+				this.showNote(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkMtu()
+		{
+			var MAX = 1500;
+			var MIN = 576;
+
+			if (!checkNum(this.input.value))
+			{
+				this.showNote(errStr.dhcpcMtuErr);
+				return false;
+			}
+
+			if (this.input.value > MAX)
+			{
+				this.setValue(MAX.toString());
+			}
+			else if (this.input.value < MIN)
+			{
+				this.setValue(MIN.toString());
+			}
+
+			return true;
+		}
+
+		function wanStatusRefresh()
+		{
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 && isPortDetectOpen)
+			{
+				linkCode[LINK_CODE_PHYDOWN] = errStr.linkPhyDownMesh;
+			}
+			else
+			{
+				linkCode[LINK_CODE_PHYDOWN] = errStr.linkPhyDown;
+			}
+
+			slp.latestWanStatus(function(resp){
+				var code = resp["error_code"];
+
+				if (uciProto.optValue.proto.staticIp != resp["proto"])
+				{
+					clearTimeout(updateTimerHandle);
+					return;
+				}
+
+				id("upSpeed").innerHTML = speedNull;
+				id("downSpeed").innerHTML = speedNull;
+				id("upUnit").innerHTML = speedNull;
+				id("downUnit").innerHTML = speedNull;
+
+				switch(parseInt(resp["link_status"]))
+				{
+				case LINK_DOWN:
+					if ((LINK_CODE_MANUAL != code) && (LINK_CODE_NORMAL != code))
+					{
+						if (LINK_CODE_IP_CONFLICT == code)
+						{
+							setLinkState(false, linkCode[code]);
+						}
+						else
+						{
+							setLinkState(false, linkStatus[LINK_DOWN] + label.lBrackets + linkCode[code] + label.rBrackets);
+						}
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINK_DOWN]);
+					}
+
+					break;
+				case LINK_UP:
+					var upSpeedObj = speedConversion(resp[uciNetwork.optName.upSpeed]);
+					var downSpeedObj = speedConversion(resp[uciNetwork.optName.downSpeed]);
+
+					if (null == upSpeedObj || null == downSpeedObj)
+					{
+						id("upSpeed").innerHTML = speedNull;
+						id("downSpeed").innerHTML = speedNull;
+						id("upUnit").innerHTML = speedNull;
+						id("downUnit").innerHTML = speedNull;
+					}
+					else
+					{
+						id("upSpeed").innerHTML = upSpeedObj.speed;
+						id("upUnit").innerHTML = upSpeedObj.unit;
+						id("downSpeed").innerHTML = downSpeedObj.speed;
+						id("downUnit").innerHTML = downSpeedObj.unit;
+					}
+
+					setLinkState(true, linkStatus[LINK_UP]);
+					break;
+				case LINKING_DOWN:
+					setLinkState(false, linkStatus[LINKING_DOWN]);
+					break;
+				case LINKING_UP:
+					if ((LINK_CODE_MANUAL != code) && (LINK_CODE_NORMAL != code))
+					{
+						setLinkState(false, linkStatus[LINKING_UP] + label.lBrackets + linkCode[code] + label.rBrackets);
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINKING_UP]);
+					}
+					break;
+				default:
+					break;
+				}
+
+				clearTimeout(updateTimerHandle);
+				updateTimerHandle = $.setTimeout(wanStatusRefresh, 2000);
+			}, true, WAN_INDEX);
+		}
+
+		function fillData()
+		{
+			var wanData = protocolData[uciProto.fileName][wanSecName];
+			var staData = protocolData[uciProto.fileName][staSecName];
+
+			ipAddr.setValue(staData[uciProto.optName.ip]);
+			netmask.setValue(staData[uciProto.optName.netmask]);
+			gateway.setValue(staData[uciProto.optName.gateway]);
+			priDns.setValue(staData[uciProto.optName.priDns]);
+			sndDns.setValue(staData[uciProto.optName.sndDns] || "");
+			mtu.setValue(staData[uciProto.optName.mtu]);
+
+			selectInit("wanRateSel", rateOptions, wanData[uciProto.optName.speed]);
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1)
+			{
+				if(!DUAL_WAN_OPEN)
+				{
+					var $con = $('<div>'	+
+								'<div class="subTitle">' +
+									'<h2>' + label.wanPortLayout + '</h2>'	+
+								'</div>' +
+								'<span class="wanPortDetectTip"></span>'	+
+								'<ul class="inputCMPT medium selectUl">'	+
+									'<label class="outerLbl">' + label.wanPortMode + '</label>'	+
+									'<li class="inputLi">'	+
+										'<span class="selectWrap">'	+
+											'<span id="wanPortSel" class="select">'	+
+												'<span class="value"></span>'	+
+												'<i class="arrow iconfont icon-folddropdown"></i>'	+
+											'</span>'	+
+										'</span>'	+
+									'</li>'	+
+								'</ul>'	+
+								'<div>' +
+									'<div id="portImageAuto" class="portImage"></div>' +
+									'<div id="portImageFixed" class="portImage"></div>' +
+								'</div>' +
+								'<div id="wanPortDetectSave"></div>'  +
+							'</div>');
+
+					$("#save").after($con);
+
+					var portModeOptions = [{str: label.wanPortStatic, value:uciWanPortDetect.optValue.enable.off},
+										{str: label.wanPortDynamic, value:uciWanPortDetect.optValue.enable.on}];
+					var podtModeVal = portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable];
+					isPortDetectOpen = portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable] == uciWanPortDetect.optValue.enable.on;
+					var fixWanPortSupport = typeof portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort] != "undefined";
+					selectInit("wanPortSel", portModeOptions, portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable], function(val){
+						var isAutoWan = val == uciWanPortDetect.optValue.enable.on;
+						if(fixWanPortSupport){
+							$("span.wanPortDetectTip").text(val == uciWanPortDetect.optValue.enable.off ? label.wanPortFixTip : label.wanPortDynamicTip);
+							initPortCustomImage(isAutoWan,wanPortSelCfg);
+							switchPortImage(isAutoWan);
+						}else{
+							$("span.wanPortDetectTip").text(val == uciWanPortDetect.optValue.enable.off ? label.wanPortStaticTip : label.wanPortDynamicTip);
+							switchPortImage(isAutoWan);
+						}
+					});
+					if(fixWanPortSupport){
+						if (portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort] == -1) {
+							wanPortSelCfg = 0;
+						} else {
+							wanPortSelCfg = portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort];
+						}
+						$("span.wanPortDetectTip").text(podtModeVal == uciWanPortDetect.optValue.enable.off ? label.wanPortFixTip : label.wanPortDynamicTip);
+					}else{
+						$("span.wanPortDetectTip").text(podtModeVal == uciWanPortDetect.optValue.enable.off ? label.wanPortStaticTip : label.wanPortDynamicTip);
+					}
+					var isAutoWan = podtModeVal == uciWanPortDetect.optValue.enable.on;
+					if(fixWanPortSupport){
+						initPortCustomImage(isAutoWan,wanPortSelCfg);
+						switchPortImage(isAutoWan);
+					}else{
+						initPortImage();
+						switchPortImage(isAutoWan);
+					}
+
+					new Button({
+						text:btn.save,
+						onClick:function(){
+							wanCheckWDS(function(){
+								var wanPortData = {}, config = {};
+								wanPortData[uciWanPortDetect.fileName] = {};
+								wanPortData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config] = config;
+								config[uciWanPortDetect.optName.enable] = id("wanPortSel").value;
+								if(fixWanPortSupport && id("wanPortSel").value == uciWanPortDetect.optValue.enable.off){
+									config[uciWanPortDetect.optName.fixWanPort] = wanPortSelCfg;
+									var curRateVal = id("wanRateSel").value;
+									if (checkIfWanRateShouldChange(wanPortSelCfg, curRateVal))
+									{
+										curRateVal = "auto";
+										wanPortData[uciProto.fileName] = {};
+										wanPortData[uciProto.fileName][uciProto.secName.wan] = {};
+										wanPortData[uciProto.fileName][uciProto.secName.wan][uciProto.optName.rate] = "auto";
+									}
+								}
+								$.modify(wanPortData, function(result) {
+									if (result[ERR_CODE] == ENONE)
+									{
+										showToast(label.saveSuccess);
+										isPortDetectOpen = config[uciWanPortDetect.optName.enable] == uciWanPortDetect.optValue.enable.on;
+										if(fixWanPortSupport){
+											var portRateOption = initDynamicPortRate(wanPortSelCfg,slp.devicePowerPos);
+											id("wanRateSel").resetOptions(portRateOptions,curRateVal);
+										}
+									}
+									else
+									{
+										errHandle(result[ERR_CODE]);
+									}
+								});
+							});
+						},
+						type:Button.TYPE.PRIMARY,
+						id:"wanPortDetectSave",
+						props:{width:"240px", margin:"12px 0 0 132px"}
+					});
+				}
+				else
+				{
+					var fixWanPortSupport = typeof portDetectData[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort] != "undefined";
+                    if(fixWanPortSupport){
+                        var portRateOptions = initDynamicPortRate(currentSelectPos[WAN_INDEX-1],slp.devicePowerPos);
+                        id("wanRateSel").resetOptions(portRateOptions, wanData[uciProto.optName.speed]);
+                    }
+				}
+			}
+
+			wanStatusRefresh();
+		}
+
+		function requestData()
+		{
+			var dfdProto = $.Deferred();
+			var dfdPortDetect = $.Deferred();
+			var dfdArray = [], data = {};
+
+			dfdArray.push(dfdProto);
+
+			slp.protocol.getData({
+				success: function(res){
+					protocolData = res;
+					dfdProto.resolve();
+				}
+			},WAN_INDEX);
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1)
+			{
+				dfdArray.push(dfdPortDetect);
+
+				data[uciWanPortDetect.fileName] = {};
+				data[uciWanPortDetect.fileName][KEY_NAME] = uciWanPortDetect.secName.config;
+
+				$.query(data, function(result){
+					portDetectData = result;
+					dfdPortDetect.resolve();
+				});
+			}
+
+			$.when.apply($, dfdArray).done(function(){
+				fillData();
+			});
+		}
+
+		function checkGateway()
+		{
+			return commonCheck.call(this, errStr.wzdStcGatewayEmpty, errStr.wzdStcGatewayErr);
+		}
+
+		function checkPriDns()
+		{
+			return commonCheck.call(this, errStr.wzdPrimDnsEmpty, errStr.wzdPrimDnsErr);
+		}
+
+		function checkSecDns()
+		{
+			if ("0.0.0.0" == this.input.value)
+			{
+				return true;
+			}
+
+			return commonCheck.call(this, null, errStr.wzdSeDnsErr);
+		}
+
+		function save()
+		{
+			var self = this;
+			var checkRes = true;
+			var inputArr = [ipAddr, netmask, gateway, priDns, sndDns, mtu];
+
+			gateway.closeNote();
+			priDns.closeNote();
+			sndDns.closeNote();
+
+			inputArr.forEach(function(o){
+				o.setValue(hideLeadingZeros(o.getValue()));
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			/* 输入非法 */
+			if (!checkRes)
+			{
+				return;
+			}
+			if (slp.gSysModeSupport && curSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSave(function(){
+						menuLoad("WanLoader.htm");
+					});
+				});
+			} else {
+				toSave();
+			}
+			function toSave(callback){
+				var data = {};
+				data[wanSecName] = {};
+				data[wanSecName][uciProto.optName.speed] = id("wanRateSel").value;
+				data[wanSecName][uciProto.optName.type] = uciProto.optValue.proto.staticIp;
+
+				data[staSecName] = {};
+				data[staSecName][uciProto.optName.ip] = ipAddr.getValue();
+				data[staSecName][uciProto.optName.netmask] = netmask.getValue();
+				data[staSecName][uciProto.optName.gateway] = gateway.getValue();
+				data[staSecName][uciProto.optName.priDns] = priDns.getValue();
+				data[staSecName][uciProto.optName.sndDns] = sndDns.getValue();
+				data[staSecName][uciProto.optName.mtu] = mtu.getValue();
+
+				saveBtn.disable(true);
+				if(slp.gSysModeSupport) {
+					var req = {};
+					req.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.routerMode}};
+					switch (slp.bandsProvided) {
+						case slp.SINGLE:
+							req.wireless = {"wlan_wds_2g":{"enable":"0"}};
+							break;
+						case slp.DOUBLE:
+							req.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}};
+							break;
+						case slp.TRIPLE:
+							req.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}};
+							break;
+					}
+					$.modify(req,function(result){
+						if(result.error_code == ENONE){
+							curSysMode = uciSystem.optValue.sysMode.routerMode;
+						}
+					})
+				}
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						highSetWanType = uciProto.optValue.proto.staticIp;
+						saveBtn.disable(false);
+						showToast(label.saveSuccess);
+						typeof callback == "function" && callback();
+					},
+					fail: function(result){
+						saveBtn.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				}, WAN_INDEX);
+
+				/* 开始轮询WAN口状态 */
+				updateTimerHandle = $.setTimeout(wanStatusRefresh, 2000);
+			}
+		}
+
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"basicArguments",
+			check:{blur:checkIpAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var netmask = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mask},
+			targetId:"basicArguments",
+			check:{blur:checkMaskAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var gateway = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway},
+			targetId:"basicArguments",
+			check:{blur:checkGateway},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"basicArguments",
+			check:{blur:checkPriDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var sndDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"basicArguments",
+			check:{blur:checkSecDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+
+		var mtu = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mtu},
+			targetId:"advancedArguments",
+			tips:{value:label.unitByte, className:"unit"},
+			hint:{value:label.mtuComment},
+			check:{blur:checkMtu},
+			props:{maxlength: '4', type: "text"}
+		});
+		var saveBtn = new Button({
+			text:btn.connect,
+			onClick:save,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		$("i.helpBtn").attr("helpStr", "staticIpHelp");
+		selectInit("wanSel", wanOptions, LINK_TYPE_STATIC_IP, loadPageByIndex);
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	i.wanPortDetectImg{
+		margin-bottom: 12px;
+	}
+	#portImageAuto{
+		border:none;
+	}
+	#portImageFixed{
+		border:none;
+	}
+	#wanSelUl .inputLi {
+		display: inline-block;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<ul class="dashBoard clearfix">
+	<li class="board">
+		<i class="iconfont icon-upstream"></i>
+		<span id="upSpeed" class="speed">---</span>
+		<p class="speedText"><span id="upUnit">---</span><span>{%label.upSpeed%}</span></p>
+	</li>
+	<li class="board">
+		<i class="iconfont icon-downstream"></i>
+		<span id="downSpeed" class="speed">---</span>
+		<p class="speedText"><span id="downUnit">---</span><span>{%label.downSpeed%}</span></p>
+	</li>
+</ul>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl" id="wanSelUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="basicArguments"></div>
+<div id="advancedArguments">
+	<ul class="inputCMPT medium selectUl">
+		<label class="outerLbl">{%label.wanRateSet%}</label>
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="wanRateSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+</div>
+<div id="save"></div>

@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=180
+APP=`which cs_statistics`
+
+SERVICE_DAEMONIZE=1
+SERVICE_WRITE_PID=1
+
+start() {
+        service_start $APP
+}
+
+stop() {
+        service_stop $APP
+}
+

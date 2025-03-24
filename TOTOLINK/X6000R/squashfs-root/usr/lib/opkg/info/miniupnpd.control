@@ -1,0 +1,12 @@
+Package: miniupnpd
+Version: 2.2-2
+Depends: libc, iptables, libip4tc2, libip6tc2, ip6tables, libuuid1, libmnl0, libnfnetlink0, libnetfilter-conntrack3
+Source: package/carystudio/miniupnpd
+SourceName: miniupnpd
+License: BSD-3-Clause
+Section: CaryStudio Properties
+SourceDateEpoch: 1665801167
+Maintainer: Markus Stenberg <fingon@iki.fi>
+Architecture: aarch64_cortex-a53
+Installed-Size: 70930
+Description:  Lightweight UPnP IGD, NAT-PMP & PCP daemon

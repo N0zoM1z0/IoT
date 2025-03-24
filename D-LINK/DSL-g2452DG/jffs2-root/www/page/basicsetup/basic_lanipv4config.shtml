@@ -1,0 +1,472 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1. Enable IPInterfaceIPAddress IPInterfaceSubnetMask" -->
+    var G_Enable  = "<!--#leaf "1"-->";
+    var G_IPAddress  = "<!--#leaf "2"-->";
+    var G_SubAddress = "<!--#leaf "3"-->";
+	<!--#endgetobject -->
+
+	<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement. DomainName DHCPServerEnable MinAddress MaxAddress DHCPLeaseTime DHCPRelay X_CT-COM_DHCPRelayAddress DNSServers X_CT-COM_DhcpBlockPorts" -->
+    var G_DomainName = "<!--#leaf "1"-->";
+    var G_DHCPServerEnable = "<!--#leaf "2"-->";
+    var G_MinAddress = "<!--#leaf "3"-->";
+    var G_MaxAddress = "<!--#leaf "4"-->";
+    var G_DHCPLeaseTime = "<!--#leaf "5"-->";
+    var G_DHCPRelayEnable = "<!--#leaf "6"-->";
+    var G_DHCPRelayIP = "<!--#leaf "7"-->";
+	var G_DNSServers = "<!--#leaf "8"-->";
+	var G_DhcpBlockPorts = "<!--#leaf "9"-->";
+	<!--#endgetobject -->
+
+var gLanIndex = 0;
+var gLanArray = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig. X_CT-COM_Description" -->
+    gLanArray[gLanIndex] = new CreateLan();
+    gLanArray[gLanIndex].path = "<!--#path -->";
+    gLanArray[gLanIndex].Description = "<!--#leaf "1"-->";
+    gLanIndex++;
+<!--#endgetobject -->
+
+var gNumOfWLAN = "<!--#getsingle_noop "InternetGatewayDevice.LANDevice.1.LANWLANConfigurationNumberOfEntries"-->"
+
+    function CreateLan()
+    {    
+        this.path = "";
+        this.Description = "";
+    }
+
+	function initElement(){
+ 		if (G_DHCPServerEnable == '1'){
+			$('INPUT_DHCPServerEnable').checked = true;
+			$('INPUT_DHCPBan').checked = false;
+			$('INPUT_DHCPRelay').checked = false;
+			$('INPUT_RelayAddress').disabled = true;
+			$('INPUT_MinAddress').disabled = false;
+			$('INPUT_MaxAddress').disabled = false;
+			SetButtonStatus("INPUT_SetDhcpStaticIp","");             
+			SetButtonStatus("INPUT_SetDhcpOption60","");
+			SetButtonStatus("INPUT_SetDhcpOptions","");
+		} else if (G_DHCPRelayEnable == '1'){
+			$('INPUT_DHCPRelay').checked = true;
+			$('INPUT_DHCPBan').checked = false;
+			$('INPUT_DHCPServerEnable').checked = false;
+			$('INPUT_RelayAddress').disabled = false;
+			$('INPUT_MinAddress').disabled = true;
+			$('INPUT_MaxAddress').disabled = true;
+			$('INPUT_DHCPLeaseTime').disabled = true;
+			SetButtonStatus("INPUT_SetDhcpStaticIp","disabled");
+			SetButtonStatus("INPUT_SetDhcpOption60","disabled");
+			SetButtonStatus("INPUT_SetDhcpOptions","disabled");
+		} else if (G_Enable == '1'){
+			$('INPUT_DHCPBan').checked = true;
+			$('INPUT_DHCPRelay').checked = false;    
+			$('INPUT_DHCPServerEnable').checked = false;
+			$('INPUT_RelayAddress').disabled = true;
+			$('INPUT_MinAddress').disabled = true;
+			$('INPUT_MaxAddress').disabled = true;
+			$('INPUT_DHCPLeaseTime').disabled = true;
+			SetButtonStatus("INPUT_SetDhcpStaticIp","disabled");
+			SetButtonStatus("INPUT_SetDhcpOption60","disabled");
+			SetButtonStatus("INPUT_SetDhcpOptions","disabled");
+		}
+	}
+
+	function checkipmaskmatch(srcip,matchip){
+			var firName = srcip.split('.');
+			var fir=firName[0]+"."+firName[1]+"."+firName[2];
+			var secName = matchip.split('.');
+			var sec=secName[0]+"."+secName[1]+"."+secName[2];
+			if (fir == sec) {
+					return true;
+			}
+			return false;
+	}
+
+/* 根据LAN的描述获取数组的index */
+function getIndexByDescription(Description)
+{
+    var i;
+
+    for(i=0;i<gLanArray.length;i++)
+    {
+        if(gLanArray[i].Description == Description)
+           return i;
+    }
+}
+    function createLanInterface()
+    {
+        var i;
+        var trs = '<tr><td width="150" langkey="LK_LanPortMap">Lan Port Map:</td>';
+        trs += "<td>";
+				
+        for(i=1;i<=gLanArray.length;i++)
+        {
+        	var num = getIndexByDescription("LAN"+i);
+            if(gLanArray[num].Description != "")
+            {
+                if(gLanArray[num].Description == "LAN1") trs += '<input type="checkbox" id="INPUT_LanPort1"> <span id="lang_lanPort1">LAN1</span>'; 
+                if(gLanArray[num].Description == "LAN2") trs += '<input type="checkbox" id="INPUT_LanPort2"> <span id="lang_lanPort2">LAN2</span>'; 
+                if(gLanArray[num].Description == "LAN3") trs += '<input type="checkbox" id="INPUT_LanPort3"> <span id="lang_lanPort3">LAN3</span>'; 
+                if(gLanArray[num].Description == "LAN4") trs += '<input type="checkbox" id="INPUT_LanPort4"> <span id="lang_lanPort4">LAN4</span>'; 
+            }
+        }
+        trs += "</td>";
+        trs +="</tr>";
+        jQuery("#CHECK_LanPort").html(trs);
+    }
+
+    function initLanPortCheck()
+    {
+        // only the blocked port are stored in XML 
+        setValue('INPUT_LanPort1',  G_DhcpBlockPorts.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN1")+1)) > -1 ? 0 : 1);
+        setValue('INPUT_LanPort2',  G_DhcpBlockPorts.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN2")+1)) > -1 ? 0 : 1);
+        setValue('INPUT_LanPort3',  G_DhcpBlockPorts.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN3")+1)) > -1 ? 0 : 1);
+        setValue('INPUT_LanPort4',  G_DhcpBlockPorts.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN4")+1)) > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid1', G_DhcpBlockPorts.indexOf('WLANConfiguration.1') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid2', G_DhcpBlockPorts.indexOf('WLANConfiguration.2') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid3', G_DhcpBlockPorts.indexOf('WLANConfiguration.3') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid4', G_DhcpBlockPorts.indexOf('WLANConfiguration.4') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid5', G_DhcpBlockPorts.indexOf('WLANConfiguration.5') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid6', G_DhcpBlockPorts.indexOf('WLANConfiguration.6') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid7', G_DhcpBlockPorts.indexOf('WLANConfiguration.7') > -1 ? 0 : 1);
+        setValue('INPUT_WlanSsid8', G_DhcpBlockPorts.indexOf('WLANConfiguration.8') > -1 ? 0 : 1);
+
+        if(gNumOfWLAN > 4)
+            setDisplay('DIV_WLAN_EXT', 1);
+        else
+            setDisplay('DIV_WLAN_EXT', 0);
+
+        // do not show if dhcp disable
+        if($('INPUT_DHCPBan').checked==true)
+        {
+            setDisplay('DIV_LanPortMap', 0);
+        }
+        else
+        {
+            setDisplay('DIV_LanPortMap', 1);
+        }
+
+    }
+
+    function getDhcpBlockPort()
+    {   
+        /* the selected lan port and ssid */
+        var block_ports = '';
+
+        //LAN
+        for (var i = 1; i < 5; i++)
+        {
+        	var LanNum = getIndexByDescription("LAN"+i)+1;
+            if ($('INPUT_LanPort' + i) && getValue('INPUT_LanPort' + i) == 0)
+            {
+                block_ports += 'InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.' + LanNum + ',';
+            }
+        }
+        
+        //SSID
+        for (var i = 1; i < 9; i++)
+        {
+            if ($('INPUT_WlanSsid' + i) && getValue('INPUT_WlanSsid' + i) == 0)
+            {
+                block_ports += 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.' + i + ',';
+            }
+                                                }
+        /* delete the first and last comma */
+        block_ports = block_ports.replace(/(^,*)|(,*$)/g,'');
+        return block_ports;
+    }
+
+	function init(){
+        createLanInterface();
+		initElement(); 
+		setValue("INPUT_IPAddress", G_IPAddress);
+		setValue("INPUT_SubAddress", G_SubAddress );
+		var dnsservs = G_DNSServers.split(',');
+		setValue("INPUT_DNSServers1", dnsservs[0]);
+		setValue("INPUT_DNSServers2", dnsservs[1] == undefined ? "" : dnsservs[1]);
+		setValue("INPUT_DomainName", G_DomainName);
+		setValue("INPUT_RelayAddress", G_DHCPRelayIP);
+		setValue("INPUT_MinAddress", G_MinAddress);
+		setValue("INPUT_MaxAddress", G_MaxAddress);    
+		setValue("INPUT_DHCPLeaseTime", G_DHCPLeaseTime);
+        initLanPortCheck();
+	} 
+	    
+	function setEnable(){    
+		if($('INPUT_DHCPBan').checked==true){
+			$('INPUT_RelayAddress').disabled = true;
+			$('INPUT_MinAddress').disabled = true;
+			$('INPUT_MaxAddress').disabled = true;
+			$('INPUT_DHCPLeaseTime').disabled = true;
+			SetButtonStatus("INPUT_SetDhcpStaticIp","disabled");          
+			SetButtonStatus("INPUT_SetDhcpOption60","disabled");
+			SetButtonStatus("INPUT_SetDhcpOptions","disabled");
+		}else if($('INPUT_DHCPRelay').checked==true){
+			$('INPUT_RelayAddress').disabled = false;
+			$('INPUT_MinAddress').disabled = true;
+			$('INPUT_MaxAddress').disabled = true;
+			$('INPUT_DHCPLeaseTime').disabled = true;
+			SetButtonStatus('INPUT_SetDhcpStaticIp',"disabled");                     
+			SetButtonStatus("INPUT_SetDhcpOption60","disabled");
+			SetButtonStatus("INPUT_SetDhcpOptions","disabled");
+		}else if($('INPUT_DHCPServerEnable').checked==true){
+			$('INPUT_RelayAddress').disabled = true;
+			$('INPUT_MinAddress').disabled = false;
+			$('INPUT_MaxAddress').disabled = false;
+			$('INPUT_DHCPLeaseTime').disabled = false;
+			SetButtonStatus("INPUT_SetDhcpStaticIp","");
+			SetButtonStatus("INPUT_SetDhcpOption60","");
+			SetButtonStatus("INPUT_SetDhcpOptions","");
+		}    
+	}
+
+	function uiSubmit()
+	{
+		var df = document.netipv4landataform; 
+		var node = $('INPUT_IPAddress', 'INPUT_SubAddress', 'INPUT_DomainName','INPUT_RelayAddress','INPUT_MinAddress','INPUT_MaxAddress', 'INPUT_DHCPLeaseTime');
+		var _Checkbox  = $('INPUT_DHCPRelay','INPUT_DHCPServerEnable','INPUT_DHCPBan');
+		
+		if(!isCheckIPV4($('INPUT_IPAddress'),1,254)){            
+			  return false;
+		}
+		if(!isCheckIPV4($('INPUT_SubAddress'))){            
+			  return false;
+		}
+		if(!isCheckIPV4($('INPUT_DNSServers1'))){            
+			return false;
+		}
+		if($('INPUT_DNSServers2').value != "" && !isCheckIPV4($('INPUT_DNSServers2'))){            
+			return false;
+		}
+
+		if(!isAllNum(getValue('INPUT_DHCPLeaseTime')) || !checkRange(getValue('INPUT_DHCPLeaseTime'),1, 60, 31536000))
+		{
+			top.AlertMsg(getStr("LK_net_dhcp_leasetime"));
+			return false;
+		}
+
+		if(_Checkbox[1].checked){
+			for (var i=4; i<node.length; i++) {
+				if(i != 6){
+					if(!checkipmaskmatch(node[i].value,node[0].value)) {
+						top.AlertMsg(node[i].value+getStr("LK_net_and")+node[0].value+getStr("LK_net_nosamenet"));
+						return false;
+					}
+				}
+			}
+		}
+		if(!validateCode())
+				return false;
+		
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceIPAddress", node[0].value);
+	if ( $('INPUT_DNSServers2').value == "")
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DNSServers", $('INPUT_DNSServers1').value);
+	else
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DNSServers", $('INPUT_DNSServers1').value + "," + $('INPUT_DNSServers2').value);
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPRouters", node[0].value);
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceSubnetMask", node[1].value);
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DomainName", node[2].value);     
+		if(_Checkbox[0].checked){      
+			_Checkbox[0].value=1;
+			_Checkbox[1].value=0;
+			_Checkbox[2].value=0;
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPRelay", _Checkbox[0].value);  
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.Enable", _Checkbox[2].value); 
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPServerEnable", _Checkbox[1].value); 
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.X_CT-COM_DHCPRelayAddress", node[3].value);            
+		} 
+		if(_Checkbox[1].checked){
+			_Checkbox[1].value=1;
+			_Checkbox[0].value=0;
+			_Checkbox[2].value=0;    
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPServerEnable", _Checkbox[1].value); 
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPRelay", _Checkbox[0].value);  
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.Enable", _Checkbox[2].value);  
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.SubnetMask", node[1].value);
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.MinAddress", node[4].value);  
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.MaxAddress", node[5].value);
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPLeaseTime", node[6].value); 
+		}
+		if(_Checkbox[2].checked){
+			_Checkbox[2].value=1;
+			_Checkbox[0].value=0;
+			_Checkbox[1].value=0;
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.Enable", _Checkbox[2].value); 
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPServerEnable", _Checkbox[1].value); 
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPRelay", _Checkbox[0].value);  
+		}
+
+        //lan port mapping
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.X_CT-COM_DhcpBlockPorts", getDhcpBlockPort());
+
+		df.submit(); 
+	}
+
+	function SetDhcpStaticIp(){
+		if($('INPUT_DHCPServerEnable').checked==true){
+			document.location.href='/page/basicsetup/basic_addipv4.shtml';
+			return true;   
+		}   
+		return false;  
+	}             
+	function SetDhcpOption60(){
+		if($('INPUT_DHCPServerEnable').checked==true){
+			document.location.href='/page/basicsetup/basic_adddhcpoption60.shtml';
+			return true;   
+		}   
+		return false;  
+	}             
+	function SetDhcpOptions(){
+		if($('INPUT_DHCPServerEnable').checked==true){
+			document.location.href='/page/basicsetup/basic_adddhcpoptions.shtml';
+			return true;   
+		}   
+		return false;  
+	}
+
+    /* IP地址修改之后, 自动修改地址池 */
+	function DHCPpool()
+	{
+			var node = $('INPUT_IPAddress', 'INPUT_MinAddress','INPUT_MaxAddress','INPUT_DNSServers1');
+			node[3].value=node[0].value; //自动设置dns
+			var firName = node[0].value.split('.');
+			var fir=firName[0]+"."+firName[1]+"."+firName[2];//根据用户输入的IP, 获取网段
+			var MinIP= node[1].value.split('.').slice(-1); //获取旧地址池的起始地址
+			var MaxIP= node[2].value.split('.').slice(-1);//获取旧地址池的结束地址
+			node[1].value = fir +"." + MinIP;
+			node[2].value = fir +"." + MaxIP;
+	}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+  <form>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_IPv4Configuration'));</script>
+<table cellpadding="0" width="600" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_IPAddresss"></td>
+	<td><input type="text" maxlength=15 name="INPUT_IPAddress" id="INPUT_IPAddress" value="" Onchange="DHCPpool()"></td>
+</tr>
+<tr>
+	<td langkey="LK_SubnetMaskk"></td>
+	<td><input type="text" maxlength=15 name="INPUT_SubAddress" id="INPUT_SubAddress" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_PrimaryDNSServer"></td>
+	<td><input type="text" maxlength=15 name="INPUT_DNSServers1" id="INPUT_DNSServers1" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_SecondaryDNSServer"></td>
+	<td><input type="text" maxlength=15 name="INPUT_DNSServers2" id="INPUT_DNSServers2" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_DomainNamee"></td>
+	<td><input type="text" maxlength=64 name="INPUT_DomainName" id="INPUT_DomainName" value=""></td>
+</tr>
+<tr>
+	<td colspan="2"><input type="radio" name="Enable" id="INPUT_DHCPBan" checked onClick="setEnable()" value=""/>
+	<span id="lang_dhcp_no" langkey="LK_net_nodhcp"></span>
+        &nbsp;
+        <input type="radio" name="Enable" id="INPUT_DHCPRelay" onClick="setEnable()" value=""/> 
+        <span id="lang_dhcpRelay_enable" langkey="LK_net_dhcprelayenable"></span>
+        &nbsp;
+	<input type="radio" name="Enable" id="INPUT_DHCPServerEnable" onClick="setEnable()" value=""/> 
+        <span id="lang_dhcpServer_enable" langkey="LK_net_dhcpserverenable"></span>
+       	</td>
+</tr> 
+<tr>
+	<td langkey="LK_RelayIPp"></td>
+	<td><input type="text" maxlength=15 name="INPUT_RelayAddress" id="INPUT_RelayAddress"></td>
+</tr>
+<tr>
+	<td langkey="LK_StartPCc"></td>
+        <td><input type="text" maxlength=15 name="INPUT_MinAddress" id="INPUT_MinAddress" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_EndPCc"></td>
+	<td><input type="text" maxlength=15 name="INPUT_MaxAddress" class="control" id="INPUT_MaxAddress" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_LeaseTimee"></td>
+	<td><input type="text" maxlength=9 name="INPUT_DHCPLeaseTime" class="control" id="INPUT_DHCPLeaseTime" value="86400">
+     	<span id="lang_leasetime" langkey="LK_Seconds"></span></td>
+</tr>
+<tr>
+	<td></td>
+	<td>
+	<script>PrintTriButton("INPUT_SetDhcpStaticIp",getStr('LK_EditReservedIPAddress'),"SetDhcpStaticIp()");</script>  
+         <input type="button" id="INPUT_SetAddrPoll" class="control" value="" onClick="multiIPPollSetting()" style="display:none;"/> 
+     	</td>
+</tr>
+<tr>
+	<td></td>
+	<td>
+	<script>PrintTriButton("INPUT_SetDhcpOption60",getStr('LK_EditDhcpOption60'),"SetDhcpOption60()");</script>  
+         <input type="button" id="INPUT_SetAddrPoll" class="control" value="" onClick="multiIPPollSetting()" style="display:none;"/> 
+        &nbsp;
+	<script>PrintTriButton("INPUT_SetDhcpOptions",getStr('LK_EditDhcpOptions'),"SetDhcpOptions()");</script>  
+         <input type="button" id="INPUT_SetAddrPoll" class="control" value="" onClick="multiIPPollSetting()" style="display:none;"/> 
+     	</td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+
+<table id="DIV_LanPortMap" class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600">
+<tbody id='CHECK_LanPort'></tbody> 
+    <tr>
+        <td></td>
+        <td>
+            <input type="checkbox" id="INPUT_WlanSsid1"> <span id="lang_wlanssid1" langkey="LK_SSID1"></span>
+            <input type="checkbox" id="INPUT_WlanSsid2"> <span id="lang_wlanssid2" langkey="LK_SSID2"></span>
+            <input type="checkbox" id="INPUT_WlanSsid3"> <span id="lang_wlanssid3" langkey="LK_SSID3"></span>
+            <input type="checkbox" id="INPUT_WlanSsid4"> <span id="lang_wlanssid4" langkey="LK_SSID4"></span>
+        </td>
+    </tr>    
+    <tr id="DIV_WLAN_EXT">
+    <td></td>
+        <td>
+            <input type="checkbox" id="INPUT_WlanSsid5"> <span id="lang_wlanssid5" langkey="LK_SSID5"></span>
+            <input type="checkbox" id="INPUT_WlanSsid6"> <span id="lang_wlanssid6" langkey="LK_SSID6"></span>
+            <input type="checkbox" id="INPUT_WlanSsid7"> <span id="lang_wlanssid7" langkey="LK_SSID7"></span>
+            <input type="checkbox" id="INPUT_WlanSsid8"> <span id="lang_wlanssid8" langkey="LK_SSID8"></span>
+        </td>
+    </tr>    
+    <tr class="FlagText">
+        <td></td><td langkey="LK_LanPortHelp"></td>
+    </tr>
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+
+<table class="ContentTableNoColor">
+<tr>
+	<td>
+	<script>PrintTriButton("btn",getStr('LK_uisubmit'),"uiSubmit()");</script>  
+       	<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()");</script>  
+	</td>
+</tr>
+</table>
+  </form>
+<form method="post" name ="netipv4landataform" action="/cgi-bin/setup.cgi?page/basicsetup/basic_lanipv4config.shtml">
+</form>
+
+</body>
+</html>

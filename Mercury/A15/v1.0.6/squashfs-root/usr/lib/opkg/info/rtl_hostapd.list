@@ -1,0 +1,6 @@
+/etc/init.d/wlan_hostapd
+/conf/hostapd_5g.conf
+/usr/sbin/hostapd
+/usr/sbin/rtl_ftm_init.sh
+/usr/sbin/hostapd_cli
+/conf/hostapd_2g.conf

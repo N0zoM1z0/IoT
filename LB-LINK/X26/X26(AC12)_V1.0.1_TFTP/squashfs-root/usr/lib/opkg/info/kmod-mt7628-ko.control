@@ -1,0 +1,8 @@
+Package: kmod-mt7628-ko
+Version: 3.10.108+4.1.1.0-1
+Depends: kernel (=3.10.108-1-0d4a59d786a0cce4fa81aedaae020f7d), mt7628-scripts
+Source: package/mtk/drivers/mt7628
+Section: kernel
+Architecture: ramips_24kec
+Installed-Size: 1089946
+Description:  MT7628 BUILD_KO

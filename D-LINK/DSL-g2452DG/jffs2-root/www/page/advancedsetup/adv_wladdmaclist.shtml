@@ -1,0 +1,216 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language='javascript'>
+<!-- hide
+function GetStatusTuple()
+{
+	this.Path = "";
+	this.AclStatus = "";
+}
+function GetMacListTuple()
+{
+	this.Path = "";
+	this.AclMac = "";
+	this.Desc = "";
+}
+var Gs_idx = 0;
+var GsMac_idx = 0;
+var WlACLStat = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. "-->
+	<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{i}.X_TRI-ACL. Status" -->
+		WlACLStat[Gs_idx] = new GetStatusTuple();
+		WlACLStat[Gs_idx].Path = "<!--#path -->";
+		WlACLStat[Gs_idx].AclStatus = '<!--#leaf "1" -->';
+	<!--#endgetobject -->
+
+	WlACLStat[Gs_idx]._MacList = new Array();
+	GsMac_idx = 0;
+	<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{i}.X_TRI-ACL.Mac_List. MacAddr Desc"-->
+		WlACLStat[Gs_idx]._MacList[GsMac_idx] = new GetMacListTuple();
+		WlACLStat[Gs_idx]._MacList[GsMac_idx].Path = "<!--#path -->";
+		WlACLStat[Gs_idx]._MacList[GsMac_idx].AclMac = "<!--#leaf "1"-->";
+		WlACLStat[Gs_idx]._MacList[GsMac_idx].Desc = "<!--#leaf "2"-->";
+		GsMac_idx++;
+	<!--#endgetobject -->
+	Gs_idx++;
+<!--#endgetobject -->
+
+function GetSSIDTuple()
+{
+	this.Path = "";
+	this.SSID = "";
+}
+var WlSSID = new Array();
+var index = 0;
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. SSID" -->
+	WlSSID[index] = new GetSSIDTuple();
+	WlSSID[index].Path = "<!--#path -->";
+	WlSSID[index].SSID = "<!--#leaf "1"-->";
+	index++;
+<!--#endgetobject -->
+
+var idx = 0;
+var OP = "";
+var Path = "";
+
+function createSSIDList()
+{
+	var text = [];
+	var value = [];
+	var i = 0;
+	for(i; i < WlSSID.length; i++)
+	{
+		text[i] = WlSSID[i].SSID;
+		value[i] = i;
+	}
+	createOptions("wlSsidIdx", text, value);
+	$("wlSsidIdx").selectedIndex = 0;
+}
+
+function checkMacExist(macAddr)
+{
+    var MacListArr = WlACLStat[idx]._MacList;
+    var listLen = MacListArr.length;
+    for(var i = 0; i < listLen; i++)
+        if(macAddr == MacListArr[i].AclMac)
+            return false;
+    return true;
+}
+
+function uiAdd(id, OP, Path) {
+    if(!ischeckMAC($("INPUT_MacAddr")))
+        return;
+	if(!validateCode())
+		return false;
+    if(OP == "ADD")
+    {
+        if(!checkMacExist(getValue("INPUT_MacAddr")))
+        {
+            top.AlertMsg(getStr("LK_MacExist"));
+            return false;
+        }
+        var df = document.dataform;
+        df.action = '/cgi-bin/setup.cgi?page/advancedsetup/adv_wlacl.shtml?id=' + idx;
+        AddElements(df, 'add_obj', Path);
+        AddElements(df, Path + '{i}.MacAddr', getValue("INPUT_MacAddr"));
+        AddElements(df, Path + '{i}.Desc', getValue("INPUT_MacDesc"));
+        df.submit();
+    }
+	else if(OP == "EDIT")
+	{
+		var df = document.dataform;
+		df.action = '/cgi-bin/setup.cgi?page/advancedsetup/adv_wlacl.shtml?id=' + idx;
+		AddElements(df, Path + 'MacAddr', getValue("INPUT_MacAddr"));
+		AddElements(df, Path + 'Desc', getValue("INPUT_MacDesc"));
+		df.submit();
+	}
+}
+
+function uiBack()
+{
+	document.location.href = 'adv_wlacl.shtml?id=' + idx;
+}
+
+function frmLoad() {
+	createSSIDList();
+	//pageRefresh();
+
+	var url = window.location.search;
+	var i = url.indexOf("?");
+
+	if(i == -1)
+	{
+		pageRefresh();
+		return;
+	}
+
+	var arr = url.toString();
+	var strs = arr.split("&");
+	idx = parseInt(strs[0].split("=")[1]);
+	OP = strs[1].split("=")[1];
+	Path = strs[2].split("=")[1];
+
+	$("wlSsidIdx").selectedIndex = idx;
+	//pageRefresh();
+	if(OP == "ADD")
+	{
+		$("INPUT_MacAddr").value = ""
+		$("INPUT_MacDesc").value = ""
+	}
+	else if(OP == "EDIT")
+	{
+		var MacListArr = WlACLStat[idx]._MacList;
+		var listLen = MacListArr.length;
+		for (var i=0; i< listLen; i++)
+		{
+			if(MacListArr[i].Path == Path)
+			{
+				$("INPUT_MacAddr").value = MacListArr[i].AclMac
+				$("INPUT_MacDesc").value = MacListArr[i].Desc
+			}
+		}
+	}
+	$('wlSsidIdx').disabled = true;
+}
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+    {
+        project_init(GetCurrentFileName());
+    }
+}
+
+
+// done hiding -->
+</script>
+</head>
+<body >
+<script>printBeginContent();</script>
+<form>
+<script>SetContentTitle(getStr("LK_WlMacFilter"));</script>
+<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+   <tr>
+   <td id='wlmacfltview2' width="150px" langkey="LK_SelectSSID"></td>
+   <td><select id='wlSsidIdx'> 
+       </select>
+   </td>
+   </tr>
+</table>
+<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+   <tr>
+   <td width="150px">MAC Address:</td>
+   <td><input type="text" id="INPUT_MacAddr" value=""></input></td>
+   </tr>
+   <tr>
+   <td width="150px">Description:</td>
+   <td><input type="text" id="INPUT_MacDesc" value=""></input></td>
+   </tr>
+</table>
+<br><br>
+
+<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+<tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</tr>
+<tr>
+    <td colspan="2">
+    <script>PrintTriButton("cancel",getStr("LK_Back"),onClick="uiBack();");</script>&nbsp;
+    <script>PrintTriButton("submit",getStr("LK_Apply"),onClick="uiAdd(id, OP, Path);");</script>
+    </td>
+</tr>
+</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name ="dataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_wlacl.shtml">
+</form>
+</body>
+</html>

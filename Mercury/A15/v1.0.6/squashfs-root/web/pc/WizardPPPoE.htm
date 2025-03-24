@@ -1,0 +1,35 @@
+
+
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="pppoeInput">
+		<h1>{%label.netSet%}</h1>
+		<p class="wizardTip">{%label.netSetPwdTip%}</p>
+		<ul class="inputCMPT medium innerLbl">
+			<li class="inputLi" style="display:inline-table">
+				<label>{%label.netMode%}</label>
+				<span class="selectWrap">
+					<span id="netModeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+			<div id="autoDetect"></div>
+		</ul>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="sub"></div>
+	</li>
+</ul><script type="text/javascript">function init(){function m(){var a={};a[uciProto.secName.wan]={};a[uciProto.secName.wan][uciProto.optName.type]=uciProto.optValue.proto.pppoe;void 0!=d&&""!=d.getValue()&&(a[uciProto.secName.wan][uciProto.optName.macaddr]=d.getValue());a[uciProto.secName.pppoe]={};a[uciProto.secName.pppoe][uciProto.optName.pppoeUsr]=h.getValue();a[uciProto.secName.pppoe][uciProto.optName.pppoePwd]=k.getValue();slp.protocol.setData({data:a,success:function(b){Object.keys(a).forEach(function(b){gWizardData.networkConf[b]=
+a[b]});$.action({network:{change_wan_status:{proto:"pppoe",operate:"connect"}}},function(a){loadPage("WizardWireless.htm","wizardCon")})},fail:function(){}})}function p(a){var b="";switch(a){case ENONE:break;case EINVMACFMT:b=errStr.inputFmtErr;break;case EINVMACZERO:b=errStr.inputMacZeroErr;break;case EINVMACBROAD:b=errStr.inputMacBroadErr;break;case EINVMACGROUP:b=errStr.inputMacGroupErr;break;default:b=errStr.inputUnknown}return b}function q(){var a=d.getValue(),b=checkMac(a);0!=a.length&&b!=ENONE?
+(d.showNote(p(b)),n.disable(!0)):(d.closeNote(),n.disable(!1))}var c,g,e=null,f=null,l=null,h=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.netAccount,position:Input.LABEL.INNER},targetId:"pppoeInput",props:{maxlength:"118",type:"text"}}),k=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.netPwd,position:Input.LABEL.INNER},targetId:"pppoeInput",props:{maxlength:"118",type:"text"}}),d;new Button({text:btn.autoDetect,onClick:wzdWanDetect,type:Button.TYPE.SECONDARY,props:{width:"84px",
+marginLeft:"16px",display:"inline-table"},id:"autoDetect"});var n=new Button({text:btn.nextStep,onClick:function(){var a=h.getValue(),b=k.getValue();0==a.length||0==b.length?confirmDialog.show({content:label.pppoeAccPwdNullTip,button:{cancelStr:btn.backAndWrite},callback:function(a){a&&m()}}):m()},type:Button.TYPE.PRIMARY,id:"sub"});"1"==slp.moduleSpec.pppoe_account_sync&&(c=new Dialog({title:label.syncPppoeCfgFromOld,size:Dialog.SIZE.MEDIUM,type:Dialog.TYPE.CUSTOM,className:"pppoeSync",content:'<span class="pppoeSyncStepDesc">'+
+label.syncPppoeCfgDescOne+'</span><span class="pppoeSyncStepDesc">'+label.syncPppoeCfgDescTwo+'</span><i class="pppoeSyncStepPic"></i>',bottom:[{type:component.Button.TYPE.SECONDARY,text:btn.cancel,id:"pppoeSyncCancel",onClick:function(){c.hide()}},{type:component.Button.TYPE.PRIMARY,text:btn.beginSync,id:"pppoeSyncDo",onClick:function(){c.doSync()}}]}),c.doSync=function(){var a=this;this.setState(1);f=$.setTimeout(function(){clearTimeout(l);a.setState(3)},12E4);$.action({cfgsync:{start_get_pppoe_info:null}},
+function(b){ENONE!=b[ERR_CODE]?(clearTimeout(f),a.setState(2)):l=$.setTimeout(function(){a.doQuery.call(a)},1E3)})},c.doQuery=function(){var a=this;$.action({cfgsync:{get_pppoe_info:null}},function(b){if(ENONE!=b[ERR_CODE])l=$.setTimeout(function(){a.doQuery.call(a)},1E3);else switch(parseInt(b.code)){case 1E4:var c=b.pppoe.username,e=b.pppoe.password;b=b.pppoe.macaddr;if(""!=b||void 0!=b)void 0==d&&(d=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.netMac,position:Input.LABEL.INNER},targetId:"pppoeInput",
+props:{maxlength:"17",type:"text"},check:{keyup:q}})),d.setValue(b);$("p.wizardTip").text(0==c.length||0==e.length?label.syncBlank:label.syncSuccess);h.setValue(c);k.setValue(e);a.hide();clearTimeout(f);break;case 10001:l=$.setTimeout(function(){a.doQuery.call(a)},1E3);break;case -10002:clearTimeout(f);a.setState(2);break;default:clearTimeout(f),a.setState(3)}})},c.setState=function(a){var b=$(this.container).find("div.dialogBottom"),c=b.find("span.syncWorking"),d=$(this.container).find("i.dlgCloseBtn"),
+f=$("#dot");0==c.length&&(c=$('<span class="syncWorking"></span>').html(label.syncing+'<span id="dot"></span>'),b.append(c));0==a?(b.css("visibility","visible"),d.css("display","block"),c.css("visibility","hidden"),clearTimeout(e),e=null):1==a?(b.css("visibility","hidden"),d.css("display","none"),c.css("visibility","visible"),f.text(""),e=$.setTimeout(function(){3==f.text().length?f.text(""):f.text(f.text()+".");c.css("left",parseInt(b.actual("width"))/2-parseInt(c.actual("width"))/2);e=$.setTimeout(arguments.callee,
+1E3)},0)):2==a?(clearTimeout(e),e=null,this.hide(function(){g.show(label.syncErrorUnlink)})):3==a&&(clearTimeout(e),e=null,this.hide(function(){g.show(label.syncErrorFail)}))},$("li.wzdSubBtn").after($('<span class="pppoeSyncBtn"></span>').html(label.syncPppoeCfgFromOld+" >").click(function(){c.setState(0);c.show()})),g=new Dialog({title:label.confirmTitle,content:"",size:Dialog.SIZE.SMALL,hasCloseIcon:!0,isConstant:!0,type:Dialog.TYPE.ALARM,bottom:[{type:component.Button.TYPE.SECONDARY,text:btn.cancel,
+id:"pppoeSyncAlarmCancel",onClick:function(){$(g.container).find(".dlgCloseBtn")[0].click()}},{type:component.Button.TYPE.PRIMARY,text:btn.retry,id:"pppoeSyncAlarmSubmit",onClick:function(){g.hide(function(){c.doSync();c.show()})}}]}),g.show=function(a){this._resetContent(a);Dialog.prototype.show.call(this)});selectInit("netModeSel",gWizardData.wanSelectOptions,LINK_TYPE_PPPOE,wzdNetWorkModeChange);(function(){var a=gWizardData.networkConf[uciProto.secName.pppoe];h.setValue(a[uciProto.optName.pppoeUsr]);
+k.setValue(a[uciProto.optName.pppoePwd])})()}init();
+</script><style type="text/css">span.pppoeSyncBtn{margin-top:16px;cursor:pointer;color:#ff4d79;text-align:center;display:block;line-height:20px;height:20px;font-size:13px}span.pppoeSyncStepDesc{line-height:20px;height:20px;display:block;font-size:13px;color:#333}i.pppoeSyncStepPic{height:104px;width:480px;display:block;margin:24px auto 0;background:url(../web-static/images/basic.png) -0px -508px no-repeat scroll}div.dialogBox.pppoeSync div.dialogBottom{position:relative}</style>

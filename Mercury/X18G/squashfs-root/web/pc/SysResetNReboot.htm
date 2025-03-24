@@ -1,0 +1,306 @@
+<script type="text/javascript">
+	(function(){
+		function resetCapFunc(){
+			var reqData = {system: {reset: null}};
+
+			$.action(reqData, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					/* RESETTING */
+					var waitTime = result["wait_time"];
+					if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+					{
+						waitTime = parseInt(waitTime, 10) * 1000;
+					}
+					else
+					{
+						waitTime = RESET_SECONDS;
+					}
+
+					loadingDialog.show({
+						title: label.resetRouter,
+						content:{
+							primary: label.resetting,
+							secondary: label.resettingTips
+						}
+					}, function(){
+						$.setLgPwd("");
+						$.changeDomain(facIp);
+						lanDetecting(function(){
+							window.location.href = ((location.href.toString()).indexOf(domainName) == -1) ?
+								("http://" + facIp) : ("http://" + domainName);
+						});
+					}, waitTime);
+				}
+				else
+				{
+					showAlert(statusStr.resetRouterFail);
+				}
+			});
+
+		}
+
+		function rebootCapFunc(){
+			var reqData = {system: {reboot:null}};
+
+			$.action(reqData, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					/* REBOOTING */
+					var waitTime = result["wait_time"];
+					if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+					{
+						waitTime = parseInt(waitTime, 10) * 1000;
+					}
+					else
+					{
+						waitTime = REBOOT_SECONDS;
+					}
+
+					loadingDialog.show({
+						title: label.rebootRouter,
+						content:{
+							primary: label.rebooting,
+							secondary: label.rebootingTips
+						}
+					}, function(){
+						lanDetecting(function(){
+							window.location.reload();
+						});
+					}, waitTime);
+				}
+				else
+				{
+					alarmDialog.show(statusStr.rebootRouterFail);
+				}
+			});
+		}
+
+		function resetReFunc(routerData){
+			var reqData = {};
+			reqData[uciPlc.fileName] = {};
+			reqData[uciPlc.fileName][uciPlc.actionName.resetExt] = {};
+			reqData[uciPlc.fileName][uciPlc.actionName.resetExt][uciPlc.optName.mac] = routerData.mac;
+
+			$.action(reqData, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					var waitTime = result["wait_time"];
+					if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+					{
+						waitTime = parseInt(waitTime, 10) * 1000;
+					}
+					else
+					{
+						waitTime = RESET_SECONDS;
+					}
+
+					loadingDialog.show({
+						title: label.resetRouter,
+						content:{
+							primary: label.resetting
+						}
+					}, function(){
+						refreshShowData();
+						loadingDialog.hide();
+					}, waitTime);
+				}
+				else
+				{
+					alarmDialog.show(statusStr.resetRouterFail);
+				}
+			});
+		}
+
+		function rebootReFunc(routerData){
+			var reqData = {};
+			reqData[uciPlc.fileName] = {};
+			reqData[uciPlc.fileName][uciPlc.actionName.rebootExt] = {};
+			reqData[uciPlc.fileName][uciPlc.actionName.rebootExt][uciPlc.optName.mac] =  routerData.mac;
+
+			$.action(reqData, function(result){
+				var err_code = result[ERR_CODE];
+				if (ENONE == err_code)
+				{
+					var waitTime = result["wait_time"];
+					if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+					{
+						waitTime = parseInt(waitTime, 10) * 1000;
+					}
+					else
+					{
+						waitTime = REBOOT_SECONDS;
+					}
+
+					loadingDialog.show({
+						title: label.rebootRouter,
+						content:{
+							primary: label.rebooting
+						}
+					}, function(){
+						refreshShowData();
+						loadingDialog.hide();
+					}, waitTime);
+				}
+				else
+				{
+					showAlert(statusStr.rebootRouterFail);
+				}
+			});
+
+		}
+
+		function resetHandler(indexData, indexTable){
+			var router = resetRouterTable.data[indexData];
+
+			confirmDialog.show({
+				title:label.resetRouter,
+				content:router.is_cap ? label.resetRouterConfirm : label.resetROuterConfirmRe,
+				callback:function(result){
+					if (result == true)
+					{
+						if (router.is_cap)
+						{
+							resetCapFunc();
+						}
+						else
+						{
+							resetReFunc(router);
+						}
+					}
+				}
+			});
+		}
+
+		function rebootHandler(indexData, indexTable){
+			var router = rebootRouterTable.data[indexData];
+
+			confirmDialog.show({
+				title:label.rebootRouter,
+				content:router.is_cap ? label.rebootRouterConfirm : label.rebootRouterConfirmRe,
+				callback:function(result){
+					if (result == true)
+					{
+						if (router.is_cap)
+						{
+							rebootCapFunc();
+						}
+						else
+						{
+							rebootReFunc(router);
+						}
+					}
+				}
+			});
+		}
+
+		function refreshShowData(){
+			var data = {};
+			data[uciProto.fileName] = {};
+			data[uciProto.fileName][KEY_NAME] = uciProto.secName.dhcp;
+			data[uciPlc.fileName] = {};
+			data[uciPlc.fileName][KEY_TABLE]= uciPlc.secType.connectedExt;
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					var router = {};
+					router.name = result[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName];
+					router.is_cap = true;
+
+					var cldList = formatTableData(result[uciPlc.fileName][uciPlc.secType.connectedExt]);
+					var tblData = [router];
+					tblData = cldList.concat(tblData);
+
+					rebootRouterTable.setDataSource(tblData);
+					rebootRouterTable.loadData();
+
+					resetRouterTable.setDataSource(tblData);
+					resetRouterTable.loadData();
+				}
+			});
+		}
+
+		var facIp, domainName;
+		var data = {};
+
+		var rebootRouterTable = new Table({
+			targetId:'rebootRouterTable',
+			head:[
+				{field:label.deviceName, width:"1"}
+			],
+			column:[
+				{name:uciPlc.optName.name, type: "str"}
+			],
+			itemOption:[
+				{
+					icon: "icon-restart",
+					type: "restart",
+					str: btn.rebootRouter,
+					func: rebootHandler
+				}
+			],
+			itemOptionTitleWidth: "200px",
+			deletable:false,
+			editable:false,
+			addable:false,
+			hasCheckBox: false
+		});
+
+		var resetRouterTable = new Table({
+			targetId:'resetRouterTable',
+			head:[
+				{field:label.deviceName, width:"1"}
+			],
+			column:[
+				{name:uciPlc.optName.name, type: "str"}
+			],
+			itemOption:[
+				{
+					icon: "icon-reset",
+					type: "reset",
+					str: btn.resetRouter,
+					func: resetHandler
+				}
+			],
+			itemOptionTitleWidth: "200px",
+			deletable:false,
+			editable:false,
+			addable:false,
+			hasCheckBox: false
+		});
+
+		data[uciNetwork.fileName] = {};
+		data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+		data[uciDeviceInfo.fileName] = {};
+		data[uciDeviceInfo.fileName][KEY_NAME] = uciDeviceInfo.secName.info;
+
+		$.query(data, function(result){
+			if (ENONE != result[ERR_CODE])
+			{
+				return;
+			}
+
+			facIp = result[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.facIp];
+			domainName = result[uciDeviceInfo.fileName][uciDeviceInfo.secName.info][uciDeviceInfo.optName.domainName];
+
+			refreshShowData();
+		});
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.resetNreboot%}</h1>
+	</div>
+	<p class="description"></p>
+</div>
+<div class="subTitle">
+	<h2>{%label.rebootRouter%}</h2>
+</div>
+<div id="rebootRouterTable">
+</div>
+<div class="subTitle">
+	<h2>{%label.resetRouter%}</h2>
+</div>
+<div id="resetRouterTable">
+</div>

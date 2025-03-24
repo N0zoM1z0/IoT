@@ -1,0 +1,123 @@
+<html>
+<head>
+ <meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<link rel="stylesheet" href='/css/content.css' type='text/css'>
+<script language='javascript' src='/js/jquery.js'></script>
+<script language='javascript' src='/js/check.js'></script>
+<script language='javascript' src='/js/t_utils.js'></script>
+<script language='javascript' src='/js/init.js'></script>
+<script language='javascript' src='/js/tri.js'></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+<!-- hide
+var op = ""
+var idx = 0
+function SCLIPTuple()
+{
+    this.Path = ""
+    this.ipaddr = ""
+    this.mask = ""
+}
+
+var iplist = 0;
+var ipItems = new Array();
+<!--#getobject "InternetGatewayDevice.Services.ServiceAccessControl.IPAddrList. IPAddress IPMask" -->
+    ipItems[iplist] = new SCLIPTuple();
+    ipItems[iplist].Path = "<!--#path -->";
+    ipItems[iplist].ipaddr = "<!--#leaf  "1"-->";
+    ipItems[iplist].mask = "<!--#leaf  "2"-->";
+	iplist++;
+<!--#endgetobject -->
+
+function valueCheck() {
+	if(!isCheckIPV4($('IP_Address'),1,254)){
+		return false;
+	}
+	if(!isCheckIPV4($('IP_Mask'))){
+		return false;
+	}
+	return true;
+}
+
+function uiBack()
+{
+	document.location.href = "mngt_srvipaddr.shtml";
+}
+
+function uiAdd()
+{
+	var rulePath = "InternetGatewayDevice.Services.ServiceAccessControl.IPAddrList.";
+	var df = document.dataform;
+	AddElements(df, "add_obj", rulePath);
+	AddElements(df, rulePath + "{i}.IPAddress", getValue("IP_Address"));
+	AddElements(df, rulePath + "{i}.IPMask", getValue("IP_Mask"));
+	df.submit();
+}
+
+function uiEdit()
+{
+	var df = document.dataform;
+	if(ipItems[idx].ipaddr != getValue("IP_Address"))
+		AddElements(df, ipItems[idx].Path + "IPAddress", getValue("IP_Address"));
+	if(ipItems[idx].mask != getValue("IP_Mask"))
+		AddElements(df, ipItems[idx].Path + "IPMask", getValue("IP_Mask"));
+
+	df.submit();
+}
+
+function uiSubmit(op)
+{
+	if(!valueCheck())
+		return;
+	if(!validateCode())
+		return false;
+	if(op == "add")
+		uiAdd();
+	else if(op == "edit")
+		uiEdit();
+}
+
+function __init()
+{
+    var url = window.location.search;
+    var arr = url.toString();
+    var strs = arr.split("&");
+    op = strs[0].split("=")[1];
+    if(op == "edit")
+    {
+        idx = strs[1].split("=")[1]; 
+        setValue("IP_Address", ipItems[idx].ipaddr);
+        setValue("IP_Mask", ipItems[idx].mask);
+    }
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// done hiding -->
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_SrvCtlIpAddr'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+	<tr>
+		<td width='150' langkey="LK_IPAddresss"></td>
+		<td><input type='text' id='IP_Address' size='15'></td>
+	</tr>
+	<tr>
+		<td width='150'>
+		<span langkey="LK_SubnetMaskk"></span>&nbsp;</td>
+		<td><input type='text' size="15" id="IP_Mask"></td>
+	</tr>
+	<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	<tr>
+		<td colspan="2">
+			<script>PrintTriButton("cancel",getStr("LK_Back"),onClick="uiBack();");</script>&nbsp;&nbsp;
+			<script>PrintTriButton("submit",getStr("LK_Apply"),onClick="uiSubmit(op);");</script>&nbsp;&nbsp;
+		</td>
+	</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="dataform" action="/cgi-bin/setup.cgi?page/management/mngt_srvipaddr.shtml">
+</form>
+</body>
+</html>

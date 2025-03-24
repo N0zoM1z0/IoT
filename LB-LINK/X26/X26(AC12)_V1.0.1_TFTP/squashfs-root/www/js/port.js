@@ -1,0 +1,1519 @@
+var portNameList = [{
+	name:'ABC (Another Bittorent Client)',
+	list:[{
+		wanport:'56559',
+		lanport:'56559',
+		protocol:'TCP'
+	}]
+},{
+	name:'Age of Empires',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	}]
+},{
+	name:'Age of Mythology',
+	list:[{
+		wanport:'28800-28805',
+		lanport:'28800-28805',
+		protocol:'TCP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	},{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'UDP'
+	}]
+},{
+	name:'AIM Talk',
+	list:[{
+		wanport:'5190',
+		lanport:'5190',
+		protocol:'TCP'
+	}]
+},{
+	name:'Aliens vs. Predator',
+	list:[{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'8000-8999',
+		lanport:'8000-8999',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:"America's Army",
+	list:[{
+		wanport:'14200',
+		lanport:'14200',
+		protocol:'TCP'
+	},{
+		wanport:'20025-20048',
+		lanport:'20025-20048',
+		protocol:'TCP'
+	},{
+		wanport:'1716-1718',
+		lanport:'1716-1718',
+		protocol:'UDP'
+	},{
+		wanport:'8777',
+		lanport:'8777',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	}]
+},{
+	name:'Azureus',
+	list:[{
+		wanport:'6881',
+		lanport:'6881',
+		protocol:'TCP'
+	}]
+},{
+	name:'Bay VPN',
+	list:[{
+		wanport:'500',
+		lanport:'500',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'BearShare',
+	list:[{
+		wanport:'6346',
+		lanport:'6346',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'BitTorrent',
+	list:[{
+		wanport:'6881',
+		lanport:'6881',
+		protocol:'TCP'
+	}]
+},{
+	name:'Black and White',
+	list:[{
+		wanport:'2611-2612',
+		lanport:'2611-2612',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'BT Homesafe Alarms',
+	list:[{
+		wanport:'53000',
+		lanport:'80',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'BT Homesafe Camera',
+	list:[{
+		wanport:'1024',
+		lanport:'1024',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Call of Duty',
+	list:[{
+		wanport:'28960',
+		lanport:'28960',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'20500',
+		lanport:'20500',
+		protocol:'UDP'
+	},{
+		wanport:'20510',
+		lanport:'20510',
+		protocol:'UDP'
+	}]
+},{
+	name:'Call of Duty - United Offensive',
+	list:[{
+		wanport:'28960',
+		lanport:'28960',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'20500',
+		lanport:'20500',
+		protocol:'UDP'
+	},{
+		wanport:'20510',
+		lanport:'20510',
+		protocol:'UDP'
+	},{
+		wanport:'20600',
+		lanport:'20600',
+		protocol:'UDP'
+	},{
+		wanport:'20610',
+		lanport:'20610',
+		protocol:'UDP'
+	}]
+},{
+	name:'CarbonCopy32',
+	list:[{
+		wanport:'1680',
+		lanport:'1680',
+		protocol:'TCP'
+	},{
+		wanport:'1023-1680',
+		lanport:'1023-1680',
+		protocol:'UDP'
+	}]
+},{
+	name:'Castle Wolfenstein',
+	list:[{
+		wanport:'28960',
+		lanport:'28960',
+		protocol:'TCP'
+	},{
+		wanport:'27960',
+		lanport:'27960',
+		protocol:'UDP'
+	}]
+},{
+	name:'Championship Manager 03-04',
+	list:[{
+		wanport:'9093-9094',
+		lanport:'9093-9094',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Checkpoint FW1 VPN',
+	list:[{
+		wanport:'259',
+		lanport:'259',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Command and Conquer Generals',
+	list:[{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP'
+	},{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP'
+	},{
+		wanport:'28910',
+		lanport:'28910',
+		protocol:'TCP'
+	},{
+		wanport:'29900',
+		lanport:'29900',
+		protocol:'TCP'
+	},{
+		wanport:'29920',
+		lanport:'29920',
+		protocol:'TCP'
+	},{
+		wanport:'4321',
+		lanport:'4321',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	}]
+},{
+	name:'Command and Conquer Zero Hour',
+	list:[{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP'
+	},{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP'
+	},{
+		wanport:'28910',
+		lanport:'28910',
+		protocol:'TCP'
+	},{
+		wanport:'29900',
+		lanport:'29900',
+		protocol:'TCP'
+	},{
+		wanport:'29920',
+		lanport:'29920',
+		protocol:'TCP'
+	},{
+		wanport:'4321',
+		lanport:'4321',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	}]
+},{
+	name:'Counter Strike',
+	list:[{
+		wanport:'27020-27039',
+		lanport:'27020-27039',
+		protocol:'TCP'
+	},{
+		wanport:'1200',
+		lanport:'1200',
+		protocol:'UDP'
+	},{
+		wanport:'27000-27015',
+		lanport:'27000-27015',
+		protocol:'UDP'
+	}]
+},{
+	name:'Cu-SeeMe Cornell',
+	list:[{
+		wanport:'7648',
+		lanport:'7648',
+		protocol:'UDP'
+	}]
+},{
+	name:'Cu-SeeMe White Pine 3.1.2 and 4.0',
+	list:[{
+		wanport:'7648',
+		lanport:'7648',
+		protocol:'UDP'
+	},{
+		wanport:'24032',
+		lanport:'24032',
+		protocol:'UDP'
+	}]
+},{
+	name:'Dark Reign 2',
+	list:[{
+		wanport:'3100',
+		lanport:'3100',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'3568',
+		lanport:'3568',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'3999',
+		lanport:'3999',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'26214',
+		lanport:'26214',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Delta Force',
+	list:[{
+		wanport:'3100',
+		lanport:'3100',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'3999',
+		lanport:'3999',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Destroyer Command',
+	list:[{
+		wanport:'3000',
+		lanport:'3000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Diablo II',
+	list:[{
+		wanport:'4000',
+		lanport:'4000',
+		protocol:'TCP'
+	},{
+		wanport:'6112',
+		lanport:'6112',
+		protocol:'TCP'
+	},{
+		wanport:'6112-6119',
+		lanport:'6112-6119',
+		protocol:'UDP'
+	}]
+},{
+	name:'Direct Connect',
+	list:[{
+		wanport:'375-425',
+		lanport:'375-425',
+		protocol:'TCP'
+	}]
+},{
+	name:'DirectX 7',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP'
+	}]
+},{
+	name:'DirectX 8',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'UDP'
+	}]
+},{
+	name:'DirectX 9',
+	list:[{
+		wanport:'2302-2400',
+		lanport:'2302-2400',
+		protocol:'UDP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	}]
+},{
+	name:'DNS Server',
+	list:[{
+		wanport:'53',
+		lanport:'53',
+		protocol:'UDP'
+	}]
+},{
+	name:'Doom3',
+	list:[{
+		wanport:'27650',
+		lanport:'27650',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27666',
+		lanport:'27666',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Dune 2000',
+	list:[{
+		wanport:'1140-1234',
+		lanport:'1140-1234',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'4000',
+		lanport:'4000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Dungeon Siege',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'UDP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	}]
+},{
+	name:'eDonkey',
+	list:[{
+		wanport:'4661-4662',
+		lanport:'4661-4662',
+		protocol:'TCP'
+	},{
+		wanport:'4665',
+		lanport:'4665',
+		protocol:'UDP'
+	}]
+},{
+	name:'Elite Force',
+	list:[{
+		wanport:'26000',
+		lanport:'26000',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27500',
+		lanport:'27500',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27910',
+		lanport:'27910',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27960',
+		lanport:'27960',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'eMule',
+	list:[{
+		wanport:'4662',
+		lanport:'4662',
+		protocol:'TCP'
+	},{
+		wanport:'4672',
+		lanport:'4672',
+		protocol:'UDP'
+	}]
+},{
+	name:'Enemy Territory',
+	list:[{
+		wanport:'3074',
+		lanport:'3074',
+		protocol:'UDP'
+	},{
+		wanport:'27733',
+		lanport:'27733',
+		protocol:'UDP'
+	},{
+		wanport:'33060-3307',
+		lanport:'33060-3307',
+		protocol:'UDP'
+	}]
+},{
+	name:'Everquest',
+	list:[{
+		wanport:'1024',
+		lanport:'1024',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'7000',
+		lanport:'7000',
+		protocol:'TCP'
+	},{
+		wanport:'6000',
+		lanport:'6000',
+		protocol:'UDP'
+	}]
+},{
+	name:'Evil Islands',
+	list:[{
+		wanport:'8888',
+		lanport:'8888',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'F-22 Lightning 3',
+	list:[{
+		wanport:'3875',
+		lanport:'3875',
+		protocol:'UDP'
+	},{
+		wanport:'4533',
+		lanport:'4533',
+		protocol:'UDP'
+	},{
+		wanport:'4534',
+		lanport:'4534',
+		protocol:'UDP'
+	},{
+		wanport:'4660-4670',
+		lanport:'4660-4670',
+		protocol:'UDP'
+	}]
+},{
+	name:'Falcon 4',
+	list:[{
+		wanport:'2934-2935',
+		lanport:'2934-2935',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Far Cry',
+	list:[{
+		wanport:'49001-49002',
+		lanport:'49001-49002',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'FastTrack',
+	list:[{
+		wanport:'1214',
+		lanport:'1214',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Fighter Ace II',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP'
+	},{
+		wanport:'50000-50100',
+		lanport:'50000-50100',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Fighter Ace II (DX)',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'50000-50100',
+		lanport:'50000-50100',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'FINGER Server',
+	list:[{
+		wanport:'79',
+		lanport:'79',
+		protocol:'TCP'
+	}]
+},{
+	name:'FTP Server',
+	list:[{
+		wanport:'20-21',
+		lanport:'21',
+		protocol:'TCP'
+	}]
+},{
+	name:'FW1 VPN',
+	list:[{
+		wanport:'259',
+		lanport:'259',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Gamespy Arcade',
+	list:[{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP'
+	},{
+		wanport:'3783',
+		lanport:'3783',
+		protocol:'TCP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'TCP'
+	},{
+		wanport:'28900',
+		lanport:'28900',
+		protocol:'TCP'
+	},{
+		wanport:'29900-29901',
+		lanport:'29900-29901',
+		protocol:'TCP'
+	},{
+		wanport:'13139',
+		lanport:'13139',
+		protocol:'TCP'
+	},{
+		wanport:'6515',
+		lanport:'6515',
+		protocol:'TCP'
+	},{
+		wanport:'6500',
+		lanport:'6500',
+		protocol:'TCP'
+	}]
+},{
+	name:'Ghost Recon',
+	list:[{
+		wanport:'2346-2348',
+		lanport:'2346-2348',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Gnutella',
+	list:[{
+		wanport:'6346',
+		lanport:'6346',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Half-Life',
+	list:[{
+		wanport:'27020-27039',
+		lanport:'27020-27039',
+		protocol:'TCP'
+	},{
+		wanport:'6003',
+		lanport:'6003',
+		protocol:'UDP'
+	},{
+		wanport:'7002',
+		lanport:'7002',
+		protocol:'UDP'
+	},{
+		wanport:'27010',
+		lanport:'27010',
+		protocol:'UDP'
+	},{
+		wanport:'27015',
+		lanport:'27015',
+		protocol:'UDP'
+	},{
+		wanport:'27020',
+		lanport:'27020',
+		protocol:'UDP'
+	},{
+		wanport:'27025',
+		lanport:'27025',
+		protocol:'UDP'
+	}]
+},{
+	name:'Half-Life 2',
+	list:[{
+		wanport:'27020-27039',
+		lanport:'27020-27039',
+		protocol:'TCP'
+	},{
+		wanport:'1200',
+		lanport:'1200',
+		protocol:'UDP'
+	},{
+		wanport:'27000-27015',
+		lanport:'27000-27015',
+		protocol:'UDP'
+	},{
+		wanport:'27020',
+		lanport:'27020',
+		protocol:'UDP'
+	}]
+},{
+	name:'Halo',
+	list:[{
+		wanport:'2302-2303',
+		lanport:'2302-2303',
+		protocol:'UDP'
+	}]
+},{
+	name:'Heretic II',
+	list:[{
+		wanport:'28910',
+		lanport:'28910',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'HTTP Server (World Wide Web)',
+	list:[{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP'
+	}]
+},{
+	name:'HTTPS Server',
+	list:[{
+		wanport:'443',
+		lanport:'443',
+		protocol:'TCP'
+	}]
+},{
+	name:'IL 2',
+	list:[{
+		wanport:'21000',
+		lanport:'21000',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'21010',
+		lanport:'21010',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'43500',
+		lanport:'43500',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'ILS Server',
+	list:[{
+		wanport:'389',
+		lanport:'389',
+		protocol:'TCP'
+	}]
+},{
+	name:'iMesh',
+	list:[{
+		wanport:'4000-4999',
+		lanport:'4000-4999',
+		protocol:'TCP'
+	}]
+},{
+	name:'KALI',
+	list:[{
+		wanport:'2213',
+		lanport:'2213',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'6666',
+		lanport:'6666',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'KaZaA',
+	list:[{
+		wanport:'1214',
+		lanport:'1214',
+		protocol:'TCP'
+	}]
+},{
+	name:'Laplink',
+	list:[{
+		wanport:'1547',
+		lanport:'1547',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Links',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	}]
+},{
+	name:'Lock On',
+	list:[{
+		wanport:'10308',
+		lanport:'10308',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Lotus Notes',
+	list:[{
+		wanport:'1352',
+		lanport:'1352',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Mail Server (SMTP)',
+	list:[{
+		wanport:'25',
+		lanport:'25',
+		protocol:'TCP'
+	}]
+},{
+	name:'Medal of Honor: Heroes 2 (Wii)',
+	list:[{
+		wanport:'28910',
+		lanport:'28910',
+		protocol:'TCP'
+	},{
+		wanport:'29900-29901',
+		lanport:'29900-29901',
+		protocol:'TCP'
+	},{
+		wanport:'29920',
+		lanport:'29920',
+		protocol:'TCP'
+	},{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP'
+	},{
+		wanport:'43',
+		lanport:'43',
+		protocol:'TCP'
+	}]
+},{
+	name:'Microsoft Remote Desktop',
+	list:[{
+		wanport:'3389',
+		lanport:'3389',
+		protocol:'TCP'
+	}]
+},{
+	name:'Microsoft Terminal Server',
+	list:[{
+		wanport:'3389',
+		lanport:'3389',
+		protocol:'TCP'
+	}]
+},{
+	name:'Moove',
+	list:[{
+		wanport:'9793',
+		lanport:'9793',
+		protocol:'TCP'
+	},{
+		wanport:'9795',
+		lanport:'9795',
+		protocol:'TCP'
+	}]
+},{
+	name:'MSN Game Zone',
+	list:[{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'28800-29000',
+		lanport:'28800-29000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'MSN Game Zone (DX)',
+	list:[{
+		wanport:'2300-2400',
+		lanport:'2300-2400',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'47624',
+		lanport:'47624',
+		protocol:'TCP'
+	}]
+},{
+	name:'MSN Messenger',
+	list:[{
+		wanport:'1863',
+		lanport:'1863',
+		protocol:'TCP'
+	}]
+},{
+	name:'Myth',
+	list:[{
+		wanport:'3453',
+		lanport:'3453',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Napster',
+	list:[{
+		wanport:'6699',
+		lanport:'6699',
+		protocol:'TCP'
+	}]
+},{
+	name:'Need for Speed',
+	list:[{
+		wanport:'9442',
+		lanport:'9442',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Need for Speed - Underground',
+	list:[{
+		wanport:'3658-3659',
+		lanport:'3658-3659',
+		protocol:'UDP'
+	}]
+},{
+	name:'Need for Speed 3',
+	list:[{
+		wanport:'1030',
+		lanport:'1030',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'NetMeeting',
+	list:[{
+		wanport:'1023',
+		lanport:'1023',
+		protocol:'TCP'
+	},{
+		wanport:'1502-1504',
+		lanport:'1502-1504',
+		protocol:'TCP'
+	},{
+		wanport:'1730-1732',
+		lanport:'1730-1732',
+		protocol:'TCP'
+	},{
+		wanport:'65534',
+		lanport:'65534',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'1024',
+		lanport:'1024',
+		protocol:'UDP'
+	},{
+		wanport:'389',
+		lanport:'389',
+		protocol:'TCP'
+	},{
+		wanport:'522',
+		lanport:'522',
+		protocol:'TCP'
+	},{
+		wanport:'1720',
+		lanport:'1720',
+		protocol:'TCP'
+	}]
+},{
+	name:'Neverwinter Nights',
+	list:[{
+		wanport:'5120-5300',
+		lanport:'5120-5300',
+		protocol:'UDP'
+	},{
+		wanport:'6500',
+		lanport:'6500',
+		protocol:'UDP'
+	},{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	},{
+		wanport:'28900',
+		lanport:'28900',
+		protocol:'UDP'
+	}]
+},{
+	name:'Neverwinter Nights Gamespy',
+	list:[{
+		wanport:'6500',
+		lanport:'6500',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'28900',
+		lanport:'28900',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'29900-29901',
+		lanport:'29900-29901',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'13139',
+		lanport:'13139',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'News Server (NNTP)',
+	list:[{
+		wanport:'119',
+		lanport:'119',
+		protocol:'TCP'
+	}]
+},{
+	name:'NNTP Server',
+	list:[{
+		wanport:'119',
+		lanport:'119',
+		protocol:'TCP'
+	}]
+},{
+	name:'NTP Server',
+	list:[{
+		wanport:'123',
+		lanport:'123',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'OpenFT',
+	list:[{
+		wanport:'1215-1216',
+		lanport:'1215-1216',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Outlaws',
+	list:[{
+		wanport:'5310',
+		lanport:'5310',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'PalTalk',
+	list:[{
+		wanport:'2090-2091',
+		lanport:'2090-2091',
+		protocol:'TCP'
+	},{
+		wanport:'2095',
+		lanport:'2095',
+		protocol:'TCP'
+	}]
+},{
+	name:'PC Anywhere',
+	list:[{
+		wanport:'5631-5632',
+		lanport:'5631-5632',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'PlayStation 2',
+	list:[{
+		wanport:'4658-4659',
+		lanport:'4658-4659',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Playstation 3',
+	list:[{
+		wanport:'10070',
+		lanport:'10070',
+		protocol:'UDP'
+	},{
+		wanport:'10070-10080',
+		lanport:'10070-10080',
+		protocol:'TCP'
+	},{
+		wanport:'6000-6999',
+		lanport:'6000-6999',
+		protocol:'UDP'
+	}]
+},{
+	name:'POP3 Server',
+	list:[{
+		wanport:'110',
+		lanport:'110',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Quake 3',
+	list:[{
+		wanport:'27910',
+		lanport:'27910',
+		protocol:'UDP'
+	},{
+		wanport:'27950',
+		lanport:'27950',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27952',
+		lanport:'27952',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27960',
+		lanport:'27960',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27965',
+		lanport:'27965',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27650',
+		lanport:'27650',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Rainbow Six',
+	list:[{
+		wanport:'2346',
+		lanport:'2346',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'RealAudio Server',
+	list:[{
+		wanport:'7070',
+		lanport:'7070',
+		protocol:'UDP'
+	}]
+},{
+	name:'Realm Games (Blizzard)',
+	list:[{
+		wanport:'4000',
+		lanport:'4000',
+		protocol:'TCP'
+	}]
+},{
+	name:'Remote Anything',
+	list:[{
+		wanport:'3999-4000',
+		lanport:'3999-4000',
+		protocol:'TCP'
+	},{
+		wanport:'3996-3998',
+		lanport:'3996-3998',
+		protocol:'UDP'
+	}]
+},{
+	name:'Remotely Anywhere',
+	list:[{
+		wanport:'2000',
+		lanport:'2000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Rogue Spear',
+	list:[{
+		wanport:'2346',
+		lanport:'2346',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Rome Total War',
+	list:[{
+		wanport:'3783',
+		lanport:'3783',
+		protocol:'TCP'
+	},{
+		wanport:'6500',
+		lanport:'6500',
+		protocol:'TCP'
+	},{
+		wanport:'6667',
+		lanport:'6667',
+		protocol:'TCP'
+	},{
+		wanport:'28900',
+		lanport:'28900',
+		protocol:'TCP'
+	},{
+		wanport:'29900-29901',
+		lanport:'29900-29901',
+		protocol:'TCP'
+	},{
+		wanport:'6515',
+		lanport:'6515',
+		protocol:'UDP'
+	},{
+		wanport:'13139',
+		lanport:'13139',
+		protocol:'UDP'
+	},{
+		wanport:'27750',
+		lanport:'27750',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	}]
+},{
+	name:'RTSP Server',
+	list:[{
+		wanport:'554',
+		lanport:'554',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'7070',
+		lanport:'7070',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'5005',
+		lanport:'5005',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Secure Shell Server (SSH)',
+	list:[{
+		wanport:'22',
+		lanport:'22',
+		protocol:'TCP'
+	}]
+},{
+	name:'Secure Web Server (HTTPS)',
+	list:[{
+		wanport:'443',
+		lanport:'443',
+		protocol:'TCP'
+	}]
+},{
+	name:'Shareaza',
+	list:[{
+		wanport:'6348',
+		lanport:'6348',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Shiva VPN',
+	list:[{
+		wanport:'2233',
+		lanport:'2233',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Silent Hunter II',
+	list:[{
+		wanport:'3000',
+		lanport:'3000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'SMTP Server',
+	list:[{
+		wanport:'25',
+		lanport:'25',
+		protocol:'TCP'
+	}]
+},{
+	name:'SNMP Server',
+	list:[{
+		wanport:'161',
+		lanport:'161',
+		protocol:'UDP'
+	}]
+},{
+	name:'SNMP TRAP Server',
+	list:[{
+		wanport:'162',
+		lanport:'162',
+		protocol:'UDP'
+	}]
+},{
+	name:'Soldier of Fortune',
+	list:[{
+		wanport:'28910-28915',
+		lanport:'28910-28915',
+		protocol:'UDP'
+	}]
+},{
+	name:'Soldiers: Heroes of World War II',
+	list:[{
+		wanport:'2302',
+		lanport:'2302',
+		protocol:'UDP'
+	},{
+		wanport:'6073',
+		lanport:'6073',
+		protocol:'UDP'
+	}]
+},{
+	name:'Soulseek',
+	list:[{
+		wanport:'20363',
+		lanport:'20363',
+		protocol:'TCP'
+	}]
+},{
+	name:'SSH Server - Secure Shell',
+	list:[{
+		wanport:'22',
+		lanport:'22',
+		protocol:'TCP'
+	}]
+},{
+	name:'StarCraft',
+	list:[{
+		wanport:'6112',
+		lanport:'6112',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Starsiege Tribes',
+	list:[{
+		wanport:'28001',
+		lanport:'28001',
+		protocol:'UDP'
+	}]
+},{
+	name:'Steam Games',
+	list:[{
+		wanport:'27020-27050',
+		lanport:'27020-27050',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27015',
+		lanport:'27015',
+		protocol:'TCP'
+	}]
+},{
+	name:'Telnet Server',
+	list:[{
+		wanport:'23',
+		lanport:'23',
+		protocol:'TCP'
+	}]
+},{
+	name:'Tiberian Sun',
+	list:[{
+		wanport:'1140-1234',
+		lanport:'1140-1234',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'4000',
+		lanport:'4000',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Time Server (NTP)',
+	list:[{
+		wanport:'123',
+		lanport:'123',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Ultima',
+	list:[{
+		wanport:'5001-5010',
+		lanport:'5001-5010',
+		protocol:'TCP'
+	},{
+		wanport:'7775-7777',
+		lanport:'7775-7777',
+		protocol:'TCP'
+	},{
+		wanport:'7875',
+		lanport:'7875',
+		protocol:'TCP'
+	},{
+		wanport:'8800-8900',
+		lanport:'8800-8900',
+		protocol:'TCP'
+	},{
+		wanport:'9999',
+		lanport:'9999',
+		protocol:'TCP'
+	}]
+},{
+	name:'Unreal TourCustomGameNament',
+	list:[{
+		wanport:'7777',
+		lanport:'7777',
+		protocol:'TCP'
+	},{
+		wanport:'8080',
+		lanport:'8080',
+		protocol:'TCP'
+	},{
+		wanport:'8777',
+		lanport:'8777',
+		protocol:'TCP'
+	},{
+		wanport:'9777',
+		lanport:'9777',
+		protocol:'TCP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'TCP'
+	},{
+		wanport:'7777-7778',
+		lanport:'7777-7778',
+		protocol:'UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'UDP'
+	}]
+},{
+	name:'Unreal TourCustomGameNament 2004',
+	list:[{
+		wanport:'7777-7788',
+		lanport:'7777-7788',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'27900',
+		lanport:'27900',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'42292',
+		lanport:'42292',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Virtual Terminal Server (TELNET)',
+	list:[{
+		wanport:'26',
+		lanport:'26',
+		protocol:'TCP'
+	}]
+},{
+	name:'VNC',
+	list:[{
+		wanport:'5900-5909',
+		lanport:'5900-5909',
+		protocol:'TCP'
+	},{
+		wanport:'5800-5809',
+		lanport:'5800-5809',
+		protocol:'TCP'
+	}]
+},{
+	name:'Warcraft III',
+	list:[{
+		wanport:'6112-6119',
+		lanport:'6112-6119',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Web Server (HTTP)',
+	list:[{
+		wanport:'80',
+		lanport:'80',
+		protocol:'TCP'
+	}]
+},{
+	name:'Westwood Online',
+	list:[{
+		wanport:'1140',
+		lanport:'1140',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'1234',
+		lanport:'1234',
+		protocol:'TCP&UDP'
+	},{
+		wanport:'4000',
+		lanport:'4000',
+		protocol:'TCP'
+	}]
+},{
+	name:'Win MX',
+	list:[{
+		wanport:'6660-6699',
+		lanport:'6660-6699',
+		protocol:'TCP'
+	},{
+		wanport:'6255-6260',
+		lanport:'6255-6260',
+		protocol:'UDP'
+	}]
+},{
+	name:'World of Warcraft',
+	list:[{
+		wanport:'3724',
+		lanport:'3724',
+		protocol:'TCP'
+	},{
+		wanport:'6112',
+		lanport:'6112',
+		protocol:'TCP'
+	},{
+		wanport:'6881-6999',
+		lanport:'6881-6999',
+		protocol:'TCP'
+	}]
+},{
+	name:'XBConnect',
+	list:[{
+		wanport:'8602',
+		lanport:'8602',
+		protocol:'TCP&UDP'
+	}]
+},{
+	name:'Xbox Live',
+	list:[{
+		wanport:'88',
+		lanport:'88',
+		protocol:'UDP'
+	},{
+		wanport:'3074',
+		lanport:'3074',
+		protocol:'TCP&UDP'
+	}]
+}]

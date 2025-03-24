@@ -1,0 +1,10 @@
+Package: kmod-pppoe
+Version: 3.10.108-1
+Depends: kernel (=3.10.108-1-d7a6743a2f9ea02dc451e89f83b40fec), kmod-ppp, kmod-pppox
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: ramips_24kec
+Installed-Size: 7286
+Description:  Kernel module for PPPoE (PPP over Ethernet) support

@@ -1,0 +1,273 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var G_AntiDosEnable = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_AntiAttack.AntiDosEnable" -->';
+var G_AntiLogEnable = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_AntiAttack.AntiLogEnable" -->';    
+<!--#getobject "InternetGatewayDevice.X_CT-COM_AntiAttack.AntiDos. SynCookieEnable SynMaxConnections IcmpEchoIgnrBcastEnable AntiFraggleEnable AntiEchoCargenEnable AntiIPLandEnable IgnrPortScanEnable" -->
+    var G_SynCookieEnable = "<!--#leaf "1"-->";
+    var G_SynMaxConnections = "<!--#leaf "2"-->";
+    var G_IcmpEchoIgnrBcastEnable = "<!--#leaf "3"-->";
+    var G_AntiFraggleEnable = "<!--#leaf "4"-->";
+    var G_AntiEchoCargenEnable = "<!--#leaf "5"-->";
+    var G_AntiIPLandEnable = "<!--#leaf "6"-->";;
+    var G_IgnrPortScanEnable = "<!--#leaf "7"-->";
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.X_CT-COM_AntiAttack.AntiScan. AntiScanSetSynFinEnable AntiScanSetSynRstEnable AntiScanSetFinRstEnable AntiScanUnAckSetFinEnable AntiScanUnAckSetPshEnable AntiScanUnAckSetUrgEnable AntiScanUnsetAllEnable AntiScanSetAllEnable AntiScanForAllSetSynRstAckFinUrgEnable AntiScanForAllSetFinEnable AntiScanForAllSetFinUrgPshEnable" -->
+    var G_AntiScanSetSynFinEnable = "<!--#leaf "1"-->";
+    var G_AntiScanSetSynRstEnable = "<!--#leaf "2"-->";
+    var G_AntiScanSetFinRstEnable = "<!--#leaf "3"-->";
+    var G_AntiScanUnAckSetFinEnable = "<!--#leaf "4"-->";
+    var G_AntiScanUnAckSetPshEnable = "<!--#leaf "5"-->";
+    var G_AntiScanUnAckSetUrgEnable = "<!--#leaf "6"-->";;
+    var G_AntiScanUnsetAllEnable = "<!--#leaf "7"-->";
+    var G_AntiScanSetAllEnable = "<!--#leaf "8"-->";
+    var G_AntiScanForAllSetSynRstAckFinUrgEnable = "<!--#leaf "9"-->";
+    var G_AntiScanForAllSetFinEnable = "<!--#leaf "10"-->";
+    var G_AntiScanForAllSetFinUrgPshEnable = "<!--#leaf "11"-->";
+<!--#endgetobject -->
+
+function OnAntiDosEnableClick(){
+    if($('INPUT_AntiDosEnable').checked==true){
+        $('div_ExtInfo').style.visibility = "visible";
+        $('div_ExtInfo').style.display = "block";
+    }else if($('INPUT_AntiDosEnable').checked==false) {
+        $('div_ExtInfo').style.visibility = "hidden";
+        $('div_ExtInfo').style.display = "none";
+    }
+}
+
+function uiSubmit(){
+    var df = document.sec_dosdataform;
+    var object_path="InternetGatewayDevice.X_CT-COM_AntiAttack."; 
+    if(!validateCode())
+       return false;
+    if($('INPUT_AntiDosEnable').checked== false){
+		AddElements(df, object_path+"AntiDosEnable",0);
+     }else {
+        AddElements(df, object_path+"AntiDosEnable",1);
+     }
+	 if($('INPUT_AntiLogEnable').checked== false){
+		AddElements(df, object_path+"AntiLogEnable",0);
+     }else {
+        AddElements(df, object_path+"AntiLogEnable",1);
+     }
+     if($('INPUT_AntiDosEnable').checked==true){
+        AddElements(df, object_path+"AntiDos.SynCookieEnable",getValue('INPUT_SynCookieEnable'));
+        if($('INPUT_SynCookieEnable').checked==true){
+	    if(getValue('INPUT_SynMaxConnections').length <= 0)
+	    {
+		top.AlertMsg(getStr('LK_nullnumber'),'INPUT_SynMaxConnections');
+		return false;
+	    }
+            else if(!isAllNum(getValue('INPUT_SynMaxConnections'))){        
+                top.AlertMsg(getStr('LK_number'),'INPUT_SynMaxConnections');
+                return false;
+            }
+            AddElements(df, object_path+"AntiDos.SynMaxConnections",getValue('INPUT_SynMaxConnections'));
+        }
+        AddElements(df, object_path+"AntiDos.IcmpEchoIgnrBcastEnable",getValue('INPUT_IcmpEchoIgnrBcastEnable'));
+        AddElements(df, object_path+"AntiDos.AntiFraggleEnable",getValue('INPUT_AntiFraggleEnable'));
+        AddElements(df, object_path+"AntiDos.AntiEchoCargenEnable",getValue('INPUT_AntiEchoCargenEnable'));
+        AddElements(df, object_path+"AntiDos.AntiIPLandEnable",getValue('INPUT_AntiIPLandEnable'));
+        AddElements(df, object_path+"AntiDos.IgnrPortScanEnable",getValue('INPUT_IgnrPortScanEnable'));
+                  
+        AddElements(df, object_path+"AntiScan.AntiScanSetSynFinEnable",getValue('INPUT_AntiScanSetSynFinEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanSetSynRstEnable",getValue('INPUT_AntiScanSetSynRstEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanSetFinRstEnable",getValue('INPUT_AntiScanSetFinRstEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanUnAckSetFinEnable",getValue('INPUT_AntiScanUnAckSetFinEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanUnAckSetPshEnable",getValue('INPUT_AntiScanUnAckSetPshEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanUnAckSetUrgEnable",getValue('INPUT_AntiScanUnAckSetUrgEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanUnsetAllEnable",getValue('INPUT_AntiScanUnsetAllEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanSetAllEnable",getValue('INPUT_AntiScanSetAllEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanForAllSetSynRstAckFinUrgEnable",getValue('INPUT_AntiScanForAllSetSynRstAckFinUrgEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanForAllSetFinEnable",getValue('INPUT_AntiScanForAllSetFinEnable'));
+        AddElements(df, object_path+"AntiScan.AntiScanForAllSetFinUrgPshEnable",getValue('INPUT_AntiScanForAllSetFinUrgPshEnable'));
+    
+    }
+    df.submit();  
+}
+
+function init(){
+    initValue();
+    setValue("INPUT_AntiDosEnable",G_AntiDosEnable);
+    setValue("INPUT_AntiLogEnable",G_AntiLogEnable);
+    setValue("INPUT_SynCookieEnable",G_SynCookieEnable);
+    setValue("INPUT_SynMaxConnections",G_SynMaxConnections);
+    setValue("INPUT_IcmpEchoIgnrBcastEnable",G_IcmpEchoIgnrBcastEnable);
+    setValue("INPUT_AntiFraggleEnable",G_AntiFraggleEnable);
+    setValue("INPUT_AntiEchoCargenEnable",G_AntiEchoCargenEnable);
+    setValue("INPUT_AntiIPLandEnable",G_AntiIPLandEnable);
+    setValue("INPUT_IgnrPortScanEnable",G_IgnrPortScanEnable);
+    
+    setValue("INPUT_AntiScanSetSynFinEnable",G_AntiScanSetSynFinEnable);
+    setValue("INPUT_AntiScanSetSynRstEnable",G_AntiScanSetSynRstEnable);
+    setValue("INPUT_AntiScanSetFinRstEnable",G_AntiScanSetFinRstEnable);
+    setValue("INPUT_AntiScanUnAckSetFinEnable",G_AntiScanUnAckSetFinEnable);
+    setValue("INPUT_AntiScanUnAckSetPshEnable",G_AntiScanUnAckSetPshEnable);
+    setValue("INPUT_AntiScanUnAckSetUrgEnable",G_AntiScanUnAckSetUrgEnable);
+    setValue("INPUT_AntiScanUnsetAllEnable",G_AntiScanUnsetAllEnable);
+    setValue("INPUT_AntiScanSetAllEnable",G_AntiScanSetAllEnable);
+    setValue("INPUT_AntiScanForAllSetSynRstAckFinUrgEnable",G_AntiScanForAllSetSynRstAckFinUrgEnable);
+    setValue("INPUT_AntiScanForAllSetFinEnable",G_AntiScanForAllSetFinEnable);
+    setValue("INPUT_AntiScanForAllSetFinUrgPshEnable",G_AntiScanForAllSetFinUrgPshEnable);
+}
+
+function initValue(){
+  if(G_AntiDosEnable ==1){
+  	$('INPUT_AntiDosEnable').checked=true;
+    $('div_ExtInfo').style.visibility = "visible";
+    $('div_ExtInfo').style.display = "block";
+  }else if(G_AntiDosEnable ==0){
+   $('INPUT_AntiDosEnable').checked=false;
+      $('div_ExtInfo').style.visibility = "hidden";
+    $('div_ExtInfo').style.display = "none";
+  }
+  if(G_SynCookieEnable ==1){
+      $("INPUT_SynMaxConnections").disabled = false;
+  }else if(G_SynCookieEnable ==0){
+      $("INPUT_SynMaxConnections").disabled = true;
+  }
+  
+}
+
+function OnSynCookieEnableClick(){
+    if($('INPUT_SynCookieEnable').checked){
+        $("INPUT_SynMaxConnections").disabled = false;
+    } else {
+        $("INPUT_SynMaxConnections").disabled = true;
+    }
+}
+
+function OnSynMaxConnectionBlur(value){
+    if(($('INPUT_SynCookieEnable').checked==true) && value>30){
+        top.AlertMsg(getStr("LK_sec_nomore30s"));
+    }
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_AttackPotectionSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>
+	<td><input type="checkbox" name="INPUT_AntiDosEnable" id="INPUT_AntiDosEnable" onClick="OnAntiDosEnableClick()" /></td>
+</tr>
+<tr>
+	<td langkey="LK_AttackLogss"></td>
+	<td><input type="checkbox" name="INPUT_AntiLogEnable" id="INPUT_AntiLogEnable" /></td>
+</tr>
+</table>
+<div id="div_ExtInfo">
+<script>SetContentTitle(getStr('LK_IndividualProtectionSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="400" langkey="LK_PreventSYNFloodd">
+	<td><input type="checkbox" name="INPUT_SynCookieEnable" id="INPUT_SynCookieEnable" onClick="OnSynCookieEnableClick()" /></td>
+</tr>
+<tr>
+	<td langkey="LK_PeakSYNNumberr"></td>
+	<td><input type="text" size="3" name="INPUT_SynMaxConnections" id="INPUT_SynMaxConnections" onBlur="OnSynMaxConnectionBlur(this.value)">
+            <span id="lang_PerSecond" langkey="LK_sec_persec"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_DropBroadcastRequestt"></td>
+	<td><input type="checkbox" name="INPUT_IcmpEchoIgnrBcastEnable" id="INPUT_IcmpEchoIgnrBcastEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_FraggleAttackProtectionn"></td>
+	<td><input type="checkbox" name="INPUT_AntiFraggleEnable" id="INPUT_AntiFraggleEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_EchoChargenProtectionn"></td>
+	<td><input type="checkbox" name="INPUT_AntiEchoCargenEnable" id="INPUT_AntiEchoCargenEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_IPLandProtectionn"></td>
+	<td><input type="checkbox" name="INPUT_AntiIPLandEnable" id="INPUT_AntiIPLandEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_PortScanProtectionn"></td>
+	<td><input type="checkbox" name="INPUT_IgnrPortScanEnable" id="INPUT_IgnrPortScanEnable" /></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_PreventIllegalPackets'));</script>    
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">           
+<tr>
+	<td width="400" langkey="LK_TCPSetSF"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanSetSynFinEnable" id="INPUT_AntiScanSetSynFinEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPSetSR"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanSetSynRstEnable" id="INPUT_AntiScanSetSynRstEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPSetFR"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanSetFinRstEnable" id="INPUT_AntiScanSetFinRstEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetAF"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanUnAckSetFinEnable" id="INPUT_AntiScanUnAckSetFinEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetAP"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanUnAckSetPshEnable" id="INPUT_AntiScanUnAckSetPshEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetAU"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanUnAckSetUrgEnable" id="INPUT_AntiScanUnAckSetUrgEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetSAFRUP"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanUnsetAllEnable" id="INPUT_AntiScanUnsetAllEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPSetSAFRUP"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanSetAllEnable" id="INPUT_AntiScanSetAllEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetPSetSAFRU"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanForAllSetSynRstAckFinUrgEnable" id="INPUT_AntiScanForAllSetSynRstAckFinUrgEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetSARUPSetF"></td>
+	<td><input type="checkbox" name="INPUT_AntiScanForAllSetFinEnable" id="INPUT_AntiScanForAllSetFinEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPUnsetSARSetFUP"></td>
+	<td><div class="div_left"><input type="checkbox" name="INPUT_AntiScanForAllSetFinUrgPshEnable" id="INPUT_AntiScanForAllSetFinUrgPshEnable" /></td>
+</tr>
+</table>
+</div>
+<table class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton('submit',getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton('refresh',getStr('LK_Refresh'),"uiPageRefresh()")</script>
+        </td>
+</tr>
+</table>        
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="sec_dosdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_dos.shtml">
+</form>
+</body>
+</html>

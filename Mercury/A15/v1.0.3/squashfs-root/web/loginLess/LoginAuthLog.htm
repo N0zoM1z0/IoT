@@ -1,0 +1,22 @@
+
+
+<div class="loginAuthLogContent mainGradient">
+	<div id="loginAuthLogCon" class="loginAuthLogCon">
+		<div class="loginAuthLogTitle">
+			<i class="iconfont icon-warn"></i>
+			<span class="warnText">{%label.secTip%}</span>
+			<span class="warnTips"></span>
+		</div>
+		<div class="logTableTitleCon">
+			<span class="tableTitle">{%label.authLogRecord%}</span>
+			<span class="tableTitleTips">{%label.authLogTips%}<span id="techSupportNum"></span>{%label.authLogTipsGetHelp%}</span>
+		</div>
+		<div id="loginAuthLogTable"></div>
+	</div>
+</div><script type="text/javascript">(function(){var b=$.authRltObj,c=b.code,a=b.authLog,d=null,e=new Table({targetId:"loginAuthLogTable",head:[{field:label.ipAddr,width:"0.33"},{field:label.mac,width:"0.37"},{field:label.loginTime,width:"0.3"}],column:[{name:"ip",type:"ip"},{name:"mac",type:"mac"},{name:"time",type:"str"}],numPerPage:8,editable:!1,deletable:!1,addable:!1,hasCheckBox:!1}),b=new NiceScroll({targetId:"loginAuthLogCon"});b.scrollTipOpacity(1);b.init();!0==$.local&&(c=ENONE,a=[{unauth_log_list0:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",
+time:"2016-02-03-16-44-59"}},{unauth_log_list1:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-00"}},{unauth_log_list2:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-01"}},{unauth_log_list3:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-01"}},{unauth_log_list4:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-01"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",
+mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},
+{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list5:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",time:"2016-02-03-16-45-02"}},{unauth_log_list6:{ip:"192.168.1.100",mac:"00-26-18-5F-5E-8D",
+time:"2016-02-03-16-45-02"}}]);$("#techSupportNum").text(TECHNICAL_SUPPORT_NUMBER);ESYSLOCKEDFOREVER==c?$("span.warnTips").text(label.authLogTip):ESYSLOCKED==c?$("span.warnTips").text(label.authLogTipFF):($("span.warnTips").html(label.authLogTipF),$("div.loginAuthLogTitle").after($("<div></div>").attr("id","loginBtn")),new Button({text:btn.knowIt,onClick:function(){id(loginId).style.display="none";id(conId).style.display="block";loadPage("Basic.htm","Con")},type:Button.TYPE.PRIMARY,id:"loginBtn",
+props:{width:"280px"}}));window.setTimeout(function(){ieUnsupportCheck();a.splice(a.length-1,1);a=formatTableData(a);for(var b in a)a.hasOwnProperty(b)&&(d=a[b],time=d.time.split("-"),d.time=time[0]+label.year+time[1]+label.month+time[2]+label.day+time[3]+":"+time[4]);e.setDataSource(a);e.loadData()})})();
+</script><style type="text/css">div.loginAuthLogCon{margin-top:220px}div.loginAuthLogTitle{padding-top:64px;text-align:center}div.loginAuthLogTitle i.iconfont{display:inline-block;width:32px;height:32px;font-size:32px;color:#ffa410;line-height:32px;vertical-align:middle}div.loginAuthLogTitle span.warnText{display:inline-block;margin-left:12px;color:#333;line-height:32px;height:32px;font-weight:bold;font-size:24px;vertical-align:middle}div.loginAuthLogTitle span.warnTips{display:block;line-height:20px;color:#333;font-size:13px;margin-top:8px}#loginBtn{margin:24px auto 0;display:block}div.logTableTitleCon{margin:24px 80px 0}div.logTableTitleCon span.tableTitle{height:24px;font-size:16px;font-weight:bold;color:#333;display:block}div.logTableTitleCon span.tableTitleTips{margin-top:4px;line-height:20px;color:#666;display:block;font-size:13px}#loginAuthLogTable{margin:8px 80px 0}</style>

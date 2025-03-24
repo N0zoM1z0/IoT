@@ -1,0 +1,114 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30
+L0 = require
+L1 = "xiaoqiang.util.XQErrorUtil"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.XQLog"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQFunction"
+L2 = L2(L3)
+L3 = require
+L4 = "xiaoqiang.module.XQAPModule"
+L3 = L3(L4)
+L4 = require
+L5 = "xiaoqiang.util.XQSysUtil"
+L4 = L4(L5)
+L5 = require
+L6 = "xiaoqiang.util.XQWifiUtil"
+L5 = L5(L6)
+L6 = require
+L7 = "luci.model.uci"
+L6 = L6(L7)
+L6 = L6.cursor
+L6 = L6()
+L7 = {}
+L7.code = 0
+L8 = arg
+L8 = L8[1]
+L9 = arg
+L9 = L9[2]
+L10 = arg
+L10 = L10[4]
+L11 = arg
+L11 = L11[3]
+L12 = nil
+L13 = 0
+L17 = L8
+L18 = " password"
+L19 = L9
+L20 = " band"
+L21 = L11
+L14(L15, L16)
+L17 = 1
+L14(L15, L16, L17)
+L14(L15)
+for L17 = L14, L15, L16 do
+  if L8 then
+    L18 = L3.setWifiAPMode
+    L19 = L8
+    L20 = L9
+    L21 = ""
+    L22 = ""
+    L23 = L11
+    L24 = ""
+    L25 = ""
+    L26 = L8
+    L27 = "mixed-psk"
+    L28 = L9
+    L29 = L8
+    L30 = "_5G"
+    L29 = L29 .. L30
+    L18 = L18(L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29)
+    L12 = L18
+    L18 = L12.scan
+    if not L18 then
+      L7.code = 1617
+    else
+      L18 = L12.connected
+      if L18 then
+        L18 = L2.isStrNil
+        L19 = L12.ip
+        L18 = L18(L19)
+        if L18 then
+          L7.code = 1615
+        else
+          L7.code = 0
+          L18 = L12.ip
+          L7.ip = L18
+          L18 = L12.ssid
+          L7.ssid = L18
+          L18 = L12.ssid5G
+          L7.ssid5G = L18
+          break
+        end
+      else
+        L7.code = 1616
+      end
+    end
+  else
+    L7.code = 1523
+  end
+  L18 = "echo \""
+  L19 = L17
+  L20 = " code:"
+  L21 = L7.code
+  L22 = "\" >> /tmp/set_wifi_auto_ap_mode_try_result"
+  L18 = L18 .. L19 .. L20 .. L21 .. L22
+  L19 = os
+  L19 = L19.execute
+  L20 = L18
+  L19(L20)
+end
+L15(L16)
+if L15 == 0 then
+  L17 = "account"
+  L18 = "common"
+  L19 = "admin"
+  L20 = L10
+  L15(L16, L17, L18, L19, L20)
+  L17 = "account"
+  L15(L16, L17)
+  L15()
+  L15()
+end

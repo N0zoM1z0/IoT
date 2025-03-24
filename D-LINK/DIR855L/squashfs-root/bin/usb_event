@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# This is for AR9344 gpio event only
+# it's called by kernel module ar934x_gpio
+
+model=`nvram get model_number`
+
+if [ $model != "DIR-655" ];then
+	exit;
+fi
+
+USB_LED_GPIO="20"
+
+if [ $2 = "up" ];then
+	echo $1 ON
+	echo 0 > /sys/class/gpio/gpio$USB_LED_GPIO/value
+else
+	echo $1 OFF
+	echo 1 > /sys/class/gpio/gpio$USB_LED_GPIO/value
+fi

@@ -1,0 +1,44 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.Firewall."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Firewall"
+
+entry_execute_method_root_Firewall() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.Firewall."*)
+		common_execute_method_obj "$DMROOT.Firewall." "0"
+		common_execute_method_param "$DMROOT.Firewall.Config" "1" "device_firewall_get_config" "device_firewall_set_config" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Firewall.Version" "0" "device_firewall_get_version" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Firewall.LastChange" "0" "device_firewall_get_lastchange" "" "xsd:dateTime" "0"
+		
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+device_firewall_get_config() {
+	echo "Low"
+}
+
+device_firewall_set_config() {
+	return 0
+}
+
+device_firewall_get_version() {
+	echo "1.0"
+}
+
+device_firewall_get_lastchange() {
+	echo ""
+}
+

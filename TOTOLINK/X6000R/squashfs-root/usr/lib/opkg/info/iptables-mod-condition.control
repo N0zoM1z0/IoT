@@ -1,0 +1,12 @@
+Package: iptables-mod-condition
+Version: 3.13-4
+Depends: libc, iptables, kmod-ipt-condition
+Source: feeds/packages/net/xtables-addons
+SourceName: iptables-mod-condition
+License: GPL-2.0
+Section: net
+SourceDateEpoch: 1660890637
+Maintainer: Jo-Philipp Wich <jo@mein.io>
+Architecture: aarch64_cortex-a53
+Installed-Size: 1652
+Description:  Condition iptables extension

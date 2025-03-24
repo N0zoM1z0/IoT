@@ -1,0 +1,11 @@
+Package: ddns
+Version: 1
+Depends: libc, libpthread, libcommon, librt
+Source: package/carystudio/ddns
+SourceName: ddns
+Section: carystudio
+SourceDateEpoch: 1656294299
+Architecture: aarch64_cortex-a53
+Installed-Size: 61332
+Description:  Dynamic domain name
+ support noip-2.1.9 yddns orayddns

@@ -1,0 +1,335 @@
+<script type="text/javascript">
+	(function() {
+		var allNoPwd = true;
+
+		function errorHandle(errNo, freq)
+        {
+			var labelForStr = "wifiPwd" + freq;
+			var noteIdStr = "wifiPwdNote" + freq;
+
+            switch(errNo)
+            {
+            case ENONE:
+				return false;
+			case EWLANPWDBLANK:
+				showPhoneNote(labelForStr, noteIdStr, errStr.wlanPwdNull);
+				break;
+			case EINVWLANPWD:
+				// 密码非法字符
+				showPhoneNote(labelForStr, noteIdStr, errStr.wlanPwdInvalid);
+				break;
+			case EINVPSKLEN:
+				// 密码长度错误
+				showPhoneNote(labelForStr, noteIdStr, errStr.wlanPwdLenValid);
+				break;
+            default:
+				showPhWzdAlert(errStr.invRequestFail);
+                break;
+			}
+
+            return true;
+		}
+
+		function closeErrHandle(freq)
+		{
+			var labelForStr = "wifiPwd" + freq;
+			var noteIdStr = "wifiPwdNote" + freq;
+			closePhoneNote(labelForStr,noteIdStr);
+		}
+
+		function addPhInput(data, freq, withPwd)
+		{
+			var togglePwdShowId;
+			var phInputUl = document.createElement("ul");
+			var ssidName = freq == "BS" ? label.wirelessName : (gFreqInfo[freq] + "频段");
+
+			phInputUl =
+				'<ul class="phInputUl"><li class="phInputLi ssidName">' +
+				'<label>' + ssidName + '</label>' +
+				'<i class="clapboard"></i>' +
+				'<input value="' + data.ssid + '" disabled="true" /></li>' +
+				'<li id="' + ("wifiPwdLi" + freq) + '" class="phInputLi">' +
+				'<label for="' + ("wifiPwd" + freq) + '">' + label.wirelessPwd + '</label>' +
+				'<i class="clapboard"></i>' +
+				'<input id="' + ("wifiPwd" + freq) + '" value="' + data.key + '" type="password" maxlength="63" />' +
+				'<i id="togglePwdShow' + freq + '" class="pwdShowOff" />' +
+				'</li>' +
+				'<li id="wifiPwdNote' + freq + '" class="phErrTip disNone">' +
+				'<span class="errDes"></span></li></ul>';
+
+			togglePwdShowId = "#togglePwdShow" + freq;
+			$("#wdsInputDiv").append(phInputUl);
+			$(togglePwdShowId).click(function() {
+				$(togglePwdShowId).toggleClass("pwdShowOff pwdShowOn");
+				id("wifiPwd" + freq).type = $(togglePwdShowId).attr("class") == "pwdShowOff"
+					? "password" : "text";
+			});
+
+			if (!withPwd)
+			{
+				id("wifiPwdLi" + freq).className = "phInputLi ssidName";
+				id("wifiPwd" + freq).value = "未加密";
+				id("wifiPwd" + freq).disabled = true;
+				id("wifiPwd" + freq).type = "text";
+				id("togglePwdShow" + freq).style.display = "none";
+			}
+		}
+
+		function makeSendData()
+		{
+			var data = {"wireless":{}};
+            if (BAND_2 == slp.bandsProvided - 1) {
+                data = {"wireless":{"wlan_wds_2g":{"enable":"0", "ssid": ""},"wlan_wds_5g":{"enable":"0", "ssid": ""}}};
+            } else {
+                data = {"wireless":{"wlan_wds_2g":{"enable":"0", "ssid": ""},"wlan_wds_5g_1":{"enable":"0", "ssid": ""},"wlan_wds_5g_4":{"enable":"0", "ssid": ""}}};
+			}
+
+			for (var freq in wdsTargetSelFreq)
+			{
+				if (wdsTargetSelFreq[freq].selected) {
+					var secCfg = {};
+					secCfg.enable = "1";
+
+					secCfg.ssid = gRootAPInfo[freq].ssid;
+					secCfg.encryption = gRootAPInfo[freq].encryption;
+
+					if (secCfg.encryption != "0")
+					{
+						secCfg.key = wdsTargetSelFreq[freq].bs ? id("wifiPwdBS").value : id("wifiPwd" + freq).value;
+						gRootAPInfo[freq].key = secCfg.key;
+					}
+
+					data.wireless[gWDSModel[freq].set_wds] = secCfg;
+					gRootAPInfo[freq].enable = "1";
+				}
+			}
+
+			return data;
+		}
+
+		function next() {
+			if (!allNoPwd)
+			{
+				/* 检查合法性 */
+				var wlanPwdValue;
+				var errNo;
+				for (var freq in wdsTargetSelFreq) {
+					if (wdsTargetSelFreq[freq].selected) {
+						if (gRootAPInfo[freq].encryption == uciWireless.dynOptValue.encryption.on)
+						{
+							if (wdsTargetSelFreq[freq].bs) {
+								wlanPwdValue = id("wifiPwdBS").value;
+								errNo = checkWlanPwd(wlanPwdValue);
+
+								if (ENONE != errNo) {
+									return errorHandle(errNo, "BS");
+								} else {
+									closeErrHandle("BS");
+								}
+
+								break;
+							}
+							wlanPwdValue = id("wifiPwd" + freq).value;
+							errNo = checkWlanPwd(wlanPwdValue);
+
+							if (ENONE != errNo) {
+								return errorHandle(errNo, freq);
+							} else {
+								closeErrHandle(freq);
+							}
+						}
+					}
+				}
+			}
+
+			// $(".textCenter").show();
+			// $(".WDSTitle").hide();
+			// $("#wdsInputDiv").hide();
+			// $(".phFunc").hide();
+
+			var data = makeSendData();
+			$.modify(data, function(ret) {
+				var code = ret[ERR_CODE];
+				if (ENONE == code) {
+					var bLinkStatusHd = null;
+					var wdsStartArg = {"wireless":{}}
+					for (var freq in wdsTargetSelFreq) {
+						if (wdsTargetSelFreq[freq].selected) {
+							wdsStartArg.wireless[gWDSModel[freq].wds_start] = {"set_ip_immediate":"0"};
+						}
+					}
+
+					$.action(wdsStartArg);
+					showPhLoading("正在配置");
+					if (true == bWirelessLinked) {
+						var bShowLoading = false;
+						var linkDetectCount = 1;
+
+						function bLinkStatusDetect()
+						{
+							//查询3次，无线还没重连上，则提示重连无线
+							if (linkDetectCount > 3 && bShowLoading == false) {
+								var pwdStr = "";
+								var showStr = "您的设备与路由器的连接已断开，请重新进行无线连接...<br />";
+
+								if (gLocalAPInfo[curEqtFreq].encryption == "1") {
+									pwdStr = "  无线密码：" + gLocalAPInfo[curEqtFreq].key;
+								}
+
+								showStr += "无线名称：" + gLocalAPInfo[curEqtFreq].ssid + pwdStr;
+								bShowLoading = true;
+								
+								closePhLoading();
+								showPhWzdAlert(showStr);
+							}
+
+							$.detect(function() {
+								if (false == $.result.timeout) {
+									clearTimeout(bLinkStatusHd);
+									closePhLoading();
+									showPhLoading("正在中继");
+									connectingCount = 1;
+									getWdsStatusHd = $.setTimeout(wdsStatusHd, 100);
+								}
+							});
+
+							linkDetectCount++;
+							bLinkStatusHd = $.setTimeout(bLinkStatusDetect, 2000);
+						}
+
+						clearTimeout(bLinkStatusHd);
+						bLinkStatusHd = $.setTimeout(bLinkStatusDetect, 4000);
+					}
+					else {
+						connectingCount = 1;
+						$.setTimeout(wdsStatusHd, 5000);
+					}
+				}
+				else {
+					closePhLoading();
+					errHandle(code);
+					$(".textCenter").hide();
+					$(".WDSTitle").show();
+					$("#wdsInputDiv").show();
+					$(".phFunc").show();
+				}
+			});
+		}
+
+		for (var freq in wdsTargetSelFreq) {
+			if (wdsTargetSelFreq[freq].selected) {
+				var isEncrypt = gRootAPInfo[freq].encryption == uciWireless.dynOptValue.encryption.on;
+				if(isEncrypt) {
+                    allNoPwd = false;
+                }
+				if (wdsTargetSelFreq[freq].bs) {
+					addPhInput(gRootAPInfo[freq], "BS", isEncrypt);
+					break;
+				} else {
+					addPhInput(gRootAPInfo[freq], freq, isEncrypt);
+				}
+			}
+		}
+
+		/* 所有前端路由都无密码，直接开始配置 */
+		if (allNoPwd)
+		{
+			if (backFromNextPage)
+			{
+				backFromNextPage = false;
+				loadPage("PhoneWlanWDSCfgFirst.htm", "phCon");
+			}
+			else
+			{
+				next();
+			}
+		}
+
+		// 如果密码错误列表中存在元素，则证明是从失败页面进入，显示错误
+		for (var index = 0; index < gWDSPwdErrList.length; index++)
+		{
+			if (wdsTargetSelFreq[gWDSPwdErrList[index]].bs) {
+				showPhoneNote("wifiPwdBS", "wifiPwdNoteBS", "请输入正确的无线密码");
+			} else {
+				showPhoneNote("wifiPwd" + gWDSPwdErrList[index],
+				"wifiPwdNote" + gWDSPwdErrList[index], "请输入正确的无线密码");
+			}
+		}
+		gWDSPwdErrList = [];
+
+		// 中继失败后重试
+		if (failRetry)
+		{
+			failRetry = false;
+			next();
+		}
+
+		$("#next").click(function() {
+			next();
+		});
+
+		$("#pre").click(function() {
+			loadPage("PhoneWlanWDSCfgFirst.htm", "phCon");
+		});
+	})();
+</script>
+<style type="text/css">
+	img.configGif{
+		height:30px;
+		margin:120px auto 40px;
+		width:30px;
+	}
+	p.configTip{
+		color:#ffffff;
+		font-size:15px;
+		text-align:center;
+	}
+	.textCenter{
+		text-align:center;
+		display: none;
+	}
+	div.WDSFoBlock{
+		color:#FFFFFF;
+		margin-top:13px;
+		position:relative;
+		text-align:left;
+	}
+	p.WDSFoNoteF{
+		margin-top:25px;
+		line-height:25px;
+	}
+	li.ssidName{
+		margin-bottom:16px;
+	}
+	li.ssidName label{
+		color:#666666;
+	}
+	li.ssidName i.clapboard{
+		border-right:1px solid #CCCCCC;
+	}
+	li.ssidName input{
+		color:#333333;
+	}
+	li.phInputLi input{
+		box-sizing:border-box;
+	}
+	li.phErrTip span.errDes {
+		line-height:16px;
+    }
+    p.routerPwdInfo {
+        font-size: 13px;
+        color: #666666;
+        text-align: center;
+    }
+</style>
+<h1 class="phoneTitle">桥接（无线中继）</h1>
+<p class="routerPwdInfo"></p>
+<p class="WDSTitle routerPwdInfo">
+	请输入前端路由的Wi-Fi密码
+</p>
+<div id="wdsInputDiv" class="WDSFoBlock"></div>
+
+<div class="phFunc">
+    <label id="pre" class="phTwoBtnL">上一步</label>
+    <label id="next" class="phTwoBtnR">下一步</label>
+</div>

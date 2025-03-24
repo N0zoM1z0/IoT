@@ -1,0 +1,255 @@
+﻿<script type="text/javascript">
+	var PageObj = {
+		chkPswVal: function(szValue)
+		{
+			return (/^[\x21-\x7e]+$/.test(szValue));
+		},
+		pwdConfFocus: function()
+		{
+			id("pwdConfInputLi").className = "phInputLiClick";
+			this.lgPwdNote.style.display = "none";
+		},
+		pwdFocus: function()
+		{
+			id("pwdInputLi").className = "phInputLiClick";
+			this.lgPwdConfNote.style.display = "none";
+		},
+		pwdConfCheck: function()
+		{
+			var pwdConf = this.pwdConf;
+			var pwd = this.pwd;
+
+			this.pwdConfFocus();
+
+			if (pwdConf.value == pwd.value)
+			{
+				this.lgPwdConfNote.style.display = "none";
+				return true;
+			}
+			else
+			{
+				this.lgPwdConfNote.style.display = "block";
+				return false;
+			}
+		},
+		pwdBlur: function()
+		{
+			var pwd = id("pwd");
+			var len = pwd.value.length;
+
+			if (len >= 0 && len < 6)
+			{
+				this.lgPwdNoteLess.style.display = "block";
+				window.setTimeout(function(){pwd.focus()}, 0);
+			}
+
+			id("pwdInputLi").className = "phInputLi";
+		},
+		pwdCheckMixChars: function(str)
+		{
+			var hasNum = false;
+			var hasLetter = false;
+			var hasSymbol = false;
+
+			hasNum = /\d/g.test(str);
+			hasLetter = /[a-zA-Z]/g.test(str);
+			hasSymbol = /[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e\s]/g.test(str);
+
+			return hasNum&&hasSymbol&&hasLetter;
+		},
+		pwdCheck: function()
+		{
+			var width = 30, tip = "", iClass = "warn";
+			var pwd = this.pwd;
+			var pwdConf = this.pwdConf;
+			var lgPwdlessTip = "block";
+			var lgPwdValTip = "block";
+			var pwdValue = pwd.value;
+			var len = pwdValue.length;
+			var lgPwdNoteVi = "block";
+			var result = true;
+
+			if (len >= 0 && len < 6)
+			{
+				result = false;
+				lgPwdValTip = "none";
+			}
+			else if(!this.chkPswVal(pwdValue))
+			{
+				lgPwdlessTip = "none";
+				result = false;
+			}
+			else if (len > 32)
+			{
+				lgPwdlessTip = "none";
+				lgPwdValTip = "none";
+				result = false;
+			}
+			else
+			{
+				lgPwdlessTip = "none";
+				lgPwdValTip = "none";
+			}
+
+			if ("none" != lgPwdlessTip || "none" != lgPwdValTip)
+			{
+				lgPwdNoteVi = "none";
+			}
+			else if (/^\d+$/.test(pwdValue) ||
+					/^[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e\s]+$/.test(pwdValue) ||
+					/^[a-zA-Z]+$/.test(pwdValue))
+			{
+				if (len <= 10)
+				{
+					tip = label.weak;
+					width = width;
+				}
+				else
+				{
+					tip = label.medium;
+					width = width*2;
+				}
+			}
+			else if (true == this.pwdCheckMixChars(pwdValue))
+			{
+				tip = label.strong;
+				width = width*3;
+				iClass = "correct";
+			}
+			else
+			{
+				if (len <= 10)
+				{
+					tip = label.medium;
+					width = width*2;
+				}
+				else
+				{
+					tip = label.strong;
+					width = width*3;
+					iClass = "correct";
+				}
+			}
+
+			this.lgPwdNote.style.display = lgPwdNoteVi;
+			this.lgPwdNoteLess.style.display = lgPwdlessTip;
+			this.lgPwdNoteInvalidChar.style.display = lgPwdValTip;
+			/* todo: dep */
+			this.pwdDep.innerHTML = tip;
+			this.chgPwdDep.style.width = width + "px";
+			//id("pwdDepI").className = iClass;
+
+			return result;
+		},
+		pwdConfChange: function()
+		{
+			this.pwdConfCheck();
+		},
+		onsub: function()
+		{
+			var result, pwd = this.pwd;
+			var pwdConf = this.pwdConf;
+
+			if (!this.pwdCheck() || !this.pwdConfCheck())
+			{
+				return;
+			}
+
+			$.changeDefaultPwd(pwd.value, function(err_code){
+				if (ENONE == err_code)
+				{
+					pwd.value = "";
+					pwdConf.value = "";
+					unloadLogin();
+				}
+				else if (EHASINITPWD == err_code)
+				{
+					if ("NO" != gBeInCNA)
+					{
+						showPhWzdAlert(errStr.hasInitPwdPhPortal);
+					}
+					else
+					{
+						showPhWzdAlert(errStr.hasInitPwdPh, function(){
+							location.reload();
+						});
+					}
+				}
+				else
+				{
+					showPhWzdAlert(errStr.setPwdErr);
+				}
+			});
+		},
+		init: function(){
+			var obj = this;
+			var pwd = id("pwd");
+			var pwdConf = id("pwdConf");
+
+			$(pwd).attr("maxlength", SYS_LOGIN_PWD_LENGTH_MAX);
+			$(pwdConf).attr("maxlength", SYS_LOGIN_PWD_LENGTH_MAX);
+
+			this.pwdConf = pwdConf;
+			this.pwd = pwd;
+			this.lgPwdNote = id("lgPwdNote");
+			this.lgPwdConfNote = id("lgPwdConfNote");
+			this.lgPwdNoteLess = id("lgPwdNoteLess");
+			this.lgPwdNoteInvalidChar = id("lgPwdNoteInvalidChar");
+			this.pwdDep = id("pwdDep");
+			this.chgPwdDep = id("chgPwdDep");
+
+			pwdConf.onkeyup =function(){obj.pwdConfChange()};
+			pwdConf.onfocus = function(){obj.pwdConfFocus()};
+			pwdConf.onblur = function(){obj.pwdConfCheck();id("pwdConfInputLi").className = "phInputLi";};
+			pwd.onkeyup = function(){obj.pwdCheck()};
+			pwd.onblur = function(){obj.pwdBlur()};
+			pwd.onfocus = function(){obj.pwdFocus()};
+			id("sub").onclick = function(){obj.onsub()};
+		}
+	};
+	PageObj.init();
+</script>
+<style type="text/css">
+	#Con{
+		min-width:0px;
+	}
+</style>
+<div class="phoneCon">
+	<div id="phCon">
+		<h1 class="phoneTitle">{%label.chgLgPwd%}</h1>
+		<ul class="phInputUl">
+			<li id="pwdInputLi" class="phInputLi">
+				<label for="pwd">{%label.loginSetPwd%}</label>
+				<i class="clapboard"></i>
+				<input id="pwd" type="password" placeholder="{%label.phPwdTip%}" />
+			</li>
+			<li id="lgPwdNoteLess" class="phErrTip disNone">
+				<span class="errDes">{%label.chgPwdLess%}</span>
+			</li>
+			<li id="lgPwdNoteInvalidChar" class="phErrTip disNone">
+				<span class="errDes">{%errStr.pwdCharValid%}</span>
+			</li>
+			<li id="lgPwdNote" class="phErrTip disNone">
+				<span class="errDes">{%label.chgPwdDep%}{%label.colon%}<span id="pwdDep"></span></span>
+				<span class="pwdDepCon"><span id="chgPwdDep" class="chgPwdDep"></span></span>
+			</li>
+		</ul>
+		<ul class="phInputUl">
+			<li id="pwdConfInputLi" class="phInputLi">
+				<label id="pwdConfLbl" for="pwdConf">{%label.loginPwdConf%}</label>
+				<i class="clapboard"></i>
+				<input id="pwdConf" type="password" />
+			</li>
+			<li id="lgPwdConfNote" class="phErrTip disNone">
+				<i class="error"></i><span class="errDes">{%label.chgPwdDif%}</span>
+			</li>
+		</ul>
+		<div class="phFunc">
+			<label id="sub" class="phOneBtn">{%btn.ok%}</label>
+		</div>
+	</div>
+	<div class="phoneFoot">
+		<img class="phoneLogo" src="../web-static/images/mercury_ph.png" />
+		<span class="phoneHwInfo"><label>{%titleStr.hardwareinfo%}</label></span>
+	</div>
+</div>

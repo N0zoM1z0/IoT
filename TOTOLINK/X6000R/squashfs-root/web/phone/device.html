@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="toper">
+	<phone-back type="custom" :title="lang_t('menu.devices')" @on-click="backFun"></phone-back>	
+  </div>
+  <div class="content-tab">
+	<div class="tab" @click="pageChange(1)" v-show="listType == 'main' || listType == 'white'">
+	  <div class="tab-l"><img src="/static/images/phone/user_on.png"></div>
+	  <div class="tab-c">{{ lang_t('menu.devices') }}</div>
+	  <div class="tab-r" v-show="listType == 'main'"><img src="/static/images/phone/sign_right.png"></div>
+	</div>
+	<div class="tab" @click="pageChange(0)" v-show="listType == 'main' || listType == 'black'">
+	  <div class="tab-l"><img src="/static/images/phone/user_off.png"></div>
+	  <div class="tab-c">{{ lang_t('menu.devices_deny') }}</div>
+	  <div class="tab-r" v-show="listType == 'main'"><img src="/static/images/phone/sign_right.png"></div>
+	</div>
+  </div>
+  <div class="content-list" id="devices_show" v-if="listType == 'black'">
+    <div class="list" v-for="(data,v) in black_List" @click="modefyDevie(data,v,'black')">
+	  <div class="list-l">
+	    <img src="/static/images/phone/phone_dis.png" v-if="data.deviceType == 'mobile'">
+	    <img src="/static/images/phone/pc_dis.png" v-else>	    
+	  </div>
+	  <div class="list-c" style="width: 55%;">
+		<p>{{ data.name }}</p>
+	    <p>MAC: {{ data.mac }}</p>
+	    <p>IP: {{ data.ip }}</p>
+	  </div>
+	  <div class="list-r-img">
+		<img src="/static/images/phone/wifi2g.png" v-if="data.linkType == '2g'">
+		<img src="/static/images/phone/wifi5g.png" v-else-if="data.linkType == '5g'">
+		<img src="/static/images/map/lan.png" style="padding-top:10px;padding-left: 5px;" v-else-if="data.linkType == 'PC'">
+		<p v-else-if="data.linkType == ''"></p>
+	  </div>
+	  <div class="list-r" style="padding-top: 35px;">
+	    <img src="/static/images/phone/sign_right.png">
+	  </div>
+    </div>
+  </div>
+  <div class="content-list" id="devices_show" v-else-if="listType == 'white'">
+    <div class="list" v-for="(data,v) in device_List" @click="modefyDevie(data,v,'device')" v-if="globalConfig.meshAcManageSupport">
+	  <div class="list-l">
+	    <img src="/static/images/map/from.png" style="width: 50px;height: 50px;">
+	  </div>
+	  <div class="list-c" style="width: 55%;">
+		<p style="color: #ff0000">{{ data.device_name | checkName }}</p>
+	    <p>MAC: {{ data.mac }}</p>
+	    <p>IP: {{ data.ip }}</p>
+	  </div>
+	  <div class="list-r-img">
+		<img src="/static/images/phone/wifi2g.png" v-if="data.medium == '2G'">
+		<img src="/static/images/phone/wifi5g.png" v-else-if="data.medium == '5G'">
+		<img src="/static/images/map/lan.png" style="padding-top:10px;padding-left: 5px;" v-else-if="data.medium == 'wire'">
+		<p v-else-if="data.medium == ''"></p>
+	  </div>
+	  <div class="list-r" style="padding-top: 35px;">
+	    <img src="/static/images/phone/sign_right.png">
+	  </div>
+    </div>
+    <div class="list" v-for="(data,v) in white_List" @click="modefyDevie(data,v,'white')">
+	  <div class="list-l">
+	    <img src="/static/images/phone/phone.png" v-if="data.deviceType == 'mobile'">
+	    <img src="/static/images/phone/pc.png" v-else>	    
+	  </div>
+	  <div class="list-c" style="width: 55%;">
+		<p>{{ data.name }}</p>
+	    <p>MAC: {{ data.mac }}</p>
+	    <p>IP: {{ data.ip }}</p>
+	  </div>
+	  <div class="list-r-img">
+		<img src="/static/images/phone/wifi2g.png" v-if="data.linkType == '2g'">
+		<img src="/static/images/phone/wifi5g.png" v-else-if="data.linkType == '5g'">
+		<img src="/static/images/map/lan.png" style="padding-top:10px;padding-left: 5px;" v-else-if="data.linkType == 'PC'">
+		<p v-else-if="data.linkType == ''"></p>
+	  </div>
+	  <div class="list-r" style="padding-top: 35px;">
+	    <img src="/static/images/phone/sign_right.png">
+	  </div>
+    </div>
+  </div>
+  <div class="content" v-else-if="listType == 'modefy'">
+	<div class="group">
+	  <div class="item-l">{{ lang_t('rule.device_name') }}</div>
+	  <div class="item-r">
+		<input type="text" v-model="deviceName" :disable="disable_edit" maxlength="32">
+	  </div>		
+	</div>
+	<div class="space"></div>
+	<div class="footer" v-if="!disable_edit">
+	  <button class="btn btn-gray" @click="applyFun">{{ lang_t('rule.edit') }}</button><br>&nbsp;</br>
+  		<button class="btn btn-red" :style="{background: btnColor}" @click="setDevieNet" v-if="!device_edit">{{ tempType == 'white' ? lang_t('device.off') : lang_t('device.on') }}</button>
+	 </div>
+	<div class="space"></div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,data:[],white_List:[],black_List:[],device_List:[],listType:"main",tempType:"white",deviceName:"",btnColor:"",tempIdx:0,hwnatState:!1,disable_edit:!1,device_edit:!1}},computed:{backTitle:function(){return"modefy"==this.listType?this.lang_t("device.visit_device"):""}},created:function(){var e=this;"rpt"!=e.globalConfig.opmode&&"br"!=e.globalConfig.opmode||(e.disable_edit=!0),e.getDeviceCfg(),setInterval(function(){e.getDeviceCfg()},3e3)},mounted:function(){var t=this;this.sizeAuto(),window.addEventListener("orientationchange",function(e){t.sizeAuto()},!1)},methods:{backFun:function(){"modefy"==this.listType?this.listType=this.tempType:"main"==this.listType?location.href="/phone/home.html"+get_token_from_url():this.listType="main"},sizeAuto:function(){this.height=.5*($(".white-header_main").height()+$(".btn-header-back-main").height()),$("#devices_show").css("padding-top",$(".white-header_main").height()+this.height+"px")},getDeviceCfg:function(e){var t=this;globalConfig.meshAcManageSupport&&uiPost.getWiFiMeshConfig(function(e){t.data=e,t.device_List=e.meshInfo}),uiPost.getAccessDeviceCfg(function(e){t.data=e,t.hwnatState="1"!=e.hwnatState,"controller"!=globalConfig.meshMode||globalConfig.cmccSupport||globalConfig.meshPairSupport?(t.white_List=e.white,t.black_List=e.black):t.getMeshDevInfo(e.black)})},getMeshDevInfo:function(i){var n=this;this.networkInfo=[],this.devList={white:[],black:[]},uiPost.getEasyMeshList(function(e){n.meshAgentInfo=e.meshAgentInfo,e["topology information"]&&(e["networkmap information"]&&(n.networkInfo=e["networkmap information"]),e["topology information"].forEach(function(e){var t=parseInt(e["Device role"]);0!==t&&(1!==t&&n.getSlaveInfo(e,i),n.findTerminal(e,i))}),n.white_List=n.devList.white,n.black_List=n.devList.black)})},getSlaveInfo:function(e,t){var i=this.checkDeviceInfo(e["AL MAC"]),n=(e["BH Info"]&&0<e["BH Info"].length&&(n=e["BH Info"][0],(i=!i.ip&&n["connected iface addr"]?this.checkDeviceInfo(n["connected iface addr"]):i).linkType=this.classMedium(n["Backhaul Medium Type"])),i.name=i.devName||"",i.mac=e["AL MAC"],this.matchAgentInfo(e["AL MAC"]));n&&(i.name=n.hostName,i.ip=n.ip,i.mac=n.lanMac),this.classDevType(i.mac,i,t)},classMedium:function(e){return e="2.4G"==e?"2g":"5G"==e?"5g":"PC"},findTerminal:function(e,i){function t(e){e.forEach(function(e){var t;"Yes"!=e["BH STA"]&&(t=e["Client Address"]||e["STA MAC address"],e={linkType:n.classMedium(e.Medium)},$.extend(e,n.checkDeviceInfo(t)),e.mac=t,n.classDevType(t,e,i))})}var n=this;e["Radio Info"]&&e["Radio Info"].forEach(function(e){e.BSSINFO&&e.BSSINFO.forEach(function(e){e["connected sta info"]&&t(e["connected sta info"])})}),e["Other Clients Info"]&&t(e["Other Clients Info"])},classDevType:function(e,t,i){e=e.toLowerCase();for(var n=0;n<i.length;n++)if(i[n].mac.toLowerCase()==e)return void this.devList.black.push(t);this.devList.white.push(t)},checkDeviceInfo:function(e){e=e.toLowerCase();for(var t=this.networkInfo,i=0;i<t.length;i++)if(e==t[i].mac.toLowerCase())return t[i].name=t[i].devName,t[i];return{name:"",ip:""}},matchAgentInfo:function(e){if(this.meshAgentInfo){e=e.toUpperCase();for(var t=0;t<this.meshAgentInfo.length;t++){var i=this.meshAgentInfo[t];if(i.meshMac2G.toUpperCase()==e||i.meshMac5G.toUpperCase()==e||i.mac2G.toUpperCase()==e||i.mac5G.toUpperCase()==e)return i}}return null},pageChange:function(e){var t=this;this.listType=1==e?"white":"black",setTimeout(function(){$("#devices_show").css("padding-top",$(".white-header_main").height()+t.height+"px")},1)},modefyDevie:function(e,t,i){"device"==i?(this.tempType="white",this.tempIdx=t,this.deviceName=e.device_name,this.device_edit=!0):(this.tempType=i,this.tempIdx=t,this.deviceName=e.name,this.btnColor="black"==i?"#B6DE98":""),this.listType="modefy"},applyFun:function(){var e={};1==cs.devname(this.deviceName)?Cstool.Mark({content:this.lang_t("rule.device_name")+this.lang_t("rule.msg62"),l_text:this.lang_t("common.back")}):(e.idx=String(this.tempIdx+1),1==this.device_edit?e.agentName=this.deviceName:(e.name=this.deviceName,e.modelType=this.tempType),this.postData(e))},setDevieNet:function(e){var t={};t.modelType="white"==this.tempType?"black":"white",this.postData(t)},postData:function(e){1==this.device_edit?(e.mac=this.device_List[this.tempIdx].mac,uiPost.setEasyMeshAgentCfg(e,postCallback)):("white"==this.tempType?e.mac=this.white_List[this.tempIdx].mac:e.mac=this.black_List[this.tempIdx].mac,e.addEffect="0",uiPost.setAccessDeviceCfg(e,postCallback))}}}</script><script src="/static/js/main.js"></script></body></html>

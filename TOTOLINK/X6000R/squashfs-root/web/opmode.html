@@ -1,0 +1,394 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/loading.css"><style>.opmode-menu table tr td{width:135px;text-align:center}.opmode-menu img{cursor:pointer;margin-bottom:6px}.table-title th{text-align:left;border-bottom:none}.table-title img{margin-right:6px}.table-title1 th{border-top:none}.table-foot tr td{background:#c6eeff;text-align:right}.t_table3 .table-foot tr:hover td{background:#c6eeff}.table-foot button{width:85px;height:35px}.modefy-content tr td{border:none}.img-invert{-webkit-filter:invert(25%);-ms-filter:invert(25%);opacity:.3;filter:invert(25%)}.btn-step{margin-top:2rem}.btn-step button:nth-child(2n-1){margin-right:1rem}.tmp-msg-btn-width button{width:100%}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div style="padding-top: 100px;">
+	<div v-show="pageIdx!=1">
+		<div style="text-align: center;height: 3rem;line-height: 3rem;">
+			<h1>{{ setTitle }}</h1>
+		</div>
+		<hr style="background-color: #2ea8dc;">
+	</div>
+  	<div style="overflow-y: auto;" ref="content">
+  		<div v-show="pageIdx==1">
+		  	<div class="opmode-menu" v-show="modeShow">
+		  		<table style="border-collapse:separate; border-spacing:0px 50px;">
+				<tr>
+				  <td v-for="mode in opmodeMenu">
+					<div class="hover-to-big">
+					  <img :src="mode.src" @click="modeFun(mode.name)" :title="lang_t('opmode.'+mode.name)" :class="[mode.class]">
+					  <p>{{ lang_t('opmode.'+mode.name) }}</p>
+					</div>
+				  </td>
+				</tr>
+				<tr v-if="supportTipsShow">
+					<td colspan="4">
+						<span style="color:#db3b21;">{{lang_t('opmode.not_support')}}</span>
+					</td>
+				</tr>
+		      </table>
+			</div>
+		    <div v-show="!modeShow">
+			  <table class="t_table3 table-bordered table-striped" id="ap_wifi" style="width: 800px;">
+			    <thead>
+				<tr class="table-title">
+				  <th colspan="5">
+					<img :src="imgSel" style="width: 40px;height: 40px;">
+					<span>{{ opTitle }}</span>
+					<span style="float:right;cursor: pointer;">
+					  <x-icon type="error" color="#43425D" :title="lang_t('common.off')" @click="closeFun"></x-icon>
+					</span>
+				  </th>
+				</tr>
+				<tr class="table-title1" v-show="!isEdit">
+				  <th>{{ lang_t('wifi.channel') }}</th>
+			  	  <th>SSID</th>
+				  <th>MAC</th>
+				  <th>{{ lang_t('wifi.encryption') }}</th>
+				  <th>{{ lang_t('opmode.signal') }}</th>
+				</tr>
+				</thead>
+				<tbody v-show="!isEdit" class="content-table">
+				<tr v-for="(list,v) in apScanList" style="cursor: pointer;" @click="editFun(list)" v-if="dataTotal>0">
+				  <td>{{ list.channel }}</td>
+				  <td style="white-space:pre">{{ list.ssid }}</td>
+				  <td>{{ list.bssid }}</td>
+				  <td><img :src="encryptImg(list.encrypt)"></td>
+				  <td><img :src="signalImg(list.signal)"></td>
+				</tr>
+				<tr v-if="dataTotal==0 && !scanFlag">
+				  <td colspan="5">{{lang_t('common.no_data')}}</td>
+				</tr>
+				<tr v-if="scanFlag">
+				  <td colspan="5"><img src="/static/images/load.gif"></td>
+				</tr>
+				</tbody>
+				<tbody v-if="isEdit">
+				<tr>
+				  <td colspan="5">
+					<table class="modefy-content" >
+					  <tr>
+						<td width="300">{{ lang_t('wifi.ssid') }}</td>
+						<td style="white-space:pre;">{{ ssid }}</td>
+					  </tr>
+					  <tr v-if="passDisable">
+						<td>{{ lang_t('wifi.pass') }}</td>
+						<td><input type="text" v-model="pass" v-verify="formRules" data-name="pass" maxlength="64"></td>
+					  </tr>
+					</table>
+				  </td>
+				</tr>
+				</tbody>
+				<tbody class="table-foot">
+			    <tr>
+				  <td colspan="5">
+				    <button class="btn" @click="scanFun" style="margin-right: 12px;">{{ isEdit ? lang_t('common.back') : lang_t('common.scan') }}</button>
+				    <button class="btn" @click="pageFun(1)" v-if="isEdit" style="margin-right: 12px;">{{ lang_t('common.next') }}</button>
+				  </td>
+			    </tr>
+				</tbody>
+		  	  </table>
+			  <div :style="{'padding-right': padValue}" v-show="!isEdit">
+			    <x-page :total="dataTotal" :pieces="10" @on-page="pageChange" :data="data"></x-page>
+			  </div>
+		    </div>
+		</div>
+		<div v-show="pageIdx==3||pageIdx==4">
+			<table class="table">
+			    <tbody>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wifi.state') }}</td>
+					  	<td>
+							<x-switch v-model="wifi.wifiOff" :disabled="wifiStateAbled"></x-switch>
+					  	</td>
+					</tr>
+			    </tbody>
+			    <tbody v-show="wifi.wifiOff">
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wifi.ssid') }}</td>
+					  	<td>
+							<input type="text" v-model="wifi.ssid" maxlength="32" v-verify="wifiRules" data-name="ssid"/>
+							<x-checkbox v-model="wifi.hssid" @change="hssidEvent">{{ lang_t('wifi.hide') }}</x-checkbox>
+					  	</td>
+					</tr>
+					<tr>
+				  		<td class="fun-left">{{ lang_t('wifi.pass_state') }}</td>
+				  		<td>
+							<x-switch v-model="wifi.ispass"></x-switch>
+				  		</td>
+					</tr>
+					<tr v-if="wifi.ispass">
+				  		<td class="fun-left">{{ lang_t('wifi.pass') }}</td>
+				  		<td>
+							<input type="password" v-model="wifi.key" maxlength="63" v-pass v-verify="wifiRules" data-name="key" />
+							<x-checkbox v-model="wifi.wpaMode" v-if="globalConfig.wifiWpa3Support" @change="wpaChange">{{ lang_t('wifi.wpa3') }}</x-checkbox>
+				  		</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div v-show="pageIdx == 2">
+			<table class="table"> 
+		        <tbody>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.proto') }}</td>
+					  	<td>
+							<select v-model="proto" @change="wan_change">
+							  	<option value="0" v-if="globalConfig.wanTypeList_STATIC">{{ lang_t('wan.static_ip') }}</option>
+							  	<option value="1" v-if="globalConfig.wanTypeList_DHCP">{{ lang_t('wan.dynamic_ip') }}</option>
+							  	<option value="3" v-if="globalConfig.wanTypeList_PPPOE && currentMode!='wisp'">{{ lang_t('wan.pppoe') }}</option>
+							  	<option value="4" v-if="currentMode!='wisp'&&globalConfig.wanTypeList_PPTP">PPTP</option>
+							  	<option value="6" v-if="currentMode!='wisp'&&globalConfig.wanTypeList_L2TP">L2TP</option>
+							</select>
+					  	</td>
+					</tr> 
+			  	</tbody>               
+		        <tbody v-show="proto == 3">  
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.user') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.pppoeUser" v-verify="wanRules" data-name="pppoeUser" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.pass') }}</td>
+					  	<td>
+							<input type="password" v-model="wan.pppoePass" v-pass v-verify="wanRules" data-name="pppoePass" maxlength="32">
+					  	</td>
+					</tr>
+					<tr v-show="globalConfig.pppoeSpecSupport">
+				  		<td class="fun-left">{{ lang_t('wan.spec') }}</td>
+				  		<td>
+							<select v-model="wan.pppoeSpecType">
+							  	<option value="0">{{ lang_t('wan.none') }}</option>
+							  	<option value="1">{{ lang_t('wan.spec') }} 1</option>
+							  	<option value="2">{{ lang_t('wan.spec') }} 2</option>
+							  	<option value="3">{{ lang_t('wan.spec') }} 3</option>
+							</select>
+				  		</td>
+					</tr> 
+					<tr v-show="globalConfig.pppoeRussiaSupport">
+				  		<td class="fun-left">{{ lang_t('wan.server_name') }}</td>
+				  		<td>
+							<input type="text" v-model="wan.pppoeServiceName" v-verify="wanRules" data-name="pppoeServiceName" maxlength="32">
+				  		</td>
+					</tr>
+					<tr v-show="globalConfig.pppoeRussiaSupport">
+				  		<td class="fun-left">{{ lang_t('wan.ac_name') }}</td>
+				  		<td>
+							<input type="text" v-model="wan.pppoeAcName" v-verify="wanRules" data-name="pppoeAcName" maxlength="32">
+				  		</td>
+					</tr> 		
+					<tr>
+				  		<td class="fun-left">MTU</td>
+				  		<td>
+							<input type="text" v-model="wan.pppoeMtu" v-verify="wanRules" data-name="pppoeMtu" maxlength="4">
+							<small>({{ lang_t('wan.range') }}:576~1492)</small>
+				  		</td>
+					</tr>
+			  	</tbody>      
+			    <tbody v-show="proto == 4">        
+					<tr>
+				  		<td class="fun-left">{{ lang_t('wan.address_mode') }}</td>
+				  		<td>
+				  	 		<x-radio v-model="wan.pptpMode" :name="vpnModeName" @change="wan_change" pos="col"></x-radio>
+				  		</td>
+					</tr>
+					<tr v-show="wan.pptpMode == 1">
+				  		<td class="fun-left">{{ lang_t('wan.ip') }}</td>
+				  		<td>
+							<input type="text" v-model="wan.pptpIp" v-verify="wanRules" data-name="pptpIp" maxlength="15">
+				  		</td>
+					</tr>
+					<tr v-show="wan.pptpMode == 1" >
+					  	<td class="fun-left">{{ lang_t('wan.mask') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.pptpMask" v-verify="wanRules" data-name="pptpMask" maxlength="15">
+					  	</td>
+					</tr>
+					<tr v-show="wan.pptpMode == 1">
+					  	<td class="fun-left">{{ lang_t('wan.gateway') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.pptpGw" v-verify="wanRules" data-name="pptpGw" maxlength="15">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.server_address') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.pptpServer" v-verify="wanRules" data-name="pptpServer" maxlength="32">
+							<small>({{ lang_t('wan.ip_domain') }})</small>
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.user') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.pptpUser" v-verify="wanRules" data-name="pptpUser" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.pass') }}</td>
+					  	<td>
+							<input type="password" v-model="wan.pptpPass" v-pass v-verify="wanRules" data-name="pptpPass" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">MTU</td>
+					  	<td>
+							<input type="text" v-model="wan.pptpMtu" v-verify="wanRules" data-name="pptpMtu" maxlength="4">
+							<small>({{ lang_t('wan.range') }}:576~1460)</small>
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left"></td>
+					  	<td>
+					  		<x-checkbox v-model="wan.pptpMppe" :k_style="{'margin-right':'3.5rem'}" k_class="c-checkbox-k">MPPE</x-checkbox>
+							<x-checkbox v-model="wan.pptpMppc" k_class="c-checkbox-k">MPPC</x-checkbox>
+					  	</td>
+					</tr>
+			    </tbody>                
+			    <tbody v-show="proto == 6">        
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.address_mode') }}</td>
+					  	<td>
+					  		<x-radio v-model="wan.l2tpMode" :name="vpnModeName" @change="wan_change" pos="col"></x-radio>
+					  	</td>
+					</tr>
+					<tr v-show="wan.l2tpMode == 1">
+					  	<td class="fun-left">{{ lang_t('wan.ip') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpIp" v-verify="wanRules" data-name="l2tpIp" maxlength="15">
+					  	</td>
+					</tr>
+					<tr v-show="wan.l2tpMode == 1">
+					  	<td class="fun-left">{{ lang_t('wan.mask') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpMask" v-verify="wanRules" data-name="l2tpMask" maxlength="15">
+					  	</td>
+					</tr>
+					<tr v-show="wan.l2tpMode == 1">
+					  	<td class="fun-left">{{ lang_t('wan.gateway') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpGw" v-verify="wanRules" data-name="l2tpGw" maxlength="15">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.server_address') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpServer" v-verify="wanRules" data-name="l2tpServer" maxlength="32">
+							<small>({{ lang_t('wan.ip_domain') }})</small>
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.user') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpUser" v-verify="wanRules" data-name="l2tpUser" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.pass') }}</td>
+					  	<td>
+							<input type="password" v-model="wan.l2tpPass" v-pass v-verify="wanRules" data-name="l2tpPass" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">MTU</td>
+					  	<td>
+							<input type="text" v-model="wan.l2tpMtu" v-verify="wanRules" data-name="l2tpMtu" maxlength="4">
+							<small>({{ lang_t('wan.range') }}:576~1460)</small>
+					  	</td>
+					</tr>
+			    </tbody>      
+			    <tbody v-show="proto == 0">  
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.ip') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.staticIp" v-verify="wanRules" data-name="staticIp" maxlength="15">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.mask') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.staticMask" v-verify="wanRules" data-name="staticMask" maxlength="15">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.gateway') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.staticGw" v-verify="wanRules" data-name="staticGw" maxlength="15">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">MTU</td>
+					  	<td>
+							<input type="text" v-model="wan.staticMtu" v-verify="wanRules" data-name="staticMtu" maxlength="4">
+							<small>({{ lang_t('wan.range') }}:576~1500)</small>
+					  	</td>
+					</tr>
+			    </tbody>           
+			    <tbody v-show="proto == 1">        
+					<tr v-if="globalConfig.hideHostname != '1'">
+					  	<td class="fun-left">{{ lang_t('wan.hostname') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.hostName" v-verify="wanRules" data-name="hostName" maxlength="32">
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">MTU</td>
+					  	<td>
+							<input type="text" v-model="wan.dhcpMtu" v-verify="wanRules" data-name="dhcpMtu" maxlength="4">
+							<small>({{ lang_t('wan.range') }}:576~1500)</small>
+					  	</td>
+					</tr>
+			    </tbody>        
+			    <tbody>  		
+					<tr v-show="globalConfig.ttlWaySupport&&proto=='3'">
+					  	<td class="fun-left">{{ lang_t('wan.ttlWay') }}</td>
+					  	<td>
+					  		<x-checkbox v-model="wan.ttlWay"></x-checkbox>
+					  	</td>
+				    </tr>
+					<tr>
+					  	<td colspan="2"></td>
+					</tr>
+					<tr v-show="!dnsAbled">
+						<td class="fun-left">{{ lang_t('wan.dns_set') }}</td>
+						<td>
+							<select v-model="wan.dnsMode">
+								<option value="0">{{ lang_t('wan.auto_dns') }}</option>
+								<option value="1">{{ lang_t('wan.manual_dns') }}</option>
+								<option value="2" v-if="globalConfig.modelType != '4g'">{{ lang_t('wan.dns_penetrate') }}</option>
+							</select>
+						</td>
+					</tr>
+					<tr v-show="wan.dnsMode == '1'">
+					  	<td class="fun-left">{{ lang_t('wan.pri_dns') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.priDns" v-verify="wanRules" data-name="priDns" maxlength="15">
+					  	</td>
+					</tr>
+					<tr v-show="wan.dnsMode == '1'">
+					  	<td class="fun-left">{{ lang_t('wan.sec_dns') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.secDns" v-verify="wanRules" data-name="secDns" maxlength="15">
+							<small>({{ lang_t('wan.optional') }})</small>
+					  	</td>
+					</tr>
+			    </tbody>      
+			    <tbody>
+					<tr>
+					  	<td class="fun-left"></td>
+					  	<td>
+					  		<x-radio v-model="wan.clone" :name="['wan.default','wan.clone']" @change="clone_change"></x-radio>
+					  	</td>
+					</tr>
+					<tr>
+					  	<td class="fun-left">{{ lang_t('wan.mac') }}</td>
+					  	<td>
+							<input type="text" v-model="wan.cloneMac" id="clonemac_pass" v-verify="wanRules" data-name="cloneMac" maxlength="17" :disabled="macDisabled">
+					  	</td>
+					</tr>
+			    </tbody>
+			</table>
+		</div>
+		<div v-show="pageIdx!=1" class="btn-step">
+			<button class="btn" @click="pageFun(-1)">{{ lang_t('common.back') }}</button>
+			<button class="btn" @click="pageFun(1)" :disabled="btnDisabled">{{ pageIdx==4?lang_t('common.finish'):lang_t('common.next') }}</button>
+		</div>
+  	</div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,opmode:"",currentMode:"gw",modeShow:!0,apScanList:[],dataTotal:0,data:[],padValue:"",opmodeArr:[],isEdit:!1,ssid:"",pass:"",passDisable:!1,tempData:{},scanFlag:!1,pageIdx:1,wifi:{ssid:"",key:"",ispass:!1,hssid:!1,wifiOff:!1,wpaMode:!1},wifiDualband:!1,wifiStateAbled:!1,wifi2:{},wifi5:{},proto:"1",dnsAbled:!0,macDisabled:!1,wan:{defaultMac:"",pppoeUser:"",pppoePass:"",pppoeSpecType:"0",pppoeServiceName:"",pppoeAcName:"",pppoeMtu:"",pptpMode:"",pptpIp:"",pptpMask:"",pptpGw:"",pptpServer:"",pptpUser:"",pptpPass:"",pptpMtu:"",pptpMppe:"",pptpMppc:"",l2tpMode:"",l2tpServer:"",l2tpIp:"",l2tpMask:"",l2tpGw:"",l2tpUser:"",l2tpPass:"",l2tpMtu:"",staticIp:"",staticMask:"",staticGw:"",staticMtu:"",hostName:"",dhcpMtu:"",dnsMode:"0",priDns:"",secDns:"",ttlWay:!1,clone:"",lanIp:"",cloneMac:""},btnDisabled:!1,wifiRptSupport:!1,supportTipsShow:!1,tempWifiState:"",tempWifiState_5g:""}},computed:{opmodeMenu:function(){var t,n=temp=tempArr=[],a=(temp=this.opmodeArr,this.currentMode);for(t in temp)n[t]={},n[t].name=temp[t],n[t].src="/static/images/opmode/"+temp[t]+"_on.png",a==temp[t]?n[t].class="":n[t].class="img-invert";return n},setTitle:function(){return 1==this.pageIdx?this.lang_t("menu.opmode"):2==this.pageIdx?this.lang_t("menu.internet"):3==this.pageIdx?this.lang_t("wifi.wireless")+" 5GHz":4==this.pageIdx?"0"!=this.wifiDualband?this.lang_t("wifi.wireless")+" 2.4GHz":this.lang_t("wifi.wireless"):""},vpnModeName:function(){return["wan.dynamic","wan.static"]},imgSel:function(){return"/static/images/opmode/"+this.currentMode+"_on.png"},opTitle:function(){return this.lang_t("opmode."+this.currentMode)},formRules:function(){return{pass:function(t,n){0==cs.string(t)?n(lang_t("wifi.pass")+lang_t("wifi.msg6")):t.length<8||63<t.length?n(lang_t("wifi.msg4")):n()}}},wifiRules:function(){var a=this;return{ssid:function(t,n){a.wifi.wifiOff?0==(t=cs.ssid(t))?n(a.lang_t("wifi.msg1")):4==t?n(a.lang_t("wifi.msg18")):5==t?n(a.lang_t("wifi.msg5")):1==t?n(a.lang_t("wifi.msg2")):2==t?n(a.lang_t("wifi.msg3")):n():n()},key:function(t,n){passwordVerify("wifi",lang_t("wifi.pass"),t,n,a.wifi.ispass&&a.wifi.wifiOff)}}},wanRules:function(){var i=this;return{staticIp:function(t,n){var a;"0"==i.proto?0==(a=cs.ip(t))?n(i.lang_t("network.ip")+i.lang_t("network.msg1")):1==a?n(i.lang_t("network.ip")+i.lang_t("network.msg2")):99!=a?n(i.lang_t("network.ip")+i.lang_t("network.msg6")):cs.ip_subnet(t,i.lanNetmask,i.lanIp)?n(i.lang_t("network.ip")+i.lang_t("wan.msg32")):n():n()},staticMask:function(t,n){"0"==i.proto?0==(t=cs.mask(t))?n(i.lang_t("network.mask")+i.lang_t("network.msg1")):1==t?n(i.lang_t("network.msg7")):n():n()},staticGw:function(t,n){var a;"0"==i.proto?0==(a=cs.ip(t))?n(i.lang_t("wan.gateway")+i.lang_t("network.msg1")):1==a?n(i.lang_t("wan.gateway")+i.lang_t("network.msg2")):2==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg2")):3==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg3")):4==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg4")):cs.ip_subnet(t,i.wan.staticMask,i.wan.staticIp)?n():n(i.lang_t("wan.msg6")):n()},staticMtu:function(t,n){"0"==i.proto?0==(t=cs.num_range(t,576,1500))?n(i.lang_t("wan.msg8")):1==t?n(i.lang_t("wan.msg9")):2==t?n(i.lang_t("wan.msg10",[576,1500])):n():n()},hostName:function(t,n){"1"==i.proto?0==(t=cs.hostname(t))?n(i.lang_t("wan.hostname")+i.lang_t("wan.msg1")):1==t?globalConfig.cmccSupport?n(i.lang_t("wan.hostname")+i.lang_t("wan.msg33")):n(i.lang_t("wan.hostname")+i.lang_t("wan.msg31")):n():n()},dhcpMtu:function(t,n){"1"==i.proto?0==(t=cs.num_range(t,576,1500))?n(i.lang_t("wan.msg8")):1==t?n(i.lang_t("wan.msg9")):2==t?n(i.lang_t("wan.msg10",[576,1500])):n():n()},pppoeUser:function(t,n){"3"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg12")):1==t?n(i.lang_t("wan.msg13")):n():n()},pppoePass:function(t,n){"3"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg14")):1==t?n(i.lang_t("wan.msg15")):n():n()},pppoeServiceName:function(t,n){"3"==i.proto&&1==cs.string(t)?n(i.lang_t("wan.server_name")+i.lang_t("wan.msg22")):n()},pppoeAcName:function(t,n){"3"==i.proto&&1==cs.string(t)?n(i.lang_t("wan.ac_name")+i.lang_t("wan.msg22")):n()},pppoeMtu:function(t,n){"3"==i.proto?0==(t=cs.num_range(t,576,1492))?n(i.lang_t("wan.msg8")):1==t?n(i.lang_t("wan.msg9")):2==t?n(i.lang_t("wan.msg10",[576,1492])):n():n()},pptpIp:function(t,n){"4"==i.proto&&"1"==i.wan.pptpMode?0==(t=cs.ip(t))?n(i.lang_t("network.ip")+i.lang_t("network.msg1")):1==t?n(i.lang_t("network.ip")+i.lang_t("network.msg2")):2==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg2")):3==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg3")):4==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg4")):n():n()},pptpMask:function(t,n){"4"==i.proto&&"1"==i.wan.pptpMode?0==(t=cs.mask(t))?n(i.lang_t("network.mask")+i.lang_t("network.msg1")):1==t?n(i.lang_t("network.msg7")):n():n()},pptpGw:function(t,n){var a;"4"==i.proto&&"1"==i.wan.pptpMode?0==(a=cs.ip(t))?n(i.lang_t("wan.gateway")+i.lang_t("network.msg1")):1==a?n(i.lang_t("wan.gateway")+i.lang_t("network.msg2")):99!=a?n(i.lang_t("wan.gateway")+i.lang_t("network.msg6")):cs.ip_subnet(t,i.wan.pptpMask,i.wan.pptpIp)?n():n(i.lang_t("wan.msg6")):n()},pptpServer:function(t,n){"4"==i.proto?t?cs.isUrl(t)?n():n(i.lang_t("vpn.server")+i.lang_t("wan.msg20")):n(i.lang_t("vpn.server")+i.lang_t("vpn.msg1")):n()},pptpUser:function(t,n){"4"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg12")):1==t?n(i.lang_t("wan.msg13")):n():n()},pptpPass:function(t,n){"4"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg14")):1==t?n(i.lang_t("wan.msg15")):n():n()},pptpMtu:function(t,n){"4"==i.proto?0==(t=cs.num_range(t,576,1460))?n(i.lang_t("wan.msg8")):1==t?n(i.lang_t("wan.msg9")):2==t?n(i.lang_t("wan.msg10",[576,1460])):n():n()},l2tpIp:function(t,n){"6"==i.proto&&"1"==i.wan.l2tpMode?0==(t=cs.ip(t))?n(i.lang_t("network.ip")+i.lang_t("network.msg1")):1==t?n(i.lang_t("network.ip")+i.lang_t("network.msg2")):2==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg2")):3==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg3")):4==t?n(i.lang_t("network.ip")+i.lang_t("wan.msg4")):n():n()},l2tpMask:function(t,n){"6"==i.proto&&"1"==i.wan.l2tpMode?0==(t=cs.mask(t))?n(i.lang_t("network.mask")+i.lang_t("network.msg1")):1==t?n(i.lang_t("network.msg7")):n():n()},l2tpGw:function(t,n){var a;"6"==i.proto&&"1"==i.wan.l2tpMode?0==(a=cs.ip(t))?n(i.lang_t("wan.gateway")+i.lang_t("network.msg1")):1==a?n(i.lang_t("wan.gateway")+i.lang_t("network.msg2")):2==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg2")):3==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg3")):4==a?n(i.lang_t("wan.gateway")+i.lang_t("wan.msg4")):cs.ip_subnet(t,i.wan.l2tpMask,i.wan.l2tpIp)?n():n(i.lang_t("wan.msg6")):n()},l2tpServer:function(t,n){"6"==i.proto?t?cs.isUrl(t)?n():n(i.lang_t("vpn.server")+i.lang_t("wan.msg20")):n(i.lang_t("vpn.server")+i.lang_t("vpn.msg1")):n()},l2tpUser:function(t,n){"6"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg12")):1==t?n(i.lang_t("wan.msg13")):n():n()},l2tpPass:function(t,n){"6"==i.proto?0==(t=cs.string(t))?n(i.lang_t("wan.msg14")):1==t?n(i.lang_t("wan.msg15")):n():n()},l2tpMtu:function(t,n){"6"==i.proto?0==(t=cs.num_range(t,576,1460))?n(i.lang_t("wan.msg8")):1==t?n(i.lang_t("wan.msg9")):2==t?n(i.lang_t("wan.msg10",[576,1460])):n():n()},priDns:function(t,n){"1"==i.wan.dnsMode?0==(t=cs.ip(t))?n(i.lang_t("vpn.pri_dns")+i.lang_t("vpn.msg1")):99!=t?n(i.lang_t("vpn.pri_dns")+i.lang_t("vpn.msg6")):n():n()},secDns:function(t,n){"1"==i.wan.dnsMode&&""!=t&&99!=cs.ip(t)?n(i.lang_t("vpn.sec_dns")+i.lang_t("vpn.msg6")):n()},cloneMac:function(t,n){t=cs.mac(t);0==t?n(i.lang_t("rule.mac")+i.lang_t("rule.msg12")):1==t?n(i.lang_t("rule.msg17")):2==t?n(i.lang_t("rule.msg18")):3==t?n(i.lang_t("rule.msg19")):99==t&&n()}}}},created:function(){var n=this;$.extend(this.wifi5,this.wifi),$.extend(this.wifi2,this.wifi),uiPost.getLanCfg(function(t){n.lanIp=t.lanIp,n.lanNetmask=t.lanNetmask}),uiPost.getOpModeCfg(function(t){n.tempWifiState=t.wifiOff,n.tempWifiState_5g=t.wifiOff5g,n.opmode=t.opmode,n.currentMode=t.opmode,n.opmodeArr=t.OpModeSupport.split(";"),n.wifiRptSupport=!!~t.OpModeSupport.indexOf("rpt")||!!~t.OpModeSupport.indexOf("wisp"),on_extend(n.wifi2,t),"1"==t.wifiDualband?(n.wifiDualband=!0,on_extend(n.wifi5,t,"5g"),$.extend(n.wifi,n.wifi5),n.dataType(n.wifi5)):$.extend(n.wifi,n.wifi2),n.dataType(n.wifi),n.dataType(n.wifi2),on_extend(n.wan,t),n.proto=t.proto,"0"==t.pptpDomainFlag?n.wan.pptpServer=t.pptpServerIp:n.wan.pptpServer=t.pptpServerDomain,"0"==t.l2tpDomainFlag?n.wan.l2tpServer=t.l2tpServerIp:n.wan.l2tpServer=t.l2tpServerDomain,n.wan.ttlWay="1"==t.ttlWay,n.wan.pptpMppe="1"==t.pptpMppe,n.wan.pptpMppc="1"==t.pptpMppc,"0"==t.clone&&(n.macDisabled=!0,n.wan.cloneMac=t.defaultMac),n.wan_change("init")})},watch:{pageIdx:function(t){var n;this.wifiStateAbled=!1,("rpt"==this.currentMode||"wisp"==this.currentMode)&&(n=this.tempData.wifiIdx,3==t&&"1"==n||4==t&&"0"==n)&&(this.wifiStateAbled=!0,this.wifi.wifiOff=!0,this.$nextTick(function(){})),2!=t||"gw"!=this.currentMode&&"wisp"!=this.currentMode||(this.proto="1",this.wan_change())}},mounted:function(){this.$refs.content.style.height=window.innerHeight-101-34-48+"px"},methods:{pageFun:function(n){var a=this;if(1==n){if(1==this.pageIdx)return void Cstool.Verify(this.formRules,function(t){t&&("gw"==a.currentMode||"wisp"==a.currentMode?a.pageIdx+=n:a.wifiDualband?a.pageIdx=3:($.extend(a.wifi,a.wifi2),a.pageIdx=4),a.modeShow=!0,a.isEdit=!1)});if(2==this.pageIdx)return void Cstool.Verify(this.wanRules,function(t){t&&(a.wifiDualband?a.pageIdx+=n:a.pageIdx=4)});if(3==this.pageIdx)return void Cstool.Verify(this.wifiRules,function(t){t&&($.extend(a.wifi5,a.wifi),$.extend(a.wifi,a.wifi2),a.pageIdx+=n)});if(4==this.pageIdx)return void Cstool.Verify(this.wifiRules,function(t){t&&(on_extend(a.wifi2,a.wifi),a.applyFun())})}-1==n&&4==this.pageIdx&&$.extend(this.wifi2,this.wifi),this.pageIdx+=n,-1==n&&(2==this.pageIdx?"gw"!=a.currentMode&&"wisp"!=a.currentMode&&(this.pageIdx=1):3==this.pageIdx&&(this.wifiDualband?$.extend(this.wifi,this.wifi5):this.pageFun(-1)))},wpaChange:function(t){t&&(globalConfig.wpsSupport?Cstool.Msg({content:lang_t("wifi.wpa3_info")}):Cstool.Msg({content:lang_t("wifi.wpa3_info_nowps")}))},hssidEvent:function(t){t&&("all"==globalConfig.meshBhBss||4==this.pageIdx&&"2g"==globalConfig.meshBhBss||3==this.pageIdx&&"5g"==globalConfig.meshBhBss)&&Cstool.Msg({content:lang_t("wifi.hssid_info")})},dataType:function(t,n){"set"==n?(t.wifiOff=t.wifiOff?"0":"1",t.hssid=t.hssid?"1":"0",t.wpaMode=t.wpaMode?"2":"1"):(t.wifiOff="1"!=t.wifiOff,t.hssid="1"==t.hssid,t.wpaMode="2"==t.wpaMode,t.ispass=!!t.key)},modeFun:function(t){var n,a,i=this;i.supportTipsShow=!1,"rpt"==t||"wisp"==t?globalConfig.meshMode?i.supportTipsShow=!0:"0"==String(i.tempWifiState)||"0"==String(i.tempWifiState_5g)&&i.wifiDualband?(i.currentMode=t,i.modeShow=!1,i.scanFun()):Cstool.Msg({content:i.lang_t("opmode.on_wifi")}):i.opmode!=t&&(n=function(){i.currentMode=t,i.pageFun(1),$(".msg-box-bottom").removeClass("tmp-msg-btn-width")},a=function(){Cstool.Msg({type:"confirm",content:lang_t("opmode.msg1",[lang_t("opmode."+t)+("br"===t?"(AP)":"")]),ok:function(){n()}})},globalConfig.elinkSupport&&"br"==this.currentMode&&"gw"==t&&!globalConfig.elinkWebSupport?uiPost.SystemSettings(function(t){"1"==t.elinkSync?($(".msg-box-bottom").addClass("tmp-msg-btn-width"),Cstool.Msg({type:"confirm",content:lang_t("opmode.elink_warn",[lang_t("opmode.sync_cfg"),lang_t("opmode.gw")]),btnCancel:lang_t("opmode.close_switch",[lang_t("opmode.sync_cfg"),lang_t("opmode.gw")]),btnOk:lang_t("opmode.direct_switch",[lang_t("opmode.gw")]),ok:function(){i.isMustCloseElink=!1,n()},cancel:function(){i.isMustCloseElink=!0,n()}})):a()}):a())},encryptImg:function(t){return"NONE"!=t&&"OPEN"!=t?"static/images/lock.png":"static/images/unlock.png"},signalImg:function(t){var n="static/images/signal_weak.png";return 40<=(t=Number(t))&&t<80?n="static/images/signal_medium.png":80<=t&&(n="static/images/signal_good.png"),n},editFun:function(t){this.ssid=t.ssid,"NONE"==(this.tempData=t).encrypt||"OPEN"==t.encrypt?this.passDisable=!1:this.passDisable=!0,this.isEdit=!0,$(document).scrollTop(10)},closeFun:function(){this.modeShow=!0,this.isEdit=!1,this.apScanList=[]},applyFun:function(){var t,n,a=this,i={};if("gw"==this.currentMode||"wisp"==this.currentMode)for(t in i.proto=this.proto,this.wan)n=this.wan[t],"ttlWay"!=t&&"pptpMppc"!=t&&"pptpMppe"!=t||(n=n?"1":"0"),"pptpServer"==t&&4==this.proto?99==cs.ip(n)?(i.pptpDomainFlag="0",i.pptpServerIp=n):(i.pptpDomainFlag="1",i.pptpServerDomain=n):"l2tpServer"==t&&6==this.proto?99==cs.ip(n)?(i.l2tpDomainFlag="0",i.l2tpServerIp=n):(i.l2tpDomainFlag="1",i.l2tpServerDomain=n):i[t]=n;for(t in this.dataType(this.wifi2,"set"),this.wifi2)"ispass"!=t&&(i[t]=this.wifi2[t]);if(this.wifi2.ispass||(i.key=""),this.wifiDualband){for(t in this.dataType(this.wifi5,"set"),this.wifi5)"ispass"!=t&&(i[t+"5g"]=this.wifi5[t]);this.wifi5.ispass||(i.key5g="")}if(i.opmode=this.currentMode,"wisp"==this.currentMode||"rpt"==this.currentMode){for(t in this.tempData)i[t+"_rpt"]=this.tempData[t];"NONE"!=this.tempData.encrypt&&"OPEN"!=this.tempData.encrypt&&(i.password_rpt=this.pass)}this.btnDisabled=!0;function s(){"br"!=i.opmode&&"rpt"!=i.opmode&&("br"!=a.opmode&&"rpt"!=a.opmode||"gw"!=i.opmode&&"wisp"!=i.opmode)?uiPost.setOpModeCfg(i,function(t){applyCallback(t,30,function(){location.href="basic/index.html"+get_token_from_url()})}):uiPost.setOpModeCfg(i,function(t){applyCallback(t,30,function(){location.href="basic/index.html"+get_token_from_url()})})}"gw"==this.currentMode&&this.isMustCloseElink?uiPost.setElinkSyncCfg({elinkSync:"0"},function(){s()}):s()},scanFun:function(){var n=this;this.isEdit?this.isEdit=!1:(n.scanFlag=!0,this.apScanList=[],uiPost.getWiFiApcliScan(function(t){n.apScanList=t,n.data=t,n.scanFlag=!1,n.dataTotal=t.length,n.sinalSort("refre"),n.pagePad()}))},sinalSort:function(t){var a=this,n=a.apScanList.sort(function(t,n){return a.rank(t.signal,n.signal,"desc","num")});a.apScanList=n},wan_change:function(t){"0"==this.proto||"4"==this.proto&&"1"==this.wan.pptpMode||"6"==this.proto&&"1"==this.wan.l2tpMode?(this.wan.dnsMode="1",this.dnsAbled=!0):("init"!=t&&(this.wan.dnsMode="0"),this.dnsAbled=!1)},clone_change:function(t){var n=this;setTimeout(function(){$("#clonemac_pass").blur()},100),"1"==n.wan.clone?uiPost.getStationMacByIp(function(t){n.wan.cloneMac=t.stationMac,n.macDisabled=!1}):(n.wan.cloneMac=n.wan.defaultMac,n.macDisabled=!0)},rank:function(t,n,a,i){var s=m=k=l=0;return"ip"==i?(s=Number(t.split(".")[2]),m=Number(n.split(".")[2]),k=Number(t.split(".")[3]),l=Number(n.split(".")[3])):m="num"==i?(s=Number(t),Number(n)):(s=t,n),"asc"==a?s>m?1:s==m&&"ip"==i?k>l?1:-1:s<m?-1:void 0:s>m?-1:s==m&&"ip"==i?k>l?-1:1:s<m?1:void 0},pageChange:function(t,n){this.apScanList=n},pagePad:function(){this.padValue=document.getElementById("ap_wifi").offsetLeft+"px"}}}</script><script src="/static/js/main.js"></script></body></html>

@@ -1,0 +1,2 @@
+echo "1199 0025" > /sys/bus/usb-serial/drivers/sierra/new_id
+model=SIERRA_U598 1199_0025

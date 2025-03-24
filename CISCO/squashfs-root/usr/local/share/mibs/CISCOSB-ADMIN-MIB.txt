@@ -1,0 +1,389 @@
+-- *****************************************************************
+-- CISCOSB-ADMIN-MIB.my:  CiscoSB ADMIN MIB file
+-- private mib for temp
+-- *****************************************************************
+
+
+
+CISCOSB-ADMIN-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    NOTIFICATION-TYPE,
+    IpAddress,
+    Unsigned32
+        FROM SNMPv2-SMI  
+    TEXTUAL-CONVENTION,
+    DisplayString,
+    TimeStamp,
+    RowStatus,
+    TruthValue
+        FROM SNMPv2-TC
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP,
+    NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB
+    ciscoMgmt,
+    router006
+        FROM CISCO-SMI
+    InetAddressType,
+    InetAddress
+        FROM INET-ADDRESS-MIB
+    FcNameIdOrZero
+        FROM CISCO-ST-TC;
+
+ciscosbAdmin MODULE-IDENTITY
+    LAST-UPDATED    "201010210000Z"
+    ORGANIZATION    "Cisco Small Business"
+    CONTACT-INFO
+            "Postal:  170 West Tasman Drive 
+
+            San Jose , CA  95134-1706 
+
+            USA
+
+            Website:  Cisco Small Business Home http://www.cisco.com/smb <http://www.cisco.com/smb> ,
+                      Cisco Small Business Support Community http://www.cisco.com/go/smallbizsupport "
+
+    DESCRIPTION
+        "The Structure of Management Information for the
+        Cisco Small Business Community."
+    ::= { router006 2 }
+
+DateAndTime ::= OCTET STRING (SIZE (8 | 11))
+   --        A date-time specification for the local time of day.
+   --        This data type is intended to provide a consistent
+   --        method of reporting date information.
+   --
+   --            field  octets  contents                  range
+   --            _____  ______  ________                  _____
+   --              1      1-2   year                      0..65536
+   --                           (in network byte order)
+   --              2       3    month                     1..12
+   --              3       4    day                       1..31
+   --              4       5    hour                      0..23
+   --              5       6    minutes                   0..59
+   --              6       7    seconds                   0..60
+   --                           (use 60 for leap-second)
+   --              7       8    deci-seconds              0..9
+   --              8       9    direction from UTC        "+" / "-"
+   --                           (in ascii notation)
+   --              9      10    hours from UTC            0..11
+   --             10      11    minutes from UTC          0..59
+   --
+   --            Note that if only local time is known, then
+   --            timezone information (fields 8-10) is not present.
+
+PhysAddress ::= OCTET STRING
+     -- This data type is used to model media addresses.  For many
+     -- types of media, this will be in a binary representation.
+     -- For example, an ethernet address would be represented as
+     -- a string of 6 octets.
+
+AdminTransferProtocol ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "The protocol file transfer protocol that should be
+        used to copy the configuration file over the 
+        network. If the config file transfer is to occur 
+        locally on the SNMP agent, the method of transfer 
+        is left up to the implementation, and is not 
+        restricted to the protocols below.
+
+        tftp:   Transfer File Transfer Protocol 
+
+        ftp:    File Transfer protocol
+
+        rcp:    Remote Copy Protocol
+
+        scp:    Secure Copy Protocol
+
+        sftp:   Secure File Transfer Protocol"
+    SYNTAX          INTEGER  {
+                        tftp(1)
+                    }
+
+TransferType ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "The various types of files on which a transfer-file
+        operation can be performed.
+
+        client:       client.
+
+        server:           server."
+    SYNTAX          INTEGER  {
+                        client(1),
+                        server(2)
+
+                    }
+AdminTransferFileType ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "The various types of files on which a transfer-file
+        operation can be performed.
+        firmware:	Firmware 
+
+        startupconf:   	Startup Configuration file
+        
+        backupconf: 	  Backup Configuration file
+
+        mirrorconf: 	  Mirror Configuration file
+        
+        logfile:    		Log file
+
+        adminssl:  	  	Admin SSL
+        
+        clientssl:  	  Client SSL"
+        
+    SYNTAX          INTEGER  {
+                        firmware(1),
+                        startupConf(2),
+                        backupConf(3),
+                        mirrorCconf(4),
+                        logfile(5),
+                        adminSsl(6),
+                        clientSsl(7)
+                    }                    
+
+AdminType ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "DUT reboot or factory default.
+
+        reboot:    DUT reboot. 
+
+        factory default:    DUT set factory default."
+    SYNTAX          INTEGER  {
+                        reboot(1),
+                        factoryDefault(2)
+                    }
+
+AdminState ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "The state of a TFTP transfer-file operation.
+        The description of each state is given below:
+
+        init:        module initialization.
+
+        waiting:     only one transfer-file request can run 
+                     at any time. A newly activated 
+                     transfer-file request is placed in this 
+                     state if another request has already 
+                     been activated.
+
+        running:     this state signifies that the 
+                     transfer-file request is running.
+
+        successful:  the state when a transfer-file request 
+                     is successfully completed.
+
+        failed:      the transfer-file request was 
+                     unsuccessful."
+    SYNTAX          INTEGER  {
+                        init(0),
+                        waiting(1),
+                        running(2),
+                        successful(3),
+                        failed(4)
+                    }
+
+ReasonState ::= TEXTUAL-CONVENTION
+    STATUS          current
+    DESCRIPTION
+        "Report last reboot reason - 
+        It can be user requested, configuration change, or unknown:
+
+        userReq:             user requested
+
+        cfgChg:             configuration change
+
+        unkown:             unknown reason "
+    SYNTAX          INTEGER  {
+						userReq(1), 
+						cfgChg(2), 
+						unknown(3)
+                    }
+                   
+ciscosbAdminType OBJECT-TYPE
+    SYNTAX          AdminType
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION
+        "This Admin request specifies the reboot or factor default type.
+        This value of this object is instantiated immediately 
+        after the type has been instantiated"
+    ::= { ciscosbAdmin 1 }
+
+ciscosbAdminState OBJECT-TYPE
+    SYNTAX          AdminState
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Specifies the state of this Admin request.
+        This value of this object is instantiated only after 
+        the row has been instantiated, i.e. after the 
+        ciscosbAdminRowStatus has been made active." 
+    ::= { ciscosbAdmin 2 }
+    
+ciscosbAdminRebootReason OBJECT-TYPE
+    SYNTAX      ReasonState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION    
+        "userReq(0), cfgChg(1), unkown(2)
+        Specifies the reason of reboot type, record the last reboot reason 
+        It can be user requested, configuration change, or unknown." 
+    ::= { ciscosbAdmin 3 }
+
+ciscosbAdminCurrentTime OBJECT-TYPE
+    SYNTAX      DisplayString 
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION    
+        "Specifies the device system current time." 
+    ::= { ciscosbAdmin 4 }
+
+ciscosbAdminCfgLastChange OBJECT-TYPE
+    SYNTAX	DisplayString  
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION
+            "The value of sysUpTime at the time the system setting
+			its last configuration change operational time."
+    ::= { ciscosbAdmin 5 }
+
+ciscosbAdminLanAddress OBJECT-TYPE
+    SYNTAX	DisplayString
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION
+            "The interface's address (e.g., the MAC address)
+			corresponding to the Lan port Network `physical' address."
+    ::= { ciscosbAdmin 6 }
+    
+ciscosbAdminWanAddress OBJECT-TYPE
+    SYNTAX	DisplayString
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION
+            "The interface's address (e.g., the MAC address)
+			corresponding to the Wan port Network `physical' address."
+    ::= { ciscosbAdmin 7 }
+
+ciscosbAdminWlanAddress OBJECT-TYPE
+    SYNTAX	DisplayString
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION
+            "The interface's address (e.g., the MAC address)
+			corresponding to the Wireless Lan Network `physical' address."
+    ::= { ciscosbAdmin 8 }
+
+ciscosbAdminTransferProtocol OBJECT-TYPE
+    SYNTAX          AdminTransferProtocol
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The protocol to be used for specifies file transfer.
+        the default velue TFTP is only support for file transfer."
+    DEFVAL          { tftp } 
+    ::= { ciscosbAdmin 9 }     
+
+ciscosbAdminTransferFileType OBJECT-TYPE
+    SYNTAX          AdminTransferFileType
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The various types of files on which a transfer-file
+        operation can be performed.
+        
+        It can be firmware(1), startupConf(2), backupConf(3), mirrorCconf(4),
+        logfile(5), adminSsl(6), clientSsl(7)" 
+    ::= { ciscosbAdmin 10 }
+
+ciscosbAdminSourceType OBJECT-TYPE
+    SYNTAX          TransferType
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "Specifies the type of file to copy from. Either the
+        ciscosbAdminSourceType and ciscosbAdminDestType 
+        (both) must be of type 'client' or 'server'. 
+        Also, the ciscosbAdminSourceType must be 
+        different from the ciscosbAdminDestType.
+
+        If the ciscosbAdminSourceType has the value of 
+        'client' or 'server', the ciscosbAdminDestType/
+        ciscosbAdminServerAddress/ciscosbAdminTransferFileType 
+        must also be created." 
+    ::= { ciscosbAdmin 11 }
+
+ciscosbAdminDestType OBJECT-TYPE
+    SYNTAX          TransferType
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "Specifies the type of file to copy from. Either the
+        ciscosbAdminSourceType and ciscosbAdminDestType 
+        (both) must be of type 'client' or 'server'. 
+        Also, the ciscosbAdminSourceType must be 
+        different from the ciscosbAdminDestType.
+
+        If the ciscosbAdminDestType has the value of 
+        'client' or 'server', the ciscosbAdminSourceType/
+        ciscosbAdminServerAddress/ciscosbAdminTransferFileType 
+        must also be created." 
+    ::= { ciscosbAdmin 12 }
+
+ciscosbAdminServerAddress OBJECT-TYPE
+    SYNTAX          IpAddress
+    MAX-ACCESS      read-create
+    STATUS          deprecated
+    DESCRIPTION
+        "The IP address of the TFTP server from (or to)
+        which file transfer to. This object 
+        must be created when either the 
+        ciscosbAdminSourceType or ciscosbAdminDestType has the
+        value 'client' or 'server'." 
+    ::= { ciscosbAdmin 13 }
+
+ciscosbAdminEntryRowStatus OBJECT-TYPE
+    SYNTAX          RowStatus
+    MAX-ACCESS      read-create
+    STATUS          current
+    DESCRIPTION
+        "The status of this table entry. Once the entry
+        status is set to active, the associated entry cannot 
+        be modified until the request completes 
+        (ciscosbAdminState transitions to 'successful'
+        or 'failed' state)." 
+    ::= { ciscosbAdmin 14 }
+
+ciscosbAdminTransferFileName OBJECT-TYPE
+    SYNTAX	DisplayString
+    MAX-ACCESS	read-create
+    STATUS	current
+    DESCRIPTION
+        "The string of file name on which a transfer-file
+        operation can be performed.
+        
+        Specifies the name of file to copy from, If no specified 
+        the default file name can be firmware(code.bin), startupConf(startup.cfg),
+        backupConf(backup.cfg), mirrorCconf(mirror.cfg), logfile(cy_logmsg),
+        adminSsl(admin.pem), clientSsl(client.pem)" 
+    ::= { ciscosbAdmin 15 }
+
+ciscosbAdminFirmwareMd5Checksum OBJECT-TYPE
+    SYNTAX	DisplayString  
+    MAX-ACCESS  read-only
+    STATUS	current
+    DESCRIPTION
+        "The vendor-specific firmware md5 checksum string for the physical entity. 
+        The checksum of the current firmware load."
+    ::= { ciscosbAdmin 16 }
+END

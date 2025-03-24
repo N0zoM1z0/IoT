@@ -1,0 +1,9 @@
+Package: kmod-ipv6-pass-through
+Version: 4.4.176+1.0-1
+Depends: kernel (=4.4.176-1-ccf593a113351d85e0d5f640ca33947f)
+Source: tp_package/k_packages/ipv6-pass-through
+Section: ipv6
+Maintainer: Yang Taoliu <yangtaoliu@tp-link.net>
+Architecture: rtl
+Installed-Size: 2303
+Description:  Ipv6 Dial Mode of Pass Through.

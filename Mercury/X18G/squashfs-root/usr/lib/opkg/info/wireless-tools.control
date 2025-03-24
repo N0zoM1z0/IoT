@@ -1,0 +1,14 @@
+Package: wireless-tools
+Version: 29-5
+Depends: libc
+Provides: 
+Source: tp_package/sys_packages/wireless-tools
+Section: net
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 49300
+Description:  This package contains a collection of tools for configuring wireless
+ adapters implementing the "Linux Wireless Extensions".

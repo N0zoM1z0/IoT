@@ -1,0 +1,440 @@
+<script type="text/javascript">
+	function init()
+	{
+		var BS_SWITCH_ENABLE = "1";
+		var switchState = true;
+		var bands = ["2G", "5G", "5G1", "5G2", "BS"];
+		var band2 = [FREQ_2G, FREQ_5G];
+		var band3 = [FREQ_2G, FREQ_5G1, FREQ_5G4];
+
+		function switchBSHd(state)
+		{
+			var switchBg = $("#switchBS").children(':first-child');
+			if (state)
+			{
+				switchBg.attr("class", "switchBg");
+				$(".openBS").show();
+				$(".closeBS").hide();
+			}
+			else{
+				switchBg.attr("class", "switchBgOff");
+				$(".openBS").hide();
+				$(".closeBS").show();
+
+				if (slp.bandsProvided - 1 == BAND_3) {
+					$(".input5G1").show();
+					$(".input5G2").show();
+				}
+
+				if (slp.bandsProvided - 1 == BAND_2) {
+					$(".input5G").show();
+				}
+			}
+		}
+
+		function errorHandle(errNo, labelFor, noteId)
+        {
+            switch(errNo)
+            {
+			case ENONE:
+				return false;
+			case EWLANPWDBLANK:
+				return false;
+			case EINVSSIDNULL:
+				// 无线名称为空
+				showPhoneNote(labelFor, noteId, "请输入无线名称");
+				break;
+			case EINVSSIDBLANK:
+				// 无线名称全为空格
+				showPhoneNote(labelFor, noteId, "无线名称不能全为空格，请重新输入");
+				break;
+			case EINVSSIDLEN:
+				// 无线名称长度错误
+				showPhoneNote(labelFor, noteId, "无线名称超过合法长度，请重新输入");
+				break;
+			case EINVWLANPWD:
+				// 密码非法字符
+				showPhoneNote(labelFor, noteId, "无线密码中存在非法字符，请输入数字、字母或符号");
+				break;
+			case EINVPSKLEN:
+				// 密码长度错误
+				showPhoneNote(labelFor, noteId, "无线密码长度错误，请输入8至63个字符");
+				break;
+            default:
+				showPhWzdAlert(errStr.invRequestFail);
+                break;
+            }
+
+            return true;
+		}
+
+		function checkWlanNameAndPwd(freq)
+		{
+			var nameVal = id("wlanName" + freq).value;
+			var pwdVal = id("wlanPwd" + freq).value;
+			var data = {};
+
+			closePhoneNote("wlanName" +  freq, "wlanNameNote" + freq);
+
+			if (errorHandle(checkWlanName(nameVal), "wlanName" +  freq, "wlanNameNote" + freq) ||
+				errorHandle(checkWlanPwd(pwdVal), "wlanPwd" +  freq, "wlanPwdNote" + freq))
+			{
+				return false;
+			}
+			data.ssid = nameVal;
+			data.key = pwdVal;
+			data.encryption = pwdVal == "" ? 0 : 1;
+
+			return data;
+		}
+
+		function togglePwdShow(freq)
+		{
+			var togglePwdShowId = "#togglePwdShow" + freq;
+			$(togglePwdShowId).click(function() {
+				$(togglePwdShowId).toggleClass("pwdShowOff pwdShowOn");
+				id("wlanPwd" + freq).type = $(togglePwdShowId).attr("class") == "pwdShowOff"
+					? "password" : "text";
+			});
+		}
+
+		$("#next").click(function() {
+			var dhcpsArg = {"udhcpd":{"enable":"0", "auto":"1"}};
+			var lanArg = {"lan":{"ipaddr":gLanIP, "ip_mode":"dynamic", "netmask": gLanMask}};
+			var wlanHostArg = {};
+			var checkResult;
+
+			gLocalAPInfo[FREQ_BS].bs_enable = switchState ? "1" : "0";
+			/* 如果BandSteering功能打开，则修改wlan_bs配置 */
+			if (slp.bandSteeringProvided && BS_SWITCH_ENABLE == gLocalAPInfo[FREQ_BS].bs_enable)
+			{
+				checkResult = checkWlanNameAndPwd("BS");
+				if (false == checkResult)
+				{
+					return;
+				}
+
+				gLocalAPInfo[FREQ_BS].ssid = checkResult.ssid;
+				gLocalAPInfo[FREQ_BS].key = checkResult.key;
+				gLocalAPInfo[FREQ_BS].encryption = checkResult.encryption;
+				wlanHostArg.wlan_bs = {
+					"bs_enable": switchState ? "1" : "0",
+                    "ssid":gLocalAPInfo[FREQ_BS].ssid,
+                    "key":gLocalAPInfo[FREQ_BS].key,
+                    "encryption":gLocalAPInfo[FREQ_BS].encryption
+                };
+			}
+			else
+			{
+				var checkBand = slp.bandsProvided - 1 == BAND_3 ? band3 : band2;
+				for (var i = 0; i < checkBand.length; i++) {
+					var freq = checkBand[i];
+					checkResult = checkWlanNameAndPwd(bands[freq]);
+					if (false == checkResult)
+					{
+						return;
+					}
+					gLocalAPInfo[freq].ssid = checkResult.ssid;
+					gLocalAPInfo[freq].key = checkResult.key;
+					gLocalAPInfo[freq].encryption = checkResult.encryption;
+					var name = gKeyNames[slp.bandsProvided - 1].wlan_host[freq];
+					var hostArg = {
+						"ssid":gLocalAPInfo[freq].ssid,
+						"key":gLocalAPInfo[freq].key,
+						"encryption":gLocalAPInfo[freq].encryption
+					};
+					wlanHostArg[name] = hostArg;
+				}
+				wlanHostArg.wlan_bs = {"bs_enable":"0"};
+			}
+
+			var data = {};
+			data.network = lanArg;
+			data.dhcpd = dhcpsArg;
+			data.wireless = wlanHostArg;
+
+			gWifiCfgToSave = data;
+			gSysMode = uciSystem.optValue.sysMode.wdsMode;
+			if (slp.g11AXSupport["wlan2g"] || slp.g11AXSupport["wlan5g"] || slp.g11AXSupport["wlan5g1"] || slp.g11AXSupport["wlan5g4"]) {
+				loadPage("PhoneWizardWirelessAx.htm", "phCon");
+			} else {
+				$.modify({"system":{"sys_mode":{"mode": gSysMode}}}, function(result) {
+					if (true == errHandle(result[ERR_CODE])) {
+						$.modify(gWifiCfgToSave, function(resp) {
+							if (true == errHandle(resp[ERR_CODE])) {
+								loadPage("PhoneWlanWDSCfgEnd.htm", "phCon");
+							}
+						});
+					}
+				});
+			}
+		});
+		$("#pre").click(function() {
+			backFromNextPage = true;
+			gWDSPwdErrList = [];
+			loadPage("PhoneWlanWDSCfgSecond.htm", "phCon");
+		});
+
+		for (var freq in bands)
+		{
+			if (!bands.hasOwnProperty(freq)){
+				continue;
+			}
+			togglePwdShow(bands[freq]);
+		}
+
+		if (slp.bandsProvided - 1 == BAND_3) {
+			$(".phBSTip").html(label.phBS3BandTip);
+		}
+
+		$("#switchCon").click(function(){
+			if(switchState){
+				switchState = false;
+				$("#switchOff").show();
+				$("#switchOn").hide();
+			}else{
+				switchState = true;
+				$("#switchOff").hide();
+				$("#switchOn").show();
+			}
+			switchBSHd(switchState);
+		});
+		switchState = !gLocalAPInfo[FREQ_BS].bs_enable == "1";
+		$("#switchCon").click();
+
+		for (var freq = 0; freq < FREQ_BS; freq++) {
+			if ("undefined" != typeof wdsTargetSelFreq[freq] && wdsTargetSelFreq[freq].selected && wdsTargetSelFreq[freq].status == 2) {
+				$("#wlanName" + bands[freq]).val(gRootAPInfo[freq].ssid);
+				$("#wlanPwd" + bands[freq]).val(gRootAPInfo[freq].key);
+			}
+			else {
+				$("#wlanName" + bands[freq]).val(gLocalAPInfo[freq].ssid);
+				$("#wlanPwd" + bands[freq]).val(gLocalAPInfo[freq].key);
+			}
+		}
+
+		//多频合一时，local无线设置默认使用2.4G的前端配置；2.4G桥接不成功，才使用5G或5G1、5G4的
+		if (slp.bandSteeringProvided)
+		{
+            for (var freq in wdsTargetSelFreq) {
+                if (wdsTargetSelFreq[freq].selected && wdsTargetSelFreq[freq].status == 2) {
+					$("#wlanNameBS").val(gRootAPInfo[freq].ssid);
+					$("#wlanPwdBS").val(gRootAPInfo[freq].key);
+                    break;
+                }
+			}
+		}
+		else
+		{
+			$(".switchBSUl").hide();
+		}
+	}
+	init();
+</script>
+<style type="text/css">
+	p.WDSTitle{
+		width:280px;
+		margin:16px auto;
+		color:#666666;
+		font-size:14px;
+		text-align:left;
+	}
+	.phInputUl p{
+		color:#666666;
+		font-size:14px;
+		text-align:left;
+	}
+	.phInputUl .titleTip{
+		font-size:14px;
+		font-weight:bold;
+		margin-bottom:8px;
+	}
+	li.phInputLi input{
+		box-sizing:border-box;
+	}
+	.ib{
+		display: inline-block;
+	}
+	#switchBS{
+		font-size:14px;
+		line-height: 20px;
+		float: right;
+	}
+	.input5G{
+		display: none;
+	}
+	.input5G1{
+		display: none;
+	}
+	.input5G2{
+		display: none;
+	}
+	.bold{
+		font-weight:bold;
+	}
+	ul.switchBSUl{
+		margin: 0 auto;
+		width: 280px;
+		height:46px;
+		border-bottom:solid 1px rgba(255, 255, 255, 0.4);
+	}
+	ul.switchBSUl p.titleBS{
+		line-height:42px;
+		font-size:14px;
+		color:#666666;
+		vertical-align: middle;
+	}
+	ul.switchBSUl div{
+		display: inline-block;
+		vertical-align:middle;
+	}
+	#switchCon {
+		float:right;
+	}
+	#switchCon img{
+		width: 61px;
+		height: 46px;
+	}
+	p.ctxBS{
+		font-size:14px;
+		color:#666666;
+		margin: 8px auto 40px;
+		width: 280px;
+		margin-top:8px;
+	}
+	li.phErrTip span.errDes {
+		line-height:16px;
+	}
+</style>
+<h1 class="phoneTitle">无线设置</h1>
+<div class="WDSThBlock">
+	<p class="WDSTitle">请设置本路由器的Wi-Fi名称和密码（推荐与前端路由保持一致，实现无缝漫游）</p>
+	<ul class="switchBSUl">
+		<p class="titleBS ib bold">多频合一</p>
+		<div id="switchCon">
+			<img id="switchOn" src="../web-static/images/switchOn.png" />
+			<img id="switchOff" src="../web-static/images/switchOff.png" />
+		</div>
+		<p class="phBSTip">2.4G和5G无线网络使用相同的无线名称和密码，在终端连接Wi-Fi时，路由器会根据网络情况自动为终端选择最佳上网频段。</p>
+	</ul>
+	<p class="ctxBS phBSTip">2.4G和5G无线网络使用相同的无线名称和密码，在终端连接Wi-Fi时，路由器会根据网络情况自动为终端选择最佳上网频段。</p>
+	<div class="openBS">
+		<ul class="phInputUl">
+			<p class="titleTip">无线设置</p>
+			<li class="phInputLi">
+				<label for="wlanNameBS">Wi-Fi名称</label>
+				<i class="clapboard"></i>
+				<input id="wlanNameBS" maxlength="63" />
+			</li>
+			<li id="wlanNameNoteBS" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl">
+			<li class="phInputLi">
+				<label for="wlanPwdBS">Wi-Fi密码</label>
+				<i class="clapboard"></i>
+				<input id="wlanPwdBS" maxlength="63" type="password" />
+				<i id="togglePwdShowBS" class="pwdShowOff"></i>
+			</li>
+			<li id="wlanPwdNoteBS" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+	</div>
+	<div class="closeBS">
+		<ul class="phInputUl input2G">
+			<p class="titleTip">2.4G无线设置</p>
+			<li class="phInputLi">
+				<label for="wlanName2G">Wi-Fi名称</label>
+				<i class="clapboard"></i>
+				<input id="wlanName2G" maxlength="63" />
+			</li>
+			<li id="wlanNameNote2G" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input2G">
+			<li class="phInputLi">
+				<label for="wlanPwd2G">Wi-Fi密码</label>
+				<i class="clapboard"></i>
+				<input id="wlanPwd2G" maxlength="63" type="password" />
+				<i id="togglePwdShow2G" class="pwdShowOff"></i>
+			</li>
+			<li id="wlanPwdNote2G" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G">
+			<p class="titleTip">5G无线设置</p>
+			<li class="phInputLi">
+				<label for="wlanName5G">Wi-Fi名称</label>
+				<i class="clapboard"></i>
+				<input id="wlanName5G" maxlength="63" />
+			</li>
+			<li id="wlanNameNote5G" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G">
+			<li class="phInputLi">
+				<label for="wlanPwd5G">Wi-Fi密码</label>
+				<i class="clapboard"></i>
+				<input id="wlanPwd5G" maxlength="63" type="password" />
+				<i id="togglePwdShow5G" class="pwdShowOff"></i>
+			</li>
+			<li id="wlanPwdNote5G" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G1">
+			<p class="titleTip">5G1无线设置</p>
+			<li class="phInputLi">
+				<label for="wlanName5G1">Wi-Fi名称</label>
+				<i class="clapboard"></i>
+				<input id="wlanName5G1" maxlength="63" />
+			</li>
+			<li id="wlanNameNote5G1" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G1">
+			<li class="phInputLi">
+				<label for="wlanPwd5G1">Wi-Fi密码</label>
+				<i class="clapboard"></i>
+				<input id="wlanPwd5G1" maxlength="63" type="password" />
+				<i id="togglePwdShow5G1" class="pwdShowOff"></i>
+			</li>
+			<li id="wlanPwdNote5G1" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G2">
+			<p class="titleTip">5G2无线设置</p>
+			<li class="phInputLi">
+				<label for="wlanName5G2">Wi-Fi名称</label>
+				<i class="clapboard"></i>
+				<input id="wlanName5G2" maxlength="63" />
+			</li>
+			<li id="wlanNameNote5G2" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+		<ul class="phInputUl input5G2">
+			<li class="phInputLi">
+				<label for="wlanPwd5G2">Wi-Fi密码</label>
+				<i class="clapboard"></i>
+				<input id="wlanPwd5G2" maxlength="63" type="password" />
+				<i id="togglePwdShow5G2" class="pwdShowOff"></i>
+
+			</li>
+			<li id="wlanPwdNote5G2" class="phErrTip disNone">
+				<span class="errDes"></span>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="phFunc">
+	<label id="pre" class="phTwoBtnL">{%btn.preStep%}</label>
+	<label id="next" class="phTwoBtnR">{%btn.nextStep%}</label>
+</div>

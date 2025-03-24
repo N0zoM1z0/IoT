@@ -1,0 +1,10 @@
+Package: kmod-warp
+Version: 5.4.194-1
+Depends: kernel (=5.4.194-1-17bc2b3df327d9db79dfae29df0e4c80), kmod-mediatek_hnat
+Source: package/mtk/drivers/warp
+SourceName: kmod-warp
+Section: kernel
+SourceDateEpoch: 1660196920
+Architecture: aarch64_cortex-a53
+Installed-Size: 156154
+Description:  MTK warp driver

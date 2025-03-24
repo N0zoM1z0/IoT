@@ -1,0 +1,4 @@
+/etc/modules-boot.d/60-warp
+/etc/modules.d/60-warp
+/lib/firmware/7981_WOCPU0_RAM_CODE_release.bin
+/lib/modules/5.4.194/mtk_warp.ko

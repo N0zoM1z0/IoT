@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="tools"></adv-child-menu>    
+  <div class="advance-box">
+    <x-help :text="lang_t('time.help')"></x-help>
+	<br><br>
+	<div class="fun-box">
+	  <table class="table">
+	    <tbody>
+		<tr>
+		  <td class="fun-left">{{ lang_t('time.current_time') }}</td>
+		  <td>
+		  	<input type="text" v-model="date" readonly>&nbsp;&nbsp;
+		  	<a class="link" @click="submitLocaltime">{{ lang_t('time.copy_time') }}</a>
+		  </td>
+	  	</tr>
+	 	<tr>
+	   	  <td class="fun-left">{{ lang_t('time.time_zone') }}</td>
+	   	  <td>
+		    <select v-model="tz" class="long-select">
+			 <option value="UTC+12">(UTC-12:00) {{ lang_t('time.ntp25') }}</option>
+			 <option value="UTC+11">(UTC-11:00) {{ lang_t('time.ntp1') }}</option>
+			 <option value="UTC+10">(UTC-10:00) {{ lang_t('time.ntp2') }}</option>
+			 <option value="UTC+9">(UTC-09:00) {{ lang_t('time.ntp3') }}</option>
+			 <option value="UTC+8">(UTC-08:00) {{ lang_t('time.ntp4') }}</option>
+			 <option value="UTC+7">(UTC-07:00) {{ lang_t('time.ntp5') }}</option>
+			 <option value="UTC+6">(UTC-06:00) {{ lang_t('time.ntp6') }}</option>
+			 <option value="UTC+5">(UTC-05:00) {{ lang_t('time.ntp7') }}</option>
+			 <option value="UTC+4">(UTC-04:00) {{ lang_t('time.ntp8') }}</option>
+			 <option value="UTC+3">(UTC-03:00) {{ lang_t('time.ntp9') }}</option>
+			 <option value="UTC+2">(UTC-02:00) {{ lang_t('time.ntp10') }}</option> 
+			 <option value="UTC+1">(UTC-01:00) {{ lang_t('time.ntp11') }}</option>
+			 <option value="UTC+0">(UTC-00:00) {{ lang_t('time.ntp12') }}</option>
+			 <option value="UTC-1">(UTC+01:00) {{ lang_t('time.ntp13') }}</option>
+			 <option value="UTC-2">(UTC+02:00) {{ lang_t('time.ntp14') }}</option>
+			 <option value="UTC-3">(UTC+03:00) {{ lang_t('time.ntp15') }}</option>
+			 <option value="UTC-4">(UTC+04:00) {{ lang_t('time.ntp16') }}</option>
+			 <option value="UTC-5">(UTC+05:00) {{ lang_t('time.ntp17') }}</option>
+			 <option value="UTC-6">(UTC+06:00) {{ lang_t('time.ntp18') }}</option>
+			 <option value="UTC-7">(UTC+07:00) {{ lang_t('time.ntp19') }}</option>
+			 <option value="UTC-8">(UTC+08:00) {{ lang_t('time.ntp20') }}</option>
+			 <option value="UTC-9">(UTC+09:00) {{ lang_t('time.ntp21') }}</option>
+			 <option value="UTC-10">(UTC+10:00) {{ lang_t('time.ntp22') }}</option>
+			 <option value="UTC-11">(UTC+11:00) {{ lang_t('time.ntp23') }}</option>
+			 <option value="UTC-12">(UTC+12:00) {{ lang_t('time.ntp24') }}</option>
+		    </select>
+	   	  </td>
+	 	</tr>
+	  	<tr>
+		  <td class="fun-left"></td>
+		  <td>
+		  	<x-checkbox v-model="enable" @change="ntp_enable">{{ lang_t('time.sync_time') }}</x-checkbox>
+		  </td>
+	    </tr>
+	    <tr>
+		  <td class="fun-left">{{ lang_t('time.server') }} 1</td>
+		  <td>
+		    <input type="text" v-model="server_a" v-verify="formRules" maxlength="32" data-name="server_a" :disabled="ntp_set"> 
+		  </td>
+	    </tr>
+	    <tr>
+		  <td class="fun-left">{{ lang_t('time.server') }} 2</td>
+		  <td>
+		    <input type="text" v-model="server_b" v-verify="formRules" maxlength="32" data-name="server_b" :disabled="ntp_set">
+		  </td>
+	    </tr>
+	    <tr>
+		  <td class="fun-left">{{ lang_t('time.server') }} 3</td>
+		  <td>
+		    <input type="text" v-model="server_c" v-verify="formRules" maxlength="32" data-name="server_c" :disabled="ntp_set">
+		  </td>
+	    </tr>
+	    <tr><td colspan="2"></td></tr>
+	    <tr>
+		  <td class="fun-left"></td>
+		  <td>
+		    <button type="button" class="btn" @click.prevent="handleSubmit">{{ lang_t('common.apply') }}</button>
+		  </td>
+	    </tr>
+	    </tbody>
+	  </table>
+	  <x-test ref="verifi"></x-test>
+  	</div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,ntp_set:!1,date:"",tz:"",enable:"",server_a:"",server_b:"",server_c:""}},computed:{formRules:function(){var n=this;return{server_a:function(e,t){e?cs.isUrl(e)?t():t(n.lang_t("time.msg4")):t(n.lang_t("time.msg1"))},server_b:function(e,t){e?cs.isUrl(e)?t():t(n.lang_t("time.msg4")):t(n.lang_t("time.msg2"))},server_c:function(e,t){e?cs.isUrl(e)?t():t(n.lang_t("time.msg4")):t(n.lang_t("time.msg3"))}}}},created:function(){var e=this;e.get_ntp_time(),0==countStart&&(countTimer=setInterval(function(){e.get_ntp_time("date")},5e3))},methods:{get_ntp_time:function(a){var i=this;uiPost.getNtpCfg(function(e){for(var t,n=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],r=0;r<12;r++)e.currentTime.split(" ")[1]==n[r]&&(t=r+1);var s=e.currentTime.replace(/\s+/g," ");i.date=s.split(" ")[5]+"-"+t+"-"+s.split(" ")[2]+" "+s.split(" ")[3],"date"!=a&&(i.server_a=e.server.split("*")[0],i.server_b=e.server.split("*")[1],i.server_c=e.server.split("*")[2],i.tz=e.tz,i.enable="1"==e.enable,i.ntp_set=!i.enable)})},ntp_enable:function(e){this.enable?this.ntp_set=!1:this.ntp_set=!0},addZero:function(e){return e=e<10?"0"+e:e},getDate:function(e){this.date=e},submitLocaltime:function(){this.enable=!1;var e=new Date,t=e.getFullYear(),n=this.addZero(e.getMonth()+1),r=this.addZero(e.getDate()),s=this.addZero(e.getHours()),a=this.addZero(e.getMinutes()),e=this.addZero(e.getSeconds()),t=(this.date=t+"-"+n+"-"+r+" "+s+":"+a+":"+e,{});t.host_time=this.date,uiPost.NTPSyncWithHost(t,function(){location.reload()})},handleSubmit:function(){var t,n=this,r={};n.server_a&&(t=n.server_a),n.server_b&&(t+="*"+n.server_b),n.server_c&&(t+="*"+n.server_c),Cstool.Verify(this.formRules,function(e){e&&(r.tz=n.tz,r.enable=1==n.enable?"1":"0",r.server=t,uiPost.setNtpCfg(r,applyCallback))})}}}</script><script src="/static/js/main.js"></script></body></html>

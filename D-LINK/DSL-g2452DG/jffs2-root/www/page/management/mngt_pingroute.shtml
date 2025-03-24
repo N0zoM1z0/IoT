@@ -1,0 +1,301 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/sha256.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript">
+
+<!--#getobject "InternetGatewayDevice.IPPingDiagnostics. Host DiagnosticsState NumberOfRepetitions Timeout DataBlockSize SuccessCount FailureCount AverageResponseTime MinimumResponseTime MaximumResponseTime Interface X_CT-COM_ResolvedHost Protocol" -->
+var G_Host = "<!--#leaf "1"-->";
+var G_DiagnosticsState = "<!--#leaf "2"-->";
+var G_NumberOfRepetitions = "<!--#leaf "3"-->";
+var G_Timeout = "<!--#leaf "4"-->";
+var G_DataBlockSize = "<!--#leaf "5"-->";
+var G_SuccessCount = "<!--#leaf "6"-->";
+var G_FailureCount = "<!--#leaf "7"-->";
+var G_AverageResponseTime = "<!--#leaf "8"-->";
+var G_MinimumResponseTime = "<!--#leaf "9"-->";
+var G_MaximumResponseTime = "<!--#leaf "10"-->";
+var G_Interface = "<!--#leaf "11"-->";
+var G_ResolvedHost = "<!--#leaf "12"-->";
+var G_IPProtocolType = "<!--#leaf "13"-->";
+<!--#endgetobject -->
+
+/********************** List所有wan连接 *******************/
+function WanConnsTuple()
+{
+	this.Path = "";
+	this.Name = "";
+	this.ConnectionType = "";
+	this.IPMode = "";
+}
+
+var wanIndex = 0;
+var WanConns = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name ConnectionType X_CT-COM_IPMode"-->
+    		WanConns[wanIndex] = new WanConnsTuple();
+    		WanConns[wanIndex].Path = "<!--#path -->";
+    		WanConns[wanIndex].Name = "<!--#leaf "1"-->";
+    		WanConns[wanIndex].ConnectionType = "<!--#leaf "2"-->";
+    		WanConns[wanIndex].IPMode = "<!--#leaf "3"-->";
+    		wanIndex++;
+        <!--#endgetobject -->
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name ConnectionType X_CT-COM_IPMode"-->
+    		WanConns[wanIndex] = new WanConnsTuple();
+    		WanConns[wanIndex].Path = "<!--#path -->";
+    		WanConns[wanIndex].Name = "<!--#leaf "1"-->";
+    		WanConns[wanIndex].ConnectionType = "<!--#leaf "2"-->";
+    		WanConns[wanIndex].IPMode = "<!--#leaf "3"-->";
+    		wanIndex++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+
+
+/********************** 生成所有路由连接的名称 *******************/
+function createConnsOpt()
+{
+    var _text = [], _value = [];
+    for(var i = 0; i < WanConns.length; i++){
+        //跳过桥连接
+        if(WanConns[i].ConnectionType == "IP_Bridged" || WanConns[i].ConnectionType=="PPPoE_Bridged")
+            continue;
+		if('4' == getValue('SELECT_Protocol') && WanConns[i].IPMode == 2){
+			continue;
+		}
+		else if('6' == getValue('SELECT_Protocol') && WanConns[i].IPMode == 1){
+			continue;
+		}
+        _text.push(WanConns[i].Name);
+        _value.push(WanConns[i].Path);
+    }
+    createOptions('select_wan_interface',_text,_value);
+
+    if(G_Interface != "")
+    {
+        $('select_wan_interface').value = G_Interface; //页面刷新时，显示上次提交时选中的wan连接
+    }
+}
+function clearping()
+{
+}
+function init(){
+	var Node_Output = '';	
+	$('ping').disabled = false;
+	setValue('INPUT_Host',G_Host);
+	setValue('INPUT_NumberOfRepetitions',G_NumberOfRepetitions);
+	setValue('INPUT_TimeOut',G_Timeout);
+	setValue('INPUT_DataBlockSize',G_DataBlockSize);
+	setValue('SELECT_Protocol',G_IPProtocolType && G_IPProtocolType.substr(3,1));
+	//生成WAN连接
+	createConnsOpt();	
+	Node_Output += getStr("LK_HostAddress") + ': ' + G_Host;
+	if (G_ResolvedHost != '') {
+		Node_Output += '(' + G_ResolvedHost + ')';
+	}
+	Node_Output += unescape("%0a");
+			
+		switch (G_DiagnosticsState){
+			case 'Complete':{
+				Node_Output += getStr("LK_DiagnosticsStatus") + ': '+ getStr("LK_Complete") + ' ' + unescape("%0a");
+				Node_Output += getStr("LK_SuccessNumbers") + ': '+ G_SuccessCount + unescape("%0a");
+				Node_Output += getStr("LK_FailureNumbers") + ': '+ G_FailureCount + unescape("%0a");
+				Node_Output += getStr("LK_ResponseTime") + ': '+ getStr("LK_Max") + ' ' + G_MaximumResponseTime + ' ms , '+ getStr("LK_Min")+ ' ' + G_MinimumResponseTime +' ms , '+ getStr("LK_Average") + ' ' + G_AverageResponseTime +' ms';
+			  var _url = "/cgi-bin/clearping.cgi";
+				ajax = Ajax.getInstance(_url, "", 0 ,clearping);	
+				ajax.get();
+				break;
+			}
+			case 'Error_CannotResolveHostName':{
+				Node_Output += getStr("LK_DiagnosticsStatus") + ': ' + getStr("LK_CannotResolveText");
+				var _url = "/cgi-bin/clearping.cgi";
+				ajax = Ajax.getInstance(_url, "", 0 ,clearping);	
+				ajax.get();
+				break;
+			}
+			case 'Error_Other':{
+				Node_Output += getStr("LK_DiagnosticsStatus") + ': ' + getStr("LK_ThehostcannotText");
+				var _url = "/cgi-bin/clearping.cgi";
+				ajax = Ajax.getInstance(_url, "", 0 ,clearping);	
+				ajax.get();
+				break;
+			}
+			case 'Error_Interal':{
+				Node_Output += getStr("LK_DiagnosticsStatus") + ': ' + getStr("LK_Internalerror");
+				var _url = "/cgi-bin/clearping.cgi";
+				ajax = Ajax.getInstance(_url, "", 0 ,clearping);	
+				ajax.get();
+				break;
+			}
+			case 'Requested':{
+				Node_Output += getStr("LK_DiagnosticsStatus") + ': ' + getStr("LK_Pinging");
+				setTimer();
+				break;
+			}
+			case 'None': {
+				Node_Output = '';
+				break;
+			}
+		}
+		$('TEXTAREA_Output').innerHTML = Node_Output;
+	//控制ping按钮
+//	ctrlPing();
+	//$("DIV_Protocol").style.display = G_IPProtocolVersion == '1' ? 'none' : 'block';
+}
+/*
+function ctrlPing(){
+	var wan_conn = $('SELECT_Conns').value;
+	
+	if(wan_conn == ''){
+		$('ping').disabled = true;
+	}
+	if(G_DiagnosticsState != 'Requested'){
+		$('ping').disabled = false;
+	}
+}
+*/
+function setTimer(){
+	var Timer = setTimeout('uiPageRefresh()',5000);
+//	if(G_DiagnosticsState != 'Requested'){
+//		clearTimeout(Timer);
+//	} else {
+		SetButtonStatus('ping', 'disabled');
+//		$('ping').disabled = true;
+//	}
+}
+
+function uiSubmit(){
+	var value_array = $('INPUT_Host','INPUT_NumberOfRepetitions','INPUT_TimeOut','INPUT_DataBlockSize','SELECT_Protocol');
+/*	for (var i = 0; i < WanConns.length; i++)
+	{
+		if (WanConns[i].Path == value_array[4].value)
+		{
+			if (WanConns[i].IPv4_ConnectionStatus.indexOf('Disconnected') > -1 || WanConns[i].IPv6_ConnectionStatus.indexOf('Disconnected') > -1)
+			{
+				top.AlertMsg(getStr("LK_TheWANconnectionnotText"));
+				return false;
+			}
+		}
+	}		
+*/
+	if(!checkDomain(value_array[0])){  //if not a valid domain,check 'INPUT_Host'is valid ip addr
+		if (value_array[4].value == '6')
+		{
+			if (!checkIpv6(value_array[0], 1))
+			{
+				top.AlertMsg(getStr("LK_ThechosenIPText"));
+				return false;
+			}
+			
+		}
+		else if (value_array[4].value == '4')
+		{
+			if (!isCheckIPV4(value_array[0]))
+			{
+				top.AlertMsg(getStr("LK_ThechosenIPText"));
+				return false;
+			}
+			
+		}
+	}
+	if(value_array[0].value == 0 ){
+		top.AlertMsg(getStr("LK_ThehostIPnotempty"));
+		return false;
+	}
+	if($('select_wan_interface').value=="")
+	{
+		top.AlertMsg(getStr("LK_app_chooseWanConnect"));
+		return false;
+	}
+    if(!validateCode())
+        return false;
+	var df = document.pingdataform; 
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.Host", value_array[0].value);
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.NumberOfRepetitions", value_array[1].value);
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.Timeout", value_array[2].value);
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.DataBlockSize", value_array[3].value); 
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.DiagnosticsState",'Requested'); 
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.Interface",$('select_wan_interface').value); 
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.Protocol", 'IPv' + value_array[4].value); 
+	AddElements(df, "InternetGatewayDevice.IPPingDiagnostics.websubmit", '1'); 
+	df.submit();
+}
+
+function selectIPPro(){
+	createConnsOpt();
+//	ctrlPing();
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_ToolsPing"));</script>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_Hostt"></td>
+		<td><input type="text" maxlength="256" id="INPUT_Host" name="INPUT_Host"></td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_RepeatNumber"></td>
+		<td><input type="text" maxlength="32" id="INPUT_NumberOfRepetitions" name="INPUT_NumberOfRepetitions"></td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_Timeoutt"></td>
+		<td><input type="text" maxlength="32" id="INPUT_TimeOut" name="INPUT_TimeOut"></td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_PacketSize"></td>
+		<td><input type="text" maxlength="32" id="INPUT_DataBlockSize" name="INPUT_DataBlockSize"></td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_ProtocolType"></td>
+		<td><select id="SELECT_Protocol" id="SELECT_Protocol" name="SELECT_Protocol" onChange="selectIPPro()">
+			<option value="4">IPv4</option>
+			<option value="6">IPv6</option>
+		</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_WANConnection_Colon"></td>
+		<td width="150" ><select id="select_wan_interface"></select>		        
+	</tr>	
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+
+  <!-- <tr><td></td> <td> <select id="SELECT_Conns" onChange="ctrlPing()">
+    </select></td></tr>-->
+    	<tr><td></td><td>
+	<textarea id="TEXTAREA_Output" cols="60" rows="10" wrap="virtual" style="font-size:14px; line-height:20px;" readonly>
+   	 </textarea>
+	</td></tr>    
+	<tr class="spaceLine"><td>&nbsp;</td></tr>
+	<tr><td colspan="2">
+	<script>PrintTriButton("ping",getStr("LK_Ping"),"uiSubmit();");</script>&nbsp;&nbsp;
+	<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh();");</script>   
+	</td></tr>
+	</table>
+	</form>
+<script>printEndContent();</script>    
+<form method="post" name ="pingdataform" action="/cgi-bin/setup.cgi?page/management/mngt_pingroute.shtml">
+    </form>
+    </body>
+    </html>

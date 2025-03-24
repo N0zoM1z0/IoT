@@ -1,0 +1,17 @@
+#!/bin/sh
+
+regs m 0x10000060 0x1 18 1
+regs m 0x10000604 0x1 5 1
+
+for i in $(seq 1 60)
+do
+	regs m 0x10000624 0x1 5 1	
+	
+	sleep 1
+
+	regs m 0x10000624 0x0 5 1	
+
+	sleep 1
+done
+
+regs m 0x10000624 0x0 5 1

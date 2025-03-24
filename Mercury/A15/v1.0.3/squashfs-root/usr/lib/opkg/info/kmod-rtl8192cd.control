@@ -1,0 +1,8 @@
+Package: kmod-rtl8192cd
+Version: 4.4.176+2.5-1
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, wireless-tools, kmod-ther_ctrl
+Source: tp_package/wlan-driver/rtl/rtl8192cd
+Section: kernel
+Architecture: rtl
+Installed-Size: 953985
+Description:  rtl8192cd wifi AP driver

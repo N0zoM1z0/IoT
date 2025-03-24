@@ -1,0 +1,63 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<base target="_self">
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">    
+
+var userlevel='<!--#getuser "level" -->';
+var status = "<!--#getsingle_noop "InternetGatewayDevice.WANDevice.1.WANDSLInterfaceConfig.Status"-->";
+
+
+function init()
+{    
+	$("TD_DslStatus").innerHTML = status ;
+
+	//一般用户限制
+	if(userlevel != "1"){
+		UserLimit();
+	}	
+} 
+
+function UserLimit(){
+	var tr = document.getElementsByTagName('TR');
+	
+	for(var i = 4; i < tr.length; i++){
+		tr[i].style.display = 'none';
+	}
+}
+
+function __init()
+{
+	init();
+  if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+	<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_WANxDSLStatus'))</script>
+<table class="ContentTable" cellpadding="0" cellspacing="0" width="300">
+<tr class="OddROw">
+	<td id="lang_DslStatus" langkey="LK_Status_Colon"></td>
+	<td id="TD_DslStatus" name="TD_DslStatus"></td>
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();");</script>
+</td></tr></table>
+<script>printEndContent</script>
+</form>
+</body>
+</html>

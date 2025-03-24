@@ -1,0 +1,294 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+	
+	function GetLineNumByDescription(Description){
+		for(var i = 0;i < 2;i++)
+		{
+				if(LineInfo[i].Description == Description)
+				return i;
+		}
+		if(Description == "LINE1")
+		    return 0;
+		if(Description == "LINE2")
+		    return 1;
+		return false;
+	}
+	
+	function ConnectionTuple()
+{
+	this.Status = "";
+	this.Name = "";
+	this.CallState = "";
+	this.CodecList
+	this.Description = "";
+// CallingFeatures
+  this.CallWaitingStatus = "";
+  this.ConferenceCallingStatus = "";
+// Stats
+	this.ResetStatistics = "";
+  this.PacketsSent = "";
+  this.PacketsReceived = "";
+  this.BytesSent = "";
+  this.BytesReceived = "";
+  this.PacketsLost = "";
+  this.IncomingCallsReceived = "";
+  this.IncomingCallsAnswered = "";
+  this.IncomingCallsConnected = "";
+  this.IncomingCallsFailed = "";
+  this.OutgoingCallsAttempted = "";
+  this.OutgoingCallsAnswered = "";
+  this.OutgoingCallsConnected = "";
+  this.OutgoingCallsFailed = "";
+  this.TotalCallTime = "";
+  this.ServerDownTime = "";
+  this.ReceivePacketLossRate = "";
+  this.FarEndPacketLossRate = "";
+  this.ReceiveInterarrivalJitter = "";
+  this.FarEndInterarrivalJitter = "";
+  this.RoundTripDelay = "";
+  this.AverageReceiveInterarrivalJitter = "";
+  this.AverageFarEndInterarrivalJitter = "";
+  this.AverageRoundTripDelay = "";
+}
+
+function CodecTuple(){
+	this.Enable = "";
+	this.Priority = "";
+	this.Codec = "";
+	}
+	
+var server = '<!--#getsipserver -->';	
+
+var m=0;
+var List=0;
+var LineInfo = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+  <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Status SIP.URI CallState Description" -->
+    LineInfo[m] = new ConnectionTuple();
+    LineInfo[m].Status = "<!--#leaf "1"-->";
+    LineInfo[m].Name = "<!--#leaf "2"-->";
+    LineInfo[m].CallState = "<!--#leaf "3"-->";
+    LineInfo[m].Description = "<!--#leaf "4"-->";
+ 
+    LineInfo[m].CodecList = new Array();
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.Codec.List." -->
+      <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.Codec.List.{i}. Enable Priority Codec" -->
+      
+      LineInfo[m].CodecList[List] = new CodecTuple();
+      LineInfo[m].CodecList[List].Enable = "<!--#leaf "1"-->";
+      LineInfo[m].CodecList[List].Priority = "<!--#leaf "2"-->";
+      LineInfo[m].CodecList[List].Codec = "<!--#leaf "3"-->";
+      List++;
+      <!--#endgetobject -->
+    <!--#endgetobject -->
+  
+  <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.CallingFeatures. CallWaitingStatus ConferenceCallingStatus" -->
+  LineInfo[m].CallWaitingStatus = "<!--#leaf "1"-->";
+  LineInfo[m].ConferenceCallingStatus = "<!--#leaf "2"-->";
+  <!--#endgetobject -->
+
+  <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.Stats. ResetStatistics PacketsSent PacketsReceived BytesSent BytesReceived PacketsLost IncomingCallsReceived IncomingCallsAnswered IncomingCallsConnected IncomingCallsFailed OutgoingCallsAttempted OutgoingCallsAnswered OutgoingCallsConnected OutgoingCallsFailed TotalCallTime ServerDownTime ReceivePacketLossRate FarEndPacketLossRate ReceiveInterarrivalJitter FarEndInterarrivalJitter RoundTripDelay AverageReceiveInterarrivalJitter AverageFarEndInterarrivalJitter AverageRoundTripDelay" -->
+  LineInfo[m].ResetStatistics = "<!--#leaf "1"-->";
+  LineInfo[m].PacketsSent = "<!--#leaf "2"-->";
+  LineInfo[m].PacketsReceived = "<!--#leaf "3"-->";
+  LineInfo[m].BytesSent = "<!--#leaf "4"-->";
+  LineInfo[m].BytesReceived = "<!--#leaf "5"-->";
+  LineInfo[m].PacketsLost = "<!--#leaf "6"-->";
+  LineInfo[m].IncomingCallsReceived = "<!--#leaf "7"-->";
+  LineInfo[m].IncomingCallsAnswered = "<!--#leaf "8"-->";
+  LineInfo[m].IncomingCallsConnected = "<!--#leaf "9"-->";
+  LineInfo[m].IncomingCallsFailed = "<!--#leaf "10"-->";
+  LineInfo[m].OutgoingCallsAttempted = "<!--#leaf "1"-->";
+  LineInfo[m].OutgoingCallsAnswered = "<!--#leaf "12"-->";
+  LineInfo[m].OutgoingCallsConnected = "<!--#leaf "13"-->";
+  LineInfo[m].OutgoingCallsFailed = "<!--#leaf "14"-->";
+  LineInfo[m].TotalCallTime = "<!--#leaf "15"-->";
+  LineInfo[m].ServerDownTime = "<!--#leaf "16"-->";
+  LineInfo[m].ReceivePacketLossRate = "<!--#leaf "17"-->";
+  LineInfo[m].FarEndPacketLossRate = "<!--#leaf "18"-->";
+  LineInfo[m].ReceiveInterarrivalJitter = "<!--#leaf "19"-->";
+  LineInfo[m].FarEndInterarrivalJitter = "<!--#leaf "20"-->";
+  LineInfo[m].RoundTripDelay = "<!--#leaf "21"-->";
+  LineInfo[m].AverageReceiveInterarrivalJitter = "<!--#leaf "22"-->";
+  LineInfo[m].AverageFarEndInterarrivalJitter = "<!--#leaf "23"-->";
+  LineInfo[m].AverageRoundTripDelay = "<!--#leaf "24"-->";
+  <!--#endgetobject -->
+  m++;
+  List=0;
+ <!--#endgetobject -->
+<!--#endgetobject -->
+
+</script>
+</head>
+<body>
+<div class="MainTittle">
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_VoiceStatus'))</script>
+<table id="TestContent" class="ContentBorder" cellpadding="0" cellspacing="0" >
+<tr class="TitleRow">
+	<td width="10%" langkey="LK_Line"></td>
+	<td langkey="LK_VoiceRegisterStatus"></td>
+	<td langkey="LK_CodingType"></td>
+	<td langkey="LK_Tel"></td>
+	<td langkey="LK_CallState"></td>
+	<td langkey="LK_CallWaitingStatus"></td>
+	<td langkey="LK_ConferenceCallingStatus"></td>
+</tr>
+<!-- Line 1 -->
+<tr class="OddRowB">
+<td langkey="LK_Line1"></td>
+<td>
+<script language='javascript'>
+	var Line1 = GetLineNumByDescription("LINE1");
+document.write(LineInfo[Line1].Status);
+</script>
+</td>
+<td>
+<script language='javascript'>
+var c1 = new Array('0', '0','0','0');
+var s = "";
+for(var i = 0; i < LineInfo[Line1].CodecList.length; i++) {
+	if(LineInfo[Line1].CodecList[i].Enable == '1') {
+		c1[LineInfo[Line1].CodecList[i].Priority] = LineInfo[Line1].CodecList[i].Codec;
+	}
+}
+
+for(i = 1; i <= LineInfo[Line1].CodecList.length; i++) {
+	if(c1[i] != '0')
+		var s = s + c1[i] + " ";
+}
+document.write(s);
+</script>
+
+</td>
+<td class="">
+<script language='javascript'>
+var s = LineInfo[Line1].Name;
+if(LineInfo[Line1].Status != "Disabled" && LineInfo[Line1].Name.indexOf("@") == -1)
+	s = s + '@' + server;
+document.write(s);
+</script>
+</td>
+<script>
+	document.write('<td>'+LineInfo[Line1].CallState+'</td><td>'+LineInfo[Line1].CallWaitingStatus+'</td><td>'+LineInfo[Line1].ConferenceCallingStatus+'</td>');
+</script>
+
+</tr>
+
+<!-- Line 2 -->
+<tr class="EvenRowB">
+<td langkey="LK_Line2"></td>
+<td>
+<script language='javascript'>
+	var Line2 = GetLineNumByDescription("LINE2");
+document.write(LineInfo[Line2].Status);
+</script></td>
+<td>
+<script language='javascript'>
+var c2 = new Array('0', '0','0','0');
+var s = "";
+for(var i = 0; i < LineInfo[Line2].CodecList.length; i++) {
+	if(LineInfo[Line2].CodecList[i].Enable == '1') {
+		c2[LineInfo[Line2].CodecList[i].Priority] = LineInfo[Line2].CodecList[i].Codec;
+	}
+}
+
+for(i = 1; i <= LineInfo[Line2].CodecList.length; i++) {
+	if(c2[i] != '0')
+		var s = s + c2[i] + " ";
+}
+document.write(s);
+</script></td>
+<td class="">
+<script language='javascript'>
+var s = LineInfo[Line2].Name;
+if( LineInfo[Line2].Status != "Disabled" && LineInfo[Line2].Name.indexOf("@") == -1)
+	s = s + '@' + server;
+document.write(s);
+</script></td>
+<script>
+document.write('<td>'+LineInfo[Line2].CallState+'</td><td>'+LineInfo[Line2].CallWaitingStatus+'</td><td>'+LineInfo[Line2].ConferenceCallingStatus+'</td>');
+</script>
+</tr>
+</table>
+<br>
+<table id="td_table2" width="450" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td width="200" langkey="LK_Line"></td>
+	<td width="100" langkey="LK_Line1"></td>
+	<td width="100" langkey="LK_Line2"></td>
+<script>
+document.write('<tr class="OddRowB"><td>'+getStr('LK_PacketsSent')+'</td><td>'+LineInfo[Line1].PacketsSent+'</td><td>'+LineInfo[Line2].PacketsSent+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_PacketsReceived')+'</td><td>'+LineInfo[Line1].PacketsReceived+'</td><td>'+LineInfo[Line2].PacketsReceived+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_BytesSent')+'</td><td>'+LineInfo[Line1].BytesSent+'</td><td>'+LineInfo[Line2].BytesSent+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_BytesReceived')+'</td><td>'+LineInfo[Line1].BytesReceived+'</td><td>'+LineInfo[Line2].BytesReceived+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_PacketsLost')+'</td><td>'+LineInfo[Line1].PacketsLost+'</td><td>'+LineInfo[Line2].PacketsLost+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_IncomingCallsReceived')+'</td><td>'+LineInfo[Line1].IncomingCallsReceived+'</td><td>'+LineInfo[Line2].IncomingCallsReceived+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_IncomingCallsAnswered')+'</td><td>'+LineInfo[Line1].IncomingCallsAnswered+'</td><td>'+LineInfo[Line2].IncomingCallsAnswered+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_IncomingCallsConnected')+'</td><td>'+LineInfo[Line1].IncomingCallsConnected+'</td><td>'+LineInfo[Line2].IncomingCallsConnected+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_IncomingCallsFailed')+'</td><td>'+LineInfo[Line1].IncomingCallsFailed+'</td><td>'+LineInfo[Line2].IncomingCallsFailed+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_OutgoingCallsAttempted')+'</td><td>'+LineInfo[Line1].OutgoingCallsAttempted+'</td><td>'+LineInfo[Line2].OutgoingCallsAttempted+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_OutgoingCallsAnswered')+'</td><td>'+LineInfo[Line1].OutgoingCallsAnswered+'</td><td>'+LineInfo[Line2].OutgoingCallsAnswered+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_OutgoingCallsConnected')+'</td><td>'+LineInfo[Line1].OutgoingCallsConnected+'</td><td>'+LineInfo[Line2].OutgoingCallsConnected+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_OutgoingCallsFailed')+'</td><td>'+LineInfo[Line1].OutgoingCallsFailed+'</td><td>'+LineInfo[Line2].OutgoingCallsFailed+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_TotalCallTime')+'</td><td>'+LineInfo[Line1].TotalCallTime+'</td><td>'+LineInfo[Line2].TotalCallTime+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_ServerDownTime')+'</td><td>'+LineInfo[Line1].ServerDownTime+'</td><td>'+LineInfo[Line2].ServerDownTime+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_ReceivePacketLossRate')+'</td><td>'+LineInfo[Line1].ReceivePacketLossRate+'</td><td>'+LineInfo[Line2].ReceivePacketLossRate+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_FarEndPacketLossRate')+'</td><td>'+LineInfo[Line1].FarEndPacketLossRate+'</td><td>'+LineInfo[Line2].FarEndPacketLossRate+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_ReceiveInterarrivalJitter')+'</td><td>'+LineInfo[Line1].ReceiveInterarrivalJitter+'</td><td>'+LineInfo[Line2].ReceiveInterarrivalJitter+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_FarEndInterarrivalJitter')+'</td><td>'+LineInfo[Line1].FarEndInterarrivalJitter+'</td><td>'+LineInfo[Line2].FarEndInterarrivalJitter+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_RoundTripDelay')+'</td><td>'+LineInfo[Line1].RoundTripDelay+'</td><td>'+LineInfo[Line2].RoundTripDelay+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_AverageReceiveInterarrivalJitter')+'</td><td>'+LineInfo[Line1].AverageReceiveInterarrivalJitter+'</td><td>'+LineInfo[Line2].AverageReceiveInterarrivalJitter+'</td></tr>');
+document.write('<tr class="EvenRowB"><td>'+getStr('LK_AverageFarEndInterarrivalJitter')+'</td><td>'+LineInfo[Line1].AverageFarEndInterarrivalJitter+'</td><td>'+LineInfo[Line2].AverageFarEndInterarrivalJitter+'</td></tr>');
+document.write('<tr class="OddRowB"><td>'+getStr('LK_AverageRoundTripDelay')+'</td><td>'+LineInfo[Line1].AverageRoundTripDelay+'</td><td>'+LineInfo[Line2].AverageRoundTripDelay+'</td></tr>');
+</script>
+	<tr class="EvenRowB"><td></td>
+		<td><script>PrintTriButton("reset",getStr('LK_Reset'),"uiReset(1)");</script></td>
+		<td><script>PrintTriButton("reset",getStr('LK_Reset'),"uiReset(2)");</script></td>
+	</tr>
+</tr>
+</table>
+<form id="fSubmit" name="fSubmit" method="post" action="/cgi-bin/setup.cgi?page/status/status_voipvoiceinfo.shtml">
+</form>
+
+<script language="javascript">
+function __init()
+{
+	if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+function uiReset(a)
+{
+	var df = document.fSubmit;
+	if(a==1)
+		AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line."+eval(Line1+1)+".Stats.ResetStatistics", "1");
+	else
+		AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line."+eval(Line2+1)+".Stats.ResetStatistics", "1");
+	df.submit();
+		
+}
+function pageReFresh()
+{
+    var df = document.getElementById("fSubmit");
+    jslDisable("Btn_ReFresh");
+    df.submit();
+}
+</script>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_ReFresh',getStr("LK_Refresh"),"pageReFresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

@@ -1,0 +1,502 @@
+local L0, L1, L2, L3, L4
+L0 = module
+L1 = "xiaoqiang.module.XQGuestWifi"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.XQLog"
+L0 = L0(L1)
+L1 = require
+L2 = "bit"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQFunction"
+L2 = L2(L3)
+L3 = require
+L4 = "xiaoqiang.common.XQConfigs"
+L3 = L3(L4)
+function L4()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_all
+  L3 = "network"
+  L4 = "guest"
+  L1 = L1(L2, L3, L4)
+  if L1 then
+    L2 = true
+    return L2
+  else
+    L2 = false
+    return L2
+  end
+end
+_checkGuestWifi = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25
+  L1 = require
+  L2 = "xiaoqiang.util.XQLanWanUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_all
+  L5 = "network"
+  L6 = "guest"
+  L3 = L3(L4, L5, L6)
+  L5 = L2
+  L4 = L2.get
+  L6 = "network"
+  L7 = "lan"
+  L8 = "netmask"
+  L4 = L4(L5, L6, L7, L8)
+  L5 = nil
+  L6 = 0
+  L7, L8, L9, L10, L11, L12 = nil, nil, nil, nil, nil, nil
+  L13 = string
+  L13 = L13.find
+  L14 = L4
+  L15 = "255.255.255.0"
+  L13 = L13(L14, L15)
+  if 1 == L13 then
+    L7 = ".%d+.%d+$"
+    L8 = ".(%d+).%d+$"
+    L9 = ".%d+$"
+    L10 = ".1"
+    L11 = ".150"
+  else
+    L7 = ".%d+.%d+.%d+$"
+    L8 = ".(%d+).(%d+).%d+$"
+    L9 = ".%d+.%d+$"
+    L10 = ".0.1"
+    L11 = ".0.150"
+  end
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L14 = A0
+  L13 = L13(L14)
+  if not L13 then
+    L14 = A0
+    L13 = A0.gsub
+    L15 = L7
+    L16 = ""
+    L13 = L13(L14, L15, L16)
+    L14 = tonumber
+    L16 = A0
+    L15 = A0.match
+    L17 = L8
+    L15 = L15(L16, L17)
+    L16 = 10
+    L14 = L14(L15, L16)
+    L15 = _UPVALUE1_
+    L15 = L15.bxor
+    L16 = 12
+    L17 = L14
+    L15 = L15(L16, L17)
+    L14 = L15
+    L15 = L13
+    L16 = "."
+    L17 = tostring
+    L18 = L14
+    L17 = L17(L18)
+    L18 = L10
+    L5 = L15 .. L16 .. L17 .. L18
+    L15 = string
+    L15 = L15.find
+    L16 = L4
+    L17 = "255.255.255.0"
+    L15 = L15(L16, L17)
+    if 1 == L15 then
+      L7 = ".%d+$"
+    else
+      L7 = ".%d+.%d+$"
+    end
+    L15 = L1.ubusDualWanStatus
+    L15 = L15()
+    if L15 then
+      L16 = L15.wan
+      L16 = L16.ipv4
+      if L16 then
+        L16 = L15.wan
+        L16 = L16.ipv4
+        L16 = L16.address
+        if L16 then
+          L17 = _UPVALUE2_
+          L17 = L17.log
+          L18 = 1
+          L19 = "now wan ip is "
+          L20 = L16
+          L19 = L19 .. L20
+          L17(L18, L19)
+          L17 = nil
+          L19 = L16
+          L18 = L16.gsub
+          L20 = L7
+          L21 = ""
+          L18 = L18(L19, L20, L21)
+          L17 = L18
+          L19 = L5
+          L18 = L5.gsub
+          L20 = L7
+          L21 = ""
+          L18 = L18(L19, L20, L21)
+          L12 = L18
+          L18 = _UPVALUE2_
+          L18 = L18.log
+          L19 = 1
+          L20 = "guestip_prefix is "
+          L21 = L12
+          L20 = L20 .. L21
+          L18(L19, L20)
+          if L17 == L12 then
+            L18 = _UPVALUE2_
+            L18 = L18.log
+            L19 = 1
+            L20 = "new guest ip conflict with wan : "
+            L21 = L12
+            L20 = L20 .. L21
+            L18(L19, L20)
+            L18 = _UPVALUE1_
+            L18 = L18.bxor
+            L19 = 16
+            L20 = L14
+            L18 = L18(L19, L20)
+            L14 = L18
+            L18 = _UPVALUE2_
+            L18 = L18.log
+            L19 = 1
+            L20 = "new guest cip = "
+            L21 = L14
+            L20 = L20 .. L21
+            L18(L19, L20)
+            L18 = L13
+            L19 = "."
+            L20 = tostring
+            L21 = L14
+            L20 = L20(L21)
+            L21 = L10
+            L5 = L18 .. L19 .. L20 .. L21
+          end
+        end
+      end
+    end
+    if L15 then
+      L16 = L15.wan2
+      L16 = L16.ipv4
+      if L16 then
+        L16 = L15.wan2
+        L16 = L16.ipv4
+        L16 = L16.address
+        if L16 then
+          L17 = _UPVALUE2_
+          L17 = L17.log
+          L18 = 1
+          L19 = "now wan2 ip is "
+          L20 = L16
+          L19 = L19 .. L20
+          L17(L18, L19)
+          L17 = nil
+          L19 = L16
+          L18 = L16.gsub
+          L20 = L7
+          L21 = ""
+          L18 = L18(L19, L20, L21)
+          L17 = L18
+          L19 = L5
+          L18 = L5.gsub
+          L20 = L7
+          L21 = ""
+          L18 = L18(L19, L20, L21)
+          L12 = L18
+          L18 = _UPVALUE2_
+          L18 = L18.log
+          L19 = 1
+          L20 = "guestip_prefix is "
+          L21 = L12
+          L20 = L20 .. L21
+          L18(L19, L20)
+          if L17 == L12 then
+            L18 = _UPVALUE2_
+            L18 = L18.log
+            L19 = 1
+            L20 = "new guest ip conflict with wan : "
+            L21 = L12
+            L20 = L20 .. L21
+            L18(L19, L20)
+            L18 = _UPVALUE1_
+            L18 = L18.bxor
+            L19 = 14
+            L20 = L14
+            L18 = L18(L19, L20)
+            L14 = L18
+            L18 = _UPVALUE2_
+            L18 = L18.log
+            L19 = 1
+            L20 = "new guest cip = "
+            L21 = L14
+            L20 = L20 .. L21
+            L18(L19, L20)
+            L18 = L13
+            L19 = "."
+            L20 = tostring
+            L21 = L14
+            L20 = L20(L21)
+            L21 = L10
+            L5 = L18 .. L19 .. L20 .. L21
+          end
+        end
+      end
+    end
+    if L3 then
+      L17 = L2
+      L16 = L2.get
+      L18 = "network"
+      L19 = "guest"
+      L20 = "ipaddr"
+      L16 = L16(L17, L18, L19, L20)
+      L18 = L2
+      L17 = L2.get
+      L19 = "dhcp"
+      L20 = "lan"
+      L21 = "startip"
+      L17 = L17(L18, L19, L20, L21)
+      L19 = L2
+      L18 = L2.get
+      L20 = "dhcp"
+      L21 = "lan"
+      L22 = "endip"
+      L18 = L18(L19, L20, L21, L22)
+      if L16 ~= L5 then
+        L6 = 1
+        if nil == L17 or nil == L18 then
+          L20 = A0
+          L19 = A0.gsub
+          L21 = L9
+          L22 = ""
+          L19 = L19(L20, L21, L22)
+          L20 = ".0.5"
+          L17 = L19 .. L20
+          L20 = A0
+          L19 = A0.gsub
+          L21 = L9
+          L22 = ""
+          L19 = L19(L20, L21, L22)
+          L20 = ".3.237"
+          L18 = L19 .. L20
+        else
+          L20 = A0
+          L19 = A0.gsub
+          L21 = L9
+          L22 = ""
+          L19 = L19(L20, L21, L22)
+          L21 = L17
+          L20 = L17.match
+          L22 = L9
+          L20 = L20(L21, L22)
+          L17 = L19 .. L20
+          L20 = A0
+          L19 = A0.gsub
+          L21 = L9
+          L22 = ""
+          L19 = L19(L20, L21, L22)
+          L21 = L18
+          L20 = L18.match
+          L22 = L9
+          L20 = L20(L21, L22)
+          L18 = L19 .. L20
+        end
+        L20 = L2
+        L19 = L2.set
+        L21 = "dhcp"
+        L22 = "lan"
+        L23 = "startip"
+        L24 = L17
+        L19(L20, L21, L22, L23, L24)
+        L20 = L2
+        L19 = L2.set
+        L21 = "dhcp"
+        L22 = "lan"
+        L23 = "endip"
+        L24 = L18
+        L19(L20, L21, L22, L23, L24)
+        L20 = L2
+        L19 = L2.commit
+        L21 = "dhcp"
+        L19(L20, L21)
+        L19 = _UPVALUE2_
+        L19 = L19.log
+        L20 = 1
+        L21 = "dhcp config lan startip: "
+        L22 = L17
+        L21 = L21 .. L22
+        L19(L20, L21)
+        L19 = _UPVALUE2_
+        L19 = L19.log
+        L20 = 1
+        L21 = "dhcp config lan endip: "
+        L22 = L18
+        L21 = L21 .. L22
+        L19(L20, L21)
+      end
+      L19 = string
+      L19 = L19.find
+      L20 = L4
+      L21 = "255.255.255.0"
+      L19 = L19(L20, L21)
+      if 1 ~= L19 then
+        L20 = L2
+        L19 = L2.set
+        L21 = "dhcp"
+        L22 = "guest"
+        L23 = "startip"
+        L24 = L12
+        L25 = L10
+        L24 = L24 .. L25
+        L19(L20, L21, L22, L23, L24)
+        L20 = L2
+        L19 = L2.set
+        L21 = "dhcp"
+        L22 = "guest"
+        L23 = "endip"
+        L24 = L12
+        L25 = L11
+        L24 = L24 .. L25
+        L19(L20, L21, L22, L23, L24)
+        L20 = L2
+        L19 = L2.commit
+        L21 = "dhcp"
+        L19(L20, L21)
+        L19 = _UPVALUE2_
+        L19 = L19.log
+        L20 = 1
+        L21 = "dhcp config guest startip: "
+        L22 = L12
+        L23 = L10
+        L21 = L21 .. L22 .. L23
+        L19(L20, L21)
+        L19 = _UPVALUE2_
+        L19 = L19.log
+        L20 = 1
+        L21 = "dhcp config guest endip: "
+        L22 = L12
+        L23 = L11
+        L21 = L21 .. L22 .. L23
+        L19(L20, L21)
+      end
+      L20 = L2
+      L19 = L2.set
+      L21 = "network"
+      L22 = "guest"
+      L23 = "ipaddr"
+      L24 = L5
+      L19(L20, L21, L22, L23, L24)
+      L20 = L2
+      L19 = L2.set
+      L21 = "network"
+      L22 = "guest"
+      L23 = "netmask"
+      L24 = L4
+      L19(L20, L21, L22, L23, L24)
+      L20 = L2
+      L19 = L2.commit
+      L21 = "network"
+      L19(L20, L21)
+    end
+    if L6 == 1 then
+      L16 = _UPVALUE2_
+      L16 = L16.log
+      L17 = 1
+      L18 = "new guest ip, reload network ok !"
+      L16(L17, L18)
+    end
+    L16 = _UPVALUE2_
+    L16 = L16.log
+    L17 = 6
+    L18 = "calc new guest ip "
+    L19 = L5
+    L18 = L18 .. L19
+    L16(L17, L18)
+    return L5
+  end
+  L13 = _UPVALUE2_
+  L13 = L13.log
+  L14 = 6
+  L15 = "param ip is null, please check !!!"
+  L13(L14, L15)
+  L13 = false
+  return L13
+end
+hookLanIPChangeEvent = L4
+function L4(A0, A1, A2, A3, A4, A5, A6, A7)
+  local L8, L9, L10, L11, L12, L13, L14, L15, L16, L17
+  L8 = require
+  L9 = "xiaoqiang.util.XQLanWanUtil"
+  L8 = L8(L9)
+  L9 = require
+  L10 = "xiaoqiang.util.XQWifiUtil"
+  L9 = L9(L10)
+  L10 = L9.setGuestWifi
+  L11 = A0
+  L12 = A1
+  L13 = A2
+  L14 = A3
+  L15 = A4
+  L16 = A5
+  L17 = A6
+  L10 = L10(L11, L12, L13, L14, L15, L16, L17)
+  if not L10 then
+    L11 = false
+    return L11
+  end
+  L11 = true
+  L12 = _checkGuestWifi
+  L12 = L12()
+  if L12 then
+    L11 = false
+  end
+  if A7 then
+    L12 = type
+    L13 = A7
+    L12 = L12(L13)
+    if L12 == "function" then
+      L12 = A7
+      L13 = L11
+      L12(L13)
+  end
+  elseif L11 then
+    L12 = _UPVALUE0_
+    L12 = L12.forkExec
+    L13 = "sleep 4; /usr/sbin/guestwifi.sh open; lua /usr/sbin/sync_guest_bssid.lua >/dev/null 2>/dev/null"
+    L12(L13)
+  else
+    L12 = _UPVALUE0_
+    L12 = L12.forkRestartWifi
+    L13 = "lua /usr/sbin/sync_guest_bssid.lua"
+    L12(L13)
+  end
+  L12 = true
+  return L12
+end
+setGuestWifi = L4
+function L4(A0)
+  local L1, L2, L3
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = L1.delGuestWifi
+  L3 = A0
+  L2(L3)
+  L2 = _UPVALUE0_
+  L2 = L2.forkExec
+  L3 = "sleep 4; /usr/sbin/guestwifi.sh close >/dev/null 2>/dev/null"
+  L2(L3)
+end
+delGuestWifi = L4

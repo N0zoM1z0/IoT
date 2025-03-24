@@ -1,0 +1,8 @@
+Package: dualwan
+Version: 1.1-a
+Depends: libc
+Source: package/miwifi/dualwan
+Section: net
+Architecture: all
+Installed-Size: 3135
+Description:  dualwan

@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="network"></adv-child-menu>
+  <div class="advance-box">
+	<x-help :text="lang_t('rule.help_static_dhcp')"></x-help><br><br>
+	<div class="fun-box">
+	  <table class="table">
+			<tbody> 
+			<tr>
+				<td class="fun-left"><b>{{ lang_t('rule.static_dhcp') }}</b></td>
+				<td>
+					<x-switch v-model="dhcpState" @change="stateChange('0')"></x-switch>
+				</td>
+			</tr>
+			<tr v-if="globalConfig.arpSupport && dhcpState">
+				<td class="fun-left">{{ lang_t('rule.arp') }}</td>
+				<td>
+					<x-switch v-model="arpState" @change="stateChange('1')"></x-switch>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+      <table v-show="dhcpState">
+      	<tr>
+		  <td class="icon-right">
+      		<x-icon type="add" cursor="pointer" @click="addRuleVal">{{ lang_t('common.add') }}</x-icon>
+			<x-icon type="del" cursor="pointer" @click="trashFun('all')">{{ lang_t('common.delete') }}</x-icon>
+      	  </td>
+		</tr>
+        <tr><td height="5"></td></tr>
+        <tr>
+          <td><table class="t_table3 table-bordered table-striped">
+           	<thead>
+			<tr>
+              <th>{{ lang_t('rule.description') }}</th>
+              <th>{{ lang_t('rule.mac') }}</th>
+              <th>{{ lang_t('rule.ip') }}</th>
+              <th>{{ lang_t('rule.operate') }}</th>
+              <th>{{ lang_t('common.select') }}<x-checkbox v-model="selectall" @change="selectAll"></x-checkbox></th>
+            </tr>
+			</thead>
+            <tr v-show="addShow">
+			  <td><input type="text" class="desc" v-model="desc" v-verify="formRules" data-name="desc" :maxlength="descLen"></td>
+		 	  <td>
+		 	  	<input type="text" class="mac" v-model="mac" v-verify="formRules" data-name="mac" maxlength="17" id="mac_in">
+		 	  	<img src="/static/images/search.png" class="cursor" :title="lang_t('common.scan')" @click="scanFun('mac')">
+		 	  </td>
+			  <td>
+			  	<input type="text" class="ip" v-model="ip" v-verify="formRules" data-name="ip" maxlength="15" id="ip_in">
+			  	<img src="/static/images/search.png" class="cursor" :title="lang_t('common.scan')" @click="scanFun('ip')">
+			  </td>
+			  <td><button :disabled="disable_addBtn" @click="addRule"><img src="/static/images/added.png" :title="lang_t('common.add')" class="cursor"></button></td>
+			  <td></td>
+		  	</tr>
+		  	<tbody>
+			<tr v-for="(rule,v) in ruleList">
+			  <td>
+			  	<input type="text" class="desc" v-model="editDesc[rule.idx-1]" v-verify="formRules" :data-name="'desc'+Number(rule.idx-1)" :maxlength="descLen" v-if="edit[rule.idx-1]" @input="watchValue(rule.idx-1)">
+			  	<span v-else>{{ rule.desc }}</span>
+			  </td>
+			  <td>
+			  	<div v-if="edit[rule.idx-1]">
+				  	<input type="text" class="mac" v-model="editMac[rule.idx-1]" v-verify="formRules" :data-name="'mac'+Number(rule.idx-1)" maxlength="17" @input="watchValue(rule.idx-1)" :id="'mac_edit'+(rule.idx-1)">
+				  	<img src="/static/images/search.png" class="cursor" :title="lang_t('common.scan')" @click="scanFun('mac',rule.idx-1)">
+				</div>
+			  	<span v-else>{{ rule.mac }}</span>
+			  </td>
+			  <td>
+			  	<div v-if="edit[rule.idx-1]">
+				  	<input type="text" class="ip" v-model="editIp[rule.idx-1]" maxlength="15" v-verify="formRules" :data-name="'ip'+Number(rule.idx-1)" @input="watchValue(rule.idx-1)" :id="'ip_edit'+(rule.idx-1)">
+				  	<img src="/static/images/search.png" class="cursor" :title="lang_t('common.scan')" @click="scanFun('ip',rule.idx-1)">
+				</div>
+			  	<span v-else>{{ rule.ip }}</span>
+			  </td>
+			  <td>
+				<img :src="operate[rule.idx-1]" :title="lang_t('rule.edit')" class="cursor" @click="editFun(rule.idx-1)">&nbsp;&nbsp;
+				<img src="/static/images/trash.png" :title="lang_t('common.delete')" class="cursor" @click="trashFun(rule.idx-1)">
+			  </td>
+			  <td>
+				<x-checkbox v-model="select[rule.idx-1]"></x-checkbox>
+			  </td>
+			</tr>
+			<tr v-show="dataTotal==0">
+              <td colspan="5">{{ lang_t('common.no_data') }}</td>
+            </tr>
+		  	</tbody>
+		  </table></td>
+	    </tr>
+		<tr><td><x-page :total="dataTotal" @on-page="pageChange" :data="data"></x-page></td></tr>			
+	  </table>
+    </div>
+    <x-modal v-model="modelShow" :title="lang_t('common.ip_mac')" show="ip,mac" :listData="listData" @on-select="selectFun"></x-modal>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,dhcpState:!1,selectall:!1,lanIp:"",lanNetmask:"",ruleList:[],edit:[],operate:[],select:[],data:[],desc:"",mac:"",ip:"",editDesc:[],editMac:[],editIp:[],dataTotal:0,addShow:!1,tempIdx:0,modelShow:!1,listData:[],tempType:"",disable_addBtn:!1,arpState:!1,descLen:globalConfig.descLen}},watch:{select:function(){var t,e=0;for(t in this.select)this.select[t]&&e++;e==this.select.length?this.selectall=!0:this.selectall=!1}},computed:{formRules:function(){var i=this;return{desc:function(t,e){t=cs.commentstr(t);1==t||2==t||3==t?e(i.lang_t("rule.msg4")):0!=t&&99!=t||e()},mac:function(t,e){t||e(i.lang_t("rule.mac")+i.lang_t("rule.msg12"));t=cs.mac(t);1==t?e(i.lang_t("rule.msg17")):2==t?e(i.lang_t("rule.msg18")):3==t?e(i.lang_t("rule.msg19")):99==t&&e()},ip:function(t,e){var a=cs.ip(t);!t||0==a?e(i.lang_t("network.ip")+i.lang_t("network.msg1")):1==a?e(i.lang_t("network.ip")+i.lang_t("network.msg2")):2==a?e(i.lang_t("network.ip")+i.lang_t("wan.msg2")):3==a?e(i.lang_t("network.ip")+i.lang_t("wan.msg3")):4==a?e(i.lang_t("network.ip")+i.lang_t("wan.msg4")):cs.ip_subnet(t,i.lanNetmask,i.lanIp)?e():e(i.lang_t("rule.msg3"))}}}},created:function(){var e=this;uiPost.getStaticDhcpRules(function(t){e.dhcpState="1"==t.enable,e.arpState="1"==t.arpEnable,e.lanIp=t.lanIp,e.lanNetmask=t.lanNetmask,t.rule&&(e.ruleList=t.rule,e.dataTotal=e.ruleList.length,e.data=t.rule,e.tableInit(t.rule))})},methods:{pageChange:function(t,e){this.ruleList=e},stateChange:function(t){var e={};"0"==t?(this.dhcpState?e.enable="1":e.enable="0",e.addEffect="0"):"1"==t&&(this.arpState?e.arpEnable="1":e.arpEnable="0",e.addEffect="3"),uiPost.setStaticDhcpRules(e,applyCallback)},selectAll:function(t){var e=!1,a=((this.selectall=t)&&(e=!0),this.select.length);this.select=[];for(var i=0;i<a;i++)this.select[i]=e},addRuleVal:function(){this.addShow=!0},scanFun:function(t,e){var a=this;this.tempIdx=e,this.tempType=t,uiPost.getOnlineMsg(function(t){a.listData=t,a.modelShow=!0})},selectFun:function(t){"number"!=typeof this.tempIdx?"mac"==this.tempType?(this.mac=t.mac,delayTrigger("mac_in")):(this.ip=t.ip,delayTrigger("ip_in")):("mac"==this.tempType?(this.editMac[this.tempIdx]=t.mac,delayTrigger("mac_edit"+this.tempIdx)):(this.editIp[this.tempIdx]=t.ip,delayTrigger("ip_edit"+this.tempIdx)),this.watchValue(this.tempIdx))},addRule:function(){var e=this;if(e.disable_addBtn=!0,e.dataTotal){if(16<=e.dataTotal)return Cstool.Msg({content:this.lang_t("rule.msg30",[16])}),e.disable_addBtn=!1;for(i=0;i<e.dataTotal;i++){if(e.mac.toUpperCase()==e.data[i].mac.toUpperCase())return Cstool.Msg({content:this.lang_t("rule.rule_conflict",[this.lang_t("rule.mac")])}),e.disable_addBtn=!1;if(e.ip==e.data[i].ip)return Cstool.Msg({content:this.lang_t("rule.rule_conflict",[this.lang_t("rule.ip")])}),e.disable_addBtn=!1}}if(e.ip==location.host)return Cstool.Msg({content:this.lang_t("rule.msg57")}),e.disable_addBtn=!1;var a={};Cstool.Verify(this.formRules,function(t){t||(e.disable_addBtn=!1),t&&(a.mac=e.mac.toUpperCase(),a.ip=e.ip,a.desc=e.desc,a.addEffect="1",uiPost.setStaticDhcpRules(a,applyCallback))})},editFun:function(t){"/static/images/edit.png"==this.operate[t]?this.edit[t]?(this.edit.splice(t,1),this.edit.splice(t,0,!1)):(this.edit.splice(t,1),this.edit.splice(t,0,!0)):this.modefyFun(t)},modefyFun:function(e){var a=this,s={};if(a.editIp[e]==location.host)return Cstool.Msg({content:this.lang_t("rule.msg57")}),!1;if(a.dataTotal)for(i=0;i<a.dataTotal;i++)if(i!=e){if(a.editMac[e].toUpperCase()==a.data[i].mac.toUpperCase())return Cstool.Msg({content:this.lang_t("rule.rule_conflict",[this.lang_t("rule.mac")])}),!1;if(a.editIp[e]==a.data[i].ip)return Cstool.Msg({content:this.lang_t("rule.rule_conflict",[this.lang_t("rule.ip")])}),!1}Cstool.Verify(this.formRules,function(t){t&&(s.mac=a.editMac[e].toUpperCase(),s.ip=a.editIp[e],s.desc=a.editDesc[e],s.idx=String(e+1),s.addEffect="2",uiPost.setStaticDhcpRules(s,applyCallback))},a.dataTotal,e)},trashFun:function(t){var e={};this.ruleList;if("all"!=t)e[this.data[t].delRuleName]=String(t),Cstool.Msg({content:this.lang_t("rule.msg15"),type:"confirm",ok:function(){uiPost.delStaticDhcpRules(e,applyCallback)}});else{var a,i=0;for(a in this.select)this.select[a]&&(i++,e[[this.data[a].delRuleName]]=String(a),Cstool.Msg({content:i==this.select.length?this.lang_t("rule.msg26"):this.lang_t("rule.msg15"),type:"confirm",ok:function(){uiPost.delStaticDhcpRules(e,applyCallback)}}));if(0==i)return Cstool.Msg({content:this.lang_t("rule.msg14")}),!1}},watchValue:function(t){this.editDesc[t]!=this.data[t].desc||this.editMac[t]!=this.data[t].mac||this.editIp[t]!=this.data[t].ip?"/static/images/edited.png"!=this.operate[t]&&(this.operate.splice(t,1),this.operate.splice(t,0,"/static/images/edited.png")):(this.operate.splice(t,1),this.operate.splice(t,0,"/static/images/edit.png"))},tableInit:function(t){for(var e in t)this.edit[e]=!1,this.select[e]=!1,this.operate[e]="/static/images/edit.png",this.editDesc[e]=t[e].desc,this.editMac[e]=t[e].mac,this.editIp[e]=t[e].ip}}}</script><script src="/static/js/main.js"></script></body></html>

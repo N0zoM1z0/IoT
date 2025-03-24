@@ -1,0 +1,10 @@
+Package: kmod-ipt-physdev
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-a31b8970df4b847fa4f01d88c4d1392a), kmod-ipt-core, kmod-br-netfilter
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: arm_cortex-a7
+Installed-Size: 1748
+Description:  The iptables physdev kernel module

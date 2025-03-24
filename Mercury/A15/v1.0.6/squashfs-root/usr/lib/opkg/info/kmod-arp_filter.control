@@ -1,0 +1,8 @@
+Package: kmod-arp_filter
+Version: 4.4.176+1.0
+Depends: kernel (=4.4.176-1-ccf593a113351d85e0d5f640ca33947f)
+Source: tp_package/k_packages/arp_filter
+Section: ko util
+Architecture: rtl
+Installed-Size: 2890
+Description:  tp-link arp filter module

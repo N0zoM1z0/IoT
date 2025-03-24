@@ -1,0 +1,69 @@
+
+
+<div class="head">
+	<div class="title"><h1>{%label.phDdns%}</h1><i class="helpBtn iconfont icon-help" helpStr="DdnsHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.ddnsDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.phState%}</label>
+	<li class="inputLi state"><span id="stateLi" class="error"><i class="circle"></i><span id="stateText"></span></span></li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.ddnsYielderLink%}</label>
+	<li class="inputLi state" id="serviceLink">
+		<a href="http://www.oray.com/passport/register.php" target="_blank">{%label.phServiceApply%}</a>
+		<a href="http://ask.oray.com/help" target="_blank">{%label.phServiceHelp%}</a>
+	</li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.serviceProvider%}</label>
+	<li class="inputLi state" id="provider">
+		<span >{%label.ddnsProvider%}</span>
+		<a href="http://www.oray.com/passport/register.php" target="_blank">{%label.regNewAccount%}</a>
+	</li>
+</ul>
+<div id="userCon"></div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl"></label>
+	<div id="authLoginCon"></div>
+</ul>
+<ul class="inputCMPT medium selectUl" id="actOnInterfaceUl" style="display: none;">
+	<label class="outerLbl">{%label.activePort%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="actOnInterface" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.serviceType%}</label>
+	<li class="inputLi state"><span id="serviceType">{%statusStr.ddnsNoneService%}</span></li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl" style="vertical-align:top;">{%label.domainInfo%}</label>
+	<li class="inputLi state">
+		<span id="domainInfo"></span>
+	</li>
+</ul>
+<div id="login"></div>
+<div id="logout"></div>
+<div id="saveWanPort"></div><script type="text/javascript">(function(){function m(a){var b="";switch(parseInt(a)){case ENONE:return!0;case EDDNSPWDBLANK:b=errStr.ddnsPwdBlank;break;case ENAMEBLANK:b=errStr.ddnsUsrNameBlank;break;case ENOLINK:b=errStr.ddnsWanNotReady;break;case EINVNAMELEN:b=errStr.ddnsInvalidNameLen;break;case DDNSPWDLEN:b=errStr.ddnsInvalidPwdLen;break;case EINVNAME:b=errStr.ddnsInvalidName;break;case EDDNSPWD:b=errStr.ddnsInvalidPwd;break;default:b=errStr.unknown+a}alarmDialog.show(b);return!1}function h(a){if(!0==a||!1==a)n.disable(a),
+p.disable(a),q.disable(a)}function e(a,b){$("#stateLi").attr("class",a);$("#stateText").text(b)}function t(a){switch(a){case u:case A:case B:case "logoutSuccess":a=!0;break;case G:case H:case v:case "loginSuccess":a=!1;break;default:a=!0}$("#login").css("display",a?"block":"none");$("#logout").css("display",a?"none":"block")}function w(){var a={};a[f]={};a[f][KEY_NAME]=[uciDdns.dynData.ddnsStatus];$.query(a,I)}function I(a){a=a[f][uciDdns.dynData.ddnsStatus];t(parseInt(a.status));switch(parseInt(a.status)){case u:h(!1);
+e("error",ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]);$("#saveWanPort").hide();break;case G:h(!0);e("error",ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTING]+ddnsLinkStatus[DDNS_LINK_STATUS_GETTING_IP]);l&&$("#saveWanPort").show();break;case H:h(!0);e("error",ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTING]+ddnsLinkStatus[DDNS_LINK_STATUS_REGISTERRING]);l&&$("#saveWanPort").show();break;case v:h(!0);e("success",ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTED]);l&&$("#saveWanPort").show();break;case A:h(!1);e("error",
+ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED_SUB_STATE]+ddnsLinkStatus[DDNS_LINK_STATUS_DOMAINERROR]);$("#saveWanPort").hide();break;case B:h(!1);e("error",ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED_SUB_STATE]+ddnsLinkStatus[DDNS_LINK_STATUS_VERIFYFAIL]);$("#saveWanPort").hide();break;default:e("error",ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]),$("#saveWanPort").hide()}C!=J&&($(".relayErrorTip").show(),q.disable(!0),x.disable(!0),n.disable(!0),p.disable(!0),r.disable(!0),C==L?$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用DDNS功能。"):
+$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用DDNS功能。"),l&&id("actOnInterface").disable(!0));var b=DDNS_SERVICE_TYPE_NONE,c=0,g="";v==a.status&&DDNS_SERVICE_TYPE_STA<=a.srv_type&&DDNS_SERVICE_TYPE_NONE>a.srv_type&&(b=a.srv_type);$("#serviceType").html(ddnsService[b]);if(0==parseInt(a.domain_num)||v!=a.status)$("#domainInfo").html(label.none);else{$("#domainInfo").html("");for(c=0;c<parseInt(a.domain_num);c++)g+=c+1+". "+a.domains[c],c!=parseInt(a.domain_num)&&(g+="<br />");$("#domainInfo").html(g)}!0==
+s?d=$.setTimeout(w,D):parseInt(k[y])?d=$.setTimeout(w,D):u!=parseInt(a.status)&&A!=parseInt(a.status)&&B!=parseInt(a.status)?d=$.setTimeout(w,D):-1!=d&&(s=!1,clearTimeout(d))}function M(a){k=a[f][z];n.setValue(k[E]?k[E]:"");p.setValue(k[F]?k[F]:"");r.setValue(1===parseInt(k[y]));t(a[f][uciDdns.dynData.ddnsStatus]);if(slp.gMulWanSupport){var b=formatTableData(a.port_manage.mwan);l=!0;for(var c=0;2>c;c++)if(0==b[c].enable){l=!1;break}l&&(selectInit("actOnInterface",N,k.wan_port?k.wan_port:"0"),$("#actOnInterfaceUl").show())}slp.gSysModeSupport&&
+(C=a.system.sys_mode.mode);I(a)}var u=0,G=1,H=2,v=3,A=4,B=5,D=1E3,d=-1,s=!1,f=uciDdns.fileName,z=uciDdns.secName.phDdns,E=uciDdns.optName.username,F=uciDdns.optName.password,y=uciDdns.optName.autologin,k={},J=0,L=1,C=J,l=!1,N=[{str:label.auto,value:0},{str:"WAN1",value:1},{str:"WAN2",value:2}],n=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.userName},targetId:"userCon",isAllowBlank:!1,props:{maxlength:"63",type:"text"}}),p=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.password},
+targetId:"userCon",isAllowBlank:!1,props:{maxlength:"63",type:"text"}}),r=new CheckBox({targetId:"authLoginCon",label:label.autoLogin,checked:!1,onClick:function(){var a={},b={},c={},g,h=r.getValue(),d={};d[f]={};d[f][KEY_NAME]=[uciDdns.dynData.ddnsStatus];$.query(d,function(d){u!=parseInt(d[f][uciDdns.dynData.ddnsStatus].status)&&(g=h?"on":"off",c["switch"]=g,b.change_ddns_status=c,a.ddns=b,$.action(a,function(a){m(a[ERR_CODE])},!0))})}}),q=new Button({text:btn.login,onClick:function(){var a={},
+b={},c={};a[f]=b;b[z]=c;var b=n.getValue(),g=p.getValue(),k=r.getValue(),e=!0;[n,p].forEach(function(a){e=a.checkAll()&&e});e&&(c[E]=b,c[F]=g,c[y]=k?1:0,l&&(c.wan_port=$("#actOnInterface").val()),q.disable(!0),$.modify(a,function(a){!0==m(a[ERR_CODE])?$.action({ddns:{login:null}},function(a){q.disable(!1);!0==m(a[ERR_CODE])?(showToast(label.operateSuccess),-1!=d||s||(s=!0,w()),t("loginSuccess")):h(!1)},!0):(q.disable(!1),h(!1))}))},type:Button.TYPE.PRIMARY,id:"login",props:{width:"240px",margin:"32px 0 0 132px"}}),
+x=new Button({text:btn.quit,onClick:function(){var a={},b={},c={},g=r.getValue();a[f]=b;b[z]=c;c[y]=g?1:0;x.disable(!0);$.modify(a,function(a){!0==m(a[ERR_CODE])?$.action({ddns:{logout:null}},function(a){x.disable(!1);!0==m(a[ERR_CODE])&&(showToast(label.operateSuccess),-1!=d&&(s=!1,clearTimeout(d),d=-1),$("#serviceType").html(ddnsService[DDNS_SERVICE_TYPE_NONE]),$("#domainInfo").html(label.none),e("error",ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]),t("logoutSuccess"),h(!1),$("#saveWanPort").hide())}):
+x.disable(!1)})},type:Button.TYPE.SECONDARY,id:"logout",props:{width:"240px",margin:"32px 0 0 132px"}}),K=new Button({text:btn.save,onClick:function(){var a={ddns:{phddns:{wan_port:$("#actOnInterface").val()}}};K.disable(!0);$.modify(a,function(a){K.disable(!1);a.error_code!=ENONE?showToast(label.phoneSaveFail):showToast(label.operateSuccess)})},type:Button.TYPE.SECONDARY,id:"saveWanPort",props:{width:"240px",margin:"32px 0 0 132px"}});new Dialog({title:label.confirmTitle,content:"",size:Dialog.SIZE.SMALL,
+hasCloseIcon:!1,type:Dialog.TYPE.ALARM});(function(){var a={};a[f]={};a[f][KEY_NAME]=[z,uciDdns.dynData.ddnsStatus];slp.gSysModeSupport&&(a.system={name:"sys_mode"});slp.gMulWanSupport&&(a.port_manage={table:"mwan"});$.query(a,M)})()})();
+</script><style type="text/css">#serviceLink a{margin-right:8px;color:#333}#authLoginCon{height:24px;line-height:24px}#login,#logout{display:none}</style>

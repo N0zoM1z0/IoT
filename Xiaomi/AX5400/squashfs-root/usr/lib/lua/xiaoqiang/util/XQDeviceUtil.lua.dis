@@ -1,0 +1,3345 @@
+local L0, L1, L2, L3, L4, L5
+L0 = module
+L1 = "xiaoqiang.util.XQDeviceUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "cjson"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQFunction"
+L2 = L2(L3)
+L3 = require
+L4 = "xiaoqiang.XQEquipment"
+L3 = L3(L4)
+L4 = require
+L5 = "luci.cbi.datatypes"
+L4 = L4(L5)
+function L5(A0)
+  local L1, L2, L3, L4
+  L1 = {}
+  L1.name = ""
+  L1.icon = ""
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if not L2 then
+    L2 = string
+    L2 = L2.len
+    L3 = A0
+    L2 = L2(L3)
+    if not (L2 < 8) then
+      goto lbl_17
+    end
+  end
+  do return L1 end
+  ::lbl_17::
+  L2 = _UPVALUE1_
+  L2 = L2.identifyDevice
+  L3 = A0
+  L4 = nil
+  return L2(L3, L4)
+end
+getDeviceCompany = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = require
+  L1 = "xiaoqiang.util.XQDBUtil"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = L0.fetchAllDeviceInfo
+  L2 = L2()
+  if 0 < L3 then
+    for L6, L7 in L3, L4, L5 do
+      L8 = L7.mac
+      L1[L8] = L7
+    end
+  end
+  return L1
+end
+getDeviceInfoFromDB = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L0 = require
+  L1 = "xiaoqiang.util.XQDBUtil"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = L0.fetchAllDeviceInfo
+  L2 = L2()
+  if 0 < L3 then
+    for L6, L7 in L3, L4, L5 do
+      L8 = table
+      L8 = L8.insert
+      L9 = L1
+      L10 = L7.mac
+      L8(L9, L10)
+    end
+  end
+  return L1
+end
+getDeviceMacsFromDB = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = {}
+  L3 = L0
+  L2 = L0.foreach
+  L4 = "deviceinfo"
+  L5 = "device"
+  function L6(A0)
+    local L1, L2, L3
+    L1 = {}
+    L2 = _UPVALUE0_
+    L2 = L2.macFormat
+    L3 = A0.mac
+    L2 = L2(L3)
+    L1.mac = L2
+    L2 = A0.owner
+    L1.owner = L2
+    L2 = A0.device
+    L1.device = L2
+    L2 = _UPVALUE1_
+    L3 = L1.mac
+    L2[L3] = L1
+  end
+  L2(L3, L4, L5, L6)
+  return L1
+end
+getDeviceInfoFromConfig = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = {}
+  L1.owner = ""
+  L1.device = ""
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    return L1
+  else
+    L2 = _UPVALUE0_
+    L2 = L2.macFormat
+    L3 = A0
+    L2 = L2(L3)
+    A0 = L2
+  end
+  L2 = string
+  L2 = L2.lower
+  L4 = A0
+  L3 = A0.gsub
+  L5 = ":"
+  L6 = ""
+  L3, L4, L5, L6, L7 = L3(L4, L5, L6)
+  L2 = L2(L3, L4, L5, L6, L7)
+  L3 = require
+  L4 = "luci.model.uci"
+  L3 = L3(L4)
+  L3 = L3.cursor
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get_all
+  L6 = "deviceinfo"
+  L7 = L2
+  L4 = L4(L5, L6, L7)
+  if L4 then
+    L5 = L4.owner
+    L5 = L5 or L5
+    L1.owner = L5
+    L5 = L4.device
+    L5 = L5 or L5
+    L1.device = L5
+  end
+  return L1
+end
+fetchDeviceInfoFromConfig = L5
+function L5(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if L3 then
+    return
+  end
+  L3 = require
+  L4 = "luci.model.uci"
+  L3 = L3(L4)
+  L3 = L3.cursor
+  L3 = L3()
+  L4 = _UPVALUE0_
+  L4 = L4.macFormat
+  L5 = A0
+  L4 = L4(L5)
+  L5 = string
+  L5 = L5.lower
+  L7 = L4
+  L6 = L4.gsub
+  L8 = ":"
+  L9 = ""
+  L6, L7, L8, L9, L10, L11, L12 = L6(L7, L8, L9)
+  L5 = L5(L6, L7, L8, L9, L10, L11, L12)
+  L7 = L3
+  L6 = L3.get_all
+  L8 = "deviceinfo"
+  L9 = L5
+  L6 = L6(L7, L8, L9)
+  if L6 then
+    if A1 then
+      L7 = L3
+      L6 = L3.set
+      L8 = "deviceinfo"
+      L9 = L5
+      L10 = "owner"
+      L11 = A1
+      L6(L7, L8, L9, L10, L11)
+    end
+    if A2 then
+      L7 = L3
+      L6 = L3.set
+      L8 = "deviceinfo"
+      L9 = L5
+      L10 = "device"
+      L11 = A2
+      L6(L7, L8, L9, L10, L11)
+    end
+  else
+    L6 = {}
+    L6.mac = L4
+    L7 = A1 or L7
+    if not A1 then
+      L7 = ""
+    end
+    L6.owner = L7
+    L7 = A2 or L7
+    if not A2 then
+      L7 = ""
+    end
+    L6.device = L7
+    L8 = L3
+    L7 = L3.section
+    L9 = "deviceinfo"
+    L10 = "device"
+    L11 = L5
+    L12 = L6
+    L7(L8, L9, L10, L11, L12)
+  end
+  L7 = L3
+  L6 = L3.commit
+  L8 = "deviceinfo"
+  L6(L7, L8)
+end
+saveDeviceInfo = L5
+function L5(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11
+  L4 = require
+  L5 = "xiaoqiang.util.XQDBUtil"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQSynchrodata"
+  L5 = L5(L6)
+  L6 = _UPVALUE0_
+  L6 = L6.macFormat
+  L7 = A0
+  L6 = L6(L7)
+  L7 = L5.syncDeviceInfo
+  L8 = {}
+  L8.mac = L6
+  L8.nickname = A1
+  L8.owner = A2
+  L8.device = A3
+  L7(L8)
+  L7 = L4.updateDeviceNickname
+  L8 = L6
+  L9 = A1
+  L7 = L7(L8, L9)
+  if L7 == 0 then
+    L8 = saveDeviceInfo
+    L9 = L6
+    L10 = A2
+    L11 = A3
+    L8(L9, L10, L11)
+    L8 = true
+    return L8
+  else
+    L8 = false
+    return L8
+  end
+end
+saveDeviceName = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L2 = L1.cursor
+  L2 = L2()
+  L3 = {}
+  L4 = _UPVALUE0_
+  L4 = L4.DHCP_LEASE_FILEPATH
+  L5 = L2.foreach
+  function L9(A0)
+    local L1, L2
+    L1 = A0.leasefile
+    if L1 then
+      L1 = _UPVALUE0_
+      L1 = L1.access
+      L2 = A0.leasefile
+      L1 = L1(L2)
+      if L1 then
+        L1 = A0.leasefile
+        _UPVALUE1_ = L1
+        L1 = false
+        return L1
+      end
+    end
+  end
+  L5(L6, L7, L8, L9)
+  L5 = io
+  L5 = L5.open
+  L5 = L5(L6, L7)
+  if L5 then
+    for L9 in L6, L7, L8 do
+      if L9 then
+        L11 = L9
+        L10 = L9.match
+        L12 = "^(%d+) (%S+) (%S+) (%S+)"
+        L10, L11, L12, L13 = L10(L11, L12)
+        if L13 == "*" then
+          L13 = ""
+        end
+        if L10 and L11 and L12 and L13 then
+          L14 = #L3
+          L14 = L14 + 1
+          L15 = {}
+          L16 = _UPVALUE1_
+          L16 = L16.macFormat
+          L17 = L11
+          L16 = L16(L17)
+          L15.mac = L16
+          L15.ip = L12
+          L15.name = L13
+          L3[L14] = L15
+        end
+      end
+    end
+    L6(L7)
+    return L3
+  else
+    return L6
+  end
+end
+getDHCPList = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = {}
+  L1 = getDHCPList
+  L1 = L1()
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6.mac
+    L0[L7] = L6
+  end
+  return L0
+end
+getDHCPDict = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = {}
+  L1 = getDHCPList
+  L1 = L1()
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6.ip
+    L0[L7] = L6
+  end
+  return L0
+end
+getDHCPIpDict = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = L0.execi
+  L2 = L2(L3)
+  for L6 in L3, L4, L5 do
+    L7 = L6
+    L8 = ";"
+    L6 = L7 .. L8
+    L8 = L6
+    L7 = L6.match
+    L9 = "mac=(%S-);"
+    L7 = L7(L8, L9)
+    L7 = L7 or L7
+    L9 = L6
+    L8 = L6.match
+    L10 = "wan=(%S-);"
+    L8 = L8(L9, L10)
+    L8 = L8 or L8
+    L10 = L6
+    L9 = L6.match
+    L11 = "lan=(%S-);"
+    L9 = L9(L10, L11)
+    L9 = L9 or L9
+    L11 = L6
+    L10 = L6.match
+    L12 = "admin=(%S-);"
+    L10 = L10(L11, L12)
+    L10 = L10 or L10
+    L12 = L6
+    L11 = L6.match
+    L13 = "pridisk=(%S-);"
+    L11 = L11(L12, L13)
+    L11 = L11 or L11
+    L12 = {}
+    L13 = _UPVALUE0_
+    L13 = L13.isStrNil
+    L14 = L7
+    L13 = L13(L14)
+    if not L13 then
+      L13 = _UPVALUE0_
+      L13 = L13.macFormat
+      L14 = L7
+      L13 = L13(L14)
+      L12.mac = L13
+      L13 = string
+      L13 = L13.upper
+      L14 = L8
+      L13 = L13(L14)
+      if L13 == "YES" then
+        L13 = true
+        if L13 then
+          goto lbl_66
+        end
+      end
+      L13 = false
+      ::lbl_66::
+      L12.wan = L13
+      L13 = string
+      L13 = L13.upper
+      L14 = L9
+      L13 = L13(L14)
+      if L13 == "YES" then
+        L13 = true
+        if L13 then
+          goto lbl_77
+        end
+      end
+      L13 = false
+      ::lbl_77::
+      L12.lan = L13
+      L13 = string
+      L13 = L13.upper
+      L14 = L10
+      L13 = L13(L14)
+      if L13 == "YES" then
+        L13 = true
+        if L13 then
+          goto lbl_88
+        end
+      end
+      L13 = false
+      ::lbl_88::
+      L12.admin = L13
+      L13 = string
+      L13 = L13.upper
+      L14 = L11
+      L13 = L13(L14)
+      if L13 == "YES" then
+        L13 = true
+        if L13 then
+          goto lbl_99
+        end
+      end
+      L13 = false
+      ::lbl_99::
+      L12.pridisk = L13
+      L13 = table
+      L13 = L13.insert
+      L14 = L1
+      L15 = L12
+      L13(L14, L15)
+    end
+  end
+  return L1
+end
+getMacfilterInfoList = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = {}
+  L1 = getMacfilterInfoList
+  L1 = L1()
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6.mac
+    L0[L7] = L6
+  end
+  return L0
+end
+getMacfilterInfoDict = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = {}
+  if A0 then
+    L2 = type
+    L3 = A0
+    L2 = L2(L3)
+    if L2 == "table" then
+      L2 = getDeviceInfoFromDB
+      L2 = L2()
+      L3 = getDHCPDict
+      L3 = L3()
+      for L7, L8 in L4, L5, L6 do
+        L9 = _UPVALUE0_
+        L9 = L9.macFormat
+        L10 = L8
+        L9 = L9(L10)
+        L8 = L9
+        L9 = L2[L8]
+        L10 = L3[L8]
+        if L9 then
+          L11 = _UPVALUE0_
+          L11 = L11.isStrNil
+          L12 = L9.nickname
+          L11 = L11(L12)
+          if not L11 then
+            L11 = L9.nickname
+            L1[L8] = L11
+        end
+        else
+          L11 = nil
+          if L10 then
+            L12 = _UPVALUE0_
+            L12 = L12.isStrNil
+            L13 = L10.name
+            L12 = L12(L13)
+            if not L12 then
+              L11 = L10.name
+              L12 = L10.name
+              L1[L8] = L12
+            end
+          end
+          L12 = _UPVALUE1_
+          L12 = L12.identifyDevice
+          L13 = L8
+          L14 = L11
+          L12 = L12(L13, L14)
+          L13 = _UPVALUE0_
+          L13 = L13.isStrNil
+          L14 = L1[L8]
+          L13 = L13(L14)
+          if L13 then
+            if L12 then
+              L13 = _UPVALUE0_
+              L13 = L13.isStrNil
+              L14 = L12.type
+              L14 = L14.n
+              L13 = L13(L14)
+              if not L13 then
+                L13 = L12.type
+                L13 = L13.n
+                L1[L8] = L13
+            end
+            else
+              if L12 then
+                L13 = _UPVALUE0_
+                L13 = L13.isStrNil
+                L14 = L12.name
+                L13 = L13(L14)
+                if not L13 then
+                  L13 = L12.name
+                  L1[L8] = L13
+              end
+              else
+                L1[L8] = L8
+              end
+            end
+          else
+          end
+        end
+      end
+      return L1
+  end
+  else
+    L2 = nil
+    return L2
+  end
+end
+getDevicesName = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "json"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = {}
+  L5 = L1.execl
+  L6 = "/usr/sbin/sysapi macfilter get"
+  L5 = L5(L6)
+  L6 = {}
+  L7 = {}
+  if A0 then
+    if L8 == "table" then
+      L6 = A0
+  end
+  else
+    for L11, L12 in L8, L9, L10 do
+      L14 = L12
+      L13 = L12.match
+      L15 = "mac=(%S-);"
+      L13 = L13(L14, L15)
+      L13 = L13 or L13
+      if L13 and L13 ~= "" then
+        L14 = table
+        L14 = L14.insert
+        L15 = L6
+        L16 = _UPVALUE0_
+        L16 = L16.macFormat
+        L17 = L13
+        L16, L17, L18, L19, L20, L21, L22 = L16(L17)
+        L14(L15, L16, L17, L18, L19, L20, L21, L22)
+      end
+    end
+  end
+  L8.api = 70
+  L8.macs = L6
+  L13, L14, L15, L16, L17, L18, L19, L20, L21, L22 = L10(L11)
+  if L9 then
+    if L10 == 0 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = L6[L13]
+        L7[L15] = L14
+      end
+    end
+  end
+  for L13, L14 in L10, L11, L12 do
+    L15 = L14
+    L16 = ";"
+    L14 = L15 .. L16
+    L16 = L14
+    L15 = L14.match
+    L17 = "mac=(%S-);"
+    L15 = L15(L16, L17)
+    L15 = L15 or L15
+    L17 = L14
+    L16 = L14.match
+    L18 = "wan=(%S-);"
+    L16 = L16(L17, L18)
+    L16 = L16 or L16
+    L18 = L14
+    L17 = L14.match
+    L19 = "lan=(%S-);"
+    L17 = L17(L18, L19)
+    L17 = L17 or L17
+    L19 = L14
+    L18 = L14.match
+    L20 = "admin=(%S-);"
+    L18 = L18(L19, L20)
+    L18 = L18 or L18
+    L20 = L14
+    L19 = L14.match
+    L21 = "pridisk=(%S-);"
+    L19 = L19(L20, L21)
+    L19 = L19 or L19
+    L20 = {}
+    if L15 then
+      L21 = _UPVALUE0_
+      L21 = L21.macFormat
+      L22 = L15
+      L21 = L21(L22)
+      L15 = L21
+      L21 = string
+      L21 = L21.upper
+      L22 = L16
+      L21 = L21(L22)
+      if L21 == "YES" then
+        L21 = 1
+        if L21 then
+          goto lbl_124
+        end
+      end
+      L21 = 0
+      ::lbl_124::
+      L20.wan = L21
+      L21 = string
+      L21 = L21.upper
+      L22 = L17
+      L21 = L21(L22)
+      if L21 == "YES" then
+        L21 = 1
+        if L21 then
+          goto lbl_135
+        end
+      end
+      L21 = 0
+      ::lbl_135::
+      L20.lan = L21
+      L21 = string
+      L21 = L21.upper
+      L22 = L18
+      L21 = L21(L22)
+      if L21 == "YES" then
+        L21 = 1
+        if L21 then
+          goto lbl_146
+        end
+      end
+      L21 = 0
+      ::lbl_146::
+      L20.admin = L21
+      L21 = string
+      L21 = L21.upper
+      L22 = L19
+      L21 = L21(L22)
+      if L21 == "YES" then
+        L21 = 1
+        if L21 then
+          goto lbl_157
+        end
+      end
+      L21 = 0
+      ::lbl_157::
+      L20.pridisk = L21
+      L21 = L7[L15]
+      if L21 ~= nil then
+        if L21 then
+          L22 = 1
+          if L22 then
+            goto lbl_167
+          end
+        end
+        L22 = 0
+        ::lbl_167::
+        L20.lan = L22
+      end
+      L3[L15] = L20
+    end
+  end
+  for L13, L14 in L10, L11, L12 do
+    L15 = L3[L14]
+    if L15 then
+      L15 = L3[L14]
+      L4[L14] = L15
+    else
+      L15 = {}
+      L15.wan = 1
+      L16 = L7[L14]
+      if L16 then
+        L16 = 1
+        if L16 then
+          goto lbl_190
+        end
+      end
+      L16 = 0
+      ::lbl_190::
+      L15.lan = L16
+      L15.admin = 1
+      L15.pridisk = 0
+      L4[L14] = L15
+    end
+  end
+  return L4
+end
+getDevicesPermissions = L5
+function L5(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = ""
+  if A0 == "lan" then
+    L2 = "ubus call trafficd lan"
+  elseif A0 == "wan" then
+    L2 = "ubus call trafficd wan"
+  end
+  L3 = {}
+  L3.upload = "0"
+  L3.upspeed = "0"
+  L3.download = "0"
+  L3.downspeed = "0"
+  L3.devname = ""
+  L3.maxuploadspeed = "0"
+  L3.maxdownloadspeed = "0"
+  L4 = L1.exec
+  L5 = L2
+  L4 = L4(L5)
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    return L3
+  end
+  L5 = _UPVALUE1_
+  L5 = L5.decode
+  L6 = L4
+  L5 = L5(L6)
+  if A0 == "wan" then
+    L6 = tostring
+    L6 = L6(L7)
+    L3.devname = L6
+    L6 = tostring
+    L6 = L6(L7)
+    L3.upload = L6
+    L6 = tostring
+    L6 = L6(L7)
+    L3.download = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.upspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.downspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.maxuploadspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.maxdownloadspeed = L6
+    L6 = L1.exec
+    L6 = L6(L7)
+    if not L7 then
+      historylist = L7
+      L6 = L7
+      for L10, L11 in L7, L8, L9 do
+        if L11 then
+          L12 = table
+          L12 = L12.insert
+          L13 = historylist
+          L14 = tostring
+          L15 = L11
+          L14, L15 = L14(L15)
+          L12(L13, L14, L15)
+        end
+      end
+      L3.history = L7
+    end
+  else
+    L6 = tostring
+    L6 = L6(L7)
+    L3.devname = L6
+    L6 = tostring
+    L6 = L6(L7)
+    L3.upload = L6
+    L6 = tostring
+    L6 = L6(L7)
+    L3.download = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.upspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.downspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.maxuploadspeed = L6
+    L6 = tostring
+    L10, L11, L12, L13, L14, L15 = L7(L8)
+    L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+    L3.maxdownloadspeed = L6
+  end
+  return L3
+end
+getWanLanNetworkStatistics = L5
+function L5(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQLanWanUtil"
+  L3 = L3(L4)
+  L4 = {}
+  L5 = {}
+  L6 = {}
+  if A1 ~= nil then
+    for L10, L11 in L7, L8, L9 do
+      L6[L11] = 1
+    end
+  end
+  if A0 == nil then
+    if L8 then
+      return L8
+    else
+      L4 = L8
+    end
+  else
+    L4 = A0
+  end
+  if L7 == nil then
+    return L8
+  end
+  L6[L7] = 1
+  for L11, L12 in L8, L9, L10 do
+    L13 = L12.ifname
+    L13 = L6[L13]
+    if L13 ~= 1 then
+      L5[L11] = L12
+    end
+  end
+  return L5
+end
+skip_master_dev_from_trafficd = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = getDHCPDict
+  L2 = L2()
+  L3 = getDeviceInfoFromDB
+  L3 = L3()
+  L4 = L0.exec
+  L4 = L4(L5)
+  if L5 then
+    return L1
+  else
+    L4 = L5
+  end
+  for L8, L9 in L5, L6, L7 do
+    if L9 then
+      L10 = {}
+      L11 = _UPVALUE0_
+      L11 = L11.macFormat
+      L12 = L8
+      L11 = L11(L12)
+      L12, L13, L14 = nil, nil, nil
+      L15 = L2[L11]
+      if L15 then
+        L15 = L2[L11]
+        L14 = L15.name
+      end
+      L15 = L3[L11]
+      if L15 then
+        L16 = _UPVALUE0_
+        L16 = L16.isStrNil
+        L17 = L14
+        L16 = L16(L17)
+        if L16 then
+          L14 = L15.oName
+        end
+        L13 = L15.nickname
+      end
+      L16 = _UPVALUE2_
+      L16 = L16.identifyDevice
+      L17 = L11
+      L18 = L14
+      L16 = L16(L17, L18)
+      L17 = L16.type
+      L18 = _UPVALUE0_
+      L18 = L18.isStrNil
+      L19 = L13
+      L18 = L18(L19)
+      if not L18 then
+        L12 = L13
+      end
+      L18 = _UPVALUE0_
+      L18 = L18.isStrNil
+      L19 = L12
+      L18 = L18(L19)
+      if L18 then
+        L18 = _UPVALUE0_
+        L18 = L18.isStrNil
+        L19 = L17.n
+        L18 = L18(L19)
+        if not L18 then
+          L12 = L17.n
+        end
+      end
+      L18 = _UPVALUE0_
+      L18 = L18.isStrNil
+      L19 = L12
+      L18 = L18(L19)
+      if L18 then
+        L18 = _UPVALUE0_
+        L18 = L18.isStrNil
+        L19 = L14
+        L18 = L18(L19)
+        if not L18 then
+          L12 = L14
+        end
+      end
+      L18 = _UPVALUE0_
+      L18 = L18.isStrNil
+      L19 = L12
+      L18 = L18(L19)
+      if L18 then
+        L18 = _UPVALUE0_
+        L18 = L18.isStrNil
+        L19 = L16.name
+        L18 = L18(L19)
+        if not L18 then
+          L12 = L16.name
+        end
+      end
+      L18 = _UPVALUE0_
+      L18 = L18.isStrNil
+      L19 = L12
+      L18 = L18(L19)
+      if L18 then
+        L12 = L11
+      end
+      L18 = 0
+      L19 = 0
+      L20 = 0
+      L21 = 0
+      L22 = 0
+      L23 = 0
+      L24 = L9.ip_list
+      if 0 < L25 then
+        for L28, L29 in L25, L26, L27 do
+          L30 = L29.tx_bytes
+          L30 = L18 + L30
+          L18 = L30 or L18
+          if not L30 then
+            L18 = 0
+          end
+          L30 = L29.rx_bytes
+          L30 = L20 + L30
+          L20 = L30 or L20
+          if not L30 then
+            L20 = 0
+          end
+          L30 = L29.tx_rate
+          L30 = L19 + L30
+          L19 = L30 or L19
+          if not L30 then
+            L19 = 0
+          end
+          L30 = L29.rx_rate
+          L30 = L21 + L30
+          L21 = L30 or L21
+          if not L30 then
+            L21 = 0
+          end
+          L30 = L29.max_tx_rate
+          L30 = L22 + L30
+          L22 = L30 or L22
+          if not L30 then
+            L22 = 0
+          end
+          L30 = L29.max_rx_rate
+          L30 = L23 + L30
+          L23 = L30 or L23
+          if not L30 then
+            L23 = 0
+          end
+        end
+      end
+      L10.mac = L11
+      L10.upload = L25
+      L28, L29, L30 = L26(L27)
+      L10.upspeed = L25
+      L10.download = L25
+      L28, L29, L30 = L26(L27)
+      L10.downspeed = L25
+      L10.online = L25
+      L10.devname = L12
+      L10.isap = L25
+      L28, L29, L30 = L26(L27)
+      L10.maxuploadspeed = L25
+      L28, L29, L30 = L26(L27)
+      L10.maxdownloadspeed = L25
+      L1[L25] = L10
+    end
+  end
+  return L1
+end
+getDevNetStatisticsList = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQDBUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQLanWanUtil"
+  L2 = L2(L3)
+  L3 = 0
+  L4 = 0
+  L5 = 0
+  L6 = L0.exec
+  L7 = "ubus call trafficd hw"
+  L6 = L6(L7)
+  L7 = require
+  L8 = "luci.model.uci"
+  L7 = L7(L8)
+  L7 = L7.cursor
+  L7 = L7()
+  L9 = L7
+  L8 = L7.get
+  L10 = "misc"
+  L11 = "wireless"
+  L12 = "ifname_2G"
+  L8 = L8(L9, L10, L11, L12)
+  L8 = L8 or L8
+  L10 = L7
+  L9 = L7.get
+  L11 = "misc"
+  L12 = "wireless"
+  L9 = L9(L10, L11, L12, L13)
+  L9 = L9 or L9
+  L10 = require
+  L11 = "xiaoqiang.common.XQFunction"
+  L10 = L10(L11)
+  L11 = L10.getNetMode
+  L11 = L11()
+  L12 = L10.isStrNil
+  L12 = L12(L13)
+  if not L12 then
+    L12 = L10.isMeshCap
+    L12 = L12()
+    if not L12 then
+      if L11 ~= "lanapmode" and L11 ~= "wifiapmode" then
+        L12 = L10.isMeshRe
+        L12 = L12()
+        if not L12 then
+          goto lbl_85
+        end
+      end
+      L12 = tonumber
+      L16 = " assoc | grep stacount | awk '{print $2}'"
+      L16, L17, L18, L22, L23, L24, L25, L26, L27, L28 = L13(L14)
+      L12 = L12(L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28)
+      L12 = L12 or L12
+      L16 = L9
+      L17 = " assoc | grep stacount | awk '{print $2}'"
+      L16, L17, L18, L22, L23, L24, L25, L26, L27, L28 = L14(L15)
+      L16 = L12 + L13
+      return L14, L15, L16
+    end
+  end
+  ::lbl_85::
+  L12 = L10.isStrNil
+  L12 = L12(L13)
+  if L12 then
+    L12 = 0
+    return L12, L13
+  else
+    L12 = _UPVALUE0_
+    L12 = L12.decode
+    L12 = L12(L13)
+    L6 = L12
+  end
+  L12 = L2.getLanIp
+  L12 = L12()
+  if not L13 then
+    L16 = ""
+    L12 = L13
+  else
+    L12 = nil
+  end
+  for L16, L17 in L13, L14, L15 do
+    L18 = L17.ifname
+    if L19 then
+      for L22, L23 in L19, L20, L21 do
+        L24 = false
+        if L18 ~= "wl1.2" and L18 ~= "wl3" and L18 ~= "wl14" and L12 then
+          L25 = L23.ip
+          if L25 then
+            L25 = L23.ip
+            L26 = L25
+            L25 = L25.match
+            L27 = "^"
+            L28 = L12
+            L27 = L27 .. L28
+            L25 = L25(L26, L27)
+            if not L25 then
+              L25 = L23.ip
+              if L25 ~= "0.0.0.0" then
+                goto lbl_150
+              end
+            end
+            L24 = false
+            goto lbl_151
+            ::lbl_150::
+            L24 = true
+          end
+        end
+        ::lbl_151::
+        if not L24 then
+          L26 = L18
+          L25 = L18.match
+          L27 = L9
+          L25 = L25(L26, L27)
+          if L25 then
+            L25 = tonumber
+            L26 = L17.assoc
+            L25 = L25(L26)
+            if L25 == 1 then
+              L4 = L4 + 1
+            end
+          end
+          L26 = L18
+          L25 = L18.match
+          L27 = L8
+          L25 = L25(L26, L27)
+          if L25 then
+            L25 = tonumber
+            L26 = L17.assoc
+            L25 = L25(L26)
+            if L25 == 1 then
+              L3 = L3 + 1
+            end
+          end
+          L26 = L18
+          L25 = L18.match
+          L27 = "wl"
+          L25 = L25(L26, L27)
+          if not L25 then
+            L25 = tonumber
+            L26 = L17.assoc
+            L25 = L25(L26)
+            if L25 == 1 then
+              goto lbl_195
+            end
+          end
+          L26 = L18
+          L25 = L18.match
+          L27 = "wl"
+          L25 = L25(L26, L27)
+          if L25 then
+            L25 = tonumber
+            L26 = L17.assoc
+            L25 = L25(L26)
+            ::lbl_195::
+            if L25 == 1 then
+              L5 = L5 + 1
+            end
+          end
+        end
+      end
+    end
+  end
+  return L13, L14, L15
+end
+get2g5gDeviceCount = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = {}
+  L1 = getDevNetStatisticsList
+  L1 = L1()
+  for L5, L6 in L2, L3, L4 do
+    if L6 then
+      L7 = L6.mac
+      L0[L7] = L6
+    end
+  end
+  return L0
+end
+getDevNetStatisticsDict = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQDBUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQLanWanUtil"
+  L2 = L2(L3)
+  L3 = 0
+  L4 = 0
+  L5 = L0.exec
+  L6 = "ubus call trafficd hw"
+  L5 = L5(L6)
+  L6 = _UPVALUE0_
+  L6 = L6.isStrNil
+  L6 = L6(L7)
+  if L6 then
+    L6 = 0
+    return L6, L7
+  else
+    L6 = _UPVALUE1_
+    L6 = L6.decode
+    L6 = L6(L7)
+    L5 = L6
+  end
+  L6 = L2.getLanIp
+  L6 = L6()
+  if not L7 then
+    L10 = ""
+    L6 = L7
+  else
+    L6 = nil
+  end
+  for L10, L11 in L7, L8, L9 do
+    L12 = L11.ifname
+    if L13 then
+      for L16, L17 in L13, L14, L15 do
+        L18 = false
+        if L12 ~= "wl1.2" and L12 ~= "wl3" and L12 ~= "wl14" and L6 then
+          L19 = L17.ip
+          if L19 then
+            L19 = L17.ip
+            L20 = L19
+            L19 = L19.match
+            L21 = "^"
+            L22 = L6
+            L21 = L21 .. L22
+            L19 = L19(L20, L21)
+            if not L19 then
+              L19 = L17.ip
+              if L19 ~= "0.0.0.0" then
+                goto lbl_82
+              end
+            end
+            L18 = false
+            goto lbl_83
+            ::lbl_82::
+            L18 = true
+          end
+        end
+        ::lbl_83::
+        if not L18 then
+          L19 = L11.is_ap
+          if L19 ~= 8 then
+            L19 = L11.is_ap
+            if L19 ~= 4 then
+              goto lbl_104
+            end
+          end
+          L19 = tonumber
+          L20 = L11.assoc
+          L19 = L19(L20)
+          if L19 == 1 then
+            L19 = L11.is_ap
+            if L19 == 8 then
+              L4 = L4 + 1
+            end
+            L19 = L11.is_ap
+            if L19 == 4 then
+              L3 = L3 + 1
+            end
+          end
+        end
+        ::lbl_104::
+      end
+    end
+  end
+  return L7, L8
+end
+getMeshDeviceCount = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQDBUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQLanWanUtil"
+  L2 = L2(L3)
+  L3 = 0
+  L4 = 0
+  L5 = 0
+  L6 = 0
+  L7 = L0.exec
+  L8 = "ubus call trafficd hw"
+  L7 = L7(L8)
+  L8 = _UPVALUE0_
+  L8 = L8.isStrNil
+  L8 = L8(L9)
+  if L8 then
+    L8 = 0
+    return L8, L9
+  else
+    L8 = _UPVALUE1_
+    L8 = L8.decode
+    L8 = L8(L9)
+    L7 = L8
+  end
+  L8 = L1.fetchAllDeviceInfo
+  L8 = L8()
+  if L8 then
+    for L12, L13 in L9, L10, L11 do
+      if L13 then
+        L14 = L13.mac
+        L14 = L7[L14]
+        if not L14 then
+          L14 = _UPVALUE0_
+          L14 = L14.isStrNil
+          L15 = L13.oName
+          L14 = L14(L15)
+          if L14 then
+            L14 = _UPVALUE0_
+            L14 = L14.isStrNil
+            L15 = L13.nickname
+            L14 = L14(L15)
+            if L14 then
+              goto lbl_60
+            end
+          end
+          L4 = L4 + 1
+          L6 = L6 + 1
+        end
+      end
+      ::lbl_60::
+    end
+  end
+  if not L10 then
+    L13 = ""
+  else
+  end
+  for L13, L14 in L10, L11, L12 do
+    L15 = L14.ifname
+    if L16 then
+      for L19, L20 in L16, L17, L18 do
+        L21 = false
+        if L15 ~= "wl1.2" and L15 ~= "wl3" and L15 ~= "wl14" and L9 then
+          L22 = L20.ip
+          if L22 then
+            L22 = L20.ip
+            L23 = L22
+            L22 = L22.match
+            L24 = "^"
+            L25 = L9
+            L24 = L24 .. L25
+            L22 = L22(L23, L24)
+            if not L22 then
+              L22 = L20.ip
+              if L22 ~= "0.0.0.0" then
+                goto lbl_114
+              end
+            end
+            L21 = false
+            goto lbl_115
+            ::lbl_114::
+            L21 = true
+          end
+        end
+        ::lbl_115::
+        if not L21 then
+          L23 = L15
+          L22 = L15.match
+          L24 = "wl"
+          L22 = L22(L23, L24)
+          if L22 then
+            L22 = L14.is_ap
+            if L22 ~= 8 then
+              L22 = L14.is_ap
+              if L22 ~= 4 then
+                L23 = L15
+                L22 = L15.match
+                L24 = "wl"
+                L22 = L22(L23, L24)
+                if not L22 then
+                  goto lbl_149
+                end
+                L22 = tonumber
+                L23 = L14.assoc
+                L22 = L22(L23)
+                if L22 ~= 1 then
+                  goto lbl_149
+                end
+              end
+            end
+          end
+          L22 = L20.ageing_timer
+          if L22 <= 300 then
+            L3 = L3 + 1
+            L22 = L14.is_ap
+            if L22 ~= 4 then
+              L22 = L14.is_ap
+              if L22 ~= 8 then
+                L5 = L5 + 1
+              end
+            end
+          end
+          ::lbl_149::
+          L4 = L4 + 1
+          L22 = L14.is_ap
+          if L22 ~= 4 then
+            L22 = L14.is_ap
+            if L22 ~= 8 then
+              L6 = L6 + 1
+            end
+          end
+        end
+      end
+    end
+  end
+  L13 = L6
+  return L10, L11, L12, L13
+end
+getDeviceCount = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = 0
+  L2 = L0.exec
+  L2 = L2(L3)
+  if L3 then
+    return L1
+  else
+    L2 = L3
+  end
+  for L6, L7 in L3, L4, L5 do
+    if L7 then
+      L8 = L7.ip_list
+      if L8 then
+        L8 = L7.ip_list
+        L8 = #L8
+        if 0 < L8 then
+          L8 = L7.ifname
+          if not L9 then
+            if L9 ~= 1 then
+              if L9 then
+                goto lbl_67
+              end
+            end
+            for L12, L13 in L9, L10, L11 do
+              L14 = L13.ageing_timer
+              if L14 <= 300 then
+                L14 = L13.tx_bytes
+                if L14 == 0 then
+                  L14 = L13.rx_bytes
+                  if L14 == 0 then
+                    goto lbl_65
+                  end
+                end
+                L1 = L1 + 1
+              end
+              ::lbl_65::
+            end
+          end
+        end
+      end
+    end
+    ::lbl_67::
+  end
+  return L1
+end
+getConnectDeviceCount = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L0 = require
+  L1 = "xiaoqiang.XQEquipment"
+  L0 = L0(L1)
+  L1 = {}
+  L1.mitv = 0
+  L1.mibox = 0
+  L2 = getDeviceInfoFromDB
+  L2 = L2()
+  for L6, L7 in L3, L4, L5 do
+    if L7 then
+      L8 = _UPVALUE0_
+      L8 = L8.isStrNil
+      L9 = L7.oName
+      L8 = L8(L9)
+      if not L8 then
+        L8 = _UPVALUE0_
+        L8 = L8.macFormat
+        L9 = L6
+        L8 = L8(L9)
+        L9 = L7.oName
+        L11 = L9
+        L10 = L9.match
+        L12 = "^mitv"
+        L10 = L10(L11, L12)
+        if L10 then
+          L10 = L1.mitv
+          L10 = L10 + 1
+          L1.mitv = L10
+        end
+        L11 = L9
+        L10 = L9.match
+        L12 = "^mibox"
+        L10 = L10(L11, L12)
+        if L10 then
+          L10 = L1.mibox
+          L10 = L10 + 1
+          L1.mibox = L10
+        end
+      end
+    end
+  end
+  return L1
+end
+getSpecialDevCount = L5
+function L5(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25
+  L2 = {}
+  L2.flag = 0
+  L2.name = ""
+  L2.mac = ""
+  L2.dhcpname = ""
+  L3 = {}
+  L3.c = 0
+  L3.p = 0
+  L3.n = ""
+  L2.type = L3
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if L3 then
+    return L2
+  else
+    L3 = _UPVALUE0_
+    L3 = L3.macFormat
+    L4 = A0
+    L3 = L3(L4)
+    A0 = L3
+  end
+  L3 = require
+  L4 = "xiaoqiang.XQEquipment"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.util.XQDBUtil"
+  L4 = L4(L5)
+  L5 = getDHCPDict
+  L5 = L5()
+  L5 = L5[A0]
+  L6 = L4.fetchDeviceInfo
+  L7 = A0
+  L6 = L6(L7)
+  L7, L8, L9, L10 = nil, nil, nil, nil
+  if L5 then
+    L11 = L5.name
+    if L11 then
+      L8 = L5.name
+    end
+  end
+  if L6 then
+    L11 = _UPVALUE0_
+    L11 = L11.isStrNil
+    L12 = L6.mac
+    L11 = L11(L12)
+    if not L11 then
+      L2.flag = 1
+    end
+    L11 = _UPVALUE0_
+    L11 = L11.isStrNil
+    L12 = L6.nickname
+    L11 = L11(L12)
+    if not L11 then
+      L9 = L6.nickname
+      L7 = L9
+    end
+    L11 = _UPVALUE0_
+    L11 = L11.isStrNil
+    L12 = L6.oName
+    L11 = L11(L12)
+    if not L11 then
+      L11 = _UPVALUE0_
+      L11 = L11.isStrNil
+      L12 = L8
+      L11 = L11(L12)
+      if L11 then
+        L8 = L6.oName
+      end
+    end
+  end
+  L11 = L3.identifyDevice
+  L12 = A0
+  L13 = L8
+  L11 = L11(L12, L13)
+  L12 = L11.type
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L14 = L7
+  L13 = L13(L14)
+  if L13 then
+    L13 = _UPVALUE0_
+    L13 = L13.isStrNil
+    L14 = L12.n
+    L13 = L13(L14)
+    if not L13 then
+      L7 = L12.n
+    end
+  end
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L14 = L7
+  L13 = L13(L14)
+  if L13 then
+    L13 = _UPVALUE0_
+    L13 = L13.isStrNil
+    L14 = L8
+    L13 = L13(L14)
+    if not L13 then
+      L7 = L8
+    end
+  end
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L14 = L7
+  L13 = L13(L14)
+  if L13 then
+    L13 = _UPVALUE0_
+    L13 = L13.isStrNil
+    L14 = L11.name
+    L13 = L13(L14)
+    if not L13 then
+      L7 = L11.name
+    end
+  end
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L14 = L7
+  L13 = L13(L14)
+  if L13 then
+    L7 = A0
+  end
+  L13 = L12.c
+  if L13 == 3 then
+    L13 = _UPVALUE0_
+    L13 = L13.isStrNil
+    L14 = L9
+    L13 = L13(L14)
+    if L13 then
+      L7 = L12.n
+    end
+  end
+  L13 = fetchDeviceInfoFromConfig
+  L14 = A0
+  L13 = L13(L14)
+  L2.mac = A0
+  L2.name = L7
+  L14 = L13.owner
+  L14 = L14 or L14
+  L2.owner = L14
+  L14 = L13.device
+  L14 = L14 or L14
+  L2.device = L14
+  L14 = L8 or L14
+  if not L8 then
+    L14 = ""
+  end
+  L2.dhcpname = L14
+  L2.type = L12
+  if A1 then
+    L14 = require
+    L15 = "xiaoqiang.util.XQPushUtil"
+    L14 = L14(L15)
+    L15 = getMacfilterInfoDict
+    L15 = L15()
+    L16 = nil
+    L17 = {}
+    L17.api = 70
+    L18 = {}
+    L19 = A0
+    L18[1] = L19
+    L17.macs = L18
+    L18 = _UPVALUE0_
+    L18 = L18.thrift_tunnel_to_datacenter
+    L19 = _UPVALUE1_
+    L19 = L19.encode
+    L20 = L17
+    L19, L20, L21, L22, L23, L24, L25 = L19(L20)
+    L18 = L18(L19, L20, L21, L22, L23, L24, L25)
+    if L18 then
+      L19 = L18.code
+      if L19 == 0 then
+        L19 = L18.canAccessAllDisk
+        L16 = L19[1]
+      end
+    end
+    L19 = {}
+    L20 = L15[A0]
+    if L20 then
+      L20 = L15[A0]
+      L20 = L20.wan
+      if L20 then
+        L20 = 1
+        if L20 then
+          goto lbl_194
+        end
+      end
+      L20 = 0
+      ::lbl_194::
+      L19.wan = L20
+      L20 = L15[A0]
+      L20 = L20.lan
+      if L20 then
+        L20 = 1
+        if L20 then
+          goto lbl_203
+        end
+      end
+      L20 = 0
+      ::lbl_203::
+      L19.lan = L20
+      L20 = L15[A0]
+      L20 = L20.admin
+      if L20 then
+        L20 = 1
+        if L20 then
+          goto lbl_212
+        end
+      end
+      L20 = 0
+      ::lbl_212::
+      L19.admin = L20
+      L20 = L15[A0]
+      L20 = L20.pridisk
+      if L20 then
+        L20 = 1
+        if L20 then
+          goto lbl_221
+        end
+      end
+      L20 = 0
+      ::lbl_221::
+      L19.pridisk = L20
+    else
+      L19.wan = 1
+      L19.lan = 1
+      L19.admin = 1
+      L19.pridisk = 0
+    end
+    if L16 ~= nil then
+      if L16 then
+        L20 = 1
+        if L20 then
+          goto lbl_235
+        end
+      end
+      L20 = 0
+      ::lbl_235::
+      L19.lan = L20
+    end
+    L20 = L14.notifyDict
+    L20 = L20()
+    L21 = 0
+    L23 = A0
+    L22 = A0.gsub
+    L24 = ":"
+    L25 = ""
+    L22 = L22(L23, L24, L25)
+    L23 = L20[L22]
+    if L23 then
+      L21 = 1
+    end
+    L23 = L14.getAuthenFailedTimes
+    L24 = A0
+    L23 = L23(L24)
+    L23 = L23 or L23
+    L2.push = L21
+    L2.times = L23
+    L2.authority = L19
+  end
+  return L2
+end
+getDeviceInfo = L5
+function L5(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43, L44, L45, L46, L47, L48, L49, L50, L51, L52, L53, L54, L55, L56, L57, L58, L59, L60
+  L2 = require
+  L3 = "luci.cbi.datatypes"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQDBUtil"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.XQEquipment"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQPushUtil"
+  L5 = L5(L6)
+  L6 = require
+  L7 = "xiaoqiang.util.XQLanWanUtil"
+  L6 = L6(L7)
+  L7 = require
+  L8 = "xiaoqiang.common.XQFunction"
+  L7 = L7(L8)
+  L8 = require
+  L9 = "xiaoqiang.util.XQWifiUtil"
+  L8 = L8(L9)
+  L9 = require
+  L10 = "luci.util"
+  L9 = L9(L10)
+  L10 = {}
+  L11 = L7.isMeshRe
+  L11 = L11()
+  if L11 then
+    L11 = L8.getWifiAllDeviceMacList
+    L11 = L11()
+    L10 = L11
+    return L10
+  end
+  L11 = "ubus call trafficd hw"
+  L12 = L9.exec
+  L13 = L11
+  L12 = L12(L13)
+  L13 = L7.isStrNil
+  L14 = L12
+  L13 = L13(L14)
+  if L13 then
+    return L10
+  else
+    L13 = _UPVALUE0_
+    L13 = L13.decode
+    L14 = L12
+    L13 = L13(L14)
+    L12 = L13
+  end
+  L13 = L6.getLanIp
+  L13 = L13()
+  L14 = L7.isStrNil
+  L15 = L13
+  L14 = L14(L15)
+  if not L14 then
+    L15 = L13
+    L14 = L13.gsub
+    L16 = ".%d+$"
+    L17 = ""
+    L14 = L14(L15, L16, L17)
+    L13 = L14
+  else
+    L13 = nil
+  end
+  L14 = getMacfilterInfoDict
+  L14 = L14()
+  L15 = getDHCPIpDict
+  L15 = L15()
+  L16 = getDeviceInfoFromDB
+  L16 = L16()
+  L17 = L5.notifyDict
+  L17 = L17()
+  L18 = L5.getAuthenFailedTimesDict
+  L18 = L18()
+  L19 = L8.getWiFiMacfilterModel
+  L19 = L19()
+  if L19 == 1 then
+    if L20 then
+      for L24, L25 in L21, L22, L23 do
+        if not L26 then
+          L26.hw = L25
+          L26.ifname = "wl1"
+          L26.assoc = 0
+          L28 = {}
+          L28.ip = "0.0.0.0"
+          L28.hw = L25
+          L28.ageing_timer = 400
+          L28.rx_bytes = 0
+          L28.tx_bytes = 0
+          L28.rx_rate = 0
+          L28.tx_rate = 0
+          L28.max_rx_rate = 0
+          L28.max_tx_rate = 0
+          L27[1] = L28
+          L26.ip_list = L27
+          L12[L25] = L26
+        end
+      end
+    end
+  end
+  if not A0 and L16 then
+    for L23, L24 in L20, L21, L22 do
+      if not L25 then
+        if L25 then
+          if L25 then
+            goto lbl_148
+          end
+        end
+        L25.hw = L23
+        L25.ifname = "wl1"
+        L25.assoc = 0
+        L27.ip = "0.0.0.0"
+        L27.hw = L23
+        L27.ageing_timer = 400
+        L27.rx_bytes = 0
+        L27.tx_bytes = 0
+        L27.rx_rate = 0
+        L27.tx_rate = 0
+        L27.max_rx_rate = 0
+        L27.max_tx_rate = 0
+        L26[1] = L27
+        L25.ip_list = L26
+        L12[L23] = L25
+      end
+      ::lbl_148::
+    end
+  end
+  L24 = "wireless"
+  L24 = "misc"
+  L24 = L20
+  L24 = L20.get
+  L28 = "iface_guest_5g_ifname"
+  L24 = L24(L25, L26, L27, L28)
+  L24 = L24 or L24
+  for L28, L29 in L25, L26, L27 do
+    L30 = 1
+    L31 = L29.ifname
+    L32 = L7.isStrNil
+    L33 = L31
+    L32 = L32(L33)
+    if L32 and not A0 then
+      L32 = tonumber
+      L33 = L29.assoc
+      L32 = L32(L33)
+      if 0 == L32 then
+        L30 = 0
+        L31 = "wl1"
+      end
+    end
+    L32 = L7.macFormat
+    L33 = L28
+    L32 = L32(L33)
+    L33, L34 = nil, nil
+    L36 = L31
+    L35 = L31.match
+    L37 = "eth"
+    L35 = L35(L36, L37)
+    if L35 then
+      L33 = "line"
+      L34 = 0
+    else
+      if L31 == "" then
+        L35 = tonumber
+        L36 = L29.assoc
+        L35 = L35(L36)
+        if 1 == L35 then
+          L31 = "eth"
+          L33 = "line"
+          L34 = 0
+      end
+      elseif L31 == L22 then
+        L33 = "wifi"
+        L34 = 2
+      elseif L31 == L21 then
+        L33 = "wifi"
+        L34 = 1
+      elseif L31 == L23 or L31 == L24 then
+        L33 = "wifi"
+        L34 = 3
+      end
+    end
+    L35 = L7.isStrNil
+    L36 = L31
+    L35 = L35(L36)
+    if not L35 then
+      L35 = false
+      L36 = false
+      L37 = false
+      L35 = 1 < L38
+      for L41, L42 in L38, L39, L40 do
+        L43 = tonumber
+        L44 = L29.assoc
+        L43 = L43(L44)
+        if L43 == 1 then
+          L37 = true
+        end
+      end
+      for L41, L42 in L38, L39, L40 do
+        L43, L44, L45, L46 = nil, nil, nil, nil
+        L47 = L42.ip
+        L47 = L15[L47]
+        if L47 ~= nil then
+          L47 = L42.ip
+          L47 = L15[L47]
+          L44 = L47.name
+        end
+        L47 = 0
+        L48 = 0
+        L50 = L32
+        L49 = L32.gsub
+        L51 = ":"
+        L52 = ""
+        L49 = L49(L50, L51, L52)
+        L50 = L17[L49]
+        if L50 then
+          L47 = 1
+        end
+        L50 = tonumber
+        L51 = L18[L49]
+        L50 = L50(L51)
+        L48 = L50 or L48
+        if not L50 then
+          L48 = 0
+        end
+        L50 = L16[L32]
+        if L50 then
+          L51 = L7.isStrNil
+          L52 = L44
+          L51 = L51(L52)
+          if L51 then
+            L44 = L50.oName
+          end
+          L45 = L50.nickname
+        end
+        L51 = L7.isStrNil
+        L52 = L45
+        L51 = L51(L52)
+        if not L51 then
+          L43 = L45
+        end
+        L51 = L29.is_ap
+        if L51 ~= nil then
+          L51 = L29.is_ap
+        end
+        if L51 == 0 and not L50 then
+          L51 = L3.saveDeviceInfo
+          L52 = L32
+          L53 = L44 or L53
+          if not L44 then
+            L53 = ""
+          end
+          L54 = ""
+          L55 = ""
+          L56 = ""
+          L51(L52, L53, L54, L55, L56)
+        end
+        L51 = L4.identifyDevice
+        L52 = L32
+        L53 = L44
+        L51 = L51(L52, L53)
+        L46 = L51
+        L51 = {}
+        L52 = L14[L32]
+        if L52 then
+          L52 = L14[L32]
+          L52 = L52.wan
+          if L52 then
+            L52 = 1
+            if L52 then
+              goto lbl_350
+            end
+          end
+          L52 = 0
+          ::lbl_350::
+          L51.wan = L52
+          L52 = L14[L32]
+          L52 = L52.lan
+          if L52 then
+            L52 = 1
+            if L52 then
+              goto lbl_359
+            end
+          end
+          L52 = 0
+          ::lbl_359::
+          L51.lan = L52
+          L52 = L14[L32]
+          L52 = L52.admin
+          if L52 then
+            L52 = 1
+            if L52 then
+              goto lbl_368
+            end
+          end
+          L52 = 0
+          ::lbl_368::
+          L51.admin = L52
+          L52 = L14[L32]
+          L52 = L52.pridisk
+          if L52 then
+            L52 = 1
+            if L52 then
+              goto lbl_377
+            end
+          end
+          L52 = 0
+          ::lbl_377::
+          L51.pridisk = L52
+        else
+          L51.wan = 1
+          L51.lan = 1
+          L51.admin = 1
+          L51.pridisk = 0
+        end
+        L52 = L46.type
+        L53 = L7.isStrNil
+        L54 = L43
+        L53 = L53(L54)
+        if L53 then
+          L53 = L7.isStrNil
+          L54 = L52.n
+          L53 = L53(L54)
+          if not L53 then
+            L43 = L52.n
+          end
+        end
+        L53 = L7.isStrNil
+        L54 = L43
+        L53 = L53(L54)
+        if L53 then
+          L53 = L7.isStrNil
+          L54 = L44
+          L53 = L53(L54)
+          if not L53 then
+            L43 = L44
+          end
+        end
+        L53 = L7.isStrNil
+        L54 = L43
+        L53 = L53(L54)
+        if L53 then
+          L53 = L7.isStrNil
+          L54 = L46.name
+          L53 = L53(L54)
+          if not L53 then
+            L43 = L46.name
+          end
+        end
+        L53 = L7.isStrNil
+        L54 = L43
+        L53 = L53(L54)
+        if L53 then
+          L43 = L32
+        end
+        L53 = L52.c
+        if L53 == 3 then
+          L53 = L7.isStrNil
+          L54 = L45
+          L53 = L53(L54)
+          if L53 then
+            L43 = L52.n
+          end
+        end
+        L53 = 0
+        L54 = false
+        if L31 ~= "wl1.2" and L31 ~= "wl3" and L31 ~= "wl14" and L13 then
+          L55 = L42.ip
+          if L55 then
+            L55 = L42.ip
+            L56 = L55
+            L55 = L55.match
+            L57 = "^"
+            L58 = L13
+            L57 = L57 .. L58
+            L55 = L55(L56, L57)
+            if not L55 then
+              L55 = L42.ip
+              if L55 ~= "0.0.0.0" then
+                goto lbl_458
+              end
+            end
+            L54 = false
+            goto lbl_459
+            ::lbl_458::
+            L54 = true
+          end
+        end
+        ::lbl_459::
+        L56 = L31
+        L55 = L31.match
+        L57 = "wl"
+        L55 = L55(L56, L57)
+        if L55 or not A1 then
+          L56 = L31
+          L55 = L31.match
+          L57 = "wl"
+          L55 = L55(L56, L57)
+        end
+        if L55 and not L54 then
+          L55 = tonumber
+          L56 = L29.assoc
+          L55 = L55(L56)
+          if L55 == 1 then
+            L53 = 1
+            if L30 == 0 then
+              L53 = 0
+            end
+          end
+          L55 = L29.parent
+          L55 = L55 or L55
+          L56 = L7.isStrNil
+          L57 = L55
+          L56 = L56(L57)
+          if not L56 then
+            L33 = "ap"
+          end
+          L56 = {}
+          L57 = L42.ip
+          L56.ip = L57
+          L56.mac = L32
+          L56.online = L53
+          L56.type = L33
+          L56.port = L34
+          L57 = L52.c
+          L56.ctype = L57
+          L57 = L52.p
+          L56.ptype = L57
+          L57 = L44 or L57
+          if not L44 then
+            L57 = ""
+          end
+          L56.origin_name = L57
+          L56.name = L43
+          L56.push = L47
+          L56.company = L46
+          L56.times = L48
+          L56.authority = L51
+          L56.parent = L55
+          L57 = tonumber
+          L58 = L29.is_ap
+          L57 = L57(L58)
+          L57 = L57 or L57
+          L56.isap = L57
+          L57 = L29.hostname
+          L57 = L57 or L57
+          L56.hostname = L57
+          L57 = {}
+          L57.dev = L31
+          L57.mac = L32
+          L58 = L42.ip
+          L57.ip = L58
+          L58 = tostring
+          L59 = L42.tx_bytes
+          L59 = L59 or L59
+          L58 = L58(L59)
+          L57.upload = L58
+          L58 = tostring
+          L59 = math
+          L59 = L59.floor
+          L60 = L42.tx_rate
+          L60 = L60 or L60
+          L59, L60 = L59(L60)
+          L58 = L58(L59, L60)
+          L57.upspeed = L58
+          L58 = tostring
+          L59 = L42.rx_bytes
+          L59 = L59 or L59
+          L58 = L58(L59)
+          L57.download = L58
+          L58 = tostring
+          L59 = math
+          L59 = L59.floor
+          L60 = L42.rx_rate
+          L60 = L60 or L60
+          L59, L60 = L59(L60)
+          L58 = L58(L59, L60)
+          L57.downspeed = L58
+          L58 = tostring
+          L59 = L29.online_timer
+          L59 = L59 or L59
+          L58 = L58(L59)
+          L57.online = L58
+          L58 = tostring
+          L59 = math
+          L59 = L59.floor
+          L60 = L42.max_tx_rate
+          L60 = L60 or L60
+          L59, L60 = L59(L60)
+          L58 = L58(L59, L60)
+          L57.maxuploadspeed = L58
+          L58 = tostring
+          L59 = math
+          L59 = L59.floor
+          L60 = L42.max_rx_rate
+          L60 = L60 or L60
+          L59, L60 = L59(L60)
+          L58 = L58(L59, L60)
+          L57.maxdownloadspeed = L58
+          L56.statistics = L57
+          if A0 and L53 == 1 then
+            L58 = table
+            L58 = L58.insert
+            L59 = L10
+            L60 = L56
+            L58(L59, L60)
+          elseif not A0 then
+            if L35 and L37 and L53 == 1 then
+              L58 = table
+              L58 = L58.insert
+              L59 = L10
+              L60 = L56
+              L58(L59, L60)
+            elseif L35 and not L37 and L53 ~= 1 and not L36 then
+              L58 = table
+              L58 = L58.insert
+              L59 = L10
+              L60 = L56
+              L58(L59, L60)
+              L36 = true
+            elseif not L35 then
+              L58 = table
+              L58 = L58.insert
+              L59 = L10
+              L60 = L56
+              L58(L59, L60)
+            end
+          end
+        end
+      end
+    end
+  end
+  return L10
+end
+getDeviceList = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43, L44, L45, L46, L47, L48, L49
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQPushUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQLanWanUtil"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = "ubus call trafficd hw"
+  L5 = L0.exec
+  L6 = L4
+  L5 = L5(L6)
+  L6 = _UPVALUE0_
+  L6 = L6.isStrNil
+  L7 = L5
+  L6 = L6(L7)
+  if L6 then
+    return L3
+  else
+    L6 = _UPVALUE1_
+    L6 = L6.decode
+    L7 = L5
+    L6 = L6(L7)
+    L5 = L6
+  end
+  L6 = L2.getLanIp
+  L6 = L6()
+  L7 = _UPVALUE0_
+  L7 = L7.isStrNil
+  L8 = L6
+  L7 = L7(L8)
+  if not L7 then
+    L8 = L6
+    L7 = L6.gsub
+    L9 = ".%d+$"
+    L10 = ""
+    L7 = L7(L8, L9, L10)
+    L6 = L7
+  else
+    L6 = nil
+  end
+  L7 = getMacfilterInfoDict
+  L7 = L7()
+  L8 = getDHCPIpDict
+  L8 = L8()
+  L9 = getDeviceInfoFromDB
+  L9 = L9()
+  L10 = L1.notifyDict
+  L10 = L10()
+  L11 = L1.getAuthenFailedTimesDict
+  L11 = L11()
+  L12 = {}
+  L13 = {}
+  L14 = 1
+  for L18, L19 in L15, L16, L17 do
+    L13[L14] = L18
+    L14 = L14 + 1
+  end
+  for L18, L19 in L15, L16, L17 do
+    L20 = _UPVALUE2_
+    L20 = L20.macaddr
+    L21 = L18
+    L20 = L20(L21)
+    if L20 then
+      L20 = L5[L18]
+      if not L20 then
+        L20 = table
+        L20 = L20.insert
+        L21 = L13
+        L20(L21, L22)
+      end
+    end
+  end
+  L15.api = 70
+  L15.macs = L13
+  L20, L21, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L42, L43, L44, L45, L46, L47, L48, L49 = L17(L18)
+  if L16 then
+    if L17 == 0 then
+      L14 = 1
+      for L20, L21 in L17, L18, L19 do
+        L12[L22] = L21
+        L14 = L14 + 1
+      end
+    end
+  end
+  L20 = "misc"
+  L21 = "wireless"
+  L20 = L17
+  L21 = "misc"
+  L21 = L17
+  L20 = L17.get
+  L20 = L20(L21, L22, L23, L24)
+  L20 = L20 or L20
+  L21 = L17.get
+  L25 = "iface_guest_5g_ifname"
+  L21 = L21(L22, L23, L24, L25)
+  L21 = L21 or L21
+  for L25, L26 in L22, L23, L24 do
+    L27 = L26.ifname
+    L28 = _UPVALUE0_
+    L28 = L28.isStrNil
+    L29 = L27
+    L28 = L28(L29)
+    if not L28 then
+      L28 = _UPVALUE0_
+      L28 = L28.macFormat
+      L29 = L25
+      L28 = L28(L29)
+      L29, L30 = nil, nil
+      L31 = L26.parent
+      L31 = L31 or L31
+      L33 = L27
+      L32 = L27.match
+      L34 = "eth"
+      L32 = L32(L33, L34)
+      if L32 then
+        L29 = "line"
+        L30 = 0
+      elseif L27 == L19 then
+        L29 = "wifi"
+        L30 = 2
+      elseif L27 == L18 then
+        L29 = "wifi"
+        L30 = 1
+      elseif L27 == L20 or L27 == L21 then
+        L29 = "wifi"
+        L30 = 3
+      end
+      L32 = _UPVALUE0_
+      L32 = L32.isStrNil
+      L33 = L31
+      L32 = L32(L33)
+      if not L32 then
+        L29 = "ap"
+        L30 = 4
+      end
+      L32, L33 = nil, nil
+      L34 = L9[L28]
+      if L34 then
+        L35 = L34.oName
+        L32 = L35 or L32
+        if not L35 then
+          L32 = ""
+        end
+        L35 = L34.nickname
+        L33 = L35 or L33
+        if not L35 then
+          L33 = ""
+        end
+      end
+      L35 = 0
+      L36 = 0
+      L38 = L28
+      L37 = L28.gsub
+      L37 = L37(L38, L39, L40)
+      L38 = L10[L37]
+      if L38 then
+        L35 = 1
+      end
+      L38 = tonumber
+      L38 = L38(L39)
+      L36 = L38 or L36
+      if not L38 then
+        L36 = 0
+      end
+      L38 = {}
+      if L39 then
+        if L39 then
+          if L39 then
+            goto lbl_238
+          end
+        end
+        ::lbl_238::
+        L38.wan = L39
+        if L39 then
+          if L39 then
+            goto lbl_247
+          end
+        end
+        ::lbl_247::
+        L38.lan = L39
+        if L39 then
+          if L39 then
+            goto lbl_256
+          end
+        end
+        ::lbl_256::
+        L38.admin = L39
+        if L39 then
+          if L39 then
+            goto lbl_265
+          end
+        end
+        ::lbl_265::
+        L38.pridisk = L39
+      else
+        L38.wan = 1
+        L38.lan = 1
+        L38.admin = 1
+        L38.pridisk = 0
+      end
+      if L39 ~= nil then
+        if L39 then
+          if L39 then
+            goto lbl_281
+          end
+        end
+        ::lbl_281::
+        L38.lan = L39
+      end
+      for L42, L43 in L39, L40, L41 do
+        if L27 ~= "wl1.2" and L27 ~= "wl3" and L27 ~= "wl14" and L6 then
+          L44 = L43.ip
+          if L44 then
+            L44 = L43.ip
+            L45 = L44
+            L44 = L44.match
+            L46 = "^"
+            L47 = L6
+            L46 = L46 .. L47
+            L44 = L44(L45, L46)
+            if L44 then
+              L44 = false
+              ignor = L44
+            else
+              L44 = true
+              ignor = L44
+            end
+          end
+        end
+        L45 = L27
+        L44 = L27.match
+        L46 = "wl"
+        L44 = L44(L45, L46)
+        if L44 then
+          L45 = L27
+          L44 = L27.match
+          L46 = "wl"
+          L44 = L44(L45, L46)
+          if not L44 then
+            goto lbl_440
+          end
+          L44 = tonumber
+          L45 = L26.assoc
+          L44 = L44(L45)
+          if L44 ~= 1 then
+            goto lbl_440
+          end
+        end
+        L44 = L43.ageing_timer
+        if L44 <= 300 then
+          L44 = ignor
+          if not L44 then
+            L44 = L43.ip
+            L44 = L8[L44]
+            if L44 then
+              L44 = _UPVALUE0_
+              L44 = L44.isStrNil
+              L45 = L43.ip
+              L45 = L8[L45]
+              L45 = L45.name
+              L44 = L44(L45)
+              if L44 then
+                L44 = L43.ip
+                L44 = L8[L44]
+                L32 = L44.name
+              end
+            end
+            L44 = {}
+            L45 = L43.ip
+            L44.ip = L45
+            L44.mac = L28
+            L44.dhcp = L32
+            L45 = {}
+            L45.nickname = L33
+            L45.type = L29
+            L45.port = L30
+            L45.push = L35
+            L45.times = L36
+            L45.authority = L38
+            L45.parent = L31
+            L46 = tonumber
+            L47 = L26.is_ap
+            L46 = L46(L47)
+            L46 = L46 or L46
+            L45.isap = L46
+            L46 = L26.hostname
+            L46 = L46 or L46
+            L45.hostname = L46
+            L46 = {}
+            L47 = tostring
+            L48 = L43.tx_bytes
+            L48 = L48 or L48
+            L47 = L47(L48)
+            L46.upload = L47
+            L47 = tostring
+            L48 = math
+            L48 = L48.floor
+            L49 = L43.tx_rate
+            L49 = L49 or L49
+            L48, L49 = L48(L49)
+            L47 = L47(L48, L49)
+            L46.upspeed = L47
+            L47 = tostring
+            L48 = L43.rx_bytes
+            L48 = L48 or L48
+            L47 = L47(L48)
+            L46.download = L47
+            L47 = tostring
+            L48 = math
+            L48 = L48.floor
+            L49 = L43.rx_rate
+            L49 = L49 or L49
+            L48, L49 = L48(L49)
+            L47 = L47(L48, L49)
+            L46.downspeed = L47
+            L47 = tostring
+            L48 = L26.online_timer
+            L48 = L48 or L48
+            L47 = L47(L48)
+            L46.online = L47
+            L47 = tostring
+            L48 = math
+            L48 = L48.floor
+            L49 = L43.max_tx_rate
+            L49 = L49 or L49
+            L48, L49 = L48(L49)
+            L47 = L47(L48, L49)
+            L46.maxuploadspeed = L47
+            L47 = tostring
+            L48 = math
+            L48 = L48.floor
+            L49 = L43.max_rx_rate
+            L49 = L49 or L49
+            L48, L49 = L48(L49)
+            L47 = L47(L48, L49)
+            L46.maxdownloadspeed = L47
+            L45.statistics = L46
+            L44.data = L45
+            L45 = table
+            L45 = L45.insert
+            L46 = L3
+            L47 = L44
+            L45(L46, L47)
+          end
+        end
+        ::lbl_440::
+      end
+    end
+  end
+  return L3
+end
+devicelistForMAgent = L5
+function L5(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43, L44, L45, L46, L47, L48, L49, L50, L51
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQDBUtil"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.XQEquipment"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQPushUtil"
+  L5 = L5(L6)
+  L6 = require
+  L7 = "xiaoqiang.util.XQLanWanUtil"
+  L6 = L6(L7)
+  L7 = require
+  L8 = "xiaoqiang.util.XQWifiUtil"
+  L7 = L7(L8)
+  L8 = {}
+  L9 = "ubus call trafficd hw"
+  L10 = L2.exec
+  L11 = L9
+  L10 = L10(L11)
+  L11 = _UPVALUE0_
+  L11 = L11.isStrNil
+  L12 = L10
+  L11 = L11(L12)
+  if L11 then
+    return L8
+  else
+    L11 = _UPVALUE1_
+    L11 = L11.decode
+    L12 = L10
+    L11 = L11(L12)
+    L10 = L11
+  end
+  L11 = L6.getLanIp
+  L11 = L11()
+  L12 = _UPVALUE0_
+  L12 = L12.isStrNil
+  L13 = L11
+  L12 = L12(L13)
+  if not L12 then
+    L13 = L11
+    L12 = L11.gsub
+    L14 = ".%d+$"
+    L15 = ""
+    L12 = L12(L13, L14, L15)
+    L11 = L12
+  else
+    L11 = nil
+  end
+  L12 = getMacfilterInfoDict
+  L12 = L12()
+  L13 = getDHCPDict
+  L13 = L13()
+  L14 = getDeviceInfoFromDB
+  L14 = L14()
+  L15 = L5.notifyDict
+  L15 = L15()
+  L16 = L5.getAuthenFailedTimesDict
+  L16 = L16()
+  if not A0 and L14 then
+    for L20, L21 in L17, L18, L19 do
+      L22 = L10[L20]
+      if not L22 then
+        L22 = _UPVALUE0_
+        L22 = L22.isStrNil
+        L23 = L21.oName
+        L22 = L22(L23)
+        if L22 then
+          L22 = _UPVALUE0_
+          L22 = L22.isStrNil
+          L23 = L21.nickname
+          L22 = L22(L23)
+          if L22 then
+            goto lbl_103
+          end
+        end
+        L22 = {}
+        L22.hw = L20
+        L22.ifname = "wl1"
+        L22.assoc = 0
+        L23 = {}
+        L24 = {}
+        L24.ip = "0.0.0.0"
+        L24.hw = L20
+        L24.ageing_timer = 400
+        L24.rx_bytes = 0
+        L24.tx_bytes = 0
+        L24.rx_rate = 0
+        L24.tx_rate = 0
+        L24.max_rx_rate = 0
+        L24.max_tx_rate = 0
+        L23[1] = L24
+        L22.ip_list = L23
+        L10[L20] = L22
+      end
+      ::lbl_103::
+    end
+  end
+  for L20, L21 in L17, L18, L19 do
+    L22 = _UPVALUE0_
+    L22 = L22.macFormat
+    L23 = L20
+    L22 = L22(L23)
+    L23 = L21.ifname
+    L24 = 0
+    L25 = L21.gameflag
+    L27 = L23
+    L26 = L23.match
+    L26 = L26(L27, L28)
+    if L26 then
+      L24 = 0
+    elseif L23 == "wl0" then
+      L24 = 2
+    elseif L23 == "wl1" then
+      L24 = 1
+    elseif L23 == "wl2" then
+      L24 = 2
+    elseif L23 == "wl1.2" then
+      L24 = 3
+    elseif L23 == "wl3" then
+      L24 = 3
+    elseif L23 == "wl14" then
+      L24 = 3
+    elseif L23 == "" then
+      L24 = 0
+    end
+    if not A1 and L24 ~= 0 or A1 then
+      L26 = {}
+      L27 = false
+      for L31, L32 in L28, L29, L30 do
+        L33 = tonumber
+        L34 = L21.assoc
+        L33 = L33(L34)
+        if L33 == 1 then
+          L27 = true
+          break
+        end
+      end
+      L26.mac = L22
+      if L27 then
+        if L28 then
+          goto lbl_178
+        end
+      end
+      ::lbl_178::
+      L26.online = L28
+      L26.type = L24
+      L26.isap = L28
+      L26.parent = L28
+      L26.gameflag = L25
+      L31 = nil
+      L32 = L13[L22]
+      if L32 ~= nil then
+        L32 = L13[L22]
+      end
+      L32 = L14[L22]
+      if L32 then
+        L33 = _UPVALUE0_
+        L33 = L33.isStrNil
+        L34 = L29
+        L33 = L33(L34)
+        if L33 then
+        end
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = L30
+      L33 = L33(L34)
+      if not L33 then
+      end
+      if not L32 then
+        L33 = L3.saveDeviceInfo
+        L34 = L22
+        L35 = L29 or L35
+        if not L29 then
+          L35 = ""
+        end
+        L36 = ""
+        L37 = ""
+        L38 = ""
+        L33(L34, L35, L36, L37, L38)
+      end
+      L33 = L4.identifyDevice
+      L34 = L22
+      L35 = L29
+      L33 = L33(L34, L35)
+      L31 = L33
+      L33 = L31.type
+      L34 = _UPVALUE0_
+      L34 = L34.isStrNil
+      L35 = L28
+      L34 = L34(L35)
+      if L34 then
+        L34 = _UPVALUE0_
+        L34 = L34.isStrNil
+        L35 = L33.n
+        L34 = L34(L35)
+        if not L34 then
+        end
+      end
+      L34 = _UPVALUE0_
+      L34 = L34.isStrNil
+      L35 = L28
+      L34 = L34(L35)
+      if L34 then
+        L34 = _UPVALUE0_
+        L34 = L34.isStrNil
+        L35 = L29
+        L34 = L34(L35)
+        if not L34 then
+        end
+      end
+      L34 = _UPVALUE0_
+      L34 = L34.isStrNil
+      L35 = L28
+      L34 = L34(L35)
+      if L34 then
+        L34 = _UPVALUE0_
+        L34 = L34.isStrNil
+        L35 = L31.name
+        L34 = L34(L35)
+        if not L34 then
+        end
+      end
+      L34 = _UPVALUE0_
+      L34 = L34.isStrNil
+      L35 = L28
+      L34 = L34(L35)
+      if L34 then
+      end
+      L34 = L33.c
+      if L34 == 3 then
+        L34 = _UPVALUE0_
+        L34 = L34.isStrNil
+        L35 = L30
+        L34 = L34(L35)
+        if L34 then
+        end
+      end
+      L34 = L28 or L34
+      if not L28 then
+        L34 = ""
+      end
+      L26.name = L34
+      L34 = L29 or L34
+      if not L29 then
+        L34 = ""
+      end
+      L26.oname = L34
+      L34 = L31.icon
+      L34 = L34 or L34
+      L26.icon = L34
+      L34 = 0
+      L35 = 0
+      L37 = L22
+      L36 = L22.gsub
+      L38 = ":"
+      L39 = ""
+      L36 = L36(L37, L38, L39)
+      L37 = L15[L36]
+      if L37 then
+        L34 = 1
+      end
+      L37 = tonumber
+      L38 = L16[L36]
+      L37 = L37(L38)
+      L35 = L37 or L35
+      if not L37 then
+        L35 = 0
+      end
+      L26.push = L34
+      L26.times = L35
+      L37 = {}
+      L38 = L12[L22]
+      if L38 then
+        L38 = L12[L22]
+        L38 = L38.wan
+        if L38 then
+          L38 = 1
+          if L38 then
+            goto lbl_333
+          end
+        end
+        L38 = 0
+        ::lbl_333::
+        L37.wan = L38
+        L38 = L12[L22]
+        L38 = L38.lan
+        if L38 then
+          L38 = 1
+          if L38 then
+            goto lbl_342
+          end
+        end
+        L38 = 0
+        ::lbl_342::
+        L37.lan = L38
+        L38 = L12[L22]
+        L38 = L38.admin
+        if L38 then
+          L38 = 1
+          if L38 then
+            goto lbl_351
+          end
+        end
+        L38 = 0
+        ::lbl_351::
+        L37.admin = L38
+        L38 = L12[L22]
+        L38 = L38.pridisk
+        if L38 then
+          L38 = 1
+          if L38 then
+            goto lbl_360
+          end
+        end
+        L38 = 0
+        ::lbl_360::
+        L37.pridisk = L38
+      else
+        L37.wan = 1
+        L37.lan = 1
+        L37.admin = 1
+        L37.pridisk = 0
+      end
+      L26.authority = L37
+      L38 = {}
+      L39 = {}
+      for L43, L44 in L40, L41, L42 do
+        L45 = false
+        if L23 ~= "wl1.2" and L23 ~= "wl3" and L23 ~= "wl14" and L11 then
+          L46 = L44.ip
+          if L46 then
+            L46 = L44.ip
+            L47 = L46
+            L46 = L46.match
+            L48 = "^"
+            L49 = L11
+            L48 = L48 .. L49
+            L46 = L46(L47, L48)
+            if not L46 then
+              L46 = L44.ip
+              if L46 ~= "0.0.0.0" then
+                goto lbl_398
+              end
+            end
+            L45 = false
+            goto lbl_399
+            ::lbl_398::
+            L45 = true
+          end
+        end
+        ::lbl_399::
+        if not L45 then
+          L46 = 0
+          L47 = tonumber
+          L48 = L21.assoc
+          L47 = L47(L48)
+          if L47 == 1 then
+            L46 = 1
+          end
+          L47 = {}
+          L48 = L44.ip
+          L47.ip = L48
+          L47.active = L46
+          L48 = tostring
+          L49 = math
+          L49 = L49.floor
+          L50 = L44.tx_rate
+          L50 = L50 or L50
+          L49, L50, L51 = L49(L50)
+          L48 = L48(L49, L50, L51)
+          L47.upspeed = L48
+          L48 = tostring
+          L49 = math
+          L49 = L49.floor
+          L50 = L44.rx_rate
+          L50 = L50 or L50
+          L49, L50, L51 = L49(L50)
+          L48 = L48(L49, L50, L51)
+          L47.downspeed = L48
+          L48 = tostring
+          L49 = L21.online_timer
+          L49 = L49 or L49
+          L48 = L48(L49)
+          L47.online = L48
+          if L46 == 1 or not A0 then
+            L48 = table
+            L48 = L48.insert
+            L49 = L38
+            L50 = L47
+            L48(L49, L50)
+            L48 = L39.online
+            if not L48 then
+              L48 = L47.online
+              L39.online = L48
+            end
+            L48 = tostring
+            L49 = tonumber
+            L50 = L39.upspeed
+            L50 = L50 or L50
+            L49 = L49(L50)
+            L50 = tonumber
+            L51 = L47.upspeed
+            L50 = L50(L51)
+            L49 = L49 + L50
+            L48 = L48(L49)
+            L39.upspeed = L48
+            L48 = tostring
+            L49 = tonumber
+            L50 = L39.downspeed
+            L50 = L50 or L50
+            L49 = L49(L50)
+            L50 = tonumber
+            L51 = L47.downspeed
+            L50 = L50(L51)
+            L49 = L49 + L50
+            L48 = L48(L49)
+            L39.downspeed = L48
+          end
+        end
+      end
+      L26.ip = L38
+      L26.statistics = L39
+      if L27 and A0 or not A0 then
+        L40(L41, L42)
+      end
+    end
+  end
+  return L8
+end
+getDeviceListV2 = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28
+  L0 = require
+  L1 = "luci.cbi.datatypes"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQPushUtil"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.module.XQParentControl"
+  L3 = L3(L4)
+  L4 = {}
+  L5 = {}
+  L6 = {}
+  L7 = {}
+  L8 = L2.notifyDict
+  L8 = L8()
+  L9 = getDeviceInfoFromDB
+  L9 = L9()
+  L10 = getMacfilterInfoDict
+  L10 = L10()
+  L11 = getDeviceInfoFromConfig
+  L11 = L11()
+  L12 = L1.getWiFiMacfilterModel
+  L12 = L12()
+  L13 = {}
+  if L12 == 1 then
+    if L14 then
+      for L18, L19 in L15, L16, L17 do
+        L13[L19] = 1
+      end
+    end
+  end
+  for L17, L18 in L14, L15, L16 do
+    L19 = L0.macaddr
+    L19 = L19(L20)
+    if L19 then
+      L19 = {}
+      L19.nickname = L20
+      L4[L17] = L19
+      L6[L17] = 1
+      L19 = table
+      L19 = L19.insert
+      L19(L20, L21)
+    end
+  end
+  L14.api = 70
+  L14.macs = L5
+  L18, L19, L23, L24, L25, L26, L27, L28 = L16(L17)
+  if L15 then
+    if L16 == 0 then
+      L7 = L15.canAccessAllDisk
+    end
+  end
+  L18 = L6
+  L18 = L3.get_urlfilter_info
+  L19 = L6
+  L18 = L18(L19)
+  L19 = {}
+  for L23, L24 in L20, L21, L22 do
+    L25 = L10[L23]
+    L26 = L11[L23]
+    L27 = L8[L23]
+    if L27 then
+      L24.push = 1
+    else
+      L24.push = 0
+    end
+    L27 = L16[L23]
+    L24.pcontrol = L27
+    L27 = L17[L23]
+    L24.netacctl = L27
+    L27 = L18[L23]
+    L24.urlfilter = L27
+    if L25 then
+      L27 = L25.wan
+      if L27 then
+        L27 = 1
+        if L27 then
+          goto lbl_118
+        end
+      end
+      L27 = 0
+      ::lbl_118::
+      L24.wan = L27
+      L27 = L25.lan
+      if L27 then
+        L27 = 1
+        if L27 then
+          goto lbl_126
+        end
+      end
+      L27 = 0
+      ::lbl_126::
+      L24.lan = L27
+      L27 = L25.admin
+      if L27 then
+        L27 = 1
+        if L27 then
+          goto lbl_134
+        end
+      end
+      L27 = 0
+      ::lbl_134::
+      L24.admin = L27
+      L27 = L25.pridisk
+      if L27 then
+        L27 = 1
+        if L27 then
+          goto lbl_142
+        end
+      end
+      L27 = 0
+      ::lbl_142::
+      L24.pridisk = L27
+    else
+      L24.wan = 1
+      L24.lan = 1
+      L24.admin = 1
+      L24.pridisk = 0
+    end
+    L27 = L13[L23]
+    if L27 == 1 then
+      L24.limited = 1
+    else
+      L24.limited = 0
+    end
+    if L26 then
+      L27 = L26.owner
+      L27 = L27 or L27
+      L24.owner = L27
+      L27 = L26.device
+      L27 = L27 or L27
+      L24.device = L27
+    else
+      L24.owner = ""
+      L24.device = ""
+    end
+    L27 = L7[L23]
+    if L27 ~= nil then
+      L27 = L7[L23]
+      if L27 then
+        L27 = 1
+        if L27 then
+          goto lbl_179
+        end
+      end
+      L27 = 0
+      ::lbl_179::
+      L24.lan = L27
+    end
+    L27 = "device/"
+    L28 = L23
+    L27 = L27 .. L28
+    L19[L27] = L24
+  end
+  return L19
+end
+devicesInfo = L5

@@ -1,0 +1,3 @@
+/usr/sbin/config-cwmp-dhcpopt.sh
+/etc/init.d/cwmp
+/usr/sbin/cwmpd

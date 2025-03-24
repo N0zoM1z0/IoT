@@ -1,0 +1,174 @@
+/* .el-carousel__item h3 {
+    color: #475669;
+    font-size: 14px;
+    opacity: 0.75;
+    line-height: 200px;
+    margin: 0;
+  }
+  
+  .el-carousel__item:nth-child(2n) {
+    background-color: #99a9bf;
+  }
+  
+  .el-carousel__item:nth-child(2n+1) {
+    background-color: #d3dce6;
+  }
+ */
+.content-title {
+	margin: 20px 0;
+}
+
+.map_status {
+	width: 33px;
+	height: 33px;
+	background-color: #6BAF24;
+	border-radius: 50%;
+}
+
+.link_status>span {
+	font-size: 34px;
+	color: #454547;
+}
+
+.content-title>p {
+	margin: 10px 20px;
+}
+
+.map {
+	margin: 60px 0;
+}
+
+.mapIcon {
+	width: 119px;
+	height: 119px;
+	line-height: 119px;
+	text-align: center;
+	background: url(/opsw/img/circle_bg1.png) left top no-repeat;
+	background-size: cover;
+}
+
+.mapIcon_select {
+	width: 119px;
+	height: 119px;
+	line-height: 119px;
+	text-align: center;
+	background: url(/opsw/img/click_bg1.png) left top no-repeat;
+	background-size: cover;
+}
+.linkRepair{
+	position: absolute;
+	bottom:0;
+	left:-50px;
+	width: 124px;
+	height: 45px;
+	background-color: #FF4D4D;
+	border-radius: 4px;
+	color: #fff;
+}
+.linkRepair::after{
+	position: absolute;
+	top: -10px;
+	left: 58px;
+	content: '';
+	width: 0px;
+	height: 0px;
+	border-bottom: 10px solid #FF4D4D;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+}
+.linkSatus:hover{
+	text-decoration: underline;
+}
+.line_wan {
+	position: relative;
+	line-height: 138px;
+}
+
+.wan_connstat {
+	position: absolute;
+	top: 0;
+	left: 100px;
+}
+
+.internetInfo {
+	box-sizing: border-box;
+	padding: 20px 10px 0;
+	margin: 15px 0;
+	border-top: 1px solid #eee;
+	border-bottom: 2px solid #eee;
+}
+
+.internetInfo ul {
+	width: 50%;
+}
+
+.internetInfo ul li {
+	padding: 4px 0;
+	font-size: 15px;
+}
+
+.internetInfo ul li label {
+	display: inline-block;
+	color: #333;
+	width: 40%;
+	text-align: right;
+	margin-right: 15px;
+	font-weight: 550;
+}
+
+.internetInfo ul li button {
+	padding: 13px 19px;
+	background-color: #4598AA;
+	color: #fff;
+	margin-top: 10px;
+}
+
+.lanTitle {
+	font-weight: bold;
+	color: #4598aa;
+}
+
+.internetInfo h3 {
+	padding: 10px 0;
+}
+
+.advSetting{
+	padding-bottom: 10px;
+	border-bottom: 1px solid #9A9A9A;
+}
+.advButton {
+	width: 170px;
+	color: #4598aa;
+	cursor: pointer;
+	font-size: 14px;
+	margin-left: 80%;
+}
+
+/* clientList */
+
+.client-group {
+	width: 300px;
+	height: 122px;
+	background: url(/opsw/img/Client_Card_s.png) no-repeat;
+	background-size: cover;
+}
+
+.client-group-left {
+	height: 100%;
+	width: 59px;
+	text-align: center;
+	line-height: 110px;
+}
+.client-group-right{
+	width: 66%;
+	padding:15px;
+}
+.client-name{
+	padding:10px 0 15px;
+}
+.client-name span{
+	width: 85%;
+}
+.client-Vender span{
+	width: 57%;
+}

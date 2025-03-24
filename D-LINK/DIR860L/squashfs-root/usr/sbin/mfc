@@ -1,0 +1,212 @@
+#!/bin/sh
+case "$1" in
+save)
+	/etc/scripts/dbsave.sh
+	;;
+freset)
+	devconf del
+	;;
+isfreset)
+	SIZE=`devconf dump | scut -p "Data size :" -f 1`
+	if [ "$SIZE" = "0" ]; then
+		echo "YES"
+	else
+		echo "NO"
+	fi
+	;;
+init)
+	if [ $# -ne 11 ]; then
+		echo "Usage:"
+		echo "  mfc init <lanmac> <wlan5mac> <wanmac> <countrycode> <hw version> <deviceip> <pin> <wifipassword> <ssid2g> <ssid5g>"
+		exit 1
+	fi
+	LANMAC=`echo -e $2 | tr [A-Z] [a-z]`
+	WLAN24MAC=$LANMAC
+#	WLAN24MAC=`echo -e $3 | tr [A-Z] [a-z]`
+	WLAN5MAC=`echo -e $3 | tr [A-Z] [a-z]`
+	WANMAC=`echo -e $4 | tr [A-Z] [a-z]`
+	CCODE="$5"
+	HWVER="$6"
+	IP="$7"
+	PIN="$8"
+	WIFIPWD="$9"
+	SSID2G="${10}"
+	SSID5G="${11}"
+
+	[ "$LANMAC" != "" ] && DEVDATA="$DEVDATA -e lanmac=$LANMAC -e wlan24mac=$WLAN24MAC -e wlan5mac=$WLAN5MAC"
+	[ "$WANMAC" != "" ] && DEVDATA="$DEVDATA -e wanmac=$WANMAC"
+	[ "$CCODE" = "" ] && CCODE="US"
+	[ "$HWVER" != "" ] && DEVDATA="$DEVDATA -e hwver=$HWVER"
+	[ "$PIN" != "" ] && DEVDATA="$DEVDATA -e pin=$PIN"
+	[ "$WIFIPWD" != "" ] && DEVDATA="$DEVDATA -e psk=$WIFIPWD"
+	[ "$SSID2G" != "" ] && DEVDATA="$DEVDATA -e wifissid_2g=$SSID2G"
+	[ "$SSID5G" != "" ] && DEVDATA="$DEVDATA -e wifissid_5g=$SSID5G"
+	echo "clean devdata"
+	devdata clean
+	echo "devdata set -e countrycode=$CCODE $DEVDATA -f" > /dev/console
+	devdata set -e countrycode=$CCODE $DEVDATA -f
+	# Save wireless MAC address to EEPROM
+	M1=`echo $WLAN24MAC | cut -d: -f1`
+	M2=`echo $WLAN24MAC | cut -d: -f2`
+	M3=`echo $WLAN24MAC | cut -d: -f3`
+	M4=`echo $WLAN24MAC | cut -d: -f4`
+	M5=`echo $WLAN24MAC | cut -d: -f5`
+	M6=`echo $WLAN24MAC | cut -d: -f6`
+#	iwpriv ra0 set devdatacache=1
+	iwpriv ra0 e2p 04=$M2$M1
+	iwpriv ra0 e2p 06=$M4$M3
+	iwpriv ra0 e2p 08=$M6$M5
+#	iwpriv ra0 set devdatacache=0
+	# Save wireless 5G MAC address to EEPROM
+	M1=`echo $WLAN5MAC | cut -d: -f1`
+	M2=`echo $WLAN5MAC | cut -d: -f2`
+	M3=`echo $WLAN5MAC | cut -d: -f3`
+	M4=`echo $WLAN5MAC | cut -d: -f4`
+	M5=`echo $WLAN5MAC | cut -d: -f5`
+	M6=`echo $WLAN5MAC | cut -d: -f6`
+#	iwpriv rai0 set devdatacache=1
+	iwpriv rai0 e2p 04=$M2$M1
+	iwpriv rai0 e2p 06=$M4$M3
+	iwpriv rai0 e2p 08=$M6$M5
+#	iwpriv rai0 set devdatacache=0
+
+	# Set MAC Address and IP Address into u-boot config.
+	[ "$LANMAC" != "" ] && UBCFG="$UBCFG ethaddr=$LANMAC"
+	[ "$IP" != "" ] && UBCFG="$UBCFG ipaddr=$IP"
+	echo "ubcfg set $UBCFG" > /dev/console
+	ubcfg set $UBCFG
+	# Show devdata and uboot data
+	echo "-------- devdata dump ----------------------" > /var/mfcdump
+	devdata dump >> /var/mfcdump
+	echo "-------- ubcfg get ethaddr ipaddr-----------" > /var/mfcdump
+	ubcfg get ethaddr ipaddr > /var/mfcdump
+	echo "--------------------------------------------" > /var/mfcdump
+	cat /var/mfcdump
+	rm /var/mfcdump
+
+	;;
+dump)
+	# Show devdata
+	echo "-------- Firmware Version-------------------" > /var/mfcdump
+	echo FW_Ver=`cat /etc/config/buildver``cat /etc/config/buildrev` Build `cat /etc/config/buildno` >> /var/mfcdump
+	echo "-------- devdata dump ----------------------" >> /var/mfcdump
+	devdata dump >> /var/mfcdump
+	echo "-------- ubcfg get ethaddr ipaddr-----------" >> /var/mfcdump
+	cat /var/mfcdump
+	rm /var/mfcdump
+	;;
+wlan24)
+	xmldbc -s /wifi/entry:1/ssid "$2"
+	xmldbc -s /phyinf:4/media/channel "$3"
+	xmldbc -s /phyinf:4/media/dot11n/bw2040coexist "0"
+	xmldbc -s /wifi/entry:1/authtype "OPEN"
+	xmldbc -s /wifi/entry:1/encrtype "NONE"
+	service PHYINF.WIFI restart
+	;;
+wlan5)
+	xmldbc -s /wifi/entry:3/ssid "$2"
+	xmldbc -s /phyinf:6/media/channel "$3"
+	xmldbc -s /wifi/entry:3/authtype "OPEN"
+	xmldbc -s /wifi/entry:3/encrtype "NONE"
+	service PHYINF.WIFI restart
+	;;
+ver)
+	echo Ver `cat /etc/config/buildver``cat /etc/config/buildrev` Build `cat /etc/config/buildno`
+	;;
+get)
+	case $2 in
+	hwver)
+		if [ -f /etc/config/hwver ]; then
+			cat /etc/config/hwver
+		else
+			devdata get -e $2
+		fi
+		;;
+	*)
+		[ "$2" != "" ] && devdata get -e $2
+		;;
+	esac
+	;; 
+set)
+	[ "$2" != "" ] && devdata set -e $2
+	;;
+test)
+	case $2 in
+	on)
+		usockc /var/gpio_ctrl DEBUG
+		;;
+	off)
+		usockc /var/gpio_ctrl NODEBUG
+		;;
+	esac
+	;; 
+button)
+	case $2 in
+	reset)
+		usockc /var/gpio_ctrl GPIO_FRESET
+		cat /var/gpio_ctrl_result
+		;;
+	wps)
+		usockc /var/gpio_ctrl GPIO_WPSPBC
+		cat /var/gpio_ctrl_result
+		;;
+	esac
+	;;
+led)
+	case "$2" in
+#	wps_blue)
+#		usockc /var/gpio_ctrl WPS_BLUE
+#		;;
+	wan_green)
+		usockc /var/gpio_ctrl INET_GREEN
+		;;
+	wan_orange)
+		usockc /var/gpio_ctrl INET_AMBER
+		;;
+	status_green)
+		usockc /var/gpio_ctrl STATUS_GREEN
+		;;
+	status_orange)
+		usockc /var/gpio_ctrl STATUS_AMBER
+		;;
+	esac
+	;;
+usb)
+	USBSTOR=`cat /proc/bus/usb/devices  | grep Driver=usb-storage`
+	if [ "$USBSTOR" != "" ]; then
+		echo "Yes"
+	else
+		echo "NO"
+	fi
+	;;
+*)
+	echo "Usage: mfc {command} <params>"
+	echo "Commands:"
+	echo "  init <lanmac> <wlan5mac> <wanmac> <countrycode> <hw version> <deviceip> <pin> <wifipassword> <ssid2g <ssid5g>"
+	echo "                           Init flash"
+	echo "  save                     Save current setting to flash"
+	echo ""
+	echo "  dump                     Dump environment vairables."
+	echo "  ver                      Show firmware version"
+    echo "  wlan24 <ssid>  <channel> switch ssid  and channel"
+	echo "  wlan5  <ssid2> <channel> switch ssid2 and channel"
+	echo ""
+	echo "  freset                   Factory reset"
+	echo "  isfreset                 Check if the device is reset to factory default."
+	echo ""
+	echo "  test on                  turn on test mode"
+	echo "  test off                 turn off test mode"
+	echo ""
+	echo "  button {reset|wps}"
+	echo "      reset                Get factory reset button status."
+	echo "      wps                  Get WPS button status."
+	echo ""
+	echo "  led { wan_green | wan_orange | status_green | status_orange }"
+#	echo "      wps_blue             Set the WPS Led to blue  "
+	echo "      wan_green            Set the WAN Led to green "
+	echo "      wan_orange           Set the WAN Led to orange"
+	echo "      status_green         Set the status Led to green"
+	echo "      status_orange        Set the status Led to orange"
+	echo "  usb                      show if usb port plug flash disk"
+	;;
+esac

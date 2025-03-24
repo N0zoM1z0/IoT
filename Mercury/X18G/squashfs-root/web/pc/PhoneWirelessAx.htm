@@ -1,0 +1,82 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		var uciFile = uciWireless.fileName;
+	    var uciSecWifi2G = uciWireless.dynData.host_2g;
+		var uciSecWifi5G = uciWireless.dynData.host_5g;
+		var optMode = uciWireless.dynOptName.mode;
+	    var axCheck = id("axCheckbox");
+	    axCheck.checked = true;
+
+		function onSave()
+		{
+		    if (!axCheck.checked)
+			{
+				gIsWifiCfgChged2g = true;
+				gIsWifiCfgChged2g = true;
+				gIsWifiCfgChged = true;
+
+				gWifiCfgToSave[uciFile] = gWifiCfgToSave[uciFile] || {};
+				gWifiCfgToSave[uciFile][uciSecWifi2G] = gWifiCfgToSave[uciFile][uciSecWifi2G] || {};
+				gWifiCfgToSave[uciFile][uciSecWifi2G][optMode] = uciWireless.dynOptValue.mode.m_11bgn;
+				gWifiCfgToSave[uciFile][uciSecWifi5G] = gWifiCfgToSave[uciFile][uciSecWifi5G] || {};
+				gWifiCfgToSave[uciFile][uciSecWifi5G][optMode] = uciWireless.dynOptValue.mode.m_11ac;
+			}
+
+			loadPage("PhoneEndWeb.htm", "phCon");
+		}
+
+		id("pre").onclick = function(){loadPage("PhoneWirelessWeb.htm", "phCon");};
+		id("sub").onclick = onSave;
+	}
+	init();
+</script>
+<style type="text/css">
+	p.info {
+		font-size:13px;
+		line-height: 20px;
+		color:#666666;
+		width:283px;
+		margin-top: 8px;
+	}
+	ul.wifiUniteUl{
+		margin-top:-20px;
+	}
+	div.axCheckboxCon{
+		margin-bottom:6px;
+	}
+	input.axCheck{
+		display: inline;
+		height:20px !important;
+		margin:0;
+		vertical-align:middle !important;
+		width:20px !important;
+	}
+	label.axCheckboxLbl{
+		color:#333333 !important;
+		display:inline !important;
+		font-size:15px;
+		line-height:24px;
+		height:20px;
+		vertical-align: middle !important;
+		margin-left: 8px;
+		font-weight:bold;
+	}
+</style>
+<h1 class="phoneTitle">{%menuStr.ax%}</h1>
+<ul class="phInputUl wifiUniteUl" id="wifiUnite">
+	<p class="info" style="padding-top: 48px; padding-bottom: 24px;">{%label.axTip%}</p>
+	<div class="axCheckboxCon">
+		<input id="axCheckbox" class="axCheck" type="checkbox" />
+		<label class="axCheckboxLbl" for="axCheckbox">{%label.axCheckLabel%}</label>
+	</div>
+	<p style="margin-bottom: 16px; margin-top: 12px;" class="info">由于部分无线网卡驱动较旧，连接至802.11ax无线路由器时，可能会出现一些兼容性问题。如果您有以上疑虑，请到相关制造商官网下载最新驱动程序。</p>
+	<p class="info">Intel:&nbsp;&nbsp;<a href="https://downloadcenter.intel.com" target="_blank">https://downloadcenter.intel.com</a></p>
+	<p class="info">Mediatek:&nbsp;&nbsp;<a href="https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi" target="_blank">https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi</a></p>
+	<p class="info">Realtek:&nbsp;&nbsp;<a href="https://www.realtek.com/en/downloads" target="_blank">https://www.realtek.com/en/downloads</a></p>
+	<p class="info">*需终端支持802.11ax协议，才能体验到802.11ax带来的高速上网体验。</p>
+</ul>
+
+<div class="phFunc">
+	<label id="pre" class="phTwoBtn phTwoBtnL">{%btn.preStep%}</label><label id="sub" class="phTwoBtnR">{%btn.finish%}</label>
+</div>

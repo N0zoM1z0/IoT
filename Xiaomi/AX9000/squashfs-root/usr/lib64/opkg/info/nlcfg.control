@@ -1,0 +1,8 @@
+Package: nlcfg
+Version: 1
+Depends: libc, libpthread, libnl, kmod-qca-nss-drv-netlink
+Source: qca_qsdk/qca_qsdk_spf11.2/feeds/nss-userspace/nlcfg
+Section: utils
+Architecture: aarch64_cortex-a53
+Installed-Size: 21858
+Description:  A userspace utility for pushing rule into NSS.

@@ -1,0 +1,294 @@
+<style type="text/css">
+	div.loginContainer{
+		display:inline-block;
+		width:280px;
+		padding:120px 120px 0 80px;
+	}
+	div.loginContainer h1{
+		font-size:36px;
+		font-weight:bold;
+		color:#333;
+		line-height:48px;
+		margin-bottom:80px;
+	}
+	#sub{
+		width:100%;
+		margin-top:64px;
+	}
+	i.surfingPeople{
+		background:url(../web-static/images/login.png) no-repeat scroll;
+		display:inline-block;
+		width:400px;
+		height:440px;
+		margin-top:80px;
+		vertical-align:top;
+	}
+	p.forgetPwd{
+		font-size:13px;
+		color:#999;
+		margin-top:16px;
+	}
+	p.forgetPwd span{
+		line-height:20px;
+		padding-right:8px;
+		cursor:pointer;
+	}
+	span.showGuideTitle{
+		display: block;
+		height: 20px;
+		line-height: 20px;
+		font-size: 13px;
+		margin-bottom: 24px;
+	}
+	div.showGuideStepCon{
+		width: 480px;
+		text-align: center;
+		margin: 0px auto;
+	}
+	div.showGuideStepCon i.showGuideStepPic{
+		background: url(../web-static/images/basic.png) -0px -622px no-repeat scroll;
+		width: 480px;
+		height: 80px;
+		display: block;
+		margin-bottom: 8px;
+	}
+	div.showGuideStepCon span.showGuideStep{
+		width: 120px;
+		font-size: 12px;
+		color: #666666;
+		text-align: center;
+		margin: 0px 30px;
+		line-height: 18px;
+		display: inline-block;
+		vertical-align: top;
+	}
+	div.showGuideStepCon span.showGuideStep.first{
+		margin-left: 0px;
+	}
+	div.showGuideStepCon span.showGuideStep.last{
+		margin-right: 0px;
+	}
+	div.wizardHead i#mercuryLogo{
+		background:url(../web-static/images/basic.png) no-repeat;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		/* 关闭用户名支持 */
+		slp.usernameSupport = false;
+
+		var lgObj = {cnt:10, minTipCnt:3},
+			errcount;
+
+		function showLgError(code)
+		{
+			var logTimes;
+			errcount = $.authRltObj["time"];
+
+			switch(code)
+			{
+			case ESYSLOCKED:
+			case ESYSLOCKEDFOREVER:
+				window.top.location.reload();
+				break;
+			case EUNAUTH:
+				logTimes = (errcount == undefined ? lgObj.cnt : errcount);
+				if (lgObj.cnt == logTimes)
+				{
+					break;
+				}
+				if (logTimes <= lgObj.minTipCnt)
+				{
+					if (slp.usernameSupport)
+					{
+						pwd.showNote(label.loginUsrPwdErrorTipH + logTimes +label.loginErrorTipT);
+					}
+					else
+					{
+						pwd.showNote(label.loginErrorTipH + logTimes +label.loginErrorTipT);
+					}
+				}
+				else
+				{
+					if (slp.usernameSupport)
+					{
+						pwd.showNote(label.loginUsrPwdErr);
+					}
+					else
+					{
+						pwd.showNote(label.loginPwdErr);
+					}
+				}
+				break;
+			case ESYSCLIENTNORMAL:
+			default:
+				break;
+			}
+		}
+
+		function login()
+		{
+			var pwdVal = pwd.input.value;
+
+			if (slp.usernameSupport)
+			{
+				var usrVal = username.input.value;
+
+				if (usrVal.length == 0)
+				{
+					username.showNote(errStr.inputUsr);
+					return;
+				}
+			}
+
+			if (pwdVal.length < SYS_LOGIN_PWD_LENGTH_MIN)
+			{
+				pwd.showNote(errStr.inputPwdLen);
+				return;
+			}
+
+			if (slp.usernameSupport)
+			{
+				$.authUsrPwd(usrVal, $.orgAuthPwd(pwdVal), function(errCode){
+					if (errCode == ENONE)
+					{
+						username.setValue("");
+						pwd.setValue("");
+						$.authRltObj["bHandLg"] = true;
+						unloadLogin();
+					}
+					else
+					{
+						showLgError(parseInt($.authRltObj["code"]));
+					}
+				});
+			}
+			else
+			{
+				$.auth($.orgAuthPwd(pwdVal), function(errCode){
+					if (errCode == ENONE)
+					{
+						pwd.setValue("");
+						$.authRltObj["bHandLg"] = true;
+						unloadLogin();
+					}
+					else
+					{
+						showLgError(parseInt($.authRltObj["code"]));
+					}
+				});
+			}
+		}
+
+		function onKeyUp(event)
+		{
+			event = event || window.event;
+			if (event.keyCode == 13)
+			{
+				return login();
+			}
+		}
+
+		if (slp.usernameSupport)
+		{
+			$("#loginTitle").text(label.welcome);
+			var username = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.loginUsr, position:Input.LABEL.INNER},
+				targetId:"usernameInput",
+				check:{keyup:onKeyUp},
+				props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "text"}
+			});
+		}
+
+		var pwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginPwd, position:Input.LABEL.INNER},
+			targetId:"passwordInput",
+			check:{keyup:onKeyUp},
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password"}});
+
+		var sub = new Button({
+			text:btn.confirmTip,
+			onClick:login,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		var showGuideDialog = new Dialog({
+			title: label.loginPwdLost,
+			size: Dialog.SIZE.MEDIUM,
+			type: Dialog.TYPE.CUSTOM,
+			content: '<span class="showGuideTitle">' + label.loginPwdLostTip + '</span>' 						   +
+					 '<div class="showGuideStepCon">' 									   +
+						'<i class="showGuideStepPic"></i>'								   +
+						'<span class="showGuideStep first">' + label.loginPwdLostTipOne + '</span>'	 +
+						'<span class="showGuideStep">' + label.loginPwdLostTipTwo + '</span>'		 +
+						'<span class="showGuideStep last">' + label.loginPwdLostTipThree + '</span>' +
+					 '</div>',
+			bottom: [
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.knowIt,
+					id:"showGuideCancel",
+					onClick:function(){
+						showGuideDialog.hide();
+					}
+				}
+			]
+		});
+
+		id("showGuide").onclick = function(){
+			showGuideDialog.show();
+		};
+		id("downloadAPP").onclick = function(event){
+			var event = event || window.event;
+			mercuryAppDialog.show(event);
+		};
+
+		/* Fix IE8 or Less */
+		window.setTimeout(function(){
+			ieUnsupportCheck(function(){
+				errcount = $.authRltObj["time"];
+				$.setTimeout(function(){
+					showLgError(parseInt($.authRltObj["code"])); /* 显示登录错误的原因 */
+				}, 0);
+			});
+		});
+
+		/* 根据setting.js中配置判断是否显示andlink/elink logo & 和家亲二维码，并在需要时才加载资源 */
+		if (showAndlinkLogo)
+		{
+			$("#andlinkLogo").css("background", andlinkLogoBg).css("display", "inline-block");
+		}
+		else if (showElinkLogo)
+		{
+			$("#elinkLogo").css("background", elinkLogoBg).css("display", "inline-block");
+		}
+		showAndlinkQRcode && $("#andlinkQRcode img").attr("src", andlinkQRcodeSrc) && $("#andlinkQRcode").show();
+	})();
+</script>
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<i class="wizardLogo" id="elinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div class="wizardCon">
+		<div class="loginContainer">
+			<h1 id="loginTitle">{%label.inputAdminPwd%}</h1>
+			<div id="usernameInput"></div>
+			<div id="passwordInput"></div>
+			<div id="sub"></div>
+			<p class="forgetPwd"><span id="showGuide">{%label.loginPwdLost%}{%label.questionMark%}</span></p>
+			<div id="andlinkQRcode">
+				<img/>
+			</div>
+		</div>
+		<i class="surfingPeople"></i>
+	</div>
+</div>

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo " ===== setting cavium hw driver ======" ;
+echo;
+insmod /usr/local/nitrox/driver/pkp_drv.ko ipsec=0;
+insmod /usr/local/nitrox/driver/cavm_ipsec.ko;
+echo;
+
+
+echo " ===== initiating hw driver ======" ;
+/usr/local/nitrox/driver/csp1_init ipsec=0;
+echo;
+

@@ -1,0 +1,78 @@
+<style type="text/css">
+	#backToWzd{
+		display:none;
+		font-size:13px;
+		color:#333;
+		float:left;
+		cursor:pointer;
+	}
+	li.textBtn{
+		margin-top:24px;
+		text-align:center;
+	}
+	li.textBtn span{
+		font-size:13px;
+		color:#ff4d79;
+		line-height:20px;
+		cursor:pointer;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+
+		function pageConversion(sign)
+		{
+			switch(sign)
+			{
+			case 0:
+				id("backToWzd").style.display = "none";
+				id("ignore").style.display = "list-item";
+				id("skipWizard").style.display = "inline";
+				break;
+			case 1:
+				id("backToWzd").style.display = "inline";
+				id("ignore").style.display = "none";
+				id("skipWizard").style.display = "none";
+				break;
+			default:
+				break;
+			}
+		}
+
+		/* cloudHistory为全局变量，在class.js中定义 */
+		cloudHistory = new CloudHistory({
+			isFormWizard: true,
+			container: "wizardBody",
+			track: [{
+				/* 关联MERCURY ID */
+				page: "CloudBindMEID.htm",
+				callback: function(){
+					pageConversion(0);
+				}
+			},{
+				/* 创建MERCURY ID */
+				page: "CloudCreateMEID.htm",
+				callback: function(){
+					pageConversion(1);
+					id("backToWzd").onclick = function(){cloudHistory.go(-1)};
+				}
+			},{
+				/* 忘记MERCURY ID密码 */
+				page: "CloudForgetPwd.htm",
+				callback: function(){
+					pageConversion(1);
+					id("backToWzd").onclick = function(){cloudHistory.go(-2)};
+				}
+			}]
+		});
+
+		/* 进入关联MERCURY ID页面 */
+		cloudHistory.go(0);
+		id("ignore").onclick = function(){loadPage("WizardEnd.htm", "wizardCon");};
+	})();
+</script>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span id="backToWzd">{%btn.backWzd%}</span><span id="skipWizard" class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody"></li>
+	<li class="textBtn"><span id="ignore">{%btn.bindIgnore%}</span></li>
+</ul>

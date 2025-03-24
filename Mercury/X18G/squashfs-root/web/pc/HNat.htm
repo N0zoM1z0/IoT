@@ -1,0 +1,119 @@
+<script type="text/javascript">
+	(function(){
+		var switchObj;
+
+		function disableHnatSet(disable)
+		{
+			if (disable)
+			{
+				switchObj.disable(true);
+				$(".description").hide();
+				addTitleError("bridgeWarning", label.bridgeHNATWarning, {hasIcon: false});
+			}
+		}
+
+		function checkBridgeStatus()
+		{
+			var data = {}, onBridge = false;
+			data[uciCustomNetwork.fileName] = {};
+			data[uciCustomNetwork.fileName][KEY_NAME] = [uciCustomNetwork.dynData.bridgeStatus];
+
+			$.query(data, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					onBridge = result.custom_network.bridge_status.enable == 1;
+				}
+
+				disableHnatSet(onBridge);
+			});
+		}
+
+		function bSwitchState(state){
+			var reqData = {};
+			reqData[uciHNat.fileName] = {};
+			reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+			reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] = state;
+
+			if (state == 1)
+			{
+				reqData[uciFirewall.fileName] = {};
+				reqData[uciFirewall.fileName][uciFirewall.secName.parentConfig] = {};
+				reqData[uciFirewall.fileName][uciFirewall.secName.parentConfig][uciFirewall.optName.enable] = SWITCH_OFF;
+			
+				 confirmDialog.show({
+					content: label.hNatOpenConfirm,
+					callback: function(choose){
+						if (choose)
+						{
+							send();
+						}
+						else
+						{
+							switchObj.setState(1 - state);
+						}
+					}
+				 });
+			}
+			else
+			{
+				send();
+			}
+
+			function send(){
+				switchObj.disable(true);
+				$.modify(reqData, function(result){
+					switchObj.disable(false);
+					if (result[ERR_CODE] == ENONE)
+					{
+						showToast(label.switchSuccess);
+					}
+				});
+			}
+		}
+
+		function getHNatStatus(){
+			var data = {};
+			data[uciHNat.fileName] = {};
+			data[uciHNat.fileName][KEY_NAME] = uciHNat.secName.main;
+
+			$.query(data, function(result){
+				var status = result[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable];
+
+				switchObj = new Switch("switchCon", status, bSwitchState, false);
+
+				/* 如果处于桥模式，则硬件NAT失效 */
+				if (slp.modeSwitchSupport) {
+					checkBridgeStatus();
+				}
+			});
+		}
+
+		getHNatStatus();
+	})();
+</script>
+<style type="text/css">
+	div.content span{
+		display:block;
+		line-height:30px;
+		height:30px;
+		color:#333333;
+		font-size:13px;
+	}
+	p#highsetTitleError{
+		margin: 16px 0;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.hnat%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description"></p>
+</div>
+<div class="content">
+	<span>{%label.hnatNote1%}</span>
+	<span>{%label.hnatNote2%}</span>
+</div>

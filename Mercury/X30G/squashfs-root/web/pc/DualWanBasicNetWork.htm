@@ -1,0 +1,2519 @@
+<style type="text/css">
+	div.page{
+		position:relative;
+		display:none;
+	}
+	div.basicNetworkCon ul.selectUl{
+		margin-top:28px;
+	}
+	div.basicNetworkCon ul.inputCMPT{
+		padding-left:0px;
+	}
+	div.basicNetworkCon ul.inputCMPT li.inputLi{
+		width:200px;
+	}
+	p.networkAbnormal{
+		display:none;
+		position:absolute;
+		left:0px;
+		top:0px;
+		z-index:1;
+	}
+	p.notice{
+		font-size:13px;
+		color:#666;
+		padding-left:189px;
+		line-height:20px;
+	}
+	p#bridgeWarning{
+		display: none;
+		width: 720px;
+		margin-bottom: 24px;
+	}
+	div.wanSelWrapper ul.inputCMPT > label.outerLbl {
+		width: 68px;
+	}
+	div.wanSelWrapper{
+		width: 280px;
+		display: inline-block;
+		vertical-align: top;
+		margin-left: 30px;
+		margin-top: 28px;
+	}
+	#rightWanSelWrapper{
+		margin-left: 80px;
+	}
+	.wanSetTitle{
+		color: #333333;
+		font-size: 24px;
+		font-weight: bold;
+	}
+	.meshHelp{
+		margin-top: 24px;
+		margin-left: 84px;
+	}
+	.meshHelpTip{
+		width: 376px;
+		margin-left: 132px;
+		font-size: 12px;
+		color: #999999;
+	}
+	#radioGroup .radioLabel{
+		display: inline-block;
+		margin-left: 16px;
+	}
+	#radioGroup .radioLabel .radioLabel{
+		margin-left: 8px;
+	}
+	.compatModeDesc{
+		display: block;
+		padding-left: 4px;
+		padding-bottom: 12px;
+		font-size: 12px;
+		color: #999999;
+	}
+	.routerCon{
+		background: #FFFFFF;
+		border-radius: 4px;
+	}
+	.routerCon::after{
+		display: inline-block;
+		vertical-align: middle;
+		content: '';
+		height: 100%;
+	}
+	.routerCon .routerImg{
+		display: inline-block;
+		background: url(../../web-static/images/wds_bridge.png);
+		width: 80px;
+		height: 80px;
+		vertical-align: middle;
+	}
+	.routerWifiInfo {
+		display: inline-block;
+		font-size: 13px;
+		color: #666666;
+		line-height: 20px;
+		vertical-align:middle;
+	}
+	.wifiInfoCon {
+		margin-top: 16px;
+	}
+	#relayAnotherRouter{
+		margin-top: 24px;
+	}
+	#relayAnotherRouterWan2{
+		margin-top: 24px;
+	}
+	ul.compatModeUl {
+		margin-bottom: 6px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var BasicWanType, BasicLanConf, BasicWanType2;
+		var lanIPMode;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtNoteErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EINVNETID:
+			case EINVHOSTID:
+			case EINVIPMASKPAIR:
+				showStr = errStr.ipAddrMaskNotMatch;
+				break;
+			case ECOMFLICTNET:
+				showStr = errStr.ipAddrLanWanConflict;
+				break;
+			case EINVGTW:
+				showStr = errStr.wzdStcGatewayErr;
+				break;
+			case ECONFLICTGATEWAY:
+				gateway.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case EINVFDNSVR:
+				showStr = errStr.wzdPrimDnsErr;
+				break;
+			case ECONFLICTFDNS:
+				priDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case EINVSDNSVR:
+				showStr = errStr.wzdSeDnsErr;
+				break;
+			case ECONFLICTSDNS:
+				sndDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case ENOLINK:
+				showStr = errStr.wanLinkDown;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function checkLanConflict(ipVal, maskVal)
+		{
+			var lanIp = transIp(BasicLanConf[uciNetwork.optName.ip]), lanMask = transIp(BasicLanConf[uciNetwork.optName.netmask]);
+			var stcIp = transIp(ipVal), stcMask = transIp(maskVal);
+
+			return (0 == ((lanIp ^ stcIp) & lanMask & stcMask)) ? ECOMFLICTNET : ENONE;
+		}
+
+		function checkIpAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (!checkInputIp.call(this))
+			{
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+
+		function checkIpAddr2()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (!checkInputIp.call(this))
+			{
+				return false;
+			}
+
+			return checkIpMaskRelate2();
+		}
+
+		function checkMaskAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcMaskEmpty);
+				return false;
+			}
+			else if (ENONE != checkMask(this.input.value))
+			{
+				this.showNote(errStr.wzdStcMaskErr);
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+		function checkMaskAddr2()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcMaskEmpty);
+				return false;
+			}
+			else if (ENONE != checkMask(this.input.value))
+			{
+				this.showNote(errStr.wzdStcMaskErr);
+				return false;
+			}
+
+			return checkIpMaskRelate2();
+		}
+
+		function checkIpMaskRelate()
+		{
+			if ("" != netmask.getValue() 					&&
+				"0.0.0.0" != netmask.getValue()			&&
+				"" != ipAddr.getValue()						&&
+				"0.0.0.0" != ipAddr.getValue()				&&
+				ENONE == checkMask(netmask.getValue())		&&
+				ENONE == checkIp(ipAddr.getValue()))
+			{
+				if (ENONE != checkIpMask(ipAddr.getValue(), netmask.getValue()))
+				{
+					netmask.showNote(errStr.wzdStcIpMaskNotMatch);
+					return false;
+				}
+				else
+				{
+					netmask.closeNote();
+				}
+
+				if (ENONE != checkLanConflict(ipAddr.getValue(), netmask.getValue()))
+				{
+					ipAddr.showNote(errStr.wzdStcIpLanConflict);
+					return false;
+				}
+				else
+				{
+					ipAddr.closeNote();
+				}
+			}
+
+			return true;
+		}
+
+		function checkIpMaskRelate2()
+		{
+			if ("" != netmask2.getValue() 					&&
+				"0.0.0.0" != netmask2.getValue()			&&
+				"" != ipAddr2.getValue()						&&
+				"0.0.0.0" != ipAddr2.getValue()				&&
+				ENONE == checkMask(netmask2.getValue())		&&
+				ENONE == checkIp(ipAddr2.getValue()))
+			{
+				if (ENONE != checkIpMask(ipAddr2.getValue(), netmask2.getValue()))
+				{
+					netmask2.showNote(errStr.wzdStcIpMaskNotMatch);
+					return false;
+				}
+				else
+				{
+					netmask2.closeNote();
+				}
+
+				if (ENONE != checkLanConflict(ipAddr2.getValue(), netmask2.getValue()))
+				{
+					ipAddr2.showNote(errStr.wzdStcIpLanConflict);
+					return false;
+				}
+				else
+				{
+					ipAddr2.closeNote();
+				}
+			}
+
+			return true;
+		}
+		function commonCheck(blank, error)
+		{
+			if ("" == this.input.value)
+			{
+				/* 不允许为空 */
+				if (blank)
+				{
+					this.showNote(blank);
+					return false;
+				}
+			}
+			else if (ENONE != checkIp(this.input.value))
+			{
+				this.showNote(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkGateway()
+		{
+			return commonCheck.call(this, errStr.wzdStcGatewayEmpty, errStr.wzdStcGatewayErr);
+		}
+
+		function checkPriDns()
+		{
+			return commonCheck.call(this, errStr.wzdPrimDnsEmpty, errStr.wzdPrimDnsErr);
+		}
+
+		function checkSecDns()
+		{
+			if ("0.0.0.0" == this.input.value)
+			{
+				return true;
+			}
+
+			return commonCheck.call(this, null, errStr.wzdSeDnsErr);
+		}
+
+		/* 保存为PPPoE */
+		function pppoeConnect()
+		{
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveP();
+				});
+			} else {
+				toSaveP();
+			}
+			function toSaveP(){
+				var self = this;
+				var data = {};
+
+				data[uciProto.secName.wan] = {};
+				data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.pppoe;
+				data[uciProto.secName.pppoe] = {};
+				data[uciProto.secName.pppoe][uciProto.optName.pppoeUsr] = account.getValue();
+				data[uciProto.secName.pppoe][uciProto.optName.pppoePwd] = pwd.getValue();
+
+				clearRelaySet();
+				pppoeSub.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType = uciProto.optValue.proto.pppoe;
+						pppoeConnectAction();
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						pppoeSub.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+
+		function pppoeConnect2()
+		{
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveP();
+				});
+			} else {
+				toSaveP();
+			}
+			function toSaveP(){
+				var self = this;
+				var data = {};
+
+				data[uciProto.secName.wan2] = {};
+				data[uciProto.secName.wan2][uciProto.optName.type] = uciProto.optValue.proto.pppoe;
+				data[uciProto.secName.pppoe2] = {};
+				data[uciProto.secName.pppoe2][uciProto.optName.pppoeUsr] = account2.getValue();
+				data[uciProto.secName.pppoe2][uciProto.optName.pppoePwd] = pwd2.getValue();
+
+				clearRelaySet();
+				pppoeSub2.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType2 = uciProto.optValue.proto.pppoe;
+						pppoeConnectAction2();
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						pppoeSub2.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+
+		/* 连接PPPoE服务器 */
+		function pppoeConnectAction()
+		{
+			var data = {};
+
+			data = {"network":{"change_wan_status":{"proto":"pppoe","operate":"connect"}}};
+
+			$.action(data, function(result){
+				pppoeSub.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+		function pppoeConnectAction2()
+		{
+			var data = {};
+
+			data = {"network":{"change_wan_status":{"proto":"pppoe_2","operate":"connect"}}};
+
+			$.action(data, function(result){
+				pppoeSub2.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		/* 断开PPPoE服务器 */
+		function pppoeDisconnect()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"pppoe","operate":"disconnect"}}};
+
+			pppoeRelease.disable(true);
+			$.action(data, function(result){
+				pppoeRelease.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+		function pppoeDisconnect2()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"pppoe_2","operate":"disconnect"}}};
+
+			pppoeRelease2.disable(true);
+			$.action(data, function(result){
+				pppoeRelease2.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		/* 连接DHCP服务器 */
+		function dhcpConnect()
+		{
+			if (BasicWanType == uciProto.optValue.proto.dynIp && gCurSysMode == uciSystem.optValue.sysMode.routerMode)
+			{
+				dhcpUpdate();
+				return;
+			}
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveD();
+				});
+			} else {
+				toSaveD();
+			}
+
+			function toSaveD() {
+				var self = this;
+				var data = {};
+
+				data[uciProto.secName.wan] = {};
+				data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.dynIp;
+
+				clearRelaySet();
+				dhcpSub.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType = uciProto.optValue.proto.dynIp;
+						dhcpSub.disable(false);
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						dhcpSub.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+		function dhcpConnect2()
+		{
+			if (BasicWanType2 == uciProto.optValue.proto.dynIp && gCurSysMode == uciSystem.optValue.sysMode.routerMode)
+			{
+				dhcpUpdate2();
+				return;
+			}
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveD();
+				});
+			} else {
+				toSaveD();
+			}
+
+			function toSaveD(){
+				var self = this;
+				var data = {};
+
+				data[uciProto.secName.wan2] = {};
+				data[uciProto.secName.wan2][uciProto.optName.type] = uciProto.optValue.proto.dynIp;
+
+				clearRelaySet();
+				dhcpSub.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType = uciProto.optValue.proto.dynIp;
+						dhcpSub.disable(false);
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						dhcpSub.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+		/* 更新IP */
+		function dhcpUpdate()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"dhcp", "operate":"renew"}}};
+
+			dhcpSub.disable(true);
+			$.action(data, function(result){
+				dhcpSub.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+		function dhcpUpdate2()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"dhcp_2", "operate":"renew"}}};
+
+			dhcpSub2.disable(true);
+			$.action(data, function(result){
+				dhcpSub2.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		function dhcpRelease()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"dhcp", "operate":"release"}}};
+
+			dhcpRelease.disable(true);
+			$.action(data, function(result){
+				dhcpRelease.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+		function dhcpRelease2()
+		{
+			var self = this;
+			var data = {"network":{"change_wan_status":{"proto":"dhcp_2", "operate":"release"}}};
+
+			dhcpRelease2.disable(true);
+			$.action(data, function(result){
+				dhcpRelease2.disable(false);
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		/* 保存静态IP地址 */
+		function setStaticIp()
+		{
+			var self = this;
+			var checkRes = true;
+			var inputArr = [ipAddr, netmask, gateway, priDns, sndDns];
+
+			gateway.closeNote();
+			priDns.closeNote();
+			sndDns.closeNote();
+
+			inputArr.forEach(function(o){
+				o.setValue(hideLeadingZeros(o.getValue()));
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			/* 输入非法 */
+			if (!checkRes)
+			{
+				return;
+			}
+
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveS();
+				});
+			} else {
+				toSaveS();
+			}
+
+			function toSaveS() {
+				var data = {};
+				data[uciProto.secName.wan] = {};
+				data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.staticIp;
+
+				data[uciProto.secName.sta] = {};
+				data[uciProto.secName.sta][uciProto.optName.ip] = ipAddr.getValue();
+				data[uciProto.secName.sta][uciProto.optName.netmask] = netmask.getValue();
+				data[uciProto.secName.sta][uciProto.optName.gateway] = gateway.getValue();
+				data[uciProto.secName.sta][uciProto.optName.priDns] = priDns.getValue();
+				data[uciProto.secName.sta][uciProto.optName.sndDns] = sndDns.getValue();
+
+				clearRelaySet();
+				staticSub.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType = uciProto.optValue.proto.staticIp;
+						staticSub.disable(false);
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						staticSub.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+
+		}
+		function setStaticIp2()
+		{
+			var self = this;
+			var checkRes = true;
+			var inputArr = [ipAddr2, netmask2, gateway2, priDns2, sndDns2];
+
+			gateway2.closeNote();
+			priDns2.closeNote();
+			sndDns2.closeNote();
+
+			inputArr.forEach(function(o){
+				o.setValue(hideLeadingZeros(o.getValue()));
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			/* 输入非法 */
+			if (!checkRes)
+			{
+				return;
+			}
+
+			if (slp.gSysModeSupport && gCurSysMode != uciSystem.optValue.sysMode.routerMode) {
+				changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){
+					toSaveS();
+				});
+			} else {
+				toSaveS();
+			}
+
+			function toSaveS() {
+				var data = {};
+				data[uciProto.secName.wan2] = {};
+				data[uciProto.secName.wan2][uciProto.optName.type] = uciProto.optValue.proto.staticIp;
+
+				data[uciProto.secName.sta2] = {};
+				data[uciProto.secName.sta2][uciProto.optName.ip] = ipAddr2.getValue();
+				data[uciProto.secName.sta2][uciProto.optName.netmask] = netmask2.getValue();
+				data[uciProto.secName.sta2][uciProto.optName.gateway] = gateway2.getValue();
+				data[uciProto.secName.sta2][uciProto.optName.priDns] = priDns2.getValue();
+				data[uciProto.secName.sta2][uciProto.optName.sndDns] = sndDns2.getValue();
+
+				clearRelaySet();
+				staticSub2.disable(true);
+				slp.protocol.setData({
+					data: data,
+					success: function(){
+						BasicWanType2 = uciProto.optValue.proto.staticIp;
+						staticSub2.disable(false);
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					},
+					fail: function(result){
+						staticSub2.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+
+		function setPPPoEStatus(res)
+		{
+			var linkStatus = parseInt(res[uciNetwork.optName.wanStatus]);
+			var errorCode = parseInt(res[uciNetwork.optName.code]);
+
+			var ip = res[uciNetwork.optName.ip] || "0.0.0.0";
+			var priDns = res[uciNetwork.optName.priDns] || "0.0.0.0";
+			var sndDns = res[uciNetwork.optName.sndDns] || "0.0.0.0";
+
+			switch(linkStatus)
+			{
+			case LINK_DOWN:
+			case LINKING_UP:
+				if (LINK_CODE_AUTH_ERR == errorCode)
+				{
+					$("#leftWanSelWrapper p.networkAbnormal").css("display", "table");
+				}
+				else
+				{
+					$("#leftWanSelWrapper p.networkAbnormal").css("display", "none");
+				}
+
+				pppoeIpAddrAuto.setValue("0.0.0.0");
+				pppoeDnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+				pppoeRelease.disable(linkStatus == LINK_DOWN ? true : false);
+
+				break;
+			case LINK_UP:
+				$("#leftWanSelWrapper p.networkAbnormal").css("display", "none");
+
+				pppoeIpAddrAuto.setValue(ip);
+				pppoeDnsAuto.setValue(priDns + " , " + sndDns);
+				pppoeRelease.disable(false);
+
+				break;
+			case LINKING_DOWN:
+				$("#leftWanSelWrapper p.networkAbnormal").css("display", "none");
+
+				pppoeIpAddrAuto.setValue("0.0.0.0");
+				pppoeDnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+				pppoeRelease.disable(true);
+
+			default:
+				$("#leftWanSelWrapper p.networkAbnormal").css("display", "none");
+				break;
+			}
+		}
+		function setPPPoEStatus2(res)
+		{
+			var linkStatus = parseInt(res[uciNetwork.optName.wanStatus]);
+			var errorCode = parseInt(res[uciNetwork.optName.code]);
+
+			var ip = res[uciNetwork.optName.ip] || "0.0.0.0";
+			var priDns = res[uciNetwork.optName.priDns] || "0.0.0.0";
+			var sndDns = res[uciNetwork.optName.sndDns] || "0.0.0.0";
+
+			switch(linkStatus)
+			{
+			case LINK_DOWN:
+			case LINKING_UP:
+				if (LINK_CODE_AUTH_ERR == errorCode)
+				{
+					$("#rightWanSelWrapper p.networkAbnormal").css("display", "table");
+				}
+				else
+				{
+					$("#rightWanSelWrapper p.networkAbnormal").css("display", "none");
+				}
+
+				pppoeIpAddrAuto2.setValue("0.0.0.0");
+				pppoeDnsAuto2.setValue("0.0.0.0 , 0.0.0.0");
+
+				pppoeRelease2.disable(linkStatus == LINK_DOWN ? true : false);
+
+				break;
+			case LINK_UP:
+				$("#rightWanSelWrapper p.networkAbnormal").css("display", "none");
+
+				pppoeIpAddrAuto2.setValue(ip);
+				pppoeDnsAuto2.setValue(priDns + " , " + sndDns);
+				pppoeRelease2.disable(false);
+
+				break;
+			case LINKING_DOWN:
+				$("#rightWanSelWrapper p.networkAbnormal").css("display", "none");
+
+				pppoeIpAddrAuto2.setValue("0.0.0.0");
+				pppoeDnsAuto2.setValue("0.0.0.0 , 0.0.0.0");
+
+				pppoeRelease2.disable(true);
+
+			default:
+				$("#rightWanSelWrapper p.networkAbnormal").css("display", "none");
+				break;
+			}
+		}
+
+		function setDHCPStatus(res)
+		{
+			switch(parseInt(res[uciNetwork.optName.wanStatus]))
+			{
+				case LINK_UP:
+					var dns = "";
+					var priDns = res[uciNetwork.optName.priDns] || "0.0.0.0";
+					var sndDns = res[uciNetwork.optName.sndDns] || "0.0.0.0";
+
+					dns = priDns + " , " + sndDns;
+
+					dhcpIpAddrAuto.setValue(res[uciNetwork.optName.ip]);
+					dhcpNetmaskAuto.setValue(res[uciNetwork.optName.netmask]);
+					dhcpGatewayAuto.setValue(res[uciNetwork.optName.gateway]);
+					dhcpDnsAuto.setValue(dns);
+
+					dhcpSub.setState({
+						text: btn.renew,
+						onClick: dhcpUpdate
+					});
+					dhcpRelease.disable(false);
+					break;
+				case LINK_DOWN:
+					dhcpIpAddrAuto.setValue("0.0.0.0");
+					dhcpNetmaskAuto.setValue("0.0.0.0");
+					dhcpGatewayAuto.setValue("0.0.0.0");
+					dhcpDnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+					dhcpSub.setState({
+						text: btn.connect,
+						onClick: dhcpConnect
+					});
+					dhcpRelease.disable(true);
+					break;
+				case LINKING_UP:
+					dhcpIpAddrAuto.setValue("0.0.0.0");
+					dhcpNetmaskAuto.setValue("0.0.0.0");
+					dhcpGatewayAuto.setValue("0.0.0.0");
+					dhcpDnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+					dhcpSub.setState({
+						text: btn.connect,
+						onClick: dhcpConnect
+					});
+					dhcpRelease.disable(false);
+					break;
+				case LINKING_DOWN:
+					dhcpIpAddrAuto.setValue("0.0.0.0");
+					dhcpNetmaskAuto.setValue("0.0.0.0");
+					dhcpGatewayAuto.setValue("0.0.0.0");
+					dhcpDnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+
+					dhcpSub.setState({
+						text: btn.connect,
+						onClick: dhcpConnect
+					});
+					dhcpRelease.disable(true);
+					break;
+				default:
+					break;
+			}
+		}
+
+		function setDHCPStatus2(res){
+			switch(parseInt(res[uciNetwork.optName.wanStatus]))
+			{
+			case LINK_UP:
+				var dns = "";
+				var priDns = res[uciNetwork.optName.priDns] || "0.0.0.0";
+				var sndDns = res[uciNetwork.optName.sndDns] || "0.0.0.0";
+
+				dns = priDns + " , " + sndDns;
+
+				dhcpIpAddrAuto2.setValue(res[uciNetwork.optName.ip]);
+				dhcpNetmaskAuto2.setValue(res[uciNetwork.optName.netmask]);
+				dhcpGatewayAuto2.setValue(res[uciNetwork.optName.gateway]);
+				dhcpDnsAuto2.setValue(dns);
+
+				dhcpSub2.setState({
+					text: btn.renew,
+					onClick: dhcpUpdate2
+				});
+				dhcpRelease2.disable(false);
+				break;
+			case LINK_DOWN:
+				dhcpIpAddrAuto2.setValue("0.0.0.0");
+				dhcpNetmaskAuto2.setValue("0.0.0.0");
+				dhcpGatewayAuto2.setValue("0.0.0.0");
+				dhcpDnsAuto2.setValue("0.0.0.0 , 0.0.0.0");
+
+				dhcpSub2.setState({
+					text: btn.connect,
+					onClick: dhcpConnect2
+				});
+				dhcpRelease2.disable(true);
+				break;
+			case LINKING_UP:
+				dhcpIpAddrAuto2.setValue("0.0.0.0");
+				dhcpNetmaskAuto2.setValue("0.0.0.0");
+				dhcpGatewayAuto2.setValue("0.0.0.0");
+				dhcpDnsAuto2.setValue("0.0.0.0 , 0.0.0.0");
+
+				dhcpSub2.setState({
+					text: btn.connect,
+					onClick: dhcpConnect2
+				});
+				dhcpRelease2.disable(false);
+				break;
+			case LINKING_DOWN:
+				dhcpIpAddrAuto2.setValue("0.0.0.0");
+				dhcpNetmaskAuto2.setValue("0.0.0.0");
+				dhcpGatewayAuto2.setValue("0.0.0.0");
+				dhcpDnsAuto2.setValue("0.0.0.0 , 0.0.0.0");
+
+				dhcpSub2.setState({
+					text: btn.connect,
+					onClick: dhcpConnect2
+				});
+				dhcpRelease2.disable(true);
+				break;
+			default:
+				break;
+			}
+		}
+
+		function getWanStatus(){
+			slp.latestWanStatus(function(res){
+				switch(res[uciNetwork.optName.proto])
+				{
+					case uciNetwork.optValue.proto.pppoe:
+						setPPPoEStatus(res);
+						break;
+					case uciNetwork.optValue.proto.dynIp:
+						setDHCPStatus(res);
+						break;
+					case uciNetwork.optValue.proto.staticIp:
+					default:
+						break;
+				}
+				slp.latestWanStatus(function(res2){
+					switch(res2[uciNetwork.optName.proto])
+					{
+						case uciNetwork.optValue.proto.pppoe:
+							setPPPoEStatus2(res2);
+							break;
+						case uciNetwork.optValue.proto.dynIp:
+							setDHCPStatus2(res2);
+							break;
+						case uciNetwork.optValue.proto.staticIp:
+						default:
+							break;
+					}
+					refreshHandle = $.setTimeout(refreshWanStatus, 2000);
+				}, true, 2);
+			}, true);
+		}
+
+		function refreshWanStatus()
+		{
+			if(slp.gSysModeSupport){
+				if(apManual) {
+					getApStatus();
+					refreshHandle = $.setTimeout(refreshWanStatus, 1000);
+					return;
+				}
+				var reqData = {};
+				reqData[uciSystem.fileName] = {};
+				reqData[uciSystem.fileName][KEY_NAME] = uciSystem.secName.sysMode;
+				$.query(reqData,function(resMode){
+					if(ENONE == resMode[ERR_CODE]){
+						gCurSysMode = resMode[uciSystem.fileName][uciSystem.secName.sysMode][uciSystem.optName.mode];
+						if(gCurSysMode == uciSystem.optValue.sysMode.apMode){
+							getApStatus();
+						} else if (gCurSysMode == uciSystem.optValue.sysMode.wdsMode){
+							// do nothing 无线中继时无需轮询页面状态，其配置流程在上网设置中完成
+						} else {
+							getWanStatus();
+						}
+					}
+				});
+			} else {
+				getWanStatus();
+			}
+		}
+
+		function changePage(value)
+		{
+			var orderArr = [LINK_TYPE_PPPOE, LINK_TYPE_STATIC_IP, LINK_TYPE_DHCP];
+			var dialModes = slp.moduleSpec.dial_mode;
+			for(var i=0; i<dialModes.length; i++){
+				switch (dialModes[i]){
+					case "wired_relay":
+						orderArr.push(LINK_TYPE_WIRED_REPEATER_INDEX);
+						break;
+					case "wds_relay":
+						orderArr.push(LINK_TYPE_WIRELESS_REPEATER_INDEX);
+						break;
+				}
+			}
+			orderArr.forEach(function(v, index){
+				var target = $("#leftWanSelWrapper div.page")[index];
+				target.style.display = (v == value) ? "block" :"none";
+			});
+		}
+		function changePage2(value)
+		{
+			var orderArr = [LINK_TYPE_PPPOE, LINK_TYPE_STATIC_IP, LINK_TYPE_DHCP];
+			var dialModes = slp.moduleSpec.dial_mode;
+			for(var i=0; i<dialModes.length; i++){
+				switch (dialModes[i]){
+					case "wired_relay":
+						orderArr.push(LINK_TYPE_WIRED_REPEATER_INDEX);
+						break;
+					case "wds_relay":
+						orderArr.push(LINK_TYPE_WIRELESS_REPEATER_INDEX);
+						break;
+				}
+			}
+			orderArr.forEach(function(v, index){
+				var target = $("#rightWanSelWrapper div.page")[index];
+				target.style.display = (v == value) ? "block" :"none";
+			})
+		}
+
+		var isRelaySuccess = false;
+		var apManual = false;
+		function saveAp(){
+			if (gCurSysMode == uciSystem.optValue.sysMode.apMode) {
+				var cfg = {};
+				if (compatibleOn.getValue()) {
+					cfg.wired_extender = {"config":{"compat_mode":"1"}};
+				} else {
+					cfg.wired_extender = {"config":{"compat_mode":"0"}};
+				}
+				$.modify(cfg, function(result) {
+					if (result.error_code != ENONE) {
+						alarmDialog.show(errStr.invRequestFail);
+					}
+				});
+				return;
+			}
+
+			if (gCurSysMode == uciSystem.optValue.sysMode.wdsMode) {
+				confirmDialog.show({
+					content: "切换为AP（有线中继）后，桥接（无线中继）将会自动关闭。确定切换吗？",
+					callback: function(choose){
+						if (choose)
+						{
+							apOnSave();
+						}
+					}
+				});
+			} else {
+				changeSysModeAlert("switch", uciSystem.optValue.sysMode.apMode, function(){
+					lanIpModeHandle(apOnSave);
+				});
+			}
+		}
+
+		function lanIpModeHandle(callback)
+		{
+			if ("manual" == lanIPMode) {
+				confirmDialog.show({
+					title: "AP（有线中继）",
+					content: "当前路由器的LAN口IP为手动设置，使用AP（有线中继）将更改为自动，确定更改LAN口IP设置？",
+					callback: function(choose){
+						if (choose)
+						{
+							lanIPMode = "dynamic";
+							$.modify({"network":{"lan":{"ip_mode":"dynamic"}}}, null, true);
+							callback();
+						}
+					}
+				});
+			}
+			else {
+				callback();
+			}
+		}
+
+		function apOnSave(){
+			apSave.showLoading();
+			apSave2.showLoading();
+			var cfg = {};
+			cfg.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.apMode}};
+			switch (slp.bandsProvided) {
+				case slp.SINGLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"}};
+					break;
+				case slp.DOUBLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}};
+					break;
+				case slp.TRIPLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}};
+					break;
+			}
+			if (compatibleOn.getValue()) {
+				cfg.wired_extender = {"config":{"compat_mode":"1"}};
+			} else {
+				cfg.wired_extender = {"config":{"compat_mode":"0"}};
+			}
+			$.modify(cfg, function(result) {
+				if (result.error_code != ENONE) {
+					showAlert(errStr.invRequestFail);
+					apSave.closeLoading();
+					apSave2.closeLoading();
+				} else {
+					apManual = true;
+					clearTimeout(refreshHandle);
+					$.setTimeout(getApStatus, 1000);
+					refreshHandle = $.setTimeout(refreshWanStatus, 1000);
+				}
+			});
+		}
+		function getApStatus(){
+			if (apManual && apStatusRetryCounts > 10){
+				apStatusRetryCounts = 1;
+				apManual = false;
+				apSave.closeLoading();
+				apSave2.closeLoading();
+				return;
+			}
+			var EXTENDER_STATUS_DHCPC = 2;
+			var args = {
+				"wired_extender":
+				{
+					"name": ["status"]
+				},
+				"network": {
+					"name": "lan"
+				}
+			};
+
+			$.query(args, function(result) {
+				var curIP = result.network.lan.ipaddr;
+				var ip = result.wired_extender.status.ip;
+				var state = result.wired_extender.status.state;
+				lanIPMode = result.network.lan.ip_mode;
+				if (ip != '0.0.0.0') {
+					isRelaySuccess = true;
+					if (state >= EXTENDER_STATUS_DHCPC && apManual) {
+						apStatusRetryCounts = 1;
+						apManual = false;
+						apSave.closeLoading();
+						apSave2.closeLoading();
+						setLanIp(ip);
+					}
+				}
+				apIpAddr.setValue(result.wired_extender.status.ip);
+				apNetMask.setValue(result.wired_extender.status.mask);
+				apGateway.setValue(result.wired_extender.status.root_ip);
+				apDns.setValue(result.wired_extender.status.pri_dns + ' , ' + result.wired_extender.status.snd_dns);
+			});
+
+			if (!isRelaySuccess) {
+				if (apManual) {
+					apStatusRetryCounts++;
+				}
+			}
+		}
+
+		function clearRelaySet(){
+			if(slp.gSysModeSupport) {
+				var req = {};
+				req.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.routerMode}};
+				switch (slp.bandsProvided) {
+					case slp.SINGLE:
+						req.wireless = {"wlan_wds_2g":{"enable":"0"}};
+						break;
+					case slp.DOUBLE:
+						req.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}};
+						break;
+					case slp.TRIPLE:
+						req.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}};
+						break;
+				}
+				$.modify(req,function(result){
+					if(result.error_code == ENONE){
+						gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+					}
+				})
+			}
+		}
+		function setLanIp(newIP)
+		{
+			apSave.closeLoading();
+			apSave2.closeLoading();
+			$.action({"wired_extender": {"set_ip": null}});
+
+			loadingDialog.show({
+				title: label.wiredRepeater,
+				content: {primary:"连接成功，路由器IP地址已更改为：" + newIP + "。页面将自动跳转到新的IP地址，请稍候..."}
+			}, undefined, undefined, false, undefined);
+
+			$.changeDomain(newIP);
+
+			$.setTimeout(function () {
+				window.location.href = "http://" + newIP;
+			}, 60000);
+
+			$.setTimeout(function () {
+				lanDetecting(function () {
+					window.location.href = "http://" + newIP;
+				});
+			}, 4000);
+		}
+
+		var refreshHandle = null;
+
+		/* 宽带拨号上网组件 */
+		var account = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netAccount},
+			targetId:"pppoeInput",
+			props:{maxlength: '118', type: "text"}});
+		var pwd = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netPwd},
+			targetId:"pppoeInput",
+			props:{maxlength: '118', type: "text"}});
+		var pppoeIpAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"pppoeInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var pppoeDnsAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"pppoeInput",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var pppoeSub = new Button({
+			text:btn.connect,
+			onClick:pppoeConnect,
+			type:Button.TYPE.PRIMARY,
+			id:"subP",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		var pppoeRelease = new Button({
+			text:btn.disconnect,
+			onClick:pppoeDisconnect,
+			type:Button.TYPE.SECONDARY,
+			id:"cancleP",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		pppoeRelease.disable(true);
+
+		var account2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netAccount},
+			targetId:"pppoeInputWan2",
+			props:{maxlength: '118', type: "text"}});
+		var pwd2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netPwd},
+			targetId:"pppoeInputWan2",
+			props:{maxlength: '118', type: "text"}});
+		var pppoeIpAddrAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"pppoeInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var pppoeDnsAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"pppoeInputWan2",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var pppoeSub2 = new Button({
+			text:btn.connect,
+			onClick:pppoeConnect2,
+			type:Button.TYPE.PRIMARY,
+			id:"subPWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		var pppoeRelease2 = new Button({
+			text:btn.disconnect,
+			onClick:pppoeDisconnect2,
+			type:Button.TYPE.SECONDARY,
+			id:"canclePWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		pppoeRelease2.disable(true);
+
+		/* 固定IP地址组件 */
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"staticInput",
+			check:{blur:checkIpAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var netmask = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mask},
+			targetId:"staticInput",
+			check:{blur:checkMaskAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var gateway = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway},
+			targetId:"staticInput",
+			check:{blur:checkGateway},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"staticInput",
+			check:{blur:checkPriDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var sndDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"staticInput",
+			check:{blur:checkSecDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var staticSub = new Button({
+			text:btn.connect,
+			onClick:setStaticIp,
+			type:Button.TYPE.PRIMARY,
+			id:"subS",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+
+		var ipAddr2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"staticInputWan2",
+			check:{blur:checkIpAddr2},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var netmask2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mask},
+			targetId:"staticInputWan2",
+			check:{blur:checkMaskAddr2},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var gateway2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway},
+			targetId:"staticInputWan2",
+			check:{blur:checkGateway},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var priDns2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"staticInputWan2",
+			check:{blur:checkPriDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var sndDns2 = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"staticInputWan2",
+			check:{blur:checkSecDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var staticSub2 = new Button({
+			text:btn.connect,
+			onClick:setStaticIp2,
+			type:Button.TYPE.PRIMARY,
+			id:"subSWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+
+		/* 自动获取IP地址组件 */
+		var dhcpIpAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"dhcpInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpNetmaskAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"dhcpInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpGatewayAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"dhcpInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpDnsAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"dhcpInput",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var dhcpSub = new Button({
+			text:btn.connect,
+			onClick:dhcpConnect,
+			type:Button.TYPE.PRIMARY,
+			id:"subD",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		var dhcpRelease = new Button({
+			text:btn.disconnect,
+			onClick:dhcpRelease,
+			type:Button.TYPE.SECONDARY,
+			id:"cancleD",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		dhcpRelease.disable(true);
+
+		var dhcpIpAddrAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"dhcpInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpNetmaskAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"dhcpInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpGatewayAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"dhcpInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dhcpDnsAuto2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"dhcpInputWan2",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var dhcpSub2 = new Button({
+			text:btn.connect,
+			onClick:dhcpConnect2,
+			type:Button.TYPE.PRIMARY,
+			id:"subDWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		var dhcpRelease2 = new Button({
+			text:btn.disconnect,
+			onClick:dhcpRelease2,
+			type:Button.TYPE.SECONDARY,
+			id:"cancleDWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		dhcpRelease2.disable(true);
+
+		/* 有线中继相关组件 */
+		var compatibleOn = new Radio({
+			targetId: "compatibleOn",
+			label: label.open,
+			name: "compatibleMode"
+		});
+		var compatibleOnWan2 = new Radio({
+			targetId: "compatibleOnWan2",
+			label: label.open,
+			name: "compatibleMode2"
+		})
+		var compatibleOff = new Radio({
+			targetId: "compatibleOff",
+			label: label.close,
+			name: "compatibleMode"
+		});
+		var compatibleOffWan2 = new Radio({
+			targetId: "compatibleOffWan2",
+			label: label.close,
+			name: "compatibleMode2"
+		});
+		var apIpAddr = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"apInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apIpAddr2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"apInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apNetMask = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"apInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apNetMask2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"apInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apGateway = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"apInput",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apGateway2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"apInputWan2",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var apDns = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"apInput",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var apDns2 = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"apInputWan2",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var apSave = new Button({
+			text:btn.connect,
+			onClick:saveAp,
+			type:Button.TYPE.PRIMARY,
+			id:"saveAp",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+		var apSave2 = new Button({
+			text:btn.connect,
+			onClick:saveAp,
+			type:Button.TYPE.PRIMARY,
+			id:"saveApWan2",
+			props:{width:"280px", margin:"12px 0 0 0px"}
+		});
+
+		var selectFrontRouterBtn = new Button({
+			text:btn.selectFrontRouter,
+			onClick:selectFrontRouterHandle,
+			type:Button.TYPE.PRIMARY,
+			id:"selectFrontRouter",
+			props:{width:"280px", marginLeft:"12px 0 0 132px"}
+		});
+		var selectFrontRouterBtn2 = new Button({
+			text:btn.selectFrontRouter,
+			onClick:selectFrontRouterHandle,
+			type:Button.TYPE.PRIMARY,
+			id:"selectFrontRouterWan2",
+			props:{width:"280px", marginLeft:"12px 0 0 132px"}
+		});
+		function selectFrontRouterHandle(){
+			function toSaveSelect(){
+				gStartWirelessRepeater = true;
+				menuConfig.menuTargetUrl = "WanLoader.htm";
+				loadPage("Advance.htm", "content");
+			}
+			toSaveSelect();
+		}
+
+		var relayAnotherRouterBtn = new Button({
+			text:btn.relayAnotherRouter,
+			onClick: relayAnotherRouterHandle,
+			type: Button.TYPE.PRIMARY,
+			id:"relayAnotherRouter",
+			props:{width:"280px"}
+		})
+		var relayAnotherRouterBtn2 = new Button({
+			text:btn.relayAnotherRouter,
+			onClick: relayAnotherRouterHandle,
+			type: Button.TYPE.PRIMARY,
+			id:"relayAnotherRouterWan2",
+			props:{width:"280px"}
+		})
+		function relayAnotherRouterHandle(){
+			gStartWirelessRepeater = true;
+			menuConfig.menuTargetUrl = "WanLoader.htm";
+			loadPage("Advance.htm", "content");
+		}
+		var gOldLanIP,gLanIP;
+		var targetSelFreq = {};
+		var updateStatusHandle = null;
+		var getDhcpsHd = null;
+		var getDhcpcHd = null;
+		var apRefreshHandle = null;
+		var dhcpcRetryCounts = 1;
+		var dhcpsRetryCounts = 1;
+		var apStatusRetryCounts = 1;
+		function initWds(){
+			function showWDSResult(wdsStatusStr) {
+				$("#selectFrontRouter").hide();
+				$("#wdsResultCon").removeClass("disNone");
+				$("#selectFrontRouterWan2").hide();
+				$("#wdsResultConWan2").removeClass("disNone");
+				$("#frontRouterCon .wifiInfoCon").hide();
+				$("#frontRouterConWan2 .wifiInfoCon").hide();
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected) {
+						if (slp.bandSteeringProvided && gRootAPInfo[FREQ_BS] && "1" == gRootAPInfo[FREQ_BS].bs_enable && FREQ_BS == freq) {
+							$(".wifiInfoConBs .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_BS].ssid));
+							$(".wifiInfoConBs .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_BS].ssid));
+							if (1 == gRootAPInfo[FREQ_BS].encryption) {
+								$(".wifiInfoConBs .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_BS].key));
+								$(".wifiInfoConBs .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_BS].key));
+							} else {
+								$(".wifiInfoConBs .routerPsdVal").text(label.wirelessNoSecurity);
+							}
+							$(".twofiveCon").show();
+						} else if (BAND_2 == slp.bandsProvided - 1) {
+							if(freq == FREQ_2G){
+								$(".wifiInfoCon2G .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_2G].ssid));
+								$(".wifiInfoCon2G .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_2G].ssid));
+								if (1 == gRootAPInfo[FREQ_2G].encryption) {
+									$(".wifiInfoCon2G .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_2G].key));
+									$(".wifiInfoCon2G .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_2G].key));
+								} else {
+									$(".wifiInfoCon2G .routerPsdVal").text(label.wirelessNoSecurity);
+								}
+								$(".wifiInfoCon2G").show();
+							}
+							if(freq == FREQ_5G){
+								$(".wifiInfoCon5G .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G].ssid));
+								$(".wifiInfoCon5G .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G].ssid));
+								if (1 == gRootAPInfo[FREQ_5G].encryption) {
+									$(".wifiInfoCon5G .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G].key));
+									$(".wifiInfoCon5G .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G].key));
+								} else {
+									$(".wifiInfoCon5G .routerPsdVal").text(label.wirelessNoSecurity);
+								}
+								$(".wifiInfoCon5G").show();
+							}
+						} else if (BAND_3 == slp.bandsProvided - 1){
+							if(freq == FREQ_2G){
+								$(".wifiInfoCon2G .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_2G].ssid));
+								$(".wifiInfoCon2G .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_2G].ssid));
+								if (1 == gRootAPInfo[FREQ_2G].encryption) {
+									$(".wifiInfoCon2G .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_2G].key));
+									$(".wifiInfoCon2G .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_2G].key));
+								} else {
+									$(".wifiInfoCon2G .routerPsdVal").text(label.wirelessNoSecurity);
+								}
+								$(".wifiInfoCon2G").hide();
+							}
+							if(freq == FREQ_5G1){
+								$(".wifiInfoCon5G1 .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G1].ssid));
+								$(".wifiInfoCon5G1 .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G1].ssid));
+								if (1 == gRootAPInfo[FREQ_5G1].encryption) {
+									$(".wifiInfoCon5G1 .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G1].key));
+									$(".wifiInfoCon5G1 .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G1].key));
+								} else {
+									$(".wifiInfoCon5G1 .routerPsdVal").text(label.wirelessNoSecurity);
+								}
+								$(".wifiInfoCon5G1").hide();
+							}
+							if(freq == FREQ_5G4){
+								$(".wifiInfoCon5G4 .routerNameVal").text(htmlEscape(gRootAPInfo[FREQ_5G4].ssid));
+								$(".wifiInfoCon5G4 .routerNameVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G4].ssid));
+								if (1 == gRootAPInfo[FREQ_5G4].encryption) {
+									$(".wifiInfoCon5G4 .routerPsdVal").text(htmlEscape(gRootAPInfo[FREQ_5G4].key));
+									$(".wifiInfoCon5G4 .routerPsdVal").attr("title", htmlEscape(gRootAPInfo[FREQ_5G4].key));
+								} else {
+									$(".wifiInfoCon5G4 .routerPsdVal").text(label.wirelessNoSecurity);
+								}
+								$(".wifiInfoCon5G4").hide();
+							}
+						}
+					}
+				}
+			}
+
+			function wdsOnConnect() {
+				saveWdsBtn.showLoading();
+				saveWdsBtn2.showLoading();
+				function sendData(data) {
+					connectingCount = 1;
+					clearTimeout(updateStatusHandle);
+
+					$.modify(data, function(result) {
+						if(ENONE !== result[ERR_CODE]) {
+							saveWdsBtn.closeLoading();
+							saveWdsBtn2.closeLoading();
+							errHandle(result[ERR_CODE]);
+						}
+						else {
+							var actionData = {"wireless":{}}
+							for (var freq in targetSelFreq) {
+								if (targetSelFreq[freq].selected) {
+									actionData.wireless[gWDSModel[freq].wds_start] = {"set_ip_immediate":"0"};
+								}
+							}
+
+							$.action(actionData, function(ret) {
+								var errNo = ret[ERR_CODE];
+								if (ENONE !== errNo) {
+									saveWdsBtn.closeLoading();
+									saveWdsBtn2.closeLoading();
+									errHandle(errNo);
+									return;
+								}
+
+								var bLinkStatusHd = null;
+								clearTimeout(updateStatusHandle);
+								connectingCount = 1;
+								updateStatusHandle = $.setTimeout(getWdsStatus, 5000);
+							});
+						}
+					}, true);
+				}
+
+				var data = {"wireless":{}};
+				if (BAND_2 == slp.bandsProvided - 1) {
+					data = {"wireless":{"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}}};
+				} else {
+					data = {"wireless":{"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}}};
+				}
+				data.system = {"sys_mode":{"mode":"2"}};
+
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected) {
+						data.wireless[gWDSModel[freq].set_wds] = {"enable":1};
+						gRootAPInfo[freq].enable = '1';
+					}
+				}
+
+				sendData(data);
+			}
+
+			function getWdsStatus() {
+				var data = {"wireless":{"name":[]}};
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected) {
+						data.wireless.name.push(gWDSModel[freq].wlan_wds_status);
+					}
+				}
+
+				$.query(data, function(ret) {
+					var CONNECT_FAILED = 0;
+					var CONNECTTING = 1;
+					var CONNECTED = 2
+					var wdsStatus = CONNECT_FAILED;
+					for (var freq in targetSelFreq) {
+						if (targetSelFreq[freq].selected) {
+							var status = parseInt(ret.wireless[gWDSModel[freq].wlan_wds_status].status);
+							switch (status) {
+								case 0: //未连接
+								case 3: //密码错误
+								case 4: //信号弱
+								case 5: //桥接失败
+									if (wdsStatus <= CONNECT_FAILED) {
+										wdsStatus = CONNECT_FAILED;
+									}
+									break;
+								case 1: //正在连接
+									if (wdsStatus <= CONNECTTING) {
+										wdsStatus = CONNECTTING;
+									}
+									break;
+								case 2: //已连接
+									if (wdsStatus <= CONNECTED) {
+										wdsStatus = CONNECTED;
+									}
+									break;
+							}
+						}
+					}
+					if (connectingCount > 10) {
+						connectingCount = 1;
+						saveWdsBtn.closeLoading();
+						saveWdsBtn2.closeLoading();
+						clearTimeout(updateStatusHandle);
+						return;
+					}
+					switch(wdsStatus)
+					{
+						case CONNECT_FAILED:
+							connectingCount++;
+							break;
+						case CONNECTTING:
+							connectingCount++;
+							break;
+						case CONNECTED:
+							connectingCount = 1;
+							dhcpsRetryCounts = 1;
+							getDhcpsHd = $.setTimeout(wdsGetIpDhcpsStatus, 100);
+							break;
+						default:
+							break;
+					}
+
+					updateStatusHandle = $.setTimeout(getWdsStatus, 2000);
+				});
+			}
+
+			function wdsGetIpDhcpsStatus()
+			{
+				var DETECT_UNFINISHED = 0, DETECT_FINISHED = 1;
+				var ROOT_DHCPS_OFF = 0, ROOT_DHCPS_ON = 1;
+
+				var dhcpsData = {"wireless":{"name":[]}};
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected) {
+						dhcpsData.wireless.name.push(gWDSModel[freq].wlan_wds_dhcps);
+					}
+				}
+
+				if (dhcpsRetryCounts > 15) {
+					saveWdsBtn.closeLoading();
+					saveWdsBtn2.closeLoading();
+					return;
+				}
+
+				$.query(dhcpsData, function(ret) {
+					if (ENONE == ret[ERR_CODE]) {
+						var detectFinished = true;
+						for (var freq in targetSelFreq) {
+							if (targetSelFreq[freq].selected) {
+								var curFreqStatus = parseInt(ret.wireless[gWDSModel[freq].wlan_wds_dhcps].status);
+								var curFreqResult = parseInt(ret.wireless[gWDSModel[freq].wlan_wds_dhcps].result);
+								if (DETECT_FINISHED == curFreqStatus && ROOT_DHCPS_ON == curFreqResult) {
+									dhcpcRetryCounts = 1;
+									getDhcpcHd = $.setTimeout(wdsDhcpcGetStatus, 100);
+									return;
+								}
+								if (DETECT_UNFINISHED == curFreqStatus) {
+									detectFinished = false;
+								}
+							}
+						}
+						if (!detectFinished) {
+							dhcpsRetryCounts++;
+							getDhcpsHd = $.setTimeout(wdsGetIpDhcpsStatus, 1000);
+						}
+						else {
+							saveWdsBtn.closeLoading();
+							saveWdsBtn2.closeLoading();
+						}
+					}
+					else {
+						saveWdsBtn.closeLoading();
+						saveWdsBtn2.closeLoading();
+					}
+				});
+			}
+
+			function wdsSetLanIp()
+			{
+				var data = {"network": {"lan": {"ipaddr": gLanIP, "netmask":gLanMask, "ip_mode": "dynamic"}}, "system":{"sys_mode":{"mode":uciSystem.optValue.sysMode.wdsMode}}};
+				$.modify(data, function (ret) {
+					$.action({"network": {"apply_lan_config": null}, "wireless":{"wds_finish":null}});
+					loadingDialog.hide(function(){
+						loadingDialog.show({
+							content: {primary: "连接成功，路由器IP地址已更改为：" + gLanIP + "。页面将自动跳转到新的IP地址，请稍候..."}
+						});
+						$.changeDomain(gLanIP);
+
+						$.setTimeout(function () {
+							window.location.href = "http://" + gLanIP;
+						}, 60000);
+
+						$.setTimeout(function () {
+							lanDetecting(function () {
+								window.location.href = "http://" + gLanIP;
+							});
+						}, 4000);
+					})
+				});
+			}
+
+			function wdsDhcpcGetStatus(){
+				if (dhcpcRetryCounts > 15)
+				{
+					saveWdsBtn.closeLoading();
+					saveWdsBtn2.closeLoading();
+					return;
+				}
+
+				var arg = {"wireless":{"name":[]}};
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected) {
+						arg.wireless.name.push(gWDSModel[freq].wlan_wds_dhcpc);
+					}
+				}
+
+				$.query(arg, function(result) {
+					var dhcpFail = true;
+					for (var freq in targetSelFreq) {
+						if (targetSelFreq[freq].selected) {
+							var curFreqData = result.wireless[gWDSModel[freq].wlan_wds_dhcpc];
+							//任一频段dhcpc获取成功，就认为dhcpc交互成功
+							if ("2" == curFreqData.status) {
+								gOldLanIP = gLanIP = curFreqData.ip;
+								gLanMask = curFreqData.mask;
+								saveWdsBtn.closeLoading();
+								saveWdsBtn2.closeLoading();
+								wdsSetLanIp();
+								return;
+							} else if ("0" == curFreqData.status) {
+								dhcpFail = false;
+							}
+						}
+					}
+
+					if (dhcpFail) {
+						saveWdsBtn.closeLoading();
+						saveWdsBtn2.closeLoading();
+					} else {
+						dhcpcRetryCounts++;
+						getDhcpcHd = $.setTimeout(wdsDhcpcGetStatus, 1000);
+					}
+				});
+			}
+			var saveWdsBtn = new Button({
+				text:btn.save,
+				onClick:saveWdsHandle,
+				type:Button.TYPE.PRIMARY,
+				id:"saveWds",
+				props:{width:"280px", marginLeft:"12px 0 0 132px"}
+			});
+			var saveWdsBtn2 = new Button({
+				text:btn.save,
+				onClick:saveWdsHandle,
+				id:"saveWds2",
+				props:{width:"280px",marginLeft:"12px 0 0 132px"}
+			})
+			function saveWdsHandle(){
+				if (gCurSysMode == uciSystem.optValue.sysMode.apMode) {
+					confirmDialog.show({
+						content: "切换为桥接（无线中继）后，AP（有线中继）将会自动关闭。确定切换吗？",
+						callback: function(choose){
+							if (true == choose) {
+								wdsOnConnect();
+							}
+						}
+					});
+				} else {
+					changeSysModeAlert("switch", uciSystem.optValue.sysMode.wdsMode, function(){
+						wdsOnConnect();
+					});
+				}
+			}
+
+			var gKeyNames = [];
+			var gRootAPInfo = [];
+			var FREQ_2G = 0;
+			var FREQ_5G = 1;
+			var FREQ_5G1 = 2;
+			var FREQ_5G4 = 3;
+			var FREQ_BS  = 4;
+			gRootAPInfo[FREQ_2G] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			gRootAPInfo[FREQ_5G] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			gRootAPInfo[FREQ_5G1] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			gRootAPInfo[FREQ_5G4] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			var BAND_1 = 0;
+			var BAND_2 = 1;
+			var BAND_3 = 2;
+			gKeyNames[BAND_1] = {};
+			gKeyNames[BAND_2] = {};
+			gKeyNames[BAND_3] = {};
+			gKeyNames[BAND_1].wlan_host = [];
+			gKeyNames[BAND_2].wlan_host = [];
+			gKeyNames[BAND_3].wlan_host = [];
+			gKeyNames[BAND_1].wlan_wds  = [];
+			gKeyNames[BAND_2].wlan_wds  = [];
+			gKeyNames[BAND_3].wlan_wds  = [];
+			gKeyNames[BAND_1].wds_cfg_status = [];
+			gKeyNames[BAND_2].wds_cfg_status = [];
+			gKeyNames[BAND_3].wds_cfg_status = [];
+
+			gKeyNames[BAND_1].wlan_wds[FREQ_2G]        = "wlan_wds_2g";
+			gKeyNames[BAND_1].wds_cfg_status[FREQ_2G]  = "wds_cfg_status_2g";
+			gKeyNames[BAND_2].wlan_wds[FREQ_2G]        = "wlan_wds_2g";
+			gKeyNames[BAND_2].wlan_wds[FREQ_5G]        = "wlan_wds_5g";
+			gKeyNames[BAND_2].wds_cfg_status[FREQ_2G]  = "wds_cfg_status_2g";
+			gKeyNames[BAND_2].wds_cfg_status[FREQ_5G]  = "wds_cfg_status_5g";
+			gKeyNames[BAND_3].wlan_wds[FREQ_2G ]       = "wlan_wds_2g";
+			gKeyNames[BAND_3].wlan_wds[FREQ_5G1]       = "wlan_wds_5g_1";
+			gKeyNames[BAND_3].wlan_wds[FREQ_5G4]       = "wlan_wds_5g_4";
+			gKeyNames[BAND_3].wds_cfg_status[FREQ_2G ] = "wds_cfg_status_2g";
+			gKeyNames[BAND_3].wds_cfg_status[FREQ_5G1] = "wds_cfg_status_5g_1";
+			gKeyNames[BAND_3].wds_cfg_status[FREQ_5G4] = "wds_cfg_status_5g_4";
+			var args = {"wireless":{"name":[]}, "system":{"name": "sys_mode"}};
+			var gWDSModel = [];
+			gWDSModel[FREQ_2G] = {
+				start_dhcps_detect: "start_dhcps_detect_2g",
+				wds_start:			"wds_start_2g",
+				wlan_wds_dhcps:		"wlan_wds_2g_dhcps",
+				wlan_wds_dhcpc:		"wlan_wds_2g_dhcpc",
+				wlan_wds_status:	"wlan_wds_2g_status",
+				set_wds:			"wlan_wds_2g",
+				scan_start:			{"wireless":{"scan_start_2g":null}},
+				wlan_scan_status:	"wlan_scan_2g_status",
+				wlan_scan:			"wlan_scan_2g",
+				wds_cfg_status:     "wds_cfg_status_2g"
+			};
+
+			gWDSModel[FREQ_5G] = {
+				start_dhcps_detect: "start_dhcps_detect_5g",
+				wds_start:			"wds_start_5g",
+				wlan_wds_dhcps:		"wlan_wds_5g_dhcps",
+				wlan_wds_dhcpc:		"wlan_wds_5g_dhcpc",
+				wlan_wds_status:	"wlan_wds_5g_status",
+				set_wds:			"wlan_wds_5g",
+				scan_start:			{"wireless":{"scan_start_5g":null}},
+				wlan_scan_status:	"wlan_scan_5g_status",
+				wlan_scan:			"wlan_scan_5g",
+				wds_cfg_status:     "wds_cfg_status_5g"
+			};
+			for (var keyname in gKeyNames[slp.bandsProvided - 1])
+			{
+				if (!gKeyNames[slp.bandsProvided - 1].hasOwnProperty(keyname)){
+					continue;
+				}
+				$.each(gKeyNames[slp.bandsProvided - 1][keyname], function(k, v){
+					if (null != v)
+					{
+						args.wireless.name.push(v);
+					}
+				})
+			}
+			$.query(args, function(data) {
+				$.each(gKeyNames[slp.bandsProvided - 1].wlan_wds, function(freq, keyname){
+					if (null != keyname)
+					{
+						gRootAPInfo[freq].enable = data.wireless[keyname].enable;
+						gRootAPInfo[freq].ssid = data.wireless[keyname].ssid || "";
+						gRootAPInfo[freq].encryption = data.wireless[keyname].encryption;
+						gRootAPInfo[freq].key = data.wireless[keyname].key;
+					}
+				});
+				var IDLE = 0;
+				var FAIL = 1;
+				var SUCCESS = 2;
+				var CONNECTING = 3;
+				var UNFINISHED = 4;
+				var wdsCfgStatus = IDLE;
+				for (var freq in gRootAPInfo)
+				{
+					if (!gRootAPInfo.hasOwnProperty(freq)){
+						continue;
+					}
+					var rootApSsidLen = gRootAPInfo[freq].ssid.length;
+					var keyname = gKeyNames[slp.bandsProvided - 1].wds_cfg_status[freq];
+
+					if (rootApSsidLen > 0)
+					{
+						targetSelFreq[freq] = {"selected": true, "bs": false};
+						switch (data.wireless[keyname].status) {
+							case "idle":
+								if (wdsCfgStatus <= IDLE) {
+									wdsCfgStatus = IDLE;
+								}
+								break;
+							case "unfinished":
+								if (wdsCfgStatus <= UNFINISHED) {
+									wdsCfgStatus = UNFINISHED;
+								}
+								targetSelFreq[freq].status = uciWireless.dynOptValue.status.connected;
+								break;
+							case "connecting":
+								if (wdsCfgStatus <= CONNECTING) {
+									wdsCfgStatus = CONNECTING;
+								}
+								break;
+							case "connect_fail":
+								if (wdsCfgStatus <= FAIL) {
+									wdsCfgStatus = FAIL;
+								}
+								break;
+							case "success":
+								if (wdsCfgStatus <= SUCCESS) {
+									wdsCfgStatus = SUCCESS;
+								}
+								break;
+						}
+					}
+				}
+				switch(wdsCfgStatus)
+				{
+					case IDLE:
+						$("#selectFrontRouter").show();
+						$("#saveWds").hide();
+						$("#wdsResultCon").addClass("disNone");
+						$("#selectFrontRouterWan2").show();
+						$("#saveWds2").hide();
+						$("#wdsResultConWan2").addClass("disNone");
+						break;
+					case UNFINISHED:		//wds桥接成功，但向导流程未走完
+						$("#selectFrontRouter").hide();
+						$("#selectFrontRouterWan2").hide();
+						showWDSResult();
+						break;
+					case CONNECTING:		//正在中继
+						showWDSResult();
+						break;
+					case FAIL:	// 中继失败
+						$("#selectFrontRouter").hide();
+						$("#saveWds span").html("重新连接");
+						$("#saveWds").show();
+						$("#selectFrontRouterWan2").hide();
+						$("#saveWds2 span").html("重新连接");
+						$("#saveWds2").show();
+						showWDSResult();
+						break;
+					case SUCCESS:		//桥成功，向导流程走完
+					default:
+						$("#saveWds span").html("保存");
+						$("#saveWds").hide();
+						$("#saveWds2 span").html("保存");
+						$("#saveWds2").hide();
+						showWDSResult();
+						break;
+				}
+			});
+		}
+		initWds();
+
+		(function(){
+			var wanData,wan2Data;
+
+			var dfdProto = $.Deferred(),
+				dfdLan = $.Deferred(),
+				dfdProto2 = $.Deferred();
+				dfdSysMode = $.Deferred();
+
+			var options = [{
+				str:label.pppoe,
+				value:LINK_TYPE_PPPOE
+			},{
+				str:label.staticIp,
+				value:LINK_TYPE_STATIC_IP
+			},{
+				str:label.dhcp,
+				value:LINK_TYPE_DHCP
+			}];
+
+			var compatibleMode = "0"; // 有线中继兼容模式
+			var dialModes = slp.moduleSpec.dial_mode;
+			for(var i=0; i<dialModes.length; i++){
+				switch (dialModes[i]){
+					case "wired_relay":
+						options.push({str: label.wiredRepeater,value:LINK_TYPE_WIRED_REPEATER_INDEX});
+						break;
+					case "wds_relay":
+						options.push({str:label.wirelessRepeater,value:LINK_TYPE_WIRELESS_REPEATER_INDEX});
+						break;
+				}
+			}
+
+			/* 获取基本配置 */
+			slp.protocol.getData({
+				success: function(res){
+					if("wan_2" in res[uciProto.fileName]){
+						wan2Data = res;
+						dfdProto2.resolve();
+					}else{
+						wanData = res;
+						dfdProto.resolve();
+					}
+				}
+			});
+
+			slp.protocol.getData({
+				success: function(res){
+					if("wan_2" in res[uciProto.fileName]){
+						wan2Data = res;
+						dfdProto2.resolve();
+					}else{
+						wanData = res;
+						dfdProto.resolve();
+					}
+				}
+			},2);
+
+			/* 获取LAN口配置 */
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+
+			$.query(data, function(res){
+				if (ENONE == res[ERR_CODE])
+				{
+					BasicLanConf = res[uciNetwork.fileName][uciNetwork.secName.lan];
+					dfdLan.resolve();
+				}
+			});
+
+			if(slp.gSysModeSupport){
+				/* 获取当前模式(路由/中继) */
+				var reqData = {};
+				reqData[uciSystem.fileName] = {};
+				reqData[uciSystem.fileName][KEY_NAME] = uciSystem.secName.sysMode;
+				reqData["wired_extender"] = {};
+				reqData["wired_extender"]["name"] = "config";
+				$.query(reqData,function(res){
+					if(ENONE == res[ERR_CODE]){
+						gCurSysMode = res[uciSystem.fileName][uciSystem.secName.sysMode][uciSystem.optName.mode];
+						compatibleMode = res.wired_extender.config.compat_mode;
+						if (compatibleMode == uciSystem.optValue.enable.on) {
+							compatibleOn.setValue(true);
+							compatibleOnWan2.setValue(true);
+						} else {
+							compatibleOff.setValue(true);
+							compatibleOffWan2.setValue(true);
+						}
+						dfdSysMode.resolve();
+					}
+				})
+			}else{
+				gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+				dfdSysMode.resolve();
+			}
+
+			$.when(dfdProto, dfdLan, dfdProto2,dfdSysMode).done(function(){
+				var selValue,selValue2;
+
+				BasicWanType = wanData[uciProto.fileName][uciProto.secName.wan][uciProto.optName.type];
+				BasicWanType2 = wan2Data[uciProto.fileName][uciProto.secName.wan2][uciProto.optName.type];
+				if(gCurSysMode == uciSystem.optValue.sysMode.apMode) {
+					selValue = LINK_TYPE_WIRED_REPEATER_INDEX;
+				} else if (gCurSysMode == uciSystem.optValue.sysMode.wdsMode) {
+					selValue = LINK_TYPE_WIRELESS_REPEATER_INDEX;
+				} else {
+					switch(wanData[uciProto.fileName][uciProto.secName.wan][uciProto.optName.type])
+					{
+						case uciProto.optValue.proto.dynIp:
+							selValue = LINK_TYPE_DHCP;
+							break;
+						case uciProto.optValue.proto.staticIp:
+							selValue = LINK_TYPE_STATIC_IP;
+							break;
+						case uciProto.optValue.proto.pppoe:
+							selValue = LINK_TYPE_PPPOE;
+							break;
+						default:
+							selValue = LINK_TYPE_PPPOE;
+							break;
+					}
+					switch(wan2Data[uciProto.fileName][uciProto.secName.wan2][uciProto.optName.type])
+					{
+						case uciProto.optValue.proto.dynIp:
+							selValue2 = LINK_TYPE_DHCP;
+							break;
+						case uciProto.optValue.proto.staticIp:
+							selValue2 = LINK_TYPE_STATIC_IP;
+							break;
+						case uciProto.optValue.proto.pppoe:
+							selValue2 = LINK_TYPE_PPPOE;
+							break;
+						default:
+							selValue2 = LINK_TYPE_PPPOE;
+							break;
+					}
+				}
+				selectInit("netModeSel", options, selValue, changePage);
+				changePage(selValue);
+
+				selectInit("netModeSelWan2", options, selValue2, changePage2);
+				changePage2(selValue2);
+
+				var pppoeAuthInfo = wanData[uciProto.fileName][uciProto.secName.pppoe];
+				account.setValue(pppoeAuthInfo[uciProto.optName.pppoeUsr]);
+				pwd.setValue(pppoeAuthInfo[uciProto.optName.pppoePwd]);
+
+				var pppoeAuthInfo2 = wan2Data[uciProto.fileName][uciProto.secName.pppoe2];
+				account2.setValue(pppoeAuthInfo2[uciProto.optName.pppoeUsr]);
+				pwd2.setValue(pppoeAuthInfo2[uciProto.optName.pppoePwd]);
+
+				var staticIpInfo = wanData[uciProto.fileName][uciProto.secName.sta];
+				ipAddr.setValue(staticIpInfo[uciProto.optName.ip]);
+				netmask.setValue(staticIpInfo[uciProto.optName.netmask]);
+				gateway.setValue(staticIpInfo[uciProto.optName.gateway]);
+				priDns.setValue(staticIpInfo[uciProto.optName.priDns]);
+				sndDns.setValue(staticIpInfo[uciProto.optName.sndDns] || "");
+
+				var staticIpInfo2 = wan2Data[uciProto.fileName][uciProto.secName.sta2];
+				ipAddr2.setValue(staticIpInfo2[uciProto.optName.ip]);
+				netmask2.setValue(staticIpInfo2[uciProto.optName.netmask]);
+				gateway2.setValue(staticIpInfo2[uciProto.optName.gateway]);
+				priDns2.setValue(staticIpInfo2[uciProto.optName.priDns]);
+				sndDns2.setValue(staticIpInfo2[uciProto.optName.sndDns] || "");
+
+				refreshWanStatus();
+			});
+
+			if (slp.modeSwitchSupport)
+			{
+				getBridgeStatus(function(bridgeEnable){
+					/* 桥模式下禁止更改上网模式及其他设置 */
+					if (bridgeEnable)
+					{
+						id("netModeSel").disable(true);
+						$("#netModeSelUl").hide();
+						var staticWanSel = new Input({
+							type:Input.TYPE.STATIC_TEXT,
+							label:{value:label.netMode},
+							targetId:"staticWanSel"
+						});
+						staticWanSel.setValue(label.dhcp);
+						$("#staticWanSel").show();
+						$(".notice, #subD, #cancleD").hide();
+						$("#bridgeWarning").show();
+					}
+					else
+					{
+						$("#staticWanSel").hide();
+					}
+				});
+			}
+		})();
+
+	})();
+</script>
+<div class="basicNetworkCon">
+	<p id="bridgeWarning" class="commonErrTip">{%label.bridgeWanWarning%}</p>
+	<p class="notice">{%titleDescriptionStr.wanSetDescription%}</p>
+	<div class="wanSelWrapper" id="leftWanSelWrapper">
+		<label class="wanSetTitle">WAN1口设置</label>
+		<ul id="netModeSelUl" class="inputCMPT medium selectUl">
+			<label class="outerLbl">{%label.netMode%}</label>
+			<li class="inputLi">
+				<span class="selectWrap">
+					<span id="netModeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+		</ul>
+		<div id="staticWanSel"></div>
+		<div class="page">
+			<p class="networkAbnormal commonErrTip"><i class="iconfont icon-error"></i>{%errStr.linkAuthErrToCustomerService%}</p>
+			<div id="pppoeInput"></div>
+			<div id="subP"></div>
+			<div id="cancleP"></div>
+		</div>
+		<div class="page">
+			<div id="staticInput"></div>
+			<div id="subS"></div>
+		</div>
+		<div class="page">
+			<div id="dhcpInput"></div>
+			<div id="subD"></div>
+			<div id="cancleD"></div>
+		</div>
+		<div class="page">
+			<ul class="inputCMPT medium compatModeUl">
+				<label id="compatibleLbl" class="outerLbl">兼容模式</label>
+				<div id="radioGroup">
+					<div id="compatibleOn" class="radioLabel"></div>
+					<div id="compatibleOff" class="radioLabel"></div>
+				</div>
+			</ul>
+			<span id="compatModeDesc" class="compatModeDesc">{%label.compatibleModeInfo%}</span>
+			<div id="apInput"></div>
+			<div id="saveAp"></div>
+		</div>
+		<div class="page">
+			<div class="initWdsCon">
+				<div class="buttonGroup">
+					<div id="saveWds"></div>
+					<div id="selectFrontRouter"></div>
+				</div>
+			</div>
+			<div id="wdsResultCon" class="disNone">
+				<div class="subTitle">
+					<h2>{%label.frontRouter%}</h2>
+				</div>
+				<div id="frontRouterCon" class="routerCon">
+					<div class="routerWifiInfo">
+						<div class="wifiInfoConBs wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">2.4G&5G Wi-Fi: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon2G wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">2.4G Wi-Fi名称: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">2.4G Wi-Fi密码: </label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G Wi-Fi名称: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G Wi-Fi密码: </label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G1 wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G1 Wi-Fi名称：</label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G1 Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G4 wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G4 Wi-Fi名称：</label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G4 Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="relayAnotherRouter"></div>
+			</div>
+		</div>
+	</div>
+	<div class="wanSelWrapper" id="rightWanSelWrapper">
+		<label class="wanSetTitle">WAN2口设置</label>
+		<ul id="netModeSelUlWan2" class="inputCMPT medium selectUl">
+			<label class="outerLbl">{%label.netMode%}</label>
+			<li class="inputLi">
+				<span class="selectWrap">
+					<span id="netModeSelWan2" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+		</ul>
+		<div id="staticWanSelWan2"></div>
+		<div class="page">
+			<p class="networkAbnormal commonErrTip"><i class="iconfont icon-error"></i>{%errStr.linkAuthErrToCustomerService%}</p>
+			<div id="pppoeInputWan2"></div>
+			<div id="subPWan2"></div>
+			<div id="canclePWan2"></div>
+		</div>
+		<div class="page">
+			<div id="staticInputWan2"></div>
+			<div id="subSWan2"></div>
+		</div>
+		<div class="page">
+			<div id="dhcpInputWan2"></div>
+			<div id="subDWan2"></div>
+			<div id="cancleDWan2"></div>
+		</div>
+		<div class="page">
+			<ul class="inputCMPT medium compatModeUl">
+				<label class="outerLbl">兼容模式</label>
+				<div id="radioGroup">
+					<div id="compatibleOnWan2" class="radioLabel"></div>
+					<div id="compatibleOffWan2" class="radioLabel"></div>
+				</div>
+			</ul>
+			<span class="compatModeDesc">{%label.compatibleModeInfo%}</span>
+			<div id="apInputWan2"></div>
+			<div id="saveApWan2"></div>
+		</div>
+		<div class="page">
+			<div class="initWdsCon">
+				<div class="buttonGroup">
+					<div id="saveWds2"></div>
+					<div id="selectFrontRouterWan2"></div>
+				</div>
+			</div>
+			<div id="wdsResultConWan2" class="disNone">
+				<div class="subTitle">
+					<h2>{%label.frontRouter%}</h2>
+				</div>
+				<div id="frontRouterConWan2" class="routerCon">
+					<div class="routerWifiInfo">
+						<div class="wifiInfoConBs wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">2.4G&5G Wi-Fi: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon2G wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">2.4G Wi-Fi名称: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">2.4G Wi-Fi密码: </label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G Wi-Fi名称: </label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G Wi-Fi密码: </label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G1 wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G1 Wi-Fi名称：</label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G1 Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+						<div class="wifiInfoCon5G4 wifiInfoCon">
+							<div class="wifiInfo">
+								<label class="routerName">5G4 Wi-Fi名称：</label>
+								<label class="routerNameVal"></label>
+							</div>
+							<div class="wifiInfo">
+								<label class="routerPsd">5G4 Wi-Fi密码：</label>
+								<label class="routerPsdVal"></label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="relayAnotherRouterWan2"></div>
+			</div>
+		</div>
+	</div>
+</div>

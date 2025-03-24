@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet href="file:///D:/Sec-Tools/Web/Nmap/nmap.xsl" type="text/xsl"?><nmaprun args="nmap -p - -T4 -A -v 192.168.31.1" profile_name="" scanner="nmap" start="1735358023" startstr="Sat Dec 28 11:53:43 2024" version="7.95" xmloutputversion="1.04"><scaninfo type="syn" protocol="tcp" numservices="65535" services="1-65535"></scaninfo><verbose level="1"></verbose><debugging level="0"></debugging><output type="interactive">Starting Nmap 7.95 ( https://nmap.org ) at 2024-12-28 11:53 ÖÐ¹ú±ê×¼Ê±¼ä
+NSE: Loaded 157 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 11:53
+Completed NSE at 11:53, 0.00s elapsed
+Initiating NSE at 11:53
+Completed NSE at 11:53, 0.00s elapsed
+Initiating NSE at 11:53
+Completed NSE at 11:53, 0.00s elapsed
+Initiating ARP Ping Scan at 11:53
+Scanning 192.168.31.1 [1 port]
+Completed ARP Ping Scan at 11:53, 0.05s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 11:53
+Completed Parallel DNS resolution of 1 host. at 11:53, 0.00s elapsed
+Initiating SYN Stealth Scan at 11:53
+Scanning 192.168.31.1 [65535 ports]
+Discovered open port 8080/tcp on 192.168.31.1
+Discovered open port 80/tcp on 192.168.31.1
+Discovered open port 443/tcp on 192.168.31.1
+Discovered open port 8099/tcp on 192.168.31.1
+Discovered open port 8900/tcp on 192.168.31.1
+Discovered open port 784/tcp on 192.168.31.1
+Discovered open port 8098/tcp on 192.168.31.1
+Discovered open port 8883/tcp on 192.168.31.1
+Discovered open port 19553/tcp on 192.168.31.1
+Completed SYN Stealth Scan at 11:54, 62.15s elapsed (65535 total ports)
+Initiating Service scan at 11:54
+Scanning 9 services on 192.168.31.1
+Completed Service scan at 11:56, 100.83s elapsed (9 services on 1 host)
+Initiating OS detection (try #1) against 192.168.31.1
+Retrying OS detection (try #2) against 192.168.31.1
+Retrying OS detection (try #3) against 192.168.31.1
+Retrying OS detection (try #4) against 192.168.31.1
+Retrying OS detection (try #5) against 192.168.31.1
+NSE: Script scanning 192.168.31.1.
+Initiating NSE at 11:56
+Completed NSE at 11:56, 5.93s elapsed
+Initiating NSE at 11:56
+Completed NSE at 11:56, 0.49s elapsed
+Initiating NSE at 11:56
+Completed NSE at 11:56, 0.00s elapsed
+Nmap scan report for 192.168.31.1
+Host is up (0.0033s latency).
+Not shown: 65526 closed tcp ports (reset)
+PORT      STATE SERVICE     VERSION
+80/tcp    open  http        nginx
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+| http-methods: 
+|_  Supported Methods: GET HEAD
+443/tcp   open  ssl/http    nginx
+| ssl-cert: Subject: commonName=MIWIFI SERVER CERT/organizationName=XIAOMI/stateOrProvinceName=BeiJing/countryName=CN
+| Subject Alternative Name: DNS:miwifi.com, DNS:router.miwifi.com, IP Address:192.168.31.1, IP Address:127.0.0.1, IP Address:192.168.1.1
+| Issuer: commonName=MIWIFI ROOT CA/organizationName=XIAOMI/stateOrProvinceName=BeiJing/countryName=CN
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2020-10-30T08:26:21
+| Not valid after:  2120-10-30T08:46:21
+| MD5:   d230:a662:91f5:a4cc:866a:9e22:2018:b3ff
+|_SHA-1: b596:e845:77d9:581a:9996:b488:0de4:2be6:60e8:0810
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+| http-methods: 
+|_  Supported Methods: GET HEAD
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+784/tcp   open  unknown
+8080/tcp  open  http        nginx
+|_http-open-proxy: Proxy might be redirecting requests
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+| http-methods: 
+|_  Supported Methods: GET HEAD
+8098/tcp  open  http        nginx
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+| http-methods: 
+|_  Supported Methods: GET HEAD
+8099/tcp  open  http        nginx
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+8883/tcp  open  ssl/mqtt
+|_mqtt-subscribe: Connection rejected: Not Authorized
+| ssl-cert: Subject: commonName=xiaoqiang
+| Issuer: commonName=xiaoqiang-cn
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-12-14T01:01:10
+| Not valid after:  2124-11-19T01:01:10
+| MD5:   212c:5f12:696e:6e00:a231:c513:a1ef:2c84
+|_SHA-1: bb17:9277:40cc:a2bd:7848:b14f:e221:ab6f:109f:6f99
+8900/tcp  open  http        nginx
+|_http-favicon: Unknown favicon MD5: ADB23A782F28A19A731B327F1F0C4E4B
+|_http-title: \xE5\xB0\x8F\xE7\xB1\xB3\xE8\xB7\xAF\xE7\x94\xB1\xE5\x99\xA8
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+19553/tcp open  ssl/unknown
+| ssl-cert: Subject: commonName=xiaoqiang
+| Issuer: commonName=xiaoqiang-cn
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-12-14T01:01:10
+| Not valid after:  2124-11-19T01:01:10
+| MD5:   212c:5f12:696e:6e00:a231:c513:a1ef:2c84
+|_SHA-1: bb17:9277:40cc:a2bd:7848:b14f:e221:ab6f:109f:6f99
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port784-TCP:V=7.95%I=7%D=12/28%Time=676F768B%P=i686-pc-windows-windows%
+SF:r(NULL,C,"\0\0\0\0J\x9b\xdd\xcf\0\0\0\x04")%r(GenericLines,C,"\0\0\0\0J
+SF:\x9b\xdd\xcf\0\0\0\x04");
+MAC Address: 44:F7:70:B3:3C:10 (Beijing Xiaomi Mobile Software)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=12/28%OT=80%CT=1%CU=34799%PV=Y%DS=1%DC=D%G=Y%M=44F770%
+OS:TM=676F76FD%P=i686-pc-windows-windows)SEQ(SP=103%GCD=1%ISR=100%TI=Z%CI=Z
+OS:%II=I%TS=A)SEQ(SP=104%GCD=1%ISR=107%TI=Z%CI=Z%II=I%TS=A)SEQ(SP=105%GCD=1
+OS:%ISR=108%TI=Z%CI=Z%II=I%TS=A)SEQ(SP=108%GCD=1%ISR=105%TI=Z%CI=Z%II=I%TS=
+OS:A)SEQ(SP=FB%GCD=1%ISR=10E%TI=Z%CI=Z%II=I%TS=A)OPS(O1=M5B4ST11NW6%O2=M5B4
+OS:ST11NW6%O3=M5B4NNT11NW6%O4=M5B4ST11NW6%O5=M5B4ST11NW6%O6=M5B4ST11)WIN(W1
+OS:=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FAF0%O
+OS:=M5B4NNSNW6%CC=N%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N
+OS:)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=
+OS:S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=N)U1
+OS:(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI
+OS:=N%T=40%CD=S)
+
+Uptime guess: 16.717 days (since Wed Dec 11 18:44:54 2024)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=259 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   3.32 ms 192.168.31.1
+
+NSE: Script Post-scanning.
+Initiating NSE at 11:56
+Completed NSE at 11:56, 0.00s elapsed
+Initiating NSE at 11:56
+Completed NSE at 11:56, 0.00s elapsed
+Initiating NSE at 11:56
+Completed NSE at 11:56, 0.00s elapsed
+Read data files from: D:\Sec-Tools\Web\Nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 182.39 seconds
+           Raw packets sent: 65661 (2.893MB) | Rcvd: 65711 (2.633MB)
+</output><host comment=""><status state="up"></status><address addr="192.168.31.1" vendor="" addrtype="ipv4"></address><address addr="44:F7:70:B3:3C:10" vendor="Beijing Xiaomi Mobile Software" addrtype="mac"></address><hostnames></hostnames><ports><extraports count="65526" state="closed"></extraports><port portid="80" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="443" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="784" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="3" method="table" name="unknown"></service></port><port portid="8080" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="8098" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="8099" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="8883" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="mqtt"></service></port><port portid="8900" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="10" method="probed" name="http" product="nginx"></service></port><port portid="19553" protocol="tcp"><state state="open" reason="syn-ack" reason_ttl="64"></state><service conf="3" method="table" name="unknown"></service></port></ports><os><portused state="open" proto="tcp" portid="80"></portused><portused state="closed" proto="tcp" portid="1"></portused><portused state="closed" proto="udp" portid="34799"></portused><osmatch name="OpenWrt 21.02 (Linux 5.4)" accuracy="97" line="72530"><osclass vendor="Linux" osfamily="Linux" type="general purpose" osgen="5.X" accuracy="97"></osclass></osmatch><osmatch name="OpenWrt 22.03 (Linux 5.10)" accuracy="96" line="72585"><osclass vendor="Linux" osfamily="Linux" type="general purpose" osgen="5.X" accuracy="96"></osclass></osmatch><osmatch name="OpenWrt 19.07 (Linux 4.14)" accuracy="96" line="71454"><osclass vendor="Linux" osfamily="Linux" type="general purpose" osgen="4.X" accuracy="96"></osclass></osmatch><osmatch name="Linux 2.6.37" accuracy="95" line="60846"><osclass vendor="Linux" osfamily="Linux" type="general purpose" osgen="2.6.X" accuracy="95"></osclass></osmatch><osmatch name="Linux 2.6.39" accuracy="95" line="61461"><osclass vendor="Linux" osfamily="Linux" type="general purpose" osgen="2.6.X" accuracy="95"></osclass></osmatch><osmatch name="Asus RT-AC66U router (Linux 2.6)" accuracy="94" line="9572"><osclass vendor="Linux" osfamily="Linux" type="broadband router" osgen="2.6.X" accuracy="94"></osclass></osmatch><osmatch name="Asus RT-N16 WAP (Linux 2.6)" accuracy="94" line="64132"><osclass vendor="Asus" osfamily="embedded" type="WAP" osgen="" accuracy="94"></osclass></osmatch><osmatch name="Asus RT-N66U WAP (Linux 2.6)" accuracy="94" line="64173"><osclass vendor="Asus" osfamily="embedded" type="WAP" osgen="" accuracy="94"></osclass></osmatch><osmatch name="Tomato 1.28 (Linux 2.6.22)" accuracy="94" line="64870"><osclass vendor="Linux" osfamily="Linux" type="WAP" osgen="2.6.X" accuracy="94"></osclass></osmatch><osmatch name="OpenWrt Kamikaze 7.09 (Linux 2.6.22)" accuracy="94" line="64793"><osclass vendor="Linux" osfamily="Linux" type="WAP" osgen="2.6.X" accuracy="94"></osclass></osmatch></os><uptime seconds="1444311" lastboot="Wed Dec 11 18:44:54 2024"></uptime><tcpsequence index="259" difficulty="Good luck!" values="7FFAE3E7,6468B3B2,64DAA89B,717B81F1,CA6926A8,CEFC6EBF"></tcpsequence><ipidsequence class="All zeros" values="0,0,0,0,0,0"></ipidsequence><tcptssequence class="1000HZ" values="561650B7,56165125,56165192,561651FF,5616526C,561652D8"></tcptssequence><trace proto="" port=""><hop ttl="1" rtt="3.32" ipaddr="192.168.31.1" host=""></hop></trace></host><runstats><finished time="1735358205" timestr="Sat Dec 28 11:56:45 2024"></finished><hosts up="1" down="0" total="1"></hosts></runstats></nmaprun>

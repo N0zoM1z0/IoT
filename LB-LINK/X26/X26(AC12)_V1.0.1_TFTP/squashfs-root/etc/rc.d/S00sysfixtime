@@ -1,0 +1,16 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2013-2014 OpenWrt.org
+
+START=00
+
+boot() {
+	date -s "2000-01-01 01:01:01"
+	exit 0
+	start && exit 0
+
+	local maxtime="$(maxtime)"
+	local curtime="$(date +%s)"
+	local maxtime="$(find /etc -type f -exec date -r {} +%s \; | sort -nr | head -n1)"
+	[ $curtime -lt $maxtime ] && date -s @$maxtime
+}
+

@@ -1,0 +1,9 @@
+
+
+<ul class="wzdUl">
+	<li class="wizardSkip"><span id="backToWzd">{%btn.backWzd%}</span><span id="skipWizard" class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody"></li>
+	<li class="textBtn"><span id="ignore">{%btn.bindIgnore%}</span></li>
+</ul><script type="text/javascript">(function(){function a(a){switch(a){case 0:id("backToWzd").style.display="none";id("ignore").style.display="list-item";id("skipWizard").style.display="inline";break;case 1:id("backToWzd").style.display="inline",id("ignore").style.display="none",id("skipWizard").style.display="none"}}cloudHistory=new CloudHistory({isFormWizard:!0,container:"wizardBody",track:[{page:"CloudBindMEID.htm",callback:function(){a(0)}},{page:"CloudCreateMEID.htm",callback:function(){a(1);id("backToWzd").onclick=function(){cloudHistory.go(-1)}}},
+{page:"CloudForgetPwd.htm",callback:function(){a(1);id("backToWzd").onclick=function(){cloudHistory.go(-2)}}}]});cloudHistory.go(0);id("ignore").onclick=function(){loadPage("WizardEnd.htm","wizardCon")}})();
+</script><style type="text/css">#backToWzd{display:none;font-size:13px;color:#333;float:left;cursor:pointer}li.textBtn{margin-top:24px;text-align:center}</style>

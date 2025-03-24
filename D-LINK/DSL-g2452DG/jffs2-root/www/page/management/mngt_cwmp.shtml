@@ -1,0 +1,220 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+var gACSPasswordChange = 0;
+var gConnectionRequestPassword = 0;
+
+<!--#getobject "InternetGatewayDevice.ManagementServer. URL Username PeriodicInformEnable PeriodicInformInterval ConnectionRequestUsername X_TRI_ConnectionRequestAuthentication  EnableCWMP X_TRI_RequestPort ConnectionRequestURL" -->
+    var G_TR069_URL = "<!--#leaf "1"-->";
+    var G_TR069_Username = "<!--#leaf "2"-->";
+    var G_TR069_PeriodicInformEnable = "<!--#leaf "3"-->";
+    var G_TR069_PeriodicInformInterval = "<!--#leaf "4"-->";
+    var G_TR069_ConnectionRequestUsername = "<!--#leaf "5"-->";
+    var G_TR069_X_TRI_ConnectionRequestAuthentication = "<!--#leaf "6"-->";
+    var G_TR069_ManualEnable = "<!--#leaf "7"-->";
+    var G_TR069_RequestPort = "<!--#leaf "8"-->";
+    var G_TR069_ConnectionRequestURL = "<!--#leaf "9"-->";
+<!--#endgetobject -->
+
+function init(){
+    setValue("INPUT_URL", G_TR069_URL);
+    setValue("INPUT_Username", G_TR069_Username);
+
+    if(G_TR069_PeriodicInformEnable == '1'){
+        $('INPUT_PeriodicInformEnable').checked = true;
+    }else if(G_TR069_PeriodicInformEnable == '0'){
+        $('INPUT_PeriodicInformEnable').checked = true;
+    }
+    setValue("INPUT_PeriodicInformEnable",G_TR069_PeriodicInformEnable);
+    setValue("INPUT_PeriodicInformInterval", G_TR069_PeriodicInformInterval);
+    if(G_TR069_X_TRI_ConnectionRequestAuthentication == '1'){
+         $('INPUT_X_TRI_ConnectionRequestAuthentication_Enable').checked = true;
+    }else if(G_TR069_X_TRI_ConnectionRequestAuthentication == '0'){
+        $('INPUT_X_TRI_ConnectionRequestAuthentication_Enable').checked = true;
+    }
+    setValue("INPUT_X_TRI_ConnectionRequestAuthentication_Enable",G_TR069_X_TRI_ConnectionRequestAuthentication);
+    setValue("INPUT_ConnectionRequestUsername", G_TR069_ConnectionRequestUsername);
+    setValue("INPUT_TR069Enable",G_TR069_ManualEnable );
+    setValue("INPUT_ReverseConnPort",G_TR069_RequestPort );
+    setValue("INPUT_ConnectionRequestURL",G_TR069_ConnectionRequestURL );
+    ConnectionRequestChange();
+}
+
+function importCert(){
+  document.location.href='/page/management/mngt_addtr69cfg.shtml';
+}
+
+function ConnectionRequestChange(){
+		'1' == getValue("INPUT_X_TRI_ConnectionRequestAuthentication_Enable")?jQuery("#tr_ConnectionRequestUsername").show():jQuery("#tr_ConnectionRequestUsername").hide();
+		'1' == getValue("INPUT_X_TRI_ConnectionRequestAuthentication_Enable")?jQuery("#tr_ConnectionRequestPassword").show():jQuery("#tr_ConnectionRequestPassword").hide();
+	}
+
+function uiSubmit(){
+    var object_path="InternetGatewayDevice.ManagementServer.";  
+    var df = document.tr69dataform; 
+
+    if(!checkURLValid($('INPUT_URL'))){
+        return false;
+    }
+    if(getValue('INPUT_PeriodicInformInterval').length<=0)
+    {
+	top.AlertMsg(getStr('LK_nullnumber'),"INPUT_PeriodicInformInterval");
+	return false;
+    }
+    if(!isAllNum(getValue('INPUT_PeriodicInformInterval'))){   
+        top.AlertMsg(getStr('LK_number'),"INPUT_PeriodicInformInterval");
+        return false;
+    }
+    if(getValue('INPUT_ReverseConnPort').length <=0)
+    {
+	top.AlertMsg(getStr('LK_nullnumber'),"INPUT_ReverseConnPort");
+	return false;
+    }
+    if(!isAllNum(getValue('INPUT_ReverseConnPort'))){   
+        top.AlertMsg(getStr('LK_number'),'INPUT_ReverseConnPort');
+        return false;
+    }
+    if(!checkRange(getValue('INPUT_ReverseConnPort'), 1, 1024, 65535)){
+        top.AlertMsg(getStr("LK_Port1024"),'INPUT_ReverseConnPort');
+        return false;
+    }
+    if($('INPUT_Username').value == ""){
+        top.AlertMsg(getStr("LK_net_acsusernamenull"),"INPUT_Username");
+        return false;
+    }
+    if($('INPUT_Password').value == ""){
+        top.AlertMsg(getStr("LK_net_acsuserpswdnull"),"INPUT_Password");
+        return false;
+    }
+    
+    if('1' == getValue("INPUT_X_TRI_ConnectionRequestAuthentication_Enable")){
+        if($('INPUT_ConnectionRequestUsername').value == ""){
+            top.AlertMsg(getStr("LK_net_connusernamenull"),"INPUT_ConnectionRequestUsername");
+            return false;
+        }
+        if($('INPUT_ConnectionRequestPassword').value == ""){
+            top.AlertMsg(getStr("LK_net_connuserpswdnull"),"INPUT_ConnectionRequestPassword");
+            return false;
+        }
+    }
+    
+
+	if(!validateCode())
+		return false;
+
+    AddElements(df, object_path+"URL", getValue('INPUT_URL'));
+    AddElements(df, object_path+"Username", getValue('INPUT_Username'));
+    if(gACSPasswordChange == 1)
+    {
+        AddElements(df, object_path+"Password", getValue('INPUT_Password'));
+    }
+    if($('INPUT_PeriodicInformEnable').checked==true){
+        AddElements(df, object_path+"PeriodicInformEnable",1);
+    }else if($('INPUT_PeriodicInformEnable').checked==false){
+        AddElements(df, object_path+"PeriodicInformEnable",0);
+    }
+    AddElements(df, object_path+"PeriodicInformInterval", getValue('INPUT_PeriodicInformInterval'));
+    if($('INPUT_X_TRI_ConnectionRequestAuthentication_Enable').checked==true){
+        AddElements(df, object_path+"X_TRI_ConnectionRequestAuthentication",1);
+    }else if($('INPUT_X_TRI_ConnectionRequestAuthentication_Enable').checked==false){
+        AddElements(df, object_path+"X_TRI_ConnectionRequestAuthentication",0);
+    }
+    AddElements(df, object_path+"ConnectionRequestUsername", getValue('INPUT_ConnectionRequestUsername'));
+    if(gConnectionRequestPassword == 1)
+    {
+        AddElements(df, object_path+"ConnectionRequestPassword", getValue('INPUT_ConnectionRequestPassword'));
+    }
+    AddElements(df, object_path+"EnableCWMP", getValue('INPUT_TR069Enable'));
+    AddElements(df, object_path+"X_TRI_RequestPort", getValue('INPUT_ReverseConnPort'));
+
+    df.submit();  
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_TR069Settings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="190" langkey="LK_EnableTR069"></td>
+	<td><input type="checkbox" id="INPUT_TR069Enable" ></td>
+</tr>
+<tr>
+	<td langkey="LK_Securityy"></td>
+	<td><script>PrintTriButton("INPUT_SecurityLink",getStr('LK_ImportCertificate'),"importCert()")</script></td>
+</tr>
+<tr>
+	<td langkey="LK_ACSURLl"></td>
+	<td><input size="30" type="text" maxlength="256" id="INPUT_URL"></td>
+</tr>
+<tr>
+	<td langkey="LK_ACSUserNamee"></td>
+	<td><input size="30" type="text" maxlength="256" id="INPUT_Username"></td>
+</tr>
+<tr>	
+	<td langkey="LK_ACSPasswordd"></td>
+	<td><input size="30" type="password" maxlength="256" id="INPUT_Password" value="0123456789abcdfffff" onChange="gACSPasswordChange=1"></td>
+</tr>
+<tr>
+	<td langkey="LK_PeriodInformm"></td>
+	<td><input type="checkbox" id="INPUT_PeriodicInformEnable"></td>
+</tr>
+<tr>
+	<td langkey="LK_InformIntervall"></td>
+	<td><input size="30" type="text" maxlength="10" id="INPUT_PeriodicInformInterval"></td>
+</tr>
+<tr>
+	<td langkey="LK_ConnectionRequestt"></td>
+	<td><input type="checkbox" id="INPUT_X_TRI_ConnectionRequestAuthentication_Enable" onclick="ConnectionRequestChange()"></td>
+</tr>
+<tr id="tr_ConnectionRequestUsername">
+	<td langkey="LK_UserNamee"></td>
+	<td><input size="30" type="text" maxlength="256" id="INPUT_ConnectionRequestUsername"></td>
+</tr>
+<tr id="tr_ConnectionRequestPassword">
+	<td langkey="LK_Passwordd"></td>
+	<td><input size="30" type="password" maxlength="256" id="INPUT_ConnectionRequestPassword" value="0123456789abcdfffff" onChange="gConnectionRequestPassword=1"></td>
+</tr>
+<tr>
+	<td langkey="LK_ConnectionRequestPortt"></td>
+	<td><input size="30" type="text" maxlength="5" id="INPUT_ReverseConnPort"></td>
+</tr>
+<tr>
+	<td langkey="LK_ConnectionRequestURLl"></td>
+	<td><input size="30" type="text" maxlength="256" id="INPUT_ConnectionRequestURL" disabled="disabled"></td>
+</tr>
+
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent</script>
+</form>
+      <form method="post" name ="tr69dataform" action="/cgi-bin/setup.cgi?page/management/mngt_cwmp.shtml">
+</form>
+  </body>
+</html>

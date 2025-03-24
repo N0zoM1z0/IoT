@@ -1,0 +1,1597 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8
+L0 = module
+L1 = "xiaoqiang.module.XQAPModule"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "luci.util"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.model.uci"
+L3 = L3(L4)
+L3 = L3.cursor
+L3 = L3()
+L5 = L3
+L4 = L3.get
+L6 = "misc"
+L7 = "hardware"
+L8 = "model"
+L4 = L4(L5, L6, L7, L8)
+L4 = L4 or L4
+L5 = require
+L6 = "xiaoqiang.XQLog"
+L5 = L5(L6)
+if L4 then
+  L6 = string
+  L6 = L6.lower
+  L7 = L4
+  L6 = L6(L7)
+  L4 = L6
+end
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L0 = require
+  L1 = "xiaoqiang.util.XQWifiUtil"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQLanWanUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.module.XQMessageBox"
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.getNetMode
+  L3 = L3()
+  L4 = L1.getLanIp
+  L4 = L4()
+  if L3 ~= "wifiapmode" and L3 ~= "lanapmode" then
+    L5 = require
+    L6 = "luci.model.uci"
+    L5 = L5(L6)
+    L5 = L5.cursor
+    L5 = L5()
+    L7 = L5
+    L6 = L5.get_all
+    L8 = "network"
+    L9 = "lan"
+    L6 = L6(L7, L8, L9)
+    L8 = L5
+    L7 = L5.section
+    L9 = "backup"
+    L10 = "backup"
+    L11 = "lan"
+    L12 = L6
+    L7(L8, L9, L10, L11, L12)
+    L8 = L5
+    L7 = L5.commit
+    L9 = "backup"
+    L7(L8, L9)
+  end
+  L5 = os
+  L5 = L5.execute
+  L6 = "/usr/sbin/ap_mode.sh connect >/dev/null 2>/dev/null"
+  L5(L6)
+  L5 = L1.getLanIp
+  L5 = L5()
+  if L4 ~= L5 then
+    L6 = require
+    L7 = "xiaoqiang.util.XQSynchrodata"
+    L6 = L6(L7)
+    L7 = L2.removeMessage
+    L8 = 4
+    L7(L8)
+    L7 = L0.setWiFiMacfilterModel
+    L8 = false
+    L7(L8)
+    L7 = L0.setGuestWifi
+    L8 = 1
+    L9, L10, L11 = nil, nil, nil
+    L12 = 0
+    L13 = nil
+    L7(L8, L9, L10, L11, L12, L13)
+    L7 = _UPVALUE0_
+    L7 = L7.setNetMode
+    L8 = "lanapmode"
+    L7(L8)
+    L7 = L6.syncApLanIp
+    L8 = L5
+    L7(L8)
+    L7 = os
+    L7 = L7.execute
+    L8 = "/usr/sbin/wifishare.sh off >/dev/null 2>/dev/null"
+    L7(L8)
+    return L5
+  end
+  L6 = nil
+  return L6
+end
+setLanAPMode = L6
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "xiaoqiang.util.XQWifiUtil"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "backup"
+  L5 = "lan"
+  L6 = "ipaddr"
+  L2 = L2(L3, L4, L5, L6)
+  L3 = _UPVALUE0_
+  L3 = L3.setNetMode
+  L4 = nil
+  L3(L4)
+  L3 = L0.setWiFiMacfilterModel
+  L4 = false
+  L3(L4)
+  return L2
+end
+disableLanAP = L6
+function L6(A0, A1)
+  local L2, L3, L4, L5
+  L2 = [[
+        sleep 7;
+        /usr/sbin/ap_mode.sh open;
+        /usr/sbin/shareUpdate -b >/dev/null 2>/dev/null;
+    ]]
+  L3 = [[
+        sleep 5;
+        /usr/sbin/ap_mode.sh close;
+        /usr/sbin/shareUpdate -b >/dev/null 2>/dev/null;
+    ]]
+  if A1 then
+    if A0 then
+      L4 = _UPVALUE0_
+      L4 = L4.forkExec
+      L5 = L2
+      L4(L5)
+    else
+      L4 = _UPVALUE0_
+      L4 = L4.forkExec
+      L5 = L3
+      L4(L5)
+    end
+  elseif A0 then
+    L4 = os
+    L4 = L4.execute
+    L5 = L2
+    L4(L5)
+  else
+    L4 = os
+    L4 = L4.execute
+    L5 = L3
+    L4(L5)
+  end
+end
+lanApServiceRestart = L6
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQSysUtil"
+  L2 = L2(L3)
+  L4 = L0
+  L3 = L0.get_all
+  L5 = "network"
+  L6 = "lan"
+  L3 = L3(L4, L5, L6)
+  L5 = L0
+  L4 = L0.get_all
+  L6 = "dhcp"
+  L7 = "lan"
+  L4 = L4(L5, L6, L7)
+  L6 = L0
+  L5 = L0.get_all
+  L7 = "dhcp"
+  L8 = "wan"
+  L5 = L5(L6, L7, L8)
+  L7 = L0
+  L6 = L0.get_all
+  L8 = "network"
+  L9 = "vpn"
+  L6 = L6(L7, L8, L9)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "lan"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "wifi1"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "wifi2"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "wifi3"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "dhcplan"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "dhcpwan"
+  L7(L8, L9, L10)
+  L8 = L0
+  L7 = L0.delete
+  L9 = "backup"
+  L10 = "vpn"
+  L7(L8, L9, L10)
+  if L6 then
+    L8 = L0
+    L7 = L0.section
+    L9 = "backup"
+    L10 = "backup"
+    L11 = "vpn"
+    L12 = L6
+    L7(L8, L9, L10, L11, L12)
+  end
+  L8 = L0
+  L7 = L0.section
+  L9 = "backup"
+  L10 = "backup"
+  L11 = "lan"
+  L12 = L3
+  L7(L8, L9, L10, L11, L12)
+  L8 = L0
+  L7 = L0.section
+  L9 = "backup"
+  L10 = "backup"
+  L11 = "dhcplan"
+  L12 = L4
+  L7(L8, L9, L10, L11, L12)
+  L8 = L0
+  L7 = L0.section
+  L9 = "backup"
+  L10 = "backup"
+  L11 = "dhcpwan"
+  L12 = L5
+  L7(L8, L9, L10, L11, L12)
+  L8 = L0
+  L7 = L0.commit
+  L9 = "backup"
+  L7(L8, L9)
+  L7 = L2.getInitInfo
+  L7 = L7()
+  if L7 then
+    L7 = L1.backupWifiInfo
+    L8 = 1
+    L7(L8)
+    L7 = L1.backupWifiInfo
+    L8 = 2
+    L7(L8)
+    L7 = L1.backupWifiInfo
+    L8 = 3
+    L7(L8)
+  end
+end
+backupConfigs = L6
+function L6(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.network"
+  L1 = L1(L2)
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_network
+  L4 = "wan"
+  L2 = L2(L3, L4)
+  L4 = L1
+  L3 = L1.get_network
+  L5 = "wan_6"
+  L3 = L3(L4, L5)
+  L5 = L2
+  L4 = L2.set
+  L6 = "auto"
+  L7 = A0
+  L4(L5, L6, L7)
+  if L3 then
+    L5 = L3
+    L4 = L3.set
+    L6 = "auto"
+    L7 = A0
+    L4(L5, L6, L7)
+  end
+  L5 = L1
+  L4 = L1.commit
+  L6 = "network"
+  L4(L5, L6)
+end
+setWanAuto = L6
+function L6(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_all
+  L5 = "backup"
+  L6 = "lan"
+  L3 = L3(L4, L5, L6)
+  L5 = L2
+  L4 = L2.get_all
+  L6 = "backup"
+  L7 = "dhcplan"
+  L4 = L4(L5, L6, L7)
+  L6 = L2
+  L5 = L2.get_all
+  L7 = "backup"
+  L8 = "dhcpwan"
+  L5 = L5(L6, L7, L8)
+  L7 = L2
+  L6 = L2.get_all
+  L8 = "backup"
+  L9 = "vpn"
+  L6 = L6(L7, L8, L9)
+  L7, L8 = nil, nil
+  L10 = L2
+  L9 = L2.delete
+  L11 = "network"
+  L12 = "lan"
+  L9(L10, L11, L12)
+  if L3 then
+    L10 = L2
+    L9 = L2.section
+    L11 = "network"
+    L12 = "interface"
+    L13 = "lan"
+    L14 = L3
+    L9(L10, L11, L12, L13, L14)
+    L7 = L3.ipaddr
+  else
+    L10 = L2
+    L9 = L2.section
+    L11 = "network"
+    L12 = "interface"
+    L13 = "lan"
+    L14 = NETWORK_LAN
+    L9(L10, L11, L12, L13, L14)
+    L9 = NETWORK_LAN
+    L7 = L9.ipaddr
+  end
+  if L4 then
+    L10 = L2
+    L9 = L2.section
+    L11 = "dhcp"
+    L12 = "dhcp"
+    L13 = "lan"
+    L14 = L4
+    L9(L10, L11, L12, L13, L14)
+  end
+  if L5 then
+    L10 = L2
+    L9 = L2.section
+    L11 = "dhcp"
+    L12 = "dhcp"
+    L13 = "wan"
+    L14 = L5
+    L9(L10, L11, L12, L13, L14)
+  end
+  if L6 then
+    L10 = L2
+    L9 = L2.section
+    L11 = "network"
+    L12 = "interface"
+    L13 = "vpn"
+    L14 = L6
+    L9(L10, L11, L12, L13, L14)
+  end
+  L10 = L2
+  L9 = L2.commit
+  L11 = "dhcp"
+  L9(L10, L11)
+  L10 = L2
+  L9 = L2.commit
+  L11 = "network"
+  L9(L10, L11)
+  L9 = setWanAuto
+  L10 = nil
+  L9(L10)
+  L9 = L1.apcli_disable
+  L10 = A0
+  L9(L10)
+  L9 = _UPVALUE0_
+  L9 = L9.setNetMode
+  L10 = nil
+  L9(L10)
+  L9 = L1.apcli_set_active
+  L10 = nil
+  L9(L10)
+  L9 = L1.setWiFiMacfilterModel
+  L10 = false
+  L9(L10)
+  if not L8 then
+    L9 = L1.getWifissid
+    L9 = L9()
+    L8 = L9
+  end
+  L9 = actionForDisableWifiAP
+  L9()
+  L9 = L7
+  L10 = L8
+  return L9, L10
+end
+disableWifiAPMode = L6
+function L6(A0)
+  local L1, L2, L3
+  if A0 then
+    L1 = [[
+            /usr/sbin/dhcp_apclient.sh restart lan;
+            /etc/init.d/ipv6 ip6_fw close
+            /etc/init.d/firewall restart
+            /etc/init.d/odhcpd stop
+            /etc/init.d/network restart;
+            /etc/init.d/wan_check restart;
+            /etc/init.d/trafficd restart;
+	    /etc/init.d/xiaoqiang_sync start;
+            /usr/sbin/shareUpdate -b;
+            /etc/init.d/xqbc restart;
+            /etc/init.d/miqos stop;
+            [ -f /etc/init.d/hwnat ] && /etc/init.d/hwnat off;
+            /etc/init.d/plugin_start_script.sh stop;
+            /etc/init.d/plugin_start_script.sh start;
+            [ -f /etc/init.d/minet ] && /etc/init.d/minet restart;
+            /usr/sbin/wifishare.sh off;
+            /etc/init.d/tbusd stop;
+            /usr/sbin/ap_mode.sh cron_check_gw_start;
+            [ -f /etc/init.d/cab_meshd ] && /etc/init.d/cab_meshd stop;
+        ]]
+  else
+    L1 = [[
+            sleep 10;
+            /usr/sbin/dhcp_apclient.sh restart lan;
+            /etc/init.d/ipv6 ip6_fw close
+            /etc/init.d/firewall restart
+            /etc/init.d/odhcpd stop
+            /etc/init.d/network restart;
+            /etc/init.d/wan_check restart;
+            /etc/init.d/trafficd restart;
+	    /etc/init.d/xiaoqiang_sync start;
+            /usr/sbin/shareUpdate -b;
+            /etc/init.d/xqbc restart;
+            /etc/init.d/miqos stop;
+            [ -f /etc/init.d/hwnat ] && /etc/init.d/hwnat off;
+            /etc/init.d/plugin_start_script.sh stop;
+            /etc/init.d/plugin_start_script.sh start;
+            [ -f /etc/init.d/minet ] && /etc/init.d/minet restart;
+            /usr/sbin/wifishare.sh off;
+            /etc/init.d/tbusd stop;
+            /usr/sbin/ap_mode.sh cron_check_gw_start;
+            [ -f /etc/init.d/cab_meshd ] && /etc/init.d/cab_meshd stop;
+        ]]
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.forkExec
+  L3 = L1
+  L2(L3)
+end
+actionForEnableWifiAP = L6
+function L6()
+  local L0, L1, L2
+  L0 = [[
+    sleep 3;
+    /usr/sbin/dhcp_apclient.sh restart lan;
+    /etc/init.d/ipv6 ip6_fw open
+    /etc/init.d/firewall restart
+    /etc/init.d/odhcpd start
+    /etc/init.d/network restart;
+    /etc/init.d/wan_check restart;
+    /etc/init.d/trafficd restart;
+    /etc/init.d/xiaoqiang_sync stop;
+    /usr/sbin/shareUpdate -b;
+    /etc/init.d/dnsmasq enable;
+    /etc/init.d/dnsmasq restart;
+    /etc/init.d/xqbc restart;
+    /etc/init.d/miqos start;
+    /etc/init.d/tbusd start;
+    /etc/init.d/plugin_start_script.sh stop;
+    /etc/init.d/plugin_start_script.sh start;
+    /usr/sbin/ap_mode.sh cron_check_gw_stop;
+    [ -f /etc/init.d/hwnat ] && /etc/init.d/hwnat restart;
+    [ -f /etc/init.d/minet ] && /etc/init.d/minet restart;
+    [ -f /etc/init.d/cab_meshd ] && /etc/init.d/cab_meshd restart;
+    ]]
+  L1 = _UPVALUE0_
+  L1 = L1.forkExec
+  L2 = L0
+  L1(L2)
+end
+actionForDisableWifiAP = L6
+function L6(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  else
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\\"
+    L4 = "\\\\"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "`"
+    L4 = "\\`"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "\""
+    L4 = "\\\""
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "%$"
+    L4 = "\\$"
+    return L1(L2, L3, L4)
+  end
+end
+parseCmdline = L6
+function L6(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+  local L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43
+  L13 = require
+  L14 = "xiaoqiang.util.XQWifiUtil"
+  L13 = L13(L14)
+  L14 = {}
+  L14.ifname = ""
+  L14.ssid = A0
+  L14.cmdssid = A0
+  L14.password = A1
+  L14.cmdpassword = A1
+  L14.encryption = A3
+  L14.enctype = A2
+  if A4 == "5g_low" then
+    L15 = "game"
+    if L15 then
+      goto lbl_18
+    end
+  end
+  L15 = A4
+  ::lbl_18::
+  L14.band = L15
+  L14.channel = A5
+  L14.bw = A6
+  L15 = {}
+  L15.connected = false
+  L15.conerrmsg = ""
+  L15.scan = true
+  L15.ip = ""
+  L16 = nil
+  L17 = _UPVALUE0_
+  L17 = L17.getNetMode
+  L17 = L17()
+  L18 = ""
+  L19 = false
+  if A12 == 1 then
+    L18 = "0"
+  end
+  L20 = L14.ssid
+  if L20 then
+    L20 = L14.ssid
+    L14.cmdssid = L20
+    L20 = L14.password
+    L14.cmdpassword = L20
+    L20 = L13.apcli_check_apcliitem
+    L21 = L14
+    L20 = L20(L21)
+    if L20 then
+      L20 = L13.apcli_get_scanlist
+      L21 = L14
+      L20 = L20(L21)
+      L21 = nil
+      for L25, L26 in L22, L23, L24 do
+        if L26 then
+          L27 = L26.ssid
+          if L27 == A0 then
+            L21 = L26
+            break
+          end
+        end
+      end
+      if not L21 and (A4 == "5g" or A4 == "game") then
+        if A4 == "5g" then
+          if L22 then
+            goto lbl_76
+          end
+        end
+        ::lbl_76::
+        L14.band = L22
+        L20 = L22
+        for L25, L26 in L22, L23, L24 do
+          if L26 then
+            L27 = L26.ssid
+            if L27 == A0 then
+              L21 = L26
+              break
+            end
+          end
+        end
+      end
+      if not L21 then
+        L15.scan = false
+        return L15
+      end
+      L14.enctype = L22
+      L14.channel = L22
+      L14.encryption = L22
+      L14.band = L22
+      L14.channel = L22
+      L14.ifname = L22
+    end
+    L20 = _UPVALUE0_
+    L20 = L20.isStrNil
+    L21 = L14.ifname
+    L20 = L20(L21)
+    if L20 then
+      L20 = L13.apcli_get_ifname_form_band
+      L21 = L14.band
+      L20 = L20(L21)
+      L14.ifname = L20
+    end
+    L20 = L13.apcli_get_ifnames
+    L20 = L20()
+    L21 = nil
+    for L25, L26 in L22, L23, L24 do
+      L27 = L14.ifname
+      if L26 ~= L27 then
+        L27 = L13.apcli_get_wifinet
+        L28 = L26
+        L27 = L27(L28)
+        if L27 then
+          L27 = L13.apcli_set_inactive
+          L28 = L26
+          L27(L28)
+        end
+      end
+    end
+    if L22 == "game" then
+      if not L23 and (L22 == "160" or L22 == "0") then
+        L23(L24)
+      end
+    end
+    L22(L23)
+    for L27 = L24, L25, L26 do
+      L28 = L13.apcli_get_connect
+      L29 = L14.ifname
+      L28, L29 = L28(L29)
+      if L28 then
+        break
+      end
+      L30 = os
+      L30 = L30.execute
+      L31 = "sleep 2"
+      L30(L31)
+    end
+    L15.connected = L22
+  end
+  L20 = L15.connected
+  if L20 then
+    L20 = require
+    L21 = "xiaoqiang.util.XQLanWanUtil"
+    L20 = L20(L21)
+    if L17 ~= "wifiapmode" and L17 ~= "lanapmode" then
+      L21 = backupConfigs
+      L21()
+    end
+    L21 = require
+    L21 = L21(L22)
+    L21 = L21.cursor
+    L21 = L21()
+    L23(L24)
+    L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43 = L24(L25)
+    if L23 ~= 0 then
+      L27, L28, L29, L30, L31, L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43 = L25(L26)
+    end
+    if L23 and L23 == 0 then
+      L27 = "xiaoqiang.module.XQMessageBox"
+      L27 = L26.removeMessage
+      L28 = 4
+      L27(L28)
+      L27 = _UPVALUE0_
+      L27 = L27.setNetMode
+      L28 = "wifiapmode"
+      L27(L28)
+      L27 = L25.syncApLanIp
+      L28 = L24
+      L27(L28)
+      L15.ip = L24
+      L27 = require
+      L28 = "luci.model.uci"
+      L27 = L27(L28)
+      L27 = L27.cursor
+      L27 = L27()
+      L29 = L27
+      L28 = L27.delete
+      L30 = "dhcp"
+      L31 = "lan"
+      L28(L29, L30, L31)
+      L29 = L27
+      L28 = L27.delete
+      L30 = "dhcp"
+      L31 = "wan"
+      L28(L29, L30, L31)
+      L29 = L27
+      L28 = L27.commit
+      L30 = "dhcp"
+      L28(L29, L30)
+      L28, L29, L30, L31, L32 = nil, nil, nil, nil, nil
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = A7
+      L33 = L33(L34)
+      if not L33 and A8 and (A9 or A8 == "none") then
+        L28 = A7
+        L29 = A7
+        L30 = A7
+        L31 = A9
+        L32 = A8
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = A10
+      L33 = L33(L34)
+      if not L33 then
+        L29 = A10
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = A11
+      L33 = L33(L34)
+      if not L33 then
+        L30 = A11
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = L14.band
+      L33 = L33(L34)
+      if not L33 then
+        L33 = L14.band
+        L34 = L33
+        L33 = L33.match
+        L35 = "2g"
+        L33 = L33(L34, L35)
+        if L33 then
+          L33 = L13.setWifiBasicInfo
+          L34 = 1
+          L35 = L28
+          L36 = L31
+          L37 = L32
+          L38 = nil
+          L39 = "max"
+          L40, L41, L42, L43 = nil, nil, nil, nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+          L33 = L13.setWifiBasicInfo
+          L34 = 2
+          L35 = L29
+          L36 = L31
+          L37 = L32
+          L38, L39, L40, L41, L42, L43 = nil, nil, nil, nil, nil, nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+          L33 = L13.setWifiBasicInfo
+          L34 = 3
+          L35 = L30
+          L36 = L31
+          L37 = L32
+          L38, L39, L40, L41 = nil, nil, nil, nil
+          L42 = L18
+          L43 = nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+        else
+          L33 = L13.setWifiBasicInfo
+          L34 = 1
+          L35 = L28
+          L36 = L31
+          L37 = L32
+          L38, L39, L40, L41, L42, L43 = nil, nil, nil, nil, nil, nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+          L33 = L13.setWifiBasicInfo
+          L34 = 2
+          L35 = L29
+          L36 = L31
+          L37 = L32
+          L38 = nil
+          L39 = "max"
+          L40, L41, L42, L43 = nil, nil, nil, nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+          L33 = L13.setWifiBasicInfo
+          L34 = 3
+          L35 = L30
+          L36 = L31
+          L37 = L32
+          L38 = nil
+          L39 = "max"
+          L40, L41 = nil, nil
+          L42 = L18
+          L43 = nil
+          L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+        end
+      else
+        L33 = L13.setWifiBasicInfo
+        L34 = 1
+        L35 = L28
+        L36 = L31
+        L37 = L32
+        L38, L39, L40, L41, L42, L43 = nil, nil, nil, nil, nil, nil
+        L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+        L33 = L13.setWifiBasicInfo
+        L34 = 2
+        L35 = L29
+        L36 = L31
+        L37 = L32
+        L38, L39, L40, L41, L42, L43 = nil, nil, nil, nil, nil, nil
+        L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+        L33 = L13.setWifiBasicInfo
+        L34 = 3
+        L35 = L30
+        L36 = L31
+        L37 = L32
+        L38, L39, L40, L41 = nil, nil, nil, nil
+        L42 = L18
+        L43 = nil
+        L33(L34, L35, L36, L37, L38, L39, L40, L41, L42, L43)
+      end
+      L33 = L13.apcli_enable
+      L34 = L14
+      L33(L34)
+      L33 = L13.setWiFiMacfilterModel
+      L34 = false
+      L33(L34)
+      L33 = L13.setGuestWifi
+      L34 = 1
+      L35, L36, L37 = nil, nil, nil
+      L38 = 0
+      L39 = nil
+      L33(L34, L35, L36, L37, L38, L39)
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = L28
+      L33 = L33(L34)
+      if L33 then
+        L33 = L13.getWifiBasicInfo
+        L34 = 1
+        L33 = L33(L34)
+        if L33 ~= nil then
+          L34 = L33.ssid
+          L15.ssid = L34
+        end
+      else
+        L15.ssid = L28
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = L29
+      L33 = L33(L34)
+      if L33 then
+        L33 = L13.getWifiBasicInfo
+        L34 = 2
+        L33 = L33(L34)
+        if L33 ~= nil then
+          L34 = L33.ssid
+          L15.ssid5G = L34
+        end
+      else
+        L15.ssid5G = L29
+      end
+      L33 = _UPVALUE0_
+      L33 = L33.isStrNil
+      L34 = L30
+      L33 = L33(L34)
+      if L33 then
+        L33 = L13.getWifiBasicInfo
+        L34 = 3
+        L33 = L33(L34)
+        if L33 ~= nil then
+          L34 = L33.ssid
+          L15.ssid5G_game = L34
+        end
+      else
+        L15.ssid5G_game = L30
+      end
+    else
+      L25(L26)
+      L27 = L25
+      L28 = "network"
+      L29 = "lan"
+      L26(L27, L28, L29)
+      L27 = L25
+      L28 = "network"
+      L29 = "interface"
+      L30 = "lan"
+      L31 = L22
+      L26(L27, L28, L29, L30, L31)
+      L27 = L25
+      L28 = "network"
+      L26(L27, L28)
+    end
+  end
+  L20 = L15.connected
+  if L20 then
+    L20 = L15.ip
+    if L20 ~= "" then
+      goto lbl_502
+    end
+  end
+  L20 = L13.apcli_get_ifnames
+  L20 = L20()
+  L21 = nil
+  for L25, L26 in L22, L23, L24 do
+    L27 = L13.apcli_set_inactive
+    L28 = L26
+    L27(L28)
+  end
+  if L22 == "game" then
+    if not L23 and (L22 == "160" or L22 == "0") then
+      L23(L24)
+    end
+  end
+  L15.conerrmsg = "Connect faild!"
+  goto lbl_526
+  ::lbl_502::
+  L20 = _UPVALUE1_
+  L21 = L20
+  L20 = L20.match
+  L20 = L20(L21, L22)
+  if not L20 then
+    L20 = _UPVALUE1_
+    L21 = L20
+    L20 = L20.match
+    L20 = L20(L21, L22)
+    if not L20 then
+      L20 = _UPVALUE1_
+      L21 = L20
+      L20 = L20.match
+      L20 = L20(L21, L22)
+      if not L20 then
+        L20 = _UPVALUE1_
+        L21 = L20
+        L20 = L20.match
+        L20 = L20(L21, L22)
+        if L20 then
+        end
+      end
+    end
+  end
+  ::lbl_526::
+  return L15
+end
+setWifiAPMode = L6
+function L6(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)
+  local L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26
+  L11 = require
+  L12 = "xiaoqiang.util.XQWifiUtil"
+  L11 = L11(L12)
+  L12 = {}
+  L12.ifname = ""
+  L12.ssid = A0
+  L12.cmdssid = A0
+  L12.password = A1
+  L12.cmdpassword = A1
+  L12.encryption = A3
+  L12.enctype = A2
+  L12.band = A4
+  L12.channel = A5
+  L12.bw = A6
+  L13 = {}
+  L13.connected = false
+  L13.conerrmsg = ""
+  L13.scan = true
+  L14 = nil
+  L15 = _UPVALUE0_
+  L15 = L15.getNetMode
+  L15 = L15()
+  L15 = L15 ~= nil
+  L16 = L12.ssid
+  if L16 then
+    L16 = L12.ssid
+    L12.cmdssid = L16
+    L16 = L12.password
+    L12.cmdpassword = L16
+    L16 = L11.apcli_check_apcliitem
+    L16 = L16(L17)
+    if L16 then
+      L16 = _UPVALUE1_
+      L16 = L16.log
+      L16(L17, L18)
+      L16 = L11.apcli_get_scanlist
+      L16 = L16(L17)
+      for L21, L22 in L18, L19, L20 do
+        if L22 then
+          L23 = L22.ssid
+          if L23 == A0 then
+            break
+          end
+        end
+      end
+      if not L17 then
+        L13.scan = false
+        return L13
+      end
+      L12.enctype = L18
+      L12.channel = L18
+      L12.encryption = L18
+      L12.band = L18
+      L12.channel = L18
+      L12.ifname = L18
+    end
+    L16 = _UPVALUE0_
+    L16 = L16.isStrNil
+    L16 = L16(L17)
+    if L16 then
+      L16 = L11.apcli_get_ifname_form_band
+      L16 = L16(L17)
+      L12.ifname = L16
+    end
+    L16 = L11.apcli_get_ifnames
+    L16 = L16()
+    for L21, L22 in L18, L19, L20 do
+      L23 = L12.ifname
+      if L22 ~= L23 then
+        L23 = L11.apcli_set_inactive
+        L24 = L22
+        L23(L24)
+      end
+    end
+    L18(L19)
+    for L22 = L19, L20, L21 do
+      L23 = L11.apcli_get_connect
+      L24 = L12.ifname
+      L23, L24 = L23(L24)
+      if L23 then
+        break
+      end
+      L25 = os
+      L25 = L25.execute
+      L26 = "sleep 2"
+      L25(L26)
+    end
+    L13.connected = L18
+  end
+  L16 = L13.connected
+  if L16 then
+    L16 = require
+    L16 = L16(L17)
+    if not L15 then
+      L17()
+    end
+    L13.oldlan = L18
+  end
+  L16 = require
+  L16 = L16(L17)
+  L16 = L16.cursor
+  L16 = L16()
+  for L20, L21 in L17, L18, L19 do
+    L13[L20] = L21
+  end
+  return L13
+end
+appSetWifiAPMode = L6
+function L6()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25
+  L0 = require
+  L1 = "xiaoqiang.util.XQWifiUtil"
+  L0 = L0(L1)
+  L1 = _UPVALUE0_
+  L1 = L1.getNetMode
+  L1 = L1()
+  L1 = L1 ~= nil
+  L2 = io
+  L2 = L2.open
+  L3 = "/tmp/luci_set_wifi_ap_mode_result"
+  L4 = "r"
+  L2 = L2(L3, L4)
+  if L2 ~= nil then
+    L4 = L2
+    L3 = L2.read
+    L5 = "*a"
+    L3 = L3(L4, L5)
+    L4 = require
+    L5 = "json"
+    L4 = L4(L5)
+    L5 = L4.decode
+    L6 = L3
+    L5 = L5(L6)
+    L7 = L2
+    L6 = L2.close
+    L6(L7)
+    L6 = L5.code
+    if L6 then
+      L6 = L5.code
+      if L6 == 0 then
+        L6 = require
+        L7 = "xiaoqiang.util.XQLanWanUtil"
+        L6 = L6(L7)
+        L7 = setWanAuto
+        L7(L8)
+        L7 = L5.ipaddr
+        if L7 ~= nil then
+          L11 = 4
+          L10(L11)
+          L11 = "wifiapmode"
+          L10(L11)
+          L11 = L7
+          L10(L11)
+          L11 = "luci.model.uci"
+          L12 = L10
+          L11 = L10.set
+          L13 = "xiaoqiang"
+          L14 = "common"
+          L15 = "ap_hostname"
+          L16 = L5.hostname
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "xiaoqiang"
+          L14 = "common"
+          L15 = "vendorinfo"
+          L16 = L5.vendorinfo
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.commit
+          L13 = "xiaoqiang"
+          L11(L12, L13)
+          L12 = L10
+          L11 = L10.delete
+          L13 = "network"
+          L14 = "lan"
+          L15 = "dns"
+          L11(L12, L13, L14, L15)
+          L12 = L10
+          L11 = L10.delete
+          L13 = "network"
+          L14 = "vpn"
+          L11(L12, L13, L14)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "proto"
+          L16 = "static"
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "type"
+          L16 = "bridge"
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "ipaddr"
+          L16 = L7
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "netmask"
+          L16 = L5.netmask
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "gateway"
+          L16 = L5.gateway
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "mtu"
+          L16 = L5.mtu
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.set
+          L13 = "network"
+          L14 = "lan"
+          L15 = "dns"
+          L16 = L5.dns1
+          L11(L12, L13, L14, L15, L16)
+          L12 = L10
+          L11 = L10.commit
+          L13 = "network"
+          L11(L12, L13)
+          L12 = L10
+          L11 = L10.delete
+          L13 = "dhcp"
+          L14 = "lan"
+          L11(L12, L13, L14)
+          L12 = L10
+          L11 = L10.delete
+          L13 = "dhcp"
+          L14 = "wan"
+          L11(L12, L13, L14)
+          L12 = L10
+          L11 = L10.commit
+          L13 = "dhcp"
+          L11(L12, L13)
+          L11, L12, L13, L14 = nil, nil, nil, nil
+          L15 = _UPVALUE0_
+          L15 = L15.isStrNil
+          L16 = nssid
+          L15 = L15(L16)
+          if not L15 then
+            L15 = nencryption
+            if L15 then
+              L15 = npassword
+              if not L15 then
+                L15 = nencryption
+                if L15 ~= "none" then
+                  goto lbl_165
+                end
+              end
+              L11 = nssid
+              L12 = nssid
+              L13 = npassword
+              L14 = nencryption
+            end
+          end
+          ::lbl_165::
+          L15 = _UPVALUE0_
+          L15 = L15.isStrNil
+          L16 = nssid5G
+          L15 = L15(L16)
+          if not L15 then
+            L12 = nssid5G
+          end
+          L15 = _UPVALUE0_
+          L15 = L15.isStrNil
+          L16 = L5.band
+          L15 = L15(L16)
+          if not L15 then
+            L15 = L5.band
+            L16 = L15
+            L15 = L15.match
+            L17 = "2g"
+            L15 = L15(L16, L17)
+            if L15 then
+              L15 = L0.setWifiBasicInfo
+              L16 = 1
+              L17 = L11
+              L18 = L13
+              L19 = L14
+              L20 = nil
+              L21 = "max"
+              L22, L23, L24, L25 = nil, nil, nil, nil
+              L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+              L15 = L0.setWifiBasicInfo
+              L16 = 2
+              L17 = L12
+              L18 = L13
+              L19 = L14
+              L20, L21, L22, L23, L24, L25 = nil, nil, nil, nil, nil, nil
+              L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+            else
+              L15 = L0.setWifiBasicInfo
+              L16 = 1
+              L17 = L11
+              L18 = L13
+              L19 = L14
+              L20, L21, L22, L23, L24, L25 = nil, nil, nil, nil, nil, nil
+              L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+              L15 = L0.setWifiBasicInfo
+              L16 = 2
+              L17 = L12
+              L18 = L13
+              L19 = L14
+              L20 = nil
+              L21 = "max"
+              L22, L23, L24, L25 = nil, nil, nil, nil
+              L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+            end
+          else
+            L15 = L0.setWifiBasicInfo
+            L16 = 1
+            L17 = L11
+            L18 = L13
+            L19 = L14
+            L20, L21, L22, L23, L24, L25 = nil, nil, nil, nil, nil, nil
+            L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+            L15 = L0.setWifiBasicInfo
+            L16 = 2
+            L17 = L12
+            L18 = L13
+            L19 = L14
+            L20, L21, L22, L23, L24, L25 = nil, nil, nil, nil, nil, nil
+            L15(L16, L17, L18, L19, L20, L21, L22, L23, L24, L25)
+          end
+          L15 = L0.apcli_enable
+          L16 = L5
+          L15(L16)
+          L15 = L0.setWiFiMacfilterModel
+          L16 = false
+          L15(L16)
+          L15 = L0.setGuestWifi
+          L16 = 1
+          L17, L18, L19 = nil, nil, nil
+          L20 = 0
+          L21 = nil
+          L15(L16, L17, L18, L19, L20, L21)
+          L15 = _UPVALUE0_
+          L15 = L15.isStrNil
+          L16 = L11
+          L15 = L15(L16)
+          if L15 then
+            L15 = L0.getWifiBasicInfo
+            L16 = 1
+            L15 = L15(L16)
+            if L15 ~= nil then
+              L16 = L15.ssid
+              L5.ssid = L16
+            end
+          else
+            L5.ssid = L11
+          end
+          L15 = _UPVALUE0_
+          L15 = L15.isStrNil
+          L16 = L12
+          L15 = L15(L16)
+          if L15 then
+            L15 = L0.getWifiBasicInfo
+            L16 = 2
+            L15 = L15(L16)
+            if L15 ~= nil then
+              L16 = L15.ssid
+              L5.ssid5G = L16
+            end
+          else
+            L5.ssid5G = L12
+          end
+        else
+        end
+      end
+    end
+    L6 = L5.code
+    if L6 == 0 then
+      L6 = L5.ipaddr
+      if L6 ~= nil then
+        goto lbl_354
+      end
+    end
+    L6 = _UPVALUE1_
+    L6 = L6.log
+    L7 = 6
+    L6(L7, L8)
+    L6 = L0.apcli_get_ifnames
+    L6 = L6()
+    L7 = nil
+    for L11, L12 in L8, L9, L10 do
+      L13 = L0.apcli_set_inactive
+      L14 = L12
+      L13(L14)
+    end
+    if L1 then
+      L10.ifname = L8
+      L12 = L9
+      L11 = L9.get
+      L13 = "ssid"
+      L11 = L11(L12, L13)
+      L10.ssid = L11
+      L12 = L9
+      L11 = L9.get
+      L13 = "ssid"
+      L11 = L11(L12, L13)
+      L10.cmdssid = L11
+      L12 = L9
+      L11 = L9.get
+      L13 = "key"
+      L11 = L11(L12, L13)
+      L11 = L11 or L11
+      L10.password = L11
+      L12 = L9
+      L11 = L9.get
+      L13 = "key"
+      L11 = L11(L12, L13)
+      L11 = L11 or L11
+      L10.cmdpassword = L11
+      L12 = L9
+      L11 = L9.get
+      L13 = "encryption"
+      L11 = L11(L12, L13)
+      L11 = L11 or L11
+      L10.encryption = L11
+      L12 = L9
+      L11 = L9.get
+      L13 = "enctype"
+      L11 = L11(L12, L13)
+      L11 = L11 or L11
+      L10.enctype = L11
+      L11 = _UPVALUE1_
+      L11 = L11.log
+      L12 = 6
+      L13 = "Connect faild Rollback to old apcliitem"
+      L11(L12, L13)
+      L11 = L0.apcli_set_connect
+      L12 = L10
+      L11(L12)
+    else
+    end
+    L5.conerrmsg = "Connect faild!"
+    goto lbl_378
+    ::lbl_354::
+    L6 = _UPVALUE2_
+    L7 = L6
+    L6 = L6.match
+    L6 = L6(L7, L8)
+    if not L6 then
+      L6 = _UPVALUE2_
+      L7 = L6
+      L6 = L6.match
+      L6 = L6(L7, L8)
+      if not L6 then
+        L6 = _UPVALUE2_
+        L7 = L6
+        L6 = L6.match
+        L6 = L6(L7, L8)
+        if not L6 then
+          L6 = _UPVALUE2_
+          L7 = L6
+          L6 = L6.match
+          L6 = L6(L7, L8)
+          if L6 then
+          end
+        end
+      end
+    end
+  end
+  ::lbl_378::
+end
+setWifiAPModeConfig = L6
+function L6(A0)
+  local L1, L2, L3
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    A0 = "2g"
+  end
+  L2 = L1.apcli_get_ifname_form_band
+  L3 = A0
+  L2 = L2(L3)
+  ifname = L2
+  L2 = L1.apcli_set_inactive
+  L3 = ifname
+  L2(L3)
+end
+extednwifi_disconnect = L6
+function L6(A0, A1, A2, A3, A4, A5)
+  local L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23
+  L6 = require
+  L7 = "xiaoqiang.util.XQWifiUtil"
+  L6 = L6(L7)
+  L7 = {}
+  L7.ifname = ""
+  L7.ssid = A0
+  L7.cmdssid = A0
+  L7.password = A1
+  L7.cmdpassword = A1
+  L7.encryption = A3
+  L7.enctype = A2
+  L7.band = A4
+  L7.channel = A5
+  L8 = {}
+  L8.connected = false
+  L8.dhcpcode = -1
+  L8.ip = ""
+  L9 = nil
+  L10 = _UPVALUE0_
+  L10 = L10.getNetMode
+  L10 = L10()
+  L10 = L10 ~= nil
+  if L11 then
+    L7.ssid = L11
+    L7.password = L11
+    L7.cmdssid = L11
+    L7.cmdpassword = L11
+    if L11 then
+      for L16, L17 in L13, L14, L15 do
+        if L17 then
+          if L18 == A0 then
+            break
+          end
+        end
+      end
+      if not L12 then
+        return L8
+      end
+      L7.enctype = L13
+      L7.channel = L13
+      L7.encryption = L13
+      L7.band = L13
+      L7.channel = L13
+      L7.ifname = L13
+    end
+    if L11 then
+      L7.ifname = L11
+    end
+    for L14 = L11, L12, L13 do
+      L15(L16, L17)
+      for L19 = L16, L17, L18 do
+        L20 = L6.apcli_get_connect
+        L21 = L7.ifname
+        L20, L21 = L20(L21)
+        if L20 then
+          break
+        end
+        L22 = os
+        L22 = L22.execute
+        L23 = "sleep 2"
+        L22(L23)
+      end
+      L8.connected = L15
+      if L15 == true then
+        break
+      end
+    end
+  end
+  if L11 then
+    L8.dhcpcode = L14
+    if L14 == 0 then
+      L8.ip = L14
+    end
+  end
+  if L11 then
+    if L11 ~= "" then
+      goto lbl_218
+    end
+  end
+  L11(L12)
+  if L10 then
+    L13.ifname = L11
+    L13.ssid = L14
+    L13.cmdssid = L14
+    L13.password = L14
+    L13.cmdpassword = L14
+    L13.encryption = L14
+    L13.enctype = L14
+    if L14 == "0" then
+      L15(L16)
+    else
+    end
+  end
+  ::lbl_218::
+  return L8
+end
+extendwifi_set_connect = L6

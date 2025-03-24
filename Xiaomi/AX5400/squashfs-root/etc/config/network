@@ -1,0 +1,78 @@
+config device
+        option name 'eth0'
+
+config device
+        option name 'eth1'
+
+config interface 'loopback'
+        option ifname 'lo'
+        option proto 'static'
+        option ipaddr '127.0.0.1'
+        option netmask '255.0.0.0'
+
+config switch 'switch0'
+        option name 'switch0'
+
+config switch 'switch1'
+        option name 'switch1'
+        option enable_vlan '1'
+
+config switch_vlan 'vlan1'
+        option device 'switch1'
+        option vlan '1'
+        option vid '1'
+        option ports '0 4t'
+
+config switch_vlan 'vlan2'
+        option device 'switch1'
+        option vlan '2'
+        option vid '2'
+        option ports '1 6t'
+
+config switch_vlan 'vlan3'
+        option device 'switch1'
+        option vlan '3'
+        option vid '3'
+        option ports '2 6t'
+
+config switch_vlan 'vlan4'
+        option device 'switch1'
+        option vlan '4'
+        option vid '4'
+        option ports '3 6t'
+
+config switch_vlan 'vlan5'
+        option device 'switch1'
+        option vlan '5'
+        option vid '5'
+        option ports '5 6t'
+
+config interface 'lan'
+        option ifname 'eth0.1 eth1.2 eth1.3 eth1.4'
+        option force_link '1'
+        option type 'bridge'
+        option proto 'static'
+        option ipaddr '192.168.31.1'
+        option netmask '255.255.255.0'
+        option multicast_querier '0'
+        option igmp_snooping '0'
+
+config interface 'wan'
+        option ifname 'eth1.5'
+        option proto 'dhcp'
+        option ipv6 '0'
+
+config interface 'miot'
+        option ifname 'wl13'
+        option type 'bridge'
+        option proto 'static'
+        option ipaddr '192.168.32.1'
+        option netmask '255.255.255.0'
+
+config interface 'mwlp'
+        option ifname 'eth1.7'
+        option type 'bridge'
+        option proto 'static'
+        option ipaddr '192.168.34.1'
+        option netmask '255.255.255.0'
+        option mtu '1470'

@@ -1,0 +1,232 @@
+<style type="text/css">
+	ul.macSetting span{
+		font-size:13px;
+		vertical-align:middle;
+	}
+	ul.inputInline{
+		display:inline-table;
+		margin-left:12px;
+	}
+	ul.inputInline ul.inputCMPT{
+		margin-bottom:0px;
+	}
+	div.radioLabel{
+		display:inline-block;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		function requestData()
+		{
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = [uciNetwork.dynData.ifaceMac];
+
+			$.query(data, fillData);
+		}
+
+		function fillData(result)
+		{
+			var WAN = uciNetwork.optValue.ifname.wan;
+			var HOST = uciNetwork.optValue.ifname.host;
+			var FACTORY = uciNetwork.optValue.ifname.factory;
+			var mac = result[uciNetwork.fileName][uciNetwork.dynData.ifaceMac];
+
+			curMac = mac[WAN];
+			id("routerMacAddr").innerHTML = mac[FACTORY].toUpperCase();
+			routerMacRadio.setValue(mac[FACTORY] == mac[WAN]);
+			id("hostMacAddr").innerHTML = mac[HOST].toUpperCase();
+			hostMacRadio.setValue(mac[HOST] == mac[WAN]);
+
+			if (slp.modeSwitchSupport)
+			{
+				id("macText").innerHTML = label.routerMacText + mac[FACTORY].toUpperCase();
+			}
+
+			if (mac[WAN] != mac[FACTORY] && mac[WAN] != mac[HOST])
+			{
+				namualMacInput.setValue(mac[WAN].toUpperCase());
+				manualMacRadio.setValue(true);
+			}
+			else
+			{
+				namualMacInput.setValue("");
+				manualMacRadio.setValue(false);
+				namualMacInput.disable(true);
+			}
+		}
+
+		function errHandle(errCode)
+		{
+			var showStr = "";
+
+			switch (errCode)
+			{
+			case ENONE:
+				return;
+			case EINVMACFMT:
+				showStr = errStr.macFmtErr;
+				break;
+			case EINVMACZERO:
+				showStr = errStr.macZeroErr;
+				break;
+			case EINVMACBROAD:
+				showStr = errStr.macBroadErr;
+				break;
+			case EINVMACGROUP:
+				showStr = errStr.macGroupErr;
+				break;
+			case EMACCLONECONFLICT:
+				showStr = errStr.macCloneConflict;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+		}
+
+		function getSubmitMac()
+		{
+			var mac = "";
+			if (routerMacRadio.getValue() == true)
+			{
+				mac = id("routerMacAddr").innerHTML;
+			}
+			else if (hostMacRadio.getValue() == true)
+			{
+				mac = id("hostMacAddr").innerHTML;
+			}
+			else if (manualMacRadio.getValue() == true)
+			{
+				mac = namualMacInput.getValue();
+			}
+
+			return mac.toUpperCase();
+		}
+
+		function onSave()
+		{
+			var macVal = getSubmitMac();
+			var res;
+
+			if (manualMacRadio.getValue() == true)
+			{
+				res = namualMacInput.checkAll();
+				if (res != true)
+				{
+					return;
+				}
+			}
+
+			if (curMac == macVal)
+			{
+				return;
+			}
+
+			if (USER_GROUP_REMOTE == $.authRltObj["group"] && macVal == id("hostMacAddr").innerHTML)
+			{
+				errHandle(EMACCLONECONFLICT);
+				return;
+			}
+
+			var cfg = {}, cfgProto = {}, cfgWan = {};
+			cfg[uciProto.fileName] = cfgProto;
+			cfgProto[uciProto.secName.wan] = cfgWan;
+			cfgWan[uciProto.optName.macaddr] = macVal;
+
+			$.modify(cfg,function(result){
+				curMac = (ENONE == result[ERR_CODE]) ? macVal : curMac;
+				errHandle(result[ERR_CODE]);
+				if (result[ERR_CODE] == ENONE)
+				{
+					showToast(label.saveSuccess);
+				}
+			});
+		}
+
+		var routerMacRadio = new Radio({
+			targetId: "routerMacRadio",
+			label: label.routerMac + label.colon,
+			name: "macSet"
+		});
+		var hostMacRadio = new Radio({
+			targetId: "hostMacRadio",
+			label: label.cloneMac + label.colon,
+			name: "macSet"
+		});
+		var manualMacRadio = new Radio({
+			targetId: "manualMacRadio",
+			label: label.customMac + label.colon,
+			name: "macSet"
+		});
+		var namualMacInput = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			targetId:"manualMacAddr",
+			isAllowBlank: false,
+			isAllowBlankStr: errStr.inputMac,
+			props:{maxlength: '17', type: "text", placeholder: "格式: XX-XX-XX-XX-XX-XX"},
+			check:{blur:checkInputMac}
+		});
+		$(manualMacRadio.radio).on("ev_cancel",function(){
+			if (namualMacInput.disabled != true)
+			{
+				namualMacInput.disable(true);
+			}
+		}).on("ev_select", function(){
+			if (namualMacInput.disabled != false)
+			{
+				namualMacInput.disable(false);
+			}
+		});
+
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"36px 0 0 0px"}
+		});
+
+		var curMac = "00-00-00-00-00-00";
+
+		if (USER_GROUP_REMOTE == $.authRltObj["group"])
+		{
+			id("hostMacUL").style.display = "none";
+		}
+
+		if (slp.modeSwitchSupport)
+		{
+			getBridgeStatus(function(bridgeEnable){
+				/* 桥模式下禁止更改上网模式及其他设置 */
+				if (bridgeEnable)
+				{
+					$("#macRadioGroup").hide();
+					$("#macText").show();
+					addTitleError("bridgeWarning", label.bridgeMacWarning, {hasIcon: false});
+				}
+			});
+		}
+		requestData();
+	})();
+</script>
+<style type="text/css">
+div#macText{
+	display: none;
+	font-size: 13px;
+	color: #333333;
+	line-height: 20px;
+}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.macSet%}</h1><i class="helpBtn iconfont icon-help" helpStr="macCloneHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.macSetDescription%}</p>
+</div>
+<div id="macRadioGroup">
+	<ul class="medium macSetting"><div id="routerMacRadio" class="radioLabel"></div><span id="routerMacAddr"></span></ul>
+	<ul class="medium macSetting" id="hostMacUL"><div id="hostMacRadio" class="radioLabel"></div><span id="hostMacAddr"></span></ul>
+	<ul class="medium macSetting"><div id="manualMacRadio" class="radioLabel"></div><ul id="manualMacAddr" class="inputCMPT inputInline"></ul></ul>
+	<div id="save"></div>
+</div>
+<div id="macText"></div>

@@ -1,0 +1,9 @@
+Package: kmod-ipt-cgroup_MARK
+Version: 4.4.198+2.10-1
+Depends: kernel (=4.4.198-1-924b3e090b99f2b48028e306a2d1519e), kmod-ipt-core, kmod-ipt-compat-xtables
+Source: feeds/packages/net/xtables-addons
+Section: kernel
+Maintainer: Jo-Philipp Wich <jow@openwrt.org>
+Architecture: mipsel_24kc
+Installed-Size: 920
+Description:  cgroup_MARK netfilter module

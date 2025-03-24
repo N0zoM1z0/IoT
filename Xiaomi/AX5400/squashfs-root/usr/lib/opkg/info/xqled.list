@@ -1,0 +1,4 @@
+/usr/sbin/xqled_spi
+/usr/sbin/xqled
+/etc/init.d/xqled
+/lib/xqled/leds_spi.sh

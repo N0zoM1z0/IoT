@@ -1,0 +1,173 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
+#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
+#  Default of $type = string
+
+#############################
+#   Entry point functuons   #
+#############################
+
+get_first_use_date_file="/tmp/FirstUseDate"
+
+prefix_list="$prefix_list $DMROOT.DeviceInfo."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceInfo"
+entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_DeviceInfo"
+
+entry_execute_method_root_DeviceInfo() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.DeviceInfo."*)
+		common_execute_method_obj "$DMROOT.DeviceInfo." "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.Manufacturer" "0" "$UCI_GET easycwmp.@device[0].manufacturer" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.ManufacturerOUI" "0" "$UCI_GET easycwmp.@device[0].oui" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.ModelName" "0" "get_DeviceInfo_ModelName" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.Description" "0" "get_DeviceInfo_Description" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.SerialNumber" "0" "$UCI_GET easycwmp.@device[0].serial_number" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.HardwareVersion" "0" "$UCI_GET easycwmp.@device[0].hardware_version" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.SoftwareVersion" "0" "$UCI_GET easycwmp.@device[0].software_version" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.SpecVersion" "0" "echo 1.0" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.ProvisioningCode" "1" "device_info_get_provisioningcode" "device_info_set_provisioningcode" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.UpTime" "0" "device_info_get_uptime" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.FirstUseDate" "0" "device_info_get_firstUseDate" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.DeviceLog" "0" "device_info_get_devlog" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorConfigFileNumberOfEntries" "0" "device_info_get_instances_vendorconfigfile" "" "xsd:unsignedInt" "0"
+		
+		common_execute_method_obj "$DMROOT.DeviceInfo.MemoryStatus." "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.MemoryStatus.Total" "0" "device_info_get_total_memory" "" "xsd:unsignedInt" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.MemoryStatus.Free" "0" "device_info_get_free_memory" "" "xsd:unsignedInt" "1"
+		
+		common_execute_method_obj "$DMROOT.DeviceInfo.ProcessStatus." "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.ProcessStatus.CPUUsage" "0" "device_info_get_cpuusage" "" "xsd:unsignedInt" "1"
+		common_execute_method_param "$DMROOT.DeviceInfo.ProcessStatus.ProcessNumberOfEntries" "0" "device_info_get_number_process" "" "xsd:unsignedInt" "1"
+		
+		common_execute_method_obj "$DMROOT.DeviceInfo.VendorLogFile." "0"
+		common_execute_method_obj "$DMROOT.DeviceInfo.VendorLogFile.1." "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorLogFile.1.Alias" "1" "VendorLogFile_get_alias" "VendorLogFile_set_alias" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorLogFile.1.Name" "0" "VendorLogFile_get_name" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorLogFile.1.MaximumSize" "0" "VendorLogFile_get_MaximumSize" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorLogFile.1.Persistent" "0" "VendorLogFile_get_Persistent" "" "xsd:boolean" "0"
+		
+		common_execute_method_obj "$DMROOT.DeviceInfo.VendorConfigFile." "0"
+		common_execute_method_obj "$DMROOT.DeviceInfo.VendorConfigFile.1." "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorConfigFile.1.Name" "0" "VendorConfigFile_get_name" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorConfigFile.1.Version" "0" "VendorConfigFile_get_version" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorConfigFile.1.Date" "0" "VendorConfigFile_get_date" "" "xsd:dateTime" "0"
+		common_execute_method_param "$DMROOT.DeviceInfo.VendorConfigFile.1.Description" "0" "VendorConfigFile_get_description" "" "xsd:String" "0"
+		
+		return 0;
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+
+get_DeviceInfo_ModelName() {
+	echo "DIR-612/F"
+}
+
+get_DeviceInfo_Description() {
+	echo "DLINK CPE device"
+}
+
+device_info_get_total_memory() {
+		cut -d: -f 2 /proc/meminfo | head -n 1| tail -n 1 |  tr -d " kKbB"
+}
+
+device_info_get_free_memory() {
+		cut -d: -f 2 /proc/meminfo | head -n 2| tail -n 1 | tr -d " kKbB" 
+}
+
+device_info_get_provisioningcode() {
+	local val=`$UCI_GET easycwmp.@local[0].provisioning_code`
+	
+	if [ -z $val ];then
+		echo ""
+	else
+		echo "$val"
+	fi
+}
+
+device_info_set_provisioningcode() {
+	local val="$1"
+	$UCI_SET easycwmp.@local[0].provisioning_code="$val"
+	return 0
+}
+
+device_info_get_uptime() {
+	awk -F '.' '{ print $1 }' /proc/uptime
+}
+
+device_info_get_firstUseDate() {
+	if [ ! -f "$get_first_use_date_file" ];then
+		echo "Unknown Time value"
+	elif [ ! -s "$get_first_use_date_file" ];then
+		echo "Unknown Time value"
+	else
+		cat $get_first_use_date_file
+	fi
+}
+
+device_info_get_instances_vendorconfigfile() {
+	echo "1"
+}
+
+device_info_get_devlog() {
+	local val=`logread | tail -n1`
+	echo "$val"
+}
+
+device_info_get_cpuusage() {
+	top -n 1 | grep CPU: | grep -v grep | awk -F ' ' '{ print $2 }' | tr -d " %"
+}
+
+device_info_get_number_process() {
+	ps | grep -v ps | grep -v "PID USER" | wc -l
+}
+
+VendorLogFile_get_alias() {
+	local val=`$UCI_GET easycwmp.@local[0].vendor_log_alias`
+	
+	if [ -z $val ];then
+		echo "cpe-logfile-alias"
+	else
+		echo "$val"
+	fi
+}
+
+VendorLogFile_set_alias() {
+		local val="$1"
+		$UCI_SET easycwmp.@local[0].vendor_log_alias="$val"
+		return 0	
+}
+
+VendorLogFile_get_name() {
+	echo "vendor_logfile"
+}
+
+VendorLogFile_get_MaximumSize() {
+	echo "0"
+}
+
+VendorLogFile_get_Persistent() {
+	echo "0"
+}
+
+VendorConfigFile_get_name() {
+	echo "vendor_config_file"
+}
+
+VendorConfigFile_get_version() {
+	echo "1.0.0"
+}
+
+VendorConfigFile_get_date() {
+	cat /tmp/VendorConfigFile
+}
+
+VendorConfigFile_get_description() {
+	echo "vendor config file"
+}

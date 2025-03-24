@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><title></title><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"><style>.label-text{display:flex}.label-text .span{background-color:#ccc;padding:5px 10px;border-color:#a8a8a8;border-bottom-left-radius:5px;border-top-left-radius:5px}.label-text .input{border-bottom-left-radius:0;border-top-left-radius:0;width:85px}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <!--子菜单-->
+  <adv-child-menu childType="vpn"></adv-child-menu>
+  <div class="advance-box">
+  	<x-help :text="lang_t('vpn.help_l2tp')"></x-help>
+	<br><br>
+	<div class="fun-box">
+	  <table class="table">  
+	  	<tbody>
+	  	<tr>
+	  	  <td class="fun-left">{{ lang_t('common.state') }}</td>
+	  	  <td>
+	  	  	<x-switch v-model="status"  @change="l2tp_enable"></x-switch>
+	  	  </td>
+		</tr>
+  		</tbody> 
+		<tbody v-show="status">  
+		<tr>
+		  <td class="fun-left">{{ lang_t('vpn.start_ip') }}</td>
+		  <td>
+		  	<div class="label-text">
+				<span class="span">{{sipPrefix}}</span>
+				<input class="input" type="text" v-model="sip" v-verify:parent="formRules" data-name="sip" maxlength="3">
+		  	</div>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('vpn.end_ip') }}</td>
+		  <td>
+		  	<div class="label-text">
+				<span class="span">{{eipPrefix}}</span>
+				<input class="input" type="text" v-model="eip" v-verify:parent="formRules" data-name="eip" maxlength="3">
+		  	</div>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('vpn.server') }}</td>
+		  <td>
+		  	<div class="label-text">
+				<span class="span">{{ipPrefix}}</span>
+				<input class="input" type="text" v-model="server" v-verify:parent="formRules" data-name="server" maxlength="3">
+		  	</div>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('vpn.pri_dns') }}</td>
+		  <td>
+			<input type="text" v-model="priDns" v-verify="formRules" data-name="priDns" maxlength="15">
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">{{ lang_t('vpn.sec_dns') }}</td>
+		  <td>
+			<input type="text" v-model="secDns" v-verify="formRules" data-name="secDns" maxlength="15" disabled>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">MTU</td>
+		  <td>
+			<input type="text" v-model="mtu" v-verify="formRules" data-name="mtu" maxlength="4">
+			&nbsp;&nbsp;
+			<small>({{ lang_t('vpn.range') }}:1400~1500)</small>
+		  </td>
+		</tr>
+		<tr>
+		  <td class="fun-left">MRU</td>
+		  <td>
+			<input type="text" v-model="mru" v-verify="formRules" data-name="mru" maxlength="4">
+			&nbsp;&nbsp;
+			<small>({{ lang_t('vpn.range') }}1400~1500)</small>
+		  </td>
+		</tr>
+		<tr v-if="globalConfig.ipsecSupport">
+			<td class="fun-left">L2TP/IPSEC</td>
+			<td>
+				<x-switch v-model="ipsecL2tpEnable"></x-switch>
+			</td>
+		</tr>
+		<tr v-if="ipsecL2tpEnable && globalConfig.ipsecSupport">
+			<td class="fun-left">{{ lang_t('vpn.psk_public_key') }}</td>
+			<td>
+				<input type="text" v-model="ipsecPsk" v-verify="formRules" data-name="ipsecPsk" maxlength="32">
+				<small>{{lang_t('vpn.psk_tips')}}</small>
+			</td>
+		</tr>
+		<tr><td colspan="2"></td></tr>
+		<tr>
+		  <td class="fun-left"></td>
+		  <td>
+			<button type="button" class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+		  </td>
+		</tr>
+	  	</tbody>
+	  </table>
+  	</div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery-3.2.1.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,status:!1,InitialStatusVal:!1,sip:"",eip:"",server:"",priDns:"",secDns:"",mtu:"",mru:"",ipPrefix:"",sipPrefix:"",eipPrefix:"",ipsecL2tpEnable:!0,ipsecPsk:""}},computed:{formRules:function(){var i=this;return{sip:function(n,e){n=i.sipPrefix+n;var t=cs.ip(n);if(n||e(i.lang_t("vpn.start_ip")+i.lang_t("network.msg1")),0==t)e(i.lang_t("vpn.start_ip")+i.lang_t("network.msg1"));else if(1==t)e(i.lang_t("vpn.start_ip")+i.lang_t("network.msg2"));else if(2==t||3==t||4==t)e(i.lang_t("vpn.start_ip")+i.lang_t("network.msg6"));else{var s=cs.ip2int(i.eipPrefix+i.sip);cs.ip2int(i.eipPrefix+i.eip)<s?e(i.lang_t("rule.msg7")):e()}},eip:function(n,e){n=i.eipPrefix+n;var t=cs.ip(n);n||e(i.lang_t("vpn.end_ip")+i.lang_t("network.msg1")),0==t?e(i.lang_t("vpn.end_ip")+i.lang_t("network.msg1")):1==t?e(i.lang_t("vpn.end_ip")+i.lang_t("network.msg2")):2==t||3==t||4==t?e(i.lang_t("vpn.end_ip")+i.lang_t("network.msg6")):e()},server:function(n,e){n?(n=i.ipPrefix+n,99!=cs.ip(n)?e(i.lang_t("vpn.server")+i.lang_t("vpn.msg6")):e()):e(i.lang_t("vpn.server")+i.lang_t("vpn.msg1"))},priDns:function(n,e){n?99!=cs.ip(n)?e(i.lang_t("vpn.pri_dns")+i.lang_t("vpn.msg6")):e():e(i.lang_t("vpn.pri_dns")+i.lang_t("vpn.msg1"))},secDns:function(n,e){""==n?e():99!=cs.ip(n)?e(i.lang_t("vpn.sec_dns")+i.lang_t("vpn.msg6")):e()},mtu:function(n,e){var t=cs.num_range(n,1400,1500);0==t?e("MTU"+i.lang_t("vpn.msg1")):1==t?e("MTU"+i.lang_t("vpn.msg5")):2==t?e("MTU"+i.lang_t("vpn.msg7")):e()},mru:function(n,e){var t=cs.num_range(n,1400,1500);0==t?e("MRU"+i.lang_t("vpn.msg1")):1==t?e("MRU"+i.lang_t("vpn.msg5")):2==t?e("MRU"+i.lang_t("vpn.msg7")):e()},ipsecPsk:function(n,e){if(i.ipsecL2tpEnable){var t=cs.string(n);0==t?e(i.lang_t("rule.msg12")):1==t?e(i.lang_t("rule.msg22")):e()}else e()}}}},created:function(){var i=this;uiPost.getL2tpServerCfg(function(n){i.status=1==n.enable,i.InitialStatusVal=1==n.enable;var e=n.server.lastIndexOf(".")+1,t=n.sip.lastIndexOf(".")+1,s=n.server.lastIndexOf(".")+1;i.sip=n.sip.slice(e,n.sip.length),i.eip=n.eip.slice(t,n.eip.length),i.server=n.server.slice(s,n.server.length),i.ipPrefix=n.server.slice(0,s),i.sipPrefix=n.sip.slice(0,e),i.eipPrefix=n.eip.slice(0,t),i.priDns=n.priDns,i.secDns=n.secDns,i.mtu=n.mtu,i.mru=n.mru,i.globalConfig.ipsecSupport&&(i.ipsecL2tpEnable="1"==n.ipsecL2tpEnable,i.ipsecPsk=n.ipsecPsk)})},methods:{l2tp_enable:function(n){var e=this;if(0==e.status&&e.status!=e.InitialStatusVal){var t={enable:"0"};uiPost.setL2tpServerCfg(t,function(n){var e=1;n&&(n.wtime&&"0"!=n.wtime&&(e=n.wtime),Cstool.applyLoad(e,function(){location.href=location.href}))})}},handleSubmit:function(){var e=this,t={};Cstool.Verify(this.formRules,function(n){n&&e.status&&(t.enable=e.status?"1":"0",t.sip=e.sipPrefix+e.sip,t.eip=e.eipPrefix+e.eip,t.server=e.ipPrefix+e.server,t.priDns=e.priDns,t.secDns=e.secDns,t.mtu=e.mtu,t.mru=e.mru,e.globalConfig.ipsecSupport&&(t.ipsecL2tpEnable=e.ipsecL2tpEnable?"1":"0",t.ipsecPsk=e.ipsecPsk),uiPost.setL2tpServerCfg(t,function(n){var e=1;n&&(n.wtime&&"0"!=n.wtime&&(e=n.wtime),Cstool.applyLoad(e,function(){location.href=location.href}))}))})}}}</script><script src="/static/js/main.js"></script></body></html>

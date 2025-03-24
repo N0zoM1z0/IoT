@@ -1,0 +1,85 @@
+<div class="wdsWirelessResultTitle">
+	<i class="iconfont icon-success"></i>
+	<div class="wdsWirelessResultText">
+		<span class="desc">{%label.wdsSuccessAndReLink%}</span>
+		<span id="wdsWRLocalApSsid"></span>
+	</div>
+</div>
+<div class="wdsWirelessResultCon">
+	<div class="subTitle wdsWirelessResult">
+		<h2>{%label.wdsHost%}</h2>
+	</div>
+	<div class="wdsBasicInfo wdsWirelessResult">
+		<i class="wdsBasicInfoPic wdsRootAp"></i><div class="wdsBasicInfoContent wdsApInfo wdsRootAp" id="wdsRootAp"></div>
+	</div>
+	<div class="subTitle wdsWirelessResult">
+		<h2>{%label.wdsRouter%}</h2>
+	</div>
+	<div class="wdsBasicInfo wdsWirelessResult">
+		<i class="wdsBasicInfoPic wdsLocalAp"></i><div class="wdsBasicInfoContent wdsApInfo wdsLocalAp" id="wdsLocalAp"></div>
+	</div>
+</div>
+<div id="connetcAndRetry"></div>
+<style type="text/css">
+	div.wdsWirelessResultTitle{
+		width:640px;
+		position: relative;
+		text-align: center;
+	}
+	div.wdsWirelessResultTitle i.iconfont{
+		width: 48px;
+		height: 48px;
+		line-height: 48px;
+		font-size: 48px;
+		color: #24B353;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	div.wdsWirelessResultTitle div.wdsWirelessResultText{
+		display:inline-block;
+		vertical-align:middle;
+		margin-left: 16px;
+		text-align:left;
+	}
+	div.wdsWirelessResultTitle div.wdsWirelessResultText span{
+		color: #333333;
+		line-height: 36px;
+		height:36px;
+		font-size: 24px;
+		font-weight: bold;
+		display: block;
+	}
+	div.wdsWirelessResultCon{
+		width:600px;
+		margin: 16px auto 0px;
+	}
+	div.subTitle.wdsWirelessResult {
+		margin: 16px 0px 8px;
+	}
+	div.subTitle.wdsWirelessResult h2{
+		color: #666666;
+	}
+	div.wdsBasicInfo.wdsWirelessResult{
+		padding: 16px 0px 16px 24px;
+		border: 1px solid #E0E0E0;
+	}
+	div.wdsBasicInfo.wdsWirelessResult i.wdsBasicInfoPic{
+		margin-right: 0px;
+	}
+	div.wdsBasicInfo.wdsWirelessResult div.wdsBasicInfoContent.wdsRootAp{
+		overflow: hidden;
+		height: 80px;
+		width: 470px;
+	}
+	div.wdsBasicInfo.wdsWirelessResult div.wdsBasicInfoContent.wdsLocalAp{
+		overflow: hidden;
+		height: 128px;
+		width: 470px;
+	}
+	div.wdsBasicInfo.wdsWirelessResult div.wdsBasicInfoContent.wdsApInfo ul.medium{
+		margin-bottom: 0px;
+	}
+	div.wdsBasicInfo.wdsWirelessResult div.wdsBasicInfoContent.wdsApInfo ul span{
+		width: 320px !important;
+	}
+</style>

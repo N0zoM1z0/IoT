@@ -1,0 +1,13 @@
+#!/bin/sh
+
+regs m 0x10000060 0x1 20 2
+regs m 0x10000600 0x3 4 2
+regs m 0x10000620 0x2 4 2
+
+while true
+do
+	regs m 0x10000620 0x1 4 2
+	sleep 1
+	regs m 0x10000620 0x0 4 2
+	sleep 1
+done

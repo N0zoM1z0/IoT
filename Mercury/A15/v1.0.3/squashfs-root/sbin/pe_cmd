@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo $@ > /proc/rtk_pe_info/pe_log_cmd
+

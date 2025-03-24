@@ -1,0 +1,618 @@
+#!/bin/sh
+# multi-lang
+#en 1
+multi_lang=$(nvram get wizard_lang)
+if [ "$multi_lang" = "1" -o "$multi_lang" = "8" -o "$multi_lang" = "21" ]; then #en
+test_mail_title="Test Mail from mydlink App"
+test_mail_con1="Dear mydlink App User,"
+test_mail_con2="This is a test mail from the App “mydlink lite”. If you receive this mail, it means that you can use “Event Notification” feature in mydlink App."
+test_mail_con3="mydlink team"
+new_fw_title="Event Notice from mydlink Service - A New Firmware is Available!"
+new_fw_con1="Dear Administrator :"
+new_fw_con2="There is a new firmware available for your home router. If you want to upgrade FW, please make sure that your laptop is connected to your home network first and login router via http://dlinkrouter or http://192.168.0.1 "
+new_fw_con3="Once you log in, click \"manual setup\" to access \"Maintenance\" page. Then press \"check\" in the section of \"Firmware Upgrade\" to download the firmware."
+new_fw_con4="After downloading the firmware, please upload it into rotuter to finish the updrage procedure."
+new_fw_con5="mydlink Service"
+online_check_title="Event Notice from mydlink Service - New User <computer name> is Online"
+online_check_con1="Dear Administrator :"
+online_check_con2="User \" <client device name> \"just enters into your home network. If you want to learn more detailed information, please login mydlink App or mydlink portal <http://mydlink.com/entrance> to check the status of user \" <client device name> \"."
+online_check_con3="mydlink Service"
+warn_title="Event Notice from mydlink Service - Wireless Intrusion Detected!"
+warn_con1="Dear Administrator :"
+warn_con2="An unwelcomed user \" <MAC address> \" attempts to access your home network! If you want to learn more detailed information, please login mydlink App to block the device immediately."
+warn_con3="mydlink Service"
+elif [ "$multi_lang" = "2" ]; then #es
+test_mail_title="Mensaje de prueba de la aplicación mydlink"
+test_mail_con1="Estimado usuario de la aplicación mydlink:"
+test_mail_con2="Este es un mensaje de prueba de la aplicación “mydlink lite”. Si recibe este mensaje, significa que puede utilizar la función “Notificación de eventos” en la aplicación mydlink. "
+test_mail_con3="Equipo de mydlink"
+new_fw_title="Aviso de evento del servicio mydlink: nuevo firmware disponible."
+new_fw_con1="Estimado Administrador:"
+new_fw_con2="Existe nuevo firmware disponible para su router doméstico. Si desea actualizar el firmware, asegúrese antes de que el ordenador portátil está conectado a su red doméstica e inicie sesión en el router a través de http://dlinkrouter o http://192.168.0.1"
+new_fw_con3="Una vez que ha iniciado sesión, haga clic en \"configuración manual\" para acceder a la página \"Mantenimiento\". A continuación, pulse \"comprobar\" en la sección de \"Actualización de firmware\" para descargar el firmware."
+new_fw_con4="Tras descargar el firmware, cárguelo en el router para finalizar el procedimiento de actualización."
+new_fw_con5="Servicio mydlink"
+online_check_title="Aviso de evento del servicio mydlink: el nuevo usuario <computer name> está conectado"
+online_check_con1="Estimado Administrador:"
+online_check_con2="El usuario \" <client device name> \"acaba de introducirse en su red doméstica. Si desea obtener información más detallada, inicie sesión en la aplicación mydlink o en el portal mydlink <http://mydlink.com/entrance> para comprobar el estado del usuario \" <client device name> \"."
+online_check_con3="Servicio mydlink"
+warn_title="Aviso de evento del servicio mydlink: detectada intrusión inalámbrica."
+warn_con1="Estimado Administrador:"
+warn_con2="Un usuario no deseado \" <MAC address> \" intenta acceder a su red doméstica. Si desea obtener más información detallada, inicie sesión en la aplicación mydlink para bloquear inmediatamente el dispositivo."
+warn_con3="Servicio mydlink"
+elif [ "$multi_lang" = "3" ]; then #de
+test_mail_title="Test-Mail von mydlink App"
+test_mail_con1="Sehr geehrter mydlink App User,"
+test_mail_con2="Dies ist eine Test-Mail vom App “mydlink lite”. Der Eingang dieser E-Mail bedeutet, dass Sie die Funktion “Ereignisbenachrichtigung” in mydlink App nutzen können."
+test_mail_con3="Ihr mydlink Team"
+new_fw_title="Ereignisbenachrichtigung vom mydlink Service - Neue Firmware steht zur Verfügung!"
+new_fw_con1="Sehr geehrter Administrator:"
+new_fw_con2="Für Ihren Home Router steht neue Firmware zur Verfügung. Wenn Sie Ihre Firmware aktualisieren möchten, stellen Sie zunächst sicher, dass Ihr Laptop mit Ihrem Heimnetz verbunden ist und melden Sie sich im Router über http://dlinkrouter oder http://192.168.0.1 an."
+new_fw_con3="Klicken Sie nach der Anmeldung auf \"manual setup\" (Manuelle Einrichtung), um die Seite \"Maintenance\" (Wartung und Verwaltung) aufzurufen. Klicken Sie dann im Abschnitt \"Firmware Upgrade\" auf \"check\" (Prüfen), um die Firmware herunterzuladen."
+new_fw_con4="Nach dem Herunterladen der Firmware, laden Sie sie bitte auf den Router, um die Upgrade-Prozedur abzuschließen."
+new_fw_con5="Der mydlink-Dienst"
+online_check_title="Ereignisbenachrichtigung vom mydlink Service - Neuer Benutzer <computer name> ist Online"
+online_check_con1="Sehr geehrter Administrator:"
+online_check_con2="Der Benutzer \" <client device name> \" hat in diesem Moment Zugriff auf Ihr Heimnetz. Falls Sie genauere Informationen wünschen, melden Sie sich bitte im mydlink App oder dem mydlink-Portal <http://de.mydlink.com/entrance> an, um den Status des Benutzers \" <client device name> \" zu überprüfen."
+online_check_con3="Der mydlink-Dienst"
+warn_title="Ereignisbenachrichtigung vom mydlink-Service - Drahtloser Angriff erkannt!"
+warn_con1="Sehr geehrter Administrator:"
+warn_con2="Ein unerwünschter Benutzer \" <MAC address> \" versucht, Zugang zu Ihrem Heimnetz zu bekommen! Falls Sie genauere Informationen wünschen, melden Sie sich bitte im mydlink App an, um das Gerät sofort zu sperren."
+warn_con3="Der mydlink-Dienst"
+elif [ "$multi_lang" = "4" ]; then # fr
+test_mail_title="Courrier électronique test envoyé par l'application mdylink"
+test_mail_con1="Cher utilisateur de l'application mydlink,"
+test_mail_con2="Ce courrier électronique test est envoyé par l'application « mydlink lite ». Si vous le recevez, cela signifie que vous pouvez utiliser la fonction « Notification d’événements » de l'application mydlink."
+test_mail_con3="L'équipe mydlink"
+new_fw_title="Avis d'événement du service mydlink - Un nouveau microprogramme est disponible !"
+new_fw_con1="Cher administrateur,"
+new_fw_con2="Un nouveau microprogramme compatible avec votre routeur personnel est disponible. Pour mettre à jour votre microprogramme, vérifiez que votre ordinateur est connecté à votre réseau personnel, puis connectez-vous sur http://dlinkrouter ou http://192.168.0.1 "
+new_fw_con3="Ensuite, cliquez sur \"configuration manuelle\" pour accéder à la page \"Maintenance\". Appuyez maintenant sur \"contrôler\" dans la section \"Mise à jour du microprogramme\" pour télécharger le microprogramme."
+new_fw_con4="Une fois le microprogramme téléchargé, chargez-le sur votre routeur pour terminer la procédure de mise à jour."
+new_fw_con5="Service mydlink"
+online_check_title="Avis d'événement du service mydlink - Le nouvel utilisateur <computer name> est en ligne"
+online_check_con1="Cher administrateur,"
+online_check_con2="L'utilisateur \" <client device name> \" vient d'intégrer votre réseau personnel. Pour en savoir plus, connectez-vous à l'application mydlink ou au portail mydlink, <http://mydlink.com/entrance>, puis contrôlez l'état de l'utilisateur \" <client device name> \"."
+online_check_con3="Service mydlink"
+warn_title="Avis d'événement du service mydlink - Intrusion détectée sur le réseau sans fil !"
+warn_con1="Cher administrateur,"
+warn_con2="Un utilisateur indésirable \" <MAC address> \" tente d'accéder à votre réseau personnel ! Pour en savoir plus, connectez-vous à l'application mydlink et bloquez le périphérique immédiatement."
+warn_con3="Service mydlink"
+elif [ "$multi_lang" = "5" ]; then #it
+test_mail_title="Messaggio di prova inviato dall'applicazione mydlink"
+test_mail_con1="Gentile utente dell'applicazione mydlink,"
+test_mail_con2="Questo è un messaggio di prova inviato dall'applicazione “mydlink lite”. La ricezione di questo messaggio indica che è possibile utilizzare la funzione “Notifica eventi” nell'applicazione mydlink. "
+test_mail_con3="Il team di mydlink"
+new_fw_title="Avviso di evento inviato dal servizio di assistenza mydlink - Nuovo firmware disponibile"
+new_fw_con1="Gentile amministratore,"
+new_fw_con2="È disponibile nuovo firmware per il router domestico. Se desidera aggiornare il firmware, verifichi prima che il laptop sia connesso alla rete domestica, quindi effettui l'accesso al router tramite http://dlinkrouter o http://192.168.0.1 "
+new_fw_con3="Una volta effettuato l'accesso, faccia clic su \"Configurazione manuale\" per accedere alla pagina \"Manutenzione\". Selezioni quindi \"Controlla\" nella sezione \"Aggiornamento firmware\" per scaricare il firmware."
+new_fw_con4="Dopo aver scaricato il firmware, lo ricarichi nel router per completare la procedura di aggiornamento."
+new_fw_con5="Servizio mydlink"
+online_check_title="Avviso di evento inviato dal servizio di assistenza mydlink - Nuovo utente <computer name> online"
+online_check_con1="Gentile amministratore,"
+online_check_con2="l'utente \"<client device name>\" ha appena effettuato l'accesso alla sua rete domestica. Per ulteriori informazioni, può effettuare l'accesso all'applicazione o al portale mydlink <http://mydlink.com/entrance> per controllare lo stato dell'utente \"<client device name>\"."
+online_check_con3="Servizio mydlink"
+warn_title="Avviso di evento inviato dal servizio di assistenza mydlink - Rilevata intrusione wireless"
+warn_con1="Gentile amministratore,"
+warn_con2="un utente indesiderato \"<indirizzo MAC>\" tenta di accedere alla rete domestica. Per ulteriori informazioni, può effettuare l'accesso all'applicazione mydlink e bloccare immediatamente il dispositivo."
+warn_con3="Servizio mydlink"
+elif [ "$multi_lang" = "6" ]; then # ru
+test_mail_title="Тестировать почту из приложения mydlink"
+test_mail_con1="Уважаемый Пользователь приложения mydlink,"
+test_mail_con2="Это тест почты из приложения “mydlink lite”. Если это почтовое сообщение будет Вами получено, это значит, что можно использовать функцию “Уведомление о событии” в приложении mydlink. "
+test_mail_con3="коллектив mydlink"
+new_fw_title="Уведомление о событии от службы mydlink - Доступно новое программное обеспечение!"
+new_fw_con1="Уважаемый Администратор :"
+new_fw_con2="Доступно новое программное обеспечение для Вашего домашнего маршрутизатора. Если необходимо обновить ПО, пожалуйста, убедитесь сперва, что переносной компьютер подключен к Вашей домашней сети, и авторизуйтесь в маршрутизаторе через http://dlinkrouter или http://192.168.0.1"
+new_fw_con3="Когда вход в систему выполнен, нажмите \"ручная настройка\", чтобы получить доступ к странице \"Техническое обслуживание\". Затем нажмите \"проверить\" в разделе \"Обновление программного обеспечения\", чтобы скачать программное обеспечение."
+new_fw_con4="После скачивания программного обеспечения, пожалуйста, загрузите его в маршрутизатор, чтобы завершить процедуру обновления."
+new_fw_con5="служба mydlink"
+online_check_title="Уведомление о событии от службы mydlink - Новый пользователь <computer name> находится в режиме онлайн"
+online_check_con1="Уважаемый Администратор :"
+online_check_con2="Пользователь \" <client device name> \"входит в Вашу домашнюю сеть. Если необходимо получить более подробную информацию, пожалуйста, авторизуйтесь в приложении mydlink или на портале mydlink <http://mydlink.com/entrance> для проверки статуса пользователя \" <client device name> \"."
+online_check_con3="служба mydlink"
+warn_title="Уведомление о событии от службы mydlink - Обнаружено вторжение в беспроводную сеть!"
+warn_con1="Уважаемый Администратор :"
+warn_con2="Нежелательный пользователь \" <MAC address> \" пытается получить доступ к Вашей доступной сети! Если необходимо получить более подробную информацию, пожалуйста, авторизуйтесь в приложении mydlink, чтобы блокировать устройство немедленно."
+warn_con3="служба mydlink"
+elif [ "$multi_lang" = "7" ]; then # pt
+test_mail_title="Mensagem de Teste da Aplicação mydlink"
+test_mail_con1="Estimado Utilizado da Aplicação mydlink,"
+test_mail_con2="Esta é uma mensagem de teste da Aplicação “mydlink lite”. Se recebeu esta mensagem, significa que pode utilizar a função \"Notificação por Correio Eletrónico\" na Aplicação mydlink. "
+test_mail_con3="equipa mydlink"
+new_fw_title="Aviso de Evento do Serviço mydlink - Está Disponível um Novo Firmware!"
+new_fw_con1="Estimado Administrador:"
+new_fw_con2="Está disponível um novo firmware para o seu router de casa. Se desejar atualizar o FW, certifique-se primeiro de que o seu portátil está ligado à sua rede doméstica e inicie sessão no router em http://dlinkrouter ou http://192.168.0.1"
+new_fw_con3="Quando tiver iniciado sessão, clique em \"configuração manual\" para aceder à página \"Manutenção\". Em seguida, pressione \"verificar\" na secção \"Actualizar Firmware\" para descarregar o firmware."
+new_fw_con4="Após descarregar o firmware, carregue-o para o router para terminar o processo de atualização."
+new_fw_con5="Serviço mydlink"
+online_check_title="Aviso de Evento do Serviço mydlink - Novo Utilizador <computer name> está On-line"
+online_check_con1="Estimado Administrador:"
+online_check_con2="O Utilizador \" <client device name> \" acabou de entrar na sua rede doméstica. Se desejar saber mais informações detalhadas, inicie sessão na Aplicação mydlink ou no portal mydlink <http://mydlink.com/entrance> para verificar o estado do utilizador \" <client device name> \"."
+online_check_con3="Serviço mydlink"
+warn_title="Aviso de Evento do Serviço mydlink - Detetada Intrusão Sem Fios!"
+warn_con1="Estimado Administrador:"
+warn_con2="Um utilizador indesejado \" <MAC address> \" está a tentar aceder à sua rede doméstica! Se desejar saber mais informações detalhadas, inicie sessão na Aplicação mydlink para bloquear o dispositivo imediatamente."
+warn_con3="Serviço mydlink"
+elif [ "$multi_lang" = "8" ]; then # ja
+test_mail_title=""
+test_mail_con1=""
+test_mail_con2=""
+test_mail_con3=""
+new_fw_title=""
+new_fw_con1=""
+new_fw_con2=""
+new_fw_con3=""
+new_fw_con4=""
+new_fw_con5=""
+online_check_title=""
+online_check_con1=""
+online_check_con2=""
+online_check_con3=""
+warn_title=""
+warn_con1=""
+warn_con2=""
+warn_con3=""
+elif [ "$multi_lang" = "9" ]; then # tw
+test_mail_title="來自mydlink App的測試電子郵件"
+test_mail_con1="致 mydlink App使用者,"
+test_mail_con2="這是一封來自手機 App “mydlink lite”的測試郵件。如果您可以收到這封電子郵件，代表您可以在mydlink App正常使用”E-mail通知”功能"
+test_mail_con3="mydlink團隊"
+new_fw_title="mydlink推播事件通知 - 新韌體更新通知"
+new_fw_con1="親愛的管理者 :"
+new_fw_con2="有新韌體可供您的路由器升級。如果您想下載韌體，請確認您的電腦有連接至您的家庭網路，並透過http://dlinkrouter或是http://192.168.0.1來登入管理介面。"
+new_fw_con3="一旦進入管理介面，按下\"手動設定\"並前往\"維護\"頁面。選擇\"韌體更新\"功能並按下\"更新\"來下載韌體。"
+new_fw_con4="成功下載韌體後，請上傳至路由器並完成更新程序。"
+new_fw_con5="mydlink服務"
+online_check_title="mydlink推播事件通知 - 新使用者 <computer name> 已上線"
+online_check_con1="親愛的管理者 :"
+online_check_con2="使用者 \" <client device name> \" 剛進入到您的家庭網路。如果你要針對該使用者得知更多詳細訊息，請登入myldink lite App或是mydlink入口網站 <hyperlink> 來檢查使用者\" <client device name> \"的狀態。"
+online_check_con3="mydlink服務"
+warn_title="mydlink推播事件通知 - 已偵測到無線網路入侵！"
+warn_con1="親愛的管理者 :"
+warn_con2="有不受歡迎的訪客\" <MAC address> \" 試圖存取你的無線網路！如果您要針對該使用者得知更多詳細訊息，請登入myldink lite App並封鎖該使用者"
+warn_con3="mydlink服務"
+elif [ "$multi_lang" = "10" ]; then # cn
+test_mail_title="来自mydlink App的测试邮件"
+test_mail_con1="致 mydlink App 使用者,"
+test_mail_con2="这是一封来自手机App “mydlink lite”的测试邮件。如果您可以收到这封邮件，代表您可以在mydlink App正常使用 “邮件通知”功能。"
+test_mail_con3="mydlink 团队"
+new_fw_title="mydlink发送事件通知 - 新韧件更新通知"
+new_fw_con1="亲爱的管理员 :"
+new_fw_con2="有新轫件可供升级您的路由器。如果您想下载轫件，请确认您的计算机有连接至您的家庭网络，并透过http://dlinkrouter或是http://192.168.0.1来登入管理页面。"
+new_fw_con3="一旦进入管理页面，按下\"手动设置\"并前往\"维护\"页面。选择\"韧件更新\"功能并按下\"更新\"来下载轫件。"
+new_fw_con4="成功下载轫件后，请上传至路由器并完成更新程序。"
+new_fw_con5="mydlink服务"
+online_check_title="mydlink发送事件通知 - 新用户 <computer name> 已上线"
+online_check_con1="亲爱的管理员 :"
+online_check_con2="用户 \" <client device name> \" 刚进入到您的家庭网络。如果您要针对该用户得知更多信息，请登入mydlink lite App或是mydlink入口网站来 <hyperlink> 检视用户\" <client device name> \"的状态。"
+online_check_con3="mydlink服务"
+warn_title="mydlink发送事件通知 - 已侦测到无线网络入侵！"
+warn_con1="亲爱的管理员 :"
+warn_con2="有不受欢迎的访客 \" <client device name> \"试图存取您的无线网络！如果您要针对该用户得知更多信息，请登入mydlink lite App并封锁该用户。"
+warn_con3="mydlink服务"
+elif [ "$multi_lang" = "11" ]; then # ko
+test_mail_title="mydlink 응용프로그램에서 테스트메일"
+test_mail_con1="my dlink 프로그램 사용자님께,"
+test_mail_con2="이 메일은 \"mydlink lite\"에서 보낸 테스트 메일 입니다. 이 메일을 받은 경우 mydlink 프로그램의 \"이벤트 알림\" 기능을 사용 할 수 있습니다. "
+test_mail_con3="Mydlink 팀"
+new_fw_title="mydlink 서비스 공지사항 - 새로운 펌웨어가 있습니다."
+new_fw_con1="관리자님께,"
+new_fw_con2="공유기에 사용 가능한 새로운 펌웨어가 있습니다. 펌웨어를 업그레이드 하시려면 노트북이 홈 네트워크에 연결되어 있는지 확인하고 웹브라우저에서 http://192.168.0.1으로 공유기에 로그인 합니다."
+new_fw_con3="먼저 로그인하여 수동 설정을 클릭하고 고급 페이지로 이동 합니다. 펌웨어 업그레이드 버튼을 누르고 새로운 펌웨어를 다운로드 합니다."
+new_fw_con4="펌웨어를 다운로드 후 공유기에 파일을 업로드 하십시오."
+new_fw_con5="mydlink Service"
+online_check_title="mydlink 서비스에서 공지 사항 - 새로운 사용자<computer name>는 온라인 입니다.  "
+online_check_con1="관리자님께,"
+online_check_con2="사용자<client device name>은 홈 네트워크로 입력 됩니다. 더 자세한 정보를 알고 싶다면, mydlink 프로그램 또는 mydlink 포털<http://mydlink.com/entrance>에서 사용자<client device name> 상태를 확인하시기 바랍니다."
+online_check_con3="mydlink Service"
+warn_title="mydlink 서비스 공지사항 - 무선 침입이 감지 되었습니다!"
+warn_con1="관리자님께,"
+warn_con2="허용되지 않은 사용자<MAC address>가 홈 네트워크에 접근을 시도합니다! 자세한 정보를 알고 싶다면 mydlink 프로그램에 로그인하여 장치를 차단하시기 바랍니다."
+warn_con3="mydlink Service"
+elif [ "$multi_lang" = "12" ]; then # cs
+test_mail_title="Testovací zpráva z aplikace mydlink"
+test_mail_con1="Vážený uživateli aplikace mydlink,"
+test_mail_con2="Toto je testovací zpráva z aplikace „mydlink lite“. Pokud jste tuto zprávu obdrželi, znamená to, že v aplikaci mydlink můžete využít funkci \"upozornění na události\". "
+test_mail_con3="Tým mydlink"
+new_fw_title="Upozornění na událost od služby mydlink - je dostupný nový firmware!"
+new_fw_con1="Vážený správce:"
+new_fw_con2="Pro váš domácí směrovač je dostupný nový firmware. Chcete-li firmware aktualizovat, nejprve zkontrolujte, zda je váš notebook připojen k vaší domácí síti. Pak se přihlaste ke směrovači na adrese  http://dlinkrouter nebo http://192.168.0.1"
+new_fw_con3="Po přihlášení klikněte na možnost \"ruční nastavení\" a přejděte na stránku \"Údržba\". Pak stiskem tlačítka \"Zkontrolovat\" v části \"Aktualizace firmwaru\" stáhněte nový firmware."
+new_fw_con4="Po stažení nahrajte firmware do směrovače a dokončete proces aktualizace."
+new_fw_con5="Služba mydlink"
+online_check_title="Upozornění na událost od služby mydlink - nový uživatel <computer name> je online"
+online_check_con1="Vážený uživateli s právy správce:"
+online_check_con2="Uživatel \"<client device name>\" se právě připojil k vaší domácí síti. Chcete-li se dozvědět podrobnosti, přihlaste se k aplikaci mydlink nebo portálu mydlink na adrese <http://mydlink.com/entrance>, kde můžete zkontrolovat stav uživatele \"<client device name>\"."
+online_check_con3="Služba mydlink"
+warn_title="Upozornění na událost od služby mydlink - zjištěn průnik do bezdrátové sítě!"
+warn_con1="Vážený správce:"
+warn_con2="Nevítaný uživatel \"<MAC address>\" se pokouší přistupovat k vaší domácí síti! Chcete-li se dozvědět podrobnosti, přihlaste se k aplikaci mydlink, kde můžete zařízení ihned zablokovat."
+warn_con3="Služba mydlink"
+elif [ "$multi_lang" = "13" ]; then # da
+test_mail_title="Test-mail fra mydlink-App"
+test_mail_con1="Kære bruger af mydlink-App,"
+test_mail_con2="Dette er en test-mail fra applikationen “mydlink lite”. Hvis du modtager denne mail, betyder det, at du kan anvende funktionen “Event Notification” [Hændelsesmeddelelse] i mydlink-App."
+test_mail_con3="mydlink-teamet"
+new_fw_title="Hændelsesmeddelelse fra mydlink - En ny firmware er tilgængelig!"
+new_fw_con1="Kære Administrator:"
+new_fw_con2="En ny firmware er tilgængelig til din hjemmerouter. Hvis du vil opdatere din firmware, skal du først sørge for, at din bærbare er tilsluttet til dit hjemmenetværk og logge ind til routeren via http://dlinkrouter eller http://192.168.0.1"
+new_fw_con3="Såsnart du logger ind, klikkes på \"manual setup\" [manuel indstilling] for at få adgang til siden \"Maintenance\" [Vedligeholdelse]. Tryk derefter på \"check\" i afsnittet \"Firmware Upgrade\" for at downloade firmwaren."
+new_fw_con4="Efter downloadning af firmwaren indlæses den i routeren for at afslutte opdateringsproceduren."
+new_fw_con5="mydlink Service"
+online_check_title="Hændelsesmeddelelse fra mydlink Service - Ny bruger <computer name> er online"
+online_check_con1="Kære Administrator:"
+online_check_con2="Bruger \" <client device name> \" er netop gået ind på dit hjemmenetværk. Hvis du ønsker en mere detaljere information, kan du logge ind til mydlink-App eller mydlink-portalen <http://mydlink.com/entrance> for at kontrollere status for brugeren \" <client device name> \"."
+online_check_con3="mydlink Service"
+warn_title="Hændelsesmeddelelse fra mydlink Service - Trådløs indtrængen detekteret!"
+warn_con1="Kære Administrator:"
+warn_con2="En uvelkommen bruger \" <MAC address> \" forsøger at trænge ind i dit hjemmenetværk! Hvis du vil have mere detaljeret information, kan du logge ind til mydlink-App for øjeblikkeligt at blokere enheden."
+warn_con3="mydlink Service"
+elif [ "$multi_lang" = "14" ]; then # el
+test_mail_title="Έλεγχος Ταχυδρομείου από το mydlink App"
+test_mail_con1="Αγαπητέ χρήστη του mydlink App,"
+test_mail_con2="Το παρόν είναι ένα δοκιμαστικό μήνυμα από το App “mydlink lite”. Εφόσον λάβετε αυτό το ηλεκτρονικό μήνυμα, σημαίνει ότι μπορείτε να χρησιμοποιήσετε τη λειτουργία \"Ειδοποίηση Συμβάντος\" στο mydlink App. "
+test_mail_con3="Ομάδα mydlink"
+new_fw_title="Ειδοποίηση Συμβάντος από την Υπηρεσία mydlink - Νέα αναβάθμιση είναι διαθέσιμη."
+new_fw_con1="Αγαπητέ Διαχειριστή :"
+new_fw_con2="Υπάρχει νέα αναβάθμιση διαθέσιμη για τον οικιακό σας δρομολογητή. Εάν επιθυμείτε τη νέα ενημέρωση, βεβαιωθείτε ότι ο φορητός υπολογιστής σας είναι συνδεδεμένος στο οικιακό σας δίκτυο και συνδεθείτε στο δρομολογητή μέσω του http://dlinkrouter ή  του http://192.168.0.1"
+new_fw_con3="Μόλις συνδεθείτε, κάντε κλικ στη \"χειροκίνητη ρύθμιση\" για πρόσβαση στη σελίδα \"Συντήρηση\". Στη συνέχεια, πιέστε το \"έλεγχος\" στην ενότητα \"Αναβάθμιση λογισμικού\" για τη λήψη της ενημέρωσης."
+new_fw_con4="Μετά τη λήψη της ενημέρωσης, μεταφορτώστε τη στο δρομολογητή για να ολοκληρώσετε τη διαδικασία αναβάθμισης."
+new_fw_con5="Υπηρεσία mydlink"
+online_check_title="Ειδοποίηση συμβάντος από την Υπηρεσία mydlink - Νέος χρήστης <computer name> είναι συνδεδεμένος"
+online_check_con1="Αγαπητέ Διαχειριστή :"
+online_check_con2="Ο χρήστης \" <client device name> \"μόλις εισέρχεται στο οικιακό σας δίκτυο. Εάν επιθυμείτε να μάθετε περισσότερες πληροφορίες, συνδεθείτε στο mydlink App ή στην πύλη mydlink <http://mydlink.com/entrance> για να ελέγξετε την κατάσταση του χρήστη \"<client device name> \"."
+online_check_con3="Υπηρεσία mydlink"
+warn_title="Ειδοποίηση Συμβάντος από την Υπηρεσία mydlink - Εντοπισμός ασύρματης ανεπιθύμητης εισβολής."
+warn_con1="Αγαπητέ Διαχειριστή :"
+warn_con2="Ένας μη εξουσιοδοτημένος χρήστης \" <MAC address> \" επιχειρεί να αποκτήσει πρόσβαση στο οικιακό σας δίκτυο. Εάν επιθυμείτε να μάθετε περισσότερες πληροφορίες, συνδεθείτε στο mydlink App για να εμποδίσετε άμεσα τη συσκευή."
+warn_con3="Υπηρεσία mydlink"
+elif [ "$multi_lang" = "15" ]; then # fi
+test_mail_title="Testisähköposti mydlink-ohjelmasta"
+test_mail_con1="Hyvä mydlink-apin käyttäjä,"
+test_mail_con2="Tämä on testisähköpostiviesti apista \"mydlink lite\". Jos saat tämän sähköpostiviestin, voit käyttää mydlink-app Tapahtumailmoitus-toimintoa."
+test_mail_con3="mydlink-ryhmä"
+new_fw_title="Tapahtumailmoitus mydlink-palvelusta - Uusi laiteohjelmisto on saatavilla"
+new_fw_con1="Hyvä järjestelmänvalvoja:"
+new_fw_con2="Kotireititintäsi varten on saatavilla uusi laiteohjelmisto. Jos haluat päivittää laiteohjelmiston, varmista, että tietokoneesi on yhteydessä kotiverkkoon ja kirjaudu sitten reitittimen osoitteeseen http://dlinkrouter tai http://192.168.0.1"
+new_fw_con3="Kun olet kirjautunut sisään valitse \"manual setup\" siirtyäksesi \"Maintenance\"-sivulle. Lataa sitten laiteohjelmisto valitsemalla \"check\" kohdassa \"Firmware Upgrade\"."
+new_fw_con4="Kun olet ladannut laiteohjelmiston, päätä päivitys lähettämällä se reitittimeen."
+new_fw_con5="mydlink-palvelu"
+online_check_title="Tapahtumailmoitus mydlink-palvelusta - Uusi käyttäjä <computer name> on verkossa"
+online_check_con1="Hyvä järjestelmänvalvoja:"
+online_check_con2="Käyttäjä \" <client device name> \" on juuri muodostamassa yhteyttä kotiverkkoosi. Jos haluat lisätietoja, kirjaudu mydlink-app tai mydlink-portaaliin <http://mydlink.com/entrance> ja tarkista käyttäjän \" <client device name> \" tila."
+online_check_con3="mydlink-palvelu"
+warn_title="Tapahtumailmoitus mydlink-palvelusta - Langaton tunkeutuminen havaittu!"
+warn_con1="Hyvä järjestelmänvalvoja:"
+warn_con2="Epätoivottu käyttäjä \" <MAC address> \" yrittää käyttää kotiverkkoasi! Jos haluat torjua laitteen välittömästi, kirjaudu mydlink-app:n."
+warn_con3="mydlink-palvelu"
+elif [ "$multi_lang" = "16" ]; then # hr
+test_mail_title="Testna poruka aplikacije mydlink"
+test_mail_con1="Poštovani korisniče aplikacije mydlink,"
+test_mail_con2="Ovo je testna poruka aplikacije \"mydlink lite\". Ako ste primili ovu poruku, znači da možete koristiti značajku \"Obavještavanja o događajima\" u aplikaciji mydlink."
+test_mail_con3="mydlink tim"
+new_fw_title="Obavijest o događaju od servisa mydlink - dostupan je novi firmver!"
+new_fw_con1="Poštovani administratoru:"
+new_fw_con2="Za vaš kućni usmjernik dostupan je novi firmver. Ako želite nadograditi firmver, prvo povežite prijenosno računalo s kućnom mrežom, a zatim prijavite usmjernik putem stranice http://dlinkrouter ili http://192.168.0.1"
+new_fw_con3="Nakon prijave kliknite \"Ručno postavljanje\" kako biste pristupili stranici \"Održavanje\". Potom u odjeljku \"Nadogradnja firmvera\" pritisnite \"Provjeri\" kako biste preuzeli firmver."
+new_fw_con4="Nakon preuzimanja učitajte firmver u usmjernik kako biste dovršili postupak nadogradnje."
+new_fw_con5="mydlink servis"
+online_check_title="Obavijest o događaju od servisa mydlink - novi korisnik <computer name> je na mreži"
+online_check_con1="Poštovani administratoru:"
+online_check_con2="Korisnik \" <client device name> \"upravo je pristupio vašoj kućnoj mreži. Ako želite saznati više, prijavite se na mydlink aplikaciju ili na mydlink portal <http://mydlink.com/entrance> kako biste provjerili status korisnika \" <client device name> \"."
+online_check_con3="mydlink servis"
+warn_title="Obavijest o događaju od servisa mydlink - otkriven je upad u bežičnu mrežu!"
+warn_con1="Poštovani administratoru:"
+warn_con2="Neovlašteni korisnik \" <MAC address> \" pokušava pristupiti vašoj kućnoj mreži! Ako želite saznati više, prijavite se na mydlink aplikaciju kako biste odmah blokirali uređaj."
+warn_con3="mydlink servis"
+elif [ "$multi_lang" = "17" ]; then # hu
+test_mail_title="Tesztüzenet a mydlink alkalmazástól"
+test_mail_con1="Kedves mydlink-alkalmazás Felhasználó,"
+test_mail_con2="Ez egy tesztüzenet a “mydlink lite” alkalmazástól. Ha Ön megkapta ezt az üzenetet, az azt jelenti, hogy használhatja a mydlink alkalmazás “Eseményértesítés” funkcióját. "
+test_mail_con3="A mydlink csapat"
+new_fw_title="Eseményértesítő a mydlink Szolgáltatástól - Új firmware áll rendelkezésre!"
+new_fw_con1="Kedves Rendszergazda:"
+new_fw_con2="Új firmware érhető el az Ön otthoni routerére. Ha szeretné frissíteni a firmware-t, kérjük, előbb csatlakoztassa laptopját az Ön otthoni hálózatához, majd lépjen be a http://dlinkrouter vagy http://192.168.0.1 lehetőségek egyikével "
+new_fw_con3="A belépést követően kattintson a \"kézi beállítás\" lehetőségre a \"Karbantartás\" oldalhoz való hozzáféréshez. Ezt követően nyomja meg az \"ellenőrzés\" gombot a \"Firmware frissítése\" részben a firmware letöltéséhez."
+new_fw_con4="A firmware letöltését követően kérjük, töltse azt fel routerébe a frissítési eljárás befejezéséhez."
+new_fw_con5="mydlink Szolgáltatás"
+online_check_title="Eseményértesítő a mydlink Szolgáltatástól - A(z) <computer name> új felhasználó online állapotban van"
+online_check_con1="Kedves Rendszergazda:"
+online_check_con2="A(z) \" <client device name> \" felhasználó most lépett be az Ön otthoni hálózatába. Ha további információkat szeretne megtudni, kérjük, lépjen be a mydlink alkalmazásba vagy a mydlink portálra <http://mydlink.com/entrance>, hogy ellenőrizhesse \" <client device name> \"felhasználó állapotát."
+online_check_con3="mydlink Szolgáltatás"
+warn_title="Eseményértesítő a mydlink Szolgáltatástól - Vezeték nélküli behatolás észlelése!"
+warn_con1="Kedves Rendszergazda:"
+warn_con2="Egy hívatlan felhasználó - \" <MAC address> \" - próbál hozzáférni az Ön otthoni hálózatához! Ha többet szeretne megtudni, kérjük, lépjen be a mydlink alkalmazásba az eszköz azonnali blokkolásához."
+warn_con3="mydlink Szolgáltatás"
+elif [ "$multi_lang" = "18" ]; then # nl
+test_mail_title="Testmail van mydlink App"
+test_mail_con1="Beste mydlink App gebruiker,"
+test_mail_con2="Dit is een testmail van de App “mydlink lite”. Indien u deze e-mail ontvangt, betekent dit dat u de functie “Gebeurtenissenmelding” in mydlink App kunt gebruiken."
+test_mail_con3="mydlink team"
+new_fw_title="Gebeurtenismelding van mydlink Service - Er is een nieuwe firmware beschikbaar!"
+new_fw_con1="Beste beheerder:"
+new_fw_con2="Er is een nieuwe firmware beschikbaar voor uw thuisrouter. Indien u FW wilt upgraden, dient u er eerst voor te zorgen dat uw laptop is aangesloten op uw thuisnetwerk en loginrouter via http://dlinkrouter of http://192.168.0.1 "
+new_fw_con3="Zodra u zich aanmeldt, klikt u op \"handmatige instelling\" om toegang te krijgen tot de pagina \"Onderhoud\". Druk dan op \"controleren\" in het gedeelte \"Firmware-upgrade\" om de firmware te downloaden."
+new_fw_con4="Na het downloaden van de firmware dient u deze op te laden naar de router om de updateprocedure te voltooien."
+new_fw_con5="mydlink Service"
+online_check_title="Gebeurtenissenmelding van mydlink Service - Nieuwe gebruiker <computer name> is Online"
+online_check_con1="Beste beheerder:"
+online_check_con2="Gebruiker \" <client device name> \"komt net binnen in uw thuisnetwerk. Voor meer gedetailleerde informatie, meldt u zich aan op mydlink App of mydlink portal <http://mydlink.com/entrance> om de status te controleren van gebruiker \" <client device name> \"."
+online_check_con3="mydlink Service"
+warn_title="Gebeurtenismelding van mydlink Service - Draadloze intrusie gedetecteerd!"
+warn_con1="Beste beheerder:"
+warn_con2="Een onbevoegde gebruiker \" <MAC address> \" tracht toegang te krijgen tot uw thuisnetwerk! Voor meer gedetailleerde informatie meldt u zich aan op mydlink App om het toestel onmiddellijk te blokkeren."
+warn_con3="mydlink Service"
+elif [ "$multi_lang" = "19" ]; then # no
+test_mail_title="Test-e-post fra mydlink App"
+test_mail_con1="Kjære mydlink App-bruker,"
+test_mail_con2="Dette er en test-e-post fra App-en \"mydlink lite\". Hvis du mottar denne mailen, betyr det at du kan bruke \"hendelsesvarsel\"-funksjonen i mydlink App. "
+test_mail_con3="mydlink-team"
+new_fw_title="Hendelsesvarsel fra mydlink-service - Ny firmware er tilgjengelig!"
+new_fw_con1="Kjære administrator:"
+new_fw_con2="Ny firmware er tilgjengelig for hjemme-ruteren. Hvis du ønsker å oppgradere firmwaren må du kontrollere at den bærbare datamaskinen er koblet til hjemmenettverket først og logge på ruteren via http://dlinkrouter eller http://192.168.0.1"
+new_fw_con3="Når du er logget inn kan du klikke på \"manuell oppsett\" for å få adgang til \"vedlikehold\"-siden. Trykk så på \"kontroller\" i seksjonen \"firmwareoppgradering\" for å laste ned firmwaren."
+new_fw_con4="Etter nedlasting av firmwaren kan du laste den inn i ruteren for å fullføre oppdateringsprosedyren."
+new_fw_con5="mydlink-service"
+online_check_title="Hendelsesvarsel fra mydlink Service - Ny bruker <computer name> er på nettet"
+online_check_con1="Kjære administrator:"
+online_check_con2="Bruker \" <client device name> \"har kommet inn på ditt hjemmenettverk. Hvis du ønsker mer detaljert informasjon, kan du logge inn på mydlink App eller mydlink-portal <http://mydlink.com/entrance> for å kontrollere statusen til bruker \" <client device name> \"."
+online_check_con3="mydlink-service"
+warn_title="Hendelsesvarsel fra mydlink Service - Trådløs inntrenging oppdaget!"
+warn_con1="Kjære administrator:"
+warn_con2="En uvelkommen bruker \" <MAC address> \" forsøker å få adgang til ditt hjemmenettverk! Hvis du ønsker mer detaljert informasjon, kan du logge inn på mydlink App for å blokkere enheten umiddelbart."
+warn_con3="mydlink-service"
+elif [ "$multi_lang" = "20" ]; then # pl
+test_mail_title="Testowa wiadomość e-mail od aplikacji mydlink"
+test_mail_con1="Szanowny Użytkowniku aplikacji mydlink!"
+test_mail_con2="To jest wiadomość testowa wysłana przez aplikację „mydlink lite”. Otrzymanie tej wiadomości oznacza, że można użyć funkcji „Powiadamianie o zdarzeniach” aplikacji mydlink. "
+test_mail_con3="Zespół mydlink"
+new_fw_title="Powiadomienie o zdarzeniu od usługi mydlink - Dostępne jest nowe oprogramowanie!"
+new_fw_con1="Szanowni Państwo:"
+new_fw_con2="Do Państwa domowego routera dostępne jest nowe oprogramowanie. Jeśli chcą Państwo zaktualizować oprogramowanie, proszę upewnić się, że Państwa komputer przenośny jest podłączony do domowej sieci internetowej, i zalogować się za pośrednictwem adresu http://dlinkrouter lub http://192.168.0.1"
+new_fw_con3="Po zalogowaniu się proszę kliknąć \"manual setup\", aby uzyskać dostęp do strony \"Maintenance\". Aby pobrać oprogramowanie, proszę nacisnąć \"check\" w sekcji \"Firmware Upgrade\"."
+new_fw_con4="Po pobraniu oprogramowania proszę wgrać je na router, aby zakończyć procedurę aktualizacji."
+new_fw_con5="Usługa mydlink"
+online_check_title="Powiadomienie o zdarzeniu od usługi mydlink - Nowy użytkownik <computer name> jest online"
+online_check_con1="Szanowni Państwo:"
+online_check_con2="Użytkownik \" <client device name> \" właśnie uzyskał dostęp do Państwa domowej sieci internetowej. Aby uzyskać więcej informacji, proszę zalogować się w aplikacji mydlink lub na portalu mydlink pod adresem <http://mydlink.com/entrance> i sprawdzić status użytkownika \" <client device name> \"."
+online_check_con3="Usługa mydlink"
+warn_title="Powiadomienie o zdarzeniu od usługi mydlink - Wykryto włamanie do sieci bezprzewodowej!"
+warn_con1="Szanowni Państwo:"
+warn_con2="Niepożądany użytkownik \" <MAC address> \" próbuje uzyskać dostęp do Państwa domowej sieci internetowej! Aby uzyskać więcej informacji, proszę zalogować się do aplikacji mydlink i bezzwłocznie zablokować urządzenie."
+warn_con3="Usługa mydlink"
+elif [ "$multi_lang" = "21" ]; then # pt-Br 
+test_mail_title=""
+test_mail_con1=""
+test_mail_con2=""
+test_mail_con3=""
+new_fw_title=""
+new_fw_con1=""
+new_fw_con2=""
+new_fw_con3=""
+new_fw_con4=""
+new_fw_con5=""
+online_check_title=""
+online_check_con1=""
+online_check_con2=""
+online_check_con3=""
+warn_title=""
+warn_con1=""
+warn_con2=""
+warn_con3=""
+elif [ "$multi_lang" = "22" ]; then # ro
+test_mail_title="E-mail de test de la aplicaţia mydlink"
+test_mail_con1="Stimate utilizator al aplicaţiei mydlink,"
+test_mail_con2="Acesta este un e-mail de test de la aplicaţia „mydlink lite”. Dacă primiţi acest e-mail, înseamnă că puteţi utiliza caracteristica „Event Notification (Notificare evenimente)” în aplicaţia mydlink. "
+test_mail_con3="Echipa mydlink"
+new_fw_title="Notificare eveniment de la serviciul mydlink - Este disponibil un firmware nou!"
+new_fw_con1="Stimate administrator:"
+new_fw_con2="Este disponibil un firmware nou pentru ruterul dvs. de domiciliu. Dacă doriţi să faceţi upgrade la fimware, asiguraţi-vă mai întâi că laptopul este conectat la reţeaua de domiciliu şi conectaţi ruterul prin adresa http://dlinkrouter sau http://192.168.0.1"
+new_fw_con3="După ce vă conectaţi, faceţi clic pe \„manual setup (Configurare manuală)\” pentru a accesa pagina \„Maintenance (Întreţinere)\”. Apoi apăsaţi pe \„check (Verificare)\” în secţiunea \„Firmware Upgrade (Upgrade de firmware)\” pentru a descărca firmware-ul."
+new_fw_con4="După descărcarea firmware-ului, încărcaţi-l în ruter pentru a finaliza procedura de upgrade."
+new_fw_con5="Serviciul mydlink"
+online_check_title="Notificare eveniment de la serviciul mydlink - Utilizatorul nou <computer name> este online"
+online_check_con1="Stimate administrator:"
+online_check_con2="Utilizatorul \„ <client device name> \” tocmai accesează reţeaua dvs. de domiciliu. Dacă doriţi să aflaţi mai multe informaţii, conectaţi-vă la aplicaţia mydlink sau la portalul mydlink <http://mydlink.com/entrance> pentru a verifica starea utilizatorului \„ <client device name> \”."
+online_check_con3="Serviciul mydlink"
+warn_title="Notificare eveniment de la serviciul mydlink - Intruziune fără fir detectată!"
+warn_con1="Stimate administrator:"
+warn_con2="Un utilizator neinvitat \„ <MAC address> \” încearcă să vă acceseze reţeaua de domiciliu! Dacă doriţi să aflaţi mai multe informaţii, conectaţi-vă la aplicaţia mydlink pentru a bloca imediat dispozitivul."
+warn_con3="Serviciul mydlink"
+elif [ "$multi_lang" = "23" ]; then # sl
+test_mail_title="Preizkusna pošta iz aplikacije mydlink"
+test_mail_con1="Spoštovani uporabnik aplikacije mydlink"
+test_mail_con2="Tole je preizkusna pošta iz aplikacije “mydlink lite”. Če ste prejeli to pošto, to pomeni, da lahko uporabljate značilnost “Obvestilo o dogodkih” v aplikaciji mydlink."
+test_mail_con3="skupina mydlink"
+new_fw_title="Obvestilo o dogodkih iz storitve mydlink - na voljo je nova vdelana programska oprema!"
+new_fw_con1="Spoštovani skrbnik:"
+new_fw_con2="Na voljo je nova vdelana programska oprema za vaš hišni usmerjevalnik. Če želite nadgraditi vdelano programsko opremo, najprej povežite prenosni računalnik z hišnim omrežjem in se prijavite v usmerjevalnik na http://dlinkrouter http://192.168.0.1"
+new_fw_con3="Ko se prijavite, kliknite \"Ročna namestitev\", da dostopite do strani \"Vzdrževanje\". Potem kliknite \"Preveri\" v razdelku \"Nadgradnja vdelane programske opreme\", da prenesete vdelano programsko opremo."
+new_fw_con4="Potem, ko prenesete vdelano programsko opremo, je naložite na usmerjevalnik, da zaključite postopek nadgraditve."
+new_fw_con5="Storitev mydlink"
+online_check_title="Obvestilo o dogodkih iz storitve mydlink - Nov uporabnik <computer name> je na mreži"
+online_check_con1="Spoštovani skrbnik:"
+online_check_con2="Uporabnik \" <client device name> \" je pravkar vstopil v vaše domače omrežje. Če želite bolj podrobne informacije, se prijavite v aplikacijo mydlink ali portal mydlink <http://mydlink.com/entrance> in preverite stanje uporabnika \" <client device name> \"."
+online_check_con3="Storitev mydlink"
+warn_title="Obvestilo o dogodkih iz storitve mydlink - zaznan je brezžični vdor!"
+warn_con1="Spoštovani skrbnik:"
+warn_con2="Nepooblaščen uporabnik \" <MAC address> \" posluša dostopiti do vašega domačega omrežja! Če želite bolj podrobne informacije, se prijavite v aplikacijo mydlink, da napravo takoj blokirate."
+warn_con3="Storitev mydlink"
+elif [ "$multi_lang" = "24" ]; then # sv
+test_mail_title="Test-e-postmeddelande från mydlink-appen"
+test_mail_con1="Kära användare av mydlink-appen"
+test_mail_con2="Det här är ett testmeddelande från appen “mydlink lite”. Om du får detta meddelande innebär det att du kan använda funktionen “Händelsemeddelande” från mydlink-appen."
+test_mail_con3="mydlink-teamet"
+new_fw_title="Händelsemeddelande från mydlink-tjänsten - Det finns en ny version på firmware!"
+new_fw_con1="Kära administratör:"
+new_fw_con2="Det finns en ny firmware för din hemmarouter. Om du vill uppgradera din firmware måste du först kontrollera att din bärbara dator är ansluten till ditt hemmanätverk och logga in routern via http://dlinkrouter or http://192.168.0.1 "
+new_fw_con3="När du är inloggad klickar du på \"manual setup\" för att öppna sidan \"Maintenance\". Klicka sedan \"check\" i avsnittet \"Firmware Upgrade\" för att hämta den."
+new_fw_con4="När du har hämtat firmware-filen överför du den till routern för att slutföra uppgraderingen."
+new_fw_con5="mydlink-tjänsten"
+online_check_title="Händelsemeddelande från mydlink-tjänsten - Ny användare <computer name> är online"
+online_check_con1="Kära administratör:"
+online_check_con2="Användare \" <client device name>\"går nu in i ditt hemmanätverk. För mer detaljerad information loggar du in till mydlink-appen eller mydlink-portalen <http://mydlink.com/entrance> för att kontrollera statusen för användare \" <client device name> \"."
+online_check_con3="mydlink-tjänsten"
+warn_title="Händelsemeddelande från mydlink-tjänsten - intrång till trådlöst nätverk har upptäckts!"
+warn_con1="Kära administratör:"
+warn_con2="En ovälkommen användare \" <MAC address> \" försöker komma åt ditt hemmanätverk! För mer detaljerad information loggar du in till mydlink-appen för att omedelbart blockera enheten."
+warn_con3="mydlink-tjänsten"
+fi
+# var
+device_omline=0
+count=0
+logopt_enable=$(nvram get logopt_enable)
+logopt_userloginfo=$(nvram get logopt_userloginfo)
+logopt_fwupgrade=$(nvram get logopt_fwupgrade)
+logopt_wirelesswarn=$(nvram get logopt_wirelesswarn)
+send_mail_type=$1
+mac_addr=$2
+dhcpd_list="/var/tmp/dhcpd_list"
+last_online_list="/var/tmp/last_online_list"
+mydlink_mail="/var/log/mydlink_mail"
+mydlink_mail_acc="/var/tmp/mydlink_mail_acc"
+mail_lock="/var/tmp/mail_lock"
+mydlink_fw_check="/var/tmp/mydlink_fw_check"
+fw_lock="/var/tmp/fw_lock"
+log_triggerevent="/var/log/triggerevent"
+device_name=""
+log_email_server=$(nvram get log_email_server)
+log_email_server_port=$(nvram get log_email_server_port)
+log_email_sender=$(nvram get log_email_sender)
+log_email_username=$(nvram get log_email_username)
+log_email_password=$(nvram get log_email_password)
+recipien=$(nvram get mydlink_EmailAccount)
+
+send_mail(){
+
+	echo "defaults" > $mydlink_mail_acc
+	echo "account provider" >> $mydlink_mail_acc
+	echo "host $log_email_server" >> $mydlink_mail_acc
+	echo "port $log_email_server_port" >> $mydlink_mail_acc
+	echo "from $log_email_sender" >> $mydlink_mail_acc
+	echo "user $log_email_username" >> $mydlink_mail_acc
+	echo "password $log_email_password" >> $mydlink_mail_acc
+
+	if [ "$(nvram get log_email_secret)" = "false" ]; then
+		echo "auth login" >> $mydlink_mail_acc
+	else
+		echo "auth on" >> $mydlink_mail_acc
+		echo "tls on" >> $mydlink_mail_acc
+		echo "tls_certcheck off" >> $mydlink_mail_acc
+	fi
+	echo "account default : provider" >> $mydlink_mail_acc
+
+	cat "/var/log/mydlink_mail" | msmtp_tls $recipien -C "/var/tmp/mydlink_mail_acc" 
+	return $?
+}
+
+# send test mail
+if [ "$send_mail_type" = "test_mail" ]; then
+
+	echo "Subject: $test_mail_title" > $mydlink_mail
+	echo "" >> $mydlink_mail
+	echo "$test_mail_con1" >> $mydlink_mail
+	echo "" >> $mydlink_mail
+	echo "$test_mail_con2" >> $mydlink_mail
+	echo "" >> $mydlink_mail
+	echo "$test_mail_con3" >> $mydlink_mail
+
+	send_mail
+	return $?
+fi
+
+#check online device
+if [ "$send_mail_type" = "device_online" -a ! -s "$mail_lock" ]; then
+	echo ' ' > $mail_lock
+	cmo_get_list local_lan_ip > $dhcpd_list
+	sed -i "s/,/\\n/g" $dhcpd_list
+	if [ ! -s "$dhcpd_list" ]; then
+		rm $mail_lock
+		exit
+	fi
+	if [ ! -s "$last_online_list" ]; then
+		echo ' ' > $last_online_list
+	fi
+
+	datetime=$(date +%h/%d/%Y' '%T)
+	dhcpd_array=$(cat /var/tmp/dhcpd_list)
+	
+	for str in ${dhcpd_array} ;do
+		macaddr=$(echo ${str} | sed 's/.*\///g')
+		res=$(grep ${macaddr} ${last_online_list})
+		if [ "$res" = "" ]; then
+			echo "$datetime;1;$macaddr;new user add the network" >> $log_triggerevent
+			device_online=1
+			temp_str=$(echo ${str} | cut -d '/' -f 2)
+			if [ "$temp_str" = "" ]; then
+				temp_str="UNKNOWN"
+			fi
+			device_name=$device_name" "$temp_str
+		fi
+	done
+
+	cp $dhcpd_list $last_online_list
+
+	if [ "$device_online" -eq "1" -a "$logopt_enable" = "1" -a "$logopt_userloginfo" = "1" ]; then
+		for str in ${device_name} ;do	
+			temp_str2=$(echo $online_check_title | sed "s/computer name/${str}/g")
+			echo "Subject: $temp_str2" > $mydlink_mail
+			echo "" >> $mydlink_mail
+			echo "$online_check_con1" >> $mydlink_mail
+			echo "" >> $mydlink_mail
+			temp_str3=$(echo $online_check_con2 | sed "s/hyperlink/http:\/\/mydlink.com\/entrance/g" | sed "s/client device name/${str}/g")
+			echo "$temp_str3" >> $mydlink_mail
+			echo "" >> $mydlink_mail
+			echo "$online_check_con3" >> $mydlink_mail
+
+			send_mail
+		done
+	fi
+	rm $mail_lock
+fi
+
+#new firmware
+if [ "$send_mail_type" = "fw_check" -a ! -s "$fw_lock" ]; then
+
+	datetime=$(date +%h/%d/%Y' '%T)
+	macaddr=$(nvram get lan_mac)
+	echo "$datetime;3;$macaddr;have new fw to upgrade" >> $log_triggerevent
+
+	if [ "$logopt_enable" = "1" -a "$logopt_fwupgrade" = "1" ]; then
+		echo "Subject: $new_fw_title" > $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$new_fw_con1" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$new_fw_con2" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$new_fw_con3" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$new_fw_con4" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$new_fw_con5" >> $mydlink_mail
+		send_mail
+	echo already_send_mail > $fw_lock
+	fi
+fi
+
+#wireless warn 
+if [ "$send_mail_type" = "wireless_warn" -a "$mac_addr" != "" ]; then
+
+	datetime=$(date +%h/%d/%Y' '%T)
+	echo "$datetime;2;$mac_addr;unwelcome sta try to connect" >> $log_triggerevent
+
+	if [ "$logopt_enable" = "1" -a "$logopt_wirelesswarn" = "1" ]; then
+		echo "Subject: $warn_title" > $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$warn_con1" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		temp_str=$(echo $warn_con2 | sed "s/MAC address/${mac_addr}/g")
+		echo "$temp_str" >> $mydlink_mail
+		echo "" >> $mydlink_mail
+		echo "$warn_con3" >> $mydlink_mail
+		
+		send_mail
+	fi
+
+fi

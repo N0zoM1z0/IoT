@@ -1,0 +1,4 @@
+/lib/modules/5.4.194/xt_esp.ko
+/etc/modules.d/ipt-ipsec
+/lib/modules/5.4.194/xt_policy.ko
+/lib/modules/5.4.194/ipt_ah.ko

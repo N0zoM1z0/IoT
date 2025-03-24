@@ -1,0 +1,306 @@
+#!/bin/sh  /etc/rc.common
+#
+# Copyright (c) 2014, 2019-2020 The Linux Foundation. All rights reserved.
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+# The shebang above has an extra space intentially to avoid having
+# openwrt build scripts automatically enable this package starting
+# at boot.
+
+START=19
+
+EXTRA_COMMANDS=" get_ecm_mode restart_ecm disable_br_netfilter enable_br_netfilter"
+
+
+get_front_end_mode() {
+	config_load "ecm"
+	config_get front_end global acceleration_engine "auto"
+
+	case $front_end in
+	auto)
+		echo '0'
+		;;
+	nss)
+		echo '1'
+		;;
+	sfe)
+		echo '2'
+		;;
+	sfe-cm)
+		echo '3'
+		;;
+	none)
+		echo '4'
+		;;
+	*)
+		echo 'uci_option_acceleration_engine is invalid'
+		;;
+	esac
+}
+
+enable_bypass_routing() {
+	local gw=$(uci -q get dhcp.lan.router)
+	local dns1=$(uci -q get dhcp.lan.dns1)
+	local dns2=$(uci -q get dhcp.lan.dns2)
+	local lanip=$(uci -q get network.lan.ipaddr)
+
+	[ -n "$gw" -a "$gw" != "$lanip" ] && return 0
+	[ -n "$dns1" -a "$dns1" != "$lanip" ] && return 0
+	[ -n "$dns2" -a "$dns2" != "$lanip" ] && return 0
+
+	return 1
+}
+
+support_bridge() {
+	enable_bypass_routing && return 1
+
+	#NSS support bridge acceleration
+	[ -d /sys/kernel/debug/ecm/ecm_nss_ipv4 ] && return 0
+	#SFE doesn't support bridge acceleration
+	[ -d /sys/kernel/debug/ecm/ecm_sfe_ipv4 ] && return 1
+}
+
+load_sfe() {
+	local kernel_version=$(uname -r)
+
+	[ -e "/lib/modules/$kernel_version/shortcut-fe.ko" ] && {
+		[ -d /sys/module/shortcut_fe ] || insmod shortcut-fe
+	}
+
+	[ -e "/lib/modules/$kernel_version/shortcut-fe-ipv6.ko" ] && {
+		[ -d /sys/module/shortcut_fe_ipv6 ] || insmod shortcut-fe-ipv6
+	}
+
+	[ -e "/lib/modules/$kernel_version/shortcut-fe-drv.ko" ] && {
+		[ -d /sys/module/shortcut_fe_drv ] || insmod shortcut-fe-drv
+	}
+}
+
+load_ecm() {
+	[ -d /sys/module/ecm ] || {
+		[ ! -e /proc/device-tree/MP_256 ] && load_sfe
+		insmod ecm front_end_selection=$(get_front_end_mode)
+	}
+
+	support_bridge && {
+		sysctl -w net.bridge.bridge-nf-call-ip6tables=1
+		sysctl -w net.bridge.bridge-nf-call-iptables=1
+		sed 's/^net.bridge.bridge-nf-call-iptables=.*$/net.bridge.bridge-nf-call-iptables=1/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sed 's/^net.bridge.bridge-nf-call-ip6tables=.*$/net.bridge.bridge-nf-call-ip6tables=1/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+	}
+}
+
+unload_ecm() {
+	sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+	sysctl -w net.bridge.bridge-nf-call-iptables=0
+
+	if [ -d /sys/module/ecm ]; then
+		#
+		# Stop ECM frontends
+		#
+		echo 1 > /sys/kernel/debug/ecm/front_end_ipv4_stop
+		echo 1 > /sys/kernel/debug/ecm/front_end_ipv6_stop
+
+		#
+		# Defunct the connections
+		#
+		echo 1 > /sys/kernel/debug/ecm/ecm_db/defunct_all
+		sleep 5;
+
+		rmmod ecm
+		sleep 1
+	fi
+}
+
+set_gro_gso() {
+	local action=$1
+	local intf=$2
+	[ "$action" != "off" ] && action="on"
+	[ -z "$intf" ] && intf="eth0"
+
+	for ldev in $intf
+	do
+		ldev=`echo $ldev | cut -d '.' -f 1`
+		ethtool -K $ldev gro $action
+		ethtool -K $ldev gso $action
+	done
+}
+
+get_ecm_mode() {
+	local ecm_mode=$(get_front_end_mode)
+	local ap_mode=$(uci -q get xiaoqiang.common.NETMODE)
+
+	if [ "$ap_mode" = "lanapmode" -o "$ap_mode" = "wifiapmode" -o "$ap_mode" = "whc_re" ]; then
+		ecm_mode=0
+	else
+		[ "$ecm_mode" = "0" -o "$ecm_mode" = "1" ] &&	{
+			local vpn_up=$(ubus call network.interface.vpn status 2>/dev/null | grep -Eq '"up": true' && echo 1 || echo 0)
+			[ "$vpn_up" = "1" ] && {
+				local wan_proto=$(uci -q get network.wan.proto)
+				if [ "$wan_proto" = "pppoe" ]; then
+					ecm_mode=3
+				else
+					local vpn_proto=$(uci -q get network.vpn.proto)
+					[ "$vpn_proto" = "pptp" -a -f "/etc/ppp/options.pptp" ] && {
+						local vpn_nomppe=$(cat /etc/ppp/options.pptp 2>/dev/null | grep nomppe | wc -l)
+						[ "$vpn_nomppe" = "0" ] && ecm_mode=3
+					}
+				fi
+			}
+		}
+	fi
+
+	echo $ecm_mode
+}
+dualwifi_start_sfe() {
+	local dualwifi_enable=$(uci -q get dualwifi.settings.enabled)
+	local kernel_version=$(uname -r)
+	if [ "$dualwifi_enable" == "1" ]; then
+		rmmod shortcut_fe_drv
+
+		[ -e "/lib/modules/$kernel_version/shortcut-fe.ko" ] && {
+			[ -d /sys/module/shortcut_fe ] || insmod shortcut-fe
+		}
+
+		[ -e "/lib/modules/$kernel_version/shortcut-fe-ipv6.ko" ] && {
+			[ -d /sys/module/shortcut_fe_ipv6 ] || insmod shortcut-fe-ipv6
+		}
+
+		[ -e "/lib/modules/$kernel_version/shortcut-fe-cm.ko" ] && {
+			[ -d /sys/module/shortcut_fe_cm ] || insmod shortcut-fe-cm
+		}
+
+	fi
+}
+
+disable_br_netfilter()
+{
+	uci set ecm.global.disable_br_netfilter=0
+	uci commit
+	
+	stop
+	start
+}
+
+enable_br_netfilter()
+{
+	uci set ecm.global.disable_br_netfilter=1
+	uci commit
+	
+	stop
+	start
+}
+start() {
+	local ecm_mode=$(get_front_end_mode)
+	local br_netfilter=$(uci -q get ecm.global.disable_br_netfilter)
+	local ap_mode=$(uci -q get xiaoqiang.common.NETMODE)
+	local lan_dev=$(uci -q get network.lan.ifname)
+
+
+	if [ "$ap_mode" = "lanapmode" -o "$ap_mode" = "wifiapmode" -o "$ap_mode" = "whc_re" ]; then
+		ecm_mode=0
+	else
+		[ "$ecm_mode" == "0" -o "$ecm_mode" == "1" ] &&	{
+			local vpn_up=$(ubus call network.interface.vpn status 2>/dev/null | grep -Eq '"up": true' && echo 1 || echo 0)
+			[ "$vpn_up" == "1" ] && {
+				local wan_proto=$(uci -q get network.wan.proto)
+				if [ "$wan_proto" = "pppoe" ]; then
+					ecm_mode=3
+				else
+					local vpn_proto=$(uci -q get network.vpn.proto)
+					[ "$vpn_proto" = "pptp" -a -f "/etc/ppp/options.pptp" ] && {
+						local vpn_nomppe=$(cat /etc/ppp/options.pptp 2>/dev/null | grep nomppe | wc -l)
+						[ "$vpn_nomppe" = "0" ] && ecm_mode=3
+					}
+				fi
+			}
+		}
+	fi
+
+	if [ "$ecm_mode" == "3" ]; then
+		set_gro_gso "off" "$lan_dev"
+		
+		sed 's/^net.bridge.bridge-nf-call-iptables=.*$/net.bridge.bridge-nf-call-iptables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sed 's/^net.bridge.bridge-nf-call-ip6tables=.*$/net.bridge.bridge-nf-call-ip6tables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+		sysctl -w net.bridge.bridge-nf-call-iptables=0
+		
+		/etc/init.d/shortcut-fe start &>/dev/null
+	elif [ "$ecm_mode" == "0" -o "$ecm_mode" == "1" ]; then
+		set_gro_gso "on" "$lan_dev"
+
+		load_ecm
+
+		/etc/firewall.d/qca-nss-ecm
+
+		# If the acceleration engine is NSS, enable wifi redirect.
+		[ -d /sys/kernel/debug/ecm/ecm_nss_ipv4 ] && sysctl -w dev.nss.general.redirect=1
+
+		support_bridge && {
+			sed 's/^net.bridge.bridge-nf-call-iptables=.*$/net.bridge.bridge-nf-call-iptables=1/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+			sed 's/^net.bridge.bridge-nf-call-ip6tables=.*$/net.bridge.bridge-nf-call-ip6tables=1/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		}
+
+		if [ -d /sys/module/qca_ovsmgr ]; then
+			insmod ecm_ovs
+		fi
+
+		dualwifi_start_sfe
+
+	fi
+
+	if [ "$br_netfilter" = "0" ]; then
+		sed 's/^net.bridge.bridge-nf-call-iptables=.*$/net.bridge.bridge-nf-call-iptables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sed 's/^net.bridge.bridge-nf-call-ip6tables=.*$/net.bridge.bridge-nf-call-ip6tables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+		sysctl -w net.bridge.bridge-nf-call-iptables=0
+	fi
+}
+
+stop() {
+	# stop nss-ecm
+	if [ -d /sys/module/ecm ]; then
+		# If the acceleration engine is NSS, disable wifi redirect.
+		[ -d /sys/kernel/debug/ecm/ecm_nss_ipv4 ] && sysctl -w dev.nss.general.redirect=0
+
+		sed 's/^net.bridge.bridge-nf-call-iptables=.*$/net.bridge.bridge-nf-call-iptables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+		sed 's/^net.bridge.bridge-nf-call-ip6tables=.*$/net.bridge.bridge-nf-call-ip6tables=0/g' -i /etc/sysctl.d/qca-nss-ecm.conf
+	
+		/etc/firewall.d/qca-nss-ecm
+
+		if [ -d /sys/module/ecm_ovs ]; then
+			rmmod ecm_ovs
+		fi
+
+		unload_ecm
+	fi
+
+	# stop sfe-cm
+	/etc/init.d/shortcut-fe stop &>/dev/null
+
+	local lan_dev=$(uci -q get network.lan.ifname)
+	set_gro_gso "on" "$lan_dev"
+}
+
+
+restart_ecm() {
+	local ecm_mode=$(get_ecm_mode)
+
+	[ -d /sys/module/ecm ] && {
+		[ "$ecm_mode" = "0" -o "$ecm_mode" = "1" ] && return
+	}
+
+	stop
+	start
+}

@@ -1,0 +1,9 @@
+Package: kmod-qca-ssdk-nohnat
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-5680aa684944bc0c51f69602aee97440)
+Provides: qca-ssdk
+Source: tp_package/ethernet-driver/ipq-nss/qca-ssdk
+Section: kernel
+Architecture: ipq
+Installed-Size: 188603
+Description:  Kernel driver for QCA SSDK

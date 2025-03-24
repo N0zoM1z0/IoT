@@ -1,0 +1,61 @@
+<script type="text/javascript">
+	function init()
+	{
+		wzdSelectInit("netModeSel", wzOptions, LINK_TYPE_WIRELESS_REPEATER, wzdNetWorkModeChange);
+		id("sub").onclick = function(){
+			loadPage("PhoneWDS.htm", "phCon");
+		};
+		id("meshHelpCon").onclick = function(){
+			loadPage("PhoneMeshInfo.htm","phCon");
+		}
+		id("backDetect").onclick = function(){
+			loadPage("PhoneNetworkWeb.htm", "phCon");
+		}
+		if(slp.gSysModeSupport) {
+			$("#backDetect").show();
+		} else {
+			$("#backDetect").hide();
+		}
+	}
+	init();
+</script>
+<style type="text/css">
+.meshHelp{
+    width: 260px;
+    font-size: 13px;
+	color: #666666;
+	margin: 0 auto;
+}
+.meshHelpTip{
+    line-height: 20px;
+}
+#backDetect{
+	color: #333333;
+	margin-top: 12px;
+	background: #E0E0E0;
+}
+</style>
+<h1 class="phoneTitle">{%label.netSet%}</h1>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="netModeSel">{%label.netMode%}</label>
+		<i class="clapboard"></i>
+		<span id="netModeSel" class="phSelect">
+			<span class="value">{%label.dhcp%}</span>
+			<i class="arrow"></i>
+		</span>
+	</li>
+</ul>
+<div class="meshHelp">
+    <div id="meshHelpTip1" class="meshHelpTip">
+        1.选择无线中继，本路由将作为从路由，通过无线与前端路由中继，扩展无线网络的覆盖范围。
+    </div>
+    <div id="meshHelpTip2" class="meshHelpTip">
+        2.如果前端路由器为"Mesh"路由器，推荐使用"Mesh"功能扩展无线网络。
+        <i id="meshHelpCon" class="helpBtn iconfont icon-help"></i>
+    </div>
+</div>
+<div class="phFunc">
+	<label id="sub" class="phOneBtn">{%btn.nextStep%}</label>
+	<label id="backDetect" class="phOneBtn">重新检测上网方式</label>
+</div>

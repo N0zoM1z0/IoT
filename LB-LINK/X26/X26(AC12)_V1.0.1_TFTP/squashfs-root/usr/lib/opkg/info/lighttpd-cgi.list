@@ -1,0 +1,4 @@
+/www/cgi-bin/backup.cgi
+/www/cgi-bin/recover.cgi
+/www/cgi-bin/upload.cgi
+/www/cgi-bin/lighttpd.cgi

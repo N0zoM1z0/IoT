@@ -1,0 +1,5 @@
+/lib/modules/5.4.194/esp4.ko
+/lib/modules/5.4.194/xfrm4_tunnel.ko
+/lib/modules/5.4.194/ah4.ko
+/lib/modules/5.4.194/ipcomp.ko
+/etc/modules.d/32-ipsec4

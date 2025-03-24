@@ -1,0 +1,9 @@
+/etc/wireless/mt0/mt0.dat
+/etc_ro/wlan/MT7915_EEPROM.bin
+/lib/firmware/7915_WACPU_RAM_CODE_release.bin
+/etc/wireless/l1profile.dat
+/etc_ro/wlan/mt7615e-sku.dat
+/etc_ro/wlan/mt7615e-sku-bf.dat
+/etc/wireless/mt1/mt1.dat
+/lib/firmware/WIFI_RAM_CODE_7915_E2.bin
+/lib/firmware/mt7915_patch_e2_hdr.bin

@@ -1,0 +1,357 @@
+<script type="text/javascript">
+	(function(){
+		var rebootTimerArray = [];
+		var tableDataArray = [];
+
+		var UCI_TIMER = uciRebootTimer.fileName;
+		var SECTYPE_TIMER = uciRebootTimer.secType.rebootTimerRule;
+		var SECNAME_STATUS = uciRebootTimer.secName.rebootTimerStatus;
+		var CLOCK_SUCCESS = uciRebootTimer.secName.clockSuccess;
+		var KEY_NAME = uciRebootTimer.optName.name;
+		var KEY_MON = uciRebootTimer.optName.mon;
+		var KEY_TUE = uciRebootTimer.optName.tue;
+		var KEY_WED = uciRebootTimer.optName.wed;
+		var KEY_THU = uciRebootTimer.optName.thu;
+		var KEY_FRI = uciRebootTimer.optName.fri;
+		var KEY_SAT = uciRebootTimer.optName.sat;
+		var KEY_SUN = uciRebootTimer.optName.sun;
+		var KEY_ENABLE = uciRebootTimer.optName.enable;
+		var KEY_REBOOTTIME = uciRebootTimer.optName.rebootTime;
+		var ON  = uciRebootTimer.optValue.enable.yes;
+		var OFF = uciRebootTimer.optValue.enable.no;
+
+		var rebootSwitch;
+		var cntNtpStatus = false;
+		var updateTimerHandle = null;
+
+		var weekMap = {
+			"mon": label.one,
+			"tue": label.two,
+			"wed": label.three,
+			"thu": label.four,
+			"fri": label.five,
+			"sat": label.six,
+			"sun": label.day
+		};
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVSAMERTRULE:
+				showStr = label.sameRule;
+				break;
+			case EINVRTTIMEDESCTOOLONG:
+				showStr = errStr.timePoiotTooLong;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function transRebootTimerData(){
+			tableDataArray = [];
+
+			for (var i = 0; i < rebootTimerArray.length; i++)
+			{
+				tableDataArray[i] = {};
+				tableDataArray[i][KEY_NAME] = rebootTimerArray[i][KEY_NAME];
+				tableDataArray[i][SEC_NAME] = rebootTimerArray[i][SEC_NAME];
+
+				tableDataArray[i]["timeDesc"] = rebootTimerArray[i][KEY_REBOOTTIME];
+				tableDataArray[i]["weekDesc"] = ("0" == rebootTimerArray[i][KEY_MON] ? "" : weekMap["mon"])
+												+ ("0" == rebootTimerArray[i][KEY_TUE] ? "" : weekMap["tue"])
+												+ ("0" == rebootTimerArray[i][KEY_WED] ? "" : weekMap["wed"])
+												+ ("0" == rebootTimerArray[i][KEY_THU] ? "" : weekMap["thu"])
+												+ ("0" == rebootTimerArray[i][KEY_FRI] ? "" : weekMap["fri"])
+												+ ("0" == rebootTimerArray[i][KEY_SAT] ? "" : weekMap["sat"])
+												+ ("0" == rebootTimerArray[i][KEY_SUN] ? "" : weekMap["sun"]);
+			}
+		}
+
+		function refreshTable(array, callback){
+			rebootTimerTable.setDataSource(array);
+			rebootTimerTable.loadData();
+
+			typeof callback == "function" && callback();
+		}
+
+		function editCallback(indexData, indexTable){
+			var data = rebootTimerArray[indexData];
+
+			var dataObj = getTimeRuleObjData(data, indexData);
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function addCallback(){
+			var dataObj = getTimeRuleObjData();
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function onSave(data){
+			var KEY_LIST = [KEY_MON, KEY_TUE, KEY_WED, KEY_THU,
+							KEY_FRI, KEY_SAT, KEY_SUN];
+			var postData = {}, module = {}, para = {};
+
+			for (var n = 0; n < rebootTimerArray.length; n++)
+			{
+				if ((data.mon == false ? "0" : "1") == rebootTimerArray[n][KEY_MON] &&
+					(data.tue == false ? "0" : "1") == rebootTimerArray[n][KEY_TUE] &&
+					(data.wed == false ? "0" : "1") == rebootTimerArray[n][KEY_WED] &&
+					(data.thu == false ? "0" : "1") == rebootTimerArray[n][KEY_THU] &&
+					(data.fri == false ? "0" : "1") == rebootTimerArray[n][KEY_FRI] &&
+					(data.sat == false ? "0" : "1") == rebootTimerArray[n][KEY_SAT] &&
+					(data.sun == false ? "0" : "1") == rebootTimerArray[n][KEY_SUN] &&
+					(data.startHour + ":" + data.startMin) == rebootTimerArray[n][KEY_REBOOTTIME])
+				{
+					if (!data.arrayIndex || data.arrayIndex != n)
+					{
+						showToast(label.sameRule);
+						return;
+					}
+				}
+			}
+
+			postData[UCI_TIMER] = module;
+			if ("add" == data.mode)
+			{
+				module[KEY_TABLE] = SECTYPE_TIMER;
+				module[KEY_NAME] = module[KEY_TABLE] + "_" + data.index;
+				module[KEY_PARA] = para;
+			}
+			else
+			{
+				module[data.itemName] = para;
+			}
+
+			for (var i = 0; i < KEY_LIST.length; i++)
+			{
+				para[KEY_LIST[i]] = data[KEY_LIST[i]] == true ? "1" : "0";
+			}
+
+			para[KEY_NAME] = data[KEY_NAME];
+			para[KEY_REBOOTTIME] = data.startHour + ":" + data.startMin;
+
+			para[KEY_ENABLE] = ON;
+
+			if ("add" == data.mode)
+			{
+				$.add(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.addSuccess);
+							requestTableData();
+						});
+					}
+				});
+			}
+			else
+			{
+				$.modify(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.saveSuccess);
+							requestTableData();
+						});
+					}
+				});
+			}
+		}
+
+		function onDel(indexStr, callback){
+			var data = {}, module = {}, name = [];
+			data[UCI_TIMER] = module;
+			module[KEY_NAME] = name;
+
+			var indexArr = indexStr.split("-");
+			for (var idx in indexArr)
+			{
+				var secName = rebootTimerArray[indexArr[idx]][SEC_NAME];
+				name[name.length] = secName;
+			}
+
+			$.del(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.deleteSuccess);
+					requestTableData();
+				}
+			});
+		}
+
+		function refreshNtpStatus(){
+			var data = {};
+			data[UCI_TIMER] = {};
+			data[UCI_TIMER][KEY_NAME] = CLOCK_SUCCESS;
+
+			if (updateTimerHandle != null)
+			{
+				clearTimeout(updateTimerHandle);
+				updateTimerHandle = null;
+			}
+
+			if (true == cntNtpStatus)
+			{
+				return;
+			}
+
+			$.query(data, function(result){
+				cntNtpStatus = parseInt(result[UCI_TIMER][CLOCK_SUCCESS][KEY_ENABLE]);
+
+				if (rebootSwitch == null)
+				{
+					return;
+				}
+
+				if ((ON == rebootSwitch.state) && (false == cntNtpStatus))
+				{
+					addTitleError("cntNtpFail", label.cntNtpFailForRebootTimer);
+				}
+				else
+				{
+					removeTitleError("cntNtpFail");
+				}
+			});
+
+			updateTimerHandle = $.setTimeout(refreshNtpStatus, 1000);
+		}
+
+		function setRebootTimerState(state){
+			var data = {}, para = {};
+			data[UCI_TIMER] = {};
+			data[UCI_TIMER][SECNAME_STATUS] = para;
+			para[KEY_ENABLE] = state;
+
+			$.modify(data, function(result){
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		function getTimeRuleObjData(obj, index){
+			var data = {}, dataIndex, arrayIndex;
+
+			if (obj == undefined)
+			{
+				dataIndex = calcNextIndex(rebootTimerArray);
+
+				data.mode = "add";
+				data.index = dataIndex;
+				data.name = label.timePoint + dataIndex;
+				data.startHour = data.startMin = "00";
+				data.mon = data.tue = data.wed = data.thu = data.fri = data.sat = data.sun = true;
+			}
+			else
+			{
+				dataIndex = obj[SEC_NAME].replace(/.*_(\d)$/, "$1");
+				rebootTime = obj[KEY_REBOOTTIME].split(":");
+
+				data.mode = "edit";
+				data.index = dataIndex;
+				data.arrayIndex = index;
+				data.itemName = obj[SEC_NAME];
+				data.name = obj.name;
+				data.startHour = rebootTime[0];
+				data.startMin = rebootTime[1];
+
+				data.mon = obj[KEY_MON] == "0" ? false : true;
+				data.tue = obj[KEY_TUE] == "0" ? false : true;
+				data.wed = obj[KEY_WED] == "0" ? false : true;
+				data.thu = obj[KEY_THU] == "0" ? false : true;
+				data.fri = obj[KEY_FRI] == "0" ? false : true;
+				data.sat = obj[KEY_SAT] == "0" ? false : true;
+				data.sun = obj[KEY_SUN] == "0" ? false : true;
+			}
+
+			return data;
+		}
+
+		function requestTableData(callback){
+			var data = {};
+			data[UCI_TIMER] = {};
+			data[UCI_TIMER][KEY_TABLE] = SECTYPE_TIMER;
+
+			$.query(data, function(result){
+				rebootTimerArray = formatTableData(result[UCI_TIMER][SECTYPE_TIMER]);
+				transRebootTimerData();
+				refreshTable(tableDataArray, callback);
+			});
+		}
+
+		function fillData(ALL_DATA){
+			var enable = ALL_DATA[UCI_TIMER][SECNAME_STATUS][KEY_ENABLE];
+
+			rebootSwitch = new Switch("switchCon", enable, setRebootTimerState, false);
+
+			refreshNtpStatus();
+
+			rebootTimerArray = formatTableData(ALL_DATA[UCI_TIMER][SECTYPE_TIMER]);
+			transRebootTimerData();
+			refreshTable(tableDataArray);
+		}
+
+		function requestData(){
+			var data = {};
+			data[UCI_TIMER] = {};
+			data[UCI_TIMER][KEY_TABLE] = SECTYPE_TIMER;
+			data[UCI_TIMER][KEY_NAME] = SECNAME_STATUS;
+
+			$.query(data, fillData);
+		}
+
+		/* RESET TIME_PERIOD DIALOG */
+		timePeriodDialog.resetTpType(timePeriodDialog.tpType.REBOOT_TIMER);
+		timePeriodDialog.resetCommit(onSave);
+
+		var rebootTimerTable = new Table({
+			targetId: 'rebootTimerTable',
+			head:[
+				{field:label.pointDesc, width:"0.40"},
+				{field:label.rebootTime, width:"0.27"},
+				{field:label.repeatWeek, width:"0.33"}
+			],
+			column:[
+				{name:KEY_NAME, type:"str"},
+				{name:"timeDesc", type:"str"},
+				{name:"weekDesc", type:"str"}
+			],
+			hasCheckBox: true,
+			editable:false,
+			addable:false,
+			max: REBOOT_TIMER_RULE_MAX,
+			itemOption:[
+				{icon:"icon-edit", type: "edit", str: btn.edit, func:editCallback}
+			],
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.add, func:addCallback, selRelate: false}
+			],
+			clickList:{
+				"click_del_item":{func:onDel, asyn:true}
+			}
+		});
+
+		requestData();
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.rebootTimer%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="systemRebootTimer"></i>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.rebootTimerDescription%}</p>
+</div>
+<div id="rebootTimerTable"></div>

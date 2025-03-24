@@ -1,0 +1,42 @@
+#!/bin/sh /etc/rc.common
+
+START=59
+USE_PROCD=1
+
+NAME1='cmd_convert'
+PROG1='/usr/bin/cmd_convert'
+
+EXTRA_COMMANDS="status"
+EXTRA_HELP="	status	show service status"
+
+start_service() {
+
+	# --------------
+	echo " start $NAME1: $PROG1"
+	
+	while true
+	do
+		WIFI5_START=`ifconfig | grep rai0`
+		if [ -z "$WIFI5_START" ];then
+			sleep 1
+		else
+			break
+		fi
+	done
+	
+	procd_open_instance      $NAME1
+	procd_set_param command  $PROG1
+
+	procd_set_param respawn 10 5 -1
+
+	procd_set_param limits core="unlimited"
+	procd_set_param stderr 1
+	procd_set_param root root
+	procd_close_instance
+
+}
+
+status(){
+	pgrep -l -f 'cmd_convert' || echo 'service not running'
+}
+

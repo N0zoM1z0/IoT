@@ -1,0 +1,93 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		function next()
+		{
+			var data = {};
+			data[uciProto.secName.wan] = {};
+			data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.dynIp;
+
+			slp.protocol.setData({
+				data: data,
+				success: function(res){
+					/* 备份数据 */
+					Object.keys(data).forEach(function(k){
+						gWizardData.networkConf[k] = data[k];
+					});
+
+					loadPage("WizardWireless.htm", "wizardCon");
+				}
+			});
+		};
+
+		var autoDetect = new Button({
+			text: btn.autoDetect,
+			onClick: wzdWanDetect,
+			type: Button.TYPE.SECONDARY,
+			props:{width: "84px", marginLeft: "16px", display: "inline-table"},
+			id:"autoDetect"
+		});
+		var nextBtn = new Button({
+			text:btn.nextStep,
+			onClick:next,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		selectInit("netModeSel", gWizardData.wanSelectOptions, LINK_TYPE_DHCP, wzdNetWorkModeChange);
+
+		if (slp.modeSwitchSupport)
+		{
+			getBridgeStatus(function(bridgeEnable){
+				/* 桥模式下禁止更改上网模式及其他设置 */
+				if (bridgeEnable)
+				{
+					id("netModeSel").disable(true);
+					$(".wizardTip, #autoDetect, #netModeSelUl").hide();
+					$("#bridgeWarning, #staticWanSel").show();
+				}
+			});
+		}
+	}
+	init();
+</script>
+<style>
+p#bridgeWarning{
+	display: none;
+	width: 280px;
+	margin: 0 auto 24px auto;
+	box-sizing: border-box;
+}
+div#staticWanSel{
+	display: none;
+	width: 280px;
+	margin: auto;
+	font-size: 13px;
+	color: #333333;
+	line-height: 20px;
+}
+</style>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="dynamicInput">
+		<h1>{%label.netSet%}</h1>
+		<p id="bridgeWarning" class="commonErrTip">{%label.bridgeWanWarning%}</p>
+		<p class="wizardTip">{%label.dynIpWzdTip%}</p>
+		<ul id="netModeSelUl" class="inputCMPT medium innerLbl">
+			<li class="inputLi" style="display:inline-table">
+				<label>{%label.netMode%}</label>
+				<span class="selectWrap">
+					<span id="netModeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+			<div id="autoDetect"></div>
+		</ul>
+		<div id="staticWanSel">{%label.netMode%}：{%label.dhcp%}</div>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="sub"></div>
+	</li>
+</ul>

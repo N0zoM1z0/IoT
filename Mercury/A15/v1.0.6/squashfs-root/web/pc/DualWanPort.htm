@@ -1,0 +1,82 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.dualWanPort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+            <i class="switchBg"></i>
+            <i class="switchBall"/></i>
+        </div>
+        <p class="description">{%titleDescriptionStr.dualWanDescription%}</p>
+        <ul class="relayErrorTip">
+            <i class="iconfont icon-warn"></i>
+            <span id="relayTipText"></span>
+        </ul>
+    </div>
+</div>
+<div class="selectDualWanWrapper disNone">
+    <p class="selectDualWanInfo">{%label.selectDualWanInfo%}</p>
+    <div id="routerItemSelect">
+        <label class="routerName"></label>
+        <div class="portArea"></div>
+        <div class="buttonGroup">
+            <div id="cancelSelect"></div>
+            <div id="cofirmSelect"></div>
+        </div>
+    </div>
+</div>
+<div class="showDualWanWrapper disNone">
+    <div id="routerItemShow"></div>
+    <p class="wanSetInfo">请在"<span>网络参数-WAN口设置</span>"中进行WAN口设置</p>
+    <ul id="bandWidthSelUl" class="inputCMPT medium selectUl">
+        <label class="outerLbl">{%label.bandWidthSet%}</label>
+        <li class="inputLi">
+            <span class="selectWrap">
+                <span id="bandWidthSel" class="select">
+                    <span class="value"></span>
+                    <i class="arrow iconfont icon-folddropdown"></i>
+                </span>
+            </span>
+        </li>
+    </ul>
+    <div id="wanPortBandWidth"></div>
+    <ul id="balanceModeSelUl" class="inputCMPT medium selectUl">
+        <label class="outerLbl">{%label.balanceMode%}</label>
+        <li class="inputLi">
+            <span class="selectWrap">
+                <span id="balanceModeSel" class="select">
+                    <span class="value"></span>
+                    <i class="arrow iconfont icon-folddropdown"></i>
+                </span>
+            </span>
+        </li>
+    </ul>
+    <label id="topSpeedModeTips">{%label.topspeedModeTips%}</label>
+    <div class="buttonGroup">
+        <div id="reSelPort"></div>
+        <div id="finishWanSet"></div>
+    </div>
+</div><script type="text/javascript">(function(){function R(){l()}function G(){if(!checkNum(this.input.value))return this.showNote(errStr.wanBandWidthErr),!1;this.input.value>H?this.setValue(H.toString()):this.input.value<I&&this.setValue(I.toString());return!0}function S(){for(var a=0,b=0;b<d.length;b++)"WAN"==d[b].name.slice(0,3).toUpperCase()&&a++;2==a&&J(function(){$(".showDualWanWrapper").show();if("undefined"!=typeof m)m.refresh();else{m=new PortConfig;var a={element:$("#routerItemShow")[0],type:"display",port:d,powerPos:n,powerIdx:p,
+showRouterName:!0,routerName:q};m.init(a)}$(".selectDualWanWrapper").hide()})}function T(){z(d,!0);if(void 0!=typeof d)for(var a=0;a<d.length;a++)"disable"!=d[a].state&&(d[a].state="normal",d[a].name="LAN");"undefined"!=typeof g?g.refresh():(g=new PortConfig,a={element:$("#routerItemSelect .portArea")[0],type:"setting",port:d,powerPos:n,powerIdx:p,showRouterName:!1,routerName:q,callback:w},g.init(a));x();$("#routerItemSelect .routerName").html(q);$(".selectDualWanWrapper").show();$(".showDualWanWrapper").hide()}
+function J(a,b){if("undefined"==typeof b||b)confirmDialog.show({content:label.dualWanSaveInfo,callback:function(c){if(c){z(d,!1);c={};c[uciPortConfig.fileName]={};for(var b=0;b<r;b++){for(var k=-1,h=-1,h=0;h<d.length;h++)d[h].name.toUpperCase()=="WAN"+(b+1)&&(k=h);h=k;c[uciPortConfig.fileName]["mwan_"+(b+1)]={};c[uciPortConfig.fileName]["mwan_"+(b+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.on;c[uciPortConfig.fileName]["mwan_"+(b+1)][uciPortConfig.optName.wanPhy]=h+""}$.modify(c,
+function(c){c[ERR_CODE]==ENONE?(showToast(label.dualWanPortOpen),a()):c[ERR_CODE]==EWDSENABLE?alarmDialog.show(errStr.mulWanOpenConflict):c[ERR_CODE]==EDHCPSOFF?alarmDialog.show(errStr.mulWanOpenConflictDhcps):alarmDialog.show(label.wanSetError)})}}});else{var c={};c[uciPortConfig.fileName]={};for(var k=0;k<r;k++){for(var h=-1,t=-1,t=0;t<d.length;t++)d[t].name.toUpperCase()=="WAN"+(k+1)&&(h=t);t=h;c[uciPortConfig.fileName]["mwan_"+(k+1)]={};c[uciPortConfig.fileName]["mwan_"+(k+1)][uciPortConfig.optName.enable]=
+uciPortConfig.optValue.enable.on;c[uciPortConfig.fileName]["mwan_"+(k+1)][uciPortConfig.optName.wanPhy]=t+""}$.modify(c,function(c){c[ERR_CODE]==ENONE?(showToast(label.dualWanPortOpen),a()):c[ERR_CODE]==EWDSENABLE?alarmDialog.show(errStr.mulWanOpenConflict):c[ERR_CODE]==EDHCPSOFF?alarmDialog.show(errStr.mulWanOpenConflictDhcps):alarmDialog.show(label.wanSetError)})}}function U(){var a={mwan_load_balance:{}};a.mwan_load_balance.band_width={};a.mwan_load_balance.band_width.mwan_mode=f;if("manual"==
+f){var b=!0,b=A.checkAll()&&b;if(b=B.checkAll()&&b)a.mwan_load_balance.band_width.wan1_band_width=A.getValue(),a.mwan_load_balance.band_width.wan2_band_width=B.getValue();else return}slp.gMWanLoadBalanceSupport&&(a.mwan_load_balance.basic={},a.mwan_load_balance.basic.balance_mode=s);$.modify(a,function(a){a[ERR_CODE]==ENONE?showToast(label.mwanChanged):alarmDialog.show(label.wanSetError)})}function w(a){for(var b=0,c=0;c<d.length;c++)"active"==d[c].state&&b++;switch(a.state){case "normal":d[a.index].name=
+"LAN";for(c=0;c<d.length;c++)"active"==d[c].state&&(d[c].name="WAN1");x();g.refresh();break;case "active":2>=b?d[a.index].name="WAN"+b:(d[a.index].state="normal",showToast(label.wanPortBusy)),x(),g.refresh()}}function l(){$("#balanceModeSelUl").hide();$("topSpeedModeTips").hide();$("#wanPortBandWidth").html("");slp.gMWanLoadBalanceSupport&&($("#balanceModeSelUl").show(),$("topSpeedModeTips").show(),$.query({"function":{name:"new_module_spec"}},function(a){a=a["function"].new_module_spec.mwan_load_balance_mode;
+y=[];for(var b=0;b<a.length;++b)switch(a[b]){case "topspeed_mode":y.push({str:"极速模式",value:"topspeed_mode"});break;case "compat_mode":y.push({str:"兼容模式",value:"compat_mode"});break;case "dns_balance":y.push({str:"DNS均衡",value:"dns_balance"})}},!1));V(W)}function x(){for(var a=0,b=0;b<d.length;b++)"active"==d[b].state&&a++;a>=r?D.disable(!1):D.disable(!0)}function V(a){var b={},c={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=[];b[uciPortConfig.fileName][KEY_TABLE][0]=uciPortConfig.secType.devInfo;
+b[uciPortConfig.fileName][KEY_TABLE].push(uciPortConfig.secType.mwan);$.query(b,function(b){var d;a:{d="";switch(b[ERR_CODE]){case ENONE:d=!0;break a;case EIPTVTABLEFULL:d=errStr.iptvTableFull;break;case EIPTVENTRYCONFLIC:d=errStr.iptvEntryConflict;break;case EIPTVENTRYNOTEXIST:d=errStr.iptvEntryNoExist;break;case EIPTVLINKMODEERROR:d=errStr.iptvLinkModeError;break;case EIPTVWORKMODEERROR:d=errStr.iptvWorkModeError;break;case EIPTVVLANIDERROR:d=errStr.iptvVlanIdError;break;case EIPTVWANINDEXERROR:d=
+errStr.iptvWanIndexError;break;case EWDSMODEOPEN:d=errStr.wdsOnDhcpsOpen;break;case EAPMODEOPEN:d=errStr.apOnDhcpsOpen;break;case EWDSMODECLOSE:d=errStr.wdsOnDhcpsClose;break;case EAPMODECLOSE:d=errStr.apOnDhcpsClose}alarmDialog.show(d);d=!1}d&&(c.devRes=b[uciPortConfig.fileName][uciPortConfig.secType.devInfo],c.mwanRes=formatTableData(b[uciPortConfig.fileName][uciPortConfig.secType.mwan]),a(c))})}function X(a){for(var b=0;b<a.length;b++)"active"==a[b].state&&(a[b].state="normal",a[b].name="LAN")}
+function K(){$(".showDualWanWrapper .wanSetInfo span").click(function(){$("#netWorkData_menu").click()})}function L(){var a=[{str:"手动",value:"manual"},{str:"自动",value:"dynamic"}],b={mwan_load_balance:{}};b.mwan_load_balance.name=[];b.mwan_load_balance.name[0]="band_width";$.query(b,function(c){if(c.error_code==ENONE){f=c.mwan_load_balance.band_width.mwan_mode;var b=c.mwan_load_balance.band_width.wan1_band_width;c=c.mwan_load_balance.band_width.wan2_band_width;selectInit("bandWidthSel",a,f,M);"undefined"!=
+typeof b&&"undefined"!=typeof c&&(A.setValue(b),B.setValue(c));M(f)}})}function N(){var a={mwan_load_balance:{}};a.mwan_load_balance.name=[];a.mwan_load_balance.name[0]="basic";$.query(a,function(a){a.error_code==ENONE&&(s=a.mwan_load_balance.basic.balance_mode,selectInit("balanceModeSel",y,s,O),O(s))})}function O(a){s=a;"topspeed_mode"==a?$("#topSpeedModeTips").show():$("#topSpeedModeTips").hide()}function M(a){f=a;"manual"==a?$("#wanPortBandWidth").show():$("#wanPortBandWidth").hide()}function P(a){if(1==
+a)$.query({port_manage:{table:"dev_info"}},function(a){var b=a.port_manage.dev_info;for(a=0;a<b.length;a++)1==b[a].cap&&(v=a,n=b[a][uciPortConfig.dynOptName.powerPos],p=b[a][uciPortConfig.dynOptName.powerIdx],E=parseInt(b[a][uciPortConfig.dynOptName.phyNum]),q=b[a][uciPortConfig.dynOptName.name]);$.query({port_manage:{table:"mwan"}},function(a){loadingDialog.show({title:menuStr.dualWanPort,content:{primary:label.wanSettingWait}},void 0,void 0,!1,void 0);var c=b[v][uciPortConfig.dynOptName.phyInfo],
+f=b[v][uciPortConfig.dynOptName.sfpCapability];(new PortConfig).initPortData(c,"WAN",d,f);for(var f=c=0,l=!1,s=!1,e=0;e<r;e++){var u=a.port_manage.mwan[e]["mwan_"+(e+1)][uciPortConfig.optName.wanPhy];-1!=u&&(s=!0,"disable"==d[u].state&&(l=!0))}for(e=0;e<E;e++)"active"==d[e].state&&c++,"normal"==d[e].state&&f++;if(f+c<r)loadingDialog.hide(function(){alarmDialog.show(label.dualWanPortLessErr)}),F.setState(0);else{if(s)if(l)X(d),g=new PortConfig,a={element:$("#routerItemSelect .portArea")[0],type:"setting",
+port:d,powerPos:n,powerIdx:p,callback:w},g.init(a),loadingDialog.hide(function(){alarmDialog.show(label.wanSettedBusy)}),x(),$(".selectDualWanWrapper").show(),$(".showDualWanWrapper").hide();else{for(e=0;e<d.length;e++)"active"==d[e].state&&(d[e].name="LAN",d[e].state="normal");for(e=0;e<r;e++)u=a.port_manage.mwan[e]["mwan_"+(e+1)][uciPortConfig.optName.wanPhy],-1!=u&&(d[u].state="active",d[u].name="WAN"+(e+1));$(".showDualWanWrapper").show();z(d,!1);m=new PortConfig;a={element:$("#routerItemShow")[0],
+type:"display",port:d,powerPos:n,powerIdx:p,routerName:q,callback:w,showRouterName:!0};m.init(a);loadingDialog.hide();J(function(){$(".selectDualWanWrapper").hide()},!1)}else g=new PortConfig,a={element:$("#routerItemSelect .portArea")[0],type:"setting",port:d,powerPos:n,powerIdx:p,callback:w},g.init(a),x(),loadingDialog.hide(),$(".selectDualWanWrapper").show(),$(".showDualWanWrapper").hide();K();L();slp.gMWanLoadBalanceSupport&&N()}})});else{$(".selectDualWanWrapper").hide();$(".showDualWanWrapper").hide();
+var b={port_manage:{}};for(a=0;a<r;a++)b.port_manage["mwan_"+(a+1)]={},b.port_manage["mwan_"+(a+1)].enable="0";Y(function(a){a?confirmDialog.show({content:label.dualWanIptvConflict,callback:function(a){a?$.modify(b,function(a){a[ERR_CODE]==ENONE?(showToast(label.dualWanPortClose),l()):alarmDialog.show(label.wanSetError)}):l()}}):$.modify(b,function(a){a[ERR_CODE]==ENONE?(showToast(label.dualWanPortClose),l()):alarmDialog.show(label.wanSetError)})})}}function z(a,b){for(var c=0;c<a.length;c++)"LAN"==
+a[c].name.toUpperCase()&&(a[c].state=b?"normal":"disable")}function Y(a){if(slp.gIptvSupport){var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=[];b[uciPortConfig.fileName][KEY_TABLE].push(uciPortConfig.secType.iptv);$.query(b,function(b){var d=!1;1==b.port_manage.iptv[1].iptv_2.enable&&(d=!0);a(d)})}else a(!1)}function W(a){var b=JSON.parse(JSON.stringify(a));new Button({text:btn.cancel,onClick:R,type:Button.TYPE.SECONDARY,id:"cancelSelect",props:{width:"120px"}});D=new Button({text:btn.finish,
+onClick:S,type:Button.TYPE.PRIMARY,id:"cofirmSelect",props:{width:"120px",marginLeft:"8px"}});new Button({text:btn.reSelPort,onClick:T,type:Button.TYPE.SECONDARY,id:"reSelPort",props:{width:"116px"}});new Button({text:btn.finish,onClick:U,type:Button.TYPE.PRIMARY,id:"finishWanSet",props:{width:"116px",marginLeft:"8px"}});A=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.wan1BandWidth},targetId:"wanPortBandWidth",tips:{value:label.bandWidthUnit,className:"unit"},check:{blur:G},props:{maxlength:"7",
+type:"text"}});B=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.wan2BandWidth},targetId:"wanPortBandWidth",tips:{value:label.bandWidthUnit,className:"unit"},check:{blur:G},props:{maxlength:"7",type:"text"}});a=b.devRes;for(var c=0;c<a.length;c++)1==a[c].cap&&(v=c,n=a[c][uciPortConfig.dynOptName.powerPos],p=a[c][uciPortConfig.dynOptName.powerIdx],E=parseInt(a[c][uciPortConfig.dynOptName.phyNum]),capMac=a[c][uciPortConfig.dynOptName.mac],q=a[c][uciPortConfig.dynOptName.name]);$("#routerItemSelect .routerName").html(q);
+multiWanOpen=!0;for(c=0;c<r;c++)0==b.mwanRes[c].enable&&(multiWanOpen=!1);multiWanOpen?(slp.gMWanLoadBalanceSupport&&N(),K(),L(),F=new Switch("switchCon",1,function(a){P(a)},!1),b=a[v][uciPortConfig.dynOptName.phyInfo],a=a[v][uciPortConfig.dynOptName.sfpCapability],(new PortConfig).initPortData(b,"WAN",d,a),z(d,!1),$(".showDualWanWrapper").show(),m=new PortConfig,a={element:$(".showDualWanWrapper #routerItemShow")[0],type:"display",port:d,powerPos:n,powerIdx:p,callback:w,routerName:q,showRouterName:!0},
+m.init(a),$(".selectDualWanWrapper").hide()):(F=new Switch("switchCon",0,function(a){P(a)},!1),$(".selectDualWanWrapper").hide(),$(".showDualWanWrapper").hide())}var r=2,F=null,D,A,B,d=[],y=[],q,f,s,n,E,v,p,m,g,I=1,H=1E5,C=0,Q;(function(a){var b={dhcpd:{name:"udhcpd"}};slp.gSysModeSupport&&(b.system={name:"sys_mode"});$.query(b,function(b){slp.gSysModeSupport&&(C=b.system.sys_mode.mode);Q=b.dhcpd.udhcpd.enable;C!=uciSystem.optValue.sysMode.routerMode||"0"==Q?($(".relayErrorTip").show(),$("#switchCon").hide(),
+1==C?$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用双WAN口功能。"):2==C?$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用双WAN口功能。"):$("#relayTipText").text("DHCP服务器关闭时，无法使用双WAN口功能。")):"function"==typeof a&&a()})})(l)})();
+</script><style type="text/css">.selectDualWanInfo{font-size:16px;color:#333;line-height:24px;font-weight:800}#routerItemSelect .routerName{display:block;font-size:13px;color:#333;line-height:20px;margin-top:16px;margin-bottom:12px}.showDualWanWrapper .wanSetInfo{margin-top:16px;font-size:13px;color:#333;line-height:20px;margin-bottom:24px}.showDualWanWrapper .wanSetInfo span{cursor:pointer;color:#f36;text-decoration:underline}.selectDualWanWrapper{margin-top:48px}.showDualWanWrapper{margin-top:48px}#routerItemSelect .buttonGroup{margin-top:48px}.showDualWanWrapper .buttonGroup{margin-top:48px}#topSpeedModeTips{display:block;margin-left:137px;width:240px;height:36px;font-family:PingFangSC-Regular;font-size:12px;color:#999;line-height:18px;font-weight:400}</style>

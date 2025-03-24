@@ -1,0 +1,4 @@
+/lib/config_post_ota/dualwifi_cfg_update.sh
+/etc/init.d/dualwifi
+/usr/sbin/dualwifi.sh
+/etc/config/dualwifi

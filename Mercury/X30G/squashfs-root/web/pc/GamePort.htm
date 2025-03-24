@@ -1,0 +1,191 @@
+<script type="text/javascript">
+	function errHandle(errNo){
+		var showStr = "";
+		switch (errNo)
+		{
+		case ENONE:
+			return true;
+		case ESYSTEM:
+			showStr = errStr.systemErr;
+			break;
+		}
+
+		alarmDialog.show(showStr);
+		return false;
+	}
+
+	(function (){
+		var gameEnableSwitch;
+		var gameContent = $("#gameContent");
+
+		gameEnableSwitch = new Switch("switchCon", 0, gameEnableSwitchHandle, false);
+
+		//判断是否有可用端口
+		function hasUseablePort() {
+			var data = {}, res;
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE)
+				{
+					var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					// 判断是否有可用端口，任一有game功能的路由有可用端口即为true
+					res = routerList.some(function(router) {
+						if (router[uciPortConfig.dynOptName.subFunc].indexOf("game") != -1) {
+							return router[uciPortConfig.dynOptName.phyInfo].some(function(port) {
+								return port[uciPortConfig.dynOptName.role] == "lan" || port[uciPortConfig.dynOptName.role] == "game";
+							});
+						}
+						return false;
+					});
+				}
+				else
+				{
+					errHandle(err_code);
+				}
+			},false);
+			return res;
+		}
+
+		function gameEnableSwitchHandle(state) {
+			var data = {}, self = this, hasUseable;
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][uciPortConfig.secType.game] = {};
+			data[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable] =
+				state == 1 ? uciPortConfig.optValue.enable.on : uciPortConfig.optValue.enable.off;
+
+			loadingDialog.show({
+				title: menuStr.gamePort,
+				content:{
+					primary:label.wanSettingWait
+				}
+			});
+
+			//在打开gamePort前判断是否有可用端口
+			if (state == 1) {
+				//判断是否有可用端口
+				hasUseable = hasUseablePort();
+				if (!hasUseable) {
+					loadingDialog.hide(function(){
+						self.setState(1 - state);
+						alarmDialog.show(errStr.portNumLessErr);
+					});
+				}
+				else {
+					var getData = {};
+
+					getData[uciPortConfig.fileName] = {};
+					getData[uciPortConfig.fileName][KEY_NAME] = uciPortConfig.secType.game;
+
+					$.query(getData, function(result){
+						var err_code = result[ERR_CODE], gameCfg;
+
+						if (err_code == ENONE) {
+							gameCfg = result[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0];
+
+							//判断是否已有配置
+							if (gameCfg && gameCfg[uciPortConfig.optName.gameDev] && gameCfg[uciPortConfig.optName.gameDev] != "00-00-00-00-00-00") {
+								data[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList] = [{}];
+								data[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gamePhy] = gameCfg[uciPortConfig.optName.gamePhy];
+								data[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev] = gameCfg[uciPortConfig.optName.gameDev];
+
+								$.modify(data,function(result){
+									loadingDialog.hide(function(){
+										var err_code = result[ERR_CODE];
+										if (err_code == ENONE) {
+											showToast(label.gameOpened);
+											loadPage("GameCfgEnd.htm","gameContent"); //在这里直接显示已有配置
+										}
+										//已配置端口被占用
+										else if (err_code == EINVCLOUDCLIENTDOWNLOADESTABLISHTCP) {
+											alarmDialog.show({
+												content: errStr.portOccupiedErr,
+												callback: function(){
+													loadPage("GameCfg.htm","gameContent"); //显示配置页面
+												}
+											});
+										}
+										else {
+											errHandle(err_code);
+										}
+										gameContent.css("display","block"); //把显示放在后面不会出现闪烁
+									});
+								});
+							}
+							else { //无配置
+								loadingDialog.hide(function(){
+									loadPage("GameCfg.htm","gameContent"); //显示配置页面
+									gameContent.css("display","block"); //把显示放在后面不会出现闪烁
+								});
+							}
+						}
+					});
+				}
+			}
+			else { //关闭game
+				$.modify(data, function(result){
+					gameContent.css("display","none");
+
+					loadingDialog.hide(function(){
+						showToast(label.gameClosed);
+					});
+				});
+			}
+		}
+
+		// 获取game状态信息
+		function getSwitchStatus() {
+			var data = {};
+
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_NAME] = uciPortConfig.secType.game;
+
+			$.query(data, function(result){
+				var switchStatus, err_code = result[ERR_CODE], game_dev;
+
+				if (err_code == ENONE) {
+					switchStatus = result[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable];
+
+					if (switchStatus == uciPortConfig.optValue.enable.on) { //路由器gamePort开着
+						//判断是否已有配置
+						game_dev = result[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev];
+						gameEnableSwitch.setState(true);
+						if (game_dev != "00-00-00-00-00-00") {
+							loadPage("GameCfgEnd.htm","gameContent"); //在这里直接显示已有配置
+						}
+						else {
+							loadPage("GameCfg.htm","gameContent"); //显示配置页面
+						}
+					}
+					else {
+						gameEnableSwitch.setState(switchStatus);
+						gameContent.css("display","none");
+					}
+				}
+				else {
+					errHandle(err_code);
+				}
+			});
+		}
+
+		getSwitchStatus();
+	})()
+</script>
+<style type="text/css">
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.gamePort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.gameDescription%}</p>
+</div>
+<div id="gameContent">
+</div>

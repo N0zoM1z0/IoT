@@ -1,0 +1,9 @@
+Package: qca-lowi
+Version: miwifi_git-1
+Depends: libc, qca-hostap, librt, libpthread, libnl, libxml2, uclibcxx
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/qca/net/qca-lowi
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7
+Installed-Size: 360227
+Description:  QCA Location WiFi Interface

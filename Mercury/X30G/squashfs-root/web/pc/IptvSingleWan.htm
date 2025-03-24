@@ -1,0 +1,285 @@
+<script type="text/javascript">
+	(function (){
+		var iptvEnableSwitch;
+		var iptvContent = $("#iptvContent");
+		var iptvStepTab;
+		if (isMultiWan) {
+			$("#head").css("display","none");
+			iptvStepTab = $("#subIptvStepTab");
+			iptvEnableSwitch = new Switch("subSwitchCon", 0, iptvEnableSwitchHandle, false);
+		}
+		else {
+			$("#subHead").css("display","none");
+			iptvStepTab = $("#iptvStepTab");
+			iptvEnableSwitch = new Switch("switchCon", 0, iptvEnableSwitchHandle, false);
+		}
+		iptvStepTab.css("display","none");
+
+		function iptvEnableSwitchHandle(state) {
+			var data = {}, self = this, hasUseable;
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)] = {};
+			data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] =
+				state == 1 ? uciPortConfig.optValue.enable.on : uciPortConfig.optValue.enable.off;
+
+			loadingDialog.show({
+				title: label.iptvPort,
+				content:{
+					primary:label.wanSettingWait
+				}
+			});
+
+			//在打开iptv前判断是否有可用端口
+			if (state == 1) {
+				hasUseable = hasUseablePort();
+				// 可定义端口数不足
+				if (!hasUseable) {
+					loadingDialog.hide(function(){
+						self.setState(1 - state);
+						alarmDialog.show(errStr.portNumLessErr);
+					});
+				}
+				else {
+					var getData = {};
+
+					getData[uciPortConfig.fileName] = {};
+					getData[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.iptv;
+
+					$.query(getData, function(result){
+						var err_code = result[ERR_CODE], iptvCfg;
+
+						if (err_code == ENONE) {
+							iptvCfg = result[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)];
+
+							//判断是否已有配置
+							if (iptvCfg[uciPortConfig.optName.downlinkPhy] != -1) {
+								data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)] = {};
+								data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+								data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy] = iptvCfg[uciPortConfig.optName.uplinkPhy];
+								data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy] = iptvCfg[uciPortConfig.optName.downlinkPhy];
+								data[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev] = iptvCfg[uciPortConfig.optName.downlinkDev];
+
+								$.modify(data,function(result){
+									loadingDialog.hide(function(){
+										var err_code = result[ERR_CODE];
+										if (err_code == ENONE) {
+											showToast(label.iptvOpened);
+											iptvStepTab.css("display","none");
+											stepPage(iptvEndPage); //在这里直接显示已有配置
+										}
+										else if (err_code == EINVCLOUDCLIENTDOWNLOADESTABLISHTCP) {
+											alarmDialog.show({
+												content: errStr.portOccupiedErr,
+												callback: function(){
+													iptvStepTab.css("display","block");
+													stepPage(iptvFirstPage);//显示配置页面
+												}
+											});
+										}
+										else {
+											errHandle(err_code);
+										}
+										iptvContent.css("display","block");
+									});
+								});
+							}
+							else {
+								loadingDialog.hide(function(){
+									iptvStepTab.css("display","block");
+									stepPage(iptvFirstPage);//显示配置页面
+									iptvContent.css("display","block");
+								});
+							}
+						}
+					});
+				}
+			}
+			else { //关闭iptv
+				$.modify(data, function(result){
+					iptvStepTab.css("display","none");
+					iptvContent.css("display","none");
+
+					loadingDialog.hide(function(){
+						showToast(label.iptvClosed);
+					});
+				});
+			}
+		}
+
+		//判断是否有可用端口
+		function hasUseablePort() {
+			var data = {}, res;
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE)
+				{
+					var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					// 判断是否有可用端口，任一有iptv功能的路由有可用端口即为true
+					res = routerList.some(function(router) {
+						if (router[uciPortConfig.dynOptName.subFunc].indexOf("iptv") != -1) {
+							return router[uciPortConfig.dynOptName.phyInfo].some(function(port) {
+								return port[uciPortConfig.dynOptName.role] == "lan" ||
+									port[uciPortConfig.dynOptName.role] == "uplink" + (wanIdx+1) ||
+									port[uciPortConfig.dynOptName.role] == "downlink" + (wanIdx+1);
+							});
+						}
+						return false;
+					});
+				}
+				else
+				{
+					errHandle(err_code);
+				}
+			},false);
+			return res;
+		}
+
+		// 获取iptv状态信息
+		function getSwitchStatus() {
+			var data = {};
+
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.iptv;
+
+			$.query(data, function(result){
+				var switchStatus, err_code = result[ERR_CODE], downlink_phy;
+
+				if (err_code == ENONE) {
+					switchStatus = result[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable];
+					downlink_phy = result[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy];
+
+					if (switchStatus == uciPortConfig.optValue.enable.on) { //路由器iptv开着
+						//判断是否已有配置（和配置的端口是否已被占用）
+						iptvEnableSwitch.setState(true);
+						if (downlink_phy != -1) {
+							iptvStepTab.css("display","none");
+							stepPage(iptvEndPage); //在这里直接显示已有配置
+						}
+						else {
+							iptvStepTab.css("display","block");
+							stepPage(iptvFirstPage);//显示配置页面
+						}
+					}
+					else {
+						iptvEnableSwitch.setState(switchStatus);
+						iptvStepTab.css("display","none");
+						iptvContent.css("display","none");
+					}
+				}
+				else {
+					errHandle(err_code);
+				}
+			});
+		}
+
+		if(curSysMode != uciSystem.optValue.sysMode.routerMode || curDhcpdStatus == "0"){
+			$(".relayErrorTip").show();
+			$("#switchCon").hide();
+			if (curSysMode == AP_MODE) {
+				$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用IPTV口功能。");
+			} else if(curSysMode == WDS_MODE){
+				$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用IPTV口功能。");
+			} else {
+				$("#relayTipText").text("DHCP服务器关闭时，无法使用IPTV口功能。");
+			}
+		} else {
+			getSwitchStatus();
+		}
+	})()
+</script>
+<style type="text/css">
+	ul.stepTab{
+		height:40px;
+		width:auto;
+		border-bottom:2px solid #E6E6E6;
+		box-sizing: border-box;
+		position: relative;
+	}
+	ul.stepTab li.step{
+		display: inline-block;
+		height: 40px;
+		width: 160px;
+		line-height: 40px;
+		vertical-align: middle;
+		/*border-bottom:2px solid #FF4C79;*/
+	}
+	ul.stepTab li.step i.stepNum{
+		display: inline-block;
+		width:16px;
+		height:16px;
+		border-radius: 9px;
+		background-color: #CCCCCC;
+		vertical-align: middle;
+		line-height: 16px;
+		text-align: center;
+		font-style: normal;
+		font-size: 12px;
+		color: #FAFAFA;
+		margin-right:6px;
+	}
+	ul.stepTab li.step span{
+		vertical-align: middle;
+		line-height: 40px;
+		font-size: 14px;
+		color: #666666;
+	}
+	ul.stepTab li.step.active span{
+		color: #000;
+		font-weight: bold;
+	}
+	ul.stepTab li.underline{
+		position: absolute;
+		height: 2px;
+		bottom: -2px;
+		background:#ff4d79;
+		cursor:default;
+		-webkit-transition:all .3s ease-in-out;
+		-moz-transition:all .3s ease-in-out;
+		-o-transition:all .3s ease-in-out;
+		transition:all .3s ease-in-out;
+	}
+	.meshIptvDisable{
+		line-height: 20px;
+		padding-top: 6px;
+		padding-bottom: 16px;
+		font-size: 13px;
+		color: #FF3366;
+	}
+</style>
+<div id="head" class="head">
+	<div class="title">
+		<h1>{%menuStr.iptvPort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.iptvDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+	<p class="meshIptvDisable disNone">{%label.meshIptvDisable%}</p>
+	<ul class="stepTab" id="iptvStepTab">
+		<li class="underline"></li>
+		<li class="step"><i class="stepNum">1</i><span>{%label.iptvConnectMode%}</span></li>
+		<li class="step"><i class="stepNum">2</i><span>{%label.iptvPortChoose%}</span></li>
+		<li class="step" id="iptvModeChoose"><i class="stepNum">3</i><span>{%label.iptvModeChoose%}</span></li>
+	</ul>
+</div>
+<div id="subHead">
+	<div class="subTitle">
+		<h2>{%label.iptvPort%}</h2>
+		<div id="subSwitchCon" class="switchCon">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+</div>
+<div id="iptvContent">
+</div>

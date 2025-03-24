@@ -1,0 +1,634 @@
+<script type="text/javascript">
+	(function(){
+		var switchArray = {};
+
+		var BS_ENABLE = uciWireless.optValue.bsEnable.enable;
+		var BS_DISABLE = uciWireless.optValue.bsEnable.disable;
+		var rawHost, rawGuest;
+		var bandSteeringOpen, bsSwitch = null;
+
+		/* WiFi All Switch */
+		var isSupportWifiAllSwitch = false, wifiAllSwitch = null;
+
+		var wifiStateHandle = null;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVSSIDNULL:
+				showStr = errStr.wlanSsidErr;
+				break;
+			case EINVSSIDLEN:
+				showStr = errStr.wlanSsidLenErr;
+				break;
+			case EINVSSIDBLANK:
+				showStr = errStr.wlanSsidBlank;
+				break;
+			case EWLANPWDBLANK:
+				showStr = errStr.wlanPwdNull;
+				break;
+			case EINVPSKLEN:
+				showStr = errStr.wlanPwdLenValid;
+				break;
+			case EINVWLANPWD:
+				showStr = errStr.wlanPwdInvalid;
+				break;
+			case ESYSBUSY:
+				showStr = errStr.invRequestFailTrylater;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function onPwdKeyup()
+		{
+			var self = this;
+
+			if (EINVWLANPWD == checkWlanPwd(this.input.value))
+			{
+				this.showNote(errStr.wlanWzdPwdValid);
+				return false;
+			}
+
+			return true;
+		}
+
+		function formatData(host, guest)
+		{
+			var HOST_2G  = uciWireless.dynData.host_2g;
+			var HOST_5G  = uciWireless.dynData.host_5g;
+			var WLAN_BS  = uciWireless.secName.wlanBS;
+			var HOST_5G1 = uciWireless.dynData.host_5g1;
+			var HOST_5G2 = uciWireless.dynData.host_5g2;
+			var GUEST_2G = uciGuestNet.secName.wireless2G;
+			var GUEST_5G = uciGuestNet.secName.wireless5G;
+
+			var dataArr = [];
+
+			function dataPackage(isHost, name, title)
+			{
+				var raw = isHost ? host: guest;
+				var optionEnable = (WLAN_BS == name)
+					? uciWireless.optName.wifiEnable
+					: uciWireless.dynOptName.enable;
+
+				dataArr.push({
+					host: isHost,
+					name: name,
+					title: title,
+					ssid: raw[name][uciWireless.dynOptName.ssid],
+					key: raw[name][uciWireless.dynOptName.key],
+					enable: raw[name][optionEnable] || raw[name][optionEnable]
+				});
+			}
+
+			switch(slp.bandsProvided)
+			{
+			case slp.SINGLE:
+				dataPackage(true, HOST_2G, label.wirelessHost);
+				break;
+			case slp.DOUBLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(true, WLAN_BS, label.wirelessHost);
+				}
+				else
+				{
+					dataPackage(true, HOST_2G, label.wirelessNet2G);
+					dataPackage(true, HOST_5G, label.wirelessNet5G);
+				}
+				break;
+			case slp.TRIPLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(true, WLAN_BS, label.wirelessHost);
+				}
+				else
+				{
+					dataPackage(true, HOST_2G,  label.wirelessNet2G);
+					dataPackage(true, HOST_5G1, label.wirelessNet5G1);
+					dataPackage(true, HOST_5G2, label.wirelessNet5G2);
+				}
+				break;
+			}
+
+			if (1 == slp.moduleSpec.guest5g)
+			{
+				dataPackage(false, GUEST_2G, label.wirelessGuest2G);
+				dataPackage(false, GUEST_5G, label.wirelessGuest5G);
+			}
+			else
+			{
+				dataPackage(false, GUEST_2G, label.wirelessGuest);
+			}
+
+			return dataArr;
+		}
+
+		function fillEditArea()
+		{
+			var SWITCH = "switch_";
+			var INPUT = "inputCon_";
+			var BUTTON = "button_";
+
+			switchArray = {};
+
+			var array = formatData(rawHost, rawGuest);
+			var len = array.length,
+				container = $("ul.wifiSetCon")[0],
+				colClass = (len > 3 ? "col-4" :"col-3"),
+				mod = colClass[colClass.length - 1],
+				li, divCon, div, span, iCon, lblCon;
+
+			/* 清空列表 */
+			emptyNodes(container);
+
+			array.forEach(function(item, i){
+				li = document.createElement("li");
+				li.className = "column " + colClass;
+
+				/* Switch */
+				divCon = document.createElement("div");
+				divCon.className = "switchConWrapper";
+				li.appendChild(divCon);
+
+				span = document.createElement("span");
+				span.className = "wifiTitle";
+				span.innerHTML = item.title;
+				divCon.appendChild(span);
+
+				div = document.createElement("div");
+				div.id = SWITCH + item.name;
+				div.className = "switchCon";
+				divCon.appendChild(div);
+
+				iCon = document.createElement("i");
+				iCon.className = "switchBg";
+				div.appendChild(iCon);
+
+				iCon = document.createElement("i");
+				iCon.className = "switchBall";
+				div.appendChild(iCon);
+
+				div = document.createElement("div");
+				div.id = INPUT + item.name;
+				li.appendChild(div);
+
+				div = document.createElement("div");
+				div.id = BUTTON + item.name;
+				li.appendChild(div);
+
+				(i%mod == 0)&& (li.style.marginLeft = "0");
+				container.appendChild(li);
+
+				/* 初始化组件 */
+				var ssidC = new Input({
+					type:Input.TYPE.PLAIN_TEXT,
+					targetId:(INPUT + item.name),
+					check:{blur:checkSsidInput},
+					props:{maxlength: '32', value:item.ssid, type: "text"}});
+
+				var pwdC = new Input({
+					type:Input.TYPE.CIPHER_TEXT,
+					targetId:(INPUT + item.name),
+					strength:{show: true, least:8, critical:12},
+					check:{blur:onPwdBlur, keyup:onPwdKeyup},
+					props:{maxlength: '63', value:item.key, type: "text"}});
+
+				new Button({
+					text:btn.save,
+					onClick:function(){
+						var self = this;
+						var ON  = uciWireless.dynOptValue.encryption.on;
+						var OFF = uciWireless.dynOptValue.encryption.off;
+						var api, raw, encryptStr, hasCNChar = false;
+
+						if (!ssidC.checkAll() || !(pwdC.disabled || pwdC.checkAll()))
+						{
+							return;
+						}
+
+						/* 保存主人网络还是访客网络 */
+						if (item.host)
+						{
+							api = slp.host;
+							raw = rawHost;
+							encryptStr = uciWireless.dynOptName.encryption;
+						}
+						else
+						{
+							api = slp.guest;
+							raw = rawGuest;
+							encryptStr = uciGuestNet.optName.encrypt;
+						}
+
+						var data = {};
+						if (raw[item.name][uciWireless.dynOptName.ssid] != ssidC.getValue())
+						{
+							data[item.name] = {};
+							data[item.name][uciWireless.dynOptName.ssid] = ssidC.getValue();
+
+							if (checkStrHasCN(ssidC.getValue()))
+							{
+								hasCNChar = true;
+							}
+						}
+						if (raw[item.name][uciWireless.dynOptName.key] != pwdC.getValue())
+						{
+							data[item.name] = data[item.name] || {};
+							data[item.name][uciWireless.dynOptName.key] = pwdC.getValue();
+							data[item.name][encryptStr] = (pwdC.getValue().length == 0) ? OFF : ON;
+						}
+
+						/* 数据未改变 */
+						if (Object.keys(data).length == 0)
+						{
+							return;
+						}
+
+						if (hasCNChar)
+						{
+							confirmDialog.show({
+								content: label.confirmSsidHasCNChar,
+								button: {confirmStr:btn.btnY,
+										 cancelStr:btn.btnN},
+								callback: function(choose){
+									if (choose)
+									{
+										ssidC.input.select();
+									}
+									else
+									{
+										send();
+									}
+								}
+							});
+						}
+						else
+						{
+							send();
+						}
+
+						function send(){
+							api.setData({
+								data: data,
+								success: function(res){
+									showToast(label.saveSuccess);
+									raw[item.name][uciWireless.dynOptName.ssid] = ssidC.getValue();
+									raw[item.name][uciWireless.dynOptName.key] = pwdC.getValue();
+								},
+								fail: function(result){
+									if (result != undefined && result[ERR_CODE] != undefined)
+									{
+										errHandle(result[ERR_CODE]);
+									}
+								}
+							});
+						}
+					},
+					type:Button.TYPE.PRIMARY,
+					id:(BUTTON + item.name),
+					props:{width:"88px"}});
+
+				/* Wi-Fi开关 */
+				switchArray[item.name] = new Switch(SWITCH + item.name, item.enable, function(state){
+					var api, raw;
+					var data = {}, self = this;
+					var optionName = (uciWireless.secName.wlanBS == item.name)
+						? uciWireless.optName.wifiEnable
+						: uciWireless.dynOptName.enable;
+
+					/* 保存主人网络还是访客网络 */
+					if (item.host)
+					{
+						api = slp.host;
+						raw = rawHost;
+					}
+					else
+					{
+						api = slp.guest;
+						raw = rawGuest;
+					}
+
+					/* 开关初始化时不执行 */
+					if (raw[item.name][optionName] == state)
+					{
+						return;
+					}
+
+					data[item.name] = {};
+					data[item.name][optionName] = state;
+					api.setData({
+						data: data,
+						success: function(res){
+							raw[item.name][optionName] = state;
+							wifiStateQuery();
+						},
+						fail: function(result){
+							if (result != undefined && result[ERR_CODE] != undefined)
+							{
+								errHandle(result[ERR_CODE]);
+							}
+
+							self.setState(1 - state);
+						}
+					});
+				}, false);
+			});
+		}
+
+		function switchWifiAllSwitch(state)
+		{
+			var data = {}, self = this;
+
+			data[uciWireless.dynData.wifi_switch] = {};
+			data[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable] = state;
+
+			slp.host.setData({
+				data: data,
+				success: function(res){
+					switchView(state == 1);
+
+					/* 根据改变后的数据重新初始化编辑区 */
+					requestData();
+				},
+				fail: function(result){
+					if (result != undefined && result[ERR_CODE] != undefined)
+					{
+						errHandle(result[ERR_CODE]);
+					}
+
+					self.setState(1 - state);
+				}
+			});
+		}
+
+		function switchBandIntergration(state)
+		{
+			var moduleName = uciWireless.secName.wlanBS;
+			var optionName = uciWireless.optName.bsEnable;
+			var data = {}, self = this;
+
+			data[moduleName] = {};
+			data[moduleName][optionName] = (state == 1 ? BS_ENABLE : BS_DISABLE);
+
+			slp.host.setData({
+				data: data,
+				success: function(res){
+					rawHost[moduleName][optionName] = (state == 1 ? BS_ENABLE : BS_DISABLE);
+					bandSteeringOpen = state == 1 ? true : false;
+
+					/* 根据改变后的数据重新初始化编辑区 */
+					fillEditArea();
+				},
+				fail: function(result){
+					if (result != undefined && result[ERR_CODE] != undefined)
+					{
+						errHandle(result[ERR_CODE]);
+					}
+
+					self.setState(1 - state);
+				}
+			});
+		}
+
+		function switchView(isWifiAllSwitchOpen)
+		{
+			if (!isWifiAllSwitchOpen)
+			{
+				/* 显示文字提示 */
+				$(".wifiSetCon").css("display", "none");
+				$("div.tipText").html(label.wifiAllSwitchCloseStateTips);
+				$("div.tipText").css("display", "block");
+			}
+			else
+			{
+				$(".wifiSetCon").css("display", "block");
+				$("div.tipText").css("display", "none");
+			}
+		}
+
+		function wifiStateQuery()
+		{
+			if (wifiStateHandle != null)
+			{
+				clearTimeout(wifiStateHandle);
+				wifiStateHandle = null;
+			}
+
+			slp.getWiFiStatus(function(result){
+				var hostData = result[uciWireless.fileName];
+				var guestData = result[uciGuestNet.fileName];
+
+				var array = formatData(hostData, guestData);
+
+				if (isSupportWifiAllSwitch)
+				{
+					isWifiAllSwitchOpen = hostData[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]
+										== uciWireless.dynOptValue.enable.on;
+
+					wifiAllSwitch.setState(isWifiAllSwitchOpen? 1 : 0);
+					switchView(isWifiAllSwitchOpen);
+
+					if (!isWifiAllSwitchOpen)
+					{
+						wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+						return;
+					}
+				}
+
+				if (slp.bandSteeringProvided)
+				{
+					if (bsSwitch == null)
+					{
+						initTitleSwitch(label.multiBandIntegration, "bsSwitch", label.wlanBSDesc, "wifiSetCon", (isSupportWifiAllSwitch ? false : true));
+						bsSwitch = new Switch("bsSwitch", (bandSteeringOpen ? 1 : 0), switchBandIntergration, false);
+					}
+				}
+
+				array.forEach(function(item, i){
+					var raw = item.host ? rawHost : rawGuest;
+					var optionName = (uciWireless.secName.wlanBS == item.name)
+						? uciWireless.optName.wifiEnable
+						: uciWireless.dynOptName.enable;
+
+					raw[item.name][optionName] = item.enable;
+					switchArray[item.name].setState(item.enable);
+				});
+
+				wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+			});
+		}
+
+		function initTitleSwitch(title, switchId, Desc, className, isTop)
+		{
+			var $div = $('<div class="controlBar' + (className ? ' ' + className : '') + '">' +
+							'<div class="switchConWrapper">' +
+								'<span class="switchName">' + title + '</span>' +
+								'<div id="' + switchId + '"class="switchCon">' +
+									'<i class="switchBg"></i>' +
+									'<i class="switchBall"/></i>' +
+								'</div>' +
+							'</div>' +
+						'</div>');
+
+			if (Desc != undefined)
+			{
+				$div.find("div.switchConWrapper").after($("<p>" + Desc + "</p>"));
+			}
+
+			if (isTop)
+			{
+				$div.addClass("title");
+			}
+
+			$("div.titleSwitchContainer").append($div);
+		}
+
+		function requestData()
+		{
+			var dfdHost  = $.Deferred(),
+				dfdGuest = $.Deferred();
+
+			slp.host.getData({success: function(result){
+				rawHost = result[uciWireless.fileName];
+				dfdHost.resolve();
+			}});
+			slp.guest.getData({success: function(result){
+				rawGuest = result[uciGuestNet.fileName];
+				dfdGuest.resolve();
+			}});
+
+			$.when(dfdHost, dfdGuest).done(function(){
+				var isWifiAllSwitchOpen = true;
+				bandSteeringOpen =
+				(null != rawHost[uciWireless.secName.wlanBS] && BS_ENABLE == rawHost[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable]);
+
+				if (isSupportWifiAllSwitch)
+				{
+					isWifiAllSwitchOpen = rawHost[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]
+										== uciWireless.dynOptValue.enable.on;
+
+					if (wifiAllSwitch == null)
+					{
+						initTitleSwitch(label.wifiAllSwitch, "wifiAllSwitch", undefined, undefined, true);
+						wifiAllSwitch = new Switch("wifiAllSwitch", (isWifiAllSwitchOpen? 1 : 0), switchWifiAllSwitch, false);
+
+						switchView(isWifiAllSwitchOpen);
+					}
+					else
+					{
+						wifiAllSwitch.setState(isWifiAllSwitchOpen? 1 : 0);
+					}
+
+					if (!isWifiAllSwitchOpen)
+					{
+						wifiStateQuery();
+						return;
+					}
+				}
+				else
+				{
+					$(".wifiSetCon").css("display", "block");
+				}
+
+				if (slp.bandSteeringProvided)
+				{
+					if (bsSwitch == null)
+					{
+						initTitleSwitch(label.multiBandIntegration, "bsSwitch", label.wlanBSDesc, "wifiSetCon", (isSupportWifiAllSwitch ? false : true));
+						bsSwitch = new Switch("bsSwitch", (bandSteeringOpen ? 1 : 0), switchBandIntergration, false);
+					}
+					else
+					{
+						bsSwitch.setState(bandSteeringOpen ? 1 : 0);
+					}
+				}
+
+				fillEditArea();
+				wifiStateQuery();
+			});
+		}
+
+		if (slp.moduleSpec["wifi_switch"] && slp.moduleSpec["wifi_switch"] == 1)
+		{
+			isSupportWifiAllSwitch = true;
+		}
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.controlBar{ 
+		margin-bottom:32px;
+	}
+	div.controlBar.title{
+		padding-bottom:16px;
+		border-bottom:1px solid #e6e6e6;
+	}
+	div.controlBar p{
+		padding-top:8px;
+		color:#666;
+		font-size:13px;
+		line-height:20px;
+	}
+	div.switchConWrapper span.switchName{
+		font-size:16px;
+		font-weight:bold;
+		color:#333;
+		line-height:24px;
+		vertical-align:middle;
+		margin-right:16px;
+	}
+	div.switchConWrapper span.wifiTitle{
+		font-size:24px;
+		font-weight:bold;
+		color:#333;
+		line-height:36px;
+	}
+	ul.wifiSetCon{
+		font-size:0;
+	}
+	ul.wifiSetCon li.column{
+		display:inline-block;
+		vertical-align:top;
+	}
+	li.column div.block{
+		margin:-2px 0 18px;
+		height:20px;
+	}
+	ul.wifiSetCon li.column + li{
+		margin-left:32px;
+	}
+	ul.wifiSetCon li.col-3,
+	li.col-3 li.inputLi{
+		width:264px;
+	}
+	ul.wifiSetCon li.col-4,
+	li.col-4 li.inputLi{
+		width:190px;
+	}
+	ul.wifiSetCon div.switchCon{
+		float:right;
+		top:10px;
+	}
+	ul.wifiSetCon div.switchConWrapper{
+		margin-bottom:24px;
+	}
+	.wifiSetCon div.tipText{
+		display: none;
+	}
+</style>
+<div class="titleSwitchContainer"></div>
+<ul class="wifiSetCon "></ul>
+<div class="tipText contentTips"></div>

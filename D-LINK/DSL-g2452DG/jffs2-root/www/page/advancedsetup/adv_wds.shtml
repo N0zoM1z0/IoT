@@ -1,0 +1,508 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function WlanListTuple()
+{
+	this.Path = "";
+	this.G_WdsMode = "";
+	this.G_WdsList = "";
+	this.G_WdsEncrypType = "";
+	this.G_WdsKey = "";
+	this.G_WdsVendor = "";
+	this.G_WdsRootAP = "";
+}
+
+var n = 0;
+var WlanList = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration." -->
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{i}.WDS. WdsMode WdsList WdsEncrypType WdsKey WdsVendor WdsRootAP" -->
+WlanList[n] = new WlanListTuple();
+WlanList[n].Path = "<!--#path -->";
+WlanList[n].G_WdsMode = "<!--#leaf "1"-->";
+WlanList[n].G_WdsList = "<!--#leaf "2"-->";
+WlanList[n].G_WdsEncryp = "<!--#leaf "3"-->";
+WlanList[n].G_WdsKey = "<!--#leaf "4"-->";
+WlanList[n].G_WdsVendor = "<!--#leaf "5"-->";
+WlanList[n].G_WdsRootAP= "<!--#leaf "6"-->";
+n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var wif_idx = 0;
+var wif_inst = 0;
+function clearinput()
+{
+	setValue("INPUT_AP1MAC", "");
+	setValue("INPUT_AP2MAC", "");
+	setValue("INPUT_AP3MAC", "");
+	setValue("INPUT_AP4MAC", "");
+}
+
+function createwlanlist()
+{
+	var _text = [],_value = [];    
+	for(var i = 0; i < WlanList.length; i++){ 
+		if (i == 0)// 0 : 2.4G, 1 : 5G
+		{
+			_text.push("2.4G");            
+			_value.push("0");
+		}
+		if (i == 4)
+		{
+			_text.push("5G");            
+			_value.push("1");
+		}
+	}
+	createOptions('SELECT_Wireless',_text,_value);
+}
+
+function init()
+{
+	var str = "";
+
+	clearinput();
+	createsel();
+
+	if (wif_idx == 0) {
+		setValue("SELECT_WDSMODE", WlanList[0].G_WdsMode);
+		setValue("SELECT_WDSEncryption", WlanList[0].G_WdsEncryp);
+		setValue("INPUT_WdsKey", WlanList[0].G_WdsKey);
+		str = WlanList[0].G_WdsList.split(';');
+	} else {
+		setValue("SELECT_WDSMODE", WlanList[4].G_WdsMode);
+		setValue("SELECT_WDSEncryption", WlanList[4].G_WdsEncryp);
+		setValue("INPUT_WdsKey", WlanList[4].G_WdsKey);
+		str = WlanList[4].G_WdsList.split(';');
+	}
+
+	if(typeof(str[0]) != 'undefined')
+	setValue("INPUT_AP1MAC", str[0]);
+	if(typeof(str[1]) != 'undefined')
+	setValue("INPUT_AP2MAC", str[1]);
+	if(typeof(str[2]) != 'undefined')
+	setValue("INPUT_AP3MAC", str[2]);
+	if(typeof(str[3]) != 'undefined')
+	setValue("INPUT_AP4MAC", str[3]);
+
+	setValue("INPUT_ROOTAPSSID", WlanList[wif_inst].G_WdsRootAP);
+	wdsmodechange(getValue("SELECT_WDSMODE"));
+}
+
+function checkRootAp()
+{
+	if(WlanList[wif_inst].G_WdsVendor != "TRI")
+		return true;
+
+	var ssid = getValue('INPUT_ROOTAPSSID');
+	var mode = getValue('SELECT_WDSMODE');
+
+	if(mode != "repeater")
+		return true;
+
+	if(ssid.length > 32) {
+		top.AlertMsg(getStr("LK_ssidlenlimit"));
+		ErrFocus($('INPUT_ROOTAPSSID'));
+		return false;    
+	}
+
+	if (ssid.valueOf() == "") {
+		top.AlertMsg(getStr("LK_net_ssidempty"));
+		ErrFocus($('INPUT_ROOTAPSSID'));
+		return false;    
+	}
+
+	if(ssid.indexOf('\\') > -1 || ssid.indexOf('/') > -1 || ssid.indexOf('"') > -1) {
+		top.AlertMsg(getStr("LK_ssidspecialchar"));
+		ErrFocus($('INPUT_ROOTAPSSID'));
+		return false;    
+	}
+
+	return true;
+}
+
+function checkMac()
+{
+	if($("INPUT_AP1MAC").value != "" && !ischeckMAC($('INPUT_AP1MAC'))) {
+		ErrFocus($("INPUT_AP1MAC"));
+		return false;
+	}
+	if($("INPUT_AP2MAC").value != "")
+	if(!ischeckMAC($('INPUT_AP2MAC'))) {
+		ErrFocus($("INPUT_AP2MAC"));
+		return false;
+	}
+	if($("INPUT_AP3MAC").value != "")
+	if(!ischeckMAC($('INPUT_AP3MAC'))) {
+		ErrFocus($("INPUT_AP3MAC"));
+		return false;
+	}
+	if($("INPUT_AP4MAC").value != "")
+	if(!ischeckMAC($('INPUT_AP4MAC'))) {
+		ErrFocus($("INPUT_AP4MAC"));
+		return false;
+	}
+
+	return true;
+}
+
+function checkWdsKey()
+{
+	var wdsencryptype = getValue("SELECT_WDSEncryption");
+	var wdskey = getValue("INPUT_WdsKey");
+	var keylen = wdskey.length;
+	if(wdsencryptype == "NONE")
+		return true;
+	else if(wdsencryptype == "WEP")	{
+		if(keylen == 0) {
+			top.AlertMsg("The WDS Key should not be Empty.");
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		}
+		if(keylen != 5 && keylen != 10 && keylen != 13 && keylen != 26)	{
+			top.AlertMsg("Please Attention to the note below.");
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		}
+		if(keylen == 5 || keylen == 13)	{
+			if(wdskey.indexOf(" ") > -1) {
+				top.AlertMsg(getStr("LK_ssidhavespace"));
+				ErrFocus($("INPUT_WdsKey"));
+				return false;
+			}
+		}
+		if((keylen == 10 && ! wdskey.match(/^[0-9a-fA-F]{10}$/))
+		|| (keylen == 26 && ! wdskey.match(/^[0-9a-fA-F]{26}$/)))
+		{
+			top.AlertMsg(getStr("LK_WDSWEPKeyErr"));
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		}
+	} else { //TKIP or AES
+		if(keylen == 0)	{
+			top.AlertMsg("The WDS Key should not be Empty.");
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		} else if(keylen < 8) {
+			top.AlertMsg(getStr("LK_wpaleast8"));
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		} else if(keylen >= 8 && keylen <= 63) {
+			if(wdskey.indexOf(" ") > -1) {
+				top.AlertMsg(getStr("LK_ssidhavespace"));
+				ErrFocus($("INPUT_WdsKey"));
+				return false;
+			}
+		} else if(keylen == 64 && ! wdskey.match(/^[0-9a-fA-F]{64}$/)) {
+			top.AlertMsg(getStr("LK_PskKeyErr"));
+			ErrFocus($("INPUT_WdsKey"));
+			return false;
+		}
+	}
+	return true;
+}
+
+function uiSubmit()
+{
+	if(!checkMac())    return;
+	if(!checkWdsKey()) return;
+	if(!checkRootAp()) return;
+
+	var df = document.dataform;
+	var wdslist = "";
+	if($("INPUT_AP1MAC").value != "")
+	wdslist += $("INPUT_AP1MAC").value + ";";
+	if($("INPUT_AP2MAC").value != "")
+	wdslist += $("INPUT_AP2MAC").value + ";";
+	if($("INPUT_AP3MAC").value != "")
+	wdslist += $("INPUT_AP3MAC").value + ";";
+	if($("INPUT_AP4MAC").value != "")
+	wdslist += $("INPUT_AP4MAC").value + ";";
+	if(wif_idx == 0) {
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WDS.WdsMode", getValue("SELECT_WDSMODE"));
+		if(WlanList[0].G_WdsVendor == "TRI")
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WDS.WdsRootAP", getValue("INPUT_ROOTAPSSID"));
+		else
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WDS.WdsList", wdslist);
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WDS.WdsEncrypType", getValue("SELECT_WDSEncryption"));
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WDS.WdsKey", getValue("INPUT_WdsKey"));
+	} else if(wif_idx == 1)	{
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.WDS.WdsMode", getValue("SELECT_WDSMODE"));
+		if(WlanList[4].G_WdsVendor == "TRI")
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.WDS.WdsRootAP", getValue("INPUT_ROOTAPSSID"));
+		else
+			AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.WDS.WdsList", wdslist);
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.WDS.WdsEncrypType", getValue("SELECT_WDSEncryption"));
+		AddElements(df, "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.WDS.WdsKey", getValue("INPUT_WdsKey"));
+	}
+	df.submit();
+}
+
+function wirelesschange(mode)
+{
+	wif_idx = Number(mode);
+	wif_inst = wif_idx * 4;
+	setValue("SELECT_Wireless", mode);
+	init();
+}
+
+function wdsmodechange(mode)
+{
+	wdssecchange(getValue("SELECT_WDSEncryption"));
+	if(mode == "disabled") {
+		$('MACINPUT').style.display="none";
+		$('ROOTAPINPUT').style.display="none";
+		$('WDSEncrypTypeTitle_RTL').style.display="none";
+		$('WDSEncrypType').style.display="none";
+		$('Scan').disabled = true;
+	} else {
+		$('WDSEncrypTypeTitle_RTL').style.display="block";
+		if(getValue("SELECT_WDSEncryption") != "NONE")
+			$('WDSEncrypType').style.display="block";
+
+		if(mode == "lazy") {
+			$('MACINPUT').style.display="none";
+			$('ROOTAPINPUT').style.display="none";
+			if(WlanList[wif_inst].G_WdsVendor == "TRI") { // tri 5G , WDS rootAP mode, encrypt same with main SSID
+				$('WDSEncrypTypeTitle_RTL').style.display="none";
+				$('WDSEncrypType').style.display="none";
+			}
+
+			$('Scan').disabled = true;
+		} else {
+			if(WlanList[wif_inst].G_WdsVendor == "TRI") { // tri 5G
+				$('MACINPUT').style.display="none";
+				$('ROOTAPINPUT').style.display="block";
+			} else {
+				$('ROOTAPINPUT').style.display="none";
+				$('MACINPUT').style.display="block";
+			}
+			$('Scan').disabled = false;
+		}
+	}
+}
+
+function wdssecchange(mode)
+{
+	if(mode == "NONE") {
+		$("WDSEncrypType").style.display = "none";
+	} else {
+		$("WDSEncrypType").style.display = "block";
+
+		if(mode == "NONE")
+		$("WdsKeyNote").innerHTML = "";
+		else if(mode == "WEP")
+		$("WdsKeyNote").innerHTML = "Note: 10 or 26 hexadecimal characters, 5 or 13 ASCII characters for WEP";
+		else
+		$("WdsKeyNote").innerHTML = "Note: 64 hexadecimal characters, 8 ~ 63 ASCII characters for TKIP or AES";
+	}
+}
+
+function addToMACx(value, IDidx)
+{
+	var id = "ssidmac" + IDidx;
+	var MAC = document.getElementById(id).innerHTML;
+	switch(value)
+	{
+		case "1":
+		setValue("INPUT_AP1MAC", MAC);
+		break;
+		case "2":
+		setValue("INPUT_AP2MAC", MAC);
+		break;
+		case "3":
+		setValue("INPUT_AP3MAC", MAC);
+		break;
+		case "4":
+		setValue("INPUT_AP4MAC", MAC);
+		break;
+		default:
+		// do nothing
+		break;
+	}
+}
+
+function parseScan(value)
+{
+	// initional
+	jQuery('#ScanTable').html("");
+
+	var sigList = eval(value);
+	sigLen = sigList.length;
+	var trs = "" +
+	'<tr class="TitleRow">' +
+		'<td>SSID</td>' +
+		'<td>BSSID</td>' +
+		'<td>Channel</td>' +
+		'<td>Signal level(%)</td>' +
+		'<td>Security</td>' +
+		'<td>Wireless Mode</td>';
+	if(!(WlanList[wif_inst].G_WdsVendor == "TRI"))
+		trs += '<td>Action</td>';
+	trs += '</tr>';
+	jQuery('#ScanTable').append(trs);
+	for(var i = 0; i < sigLen; i++)
+	{
+		if(i%2 == 0)
+		trs = '<tr class=OddRowB>';
+		else
+		trs = '<tr class=EvenRowB>';
+			trs += '<td>' + sigList[i].SSID + '</td>'
+			+    '<td id="ssidmac' + i + '">' + sigList[i].BSSID + '</td>'
+			+    '<td>' + sigList[i].CH + '</td>'
+			+    '<td>' + sigList[i].Sig + '</td>'
+			+    '<td>' + sigList[i].Sec + '</td>'
+			+    '<td>' + sigList[i].Mode + '</td>';
+	if(!(WlanList[wif_inst].G_WdsVendor == "TRI"))
+			trs +=    '<td>' + "Add it to MAC " + '&nbsp;<select onchange="addToMACx(this.value, ' + i + ')"><option value="0">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>'
+			trs += '</tr>';
+		jQuery('#ScanTable').append(trs);
+	}
+}
+
+function uiScanning()
+{
+	var _url = "/cgi-bin/main.cgi";
+	var wlanindex = $('SELECT_Wireless').value;
+	var ajax;
+	if(wlanindex == "0")
+	ajax = Ajax.getInstance(_url, "ops=apscan&apscanband=2g", 0, parseScan);
+	else
+	ajax = Ajax.getInstance(_url, "ops=apscan&apscanband=5g", 0, parseScan);
+	ajax.get();
+}
+
+function __init()
+{
+    createwlanlist();
+    setValue("SELECT_Wireless", 0);
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());         
+
+}
+
+function createsel()
+{ 
+	var text = [];
+	var value = [];
+	text = [getStr("LK_Disabled"), getStr("LK_WDSLazymode"), getStr("LK_WDSRMode")];
+	value = ['disabled', 'lazy', 'repeater'];
+	if(!(WlanList[wif_inst].G_WdsVendor == "TRI")) {
+		text.push(getStr("LK_WDSBMode"));
+		value.push('bridge');
+	}
+	createOptions('SELECT_WDSMODE', text, value);
+}
+
+</script>
+</head>
+<body>
+<form>
+	<script>printBeginContent()</script>
+	<script>SetContentTitle(getStr('LK_WDSSettings'))</script>
+	<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="190">Wireless Mode:</td>
+			<td><select id="SELECT_Wireless" onchange="wirelesschange(this.value)"></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_WDSMode"></td>
+			<td><select id="SELECT_WDSMODE" onchange="wdsmodechange(this.value)"></select></td>
+		</tr>
+	</table>
+	<table id="MACINPUT" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="190" langkey="LK_WDSAP1MAC"></td>
+			<td><input size="20" type="text" maxlength="17" id="INPUT_AP1MAC"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_WDSAP2MAC"></td>
+			<td><input size="20" type="text" maxlength="17" id="INPUT_AP2MAC"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_WDSAP3MAC"></td>
+			<td><input size="20" type="text" maxlength="17" id="INPUT_AP3MAC"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_WDSAP4MAC"></td>
+			<td><input size="20" type="text" maxlength="17" id="INPUT_AP4MAC"></td>
+		</tr>
+	</table>
+	<table id="ROOTAPINPUT" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="190" langkey="LK_WDSROOTAP"></td>
+			<td><input size="20" type="text" maxlength="32" id="INPUT_ROOTAPSSID"></td>
+		</tr>
+	</table>
+	<table id="WDSEncrypTypeTitle_RTL" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="190" langkey="LK_WDSEncryption"></td>
+			<td><select id="SELECT_WDSEncryption" onchange="wdssecchange(this.value)">
+					<option value="NONE">None</option>
+					<option value="WEP">WEP</option>
+					<option value="TKIP">TKIP</option>
+					<option value="AES">AES</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+
+	<table id="WDSEncrypType" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="190" langkey="LK_WDSKey"></td>
+			<td><input id="INPUT_WdsKey" size="20" type="password" maxlength="64" value=""></td>
+		</tr>
+		<tr class="FlagText">
+			<td width="190"></td>
+			<td id="WdsKeyNote"></td>
+		</tr>
+	</table>
+
+	<table class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td>
+				<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+				<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()");</script>
+			</td>
+		</tr>
+	</table>
+	<br>
+	<script>SetContentTitle(getStr('LK_WDSScan'))</script>
+	<table id="ScanTable" cellpadding="0" cellspacing="0" class="ContentBorder">
+		<tr class="TitleRow">
+			<td>SSID</td>
+			<td>BSSID</td>
+			<td>Channel</td>
+			<td>Signal(%)</td>
+			<td>Security</td>
+			<td>Wireless Mode</td>
+			<td langkey="LK_Action"></td>
+		</tr>
+	</table>
+
+	<table class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+		<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td>
+				<script>PrintTriButton("Scan",getStr("LK_WDSScan"),"uiScanning()")</script>&nbsp;
+			</td>
+		</tr>
+	</table>
+	<script>printEndContent</script>
+</form>
+<form method="post" name="dataform" id="dataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_wds.shtml">
+</form>
+</body>
+</html>

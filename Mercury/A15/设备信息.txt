@@ -1,0 +1,4 @@
+- WIFI名称：MERCURY_5034
+- 密码：mercurya15
+后台：http://192.168.1.1/ 
+密码：admin123

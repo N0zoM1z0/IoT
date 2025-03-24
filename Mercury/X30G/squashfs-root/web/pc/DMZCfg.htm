@@ -1,0 +1,248 @@
+<script type="text/javascript">
+	(function(){
+		var firstLoad = true;
+		var oldIp, oldEnableVal;
+
+		var ROUTER_MODE = 0;
+		var AP_MODE = 1;
+		var WDS_MODE = 2;
+		var curSysMode = ROUTER_MODE;
+		var mulWanOpen = false;
+		var dmzDisabled = false;
+		var actOnInterfaceOptions = [{str:label.auto,value:0},{str: "WAN1",value:1},{str:"WAN2",value:2}];
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case ENOTLANSUBNET:
+				showStr = errStr.ipNotLanSubnet;
+				break;
+			case ELANIPCONFLIC:
+				showStr = errStr.lanConflictErr;
+				break;
+			case EINVNETID:
+				showStr = errStr.ipAddrNetIdErr;
+				break;
+			case EINVHOSTID:
+				showStr = errStr.ipAddrHostIdErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function checkIpAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (ENONE != checkIp(this.input.value))
+			{
+				this.showNote(errStr.wzdStcIpErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onSave()
+		{
+			var data = {}, param = {}, dmzEnableVal;
+			data[uciFirewall.fileName] = {};
+			data[uciFirewall.fileName][uciFirewall.secName.dmz] = param;
+
+			if (!ipAddr.checkAll())
+			{
+				return;
+			}
+
+			dmzEnableVal = dmzOnRadio.getValue() == true ? "1" : "0";
+
+			ipAddr.setValue(hideLeadingZeros(ipAddr.getValue()));
+
+			if (ipAddr.getValue() == oldIp && dmzEnableVal == oldEnableVal && !slp.gMulWanSupport)
+			{
+				return;
+			}
+
+			if (ipAddr.getValue() != oldIp)
+			{
+				param[uciFirewall.optName.destIP] = ipAddr.getValue();
+			}
+
+			if (dmzEnableVal != oldEnableVal)
+			{
+				param[uciFirewall.optName.enable] = dmzEnableVal;
+			}
+			
+			if (mulWanOpen) {
+				param.wan_port = $("#actOnInterface").val();
+			} else {
+				param.wan_port = actOnInterfaceOptions[0].value;
+			}
+
+			$.modify(data, function(res){
+				if (errHandle(res[ERR_CODE]))
+				{
+					showToast(label.saveSuccess);
+					oldEnableVal = dmzEnableVal;
+					oldIp = ipAddr.getValue();
+				}
+				else
+				{
+					dmzOnRadio.setValue(!dmzOnRadio.getValue());
+					dmzOffRadio.setValue(!dmzOffRadio.getValue());
+				}
+			});
+		}
+
+		function requestData()
+		{
+			var data = {};
+			data[uciFirewall.fileName] = {};
+			data[uciFirewall.fileName][KEY_NAME] = uciFirewall.secName.dmz;
+			if(slp.gSysModeSupport) {
+				data.system = {"name":"sys_mode"};
+			}
+			if(slp.gMulWanSupport) {
+				data.port_manage = {"table":"mwan"};
+			}
+
+			$.query(data, function(res){
+				var dmzData = res[uciFirewall.fileName][uciFirewall.secName.dmz];
+
+				dmzData[uciFirewall.optName.enable] == "1" ?
+				dmzOnRadio.setValue(true) : dmzOffRadio.setValue(true);
+
+				oldEnableVal = dmzData[uciFirewall.optName.enable];
+				oldIp = dmzData[uciFirewall.optName.destIP];
+
+				ipAddr.setValue(oldIp);
+				if(slp.gMulWanSupport){
+					var mwanList = formatTableData(res.port_manage.mwan);
+					var WAN_NUM = 2;
+					mulWanOpen = true;
+					for(var i = 0; i < WAN_NUM; i++) {
+						if(mwanList[i].enable == 0) {
+							mulWanOpen = false;
+							break;
+						}
+					}
+
+					if (mulWanOpen) {
+						var wanPort = dmzData.wan_port ? dmzData.wan_port : '0';
+						selectInit("actOnInterface", actOnInterfaceOptions, wanPort);
+						$("#actOnInterfaceUl").show();
+					}
+				}
+				if(slp.gSysModeSupport){
+					curSysMode = res.system.sys_mode.mode;
+					if (curSysMode != ROUTER_MODE) {
+						$(".relayErrorTip").show();
+						dmzOnRadio.disable(true);
+						dmzOffRadio.disable(true);
+						ipAddr.disable(true);
+						dmzSaveBtn.disable(true);
+						if (curSysMode == AP_MODE) {
+							$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用DMZ主机功能。");
+						} else {
+							$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用DMZ主机功能。");
+						}
+
+						if (mulWanOpen) {
+							id("actOnInterface").disable(true);
+						}
+					}
+				}
+			});
+		}
+
+		var dmzOnRadio = new Radio({
+			targetId: "dmzOn",
+			label: label.open,
+			name: "dmzEnable"
+		});
+		var dmzOffRadio = new Radio({
+			targetId: "dmzOff",
+			label: label.close,
+			name: "dmzEnable"
+		});
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dmzIp},
+			targetId:"dmzIp",
+			props:{maxlength: '15', type: "text", placeholder: "0.0.0.0"},
+			check:{blur:checkIpAddr}
+		});
+		var dmzSaveBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"36px 0 0 132px"}
+		});
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.dmzRadio{
+		display: inline-block;
+		margin-right:16px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.DMZS%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="DMZHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.dmzConfigDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%menuStr.DMZS%}</label>
+	<div id="dmzOn" class="dmzRadio"></div>
+	<div id="dmzOff" class="dmzRadio"></div>
+</ul>
+<div id="dmzIp"></div>
+<ul class="inputCMPT medium selectUl" id="actOnInterfaceUl" style="display: none;">
+	<label class="outerLbl">{%label.activePort%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="actOnInterface" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="save"></div>

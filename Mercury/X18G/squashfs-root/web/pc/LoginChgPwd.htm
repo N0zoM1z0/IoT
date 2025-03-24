@@ -1,0 +1,197 @@
+<style type="text/css">
+	div.loginContainer{
+		display:inline-block;
+		width:280px;
+		padding:120px 120px 0 80px;
+	}
+	div.loginContainer h1{
+		font-size:36px;
+		font-weight:bold;
+		color:#333;
+		line-height:48px;
+	}
+	#pwdConfirmErr{
+		margin:16px 0 32px;
+		visibility:hidden;
+	}
+	#sub{
+		width:100%;
+		margin-top:64px;
+	}
+	i.surfingPeople{
+		background:url(../web-static/images/login.png) no-repeat scroll;
+		display:inline-block;
+		width:400px;
+		height:440px;
+		margin-top:80px;
+		vertical-align:top;
+	}
+	div.wizardHead i#mercuryLogo{
+		background:url(../web-static/images/basic.png) no-repeat;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		function onPwdBlur()
+		{
+			if (this.input.value.length < SYS_LOGIN_PWD_LENGTH_MIN)
+			{
+				this.showNote(errStr.lgPwdLenInvalid);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdKeyup()
+		{
+			if (this.input.value == "")
+			{
+				return true;
+			}
+
+			if (/\s+/.test(this.input.value))
+			{
+				this.showNote(errStr.inputPwdCharExistBlank);
+				return false;
+			}
+
+			if (!(/^[\x21-\x7e]+$/.test(this.input.value)))
+			{
+				this.showNote(errStr.pwdCharValid);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onKeyUp(event)
+		{
+			event = event || window.event;
+			var code = event.keyCode;
+
+			if (code == 13)
+			{
+				setPassword();
+			}
+		}
+
+		function setPassword()
+		{
+			if (!pwd.checkAll())
+			{
+				return;
+			}
+
+			if (pwd.getValue() != pwdConf.getValue())
+			{
+				id("pwdConfirmErr").style.visibility = "visible";
+				return;
+			}
+			else
+			{
+				id("pwdConfirmErr").style.visibility = "hidden";
+			}
+
+			if (SET_SYS_PWD_LOADING && subBtn.isLoading == true)
+			{
+				return;
+			}
+
+			if (SET_SYS_PWD_LOADING)
+			{
+				subBtn.showLoading();
+			}
+
+			$.changeDefaultPwd(pwd.getValue(), function(err_code){
+				if (SET_SYS_PWD_LOADING)
+				{
+					subBtn.closeLoading();
+				}
+
+				if (ENONE == err_code)
+				{
+					unloadLogin();
+				}
+				else if (EHASINITPWD == err_code)
+				{
+					alreadySetPwdDialog.show();
+				}
+				else
+				{
+					alarmDialog.show(errStr.setPwdErr);
+				}
+			});
+		}
+
+		var pwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginSetPwd, position:Input.LABEL.INNER},
+			strength:{show: true, least:6, critical:10},
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			targetId:"passwordInput",
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password", placeholder: label.plzInputSysLoginNewPwd}});
+		var pwdConf = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginPwdConf, position:Input.LABEL.INNER},
+			check:{keyup:onKeyUp},
+			targetId:"passwordInput",
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password", placeholder: label.plzInputNewPwdAgain}});
+		var alreadySetPwdDialog = new Dialog({
+			title: label.confirmTitle,
+			content: errStr.hasInitPwd,
+			size: Dialog.SIZE.SMALL,
+			hasCloseIcon: true,
+			closeIconHandle: function(){
+				location.reload();
+			},
+			type: Dialog.TYPE.ALARM,
+			bottom: [
+				{
+					type: component.Button.TYPE.PRIMARY,
+					text: btn.knowIt,
+					id:'alreadySetPwdSubmit',
+					onClick: function(){
+						location.reload();
+					}
+				}
+			]
+		});
+		var subBtn = new Button({
+			text:btn.confirmTip,
+			onClick:setPassword,
+			type:Button.TYPE.PRIMARY,
+			props:{width:"100%", marginTop:"64px"},
+			id:"sub"
+		});
+		id("downloadAPP").onclick = function(event){
+			var event = event || window.event;
+			mercuryAppDialog.show(event);
+		};
+
+		/* Fix IE8 or Less */
+		$.setTimeout(ieUnsupportCheck, 0);
+
+		/* 根据setting.js中配置判断是否显示andlink logo & 和家亲二维码，并在需要时才加载资源 */
+		showAndlinkLogo && $("#andlinkLogo").css("background", andlinkLogoBg).css("display", "inline-block");
+	})();
+</script>
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div class="wizardCon">
+		<div class="loginContainer">
+			<h1>{%label.setPwd%}</h1>
+			<p id="pwdConfirmErr" class="commonErrTip"><i class="iconfont icon-error"></i>{%label.chgPwdDif%}</p>
+			<div id="passwordInput"></div>
+			<div id="sub"></div>
+		</div>
+		<i class="surfingPeople"></i>
+	</div>
+</div>

@@ -1,0 +1,51 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=19
+
+boot() {
+    # check device if in fac mode
+    local ft_mode=$(cat /proc/xiaoqiang/ft_mode)
+
+    #64k
+    local size=64
+
+    #fixme: how to avoid rewrite
+    #[ "${ft_mode}" -eq "0" ] && exit 0
+
+    # Check if have KF partion
+    local line=$(cat /proc/mtd | grep KF 2>/dev/null) # mtd2: 00010000 00010000 "KF"
+    if [ -z "$line" ]; then
+        echo "KF: partition not found. fatal error!!!" >/dev/console
+        exit 0
+    fi
+
+    local name=$(echo ${line} | awk -F'"' '{print $2}' 2>/dev/null) # KF
+    local dev=$(echo ${line} | awk -F':' '{print $1}' 2>/dev/null)  # mtd2
+    if [ -z "$name" -o -z "$dev" ]; then
+        echo "KF: partition name or dev NULL. fatal error !!!" >/dev/console
+        exit 0
+    fi
+
+    local mtdPtn=$(echo ${dev} | grep mtd)
+    [ "KF" != "${name}" ] && exit 0
+    [ -z "${mtdPtn}" ] && exit 0
+
+    local n=0
+    for n in $(seq 1 30); do
+        # Fill the partion with random numbers and check nice
+        local isAllf=$(hexdump -n $(($size * 1024)) /dev/${dev} | grep "ffff ffff")
+        local isAll0=$(hexdump -n $(($size * 1024)) /dev/${dev} | grep "0000 0000")
+        [ -z "$isAllf" -a -z "$isAll0" ] && {
+            echo "KF: partition data write done." >/dev/console
+            exit 0
+        }
+
+        #write KF
+        mtd erase /dev/${dev}
+        dd if=/dev/urandom of=/dev/${dev} bs="${size}k" count=1 2>/dev/null
+    done
+
+    echo "KF: Write KF partion failed!" >/dev/console
+    return 0
+}

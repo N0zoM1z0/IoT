@@ -1,0 +1,52 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+#start lighttpd
+mkdir -m 0775 -p /var/log/lighttpd
+chgrp www-data /var/log/lighttpd
+
+/usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf &
+#end
+
+sleep 5
+
+/bin/set_timezone.sh &
+/usr/bin/btnd reset 38 &
+/sbin/backup_lan.sh &
+/sbin/check_ap.sh &
+
+/etc/init.d/dnsmasq enabled && /etc/init.d/dnsmasq restart &
+/sbin/qos.sh &
+
+/bin/check_bridge.sh &
+lua /sbin/svctl.lua set_iptv_portmap &
+upgrade check &
+
+/usr/bin/igmpproxy.sh br-lan eth0.2
+/usr/bin/igmpproxy &
+/usr/bin/udp_batch_upgrade &
+
+sleep 5
+
+/sbin/reset_apcli_status.sh &
+
+/sbin/set_wifi_led.sh 2.4G
+/sbin/set_wifi_led.sh 5.8G
+
+#system2 led
+regs m 0x10000060 0x1 4 2
+regs m 0x10000600 0x1 6 1
+regs m 0x10000620 0x1 6 1
+
+#7613 temperature control
+iwpriv rai0 set tpc_duty=050:040:030:020
+iwpriv rai0 set tpc=1:1:1:110:080:120:0010:1
+
+iwpriv rai1 set tpc_duty=050:040:030:020
+iwpriv rai1 set tpc=1:1:1:110:080:120:0010:1
+
+sleep 3
+sync
+echo 3 > /proc/sys/vm/drop_caches
+
+exit 0

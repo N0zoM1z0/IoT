@@ -1,0 +1,1032 @@
+<style type="text/css">
+	div.checkboxTitle{
+		height:24px;
+		line-height:24px;
+		margin-top:24px;
+	}
+	div.basicArgCon{
+		margin-top:16px;
+	}
+	/* HACK: 通过伪元素实现span垂直居中 */
+	div.checkboxTitle:before{
+		content:'';
+		display:inline-block;
+		vertical-align:middle;
+		height:24px;
+	}
+	#speedLimitBasicArguments2G, #accessTimeBasicArguments2G,
+	#speedLimitBasicArguments5G, #accessTimeBasicArguments5G{
+		display: none;
+	}
+	#accessTimeoutCountdown2G, #accessTimeoutCountdown5G{
+		margin-left: 132px;
+	}
+	.tipText{
+		display: none;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var uciFile = uciGuestNet.fileName;
+		var uciGuest2G = uciGuestNet.secName.wireless2G;
+		var uciGuestRule2G = uciGuestNet.dynData.guestRule2G;
+		var uciTimeLeft2G = uciGuestNet.dynData.timeLeft2G;
+		var uciGuest5G = uciGuestNet.secName.wireless5G;
+		var uciGuestRule5G = uciGuestNet.dynData.guestRule5G;
+		var uciTimeLeft5G = uciGuestNet.dynData.timeLeft5G;
+		var uciEnable = uciGuestNet.optName.enable;
+		var uciSsid = uciGuestNet.optName.ssid;
+		var uciEncrypt = uciGuestNet.optName.encrypt;
+		var uciKey = uciGuestNet.optName.key;
+		var uciRight = uciGuestNet.optName.accright;
+		var uciUpload = uciGuestNet.optName.upload;
+		var uciDownload = uciGuestNet.optName.download;
+		var uciTimelimit = uciGuestNet.optName.timelimit;
+		var uciDuration = uciGuestNet.optName.duration;
+		var uciTimetype = uciGuestNet.optName.timetype;
+		var uciMon = uciGuestNet.optName.mon;
+		var uciTue = uciGuestNet.optName.tue;
+		var uciWed = uciGuestNet.optName.wed;
+		var uciThu = uciGuestNet.optName.thu;
+		var uciFri = uciGuestNet.optName.fri;
+		var uciSat = uciGuestNet.optName.sat;
+		var uciSun = uciGuestNet.optName.sun;
+		var uciName = uciGuestNet.optName.name;
+		var uciStartTime = uciGuestNet.optName.startTime;
+		var uciEndTime = uciGuestNet.optName.endTime;
+		var uciTimeout = uciGuestNet.optValue.timetype.timeout;
+		var uciSchedule = uciGuestNet.optValue.timetype.schedule;
+		var FIRST_LOAD_PAGE = true;
+
+		var isSupportHNat = false;
+		var isHNatOpen = false;
+		var isSupportWifiAllSwitch = false;
+
+		var wifiStateHandle = null;
+
+		var components = {};
+		components["2G"] = {};
+		components["5G"] = {};
+
+		var accessTimeOptList = [{str:label.timingAccess, value:uciSchedule},
+								 {str:label.guestNetTimeout, value:uciTimeout}];
+
+		var weekMap = {
+			"mon": label.one,
+			"tue": label.two,
+			"wed": label.three,
+			"thu": label.four,
+			"fri": label.five,
+			"sat": label.six,
+			"sun": label.day
+		};
+
+		var accessTimeHd;
+
+		/* HERES FOR GUEST5G SUPPORT */
+		var uciSecGuest = {}, TIME_LEFT = {}, GUEST_RULE = {}, rules = {}, guestNetData = {}, gAccessTime = {};
+		uciSecGuest["2G"] = uciGuest2G;
+		uciSecGuest["5G"] = uciGuest5G;
+		TIME_LEFT["2G"] = uciTimeLeft2G;
+		TIME_LEFT["5G"] = uciTimeLeft5G;
+		GUEST_RULE["2G"] = uciGuestRule2G;
+		GUEST_RULE["5G"] = uciGuestRule5G;
+		rules["2G"] = null;
+		rules["5G"] = null;
+		guestNetData["2G"] = null;
+		guestNetData["5G"] = null;
+		gAccessTime["2G"] = null;
+		gAccessTime["5G"] = null;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVWLANPWD:
+				showStr = errStr.wlanPwdInvalid;
+				break;
+			case EINVPSKLEN:
+				showStr = errStr.wlanPwdLenValid;
+				break;
+			case EINVSPEEDCFG:
+				showStr = errStr.guestNetSpeedInvalid;
+				break;
+			case EINVTIMEOUTCFG:
+				showStr = errStr.guestNetTimeoutInvalid;
+				break;
+			case EINVPERIODBLANK:
+				showStr = errStr.timePeriodBlank;
+				break;
+			case EINVPERIODTOOLONG:
+				showStr = errStr.timePeriodTooLong;
+				break;
+			case EINVBEGINTIME:
+				showStr = errStr.invTlBeginTime;
+				break;
+			case EINVENDTIME:
+				showStr = errStr.invTlEndTime;
+				break;
+			case EINVBEGINENDTIME:
+				showStr = errStr.invTlBeginEndTime;
+				break;
+			case EINVREPEATBLANK:
+				showStr = errStr.tlRepeatBlank;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function onAccessTimeSelChange(band)
+		{
+			var value = components[band]["accessTimeSel"]["value"];
+
+			if (uciSchedule == value)
+			{
+				$("#accessScheduleCon" + band).show();
+				$("#accessTimeoutClass" + band).hide();
+			}
+			else
+			{
+				$("#accessScheduleCon" + band).hide();
+				$("#accessTimeoutClass" + band).show();
+
+				components[band]["accessTimeOut"].checkAll();
+			}
+		}
+
+		function saveRule(data, band)
+		{
+			var timeStr = data.startHour + ":" + data.startMin + "-" + data.endHour + ":" + data.endMin;
+			var weekStr = "";
+
+			for (var idStr in weekMap)
+			{
+				if (data[idStr])
+				{
+					weekStr += weekMap[idStr];
+				}
+			}
+
+			/* VALID IS ALREADY CHECK, SO JUST COMMIT */
+			var postData = {};
+			var para = {};
+
+			postData[uciFile] = {};
+			para[uciName] = data.name;
+			para[uciStartTime] = data.startHour + ":" + data.startMin;
+			para[uciEndTime]   = data.endHour + ":" + data.endMin;
+			para[uciMon] = (data.mon ? "1" : "0");
+			para[uciTue] = (data.tue ? "1" : "0");
+			para[uciWed] = (data.wed ? "1" : "0");
+			para[uciThu] = (data.thu ? "1" : "0");
+			para[uciFri] = (data.fri ? "1" : "0");
+			para[uciSat] = (data.sat ? "1" : "0");
+			para[uciSun] = (data.sun ? "1" : "0");
+
+			function callBack(result)
+			{
+				if (errHandle(result[ERR_CODE]))
+				{
+					para[SEC_NAME] = GUEST_RULE[band] + "_" + data.index;
+
+					var newTimeObj = initTimeRuleObj(para, band);
+					var oldTimeObj = $("#accessScheduleCon" + band).find("[dataIndex=" + data.index + "]");
+
+					if (oldTimeObj.length == 0)
+					{
+						/* ADD */
+						$(newTimeObj).insertBefore($("#accessAddSchedule" + band));
+					}
+					else
+					{
+						/* EDIT*/
+						$(oldTimeObj).replaceWith(newTimeObj);
+					}
+
+					renewAddRuleBtn(band);
+
+					timePeriodDialog.hide(function(){
+						showToast(label.saveSuccess);
+					});
+				}
+			}
+
+			if (data.mode == "add")
+			{
+				postData[uciFile][KEY_NAME]  = GUEST_RULE[band] + "_" + data.index;
+				postData[uciFile][KEY_TABLE] = GUEST_RULE[band];
+				postData[uciFile][KEY_PARA]  = para;
+				$.add(postData, callBack);
+			}
+			else if (data.mode == "edit")
+			{
+				postData[uciFile][GUEST_RULE[band] + "_" + data.index] = para;
+				$.modify(postData, callBack);
+			}
+		}
+
+		function deleteRule(data, band)
+		{
+			var postData = {};
+			postData[uciFile] = {};
+			postData[uciFile][KEY_NAME] = GUEST_RULE[band] + "_" + data.index;
+
+			$.del(postData, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					showToast(label.deleteSuccess);
+					$("[dataIndex=" + data.index +"]").remove();
+					renewAddRuleBtn(band);
+				}
+			});
+		}
+
+		function getMintTimeRuleIndex(band)
+		{
+			var indexList = [], indexStr;
+			var TimeRuleObjList = $("#accessScheduleCon" + band + " ul.timeRuleObj");
+			var startIndex = 1, maxIndex, tempList, tempStr, result;
+
+			if (TimeRuleObjList.length == 0)
+			{
+				return startIndex;
+			}
+
+			for (var i = 0; i < TimeRuleObjList.length; i++)
+			{
+				indexList.push($(TimeRuleObjList[i]).attr("dataIndex"));
+			}
+
+			indexList.sort(function(a,b){return a - b});
+			maxIndex = parseInt(indexList[indexList.length - 1]);
+			tempList = (new Array(maxIndex)).fill(0);
+
+			for (var i = 0; i < indexList.length; i++)
+			{
+				tempList[parseInt(indexList[i]) - 1] = 1;
+			}
+
+			tempStr = tempList.join("");
+
+			if ((result = tempStr.indexOf("0")) == -1)
+			{
+				return maxIndex + 1;
+			}
+			else
+			{
+				return parseInt(result) + 1;
+			}
+		}
+
+		function getTimeRuleObjData(obj, band)
+		{
+			var data = {}, dataIndex, timeStr, dayStr;
+
+			if (obj == undefined)
+			{
+				dataIndex = getMintTimeRuleIndex(band);
+
+				data.mode = "add";
+				data.index = dataIndex;
+				data.name = label.timeSection + dataIndex;
+				data.startHour = data.startMin = data.endHour = data.endMin = "00";
+				data.mon = data.tue = data.wed = data.thu = data.fri = data.sat = data.sun = true;
+			}
+			else
+			{
+				timeStr = $(obj).find("span.time").text();
+				dayStr = $(obj).find("span.day").text();
+
+				timeArr = timeStr.split("-");
+				startTime = timeArr[0].split(":");
+				endTime = timeArr[1].split(":");
+
+				data.mode = "edit";
+				data.index = $(obj).attr('dataIndex');
+				data.name = $(obj).find("label.desc").text();
+				data.startHour = startTime[0];
+				data.startMin = startTime[1];
+				data.endHour = endTime[0];
+				data.endMin = endTime[1];
+
+				data.mon = dayStr.indexOf(label.one) == -1 ? false : true;
+				data.tue = dayStr.indexOf(label.two) == -1 ? false : true;
+				data.wed = dayStr.indexOf(label.three) == -1 ? false : true;
+				data.thu = dayStr.indexOf(label.four) == -1 ? false : true;
+				data.fri = dayStr.indexOf(label.five) == -1 ? false : true;
+				data.sat = dayStr.indexOf(label.six) == -1 ? false : true;
+				data.sun = dayStr.indexOf(label.day) == -1 ? false : true;
+			}
+
+			return data;
+		}
+
+		function initTimeRuleObj(data, band)
+		{
+			var index = data[SEC_NAME].replace(/.*_(\d)$/, "$1");
+			var timeStr = data[uciStartTime] + "-" + data[uciEndTime];
+			var nameStr = htmlEscape(data[uciName]);
+			var weekStr = ("0" == data[uciMon] ? "" : weekMap["mon"])
+						  + ("0" == data[uciTue] ? "" : weekMap["tue"])
+						  + ("0" == data[uciWed] ? "" : weekMap["wed"])
+						  + ("0" == data[uciThu] ? "" : weekMap["thu"])
+						  + ("0" == data[uciFri] ? "" : weekMap["fri"])
+						  + ("0" == data[uciSat] ? "" : weekMap["sat"])
+						  + ("0" == data[uciSun] ? "" : weekMap["sun"]);
+
+			var str = 	'<ul class="inputCMPT medium timeRuleObj" dataIndex="' + index + '">' +
+							'<label class="outerLbl desc">' + nameStr + '</label>' +
+							'<li class="inputLi">' +
+								'<span class="time">' + timeStr + '</span>' +
+								'<span class="day">' + weekStr + '</span>' +
+							'</li>' +
+							'<i class="edit iconfont icon-edit"></i>' +
+							'<i class="delete iconfont icon-delete"></i>' +
+						'</ul>';
+			var targetObj = $(str);
+
+			targetObj.find("i.edit").on("click", function(){
+				var parentObj = this.parentNode;
+				var data = getTimeRuleObjData(parentObj, band);
+				timePeriodDialog.resetCommit(function(data){
+					saveRule(data, band);
+				});
+				timePeriodDialog.show(data);
+			});
+			targetObj.find("i.delete").on("click", function(){
+				var parentObj = this.parentNode;
+				var data = getTimeRuleObjData(parentObj, band);
+				data.mode = "delete";
+
+				deleteRule(data, band);
+			});
+
+			return targetObj;
+		}
+
+		function onGuestNetSwitchChange(state, band)
+		{
+			var cfg = {}, cfgGuestFile = {}, cfgSecGuest = {}, secName;
+
+			cfg[uciFile] = cfgGuestFile;
+			cfgGuestFile[uciSecGuest[band]] = cfgSecGuest;
+			cfgSecGuest[uciEnable] = state;
+
+			$.modify(cfg, function(result){
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		function onClickSpeedLimit(band)
+		{
+			if (isHNatOpen)
+			{
+				confirmDialog.show({
+					title: menuStr.wifiGuestNet,
+					content: label.hNatCloseForWlanGuest,
+					callback: function(choose){
+						if (true == choose){
+							var reqData = {};
+							reqData[uciHNat.fileName] = {};
+							reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+							reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] =
+								uciHNat.optValue.enable.off;
+
+							$.modify(reqData, function(res){
+								if (errHandle(res[ERR_CODE]))
+								{
+									showToast(label.hNatClosed);
+									isHNatOpen = false;
+									callback();
+								}
+								else
+								{
+									components[band]["speedLimitCheckbox"].setValue(false);
+								}
+							});
+						}
+						else
+						{
+							components[band]["speedLimitCheckbox"].setValue(false);
+						}
+					}
+				});
+			}
+			else
+			{
+				callback();
+			}
+
+			function callback(){
+				var checked = components[band]["speedLimitCheckbox"].getValue();
+
+				$("#speedLimitBasicArguments" + band).toggle(checked);
+			}
+		}
+
+		function onclickAccessTime(band)
+		{
+			var checked = components[band]["accessTimeCheckbox"].getValue();
+
+			$("#accessTimeBasicArguments" + band).toggle(checked)
+		}
+
+		function wifiStateQuery()
+		{
+			if (wifiStateHandle != null)
+			{
+				clearTimeout(wifiStateHandle);
+				wifiStateHandle = null;
+			}
+
+			slp.getWiFiStatus(function(result){
+				var data = result[uciGuestNet.fileName];
+
+				if (isSupportWifiAllSwitch)
+				{
+					isWifiAllSwitchOpen = result[uciWireless.fileName][uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable]
+										== uciWireless.dynOptValue.enable.on;
+
+					if (!isWifiAllSwitchOpen)
+					{
+						$(".wifiSetCon").css("display", "none");
+						$("div.tipText").html(label.wifiAllSwitchCloseStateTipsForGuest);
+						$("div.tipText").css("display", "block");
+						components["2G"]["guestNetSwitch"].disable(true);
+
+						if (slp.guest5GSupport)
+						{
+							components["5G"]["guestNetSwitch"].disable(true);
+						}
+
+						if (id("wifiAllSwitchClose") == undefined)
+						{
+							addTitleError("wifiAllSwitchClose", label.canNotSetGuestDueToWifiAllSwitch, {
+								hasIcon: false,
+								hasBtn: true,
+								btnArr: [
+									{
+										btnStr: btn.openWifiAllSwitch,
+										btnOnclick: function(){
+											var reqData = {};
+											reqData[uciWireless.dynData.wifi_switch] = {};
+											reqData[uciWireless.dynData.wifi_switch][uciWireless.dynOptName.enable] = uciWireless.dynOptValue.enable.on;
+
+											slp.host.setData({
+												data: reqData,
+												success: function(){
+													//
+												}
+											});
+										}
+									}
+								]
+							});
+						}
+
+						wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+						return;
+					}
+					else
+					{
+						$(".wifiSetCon").css("display", "block");
+						$("div.tipText").css("display", "none");
+						components["2G"]["guestNetSwitch"].disable(false);
+
+						if (slp.guest5GSupport)
+						{
+							components["5G"]["guestNetSwitch"].disable(false);
+						}
+
+						if (id("wifiAllSwitchClose") != undefined)
+						{
+							removeTitleError("wifiAllSwitchClose");
+						}
+					}
+				}
+
+				components["2G"]["guestNetSwitch"].setState(data[uciSecGuest["2G"]][uciEnable]);
+
+				if (slp.guest5GSupport)
+				{
+					components["5G"]["guestNetSwitch"].setState(data[uciSecGuest["5G"]][uciEnable]);
+				}
+
+				wifiStateHandle = $.setTimeout(wifiStateQuery, 2 * 1000);
+			});
+		}
+
+		function fillData(band)
+		{
+			var guestNetStatus, accInnerNetAuth, speedLimitOn, accTimeSel, ruleObj;
+
+			guestNetStatus = parseInt(guestNetData[band][uciEnable]);
+			components[band]["guestNetSwitch"].setState(guestNetStatus);
+
+			components[band]["wifiName"].setValue(guestNetData[band][uciSsid] || "");
+			components[band]["wifiPwd"].setValue(guestNetData[band][uciKey] ? guestNetData[band][uciKey] : "");
+
+			components[band]["maxUploadSpeed"].setValue(guestNetData[band][uciUpload]);
+			components[band]["maxDownloadSpeed"].setValue(guestNetData[band][uciDownload]);
+
+			accInnerNetAuth = parseInt(guestNetData[band][uciRight]);
+			components[band]["innerNetAuthCheckbox"].setValue(accInnerNetAuth == "0");
+
+			speedLimitOn = (0 != components[band]["maxUploadSpeed"].getValue() || 0 != components[band]["maxDownloadSpeed"].getValue()) && !isHNatOpen;
+			components[band]["speedLimitCheckbox"].setValue(speedLimitOn);
+			if (speedLimitOn)
+			{
+				$("#speedLimitBasicArguments" + band).show();
+			}
+
+			components[band]["accessTimeOut"].setValue(String(parseInt(parseInt(guestNetData[band][uciDuration]) / 3600)));
+
+			accTimeSel = parseInt(guestNetData[band][uciTimelimit]);
+			if (accTimeSel == "1")
+			{
+				components[band]["accessTimeCheckbox"].setValue(true);
+				$("#accessTimeBasicArguments" + band).show();
+			}
+			id("accessTimeSel" + band).changeSel(guestNetData[band][uciTimetype]);
+
+			$("#accessScheduleCon" + band +" .timeRuleObj").remove();
+			for (var i = 0; i < rules[band].length; i++)
+			{
+				ruleObj = initTimeRuleObj(rules[band][i], band);
+				$(ruleObj).insertBefore($("#accessAddSchedule" + band));
+			}
+			renewAddRuleBtn(band);
+
+			getAccessTime(band);
+			onAccessTimeSelChange(band);
+
+			wifiStateQuery();
+		}
+
+		function onSave(band)
+		{
+			var cfg = {}, cfgGuestFile = {}, cfgSecGuest = {}, cfgSecGuest5G = {};
+			cfg[uciFile] = cfgGuestFile;
+			cfgGuestFile[uciSecGuest[band]] = cfgSecGuest;
+
+			var checkRes = true, inputArr = [components[band]["wifiName"], components[band]["wifiPwd"]];
+
+			if (components[band]["speedLimitCheckbox"].getValue() == true)
+			{
+				inputArr.push(components[band]["maxUploadSpeed"]);
+				inputArr.push(components[band]["maxDownloadSpeed"]);
+			}
+
+			if (components[band]["accessTimeCheckbox"].getValue() == true && uciTimeout == components[band]["accessTimeSel"].value)
+			{
+				inputArr.push(components[band]["accessTimeOut"]);
+			}
+
+			inputArr.forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			cfgSecGuest[uciSsid] = components[band]["wifiName"].getValue();
+			cfgSecGuest[uciKey] = components[band]["wifiPwd"].getValue();
+			cfgSecGuest[uciUpload] = (false == components[band]["speedLimitCheckbox"].getValue() ? "0" :  parseInt(components[band]["maxUploadSpeed"].getValue(), 10));
+			cfgSecGuest[uciDownload] = (false == components[band]["speedLimitCheckbox"].getValue() ? "0" :  parseInt(components[band]["maxDownloadSpeed"].getValue(), 10));
+			cfgSecGuest[uciEncrypt] = components[band]["wifiPwd"].getValue() == "" ? 0 : 1;
+			cfgSecGuest[uciRight] = components[band]["innerNetAuthCheckbox"].getValue() == true ? 0 : 1;
+			cfgSecGuest[uciTimelimit] = components[band]["accessTimeCheckbox"].getValue() == true ? 1 : 0;
+
+			if (uciTimeout == components[band]["accessTimeSel"].value)
+			{
+				cfgSecGuest[uciTimetype] = uciTimeout;
+				cfgSecGuest[uciDuration] = parseInt(components[band]["accessTimeOut"].getValue(), 10) * 3600;
+			}
+			else
+			{
+				cfgSecGuest[uciTimetype] = uciSchedule;
+			}
+
+			if (checkStrHasCN(components[band]["wifiName"].getValue()))
+			{
+				confirmDialog.show({
+					content: label.confirmSsidHasCNChar,
+					button: {confirmStr:btn.btnY,
+							 cancelStr:btn.btnN},
+					callback: function(choose){
+						if (choose)
+						{
+							if (checkStrHasCN(components[band]["wifiName"].getValue()))
+							{
+								components[band]["wifiName"].input.select();
+							}
+						}
+						else
+						{
+							readyToSend();
+						}
+					}
+				});
+			}
+			else
+			{
+				readyToSend();
+			}
+
+			function readyToSend()
+			{
+				if (components[band]["accessTimeCheckbox"].getValue() == true &&
+					uciTimeout == components[band]["accessTimeSel"].value &&
+					0 == components[band]["guestNetSwitch"].stat)
+				{
+					confirmDialog.show({
+						content: label.guestNetForceToOpen,
+						callback: function(choose){
+							if (choose)
+							{
+								cfgSecGuest[uciEnable] = "1";
+								cfgSecGuest5G[uciEnable] = "1";
+
+								$.modify(cfg, function(result){
+									components[band]["guestNetSwitch"].setState(1);
+									$.setTimeout(function(){
+										getAccessTime(band);
+									}, 1500);
+
+									if (ENONE == result[ERR_CODE])
+									{
+										showToast(label.saveSuccess);
+									}
+								});
+							}
+						}
+					});
+				}
+				else
+				{
+					$.modify(cfg, function(result){
+						$.setTimeout(function(){
+							getAccessTime(band);
+						}, 1500);
+						if (ENONE == result[ERR_CODE])
+						{
+							showToast(label.saveSuccess);
+						}
+					});
+				}
+			}
+		}
+
+		function getAccessTime(band)
+		{
+			var data = {};
+
+			if (true != components[band]["accessTimeCheckbox"].getValue() ||
+			    uciTimeout != components[band]["accessTimeSel"].value ||
+				uciTimeout != guestNetData[band][uciTimetype] ||
+				1 != components[band]["guestNetSwitch"].state)
+			{
+				gAccessTime[band] = 0;
+				clearTimeout(accessTimeHd);
+				$("#accessTimeoutCountdown" + band).css("display" , "none");
+				return;
+			}
+
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = TIME_LEFT[band];
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					var timeLeft = result[uciFile][TIME_LEFT[band]];
+
+					gAccessTime[band] = parseInt(timeLeft[uciGuestNet.optName.timeLeft]);
+					clearTimeout(accessTimeHd);
+					refreshAccessTime(band);
+				}
+			});
+		}
+
+		function refreshAccessTime(band)
+		{
+			if (gAccessTime[band] > 0)
+			{
+				components[band]["countdown"].setValue(showCountDownStr(gAccessTime[band]));
+				$("#accessTimeoutCountdown" + band).css("display" , "block");
+				gAccessTime[band]--;
+				accessTimeHd = $.setTimeout(arguments.callee, 1000);
+			}
+			else
+			{
+				$("#accessTimeoutCountdown" + band).css("display" , "none");
+			}
+		}
+
+		function showCountDownStr(time)
+		{
+			var minute = 60;
+			var hour = minute * 60;
+			var countDownStr = label.lBrackets;
+			var showHour, showMin, showSec;
+
+			showHour = parseInt(time / hour);
+			showMin = parseInt((time % hour) / minute);
+			showSec = parseInt(time % minute);
+
+			if (showHour > 0)
+			{
+				countDownStr += showHour + label.lHour;
+			}
+			if (showMin > 0)
+			{
+				countDownStr += showMin + label.minute;
+			}
+			if (showSec > 0)
+			{
+				countDownStr += showSec + label.second;
+			}
+			countDownStr += "后关闭访客网络）";
+
+			return countDownStr;
+		}
+
+		function renewAddRuleBtn(band)
+		{
+			var rules = $("#accessScheduleCon" + band).find("ul.timeRuleObj");
+
+			components[band]["accessAddScheduleBtn"].disable(rules.length >= GUEST_NETWORK_ACCESS_TIME_RULE_MAX ? true : false);
+		}
+
+		function requestData()
+		{
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = [uciSecGuest["2G"]];
+			data[uciFile][KEY_TABLE] = [GUEST_RULE["2G"]];
+
+			if (slp.guest5GSupport)
+			{
+				data[uciFile][KEY_NAME].push(uciSecGuest["5G"]);
+				data[uciFile][KEY_TABLE].push(GUEST_RULE["5G"]);
+			}
+
+			if (slp.moduleSpec["hnat"] == 1)
+			{
+				data[uciHNat.fileName] = {}
+				data[uciHNat.fileName][KEY_NAME] = uciHNat.secName.main;
+				isSupportHNat = true;
+			}
+
+			$.query(data, function(resp){
+				if (isSupportHNat)
+				{
+					isHNatOpen = resp[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] == uciHNat.optValue.enable.on;
+				}
+
+				typeof callback == "function" && callback();
+
+				guestNetData["2G"] = resp[uciFile][uciSecGuest["2G"]];
+				rules["2G"] = formatTableData(resp[uciFile][GUEST_RULE["2G"]])
+				fillData("2G");
+
+				if (slp.guest5GSupport)
+				{
+					guestNetData["5G"] = resp[uciFile][uciSecGuest["5G"]];
+					rules["5G"] = formatTableData(resp[uciFile][GUEST_RULE["5G"]])
+					fillData("5G");
+				}
+			});
+		}
+
+		function initComponents(band)
+		{
+			components[band]["guestNetSwitch"] = new Switch("guestSwitch" + band, 0, function(state){
+				onGuestNetSwitchChange(state, band);
+			}, false);
+			components[band]["wifiName"] = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.wirelessName},
+				targetId:"basicArguments" + band,
+				check:{blur:checkSsidInput},
+				props:{maxlength: '32', type: "text"}
+			});
+			components[band]["wifiPwd"] = new Input({
+				type:Input.TYPE.CIPHER_TEXT,
+				label:{value:label.wirelessPwd},
+				strength:{show: true, least:8, critical:12},
+				check:{blur:onPwdBlur, keyup:onPwdKeyup},
+				targetId:"basicArguments" + band,
+				props:{maxlength: '63', type: "text"}
+			});
+			components[band]["innerNetAuthCheckbox"] = new CheckBox({
+				targetId: "innerNetAuth" + band,
+				label: '<span style="font-weight: bold;">' + label.innerNetAuth +'</span>',
+				checked: false,
+				onClick: null
+			});
+			components[band]["speedLimitCheckbox"] = new CheckBox({
+				targetId: "speedLimit" + band,
+				label: '<span style="font-weight: bold;">' + label.speedLimit +'</span>',
+				checked: false,
+				onClick: function(){
+					onClickSpeedLimit(band);
+				}
+			});
+			components[band]["maxUploadSpeed"] = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.maxUploadSpeed},
+				targetId:"speedLimitBasicArguments" + band,
+				tips:{value:label.unitKBs, className:"unit"},
+				check: {blur:function(){
+					if (false == checkNum(this.input.value))
+					{
+						this.showNote(errStr.guestNetSpeedInvalid);
+						return false;
+					}
+					return true;
+				}},
+				props:{maxlength: '6', type: "text"}
+			});
+			components[band]["maxDownloadSpeed"] = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.maxDownloadSpeed},
+				targetId:"speedLimitBasicArguments" + band,
+				tips:{value:label.unitKBs, className:"unit"},
+				check: {blur:function(){
+					if (false == checkNum(this.input.value))
+					{
+						this.showNote(errStr.guestNetSpeedInvalid);
+						return false;
+					}
+					return true;
+				}},
+				props:{maxlength: '6', type: "text"}
+			});
+			components[band]["accessTimeCheckbox"] = new CheckBox({
+				targetId: "accessTime" + band,
+				label: '<span style="font-weight: bold;">' + label.setAccessTime +'</span>',
+				checked: false,
+				onClick: function(){
+					onclickAccessTime(band)
+				}
+			});
+			components[band]["accessTimeOut"] = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				targetId: "accessTimeoutCon" + band,
+				label:{value:label.guestNetTimeoutOpen},
+				tips:{value:label.unitHour, className:"unit"},
+				hint:{value:label.autoCloseAfter},
+				check:{blur:function(){
+					if (("" == this.input.value) ||
+						(false == checkNum(this.input.value)) ||
+						(false == checkNumRange(parseInt(this.input.value, 10), 24, 0)))
+					{
+						this.showNote(errStr.guestNetTimeoutInvalid);
+						return false;
+					}
+
+					return true;
+				}},
+				props:{maxlength: '2', type: "text"}
+			});
+			components[band]["accessAddScheduleBtn"] = new Button({
+				type:Button.TYPE.FUNCTIONAL,
+				id:"accessAddSchedule" + band,
+				onClick: function(){
+					timePeriodDialog.resetCommit(function(data){
+						saveRule(data, band);
+					});
+					timePeriodDialog.show(getTimeRuleObjData(undefined, band));
+				},
+				text: '<i class="iconfont icon-add"></i><span>' + btn.addTimePeriod + '</span>',
+				props:{width:"240px", marginLeft:"132px"}
+			});
+			selectInit("accessTimeSel" + band, accessTimeOptList, uciTimeout, function(){
+				onAccessTimeSelChange(band);
+			}, 190);
+			components[band]["accessTimeSel"] = document.getElementById("accessTimeSel" + band);
+			components[band]["saveBtn"] = new Button({
+				text:btn.save,
+				onClick:function(){
+					onSave(band);
+				},
+				type:Button.TYPE.PRIMARY,
+				id:"save" + band,
+				props:{width:"240px", margin:"36px 0 0 132px"}
+			});
+			components[band]["countdown"] = new Input({
+				type:Input.TYPE.STATIC_TEXT,
+				targetId: "accessTimeoutCountdown" + band
+			});
+		}
+
+		initComponents("2G")
+
+		if (slp.guest5GSupport)
+		{
+			initComponents("5G");
+		}
+		$("#guest5GTitle, #basicArguments5G").toggle(slp.guest5GSupport);
+
+		/* RESET TIME_PERIOD DIALOG */
+		timePeriodDialog.resetTpType(timePeriodDialog.tpType.GUEST_NET);
+
+		if (slp.moduleSpec["wifi_switch"] && slp.moduleSpec["wifi_switch"] == 1)
+		{
+			isSupportWifiAllSwitch = true;
+		}
+
+		requestData();
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.wifiGuestNet%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="wlanGuestNetWorkHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.guestNetworkDescription%}</p>
+</div>
+<div id="guestNetworkCon">
+	<div class="subTitle">
+		<h2>{%label.wirelessNet2G%}</h2>
+		<div id="guestSwitch2G" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<div id="basicArguments2G"></div>
+	<div id="accessBlock2G">
+		<div id="innerNetAuth2G" class="checkboxTitle" style="padding-top:24px;"></div>
+		<div id="speedLimit2G" class="checkboxTitle"></div>
+		<div id="speedLimitBasicArguments2G" class="basicArgCon"></div>
+		<div id="accessTime2G" class="checkboxTitle"></div>
+		<div id="accessTimeBasicArguments2G" class="basicArgCon">
+			<ul class="inputCMPT medium selectUl">
+				<label class="outerLbl">{%label.accessTime%}</label>
+				<li class="inputLi">
+					<span class="selectWrap">
+						<span id="accessTimeSel2G" class="select">
+							<span class="value"></span>
+							<i class="arrow iconfont icon-folddropdown"></i>
+						</span>
+					</span>
+				</li>
+			</ul>
+			<div id="accessTimeoutClass2G">
+				<div id="accessTimeoutCon2G"></div>
+				<div id="accessTimeoutCountdown2G"></div>
+			</div>
+			<div id="accessScheduleCon2G">
+				<div id="accessAddSchedule2G"></div>
+			</div>
+		</div>
+	</div>
+	<div id="save2G"></div>
+	<div id="guest5GTitle" class="subTitle">
+		<h2>{%label.wirelessNet5G%}</h2>
+		<div id="guestSwitch5G" class="switchCon bsNotShow">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<div id="basicArguments5G"></div>
+	<div id="accessBlock5G">
+		<div id="innerNetAuth5G" class="checkboxTitle" style="padding-top:24px;"></div>
+		<div id="speedLimit5G" class="checkboxTitle"></div>
+		<div id="speedLimitBasicArguments5G" class="basicArgCon"></div>
+		<div id="accessTime5G" class="checkboxTitle"></div>
+		<div id="accessTimeBasicArguments5G" class="basicArgCon">
+			<ul class="inputCMPT medium selectUl">
+				<label class="outerLbl">{%label.accessTime%}</label>
+				<li class="inputLi">
+					<span class="selectWrap">
+						<span id="accessTimeSel5G" class="select">
+							<span class="value"></span>
+							<i class="arrow iconfont icon-folddropdown"></i>
+						</span>
+					</span>
+				</li>
+			</ul>
+			<div id="accessTimeoutClass5G">
+				<div id="accessTimeoutCon5G"></div>
+				<div id="accessTimeoutCountdown5G"></div>
+			</div>
+			<div id="accessScheduleCon5G">
+				<div id="accessAddSchedule5G"></div>
+			</div>
+		</div>
+	</div>
+	<div id="save5G"></div>
+</div>
+<div class="tipText contentTips"></div>

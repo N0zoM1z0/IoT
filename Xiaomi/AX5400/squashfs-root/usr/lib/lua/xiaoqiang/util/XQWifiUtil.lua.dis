@@ -1,0 +1,9214 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35, L36
+L0 = module
+L1 = "xiaoqiang.util.XQWifiUtil"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "luci.model.network"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.util"
+L3 = L3(L4)
+L4 = require
+L5 = "xiaoqiang.XQLog"
+L4 = L4(L5)
+L5 = require
+L6 = "luci.model.uci"
+L5 = L5(L6)
+L5 = L5.cursor
+L5 = L5()
+L7 = L5
+L6 = L5.get
+L8 = "misc"
+L9 = "wireless"
+L10 = "if_2G"
+L6 = L6(L7, L8, L9, L10)
+L6 = L6 or L6
+L8 = L5
+L7 = L5.get
+L9 = "misc"
+L10 = "wireless"
+L11 = "if_5G"
+L7 = L7(L8, L9, L10, L11)
+L7 = L7 or L7
+L9 = L5
+L8 = L5.get
+L10 = "misc"
+L11 = "wireless"
+L12 = "ifname_guest_2G"
+L8 = L8(L9, L10, L11, L12)
+L8 = L8 or L8
+L9 = {}
+L10 = L6
+L11 = L7
+L9[1] = L10
+L9[2] = L11
+L10 = {}
+L11 = L6
+L12 = ".network1"
+L11 = L11 .. L12
+L12 = L7
+L13 = ".network1"
+L12 = L12 .. L13
+L10[1] = L11
+L10[2] = L12
+function L11()
+  local L0, L1
+  L0 = _UPVALUE0_
+  L1 = _UPVALUE1_
+  return L0, L1
+end
+getWifiNames = L11
+function L11(A0)
+  local L1
+  L1 = _UPVALUE0_
+  L1 = L1[A0]
+  return L1
+end
+_wifiNameForIndex = L11
+function L11()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L2 = nil
+  L6, L7, L8, L9, L13, L14, L15, L16, L17, L18, L19, L20 = L4(L5)
+  for L6, L7 in L3, L4, L5 do
+    L8 = {}
+    L9 = L7.is_up
+    L9 = L9(L10)
+    L8.up = L9
+    L9 = L7.name
+    L9 = L9(L10)
+    L8.device = L9
+    L9 = L7.get_i18n
+    L9 = L9(L10)
+    L8.name = L9
+    L9 = {}
+    L8.networks = L9
+    L9 = nil
+    L13, L14, L15, L16, L17, L18, L19, L20 = L11(L12)
+    for L13, L14 in L10, L11, L12 do
+      L15 = L8.networks
+      L16 = L8.networks
+      L16 = #L16
+      L16 = L16 + 1
+      L17 = {}
+      L19 = L14
+      L18 = L14.shortname
+      L18 = L18(L19)
+      L17.name = L18
+      L19 = L14
+      L18 = L14.is_up
+      L18 = L18(L19)
+      L17.up = L18
+      L19 = L14
+      L18 = L14.active_mode
+      L18 = L18(L19)
+      L17.mode = L18
+      L19 = L14
+      L18 = L14.active_ssid
+      L18 = L18(L19)
+      L17.ssid = L18
+      L19 = L14
+      L18 = L14.active_bssid
+      L18 = L18(L19)
+      L17.bssid = L18
+      L19 = L14
+      L18 = L14.ssid
+      L18 = L18(L19)
+      L17.cssid = L18
+      L19 = L14
+      L18 = L14.active_encryption
+      L18 = L18(L19)
+      L17.encryption = L18
+      L19 = L14
+      L18 = L14.frequency
+      L18 = L18(L19)
+      L17.frequency = L18
+      L19 = L14
+      L18 = L14.channel
+      L18 = L18(L19)
+      L17.channel = L18
+      L19 = L14
+      L18 = L14.confchannel
+      L18 = L18(L19)
+      L17.cchannel = L18
+      L19 = L14
+      L18 = L14.bw
+      L18 = L18(L19)
+      L17.bw = L18
+      L19 = L14
+      L18 = L14.confbw
+      L18 = L18(L19)
+      L17.cbw = L18
+      L19 = L14
+      L18 = L14.signal
+      L18 = L18(L19)
+      L17.signal = L18
+      L19 = L14
+      L18 = L14.signal_percent
+      L18 = L18(L19)
+      L17.quality = L18
+      L19 = L14
+      L18 = L14.noise
+      L18 = L18(L19)
+      L17.noise = L18
+      L19 = L14
+      L18 = L14.bitrate
+      L18 = L18(L19)
+      L17.bitrate = L18
+      L19 = L14
+      L18 = L14.ifname
+      L18 = L18(L19)
+      L17.ifname = L18
+      L19 = L14
+      L18 = L14.assoclist
+      L18 = L18(L19)
+      L17.assoclist = L18
+      L19 = L14
+      L18 = L14.country
+      L18 = L18(L19)
+      L17.country = L18
+      L19 = L14
+      L18 = L14.txpower
+      L18 = L18(L19)
+      L17.txpower = L18
+      L19 = L14
+      L18 = L14.txpower_offset
+      L18 = L18(L19)
+      L17.txpoweroff = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "key"
+      L18 = L18(L19, L20)
+      L17.key = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "key1"
+      L18 = L18(L19, L20)
+      L17.key1 = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "encryption"
+      L18 = L18(L19, L20)
+      L17.encryption_src = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "hidden"
+      L18 = L18(L19, L20)
+      L17.hidden = L18
+      L19 = L14
+      L18 = L14.txpwr
+      L18 = L18(L19)
+      L17.txpwr = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "bsd"
+      L18 = L18(L19, L20)
+      L17.bsd = L18
+      L19 = L7
+      L18 = L7.get
+      L20 = "txbf"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.txbf = L18
+      L19 = L7
+      L18 = L7.get
+      L20 = "ax"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.ax = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "weakenable"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.weakenable = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "weakthreshold"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.weakthreshold = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "kickthreshold"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.kickthreshold = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "apcliband"
+      L18 = L18(L19, L20)
+      L17.apcliband = L18
+      L19 = L14
+      L18 = L14.disabled
+      L18 = L18(L19)
+      L17.disabled = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "sae"
+      L18 = L18(L19, L20)
+      L18 = L18 or L18
+      L17.sae = L18
+      L19 = L14
+      L18 = L14.get
+      L20 = "sae_password"
+      L18 = L18(L19, L20)
+      L17.sae_password = L18
+      L15[L16] = L17
+      L16 = L14
+      L15 = L14.disabled
+      L15 = L15(L16)
+      if L15 == nil then
+        L16 = L14
+        L15 = L14.set
+        L17 = "disabled"
+        L18 = "0"
+        L15(L16, L17, L18)
+        L15 = _UPVALUE1_
+        L15 = L15.log
+        L16 = 6
+        L17 = "init disabled =0 ifname: "
+        L19 = L14
+        L18 = L14.ifname
+        L18 = L18(L19)
+        L17 = L17 .. L18
+        L15(L16, L17)
+        L16 = L1
+        L15 = L1.save
+        L17 = "wireless"
+        L15(L16, L17)
+        L16 = L1
+        L15 = L1.commit
+        L17 = "wireless"
+        L15(L16, L17)
+      end
+    end
+    L0[L10] = L8
+  end
+  return L0
+end
+wifiNetworks = L11
+function L11(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = A0
+  L2 = L2(L3, L4)
+  if L2 then
+    L4 = L2
+    L3 = L2.get_device
+    L3 = L3(L4)
+    if L3 then
+      L4 = {}
+      L4.id = A0
+      L6 = L2
+      L5 = L2.shortname
+      L5 = L5(L6)
+      L4.name = L5
+      L6 = L2
+      L5 = L2.is_up
+      L5 = L5(L6)
+      L4.up = L5
+      L6 = L2
+      L5 = L2.active_mode
+      L5 = L5(L6)
+      L4.mode = L5
+      L6 = L2
+      L5 = L2.active_ssid
+      L5 = L5(L6)
+      L4.ssid = L5
+      L6 = L2
+      L5 = L2.active_bssid
+      L5 = L5(L6)
+      L4.bssid = L5
+      L6 = L2
+      L5 = L2.ssid
+      L5 = L5(L6)
+      L4.cssid = L5
+      L6 = L2
+      L5 = L2.active_encryption
+      L5 = L5(L6)
+      L4.encryption = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "encryption"
+      L5 = L5(L6, L7)
+      L4.encryption_src = L5
+      L6 = L2
+      L5 = L2.frequency
+      L5 = L5(L6)
+      L4.frequency = L5
+      L6 = L2
+      L5 = L2.channel
+      L5 = L5(L6)
+      L4.channel = L5
+      L6 = L2
+      L5 = L2.confchannel
+      L5 = L5(L6)
+      L4.cchannel = L5
+      L6 = L2
+      L5 = L2.bw
+      L5 = L5(L6)
+      L4.bw = L5
+      L6 = L2
+      L5 = L2.confbw
+      L5 = L5(L6)
+      L4.cbw = L5
+      L6 = L2
+      L5 = L2.signal
+      L5 = L5(L6)
+      L4.signal = L5
+      L6 = L2
+      L5 = L2.signal_percent
+      L5 = L5(L6)
+      L4.quality = L5
+      L6 = L2
+      L5 = L2.noise
+      L5 = L5(L6)
+      L4.noise = L5
+      L6 = L2
+      L5 = L2.bitrate
+      L5 = L5(L6)
+      L4.bitrate = L5
+      L6 = L2
+      L5 = L2.ifname
+      L5 = L5(L6)
+      L4.ifname = L5
+      L6 = L2
+      L5 = L2.assoclist
+      L5 = L5(L6)
+      L4.assoclist = L5
+      L6 = L2
+      L5 = L2.country
+      L5 = L5(L6)
+      L4.country = L5
+      L6 = L2
+      L5 = L2.txpower
+      L5 = L5(L6)
+      L4.txpower = L5
+      L6 = L2
+      L5 = L2.txpower_offset
+      L5 = L5(L6)
+      L4.txpoweroff = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "key"
+      L5 = L5(L6, L7)
+      L4.key = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "key1"
+      L5 = L5(L6, L7)
+      L4.key1 = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "hidden"
+      L5 = L5(L6, L7)
+      L4.hidden = L5
+      L6 = L2
+      L5 = L2.txpwr
+      L5 = L5(L6)
+      L4.txpwr = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "bsd"
+      L5 = L5(L6, L7)
+      L4.bsd = L5
+      L6 = L2
+      L5 = L2.disabled
+      L5 = L5(L6)
+      L4.disabled = L5
+      L6 = L3
+      L5 = L3.get
+      L7 = "txbf"
+      L5 = L5(L6, L7)
+      L5 = L5 or L5
+      L4.txbf = L5
+      L6 = L3
+      L5 = L3.get
+      L7 = "ax"
+      L5 = L5(L6, L7)
+      L5 = L5 or L5
+      L4.ax = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "sae"
+      L5 = L5(L6, L7)
+      L5 = L5 or L5
+      L4.sae = L5
+      L6 = L2
+      L5 = L2.get
+      L7 = "sae_password"
+      L5 = L5(L6, L7)
+      L4.sae_password = L5
+      L5 = {}
+      L7 = L3
+      L6 = L3.is_up
+      L6 = L6(L7)
+      L5.up = L6
+      L7 = L3
+      L6 = L3.name
+      L6 = L6(L7)
+      L5.device = L6
+      L7 = L3
+      L6 = L3.get_i18n
+      L6 = L6(L7)
+      L5.name = L6
+      L4.device = L5
+      return L4
+    end
+  end
+  L3 = {}
+  return L3
+end
+wifiNetwork = L11
+function L11()
+  local L0, L1, L2, L3
+  L0 = wifiNetwork
+  L1 = _wifiNameForIndex
+  L2 = 1
+  L1, L2, L3 = L1(L2)
+  L0 = L0(L1, L2, L3)
+  L1 = wifiNetwork
+  L2 = _wifiNameForIndex
+  L3 = 2
+  L2, L3 = L2(L3)
+  L1 = L1(L2, L3)
+  L2 = L0.cssid
+  L3 = L1.cssid
+  return L2, L3
+end
+getWifissid = L11
+function L11()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQSysUtil"
+  L1 = L1(L2)
+  L2 = L0.exec
+  L3 = "getmac wl1"
+  L2 = L2(L3)
+  L3 = L0.exec
+  L4 = "getmac wl0"
+  L3 = L3(L4)
+  L4 = L0.trim
+  L5 = L2
+  L4 = L4(L5)
+  L5 = L0.trim
+  L6 = L3
+  L5, L6 = L5(L6)
+  return L4, L5, L6
+end
+getWifiBssid = L11
+function L11()
+  local L0, L1, L2, L3, L4
+  L0 = _UPVALUE0_
+  L0 = L0.isStrNil
+  L1 = _UPVALUE1_
+  L0 = L0(L1)
+  if not L0 then
+    L0 = require
+    L1 = "luci.util"
+    L0 = L0(L1)
+    L1 = "cat /sys/class/net/"
+    L2 = _UPVALUE1_
+    L3 = "/address 2>/dev/null"
+    L1 = L1 .. L2 .. L3
+    L2 = L0.exec
+    L3 = L1
+    L2 = L2(L3)
+    L3 = _UPVALUE0_
+    L3 = L3.isStrNil
+    L4 = L2
+    L3 = L3(L4)
+    if not L3 then
+      L3 = L0.trim
+      L4 = L2
+      L3 = L3(L4)
+      L2 = L3
+      L3 = _UPVALUE0_
+      L3 = L3.macFormat
+      L4 = L2
+      return L3(L4)
+    end
+  end
+  L0 = nil
+  return L0
+end
+getGuestWifiBssid = L11
+function L11(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = pcall
+  L2 = require
+  L3 = "iwinfo"
+  L1, L2 = L1(L2, L3)
+  L3 = _wifiNameForIndex
+  L4 = A0
+  L3 = L3(L4)
+  L4 = nil
+  if L1 then
+    L5 = L2.type
+    L6 = L3 or L6
+    if not L3 then
+      L6 = ""
+    end
+    L5 = L5(L6)
+    if L3 and L5 then
+      L6 = L2[L5]
+      if L6 then
+        L6 = L2[L5]
+        L6 = L6.freqlist
+        L7 = L3
+        L6 = L6(L7)
+        L4 = L6
+      end
+    end
+  end
+  return L4
+end
+getChannels = L11
+L11 = {}
+L12 = {}
+L12["20"] = "1"
+L12["40"] = "1l"
+L11["1"] = L12
+L12 = {}
+L12["20"] = "2"
+L12["40"] = "2l"
+L11["2"] = L12
+L12 = {}
+L12["20"] = "3"
+L12["40"] = "3l"
+L11["3"] = L12
+L12 = {}
+L12["20"] = "4"
+L12["40"] = "4l"
+L11["4"] = L12
+L12 = {}
+L12["20"] = "5"
+L12["40"] = "5l"
+L11["5"] = L12
+L12 = {}
+L12["20"] = "6"
+L12["40"] = "6l"
+L11["6"] = L12
+L12 = {}
+L12["20"] = "7"
+L12["40"] = "7l"
+L11["7"] = L12
+L12 = {}
+L12["20"] = "8"
+L12["40"] = "8u"
+L11["8"] = L12
+L12 = {}
+L12["20"] = "9"
+L12["40"] = "9u"
+L11["9"] = L12
+L12 = {}
+L12["20"] = "10"
+L12["40"] = "10u"
+L11["10"] = L12
+L12 = {}
+L12["20"] = "11"
+L12["40"] = "11u"
+L11["11"] = L12
+L12 = {}
+L12["20"] = "12"
+L12["40"] = "12u"
+L11["12"] = L12
+L12 = {}
+L12["20"] = "13"
+L12["40"] = "13u"
+L11["13"] = L12
+L12 = {}
+L13 = {}
+L13["20"] = "36"
+L13["40"] = "36l"
+L13["80"] = "36/80"
+L12["36"] = L13
+L13 = {}
+L13["20"] = "40"
+L13["40"] = "40u"
+L13["80"] = "40/80"
+L12["40"] = L13
+L13 = {}
+L13["20"] = "44"
+L13["40"] = "44l"
+L13["80"] = "44/80"
+L12["44"] = L13
+L13 = {}
+L13["20"] = "48"
+L13["40"] = "48u"
+L13["80"] = "48/80"
+L12["48"] = L13
+L13 = {}
+L13["20"] = "52"
+L13["40"] = "52l"
+L13["80"] = "52/80"
+L12["52"] = L13
+L13 = {}
+L13["20"] = "56"
+L13["40"] = "56u"
+L13["80"] = "56/80"
+L12["56"] = L13
+L13 = {}
+L13["20"] = "60"
+L13["40"] = "60l"
+L13["80"] = "60/80"
+L12["60"] = L13
+L13 = {}
+L13["20"] = "64"
+L13["40"] = "64u"
+L13["80"] = "64/80"
+L12["64"] = L13
+L13 = {}
+L13["20"] = "149"
+L13["40"] = "149l"
+L13["80"] = "149/80"
+L12["149"] = L13
+L13 = {}
+L13["20"] = "153"
+L13["40"] = "153u"
+L13["80"] = "153/80"
+L12["153"] = L13
+L13 = {}
+L13["20"] = "157"
+L13["40"] = "157l"
+L13["80"] = "157/80"
+L12["157"] = L13
+L13 = {}
+L13["20"] = "161"
+L13["40"] = "161u"
+L13["80"] = "161/80"
+L12["161"] = L13
+L13 = {}
+L13["20"] = "165"
+L12["165"] = L13
+L13 = {}
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.CN = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11"
+L16 = "0 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.TW = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.HK = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140"
+L14[1] = L15
+L14[2] = L16
+L13.EU = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140"
+L14[1] = L15
+L14[2] = L16
+L13.UK = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.AS = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140"
+L14[1] = L15
+L14[2] = L16
+L13.JP = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.KR = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.US = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.ID = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.IN = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140"
+L14[1] = L15
+L14[2] = L16
+L13.DE = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140"
+L14[1] = L15
+L14[2] = L16
+L13.GB = L14
+L14 = {}
+L15 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L16 = "0 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 149 153 157 161 165"
+L14[1] = L15
+L14[2] = L16
+L13.MY = L14
+L14 = {}
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.CN = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.TW = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.HK = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.EU = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.UK = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.AS = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.JP = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.KR = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.US = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.ID = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.IN = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.DE = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.GB = L15
+L15 = {}
+L16 = "0 1 2 3 4 5 6 7 8 9 10 11 12 13"
+L17 = "0 36 40 44 48"
+L15[1] = L16
+L15[2] = L17
+L14.MY = L15
+L15 = {}
+L16 = {}
+L17 = "20"
+L16[1] = L17
+L17 = {}
+L18 = "20"
+L19 = "40"
+L17[1] = L18
+L17[2] = L19
+L18 = {}
+L19 = "20"
+L20 = "40"
+L21 = "80"
+L18[1] = L19
+L18[2] = L20
+L18[3] = L21
+L19 = {}
+L20 = "20"
+L21 = "40"
+L22 = "80"
+L23 = "160"
+L19[1] = L20
+L19[2] = L21
+L19[3] = L22
+L19[4] = L23
+L15[1] = L16
+L15[2] = L17
+L15[3] = L18
+L15[4] = L19
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L1 = tonumber
+  L2 = A0
+  L1 = L1(L2)
+  if L1 == 2 then
+    L1 = 2
+    if L1 then
+      goto lbl_10
+    end
+  end
+  L1 = 1
+  ::lbl_10::
+  L2 = require
+  L3 = "xiaoqiang.XQCountryCode"
+  L2 = L2(L3)
+  L3 = L2.getBDataCountryCode
+  L3 = L3()
+  L4 = _UPVALUE0_
+  L4 = L4[L3]
+  L5 = {}
+  if L6 then
+    L4 = L6[L3]
+  end
+  if L4 then
+    L4 = L4[L1]
+    if L4 then
+      L4 = L6
+      for L9, L10 in L6, L7, L8 do
+        L11 = {}
+        L11.c = L10
+        L12 = tonumber
+        L13 = L10
+        L12 = L12(L13)
+        if L12 == 0 then
+          if L1 == 2 then
+            L12 = _UPVALUE4_
+            L12 = L12[4]
+            L11.b = L12
+          else
+            L12 = _UPVALUE4_
+            L12 = L12[2]
+            L11.b = L12
+          end
+        else
+          L12 = tonumber
+          L13 = L10
+          L12 = L12(L13)
+          if L12 <= 13 then
+            L12 = _UPVALUE4_
+            L12 = L12[2]
+            L11.b = L12
+          else
+            L12 = tonumber
+            L13 = L10
+            L12 = L12(L13)
+            if L12 == 165 then
+              L12 = _UPVALUE4_
+              L12 = L12[1]
+              L11.b = L12
+            else
+              L12 = tonumber
+              L13 = L10
+              L12 = L12(L13)
+              if 149 <= L12 then
+                L12 = tonumber
+                L13 = L10
+                L12 = L12(L13)
+                if L12 <= 161 then
+                  L12 = _UPVALUE4_
+                  L12 = L12[3]
+                  L11.b = L12
+              end
+              else
+                L12 = tonumber
+                L13 = L10
+                L12 = L12(L13)
+                if 140 <= L12 then
+                  L12 = tonumber
+                  L13 = L10
+                  L12 = L12(L13)
+                  if L12 <= 144 then
+                    L12 = _UPVALUE4_
+                    L12 = L12[1]
+                    L11.b = L12
+                end
+                else
+                  L12 = tonumber
+                  L13 = L10
+                  L12 = L12(L13)
+                  if 132 <= L12 then
+                    L12 = tonumber
+                    L13 = L10
+                    L12 = L12(L13)
+                    if L12 <= 136 then
+                      L12 = _UPVALUE4_
+                      L12 = L12[2]
+                      L11.b = L12
+                  end
+                  else
+                    L12 = tonumber
+                    L13 = L10
+                    L12 = L12(L13)
+                    if 36 <= L12 then
+                      L12 = tonumber
+                      L13 = L10
+                      L12 = L12(L13)
+                      if L12 <= 128 then
+                        L12 = _UPVALUE4_
+                        L12 = L12[4]
+                        L11.b = L12
+                    end
+                    else
+                      L12 = _UPVALUE4_
+                      L12 = L12[4]
+                      L11.b = L12
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        L12 = table
+        L12 = L12.insert
+        L13 = L5
+        L14 = L11
+        L12(L13, L14)
+      end
+      return L5
+    end
+  end
+  return L6
+end
+getDefaultWifiChannels = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.common.XQFunction"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = {}
+  L5 = nil
+  L7 = L0
+  L6 = L0.get
+  L8 = "misc"
+  L9 = "wireless"
+  L6 = L6(L7, L8, L9, L10)
+  L6 = L6 or L6
+  L8 = L0
+  L7 = L0.get
+  L9 = "misc"
+  L7 = L7(L8, L9, L10, L11)
+  L7 = L7 or L7
+  L8 = string
+  L8 = L8.len
+  L9 = L6
+  L8 = L8(L9)
+  if 0 < L8 then
+    L8 = table
+    L8 = L8.insert
+    L9 = L3
+    L8(L9, L10)
+  end
+  L8 = string
+  L8 = L8.len
+  L9 = L7
+  L8 = L8(L9)
+  if 0 < L8 then
+    L8 = table
+    L8 = L8.insert
+    L9 = L3
+    L8(L9, L10)
+  end
+  L8 = pcall
+  L9 = require
+  L8, L9 = L8(L9, L10)
+  if not L8 then
+    return L4
+  end
+  for L13, L14 in L10, L11, L12 do
+    L15 = L9.type
+    if not L14 then
+    end
+    L15 = L15(L16)
+    if L14 and L15 then
+      if L16 then
+        L5 = L16
+      end
+    end
+    if not L5 then
+      return L4
+    end
+    for L19, L20 in L16, L17, L18 do
+      L21 = {}
+      if L19 and L20 then
+        L22 = string
+        L22 = L22.lower
+        L23 = tostring
+        L24 = L19
+        L23, L24 = L23(L24)
+        L22 = L22(L23, L24)
+        L19 = L22
+        L21.mac = L19
+        L22 = table
+        L22 = L22.insert
+        L23 = L4
+        L24 = L21
+        L22(L23, L24)
+      end
+    end
+  end
+  return L4
+end
+getWifiAllDeviceMacList = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L2 = {}
+  L3 = tonumber
+  L3 = L3(L4)
+  if L3 == 1 then
+    L3 = getWifiStatus
+    L3 = L3(L4)
+    L3 = L3.up
+    L1 = L3 == 1
+    L3 = wifiNetwork
+    L7, L8, L9, L10, L11, L12 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9, L10, L11, L12)
+    L3 = L3.assoclist
+    L2 = L3 or L2
+    if not L3 then
+      L3 = {}
+      L2 = L3
+    end
+  else
+    L3 = getWifiStatus
+    L3 = L3(L4)
+    L3 = L3.up
+    L1 = L3 == 1
+    L3 = wifiNetwork
+    L7, L8, L9, L10, L11, L12 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9, L10, L11, L12)
+    L3 = L3.assoclist
+    L2 = L3 or L2
+    if not L3 then
+      L3 = {}
+      L2 = L3
+    end
+  end
+  L3 = {}
+  if L1 then
+    for L7, L8 in L4, L5, L6 do
+      L9 = table
+      L9 = L9.insert
+      L10 = L3
+      L11 = _UPVALUE0_
+      L11 = L11.macFormat
+      L12 = L7
+      L11, L12 = L11(L12)
+      L9(L10, L11, L12)
+    end
+  end
+  return L3
+end
+getWifiConnectDeviceList = L16
+function L16(A0, A1)
+  local L2, L3, L4
+  L2 = getWifiConnectDeviceDict
+  L3 = A1
+  L2 = L2(L3)
+  L3 = type
+  L4 = L2
+  L3 = L3(L4)
+  if L3 == "table" then
+    L3 = _UPVALUE0_
+    L3 = L3.macFormat
+    L4 = A0
+    L3 = L3(L4)
+    L3 = L2[L3]
+    L3 = L3 ~= nil
+    return L3
+  else
+    L3 = false
+    return L3
+  end
+end
+isDeviceWifiConnect = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L2 = {}
+  L3 = tonumber
+  L3 = L3(L4)
+  if L3 == 1 then
+    L3 = getWifiStatus
+    L3 = L3(L4)
+    L3 = L3.up
+    L1 = L3 == 1
+    L3 = wifiNetwork
+    L7, L8, L9, L10 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9, L10)
+    L3 = L3.assoclist
+    L2 = L3 or L2
+    if not L3 then
+      L3 = {}
+      L2 = L3
+    end
+  else
+    L3 = getWifiStatus
+    L3 = L3(L4)
+    L3 = L3.up
+    L1 = L3 == 1
+    L3 = wifiNetwork
+    L7, L8, L9, L10 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9, L10)
+    L3 = L3.assoclist
+    L2 = L3 or L2
+    if not L3 then
+      L3 = {}
+      L2 = L3
+    end
+  end
+  L3 = {}
+  if L1 then
+    for L7, L8 in L4, L5, L6 do
+      if L7 then
+        L9 = _UPVALUE0_
+        L9 = L9.macFormat
+        L10 = L7
+        L9 = L9(L10)
+        L3[L9] = 1
+      end
+    end
+  end
+  return L3
+end
+getWifiConnectDeviceDict = L16
+function L16(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  end
+  L2 = A0
+  L1 = A0.match
+  L3 = "l"
+  L1 = L1(L2, L3)
+  if L1 then
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "l"
+    L4 = ""
+    L1 = L1(L2, L3, L4)
+    L2 = "(40M)"
+    L1 = L1 .. L2
+    return L1
+  end
+  L2 = A0
+  L1 = A0.match
+  L3 = "u"
+  L1 = L1(L2, L3)
+  if L1 then
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "u"
+    L4 = ""
+    L1 = L1(L2, L3, L4)
+    L2 = "(40M)"
+    L1 = L1 .. L2
+    return L1
+  end
+  L2 = A0
+  L1 = A0.match
+  L3 = "/80"
+  L1 = L1(L2, L3)
+  if L1 then
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "/80"
+    L4 = ""
+    L1 = L1(L2, L3, L4)
+    L2 = "(80M)"
+    L1 = L1 .. L2
+    return L1
+  end
+  L1 = A0
+  L2 = "(20M)"
+  L1 = L1 .. L2
+  return L1
+end
+_pauseChannel = L16
+function L16(A0)
+  local L1, L2, L3, L4
+  L1 = ""
+  L2 = tonumber
+  L3 = A0
+  L2 = L2(L3)
+  if L2 == 1 then
+    L2 = _UPVALUE0_
+    L2 = L2.trim
+    L3 = _UPVALUE0_
+    L3 = L3.exec
+    L4 = "iwlist wl1 channel | awk -F '[ )]+' '/Current Frequency/{print $6}'"
+    L3, L4 = L3(L4)
+    L2 = L2(L3, L4)
+    L1 = L2
+  else
+    L2 = _UPVALUE0_
+    L2 = L2.trim
+    L3 = _UPVALUE0_
+    L3 = L3.exec
+    L4 = "iwlist wl0 channel | awk -F '[ )]+' '/Current Frequency/{print $6}'"
+    L3, L4 = L3(L4)
+    L2 = L2(L3, L4)
+    L1 = L2
+  end
+  L2 = _pauseChannel
+  L3 = L1
+  return L2(L3)
+end
+getWifiWorkChannel = L16
+function L16(A0)
+  local L1, L2, L3
+  L1 = _UPVALUE0_
+  L1 = L1.macFormat
+  L2 = A0
+  L1 = L1(L2)
+  A0 = L1
+  L1 = getWifiConnectDeviceDict
+  L2 = 1
+  L1 = L1(L2)
+  L2 = getWifiConnectDeviceDict
+  L3 = 2
+  L2 = L2(L3)
+  if L1 then
+    L3 = L1[A0]
+    if L3 == 1 then
+      L3 = 1
+      return L3
+    end
+  end
+  if L2 then
+    L3 = L2[A0]
+    if L3 == 1 then
+      L3 = 2
+      return L3
+    end
+  end
+  L3 = 0
+  return L3
+end
+getDeviceWifiIndex = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L1 = {}
+  L2 = {}
+  if L3 ~= 1 then
+    return L1
+  end
+  if A0 == 1 then
+    L6, L7, L8, L9, L10, L11, L12 = L4(L5)
+    L2 = L3 or L2
+    if not L3 then
+      L2 = L3
+    end
+  else
+    L6, L7, L8, L9, L10, L11, L12 = L4(L5)
+    L2 = L3 or L2
+    if not L3 then
+      L2 = L3
+    end
+  end
+  for L6, L7 in L3, L4, L5 do
+    if L6 then
+      L8 = _UPVALUE0_
+      L8 = L8.macFormat
+      L9 = L6
+      L8 = L8(L9)
+      L9 = math
+      L9 = L9.abs
+      L10 = tonumber
+      L11 = L7.signal
+      L10 = L10(L11)
+      L11 = tonumber
+      L12 = L7.noise
+      L11 = L11(L12)
+      L10 = L10 - L11
+      L9 = L9(L10)
+      L9 = 2 * L9
+      L1[L8] = L9
+    end
+  end
+  return L1
+end
+getWifiDeviceSignalDict = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L1 = L1(L2)
+  if L1 then
+    L1 = nil
+    return L1
+  end
+  L1 = wifiNetwork
+  L6, L7, L8 = L2(L3)
+  L1 = L1(L2, L3, L4, L5, L6, L7, L8)
+  L1 = L1.assoclist
+  L1 = L1 or L1
+  for L5, L6 in L2, L3, L4 do
+    if A0 == L5 then
+      L7 = L6.signal
+      return L7
+    end
+  end
+  L6, L7, L8 = L3(L4)
+  for L6, L7 in L3, L4, L5 do
+    if A0 == L6 then
+      L8 = L7.signal
+      return L8
+    end
+  end
+  return L3
+end
+getWifiDeviceSignal = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = {}
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L2 = L2(L3)
+  if L2 then
+    L2 = nil
+    return L2
+  end
+  L2 = wifiNetwork
+  L7, L8, L9 = L3(L4)
+  L2 = L2(L3, L4, L5, L6, L7, L8, L9)
+  L2 = L2.assoclist
+  L2 = L2 or L2
+  for L6, L7 in L3, L4, L5 do
+    if A0 == L6 then
+      L8 = L7.rx_rate
+      L1.upspeed = L8
+      L8 = L7.tx_rate
+      L1.downspeed = L8
+      return L1
+    end
+  end
+  L7, L8, L9 = L4(L5)
+  for L7, L8 in L4, L5, L6 do
+    if A0 == L7 then
+      L9 = L8.rx_rate
+      L1.upspeed = L9
+      L9 = L8.tx_rate
+      L1.downspeed = L9
+      return L1
+    end
+  end
+  return L4
+end
+getWifiDeviceSpeed = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = {}
+  for L4 = L1, L2, L3 do
+    L5 = getWifiDeviceSignalDict
+    L6 = L4
+    L5 = L5(L6)
+    L6 = getWifiConnectDeviceList
+    L6 = L6(L7)
+    for L10, L11 in L7, L8, L9 do
+      L12 = table
+      L12 = L12.insert
+      L13 = L0
+      L14 = {}
+      L15 = _UPVALUE0_
+      L15 = L15.macFormat
+      L16 = L11
+      L15 = L15(L16)
+      L14.mac = L15
+      L15 = L5[L11]
+      L14.signal = L15
+      L14.wifiIndex = L4
+      L12(L13, L14)
+    end
+  end
+  return L0
+end
+getAllWifiConnetDeviceList = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = {}
+  for L4 = L1, L2, L3 do
+    L5 = getWifiDeviceSignalDict
+    L6 = L4
+    L5 = L5(L6)
+    L6 = getWifiConnectDeviceList
+    L6 = L6(L7)
+    for L10, L11 in L7, L8, L9 do
+      L12 = {}
+      L13 = L5[L11]
+      L12.signal = L13
+      L12.wifiIndex = L4
+      L13 = _UPVALUE0_
+      L13 = L13.macFormat
+      L14 = L11
+      L13 = L13(L14)
+      L0[L13] = L12
+    end
+  end
+  return L0
+end
+getAllWifiConnetDeviceDict = L16
+function L16(A0)
+  local L1, L2, L3
+  L1 = wifiNetwork
+  L2 = _wifiNameForIndex
+  L3 = A0
+  L2, L3 = L2(L3)
+  L1 = L1(L2, L3)
+  L2 = {}
+  L3 = L1.ssid
+  L2.ssid = L3
+  L3 = L1.up
+  if L3 then
+    L3 = 1
+    if L3 then
+      goto lbl_16
+    end
+  end
+  L3 = 0
+  ::lbl_16::
+  L2.up = L3
+  return L2
+end
+getWifiStatus = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L1 = {}
+  L1.channel = ""
+  L1.bandwidth = ""
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    return L1
+  end
+  L2 = string
+  L2 = L2.find
+  L3 = A0
+  L2 = L2(L3, L4)
+  if L2 ~= nil then
+    L3 = A0
+    L2 = A0.match
+    L2 = L2(L3, L4)
+    L1.channel = L2
+    L1.bandwidth = "40"
+  else
+    L2 = string
+    L2 = L2.find
+    L3 = A0
+    L2 = L2(L3, L4)
+    if L2 ~= nil then
+      L3 = A0
+      L2 = A0.match
+      L2 = L2(L3, L4)
+      L1.channel = L2
+      L1.bandwidth = "40"
+    else
+      L2 = string
+      L2 = L2.find
+      L3 = A0
+      L2 = L2(L3, L4)
+      if L2 ~= nil then
+        L3 = A0
+        L2 = A0.match
+        L2 = L2(L3, L4)
+        L1.channel = L2
+        L1.bandwidth = "80"
+      else
+        L2 = tostring
+        L3 = A0
+        L2 = L2(L3)
+        L1.channel = L2
+        L1.bandwidth = "20"
+      end
+    end
+  end
+  L2 = {}
+  L3 = L1.channel
+  if L3 then
+    L3 = _UPVALUE1_
+    L3 = L3[L4]
+    if not L3 then
+      L3 = _UPVALUE2_
+      L3 = L3[L4]
+    end
+    if L3 then
+      if L4 == "table" then
+        for L7, L8 in L4, L5, L6 do
+          L9 = table
+          L9 = L9.insert
+          L10 = L2
+          L11 = L7
+          L9(L10, L11)
+        end
+      end
+    end
+  end
+  L1.bandList = L2
+  return L1
+end
+channelHelper = L16
+function L16(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L2 = {}
+  L2.channel = ""
+  L2.bandwidth = ""
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if L3 then
+    return L2
+  end
+  L3 = {}
+  L4 = nil
+  if A1 == "wl1" then
+    L4 = L5
+  else
+    L4 = L5
+  end
+  for L8, L9 in L5, L6, L7 do
+    if L9 then
+      L10 = tonumber
+      L11 = L9.c
+      L10 = L10(L11)
+      L11 = tonumber
+      L12 = A0
+      L11 = L11(L12)
+      if L10 == L11 then
+        L3 = L9.b
+        break
+      end
+    end
+  end
+  L2.bandList = L3
+  return L2
+end
+getBandList = L16
+function L16(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  end
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "l"
+  L4 = ""
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "u"
+  L4 = ""
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "/80"
+  L4 = ""
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  return A0
+end
+_channelFix = L16
+function L16(A0, A1, A2)
+  local L3, L4, L5, L6
+  L3 = {}
+  L4 = tonumber
+  L5 = A0
+  L4 = L4(L5)
+  if L4 == 1 then
+    L4 = _UPVALUE0_
+    L5 = tostring
+    L6 = A1
+    L5 = L5(L6)
+    L3 = L4[L5]
+  else
+    L4 = _UPVALUE1_
+    L5 = tostring
+    L6 = A1
+    L5 = L5(L6)
+    L3 = L4[L5]
+  end
+  if L3 then
+    L4 = type
+    L5 = L3
+    L4 = L4(L5)
+    if L4 == "table" then
+      L4 = tostring
+      L5 = A2
+      L4 = L4(L5)
+      L4 = L3[L4]
+      L5 = _UPVALUE2_
+      L5 = L5.isStrNil
+      L6 = L4
+      L5 = L5(L6)
+      if not L5 then
+        return L4
+      end
+    end
+  end
+  L4 = false
+  return L4
+end
+channelFormat = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = {}
+  L1 = {}
+  L2 = wifiNetworks
+  L2 = L2()
+  for L6, L7 in L3, L4, L5 do
+    L8 = {}
+    L9 = 1
+    L10 = L7.networks
+    L10 = L10[L9]
+    L10 = L10.cchannel
+    if L10 == "auto" then
+      L10 = "0"
+    end
+    L8.channel = L10
+    L11 = L7.networks
+    L11 = L11[L9]
+    L11 = L11.cbw
+    L8.bandwidth = L11
+    L11 = getBandList
+    L12 = L10
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ifname
+    L11 = L11(L12, L13)
+    L8.channelInfo = L11
+    L11 = _UPVALUE0_
+    L11 = L11.log
+    L12 = 6
+    L13 = L7.up
+    L11(L12, L13)
+    L11 = _UPVALUE0_
+    L11 = L11.log
+    L12 = 6
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.disabled
+    L11(L12, L13)
+    L11 = L7.networks
+    L11 = L11[L9]
+    L11 = L11.disabled
+    if L11 == nil then
+      L11 = L7.up
+      if L11 then
+        L8.status = "1"
+        L11 = L7.networks
+        L11 = L11[L9]
+        L11 = L11.ssid
+        L8.ssid = L11
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.channel
+        L11.channel = L12
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.bw
+        L11.bandwidth = L12
+      else
+        L8.status = "0"
+        L11 = L7.networks
+        L11 = L11[L9]
+        L11 = L11.cssid
+        L8.ssid = L11
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.cchannel
+        L11.channel = L12
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.cbw
+        L11.bandwidth = L12
+      end
+    else
+      L11 = L7.networks
+      L11 = L11[L9]
+      L11 = L11.disabled
+      if L11 == "1" then
+        L8.status = "0"
+        L11 = L7.networks
+        L11 = L11[L9]
+        L11 = L11.cssid
+        L8.ssid = L11
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.cchannel
+        L11.channel = L12
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.cbw
+        L11.bandwidth = L12
+      else
+        L8.status = "1"
+        L11 = L7.networks
+        L11 = L11[L9]
+        L11 = L11.ssid
+        L8.ssid = L11
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.channel
+        L11.channel = L12
+        L11 = L8.channelInfo
+        L12 = L7.networks
+        L12 = L12[L9]
+        L12 = L12.bw
+        L11.bandwidth = L12
+      end
+    end
+    L11 = L7.networks
+    L11 = L11[L9]
+    L11 = L11.encryption_src
+    L12 = L7.networks
+    L12 = L12[L9]
+    L12 = L12.key
+    if L11 == "wep-open" then
+      L13 = L7.networks
+      L13 = L13[L9]
+      L12 = L13.key1
+      L14 = L12
+      L13 = L12.len
+      L13 = L13(L14)
+      if 4 < L13 then
+        L14 = L12
+        L13 = L12.sub
+        L15 = 0
+        L16 = 2
+        L13 = L13(L14, L15, L16)
+        if L13 == "s:" then
+          L14 = L12
+          L13 = L12.sub
+          L15 = 3
+          L13 = L13(L14, L15)
+          L12 = L13
+        end
+      end
+    elseif L11 == "ccmp" then
+      L13 = L7.networks
+      L13 = L13[L9]
+      L12 = L13.sae_password
+    end
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ifname
+    L8.ifname = L13
+    L13 = L7.device
+    L14 = ".network"
+    L15 = L9
+    L13 = L13 .. L14 .. L15
+    L8.device = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.mode
+    L8.mode = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.hidden
+    L13 = L13 or L13
+    L8.hidden = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.signal
+    L8.signal = L13
+    L8.password = L12
+    L8.encryption = L11
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.txpwr
+    if L13 == "nil" then
+      L8.txpwr = "max"
+    else
+      L13 = L7.networks
+      L13 = L13[L9]
+      L13 = L13.txpwr
+      L13 = L13 or L13
+      L8.txpwr = L13
+    end
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.bsd
+    L8.bsd = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.txbf
+    L8.txbf = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ax
+    L8.ax = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.weakenable
+    L13 = L13 or L13
+    L8.weakenable = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.weakthreshold
+    L13 = L13 or L13
+    L8.weakthreshold = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.kickthreshold
+    L13 = L13 or L13
+    L8.kickthreshold = L13
+    L13 = L7.device
+    L1[L13] = L8
+  end
+  if L3 then
+    L3(L4, L5)
+  end
+  if L3 then
+    L3(L4, L5)
+  end
+  return L0
+end
+getAllWifiInfo = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = {}
+  L1 = {}
+  L2 = wifiNetworks
+  L2 = L2()
+  for L6, L7 in L3, L4, L5 do
+    L8 = {}
+    L9 = 1
+    L10 = L7.networks
+    L10 = L10[L9]
+    L10 = L10.cchannel
+    L8.channel = L10
+    L11 = L7.networks
+    L11 = L11[L9]
+    L11 = L11.cbw
+    L8.bandwidth = L11
+    L11 = getBandList
+    L12 = L10
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ifname
+    L11 = L11(L12, L13)
+    L8.channelInfo = L11
+    L11 = L7.up
+    if L11 then
+      L8.status = "1"
+      L11 = L7.networks
+      L11 = L11[L9]
+      L11 = L11.ssid
+      L8.ssid = L11
+      L11 = L8.channelInfo
+      L12 = L7.networks
+      L12 = L12[L9]
+      L12 = L12.channel
+      L11.channel = L12
+      L11 = L8.channelInfo
+      L12 = L7.networks
+      L12 = L12[L9]
+      L12 = L12.bw
+      L11.bandwidth = L12
+    else
+      L8.status = "0"
+      L11 = L7.networks
+      L11 = L11[L9]
+      L11 = L11.cssid
+      L8.ssid = L11
+      L11 = L8.channelInfo
+      L12 = L7.networks
+      L12 = L12[L9]
+      L12 = L12.cchannel
+      L11.channel = L12
+      L11 = L8.channelInfo
+      L12 = L7.networks
+      L12 = L12[L9]
+      L12 = L12.cbw
+      L11.bandwidth = L12
+    end
+    L11 = L7.networks
+    L11 = L11[L9]
+    L11 = L11.encryption_src
+    L12 = L7.networks
+    L12 = L12[L9]
+    L12 = L12.key
+    if L11 == "wep-open" then
+      L13 = L7.networks
+      L13 = L13[L9]
+      L12 = L13.key1
+      L14 = L12
+      L13 = L12.len
+      L13 = L13(L14)
+      if 4 < L13 then
+        L14 = L12
+        L13 = L12.sub
+        L15 = 0
+        L16 = 2
+        L13 = L13(L14, L15, L16)
+        if L13 == "s:" then
+          L14 = L12
+          L13 = L12.sub
+          L15 = 3
+          L13 = L13(L14, L15)
+          L12 = L13
+        end
+      end
+    elseif L11 == "ccmp" then
+      L13 = L7.networks
+      L13 = L13[L9]
+      L12 = L13.sae_password
+    end
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ifname
+    L8.ifname = L13
+    L13 = L7.device
+    L14 = ".network"
+    L15 = L9
+    L13 = L13 .. L14 .. L15
+    L8.device = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.mode
+    L8.mode = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.hidden
+    L13 = L13 or L13
+    L8.hidden = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.signal
+    L8.signal = L13
+    L8.password = L12
+    L8.encryption = L11
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.txpwr
+    if L13 == "nil" then
+      L8.txpwr = "max"
+    else
+      L13 = L7.networks
+      L13 = L13[L9]
+      L13 = L13.txpwr
+      L13 = L13 or L13
+      L8.txpwr = L13
+    end
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.bsd
+    L8.bsd = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.txbf
+    L8.txbf = L13
+    L13 = L7.networks
+    L13 = L13[L9]
+    L13 = L13.ax
+    L8.ax = L13
+    L13 = L7.device
+    L1[L13] = L8
+  end
+  if L3 then
+    L3.iftype = 1
+    L3(L4, L5)
+  end
+  if L3 then
+    L3.iftype = 2
+    L3(L4, L5)
+  end
+  if L3 then
+    if L4 == 0 then
+      L3.iftype = 3
+      L6 = L3
+      L4(L5, L6)
+    end
+  end
+  return L0
+end
+getDiagAllWifiInfo = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = A0
+  L4, L5 = L4(L5)
+  L2 = L2(L3, L4, L5)
+  if L2 then
+    L3 = tostring
+    L5 = L2
+    L4 = L2.txpwr
+    L4, L5 = L4(L5)
+    return L3(L4, L5)
+  else
+    L3 = nil
+    return L3
+  end
+end
+getWifiTxpwr = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = A0
+  L4, L5 = L4(L5)
+  L2 = L2(L3, L4, L5)
+  if L2 then
+    L3 = tostring
+    L5 = L2
+    L4 = L2.channel
+    L4, L5 = L4(L5)
+    return L3(L4, L5)
+  else
+    L3 = nil
+    return L3
+  end
+end
+getWifiChannel = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = 1
+  L4, L5, L6, L7, L8 = L4(L5)
+  L2 = L2(L3, L4, L5, L6, L7, L8)
+  L4 = L1
+  L3 = L1.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = 2
+  L5, L6, L7, L8 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8)
+  if L2 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = tostring
+    L8 = L2
+    L7 = L2.txpwr
+    L7, L8 = L7(L8)
+    L6, L7, L8 = L6(L7, L8)
+    L4(L5, L6, L7, L8)
+  end
+  if L3 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = tostring
+    L8 = L3
+    L7 = L3.txpwr
+    L7, L8 = L7(L8)
+    L6, L7, L8 = L6(L7, L8)
+    L4(L5, L6, L7, L8)
+  end
+  return L0
+end
+getWifiTxpwrList = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = 1
+  L4, L5, L6, L7, L8 = L4(L5)
+  L2 = L2(L3, L4, L5, L6, L7, L8)
+  L4 = L1
+  L3 = L1.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = 2
+  L5, L6, L7, L8 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8)
+  if L2 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = tostring
+    L8 = L2
+    L7 = L2.channel
+    L7, L8 = L7(L8)
+    L6, L7, L8 = L6(L7, L8)
+    L4(L5, L6, L7, L8)
+  end
+  if L3 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = tostring
+    L8 = L3
+    L7 = L3.channel
+    L7, L8 = L7(L8)
+    L6, L7, L8 = L6(L7, L8)
+    L4(L5, L6, L7, L8)
+  end
+  return L0
+end
+getWifiChannelList = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = 1
+  L4, L5, L6, L7, L8, L9 = L4(L5)
+  L2 = L2(L3, L4, L5, L6, L7, L8, L9)
+  L4 = L1
+  L3 = L1.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = 2
+  L5, L6, L7, L8, L9 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8, L9)
+  if L2 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = {}
+    L7 = tostring
+    L9 = L2
+    L8 = L2.channel
+    L8, L9 = L8(L9)
+    L7 = L7(L8, L9)
+    L6.channel = L7
+    L7 = tostring
+    L9 = L2
+    L8 = L2.txpwr
+    L8, L9 = L8(L9)
+    L7 = L7(L8, L9)
+    L6.txpwr = L7
+    L4(L5, L6)
+  else
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = {}
+    L4(L5, L6)
+  end
+  if L3 then
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = {}
+    L7 = tostring
+    L9 = L3
+    L8 = L3.channel
+    L8, L9 = L8(L9)
+    L7 = L7(L8, L9)
+    L6.channel = L7
+    L7 = tostring
+    L9 = L3
+    L8 = L3.txpwr
+    L8, L9 = L8(L9)
+    L7 = L7(L8, L9)
+    L6.txpwr = L7
+    L4(L5, L6)
+  else
+    L4 = table
+    L4 = L4.insert
+    L5 = L0
+    L6 = {}
+    L4(L5, L6)
+  end
+  return L0
+end
+getWifiChannelTxpwrList = L16
+function L16(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10
+  L4 = _UPVALUE0_
+  L4 = L4.init
+  L4 = L4()
+  L6 = L4
+  L5 = L4.get_wifidev
+  L7 = _UPVALUE1_
+  L7 = L7.split
+  L8 = _wifiNameForIndex
+  L9 = 1
+  L8 = L8(L9)
+  L9 = "."
+  L7 = L7(L8, L9)
+  L7 = L7[1]
+  L5 = L5(L6, L7)
+  L7 = L4
+  L6 = L4.get_wifidev
+  L8 = _UPVALUE1_
+  L8 = L8.split
+  L9 = _wifiNameForIndex
+  L10 = 2
+  L9 = L9(L10)
+  L10 = "."
+  L8 = L8(L9, L10)
+  L8 = L8[1]
+  L6 = L6(L7, L8)
+  if L5 then
+    L7 = tonumber
+    L8 = A0
+    L7 = L7(L8)
+    if L7 then
+      L8 = L5
+      L7 = L5.set
+      L9 = "channel"
+      L10 = A0
+      L7(L8, L9, L10)
+    end
+    L7 = _UPVALUE2_
+    L7 = L7.isStrNil
+    L8 = A1
+    L7 = L7(L8)
+    if not L7 then
+      L8 = L5
+      L7 = L5.set
+      L9 = "txpwr"
+      L10 = A1
+      L7(L8, L9, L10)
+    end
+  end
+  if L6 then
+    L7 = tonumber
+    L8 = A2
+    L7 = L7(L8)
+    if L7 then
+      L8 = L6
+      L7 = L6.set
+      L9 = "channel"
+      L10 = A2
+      L7(L8, L9, L10)
+    end
+    L7 = _UPVALUE2_
+    L7 = L7.isStrNil
+    L8 = A3
+    L7 = L7(L8)
+    if not L7 then
+      L8 = L6
+      L7 = L6.set
+      L9 = "txpwr"
+      L10 = A3
+      L7(L8, L9, L10)
+    end
+  end
+  L8 = L4
+  L7 = L4.commit
+  L9 = "wireless"
+  L7(L8, L9)
+  L8 = L4
+  L7 = L4.save
+  L9 = "wireless"
+  L7(L8, L9)
+  L7 = true
+  return L7
+end
+setWifiChannelTxpwr = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifidev
+  L4 = _UPVALUE1_
+  L4 = L4.split
+  L5 = _wifiNameForIndex
+  L6 = 1
+  L5 = L5(L6)
+  L6 = "."
+  L4 = L4(L5, L6)
+  L4 = L4[1]
+  L2 = L2(L3, L4)
+  L4 = L1
+  L3 = L1.get_wifidev
+  L5 = _UPVALUE1_
+  L5 = L5.split
+  L6 = _wifiNameForIndex
+  L7 = 2
+  L6 = L6(L7)
+  L7 = "."
+  L5 = L5(L6, L7)
+  L5 = L5[1]
+  L3 = L3(L4, L5)
+  if L2 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L2
+      L4 = L2.set
+      L6 = "txpwr"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  if L3 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L3
+      L4 = L3.set
+      L6 = "txpwr"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  L5 = L1
+  L4 = L1.commit
+  L6 = "wireless"
+  L4(L5, L6)
+  L5 = L1
+  L4 = L1.save
+  L6 = "wireless"
+  L4(L5, L6)
+  L4 = true
+  return L4
+end
+setWifiTxpwr = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifidev
+  L4 = _UPVALUE1_
+  L4 = L4.split
+  L5 = _wifiNameForIndex
+  L6 = 1
+  L5 = L5(L6)
+  L6 = "."
+  L4 = L4(L5, L6)
+  L4 = L4[1]
+  L2 = L2(L3, L4)
+  L4 = L1
+  L3 = L1.get_wifidev
+  L5 = _UPVALUE1_
+  L5 = L5.split
+  L6 = _wifiNameForIndex
+  L7 = 2
+  L6 = L6(L7)
+  L7 = "."
+  L5 = L5(L6, L7)
+  L5 = L5[1]
+  L3 = L3(L4, L5)
+  if L2 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L2
+      L4 = L2.set
+      L6 = "txbf"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  if L3 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L3
+      L4 = L3.set
+      L6 = "txbf"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  L5 = L1
+  L4 = L1.commit
+  L6 = "wireless"
+  L4(L5, L6)
+  L5 = L1
+  L4 = L1.save
+  L6 = "wireless"
+  L4(L5, L6)
+  L4 = true
+  return L4
+end
+setWifiTxbf = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifidev
+  L4 = _UPVALUE1_
+  L4 = L4.split
+  L5 = _wifiNameForIndex
+  L6 = 1
+  L5 = L5(L6)
+  L6 = "."
+  L4 = L4(L5, L6)
+  L4 = L4[1]
+  L2 = L2(L3, L4)
+  L4 = L1
+  L3 = L1.get_wifidev
+  L5 = _UPVALUE1_
+  L5 = L5.split
+  L6 = _wifiNameForIndex
+  L7 = 2
+  L6 = L6(L7)
+  L7 = "."
+  L5 = L5(L6, L7)
+  L5 = L5[1]
+  L3 = L3(L4, L5)
+  if L2 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L2
+      L4 = L2.set
+      L6 = "ax"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  if L3 then
+    L4 = _UPVALUE2_
+    L4 = L4.isStrNil
+    L5 = A0
+    L4 = L4(L5)
+    if not L4 then
+      L5 = L3
+      L4 = L3.set
+      L6 = "ax"
+      L7 = A0
+      L4(L5, L6, L7)
+    end
+  end
+  L5 = L1
+  L4 = L1.commit
+  L6 = "wireless"
+  L4(L5, L6)
+  L5 = L1
+  L4 = L1.save
+  L6 = "wireless"
+  L4(L5, L6)
+  L4 = true
+  return L4
+end
+setWifiAx = L16
+function L16(A0, A1)
+  local L2, L3
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A1
+  L2 = L2(L3)
+  if not L2 then
+    if not A1 or A1 == "none" then
+      goto lbl_19
+    end
+    L2 = _UPVALUE0_
+    L2 = L2.isStrNil
+    L3 = A0
+    L2 = L2(L3)
+    if not L2 then
+      goto lbl_19
+    end
+  end
+  L2 = 1502
+  do return L2 end
+  ::lbl_19::
+  L2 = _UPVALUE0_
+  L2 = L2.checkChineseChar
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L2 = 1523
+    return L2
+  end
+  if A1 == "psk" or A1 == "psk2" then
+    L3 = A0
+    L2 = A0.len
+    L2 = L2(L3)
+    if L2 < 8 then
+      L2 = 1520
+      return L2
+    end
+  elseif A1 == "mixed-psk" then
+    L3 = A0
+    L2 = A0.len
+    L2 = L2(L3)
+    if not (L2 < 8) then
+      L3 = A0
+      L2 = A0.len
+      L2 = L2(L3)
+    end
+    if 63 < L2 then
+      L2 = 1521
+      return L2
+    end
+  elseif A1 == "wep-open" then
+    L3 = A0
+    L2 = A0.len
+    L2 = L2(L3)
+    if L2 ~= 5 then
+      L3 = A0
+      L2 = A0.len
+      L2 = L2(L3)
+      if L2 ~= 13 then
+        L2 = 1522
+        return L2
+      end
+    end
+  end
+  L2 = 0
+  return L2
+end
+checkWifiPasswd = L16
+function L16(A0, A1)
+  local L2, L3, L4
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L2 = 0
+    return L2
+  end
+  L2 = string
+  L2 = L2.len
+  L3 = A0
+  L2 = L2(L3)
+  L3 = tonumber
+  L4 = A1
+  L3 = L3(L4)
+  if L2 > L3 then
+    L2 = 1572
+    return L2
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.checkSSID
+  L3 = A0
+  L2 = L2(L3)
+  if not L2 then
+    L2 = 1573
+    return L2
+  end
+  L2 = 0
+  return L2
+end
+checkSSID = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_wifinet
+  L4 = _wifiNameForIndex
+  L5 = A0
+  L4, L5, L6, L7 = L4(L5)
+  L2 = L2(L3, L4, L5, L6, L7)
+  L4 = L1
+  L3 = L1.get_wifidev
+  L5 = _UPVALUE1_
+  L5 = L5.split
+  L6 = _wifiNameForIndex
+  L7 = A0
+  L6 = L6(L7)
+  L7 = "."
+  L5 = L5(L6, L7)
+  L5 = L5[1]
+  L3 = L3(L4, L5)
+  if L2 and L3 then
+    L4 = {}
+    L4.wifiIndex = A0
+    L6 = L3
+    L5 = L3.get
+    L7 = "channel"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.channel = L5
+    L6 = L3
+    L5 = L3.get
+    L7 = "bw"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.bandwidth = L5
+    L6 = L3
+    L5 = L3.get
+    L7 = "txpwr"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.txpwr = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "disabled"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.on = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "ssid"
+    L5 = L5(L6, L7)
+    L4.ssid = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "encryption"
+    L5 = L5(L6, L7)
+    L4.encryption = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "key"
+    L5 = L5(L6, L7)
+    L4.password = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "hidden"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.hidden = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "bsd"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.bsd = L5
+    L6 = L3
+    L5 = L3.get
+    L7 = "txbf"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.txbf = L5
+    L6 = L2
+    L5 = L2.get
+    L7 = "ax"
+    L5 = L5(L6, L7)
+    L5 = L5 or L5
+    L4.ax = L5
+    L5 = L4.encryption
+    if L5 == "ccmp" then
+      L6 = L2
+      L5 = L2.get
+      L7 = "sae_password"
+      L5 = L5(L6, L7)
+      L4.password = L5
+    end
+    return L4
+  end
+  L4 = nil
+  return L4
+end
+getWifiBasicInfo = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = getWifiBasicInfo
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    L4 = L1
+    L3 = L1.section
+    L5 = "backup"
+    L6 = "backup"
+    L7 = "wifi"
+    L8 = tostring
+    L9 = A0
+    L8 = L8(L9)
+    L7 = L7 .. L8
+    L8 = L2
+    L3(L4, L5, L6, L7, L8)
+    L4 = L1
+    L3 = L1.commit
+    L5 = "backup"
+    L3(L4, L5)
+  end
+end
+backupWifiInfo = L16
+function L16(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14)
+  local L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  L15 = _UPVALUE0_
+  L15 = L15.init
+  L15 = L15()
+  L17 = L15
+  L16 = L15.get_wifinet
+  L18 = _wifiNameForIndex
+  L19 = A0
+  L18, L19, L20, L21, L22, L23, L24 = L18(L19)
+  L16 = L16(L17, L18, L19, L20, L21, L22, L23, L24)
+  L18 = L15
+  L17 = L15.get_wifidev
+  L19 = _UPVALUE1_
+  L19 = L19.split
+  L20 = _wifiNameForIndex
+  L21 = A0
+  L20 = L20(L21)
+  L21 = "."
+  L19 = L19(L20, L21)
+  L19 = L19[1]
+  L17 = L17(L18, L19)
+  L18 = require
+  L19 = "luci.model.uci"
+  L18 = L18(L19)
+  L18 = L18.cursor
+  L18 = L18()
+  if L16 == nil then
+    L19 = false
+    return L19
+  end
+  if L17 then
+    L19 = _UPVALUE2_
+    L19 = L19.isStrNil
+    L20 = A4
+    L19 = L19(L20)
+    if not L19 then
+      L20 = L17
+      L19 = L17.set
+      L21 = "channel"
+      L22 = A4
+      L19(L20, L21, L22)
+      if A4 == "0" then
+        L20 = L17
+        L19 = L17.set
+        L21 = "autoch"
+        L22 = "2"
+        L19(L20, L21, L22)
+      else
+        L20 = L17
+        L19 = L17.set
+        L21 = "autoch"
+        L22 = "0"
+        L19(L20, L21, L22)
+      end
+    end
+    L19 = _UPVALUE2_
+    L19 = L19.isStrNil
+    L20 = A8
+    L19 = L19(L20)
+    if not L19 then
+      L20 = L17
+      L19 = L17.set
+      L21 = "bw"
+      L22 = A8
+      L19(L20, L21, L22)
+    end
+    L19 = _UPVALUE2_
+    L19 = L19.isStrNil
+    L20 = A5
+    L19 = L19(L20)
+    if not L19 then
+      L20 = L17
+      L19 = L17.set
+      L21 = "txpwr"
+      L22 = A5
+      L19(L20, L21, L22)
+    end
+    if A7 == 1 then
+      L20 = L17
+      L19 = L17.set
+      L21 = "disabled"
+      L22 = "0"
+      L19(L20, L21, L22)
+    end
+    L19 = _UPVALUE2_
+    L19 = L19.isStrNil
+    L20 = A10
+    L19 = L19(L20)
+    if not L19 then
+      L19 = tonumber
+      L20 = A10
+      L19 = L19(L20)
+      if L19 == 3 then
+        L20 = L17
+        L19 = L17.set
+        L21 = "txbf"
+        L22 = "3"
+        L19(L20, L21, L22)
+      else
+        L19 = tonumber
+        L20 = A10
+        L19 = L19(L20)
+        if L19 == 0 then
+          L20 = L17
+          L19 = L17.set
+          L21 = "txbf"
+          L22 = "0"
+          L19(L20, L21, L22)
+        end
+      end
+    end
+    L19 = _UPVALUE2_
+    L19 = L19.isStrNil
+    L20 = A14
+    L19 = L19(L20)
+    if not L19 then
+      L19 = tonumber
+      L20 = A14
+      L19 = L19(L20)
+      if L19 == 0 then
+        L20 = L17
+        L19 = L17.set
+        L21 = "ax"
+        L22 = "0"
+        L19(L20, L21, L22)
+      else
+        L20 = L17
+        L19 = L17.set
+        L21 = "ax"
+        L22 = "1"
+        L19(L20, L21, L22)
+      end
+    end
+  end
+  if A7 == 1 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "disabled"
+    L22 = "0"
+    L19(L20, L21, L22)
+  elseif A7 == 0 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "disabled"
+    L22 = "1"
+    L19(L20, L21, L22)
+  end
+  if A9 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "bsd"
+    L22 = tostring
+    L23 = A9
+    L22, L23, L24 = L22(L23)
+    L19(L20, L21, L22, L23, L24)
+    L19 = _UPVALUE2_
+    L19 = L19.isMeshMode
+    L19 = L19()
+    if L19 then
+    else
+      L20 = L16
+      L19 = L16.set
+      L21 = "rrm"
+      L22 = tostring
+      L23 = A9
+      L22, L23, L24 = L22(L23)
+      L19(L20, L21, L22, L23, L24)
+      L20 = L16
+      L19 = L16.set
+      L21 = "wnm"
+      L22 = tostring
+      L23 = A9
+      L22, L23, L24 = L22(L23)
+      L19(L20, L21, L22, L23, L24)
+    end
+  end
+  L19 = _UPVALUE2_
+  L19 = L19.isStrNil
+  L20 = A11
+  L19 = L19(L20)
+  if not L19 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "weakenable"
+    L22 = A11
+    L19(L20, L21, L22)
+  end
+  L19 = _UPVALUE2_
+  L19 = L19.isStrNil
+  L20 = A12
+  L19 = L19(L20)
+  if not L19 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "weakthreshold"
+    L22 = A12
+    L19(L20, L21, L22)
+  end
+  L19 = _UPVALUE2_
+  L19 = L19.isStrNil
+  L20 = A13
+  L19 = L19(L20)
+  if not L19 then
+    L20 = L16
+    L19 = L16.set
+    L21 = "kickthreshold"
+    L22 = A13
+    L19(L20, L21, L22)
+  end
+  L19 = _UPVALUE2_
+  L19 = L19.isStrNil
+  L20 = A1
+  L19 = L19(L20)
+  if not L19 then
+    L19 = _UPVALUE2_
+    L19 = L19.checkSSID
+    L20 = A1
+    L19 = L19(L20)
+    if L19 then
+      L19 = require
+      L20 = "xiaoqiang.util.XQSynchrodata"
+      L19 = L19(L20)
+      if A0 == 1 then
+        L20 = L19.syncWiFiSSID
+        L21 = A1
+        L22 = nil
+        L20(L21, L22)
+        L20 = require
+        L21 = "xiaoqiang.util.XQSysUtil"
+        L20 = L20(L21)
+        L21 = L20.doConfUpload
+        L22 = {}
+        L22.ssid_24G = A1
+        L22.wifi_24G_password = A2
+        L21(L22)
+      elseif A0 == 2 then
+        L20 = L19.syncWiFiSSID
+        L21 = nil
+        L22 = A1
+        L20(L21, L22)
+      end
+      L21 = L16
+      L20 = L16.set
+      L22 = "ssid"
+      L23 = A1
+      L20(L21, L22, L23)
+    end
+  end
+  if A3 then
+    L19 = checkWifiPasswd
+    L20 = A2
+    L21 = A3
+    L19 = L19(L20, L21)
+    if L19 == 0 then
+      L21 = L16
+      L20 = L16.set
+      L22 = "encryption"
+      L23 = A3
+      L20(L21, L22, L23)
+      L21 = L16
+      L20 = L16.set
+      L22 = "key"
+      L23 = A2
+      L20(L21, L22, L23)
+      if A3 == "none" then
+        L21 = L16
+        L20 = L16.set
+        L22 = "key"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae_password"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "ieee80211w"
+        L23 = ""
+        L20(L21, L22, L23)
+      elseif A3 == "wep-open" then
+        L21 = L16
+        L20 = L16.set
+        L22 = "key1"
+        L23 = "s:"
+        L24 = A2
+        L23 = L23 .. L24
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "key"
+        L23 = 1
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae_password"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "ieee80211w"
+        L23 = ""
+        L20(L21, L22, L23)
+      elseif A3 == "ccmp" then
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae"
+        L23 = "1"
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "key"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae_password"
+        L23 = A2
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "ieee80211w"
+        L23 = "2"
+        L20(L21, L22, L23)
+      elseif A3 == "psk2+ccmp" then
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae"
+        L23 = "1"
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "key"
+        L23 = A2
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae_password"
+        L23 = A2
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "ieee80211w"
+        L23 = "1"
+        L20(L21, L22, L23)
+      elseif A3 == "psk2" or A3 == "mixed-psk" then
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "sae_password"
+        L23 = ""
+        L20(L21, L22, L23)
+        L21 = L16
+        L20 = L16.set
+        L22 = "ieee80211w"
+        L23 = ""
+        L20(L21, L22, L23)
+      end
+      if A0 == 1 then
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_ssid"
+        L22 = A1
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_enc"
+        L22 = A3
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_pwd"
+        L22 = A2
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramCommit
+        L20()
+      else
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_ssid1"
+        L22 = A1
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_enc1"
+        L22 = A3
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramSet
+        L21 = "nv_wifi_pwd1"
+        L22 = A2
+        L20(L21, L22)
+        L20 = _UPVALUE2_
+        L20 = L20.nvramCommit
+        L20()
+      end
+    elseif 1502 < L19 then
+      L20 = false
+      return L20
+    end
+  end
+  if A6 == "1" then
+    L20 = L16
+    L19 = L16.set
+    L21 = "hidden"
+    L22 = "1"
+    L19(L20, L21, L22)
+  end
+  if A6 == "0" then
+    L20 = L16
+    L19 = L16.set
+    L21 = "hidden"
+    L22 = "0"
+    L19(L20, L21, L22)
+  end
+  L20 = L15
+  L19 = L15.save
+  L21 = "wireless"
+  L19(L20, L21)
+  L20 = L15
+  L19 = L15.commit
+  L21 = "wireless"
+  L19(L20, L21)
+  if A0 == 1 then
+    if A7 == 1 then
+      L20 = L18
+      L19 = L18.set
+      L21 = "wireless"
+      L22 = "miot_2G"
+      L23 = "disabled"
+      L24 = "0"
+      L19(L20, L21, L22, L23, L24)
+    elseif A7 == 0 then
+      L20 = L18
+      L19 = L18.set
+      L21 = "wireless"
+      L22 = "miot_2G"
+      L23 = "disabled"
+      L24 = "1"
+      L19(L20, L21, L22, L23, L24)
+    end
+    L20 = L18
+    L19 = L18.commit
+    L21 = "wireless"
+    L19(L20, L21)
+  end
+  L19 = true
+  return L19
+end
+setWifiBasicInfo = L16
+function L16(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if not L3 then
+    L3 = tonumber
+    L4 = A1
+    L3 = L3(L4)
+    if L3 then
+      L3 = tonumber
+      L4 = A2
+      L3 = L3(L4)
+      if L3 then
+        goto lbl_19
+      end
+    end
+  end
+  L3 = false
+  do return L3 end
+  ::lbl_19::
+  L3 = _UPVALUE1_
+  L3 = L3.init
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get_wifidev
+  L6 = _UPVALUE2_
+  L6 = L6.split
+  L7 = _wifiNameForIndex
+  L8 = 1
+  L7 = L7(L8)
+  L8 = "."
+  L6 = L6(L7, L8)
+  L6 = L6[1]
+  L4 = L4(L5, L6)
+  L6 = L3
+  L5 = L3.get_wifidev
+  L7 = _UPVALUE2_
+  L7 = L7.split
+  L8 = _wifiNameForIndex
+  L9 = 2
+  L8 = L8(L9)
+  L9 = "."
+  L7 = L7(L8, L9)
+  L7 = L7[1]
+  L5 = L5(L6, L7)
+  if L4 then
+    L7 = L4
+    L6 = L4.set
+    L8 = "country"
+    L9 = A0
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.set
+    L8 = "region"
+    L9 = A1
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.set
+    L8 = "aregion"
+    L9 = A2
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.set
+    L8 = "channel"
+    L9 = "0"
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.set
+    L8 = "bw"
+    L9 = "0"
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.set
+    L8 = "autoch"
+    L9 = "2"
+    L6(L7, L8, L9)
+  end
+  if L5 then
+    L7 = L5
+    L6 = L5.set
+    L8 = "country"
+    L9 = A0
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "region"
+    L9 = A1
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "aregion"
+    L9 = A2
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "channel"
+    L9 = "0"
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "bw"
+    L9 = "0"
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "autoch"
+    L9 = "2"
+    L6(L7, L8, L9)
+  end
+  L7 = L3
+  L6 = L3.commit
+  L8 = "wireless"
+  L6(L7, L8)
+  L7 = L3
+  L6 = L3.save
+  L8 = "wireless"
+  L6(L7, L8)
+  L6 = true
+  return L6
+end
+setWifiRegion = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = nil
+    return L1
+  end
+  L1 = {}
+  L1.bsd = 0
+  L1.mode = 0
+  L2 = _UPVALUE1_
+  L2 = L2.init
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = 1
+  L5, L6, L7, L11, L12, L13, L14, L15 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15)
+  L4 = tonumber
+  L6 = L3
+  L5 = L3.get
+  L7 = "bsd"
+  L5 = L5(L6, L7)
+  L5 = L5 or L5
+  L4 = L4(L5)
+  L5 = tonumber
+  L7 = L3
+  L6 = L3.get
+  L6 = L6(L7, L8)
+  L6 = L6 or L6
+  L5 = L5(L6)
+  if L4 == 1 then
+    L1.bsd = 1
+    if L5 == 0 then
+      L1.mode = 0
+    else
+      L7 = L3
+      L6 = L3.get
+      L6 = L6(L7, L8)
+      L7 = L3.get
+      L7 = L7(L8, L9)
+      if L6 then
+        if L8 == "table" then
+          for L11, L12 in L8, L9, L10 do
+            L13 = string
+            L13 = L13.lower
+            L14 = A0
+            L13 = L13(L14)
+            L14 = string
+            L14 = L14.lower
+            L15 = L12
+            L14 = L14(L15)
+            if L13 == L14 then
+              L1.mode = 1
+              break
+            end
+          end
+        end
+      end
+      if L7 then
+        if L8 == "table" then
+          for L11, L12 in L8, L9, L10 do
+            L13 = string
+            L13 = L13.lower
+            L14 = A0
+            L13 = L13(L14)
+            L14 = string
+            L14 = L14.lower
+            L15 = L12
+            L14 = L14(L15)
+            if L13 == L14 then
+              L1.mode = 2
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+  return L1
+end
+getBsdInfo = L16
+function L16(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 or not A1 then
+    L2 = nil
+    return L2
+  end
+  L2 = {}
+  L2.bsd = 0
+  L2.mode = 0
+  L3 = _UPVALUE1_
+  L3 = L3.init
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get_wifinet
+  L6 = _wifiNameForIndex
+  L7 = 1
+  L6, L7, L8, L9, L10, L11, L15, L16, L17, L18, L19 = L6(L7)
+  L4 = L4(L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19)
+  L6 = L3
+  L5 = L3.get_wifinet
+  L7 = _wifiNameForIndex
+  L8 = 2
+  L7, L8, L9, L10, L11, L15, L16, L17, L18, L19 = L7(L8)
+  L5 = L5(L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19)
+  L6 = tonumber
+  L8 = L4
+  L7 = L4.get
+  L9 = "bsd"
+  L7 = L7(L8, L9)
+  L7 = L7 or L7
+  L6 = L6(L7)
+  L7 = tonumber
+  L9 = L4
+  L8 = L4.get
+  L10 = "bsd_maclist_mode"
+  L8 = L8(L9, L10)
+  L8 = L8 or L8
+  L7 = L7(L8)
+  if L6 == 1 then
+    L2.bsd = 1
+    L2.mode = A1
+    if L4 then
+      L9 = L4
+      L8 = L4.set
+      L10 = "bsd_maclist_mode"
+      L11 = "1"
+      L8(L9, L10, L11)
+    end
+    if L5 then
+      L9 = L5
+      L8 = L5.set
+      L10 = "bsd_maclist_mode"
+      L11 = "1"
+      L8(L9, L10, L11)
+    end
+    L9 = L4
+    L8 = L4.get
+    L10 = "bsd_2g"
+    L8 = L8(L9, L10)
+    L10 = L4
+    L9 = L4.get
+    L11 = "bsd_5g"
+    L9 = L9(L10, L11)
+    L10, L11 = nil, nil
+    if L8 then
+      if L12 == "table" then
+        for L15, L16 in L12, L13, L14 do
+          L17 = string
+          L17 = L17.lower
+          L18 = A0
+          L17 = L17(L18)
+          L18 = string
+          L18 = L18.lower
+          L19 = L16
+          L18 = L18(L19)
+          if L17 == L18 then
+            L10 = L15
+            break
+          end
+        end
+    end
+    else
+      L8 = L12
+    end
+    if L9 then
+      if L12 == "table" then
+        for L15, L16 in L12, L13, L14 do
+          L17 = string
+          L17 = L17.lower
+          L18 = A0
+          L17 = L17(L18)
+          L18 = string
+          L18 = L18.lower
+          L19 = L16
+          L18 = L18(L19)
+          if L17 == L18 then
+            L11 = L15
+            break
+          end
+        end
+    end
+    else
+      L9 = L12
+    end
+    if A1 == 0 then
+      if L10 then
+        L12(L13, L14)
+      end
+      if L11 then
+        L12(L13, L14)
+      end
+    elseif A1 == 1 then
+      if not L10 then
+        L12(L13, L14)
+      end
+      if L11 then
+        L12(L13, L14)
+      end
+    elseif A1 == 2 then
+      if L10 then
+        L12(L13, L14)
+      end
+      if not L11 then
+        L12(L13, L14)
+      end
+    end
+    if L8 then
+      if 0 < L12 then
+        L15 = L8
+        L12(L13, L14, L15)
+        if L5 then
+          L15 = L8
+          L12(L13, L14, L15)
+        end
+    end
+    else
+      L15 = nil
+      L12(L13, L14, L15)
+      if L5 then
+        L15 = nil
+        L12(L13, L14, L15)
+      end
+    end
+    if L9 then
+      if 0 < L12 then
+        L15 = L9
+        L12(L13, L14, L15)
+        if L5 then
+          L15 = L9
+          L12(L13, L14, L15)
+        end
+    end
+    else
+      L15 = nil
+      L12(L13, L14, L15)
+      if L5 then
+        L15 = nil
+        L12(L13, L14, L15)
+      end
+    end
+    L12(L13, L14)
+  end
+  return L2
+end
+setBsdMaclist = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = getWifiStatus
+  L2 = A0
+  L1 = L1(L2)
+  L2 = L1.up
+  if L2 == 1 then
+    L2 = true
+    return L2
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.init
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = A0
+  L5, L6, L7, L8 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8)
+  L4 = nil
+  if L3 ~= nil then
+    L6 = L3
+    L5 = L3.get_device
+    L5 = L5(L6)
+    L4 = L5
+  end
+  if L4 and L3 then
+    L6 = L4
+    L5 = L4.set
+    L7 = "disabled"
+    L8 = "0"
+    L5(L6, L7, L8)
+    L6 = L3
+    L5 = L3.set
+    L7 = "disabled"
+    L8 = nil
+    L5(L6, L7, L8)
+    L6 = L2
+    L5 = L2.commit
+    L7 = "wireless"
+    L5(L6, L7)
+    L5 = _UPVALUE1_
+    L5 = L5.forkRestartWifi
+    L5()
+    L5 = true
+    return L5
+  end
+  L5 = false
+  return L5
+end
+turnWifiOn = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = getWifiStatus
+  L2 = A0
+  L1 = L1(L2)
+  L2 = L1.up
+  if L2 == 0 then
+    L2 = true
+    return L2
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.init
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_wifinet
+  L5 = _wifiNameForIndex
+  L6 = A0
+  L5, L6, L7, L8 = L5(L6)
+  L3 = L3(L4, L5, L6, L7, L8)
+  L4 = nil
+  if L3 ~= nil then
+    L6 = L3
+    L5 = L3.get_device
+    L5 = L5(L6)
+    L4 = L5
+  end
+  if L4 and L3 then
+    L6 = L4
+    L5 = L4.set
+    L7 = "disabled"
+    L8 = "1"
+    L5(L6, L7, L8)
+    L6 = L3
+    L5 = L3.set
+    L7 = "disabled"
+    L8 = nil
+    L5(L6, L7, L8)
+    L6 = L2
+    L5 = L2.commit
+    L7 = "wireless"
+    L5(L6, L7)
+    L5 = _UPVALUE1_
+    L5 = L5.forkRestartWifi
+    L5()
+    L5 = true
+    return L5
+  end
+  L5 = false
+  return L5
+end
+turnWifiOff = L16
+function L16()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = _UPVALUE0_
+  L2 = L2.GET_WPS_STATUS
+  L1 = L1(L2)
+  L2 = _UPVALUE1_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if not L2 then
+    L2 = L0.trim
+    L3 = L1
+    L2 = L2(L3)
+    L1 = L2
+    L2 = tonumber
+    L3 = L1
+    return L2(L3)
+  end
+  L2 = 0
+  return L2
+end
+getWifiWpsStatus = L16
+function L16()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = _UPVALUE0_
+  L2 = L2.GET_WPS_CONMAC
+  L1 = L1(L2)
+  if L1 then
+    L2 = _UPVALUE1_
+    L2 = L2.macFormat
+    L3 = L0.trim
+    L4 = L1
+    L3, L4 = L3(L4)
+    return L2(L3, L4)
+  end
+  L2 = nil
+  return L2
+end
+getWpsConDevMac = L16
+function L16()
+  local L0, L1, L2
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = L0.exec
+  L2 = _UPVALUE0_
+  L2 = L2.CLOSE_WPS
+  L1(L2)
+  return
+end
+stopWps = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.XQPreference"
+  L1 = L1(L2)
+  L2 = L0.exec
+  L3 = _UPVALUE0_
+  L3 = L3.OPEN_WPS
+  L2(L3)
+  L2 = tostring
+  L3 = os
+  L3 = L3.time
+  L3, L4, L5 = L3()
+  L2 = L2(L3, L4, L5)
+  L3 = L1.set
+  L4 = _UPVALUE0_
+  L4 = L4.PREF_WPS_TIMESTAMP
+  L5 = L2
+  L3(L4, L5)
+  return L2
+end
+openWifiWps = L16
+function L16(A0)
+  local L1, L2
+  L1 = tonumber
+  L2 = A0
+  L1 = L1(L2)
+  A0 = L1
+  if 0 <= A0 then
+    L1 = math
+    L1 = L1.ceil
+    L2 = 0
+    return L1(L2)
+  end
+  if -50 <= A0 and A0 < 0 then
+    A0 = 100
+  elseif -80 <= A0 then
+    L1 = A0 + 80
+    L1 = L1 * 26
+    L1 = L1 / 10
+    A0 = 24 + L1
+  elseif -90 <= A0 then
+    L1 = A0 + 90
+    L1 = L1 * 26
+    A0 = L1 / 10
+  else
+    A0 = 0
+  end
+  L1 = math
+  L1 = L1.ceil
+  L2 = A0
+  return L1(L2)
+end
+miwifiutil_rssi_to_signal = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5
+  L1 = A0.scan_ifname
+  L2 = A0.ssid
+  L3 = "iwlist "
+  L4 = L1
+  L5 = " scanning"
+  L3 = L3 .. L4 .. L5
+  return L3
+end
+apcli_set_scan = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5
+  L2 = _UPVALUE0_
+  L2 = L2.exec
+  L3 = "wpa_cli -g /var/run/wpa_supplicantglobal ifname="
+  L4 = A0
+  L5 = " status | grep ^wpa_state= | cut -f2- -d="
+  L3 = L3 .. L4 .. L5
+  L2 = L2(L3)
+  L1 = L2
+  L3 = L1
+  L2 = L1.match
+  L4 = "COMPLETED"
+  L2 = L2(L3, L4)
+  if L2 then
+    L2 = true
+    L3 = L1
+    return L2, L3
+  else
+    L2 = false
+    L3 = L1
+    return L2, L3
+  end
+end
+apcli_get_connect = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5
+  L1 = apcli_get_device
+  L2 = A0
+  L1 = L1(L2)
+  L2 = os
+  L2 = L2.execute
+  L3 = "wpa_cli -g /var/run/wpa_supplicantglobal interface_remove "
+  L4 = A0
+  L3 = L3 .. L4
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "ifconfig "
+  L4 = A0
+  L5 = " down"
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "wlanconfig "
+  L4 = A0
+  L5 = " destroy -cfg80211"
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "iw dev "
+  L4 = A0
+  L5 = " del"
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "ifconfig "
+  L5 = L1
+  L4 = L1.name
+  L4 = L4(L5)
+  L5 = " down"
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "ifconfig "
+  L5 = L1
+  L4 = L1.name
+  L4 = L4(L5)
+  L5 = " up"
+  L3 = L3 .. L4 .. L5
+  L2(L3)
+end
+apcli_set_inactive = L16
+function L16(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQSecureUtil"
+  L3 = L3(L4)
+  L4 = A0.cmdssid
+  L5 = A0.ifname
+  L6 = L3.parseCmdline
+  L7 = A0.encryption
+  L6 = L6(L7)
+  L7 = A0.cmdpassword
+  L8 = L3.parseCmdline
+  L9 = A0.enctype
+  L8 = L8(L9)
+  L9 = tonumber
+  L10 = A1
+  L9 = L9(L10)
+  L9 = L9 or L9
+  L10 = L2.binaryBase64Enc
+  L11 = A0.cmdssid
+  L10 = L10(L11)
+  L11 = L2.binaryBase64Enc
+  L12 = A0.cmdpassword
+  L11 = L11(L12)
+  L12 = A0.channel
+  L13 = A0.band
+  L14 = A0.reconnect
+  L15 = string
+  L15 = L15.format
+  L16 = "/usr/sbin/check_apcli_connected \"%s\" \"%s\" \"%s\" \"%s\" \"%s\""
+  L17 = L10
+  L18 = L5
+  L19 = L8
+  L20 = L6
+  L21 = L11
+  L15 = L15(L16, L17, L18, L19, L20, L21)
+  L16 = _UPVALUE0_
+  L16 = L16.trim
+  L17 = _UPVALUE0_
+  L17 = L17.exec
+  L18 = L15
+  L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28 = L17(L18)
+  L16 = L16(L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28)
+  L17 = tonumber
+  L18 = L16
+  L17 = L17(L18)
+  if L17 == 1 then
+    return
+  end
+  L17 = A0.band
+  L18 = apcli_get_device
+  L19 = L5
+  L18 = L18(L19)
+  L20 = L18
+  L19 = L18.name
+  L19 = L19(L20)
+  L20 = io
+  L20 = L20.open
+  L21 = "/var/run/wpa_supplicant-"
+  L22 = L5
+  L23 = ".conf"
+  L21 = L21 .. L22 .. L23
+  L22 = "w+"
+  L20 = L20(L21, L22)
+  L22 = L20
+  L21 = L20.write
+  L23 = string
+  L23 = L23.format
+  L24 = "ctrl_interface=/var/run/wpa_supplicant-%s\n"
+  L25 = L5
+  L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+  L21(L22, L23, L24, L25, L26, L27, L28)
+  L22 = L20
+  L21 = L20.write
+  L23 = string
+  L23 = L23.format
+  L24 = "network={\n"
+  L23, L24, L25, L26, L27, L28 = L23(L24)
+  L21(L22, L23, L24, L25, L26, L27, L28)
+  L22 = L20
+  L21 = L20.write
+  L23 = string
+  L23 = L23.format
+  L24 = "        scan_ssid=1\n"
+  L23, L24, L25, L26, L27, L28 = L23(L24)
+  L21(L22, L23, L24, L25, L26, L27, L28)
+  L22 = L20
+  L21 = L20.write
+  L23 = string
+  L23 = L23.format
+  L24 = "        ssid=\"%s\"\n"
+  L25 = L4
+  L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+  L21(L22, L23, L24, L25, L26, L27, L28)
+  L21 = A0.enctype
+  L22 = L21
+  L21 = L21.match
+  L23 = "AES"
+  L21 = L21(L22, L23)
+  if L21 then
+    if L6 == "SAEPSKMIX" then
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        key_mgmt=SAE WPA-PSK\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        proto=RSN\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        ieee80211w=1\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        pairwise=CCMP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        group=CCMP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        psk=\"%s\"\n"
+      L25 = L7
+      L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+    elseif L6 == "SAE" then
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        key_mgmt=SAE\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        proto=RSN\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        ieee80211w=2\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        pairwise=CCMP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        group=CCMP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        sae_password=\"%s\"\n"
+      L25 = L7
+      L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        psk=\"%s\"\n"
+      L25 = L7
+      L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+    else
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        key_mgmt=WPA-PSK\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L6
+      L21 = L6.match
+      L23 = "WPA2PSK"
+      L21 = L21(L22, L23)
+      if L21 then
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        proto=RSN\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+      else
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        proto=WPA\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+      end
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        psk=\"%s\"\n"
+      L25 = L7
+      L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        pairwise=CCMP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        group=CCMP TKIP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+    end
+  else
+    L21 = A0.enctype
+    L22 = L21
+    L21 = L21.match
+    L23 = "TKIP"
+    L21 = L21(L22, L23)
+    if L21 then
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        key_mgmt=WPA-PSK\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L6
+      L21 = L6.match
+      L23 = "WPA2PSK"
+      L21 = L21(L22, L23)
+      if L21 then
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        proto=RSN\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+      else
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        proto=WPA\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+      end
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        psk=\"%s\"\n"
+      L25 = L7
+      L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        pairwise=TKIP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+      L22 = L20
+      L21 = L20.write
+      L23 = string
+      L23 = L23.format
+      L24 = "        group=CCMP TKIP\n"
+      L23, L24, L25, L26, L27, L28 = L23(L24)
+      L21(L22, L23, L24, L25, L26, L27, L28)
+    else
+      L21 = A0.enctype
+      L22 = L21
+      L21 = L21.match
+      L23 = "WEP"
+      L21 = L21(L22, L23)
+      if L21 then
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        key_mgmt=NONE\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        wep_key0=\"%s\"\n"
+        L25 = L7
+        L23, L24, L25, L26, L27, L28 = L23(L24, L25)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        wep_tx_keyidx=0\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+        L22 = L20
+        L21 = L20.write
+        L23 = string
+        L23 = L23.format
+        L24 = "        auth_alg=OPEN\n"
+        L23, L24, L25, L26, L27, L28 = L23(L24)
+        L21(L22, L23, L24, L25, L26, L27, L28)
+      else
+        L21 = A0.enctype
+        L22 = L21
+        L21 = L21.match
+        L23 = "NONE"
+        L21 = L21(L22, L23)
+        if L21 then
+          L22 = L20
+          L21 = L20.write
+          L23 = string
+          L23 = L23.format
+          L24 = "        key_mgmt=NONE\n"
+          L23, L24, L25, L26, L27, L28 = L23(L24)
+          L21(L22, L23, L24, L25, L26, L27, L28)
+        end
+      end
+    end
+  end
+  L22 = L20
+  L21 = L20.write
+  L23 = string
+  L23 = L23.format
+  L24 = "}\n"
+  L23, L24, L25, L26, L27, L28 = L23(L24)
+  L21(L22, L23, L24, L25, L26, L27, L28)
+  L22 = L20
+  L21 = L20.flush
+  L21(L22)
+  L22 = L20
+  L21 = L20.close
+  L21(L22)
+  if L14 == true then
+    L21 = os
+    L21 = L21.execute
+    L22 = "wpa_cli -g /var/run/wpa_supplicantglobal interface_remove "
+    L23 = L5
+    L22 = L22 .. L23
+    L21(L22)
+    L21 = os
+    L21 = L21.execute
+    L22 = "sleep 2"
+    L21(L22)
+    L21 = os
+    L21 = L21.execute
+    L22 = "wpa_cli -g /var/run/wpa_supplicantglobal interface_add "
+    L23 = L5
+    L24 = " /var/run/wpa_supplicant-"
+    L25 = L5
+    L26 = ".conf nl80211 /var/run/wpa_supplicant-"
+    L27 = L5
+    L28 = " \"\" br-lan > /dev/null 2>&1"
+    L22 = L22 .. L23 .. L24 .. L25 .. L26 .. L27 .. L28
+    L21(L22)
+    return
+  end
+  L21 = apcli_get_wifinet
+  L22 = L5
+  L21 = L21(L22)
+  if L21 ~= nil then
+    L21 = apcli_set_inactive
+    L22 = L5
+    L21(L22)
+  end
+  L21 = os
+  L21 = L21.execute
+  L22 = "sleep 1"
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "wlanconfig "
+  L23 = L5
+  L24 = " create wlandev "
+  L25 = L19
+  L26 = " wlanmode sta -cfg80211"
+  L22 = L22 .. L23 .. L24 .. L25 .. L26
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "iw dev "
+  L23 = L19
+  L24 = " interface add "
+  L25 = L5
+  L26 = " type __ap"
+  L22 = L22 .. L23 .. L24 .. L25 .. L26
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "iwpriv "
+  L23 = L5
+  L24 = " extap 1"
+  L22 = L22 .. L23 .. L24
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "iwpriv "
+  L23 = L5
+  L24 = " athnewind 0"
+  L22 = L22 .. L23 .. L24
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "sleep 1"
+  L21(L22)
+  L21 = os
+  L21 = L21.execute
+  L22 = "wpa_cli -g /var/run/wpa_supplicantglobal interface_add "
+  L23 = L5
+  L24 = " /var/run/wpa_supplicant-"
+  L25 = L5
+  L26 = ".conf nl80211 /var/run/wpa_supplicant-"
+  L27 = L5
+  L28 = " \"\" br-lan > /dev/null 2>&1"
+  L22 = L22 .. L23 .. L24 .. L25 .. L26 .. L27 .. L28
+  L21(L22)
+  if L9 == 0 then
+    L21 = os
+    L21 = L21.execute
+    L22 = "brctl addif br-lan "
+    L23 = L5
+    L22 = L22 .. L23
+    L21(L22)
+  end
+  L21 = os
+  L21 = L21.execute
+  L22 = "ifconfig "
+  L23 = L5
+  L24 = " up"
+  L22 = L22 .. L23 .. L24
+  L21(L22)
+end
+apcli_set_connect = L16
+function L16(A0)
+  local L1, L2
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0.enctype
+  L1 = L1(L2)
+  if not L1 then
+    L1 = _UPVALUE0_
+    L1 = L1.isStrNil
+    L2 = A0.encryption
+    L1 = L1(L2)
+    if not L1 then
+      L1 = _UPVALUE0_
+      L1 = L1.isStrNil
+      L2 = A0.band
+      L1 = L1(L2)
+      if not L1 then
+        L1 = _UPVALUE0_
+        L1 = L1.isStrNil
+        L2 = A0.channel
+        L1 = L1(L2)
+      end
+    end
+  end
+  return L1
+end
+apcli_check_apcliitem = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L1 = _UPVALUE0_
+  L1 = L1.init
+  L1 = L1()
+  L2, L3 = nil, nil
+  L7, L8, L12, L13, L14, L15 = L5(L6)
+  for L7, L8 in L4, L5, L6 do
+    L12, L13, L14, L15 = L10(L11)
+    for L12, L13 in L9, L10, L11 do
+      if L13 then
+        L15 = L13
+        L14 = L13.ifname
+        L14 = L14(L15)
+        if L14 == A0 then
+          L13.dev = L8
+          return L13
+        end
+      end
+    end
+  end
+  return L4
+end
+apcli_get_wifinet = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "misc"
+  L5 = "wireless"
+  L6 = "apclient_"
+  L7 = string
+  L7 = L7.upper
+  L8 = A0
+  L7 = L7(L8)
+  L6 = L6 .. L7
+  return L2(L3, L4, L5, L6)
+end
+apcli_get_ifname_form_band = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = _UPVALUE0_
+  L3 = L3.init
+  L3 = L3()
+  L4 = apcli_get_wifinet
+  L5 = A0
+  L4 = L4(L5)
+  L5 = _UPVALUE1_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if not L5 then
+    L6 = L4
+    L5 = L4.get
+    L7 = "device"
+    L5 = L5(L6, L7)
+    L1 = L5 or L1
+    if not L5 then
+      L1 = ""
+    end
+  end
+  L5 = _UPVALUE1_
+  L5 = L5.isStrNil
+  L6 = L1
+  L5 = L5(L6)
+  if L5 then
+    L6 = L2
+    L5 = L2.get
+    L7 = "misc"
+    L8 = "wireless"
+    L9 = A0
+    L10 = "_device"
+    L9 = L9 .. L10
+    L5 = L5(L6, L7, L8, L9)
+    L1 = L5
+  end
+  L6 = L3
+  L5 = L3.get_wifidev
+  L7 = L1
+  return L5(L6, L7)
+end
+apcli_get_device = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = apcli_get_wifinet
+  L3 = A0
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if not L3 then
+    L4 = L2
+    L3 = L2.get
+    L5 = "scanifname"
+    L3 = L3(L4, L5)
+    L3 = L3 or L3
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L5 = L3
+    L4 = L4(L5)
+    if not L4 then
+      return L3
+    end
+  end
+  L4 = L1
+  L3 = L1.get
+  L5 = "misc"
+  L6 = "wireless"
+  L7 = A0
+  L8 = "_scanifname"
+  L7 = L7 .. L8
+  return L3(L4, L5, L6, L7)
+end
+apcli_get_scanifname = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = apcli_get_wifinet
+  L3 = A0
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if not L3 then
+    L4 = L2
+    L3 = L2.get
+    L5 = "scanband"
+    L3 = L3(L4, L5)
+    L3 = L3 or L3
+    L4 = _UPVALUE0_
+    L4 = L4.isStrNil
+    L5 = L3
+    L4 = L4(L5)
+    if not L4 then
+      return L3
+    end
+  end
+  L4 = L1
+  L3 = L1.get
+  L5 = "misc"
+  L6 = "wireless"
+  L7 = A0
+  L8 = "_scanband"
+  L7 = L7 .. L8
+  return L3(L4, L5, L6, L7)
+end
+apcli_get_scanband = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "misc"
+  L5 = "wireless"
+  L6 = A0
+  L7 = "_mode"
+  L6 = L6 .. L7
+  return L2(L3, L4, L5, L6)
+end
+apcli_get_apclimode = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_list
+  L3 = "misc"
+  L4 = "wireless"
+  L5 = "APCLI_IFNAMES"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  return L1
+end
+apcli_get_ifnames = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "luci.model.network"
+  L1 = L1(L2)
+  L1 = L1.init
+  L1 = L1()
+  L2 = apcli_set_inactive
+  L3 = A0
+  L2(L3)
+  L2 = apcli_get_wifinet
+  L3 = A0
+  L2 = L2(L3)
+  L4 = L2
+  L3 = L2.set
+  L5 = "disabled"
+  L6 = "1"
+  L3(L4, L5, L6)
+  L4 = L1
+  L3 = L1.save
+  L5 = "wireless"
+  L3(L4, L5)
+  L4 = L1
+  L3 = L1.commit
+  L5 = "wireless"
+  L3(L4, L5)
+end
+apcli_disable = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22
+  L1 = A0.ifname
+  L2 = A0.ssid
+  L3 = A0.encryption
+  L4 = A0.enctype
+  L5 = A0.password
+  L6 = require
+  L7 = "luci.model.uci"
+  L6 = L6(L7)
+  L6 = L6.cursor
+  L6 = L6()
+  L7 = require
+  L8 = "luci.model.network"
+  L7 = L7(L8)
+  L7 = L7.init
+  L7 = L7()
+  L8 = require
+  L9 = "xiaoqiang.util.XQSynchrodata"
+  L8 = L8(L9)
+  L9, L10, L11, L12 = nil, nil, nil, nil
+  L13 = apcli_get_wifinet
+  L13 = L13(L14)
+  L9 = L13
+  L13 = L3.match
+  L13 = L13(L14, L15)
+  if L13 then
+    L12 = "psk2+ccmp"
+  else
+    L13 = L3.match
+    L13 = L13(L14, L15)
+    if L13 then
+      L12 = "ccmp"
+    else
+      L13 = L3.match
+      L13 = L13(L14, L15)
+      if L13 then
+        L12 = "psk2"
+      else
+        L13 = L3.match
+        L13 = L13(L14, L15)
+        if L13 then
+          L12 = "none"
+        else
+          L12 = "mixed-psk"
+        end
+      end
+    end
+  end
+  L13 = _UPVALUE0_
+  L13 = L13.isStrNil
+  L13 = L13(L14)
+  if L13 then
+    L13 = apcli_get_device
+    L13 = L13(L14)
+    L14.device = L15
+    L14.ifname = L1
+    L14.scanifname = L15
+    L14.apcliband = L15
+    L14.network = "lan"
+    L14.mode = "sta"
+    L14.ssid = L2
+    L14.key = L5
+    L14.encryption = L3
+    L14.enctype = L4
+    L14.disabled = "0"
+    L14.extap = "1"
+    L14.athnewind = "0"
+    L14.encryption = L12
+    if L12 == "psk2+ccmp" then
+      L14.sae = "1"
+      L14.sae_password = L5
+      L14.ieee80211w = "1"
+    elseif L12 == "ccmp" then
+      L14.sae = "1"
+      L14.sae_password = L5
+      L14.ieee80211w = "2"
+    end
+    L17 = L14
+    L15(L16, L17)
+    L17 = "xiaoqiang"
+    L15(L16, L17)
+  else
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    L13 = L9.set
+    L13(L14, L15, L16)
+    if L12 == "psk2+ccmp" then
+      L13 = L9.set
+      L13(L14, L15, L16)
+      L13 = L9.set
+      L13(L14, L15, L16)
+      L13 = L9.set
+      L13(L14, L15, L16)
+    elseif L12 == "ccmp" then
+      L13 = L9.set
+      L13(L14, L15, L16)
+      L13 = L9.set
+      L13(L14, L15, L16)
+      L13 = L9.set
+      L13(L14, L15, L16)
+    end
+    L13 = L9.set
+    L13(L14, L15, L16)
+  end
+  L13 = apcli_get_ifnames
+  L13 = L13()
+  for L17, L18 in L14, L15, L16 do
+    if L18 ~= L1 then
+      L19 = os
+      L19 = L19.execute
+      L20 = "ifconfig "
+      L21 = L18
+      L22 = " down"
+      L20 = L20 .. L21 .. L22
+      L19(L20)
+      L19 = apcli_get_wifinet
+      L20 = L18
+      L19 = L19(L20)
+      L11 = L19
+      if L11 ~= nil then
+        L20 = L11
+        L19 = L11.set
+        L21 = "disabled"
+        L22 = "1"
+        L19(L20, L21, L22)
+      end
+    end
+  end
+  L17 = " up"
+  L14(L15)
+  L14(L15)
+  L14(L15, L16)
+  L14(L15, L16)
+end
+apcli_enable = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "active_apcli"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = nil
+  end
+  return L1
+end
+apcli_get_active = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "xiaoqiang.util.XQSynchrodata"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = nil
+  if A0 then
+    L4 = tonumber
+    L5 = apcli_get_apclimode
+    L6 = A0
+    L5, L6, L7, L8, L9 = L5(L6)
+    L4 = L4(L5, L6, L7, L8, L9)
+    L3 = L4
+    L5 = L2
+    L4 = L2.set
+    L6 = "xiaoqiang"
+    L7 = "common"
+    L8 = "active_apcli"
+    L9 = A0
+    L4(L5, L6, L7, L8, L9)
+  else
+    L3 = 0
+    L5 = L2
+    L4 = L2.delete
+    L6 = "xiaoqiang"
+    L7 = "common"
+    L8 = "active_apcli"
+    L4(L5, L6, L7, L8)
+  end
+  L5 = L2
+  L4 = L2.commit
+  L6 = "xiaoqiang"
+  L4(L5, L6)
+  L4 = L1.syncActiveApcliMode
+  L5 = L3
+  L4(L5)
+end
+apcli_set_active = L16
+function L16()
+  local L0, L1, L2, L3, L4, L5
+  L0 = _UPVALUE0_
+  L0 = L0.miscRecovery
+  L0 = L0()
+  if L0 == 1 then
+    L1 = 0
+    return L1
+  end
+  L1 = 0
+  L2 = apcli_get_active
+  L2 = L2()
+  L3 = _UPVALUE0_
+  L3 = L3.isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if L3 then
+    L3 = 0
+    return L3
+  end
+  L3 = tonumber
+  L4 = apcli_get_apclimode
+  L5 = L2
+  L4, L5 = L4(L5)
+  L3 = L3(L4, L5)
+  L1 = L3
+  return L1
+end
+apcli_get_active_type = L16
+function L16(A0, A1)
+  local L2, L3, L4
+  L2 = A0.band
+  L3 = A1.band
+  if L2 == L3 then
+    L2 = tonumber
+    L3 = A0.rssi
+    L2 = L2(L3)
+    L3 = tonumber
+    L4 = A1.rssi
+    L3 = L3(L4)
+    L2 = L2 > L3
+    return L2
+  else
+    L2 = A0.band
+    if L2 == "5g" then
+      L2 = true
+      return L2
+    else
+      L2 = false
+      return L2
+    end
+  end
+end
+rssi_cmp = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32, L33, L34, L35
+  L1 = {}
+  L2 = ""
+  L3 = 0
+  L4, L5, L6 = nil, nil, nil
+  L7 = {}
+  L8 = nil
+  L9 = A0.ssid
+  L10 = A0.band
+  if L11 then
+    L9 = ""
+  end
+  if L11 then
+    L10 = ""
+  end
+  L14, L15, L16, L17, L21, L22, L28, L29, L30, L31, L32, L33, L34, L35 = L12()
+  for L14, L15 in L11, L12, L13 do
+    L16 = _UPVALUE0_
+    L16 = L16.isStrNil
+    L17 = L15
+    L16 = L16(L17)
+    if not L16 then
+      L16 = apcli_get_device
+      L17 = L15
+      L16 = L16(L17)
+      L17 = L16.is_up
+      L17 = L17(L18)
+      if L17 then
+        L17 = apcli_get_scanband
+        L17 = L17(L18)
+        L5 = L17
+        L17 = apcli_get_scanifname
+        L17 = L17(L18)
+        L4 = L17
+        L17 = _UPVALUE0_
+        L17 = L17.isStrNil
+        L17 = L17(L18)
+        if not L17 then
+          L17 = _UPVALUE0_
+          L17 = L17.isStrNil
+          L17 = L17(L18)
+          if not L17 then
+            L17 = _UPVALUE0_
+            L17 = L17.isStrNil
+            L17 = L17(L18)
+            if L17 or L5 == L10 then
+              L17 = {}
+              L6 = L17
+              L6.scan_ifname = L4
+              L6.ifname = L15
+              L6.band = L5
+              L6.ssid = L9
+              L17 = L2
+              L2 = L17 .. L18
+              L17 = table
+              L17 = L17.insert
+              L17(L18, L19)
+            end
+          end
+        end
+      end
+    end
+  end
+  if L2 == "" then
+    return L1
+  end
+  L11(L12)
+  for L14, L15 in L11, L12, L13 do
+    while "os" do
+      L16 = _UPVALUE0_
+      L16 = L16.isStrNil
+      L17 = L15
+      L16 = L16(L17)
+      if not L16 then
+        L16 = apcli_get_wifinet
+        L17 = L15.scan_ifname
+        L16 = L16(L17)
+        L17 = L16.disabled
+        L17 = L17(L18)
+        if L17 == "1" then
+          break
+        end
+        L17 = L16.scanlist
+        L17 = L17(L18)
+        if 0 < L18 then
+          for L21, L22 in L18, L19, L20 do
+            L22.rssi = L23
+            L22.signal = L23
+            L22.band = L23
+          end
+          for L21, L22 in L18, L19, L20 do
+            L3 = 0
+            for L26, L27 in L23, L24, L25 do
+              L28 = _UPVALUE0_
+              L28 = L28.isStrNil
+              L29 = L22.ssid
+              L28 = L28(L29)
+              if not L28 then
+                L28 = L27.ssid
+                L29 = L22.ssid
+                if L28 == L29 then
+                  L28 = L27.band
+                  L29 = L22.band
+                  if L28 == L29 then
+                    L3 = 1
+                    break
+                  end
+                end
+              end
+            end
+            if L3 == 0 then
+              if not L23 then
+                for L28 = L25, L26, L27 do
+                  L29 = string
+                  L29 = L29.byte
+                  L30 = L23
+                  L31 = L28
+                  L32 = L28 + 1
+                  L29, L30 = L29(L30, L31, L32)
+                  if L29 == 166 and 192 < L30 and L30 < 217 then
+                    L31 = _UPVALUE1_
+                    L31 = L31.log
+                    L32 = 4
+                    L33 = string
+                    L33 = L33.format
+                    L34 = "filter out the SSID %s as it contains Greek letter \206\177~\207\137 using GB2312 code"
+                    L35 = L23
+                    L33, L34, L35 = L33(L34, L35)
+                    L31(L32, L33, L34, L35)
+                    break
+                  end
+                end
+                if L24 == 0 then
+                  L25(L26, L27)
+                end
+              end
+            end
+          end
+        end
+      end
+      break
+    end
+  end
+  L11(L12, L13)
+  return L1
+end
+apcli_get_scanlist = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L1 = apcli_get_scanlist
+  L2 = A0
+  L1 = L1(L2)
+  L2 = {}
+  for L6, L7 in L3, L4, L5 do
+    L8 = _UPVALUE0_
+    L8 = L8.isStrNil
+    L9 = L7.wsc_devicename
+    L8 = L8(L9)
+    if not L8 then
+      L8 = L7.wsc_devicename
+      if L8 == "XiaoMiRouter" then
+        L8 = L7.enctype
+        if L8 == "NONE" then
+          L8 = table
+          L8 = L8.insert
+          L9 = L2
+          L10 = L7
+          L8(L9, L10)
+        end
+      end
+    end
+  end
+  return L2
+end
+extendwifi_get_scanlist = L16
+function L16(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L1 = apcli_get_scanlist
+  L2 = A0
+  L1 = L1(L2)
+  L2 = {}
+  for L6, L7 in L3, L4, L5 do
+    L8 = _UPVALUE0_
+    L8 = L8.isStrNil
+    L9 = L7.wsc_devicename
+    L8 = L8(L9)
+    if not L8 then
+      L8 = L7.wsc_devicename
+      if L8 == "XiaoMiRouter" then
+        L8 = table
+        L8 = L8.insert
+        L9 = L2
+        L10 = L7
+        L8(L9, L10)
+      end
+    end
+  end
+  return L2
+end
+extendwifi_get_all_scanlist = L16
+L16 = require
+L17 = "luci.model.uci"
+L16 = L16(L17)
+L16 = L16.cursor
+L17 = "/tmp/extendwifi/etc/config"
+L16 = L16(L17)
+L17 = require
+L18 = "luci.model.uci"
+L17 = L17(L18)
+L17 = L17.cursor
+L17 = L17()
+L18 = {}
+L19 = {}
+L20 = "disabled"
+L21 = "string"
+L22 = "0"
+L19[1] = L20
+L19[2] = L21
+L19[3] = L22
+L20 = {}
+L21 = "channel"
+L22 = "string"
+L23 = "0"
+L20[1] = L21
+L20[2] = L22
+L20[3] = L23
+L21 = {}
+L22 = "bw"
+L23 = "string"
+L24 = "0"
+L21[1] = L22
+L21[2] = L23
+L21[3] = L24
+L22 = {}
+L23 = "country"
+L24 = "string"
+L25 = "CN"
+L22[1] = L23
+L22[2] = L24
+L22[3] = L25
+L23 = {}
+L24 = "txbf"
+L25 = "string"
+L26 = "3"
+L23[1] = L24
+L23[2] = L25
+L23[3] = L26
+L24 = {}
+L25 = "ax"
+L26 = "string"
+L27 = "1"
+L24[1] = L25
+L24[2] = L26
+L24[3] = L27
+L25 = {}
+L26 = "txpwr"
+L27 = "string"
+L28 = "max"
+L25[1] = L26
+L25[2] = L27
+L25[3] = L28
+L18[1] = L19
+L18[2] = L20
+L18[3] = L21
+L18[4] = L22
+L18[5] = L23
+L18[6] = L24
+L18[7] = L25
+EXTENDWIFI_DEVICE_OPTION = L18
+L18 = {}
+L19 = {}
+L20 = "disabled"
+L21 = "string"
+L22 = "0"
+L19[1] = L20
+L19[2] = L21
+L19[3] = L22
+L20 = {}
+L21 = "network"
+L22 = "string"
+L23 = nil
+L20[1] = L21
+L20[2] = L22
+L20[3] = L23
+L21 = {}
+L22 = "ssid"
+L23 = "string"
+L24 = nil
+L21[1] = L22
+L21[2] = L23
+L21[3] = L24
+L22 = {}
+L23 = "key"
+L24 = "string"
+L25 = nil
+L22[1] = L23
+L22[2] = L24
+L22[3] = L25
+L23 = {}
+L24 = "encryption"
+L25 = "string"
+L26 = nil
+L23[1] = L24
+L23[2] = L25
+L23[3] = L26
+L24 = {}
+L25 = "enctype"
+L26 = "string"
+L27 = nil
+L24[1] = L25
+L24[2] = L26
+L24[3] = L27
+L25 = {}
+L26 = "hidden"
+L27 = "string"
+L28 = nil
+L25[1] = L26
+L25[2] = L27
+L25[3] = L28
+L26 = {}
+L27 = "macfilter"
+L28 = "string"
+L29 = nil
+L26[1] = L27
+L26[2] = L28
+L26[3] = L29
+L27 = {}
+L28 = "maclist"
+L29 = "list"
+L30 = nil
+L27[1] = L28
+L27[2] = L29
+L27[3] = L30
+L28 = {}
+L29 = "wpsdevicename"
+L30 = "string"
+L31 = nil
+L28[1] = L29
+L28[2] = L30
+L28[3] = L31
+L29 = {}
+L30 = "bsd"
+L31 = "string"
+L32 = nil
+L29[1] = L30
+L29[2] = L31
+L29[3] = L32
+L30 = {}
+L31 = "wscconfigstatus"
+L32 = "string"
+L33 = nil
+L30[1] = L31
+L30[2] = L32
+L30[3] = L33
+L31 = {}
+L32 = "dynbcn"
+L33 = "string"
+L34 = nil
+L31[1] = L32
+L31[2] = L33
+L31[3] = L34
+L32 = {}
+L33 = "rssithreshold"
+L34 = "string"
+L35 = nil
+L32[1] = L33
+L32[2] = L34
+L32[3] = L35
+L33 = {}
+L34 = "ap_isolate"
+L35 = "string"
+L36 = nil
+L33[1] = L34
+L33[2] = L35
+L33[3] = L36
+L18[1] = L19
+L18[2] = L20
+L18[3] = L21
+L18[4] = L22
+L18[5] = L23
+L18[6] = L24
+L18[7] = L25
+L18[8] = L26
+L18[9] = L27
+L18[10] = L28
+L18[11] = L29
+L18[12] = L30
+L18[13] = L31
+L18[14] = L32
+L18[15] = L33
+EXTENDWIFI_IFACE_OPTION = L18
+L18 = {}
+L19 = "/etc/xqDb"
+L20 = "/etc/config/wifiblist"
+L21 = "/etc/config/wifiwlist"
+L22 = "/etc/config/devicelist"
+L18[1] = L19
+L18[2] = L20
+L18[3] = L21
+L18[4] = L22
+EXTENDWIFI_FILE = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6[".name"]
+    if L7 == A1 then
+      return L6
+    end
+  end
+  return L2
+end
+__extendwifi_getdev = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6.ifname
+    if L7 == A1 then
+      return L6
+    end
+  end
+  return L2
+end
+__extendwifi_getiface = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L6 = A0.ifname
+  L7 = " --> "
+  L8 = A1.ifname
+  L9 = ")"
+  L3(L4, L5)
+  for L6, L7 in L3, L4, L5 do
+    L8 = L7[1]
+    L8 = A0[L8]
+    L2 = L8 or L2
+    if not L8 then
+      L2 = L7[3]
+    end
+    if L2 == nil then
+      L8 = _UPVALUE0_
+      L8 = L8.log
+      L9 = 3
+      L10 = "rm "
+      L11 = L7[1]
+      L10 = L10 .. L11
+      L8(L9, L10)
+      L8 = _UPVALUE1_
+      L9 = L8
+      L8 = L8.delete
+      L10 = "wireless"
+      L11 = A1[".name"]
+      L12 = L7[1]
+      L8(L9, L10, L11, L12)
+    else
+      L8 = L7[2]
+      if L8 == "string" then
+        L8 = _UPVALUE0_
+        L8 = L8.log
+        L9 = 3
+        L10 = L7[1]
+        L11 = " = "
+        L12 = L2
+        L10 = L10 .. L11 .. L12
+        L8(L9, L10)
+      else
+        L8 = _UPVALUE0_
+        L8 = L8.log
+        L9 = 3
+        L10 = L7[1]
+        L11 = " = "
+        L10 = L10 .. L11
+        L11 = L2
+        L8(L9, L10, L11)
+      end
+      L8 = _UPVALUE1_
+      L9 = L8
+      L8 = L8.set
+      L10 = "wireless"
+      L11 = A1[".name"]
+      L12 = L7[1]
+      L13 = L2
+      L8(L9, L10, L11, L12, L13)
+    end
+  end
+  L3(L4, L5)
+end
+__extendwifi_tranlate_iface = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L6 = A0[".name"]
+  L7 = " --> "
+  L8 = A1[".name"]
+  L9 = ")"
+  L3(L4, L5)
+  for L6, L7 in L3, L4, L5 do
+    L8 = L7[1]
+    L8 = A0[L8]
+    L2 = L8 or L2
+    if not L8 then
+      L2 = L7[3]
+    end
+    if L2 == nil then
+      L8 = _UPVALUE0_
+      L8 = L8.log
+      L9 = 3
+      L10 = "rm "
+      L11 = L7[1]
+      L10 = L10 .. L11
+      L8(L9, L10)
+      L8 = _UPVALUE1_
+      L9 = L8
+      L8 = L8.delete
+      L10 = "wireless"
+      L11 = A1[".name"]
+      L12 = L7[1]
+      L8(L9, L10, L11, L12)
+    else
+      L8 = _UPVALUE0_
+      L8 = L8.log
+      L9 = 3
+      L10 = L7[1]
+      L11 = " = "
+      L12 = L2
+      L10 = L10 .. L11 .. L12
+      L8(L9, L10)
+      L8 = _UPVALUE1_
+      L9 = L8
+      L8 = L8.set
+      L10 = "wireless"
+      L11 = A1[".name"]
+      L12 = L7[1]
+      L13 = L2
+      L8(L9, L10, L11, L12, L13)
+    end
+  end
+  L3(L4, L5)
+end
+__extendwifi_tranlate_device = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30
+  L0 = {}
+  L1 = {}
+  L2 = {}
+  L3 = {}
+  L4 = {}
+  L5 = {}
+  L6 = {}
+  L7 = {}
+  L8 = {}
+  L9 = {}
+  L13 = "wireless"
+  L14 = "DEVICE_LIST"
+  org_device = L10
+  L13 = "wireless"
+  L14 = "DEVICE_LIST"
+  new_device = L10
+  for L13, L14 in L10, L11, L12 do
+    L16.idx = L14
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16[".name"] = L17
+    L2[L15] = L16
+  end
+  for L13, L14 in L10, L11, L12 do
+    L16.idx = L14
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16[".name"] = L17
+    L3[L15] = L16
+  end
+  L13 = "wireless"
+  L14 = "IFACE_LIST"
+  org_iface = L10
+  L13 = "wireless"
+  L14 = "IFACE_LIST"
+  new_iface = L10
+  for L13, L14 in L10, L11, L12 do
+    L16.idx = L14
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16[".name"] = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_ifname"
+    L21 = L21 .. L22
+    L16.ifname = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = _UPVALUE1_
+    L22 = L21
+    L21 = L21.get
+    L23 = "misc"
+    L24 = "wireless"
+    L25 = L14
+    L26 = "_deviceidx"
+    L25 = L25 .. L26
+    L21 = L21(L22, L23, L24, L25)
+    L21 = L21 or L21
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16.device = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = _UPVALUE1_
+    L22 = L21
+    L21 = L21.get
+    L23 = "misc"
+    L24 = "wireless"
+    L25 = L14
+    L26 = "_deviceidx"
+    L25 = L25 .. L26
+    L21 = L21(L22, L23, L24, L25)
+    L21 = L21 or L21
+    L22 = "_band"
+    L21 = L21 .. L22
+    L16.band = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_network"
+    L21 = L21 .. L22
+    L16.network = L17
+    L16.mode = "ap"
+    L7[L15] = L16
+  end
+  for L13, L14 in L10, L11, L12 do
+    L16.idx = L14
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16[".name"] = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_ifname"
+    L21 = L21 .. L22
+    L16.ifname = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = _UPVALUE1_
+    L22 = L21
+    L21 = L21.get
+    L23 = "misc"
+    L24 = "wireless"
+    L25 = L14
+    L26 = "_deviceidx"
+    L25 = L25 .. L26
+    L21 = L21(L22, L23, L24, L25)
+    L21 = L21 or L21
+    L22 = "_name"
+    L21 = L21 .. L22
+    L16.device = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = _UPVALUE1_
+    L22 = L21
+    L21 = L21.get
+    L23 = "misc"
+    L24 = "wireless"
+    L25 = L14
+    L26 = "_deviceidx"
+    L25 = L25 .. L26
+    L21 = L21(L22, L23, L24, L25)
+    L21 = L21 or L21
+    L22 = "_band"
+    L21 = L21 .. L22
+    L16.band = L17
+    L19 = "misc"
+    L20 = "wireless"
+    L21 = L14
+    L22 = "_network"
+    L21 = L21 .. L22
+    L16.network = L17
+    L16.mode = "ap"
+    L8[L15] = L16
+  end
+  L13 = "wifi-device"
+  function L14(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = _UPVALUE0_
+    L2 = #L2
+    L2 = L2 + 1
+    L1[L2] = A0
+  end
+  L10(L11, L12, L13, L14)
+  L13 = "wifi-device"
+  function L14(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = _UPVALUE0_
+    L2 = #L2
+    L2 = L2 + 1
+    L1[L2] = A0
+  end
+  L10(L11, L12, L13, L14)
+  for L13, L14 in L10, L11, L12 do
+    for L19, L20 in L16, L17, L18 do
+      L21 = L14.idx
+      L22 = L20.idx
+      if L21 == L22 then
+        L21 = __extendwifi_getdev
+        L22 = L1
+        L23 = L14[".name"]
+        L21 = L21(L22, L23)
+        dev_new = L21
+        L21 = __extendwifi_getdev
+        L22 = L0
+        L23 = L20[".name"]
+        L21 = L21(L22, L23)
+        dev_org = L21
+        L21 = dev_new
+        if L21 then
+          L21 = dev_org
+          if L21 then
+            L21 = __extendwifi_tranlate_device
+            L22 = dev_org
+            L23 = dev_new
+            L21(L22, L23)
+          end
+        end
+      end
+    end
+    if L15 == false then
+      L4[L16] = L17
+    end
+  end
+  L13 = L4
+  L10(L11, L12, L13)
+  L13 = "wifi-iface"
+  function L14(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = _UPVALUE0_
+    L2 = #L2
+    L2 = L2 + 1
+    L1[L2] = A0
+  end
+  L10(L11, L12, L13, L14)
+  L13 = "wifi-iface"
+  function L14(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = _UPVALUE0_
+    L2 = #L2
+    L2 = L2 + 1
+    L1[L2] = A0
+  end
+  L10(L11, L12, L13, L14)
+  for L13, L14 in L10, L11, L12 do
+    L16[".name"] = L17
+    L16[".type"] = "wifi-iface"
+    L16.ifname = L17
+    L16.device = L17
+    L16.network = L17
+    L16.mode = L17
+    if L15 == nil then
+    elseif L17 then
+      if L17 ~= L18 then
+        L19 = "reset section name "
+        L20 = L14.idx
+        L21 = "  "
+        L22 = L14[".name"]
+        L23 = " form "
+        L24 = L15[".name"]
+        L19 = L19 .. L20 .. L21 .. L22 .. L23 .. L24
+        L17(L18, L19)
+        L19 = "wireless"
+        L20 = L15[".name"]
+        L17(L18, L19, L20)
+        L19 = "wireless"
+        L20 = L16[".name"]
+        L21 = L16[".type"]
+        L17(L18, L19, L20, L21)
+        L19 = "wireless"
+        L20 = L16[".name"]
+        L21 = "ifname"
+        L22 = L16.ifname
+        L17(L18, L19, L20, L21, L22)
+        L19 = "wireless"
+        L20 = L16[".name"]
+        L21 = "device"
+        L22 = L16.device
+        L17(L18, L19, L20, L21, L22)
+        L19 = "wireless"
+        L20 = L16[".name"]
+        L21 = "network"
+        L22 = L16.network
+        L17(L18, L19, L20, L21, L22)
+        L19 = "wireless"
+        L20 = L16[".name"]
+        L21 = "mode"
+        L22 = L16.mode
+        L17(L18, L19, L20, L21, L22)
+        L19 = "wireless"
+        L17(L18, L19)
+      end
+    end
+  end
+  L6 = L10
+  L13 = "wifi-iface"
+  function L14(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = _UPVALUE0_
+    L2 = #L2
+    L2 = L2 + 1
+    L1[L2] = A0
+  end
+  L10(L11, L12, L13, L14)
+  for L13, L14 in L10, L11, L12 do
+    for L19, L20 in L16, L17, L18 do
+      L21 = L14.idx
+      L22 = L20.idx
+      if L21 == L22 then
+        L21 = __extendwifi_getiface
+        L22 = L5
+        L23 = L20.ifname
+        L21 = L21(L22, L23)
+        L22 = __extendwifi_getiface
+        L23 = L6
+        L24 = L14.ifname
+        L22 = L22(L23, L24)
+        if L21 and L22 then
+          L23 = __extendwifi_tranlate_iface
+          L24 = L21
+          L25 = L22
+          L23(L24, L25)
+          break
+        end
+      end
+    end
+    if L15 == false then
+      L9[L16] = L14
+    end
+  end
+  L13 = L9
+  L10(L11, L12, L13)
+  for L13, L14 in L10, L11, L12 do
+    for L18, L19 in L15, L16, L17 do
+      L20 = __extendwifi_getiface
+      L21 = L5
+      L22 = L19.ifname
+      L20 = L20(L21, L22)
+      L21 = __extendwifi_getiface
+      L22 = L6
+      L23 = L14.ifname
+      L21 = L21(L22, L23)
+      if L20 and L21 then
+        L22 = L14.mode
+        if L22 == "ap" then
+          L22 = L14.network
+          if L22 == "lan" then
+            L22 = __extendwifi_tranlate_iface
+            L23 = L20
+            L24 = L21
+            L22(L23, L24)
+            L22 = string
+            L22 = L22.upper
+            L23 = L14.band
+            L22 = L22(L23)
+            L23 = _UPVALUE1_
+            L24 = L23
+            L23 = L23.set
+            L25 = "wireless"
+            L26 = L21[".name"]
+            L27 = "ssid"
+            L28 = L20.ssid
+            L29 = "_"
+            L30 = L22
+            L28 = L28 .. L29 .. L30
+            L23(L24, L25, L26, L27, L28)
+            L23 = _UPVALUE1_
+            L24 = L23
+            L23 = L23.set
+            L25 = "wireless"
+            L26 = L21[".name"]
+            L27 = "disabled"
+            L28 = "0"
+            L23(L24, L25, L26, L27, L28)
+          end
+        end
+      end
+    end
+  end
+  for L13, L14 in L10, L11, L12 do
+    L19 = " "
+    L20 = L14
+    L21 = " -f  2> /dev/NULL >&2"
+    L15(L16)
+  end
+  return L10
+end
+extendwifi_tranlate_wireless_config = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = tonumber
+  L3 = A0
+  L2 = L2(L3)
+  if L2 == 0 then
+    L2 = "wifiblist"
+    if L2 then
+      goto lbl_15
+    end
+  end
+  L2 = "wifiwlist"
+  ::lbl_15::
+  L4 = L1
+  L3 = L1.get_list
+  L5 = L2
+  L6 = "maclist"
+  L7 = "mac"
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  return L3
+end
+getWiFiMacfilterList = L18
+function L18()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_wifinet
+  L3 = _wifiNameForIndex
+  L4 = 1
+  L3, L4 = L3(L4)
+  L1 = L1(L2, L3, L4)
+  if L1 then
+    L3 = L1
+    L2 = L1.get
+    L4 = "macfilter"
+    L2 = L2(L3, L4)
+    if L2 == "disabled" then
+      L3 = 0
+      return L3
+    elseif L2 == "deny" then
+      L3 = 1
+      return L3
+    elseif L2 == "allow" then
+      L3 = 2
+      return L3
+    else
+      L3 = 0
+      return L3
+    end
+  else
+    L2 = 0
+    return L2
+  end
+end
+getWiFiMacfilterModel = L18
+function L18()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.model.network"
+  L0 = L0(L1)
+  L0 = L0.init
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get_wifinet
+  L3 = _wifiNameForIndex
+  L4 = 1
+  L3, L4 = L3(L4)
+  L1 = L1(L2, L3, L4)
+  L3 = L1
+  L2 = L1.get
+  L4 = "maclist"
+  return L2(L3, L4)
+end
+getCurrentMacfilterList = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L3 = require
+  L4 = "xiaoqiang.util.XQDBUtil"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.util.XQSynchrodata"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "luci.model.uci"
+  L5 = L5(L6)
+  L5 = L5.cursor
+  L5 = L5()
+  L6 = _UPVALUE0_
+  L6 = L6.isStrNil
+  L7 = A1
+  L6 = L6(L7)
+  if not L6 then
+    L6 = _UPVALUE0_
+    L6 = L6.isStrNil
+    L7 = A2
+    L6 = L6(L7)
+    if not L6 then
+      L6 = _UPVALUE0_
+      L6 = L6.macFormat
+      L7 = A1
+      L6 = L6(L7)
+      A1 = L6
+      L6 = _UPVALUE0_
+      L6 = L6._cmdformat
+      L7 = A1
+      L6 = L6(L7)
+      L8 = L6
+      L7 = L6.match
+      L9 = "^%x[1,3,5,7,9,B,D,F]"
+      L7 = L7(L8, L9)
+      if L7 then
+        L7 = 2
+        return L7
+      end
+      L7 = tonumber
+      L8 = A0
+      L7 = L7(L8)
+      if L7 == 0 then
+        L7 = _UPVALUE0_
+        L7 = L7.isMeshMode
+        L7 = L7()
+        if L7 then
+          L7 = string
+          L7 = L7.format
+          L8 = "/sbin/chk_sta_re \"%s\""
+          L9 = L6
+          L7 = L7(L8, L9)
+          L8 = tostring
+          L9 = _UPVALUE1_
+          L9 = L9.trim
+          L13, L14, L15, L16, L17, L18 = L10(L11)
+          L9, L13, L14, L15, L16, L17, L18 = L9(L10, L11, L12, L13, L14, L15, L16, L17, L18)
+          L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18)
+          if L8 == "resta" then
+            L9 = 3
+            return L9
+          end
+        end
+      end
+      L7 = L3.saveDeviceInfo
+      L8 = A1
+      L9 = A2
+      L7(L8, L9, L10, L11, L12)
+      L7 = require
+      L8 = "luci.model.uci"
+      L7 = L7(L8)
+      L7 = L7.cursor
+      L7 = L7()
+      L8 = tonumber
+      L9 = A0
+      L8 = L8(L9)
+      if L8 == 0 then
+        L8 = "wifiblist"
+        if L8 then
+          goto lbl_89
+        end
+      end
+      L8 = "wifiwlist"
+      ::lbl_89::
+      L9 = L7.get_list
+      L13 = "mac"
+      L9 = L9(L10, L11, L12, L13)
+      L9 = L9 or L9
+      for L13, L14 in L10, L11, L12 do
+        if A1 == L14 then
+          L15 = 0
+          return L15
+        end
+      end
+      L10(L11, L12)
+      if 32 < L10 then
+        return L10
+      end
+      L11.mac = A1
+      L11.limited = 1
+      L10(L11)
+      L13 = "maclist"
+      L14 = "mac"
+      L15 = L9
+      L10(L11, L12, L13, L14, L15)
+      L10(L11, L12)
+      if L11 == 1 then
+      else
+      end
+      L13 = "wireless"
+      L14 = "guest_2G"
+      if L11 then
+        L13 = A0
+        if L12 == 0 then
+          L11.macfilter = L10
+          if L9 then
+            if 0 < L12 then
+              L11.maclist = L9
+          end
+          else
+            L11.maclist = nil
+            L13 = L7
+            L14 = "wireless"
+            L15 = "guest_2G"
+            L16 = "maclist"
+            L12(L13, L14, L15, L16)
+          end
+          L13 = L7
+          L14 = "wireless"
+          L15 = "wifi-iface"
+          L16 = "guest_2G"
+          L17 = L11
+          L12(L13, L14, L15, L16, L17)
+          L13 = L7
+          L14 = "wireless"
+          L12(L13, L14)
+      end
+      elseif L11 then
+        L13 = A0
+        if L12 == 1 then
+          L11.maclist = nil
+          L13 = L7
+          L14 = "wireless"
+          L15 = "guest_2G"
+          L16 = "maclist"
+          L12(L13, L14, L15, L16)
+          L11.macfilter = nil
+          L13 = L7
+          L14 = "wireless"
+          L15 = "guest_2G"
+          L16 = "macfilter"
+          L12(L13, L14, L15, L16)
+          L13 = L7
+          L14 = "wireless"
+          L15 = "wifi-iface"
+          L16 = "guest_2G"
+          L17 = L11
+          L12(L13, L14, L15, L16, L17)
+          L13 = L7
+          L14 = "wireless"
+          L12(L13, L14)
+        end
+      end
+      L13 = "luci.model.network"
+      L14 = L12
+      L13 = L12.get_wifinet
+      L15 = _wifiNameForIndex
+      L16 = 1
+      L15, L16, L17, L18 = L15(L16)
+      L13 = L13(L14, L15, L16, L17, L18)
+      L15 = L12
+      L14 = L12.get_wifinet
+      L16 = _wifiNameForIndex
+      L17 = 2
+      L16, L17, L18 = L16(L17)
+      L14 = L14(L15, L16, L17, L18)
+      if L13 then
+        L16 = L13
+        L15 = L13.set
+        L17 = "macfilter"
+        L18 = L10
+        L15(L16, L17, L18)
+        if L9 then
+          L15 = #L9
+          if 0 < L15 then
+            L16 = L13
+            L15 = L13.set_list
+            L17 = "maclist"
+            L18 = L9
+            L15(L16, L17, L18)
+        end
+        else
+          L16 = L13
+          L15 = L13.set_list
+          L17 = "maclist"
+          L18 = nil
+          L15(L16, L17, L18)
+        end
+      end
+      if L14 then
+        L16 = L14
+        L15 = L14.set
+        L17 = "macfilter"
+        L18 = L10
+        L15(L16, L17, L18)
+        if L9 then
+          L15 = #L9
+          if 0 < L15 then
+            L16 = L14
+            L15 = L14.set_list
+            L17 = "maclist"
+            L18 = L9
+            L15(L16, L17, L18)
+        end
+        else
+          L16 = L14
+          L15 = L14.set_list
+          L17 = "maclist"
+          L18 = nil
+          L15(L16, L17, L18)
+        end
+      end
+      L16 = L12
+      L15 = L12.save
+      L17 = "wireless"
+      L15(L16, L17)
+      L16 = L12
+      L15 = L12.commit
+      L17 = "wireless"
+      L15(L16, L17)
+      L15 = tonumber
+      L16 = A0
+      L15 = L15(L16)
+      if L15 == 0 then
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl0 addmac_sec \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl1 addmac_sec \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl14 addmac_sec \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl0 maccmd_sec 2"
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl1 maccmd_sec 2"
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl14 maccmd_sec 2"
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl0 kickmac \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl1 kickmac \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+        L15 = os
+        L15 = L15.execute
+        L16 = "iwpriv wl14 kickmac \""
+        L17 = L6
+        L18 = "\""
+        L16 = L16 .. L17 .. L18
+        L15(L16)
+      else
+        L15 = tonumber
+        L16 = A0
+        L15 = L15(L16)
+        if L15 == 1 then
+          L15 = os
+          L15 = L15.execute
+          L16 = "iwpriv wl0 addmac_sec \""
+          L17 = L6
+          L18 = "\""
+          L16 = L16 .. L17 .. L18
+          L15(L16)
+          L15 = os
+          L15 = L15.execute
+          L16 = "iwpriv wl1 addmac_sec \""
+          L17 = L6
+          L18 = "\""
+          L16 = L16 .. L17 .. L18
+          L15(L16)
+          L15 = os
+          L15 = L15.execute
+          L16 = "iwpriv wl0 maccmd_sec 1"
+          L15(L16)
+          L15 = os
+          L15 = L15.execute
+          L16 = "iwpriv wl1 maccmd_sec 1"
+          L15(L16)
+          L15 = os
+          L15 = L15.execute
+          L16 = "iwpriv wl14 maccmd_sec 0"
+          L15(L16)
+        end
+      end
+      L15 = 0
+      return L15
+  end
+  else
+    L6 = 2
+    return L6
+  end
+end
+addDevice = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  if A1 then
+    L3 = _UPVALUE0_
+    L3 = L3.isStrNil
+    L4 = A2
+    L3 = L3(L4)
+    if not L3 then
+      goto lbl_10
+    end
+  end
+  do return end
+  ::lbl_10::
+  L3 = require
+  L4 = "xiaoqiang.util.XQSynchrodata"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  if L5 == 0 then
+    L5 = "wifiblist"
+    if L5 then
+      goto lbl_27
+    end
+  end
+  L5 = "wifiwlist"
+  ::lbl_27::
+  L7 = L4
+  L6 = L4.get_list
+  L8 = L5
+  L9 = "maclist"
+  L6 = L6(L7, L8, L9, L10)
+  L6 = L6 or L6
+  L7 = getWiFiMacfilterModel
+  L7 = L7()
+  L8 = getCurrentMacfilterList
+  L8 = L8()
+  if A2 == 0 then
+    L9 = {}
+    for L13, L14 in L10, L11, L12 do
+      L15 = _UPVALUE0_
+      L15 = L15.macFormat
+      L16 = L14
+      L15 = L15(L16)
+      L9[L15] = 1
+    end
+    for L13, L14 in L10, L11, L12 do
+      L15 = _UPVALUE0_
+      L15 = L15.isStrNil
+      L16 = L14
+      L15 = L15(L16)
+      if not L15 then
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L9[L15] = 1
+      end
+    end
+    L6 = L10
+    for L13, L14 in L10, L11, L12 do
+      if L14 == 1 then
+        L15 = table
+        L15 = L15.insert
+        L16 = L6
+        L17 = L13
+        L15(L16, L17)
+      end
+    end
+    if 32 < L10 then
+      return L10
+    end
+  else
+    L9 = {}
+    for L13, L14 in L10, L11, L12 do
+      L15 = _UPVALUE0_
+      L15 = L15.macFormat
+      L16 = L14
+      L15 = L15(L16)
+      L9[L15] = 1
+    end
+    for L13, L14 in L10, L11, L12 do
+      L15 = _UPVALUE0_
+      L15 = L15.isStrNil
+      L16 = L14
+      L15 = L15(L16)
+      if not L15 then
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L9[L15] = 0
+      end
+    end
+    L6 = L10
+    for L13, L14 in L10, L11, L12 do
+      if L14 == 1 then
+        L15 = table
+        L15 = L15.insert
+        L16 = L6
+        L17 = L13
+        L15(L16, L17)
+      end
+    end
+  end
+  if A0 == 0 then
+    L9 = {}
+    if L8 then
+      for L14, L15 in L11, L12, L13 do
+        L16 = _UPVALUE0_
+        L16 = L16.macFormat
+        L17 = L15
+        L16 = L16(L17)
+        L9[L16] = 1
+      end
+    end
+    if A2 == 0 then
+      for L14, L15 in L11, L12, L13 do
+        L16 = _UPVALUE0_
+        L16 = L16.macFormat
+        L17 = L15
+        L16 = L16(L17)
+        L15 = L16
+        L16 = L9[L15]
+        if not L16 then
+          L10[L15] = 1
+        end
+      end
+    elseif A2 == 1 then
+      for L14, L15 in L11, L12, L13 do
+        L16 = _UPVALUE0_
+        L16 = L16.macFormat
+        L17 = L15
+        L16 = L16(L17)
+        L15 = L16
+        L16 = L9[L15]
+        if L16 then
+          L10[L15] = 0
+        end
+      end
+    end
+    for L14, L15 in L11, L12, L13 do
+      L16 = L3.syncDeviceInfo
+      L17 = {}
+      L17.mac = L14
+      L17.limited = L15
+      L16(L17)
+    end
+  end
+  L9 = os
+  L9 = L9.execute
+  L9(L10)
+  L9 = os
+  L9 = L9.execute
+  L9(L10)
+  L9 = os
+  L9 = L9.execute
+  L9(L10)
+  L9 = {}
+  for L13, L14 in L10, L11, L12 do
+    L15 = _UPVALUE0_
+    L15 = L15._cmdformat
+    L16 = L14
+    L15 = L15(L16)
+    L16 = table
+    L16 = L16.insert
+    L17 = L9
+    L18 = L15
+    L16(L17, L18)
+  end
+  if L11 == 0 then
+    L14 = "\""
+    L11(L12)
+    L14 = "\""
+    L11(L12)
+    L14 = "\""
+    L11(L12)
+    L11(L12)
+    L11(L12)
+    L11(L12)
+    for L14, L15 in L11, L12, L13 do
+      L16 = os
+      L16 = L16.execute
+      L17 = "wl -i wl0 deauthenticate \""
+      L18 = L15
+      L19 = "\""
+      L17 = L17 .. L18 .. L19
+      L16(L17)
+      L16 = os
+      L16 = L16.execute
+      L17 = "wl -i wl1 deauthenticate \""
+      L18 = L15
+      L19 = "\""
+      L17 = L17 .. L18 .. L19
+      L16(L17)
+      L16 = os
+      L16 = L16.execute
+      L17 = "wl -i wl1.2 deauthenticate \""
+      L18 = L15
+      L19 = "\""
+      L17 = L17 .. L18 .. L19
+      L16(L17)
+    end
+  elseif L11 == 1 then
+    L14 = "\""
+    L11(L12)
+    L14 = "\""
+    L11(L12)
+    L11(L12)
+    L11(L12)
+    L11(L12)
+    if A2 == 1 and A1 then
+      for L14, L15 in L11, L12, L13 do
+        if L15 then
+          L16 = _UPVALUE0_
+          L16 = L16._cmdformat
+          L17 = L15
+          L16 = L16(L17)
+          L15 = L16
+          L16 = os
+          L16 = L16.execute
+          L17 = "wl -i wl0 deauthenticate \""
+          L18 = L15
+          L19 = "\""
+          L17 = L17 .. L18 .. L19
+          L16(L17)
+          L16 = os
+          L16 = L16.execute
+          L17 = "wl -i wl1 deauthenticate \""
+          L18 = L15
+          L19 = "\""
+          L17 = L17 .. L18 .. L19
+          L16(L17)
+          L16 = os
+          L16 = L16.execute
+          L17 = "wl -i wl1.2 deauthenticate \""
+          L18 = L15
+          L19 = "\""
+          L17 = L17 .. L18 .. L19
+          L16(L17)
+        end
+      end
+    end
+  end
+  if 0 < L11 then
+    L14 = "maclist"
+    L15 = "mac"
+    L16 = L6
+    L11(L12, L13, L14, L15, L16)
+  else
+    L14 = "maclist"
+    L15 = "mac"
+    L11(L12, L13, L14, L15)
+  end
+  L11(L12, L13)
+  if L12 == 1 then
+  else
+  end
+  L14 = "wireless"
+  L15 = "guest_2G"
+  if L12 then
+    L14 = A0
+    if L13 == 0 then
+      L12.macfilter = L11
+      if L6 then
+        if 0 < L13 then
+          L12.maclist = L6
+      end
+      else
+        L12.maclist = nil
+        L14 = L4
+        L15 = "wireless"
+        L16 = "guest_2G"
+        L17 = "maclist"
+        L13(L14, L15, L16, L17)
+      end
+      L14 = L4
+      L15 = "wireless"
+      L16 = "wifi-iface"
+      L17 = "guest_2G"
+      L18 = L12
+      L13(L14, L15, L16, L17, L18)
+      L14 = L4
+      L15 = "wireless"
+      L13(L14, L15)
+  end
+  elseif L12 then
+    L14 = A0
+    if L13 == 1 then
+      L12.maclist = nil
+      L14 = L4
+      L15 = "wireless"
+      L16 = "guest_2G"
+      L17 = "maclist"
+      L13(L14, L15, L16, L17)
+      L12.macfilter = nil
+      L14 = L4
+      L15 = "wireless"
+      L16 = "guest_2G"
+      L17 = "macfilter"
+      L13(L14, L15, L16, L17)
+      L14 = L4
+      L15 = "wireless"
+      L16 = "wifi-iface"
+      L17 = "guest_2G"
+      L18 = L12
+      L13(L14, L15, L16, L17, L18)
+      L14 = L4
+      L15 = "wireless"
+      L13(L14, L15)
+    end
+  end
+  L14 = "luci.model.network"
+  L15 = L13
+  L14 = L13.get_wifinet
+  L16 = _wifiNameForIndex
+  L17 = 1
+  L16, L17, L18, L19 = L16(L17)
+  L14 = L14(L15, L16, L17, L18, L19)
+  L16 = L13
+  L15 = L13.get_wifinet
+  L17 = _wifiNameForIndex
+  L18 = 2
+  L17, L18, L19 = L17(L18)
+  L15 = L15(L16, L17, L18, L19)
+  if L14 then
+    L17 = L14
+    L16 = L14.set
+    L18 = "macfilter"
+    L19 = L11
+    L16(L17, L18, L19)
+    if L6 then
+      L16 = #L6
+      if 0 < L16 then
+        L17 = L14
+        L16 = L14.set_list
+        L18 = "maclist"
+        L19 = L6
+        L16(L17, L18, L19)
+    end
+    else
+      L17 = L14
+      L16 = L14.set_list
+      L18 = "maclist"
+      L19 = nil
+      L16(L17, L18, L19)
+    end
+  end
+  if L15 then
+    L17 = L15
+    L16 = L15.set
+    L18 = "macfilter"
+    L19 = L11
+    L16(L17, L18, L19)
+    if L6 then
+      L16 = #L6
+      if 0 < L16 then
+        L17 = L15
+        L16 = L15.set_list
+        L18 = "maclist"
+        L19 = L6
+        L16(L17, L18, L19)
+    end
+    else
+      L17 = L15
+      L16 = L15.set_list
+      L18 = "maclist"
+      L19 = nil
+      L16(L17, L18, L19)
+    end
+  end
+  L17 = L13
+  L16 = L13.save
+  L18 = "wireless"
+  L16(L17, L18)
+  L17 = L13
+  L16 = L13.commit
+  L18 = "wireless"
+  L16(L17, L18)
+  L16 = os
+  L16 = L16.execute
+  L17 = "ubus call trafficd update_assoclist"
+  L16(L17)
+end
+wl_editWiFiMacfilterList = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L3 = require
+  L4 = "xiaoqiang.util.XQSynchrodata"
+  L3 = L3(L4)
+  if A1 then
+    L4 = type
+    L5 = A1
+    L4 = L4(L5)
+    if L4 == "table" then
+      L4 = _UPVALUE0_
+      L4 = L4.isStrNil
+      L5 = A2
+      L4 = L4(L5)
+      if not L4 then
+        goto lbl_19
+      end
+    end
+  end
+  L4 = 2
+  do return L4 end
+  ::lbl_19::
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  if L5 == 0 then
+    L5 = "wifiblist"
+    if L5 then
+      goto lbl_33
+    end
+  end
+  L5 = "wifiwlist"
+  ::lbl_33::
+  L7 = L4
+  L6 = L4.get_list
+  L8 = L5
+  L6 = L6(L7, L8, L9, L10)
+  L6 = L6 or L6
+  L7 = getCurrentMacfilterList
+  L7 = L7()
+  if A2 == 0 then
+    L8 = {}
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.macFormat
+      L15 = L13
+      L14 = L14(L15)
+      L8[L14] = 1
+    end
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.isStrNil
+      L15 = L13
+      L14 = L14(L15)
+      if not L14 then
+        L14 = _UPVALUE0_
+        L14 = L14.macFormat
+        L15 = L13
+        L14 = L14(L15)
+        L8[L14] = 1
+      end
+    end
+    L6 = L9
+    for L12, L13 in L9, L10, L11 do
+      if L13 == 1 then
+        L14 = table
+        L14 = L14.insert
+        L15 = L6
+        L16 = L12
+        L14(L15, L16)
+      end
+    end
+    if 32 < L9 then
+      return L9
+    end
+  else
+    L8 = {}
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.macFormat
+      L15 = L13
+      L14 = L14(L15)
+      L8[L14] = 1
+    end
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.isStrNil
+      L15 = L13
+      L14 = L14(L15)
+      if not L14 then
+        L14 = _UPVALUE0_
+        L14 = L14.macFormat
+        L15 = L13
+        L14 = L14(L15)
+        L8[L14] = 0
+      end
+    end
+    L6 = L9
+    for L12, L13 in L9, L10, L11 do
+      if L13 == 1 then
+        L14 = table
+        L14 = L14.insert
+        L15 = L6
+        L16 = L12
+        L14(L15, L16)
+      end
+    end
+  end
+  if A0 == 0 then
+    L8 = {}
+    if L7 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L8[L15] = 1
+      end
+    end
+    if A2 == 0 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L14 = L15
+        L15 = L8[L14]
+        if not L15 then
+          L9[L14] = 1
+        end
+      end
+    elseif A2 == 1 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L14 = L15
+        L15 = L8[L14]
+        if L15 then
+          L9[L14] = 0
+        end
+      end
+    end
+    for L13, L14 in L10, L11, L12 do
+      L15 = L3.syncDeviceInfo
+      L16 = {}
+      L16.mac = L13
+      L16.limited = L14
+      L15(L16)
+    end
+  end
+  L8 = #L6
+  if 0 < L8 then
+    L8 = L4.set_list
+    L13 = L6
+    L8(L9, L10, L11, L12, L13)
+  else
+    L8 = L4.delete
+    L8(L9, L10, L11, L12)
+  end
+  L8 = L4.commit
+  L8(L9, L10)
+  L8 = nil
+  if L9 == 1 then
+    L8 = "allow"
+  else
+    L8 = "deny"
+  end
+  if L9 then
+    if L10 == 0 then
+      L9.macfilter = L8
+      if L6 then
+        if 0 < L10 then
+          L9.maclist = L6
+      end
+      else
+        L9.maclist = nil
+        L13 = "guest_2G"
+        L14 = "maclist"
+        L10(L11, L12, L13, L14)
+      end
+      L13 = "wifi-iface"
+      L14 = "guest_2G"
+      L15 = L9
+      L10(L11, L12, L13, L14, L15)
+      L10(L11, L12)
+  end
+  elseif L9 then
+    if L10 == 1 then
+      L9.maclist = nil
+      L13 = "guest_2G"
+      L14 = "maclist"
+      L10(L11, L12, L13, L14)
+      L9.macfilter = nil
+      L13 = "guest_2G"
+      L14 = "macfilter"
+      L10(L11, L12, L13, L14)
+      L13 = "wifi-iface"
+      L14 = "guest_2G"
+      L15 = L9
+      L10(L11, L12, L13, L14, L15)
+      L10(L11, L12)
+    end
+  end
+  L13 = _wifiNameForIndex
+  L14 = 1
+  L13, L14, L15, L16, L17, L18 = L13(L14)
+  L13 = L10
+  L14 = _wifiNameForIndex
+  L15 = 2
+  L14, L15, L16, L17, L18 = L14(L15)
+  if L11 then
+    L14 = L11
+    L13 = L11.set
+    L15 = "macfilter"
+    L16 = L8
+    L13(L14, L15, L16)
+    if L6 then
+      L13 = #L6
+      if 0 < L13 then
+        L14 = L11
+        L13 = L11.set_list
+        L15 = "maclist"
+        L16 = L6
+        L13(L14, L15, L16)
+    end
+    else
+      L14 = L11
+      L13 = L11.set_list
+      L15 = "maclist"
+      L16 = nil
+      L13(L14, L15, L16)
+    end
+  end
+  if L12 then
+    L14 = L12
+    L13 = L12.set
+    L15 = "macfilter"
+    L16 = L8
+    L13(L14, L15, L16)
+    if L6 then
+      L13 = #L6
+      if 0 < L13 then
+        L14 = L12
+        L13 = L12.set_list
+        L15 = "maclist"
+        L16 = L6
+        L13(L14, L15, L16)
+    end
+    else
+      L14 = L12
+      L13 = L12.set_list
+      L15 = "maclist"
+      L16 = nil
+      L13(L14, L15, L16)
+    end
+  end
+  L14 = L10
+  L13 = L10.save
+  L15 = "wireless"
+  L13(L14, L15)
+  L14 = L10
+  L13 = L10.commit
+  L15 = "wireless"
+  L13(L14, L15)
+  L13 = require
+  L14 = "json"
+  L13 = L13(L14)
+  L14 = L13.encode
+  L15 = {}
+  L15.model = A0
+  L15.maclist = L6
+  L14 = L14(L15)
+  L15 = _UPVALUE0_
+  L15 = L15.forkExec
+  L16 = "lua /usr/sbin/iwpriv_macfilter.lua 2 \""
+  L17 = _UPVALUE0_
+  L17 = L17._cmdformat
+  L18 = L14
+  L17 = L17(L18)
+  L18 = "\""
+  L16 = L16 .. L17 .. L18
+  L15(L16)
+  L15 = 0
+  return L15
+end
+iwpriv_editWiFiMacfilterList = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17
+  if A1 then
+    L3 = type
+    L4 = A1
+    L3 = L3(L4)
+    if L3 == "table" then
+      L3 = _UPVALUE0_
+      L3 = L3.isStrNil
+      L4 = A2
+      L3 = L3(L4)
+      if not L3 then
+        goto lbl_16
+      end
+    end
+  end
+  L3 = 2
+  do return L3 end
+  ::lbl_16::
+  L3 = require
+  L4 = "xiaoqiang.util.XQSynchrodata"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  if L5 == 0 then
+    L5 = "wifiblist"
+    if L5 then
+      goto lbl_33
+    end
+  end
+  L5 = "wifiwlist"
+  ::lbl_33::
+  L7 = L4
+  L6 = L4.get_list
+  L8 = L5
+  L6 = L6(L7, L8, L9, L10)
+  L6 = L6 or L6
+  L7 = getCurrentMacfilterList
+  L7 = L7()
+  if A2 == 0 then
+    L8 = {}
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.macFormat
+      L15 = L13
+      L14 = L14(L15)
+      L8[L14] = 1
+    end
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.isStrNil
+      L15 = L13
+      L14 = L14(L15)
+      if not L14 then
+        L14 = _UPVALUE0_
+        L14 = L14.macFormat
+        L15 = L13
+        L14 = L14(L15)
+        L8[L14] = 1
+      end
+    end
+    L6 = L9
+    for L12, L13 in L9, L10, L11 do
+      if L13 == 1 then
+        L14 = table
+        L14 = L14.insert
+        L15 = L6
+        L16 = L12
+        L14(L15, L16)
+      end
+    end
+    if 32 < L9 then
+      return L9
+    end
+  else
+    L8 = {}
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.macFormat
+      L15 = L13
+      L14 = L14(L15)
+      L8[L14] = 1
+    end
+    for L12, L13 in L9, L10, L11 do
+      L14 = _UPVALUE0_
+      L14 = L14.isStrNil
+      L15 = L13
+      L14 = L14(L15)
+      if not L14 then
+        L14 = _UPVALUE0_
+        L14 = L14.macFormat
+        L15 = L13
+        L14 = L14(L15)
+        L8[L14] = 0
+      end
+    end
+    L6 = L9
+    for L12, L13 in L9, L10, L11 do
+      if L13 == 1 then
+        L14 = table
+        L14 = L14.insert
+        L15 = L6
+        L16 = L12
+        L14(L15, L16)
+      end
+    end
+  end
+  if A0 == 0 then
+    L8 = {}
+    if L7 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L8[L15] = 1
+      end
+    end
+    if A2 == 0 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L14 = L15
+        L15 = L8[L14]
+        if not L15 then
+          L9[L14] = 1
+        end
+      end
+    elseif A2 == 1 then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _UPVALUE0_
+        L15 = L15.macFormat
+        L16 = L14
+        L15 = L15(L16)
+        L14 = L15
+        L15 = L8[L14]
+        if L15 then
+          L9[L14] = 0
+        end
+      end
+    end
+    for L13, L14 in L10, L11, L12 do
+      L15 = L3.syncDeviceInfo
+      L16 = {}
+      L16.mac = L13
+      L16.limited = L14
+      L15(L16)
+    end
+  end
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = os
+  L8 = L8.execute
+  L8(L9)
+  L8 = {}
+  for L12, L13 in L9, L10, L11 do
+    L14 = _UPVALUE0_
+    L14 = L14._cmdformat
+    L15 = L13
+    L14 = L14(L15)
+    L15 = table
+    L15 = L15.insert
+    L16 = L8
+    L17 = L14
+    L15(L16, L17)
+  end
+  for L12, L13 in L9, L10, L11 do
+    L14 = os
+    L14 = L14.execute
+    L15 = "iwpriv wl0 addmac_sec \""
+    L16 = L13
+    L17 = "\""
+    L15 = L15 .. L16 .. L17
+    L14(L15)
+    L14 = os
+    L14 = L14.execute
+    L15 = "iwpriv wl1 addmac_sec \""
+    L16 = L13
+    L17 = "\""
+    L15 = L15 .. L16 .. L17
+    L14(L15)
+    L14 = os
+    L14 = L14.execute
+    L15 = "iwpriv wl14 addmac_sec \""
+    L16 = L13
+    L17 = "\""
+    L15 = L15 .. L16 .. L17
+    L14(L15)
+  end
+  if L9 == 0 then
+    L9(L10)
+    L9(L10)
+    L9(L10)
+    for L12, L13 in L9, L10, L11 do
+      L14 = os
+      L14 = L14.execute
+      L15 = "iwpriv wl0 kickmac \""
+      L16 = L13
+      L17 = "\""
+      L15 = L15 .. L16 .. L17
+      L14(L15)
+      L14 = os
+      L14 = L14.execute
+      L15 = "iwpriv wl1 kickmac \""
+      L16 = L13
+      L17 = "\""
+      L15 = L15 .. L16 .. L17
+      L14(L15)
+      L14 = os
+      L14 = L14.execute
+      L15 = "iwpriv wl14 kickmac \""
+      L16 = L13
+      L17 = "\""
+      L15 = L15 .. L16 .. L17
+      L14(L15)
+    end
+  elseif L9 == 1 then
+    L9(L10)
+    L9(L10)
+    L9(L10)
+    if A2 == 1 and A1 then
+      for L12, L13 in L9, L10, L11 do
+        if L13 then
+          L14 = _UPVALUE0_
+          L14 = L14._cmdformat
+          L15 = L13
+          L14 = L14(L15)
+          L13 = L14
+          L14 = os
+          L14 = L14.execute
+          L15 = "iwpriv wl0 kickmac \""
+          L16 = L13
+          L17 = "\""
+          L15 = L15 .. L16 .. L17
+          L14(L15)
+          L14 = os
+          L14 = L14.execute
+          L15 = "iwpriv wl1 kickmac \""
+          L16 = L13
+          L17 = "\""
+          L15 = L15 .. L16 .. L17
+          L14(L15)
+          L14 = os
+          L14 = L14.execute
+          L15 = "iwpriv wl14 kickmac \""
+          L16 = L13
+          L17 = "\""
+          L15 = L15 .. L16 .. L17
+          L14(L15)
+        end
+      end
+    end
+  end
+  if 0 < L9 then
+    L13 = "mac"
+    L14 = L6
+    L9(L10, L11, L12, L13, L14)
+  else
+    L13 = "mac"
+    L9(L10, L11, L12, L13)
+  end
+  L9(L10, L11)
+  if L10 == 1 then
+  else
+  end
+  L13 = "guest_2G"
+  if L10 then
+    if L11 == 0 then
+      L10.macfilter = L9
+      if L6 then
+        if 0 < L11 then
+          L10.maclist = L6
+      end
+      else
+        L10.maclist = nil
+        L13 = "wireless"
+        L14 = "guest_2G"
+        L15 = "maclist"
+        L11(L12, L13, L14, L15)
+      end
+      L13 = "wireless"
+      L14 = "wifi-iface"
+      L15 = "guest_2G"
+      L16 = L10
+      L11(L12, L13, L14, L15, L16)
+      L13 = "wireless"
+      L11(L12, L13)
+  end
+  elseif L10 then
+    if L11 == 1 then
+      L10.maclist = nil
+      L13 = "wireless"
+      L14 = "guest_2G"
+      L15 = "maclist"
+      L11(L12, L13, L14, L15)
+      L10.macfilter = nil
+      L13 = "wireless"
+      L14 = "guest_2G"
+      L15 = "macfilter"
+      L11(L12, L13, L14, L15)
+      L13 = "wireless"
+      L14 = "wifi-iface"
+      L15 = "guest_2G"
+      L16 = L10
+      L11(L12, L13, L14, L15, L16)
+      L13 = "wireless"
+      L11(L12, L13)
+    end
+  end
+  L13 = L11
+  L14 = _wifiNameForIndex
+  L15 = 1
+  L14, L15, L16, L17 = L14(L15)
+  L14 = L11
+  L13 = L11.get_wifinet
+  L15 = _wifiNameForIndex
+  L16 = 2
+  L15, L16, L17 = L15(L16)
+  L13 = L13(L14, L15, L16, L17)
+  if L12 then
+    L15 = L12
+    L14 = L12.set
+    L16 = "macfilter"
+    L17 = L9
+    L14(L15, L16, L17)
+    if L6 then
+      L14 = #L6
+      if 0 < L14 then
+        L15 = L12
+        L14 = L12.set_list
+        L16 = "maclist"
+        L17 = L6
+        L14(L15, L16, L17)
+    end
+    else
+      L15 = L12
+      L14 = L12.set_list
+      L16 = "maclist"
+      L17 = nil
+      L14(L15, L16, L17)
+    end
+  end
+  if L13 then
+    L15 = L13
+    L14 = L13.set
+    L16 = "macfilter"
+    L17 = L9
+    L14(L15, L16, L17)
+    if L6 then
+      L14 = #L6
+      if 0 < L14 then
+        L15 = L13
+        L14 = L13.set_list
+        L16 = "maclist"
+        L17 = L6
+        L14(L15, L16, L17)
+    end
+    else
+      L15 = L13
+      L14 = L13.set_list
+      L16 = "maclist"
+      L17 = nil
+      L14(L15, L16, L17)
+    end
+  end
+  L15 = L11
+  L14 = L11.save
+  L16 = "wireless"
+  L14(L15, L16)
+  L15 = L11
+  L14 = L11.commit
+  L16 = "wireless"
+  L14(L15, L16)
+  L14 = os
+  L14 = L14.execute
+  L15 = "ubus call trafficd update_assoclist"
+  L14(L15)
+end
+qca_iwpriv_editWiFiMacfilterList = L18
+L18 = qca_iwpriv_editWiFiMacfilterList
+editWiFiMacfilterList = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.network"
+  L2 = L2(L3)
+  L2 = L2.init
+  L2 = L2()
+  L3 = require
+  L4 = "xiaoqiang.util.XQDBUtil"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.XQEquipment"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQPushUtil"
+  L5 = L5(L6)
+  L7 = L2
+  L6 = L2.get_wifinet
+  L8 = _wifiNameForIndex
+  L9 = 1
+  L8, L9, L10, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24 = L8(L9)
+  L6 = L6(L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24)
+  L7 = L5.pushSettings
+  L7 = L7()
+  L8 = {}
+  L9 = L7.auth
+  if L9 then
+    L9 = 1
+    if L9 then
+      goto lbl_33
+    end
+  end
+  L9 = 0
+  ::lbl_33::
+  L8.enable = L9
+  L8.model = 0
+  if L6 then
+    L10 = L6
+    L9 = L6.get
+    L9 = L9(L10, L11)
+    if L9 == "disabled" then
+      L8.model = 0
+    elseif L9 == "deny" then
+      L8.model = 0
+    elseif L9 == "allow" then
+      L8.model = 1
+    else
+      L8.model = 0
+    end
+  end
+  L9 = {}
+  L10 = getWiFiMacfilterList
+  if A0 == nil then
+    if L11 then
+      goto lbl_61
+    end
+  end
+  ::lbl_61::
+  L10 = L10(L11)
+  for L14, L15 in L11, L12, L13 do
+    L16 = _UPVALUE0_
+    L16 = L16.macFormat
+    L17 = L15
+    L16 = L16(L17)
+    L15 = L16
+    L16 = {}
+    L16.mac = L15
+    L17 = ""
+    L18 = L3.fetchDeviceInfo
+    L19 = L15
+    L18 = L18(L19)
+    if L18 then
+      L19 = L18.oName
+      L20 = L18.nickname
+      L21 = _UPVALUE0_
+      L21 = L21.isStrNil
+      L22 = L20
+      L21 = L21(L22)
+      if not L21 then
+        L17 = L20
+      else
+        L21 = L4.identifyDevice
+        L22 = L15
+        L23 = L19
+        L21 = L21(L22, L23)
+        L22 = L21.type
+        L23 = _UPVALUE0_
+        L23 = L23.isStrNil
+        L24 = L17
+        L23 = L23(L24)
+        if L23 then
+          L23 = _UPVALUE0_
+          L23 = L23.isStrNil
+          L24 = L22.n
+          L23 = L23(L24)
+          if not L23 then
+            L17 = L22.n
+          end
+        end
+        L23 = _UPVALUE0_
+        L23 = L23.isStrNil
+        L24 = L17
+        L23 = L23(L24)
+        if L23 then
+          L23 = _UPVALUE0_
+          L23 = L23.isStrNil
+          L24 = L19
+          L23 = L23(L24)
+          if not L23 then
+            L17 = L19
+          end
+        end
+        L23 = _UPVALUE0_
+        L23 = L23.isStrNil
+        L24 = L17
+        L23 = L23(L24)
+        if L23 then
+          L23 = _UPVALUE0_
+          L23 = L23.isStrNil
+          L24 = L21.name
+          L23 = L23(L24)
+          if not L23 then
+            L17 = L21.name
+          end
+        end
+        L23 = _UPVALUE0_
+        L23 = L23.isStrNil
+        L24 = L17
+        L23 = L23(L24)
+        if L23 then
+          L17 = L15
+        end
+        L23 = L22.c
+        if L23 == 3 then
+          L23 = _UPVALUE0_
+          L23 = L23.isStrNil
+          L24 = L20
+          L23 = L23(L24)
+          if L23 then
+            L17 = L22.n
+          end
+        end
+      end
+      L16.name = L17
+    end
+    L19 = table
+    L19 = L19.insert
+    L20 = L9
+    L21 = L16
+    L19(L20, L21)
+  end
+  L8.maclist = L9
+  L8.weblist = L10
+  return L8
+end
+getWiFiMacfilterInfo = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  if A0 then
+    L4 = tonumber
+    L5 = A1
+    L4 = L4(L5)
+    if L4 == 1 then
+      L2 = "allow"
+      L4 = getWiFiMacfilterList
+      L5 = 1
+      L4 = L4(L5)
+      L3 = L4
+    else
+      L2 = "deny"
+      L4 = getWiFiMacfilterList
+      L5 = 0
+      L4 = L4(L5)
+      L3 = L4
+    end
+  else
+    L2 = "disabled"
+    L4 = require
+    L5 = "xiaoqiang.util.XQPushUtil"
+    L4 = L4(L5)
+    L5 = L4.pushConfig
+    L6 = "auth"
+    L7 = "0"
+    L5(L6, L7)
+  end
+  L4 = require
+  L5 = "luci.model.uci"
+  L4 = L4(L5)
+  L4 = L4.cursor
+  L4 = L4()
+  L6 = L4
+  L5 = L4.get_all
+  L7 = "wireless"
+  L8 = "guest_2G"
+  L5 = L5(L6, L7, L8)
+  if L5 then
+    L6 = tonumber
+    L7 = A1
+    L6 = L6(L7)
+    if L6 == 0 then
+      L5.macfilter = L2
+      if L3 then
+        L6 = #L3
+        if 0 < L6 then
+          L5.maclist = L3
+      end
+      else
+        L5.maclist = nil
+        L7 = L4
+        L6 = L4.delete
+        L8 = "wireless"
+        L9 = "guest_2G"
+        L10 = "maclist"
+        L6(L7, L8, L9, L10)
+      end
+      L7 = L4
+      L6 = L4.section
+      L8 = "wireless"
+      L9 = "wifi-iface"
+      L10 = "guest_2G"
+      L11 = L5
+      L6(L7, L8, L9, L10, L11)
+      L7 = L4
+      L6 = L4.commit
+      L8 = "wireless"
+      L6(L7, L8)
+  end
+  elseif L5 then
+    L6 = tonumber
+    L7 = A1
+    L6 = L6(L7)
+    if L6 == 1 then
+      L5.maclist = nil
+      L7 = L4
+      L6 = L4.delete
+      L8 = "wireless"
+      L9 = "guest_2G"
+      L10 = "maclist"
+      L6(L7, L8, L9, L10)
+      L5.macfilter = nil
+      L7 = L4
+      L6 = L4.delete
+      L8 = "wireless"
+      L9 = "guest_2G"
+      L10 = "macfilter"
+      L6(L7, L8, L9, L10)
+      L7 = L4
+      L6 = L4.section
+      L8 = "wireless"
+      L9 = "wifi-iface"
+      L10 = "guest_2G"
+      L11 = L5
+      L6(L7, L8, L9, L10, L11)
+      L7 = L4
+      L6 = L4.commit
+      L8 = "wireless"
+      L6(L7, L8)
+    end
+  end
+  L6 = require
+  L7 = "luci.util"
+  L6 = L6(L7)
+  L7 = require
+  L8 = "luci.model.network"
+  L7 = L7(L8)
+  L7 = L7.init
+  L7 = L7()
+  L9 = L7
+  L8 = L7.get_wifinet
+  L10 = _wifiNameForIndex
+  L11 = 1
+  L10, L11, L12, L18, L19, L20, L21, L22, L23, L24 = L10(L11)
+  L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24)
+  L10 = L7
+  L9 = L7.get_wifinet
+  L11 = _wifiNameForIndex
+  L12 = 2
+  L11, L12, L18, L19, L20, L21, L22, L23, L24 = L11(L12)
+  L9 = L9(L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24)
+  if L8 then
+    L11 = L8
+    L10 = L8.set
+    L12 = "macfilter"
+    L10(L11, L12, L13)
+    if L3 then
+      L10 = #L3
+      if 0 < L10 then
+        L11 = L8
+        L10 = L8.set_list
+        L12 = "maclist"
+        L10(L11, L12, L13)
+    end
+    else
+      L11 = L8
+      L10 = L8.set_list
+      L12 = "maclist"
+      L10(L11, L12, L13)
+    end
+  end
+  if L9 then
+    L11 = L9
+    L10 = L9.set
+    L12 = "macfilter"
+    L10(L11, L12, L13)
+    if L3 then
+      L10 = #L3
+      if 0 < L10 then
+        L11 = L9
+        L10 = L9.set_list
+        L12 = "maclist"
+        L10(L11, L12, L13)
+    end
+    else
+      L11 = L9
+      L10 = L9.set_list
+      L12 = "maclist"
+      L10(L11, L12, L13)
+    end
+  end
+  L11 = L7
+  L10 = L7.save
+  L12 = "wireless"
+  L10(L11, L12)
+  L11 = L7
+  L10 = L7.commit
+  L12 = "wireless"
+  L10(L11, L12)
+  L10 = getWifiConnectDeviceList
+  L11 = 1
+  L10 = L10(L11)
+  L11 = getWifiConnectDeviceList
+  L12 = 2
+  L11 = L11(L12)
+  L12 = {}
+  if L3 then
+    if L13 == "table" then
+      for L16, L17 in L13, L14, L15 do
+        if L17 then
+          L12[L17] = true
+        end
+      end
+    end
+  end
+  if not A0 then
+    L14(L15)
+    L18 = "maclist"
+    L14(L15, L16, L17, L18)
+    L18 = "macfilter"
+    L19 = L2
+    L14(L15, L16, L17, L18, L19)
+    L14(L15, L16)
+  else
+    L13(L14)
+    L13(L14)
+    L13(L14)
+    L13(L14)
+    L13(L14)
+    L13(L14)
+    for L17, L18 in L14, L15, L16 do
+      L19 = _UPVALUE0_
+      L19 = L19._cmdformat
+      L20 = L18
+      L19 = L19(L20)
+      L20 = table
+      L20 = L20.insert
+      L21 = L13
+      L22 = L19
+      L20(L21, L22)
+    end
+    for L17, L18 in L14, L15, L16 do
+      L19 = os
+      L19 = L19.execute
+      L20 = "iwpriv wl0 addmac_sec \""
+      L21 = L18
+      L22 = "\""
+      L20 = L20 .. L21 .. L22
+      L19(L20)
+      L19 = os
+      L19 = L19.execute
+      L20 = "iwpriv wl1 addmac_sec \""
+      L21 = L18
+      L22 = "\""
+      L20 = L20 .. L21 .. L22
+      L19(L20)
+      L19 = os
+      L19 = L19.execute
+      L20 = "iwpriv wl14 addmac_sec \""
+      L21 = L18
+      L22 = "\""
+      L20 = L20 .. L21 .. L22
+      L19(L20)
+    end
+    if L14 == 0 then
+      L14(L15)
+      L14(L15)
+      L14(L15)
+      for L17, L18 in L14, L15, L16 do
+        L19 = os
+        L19 = L19.execute
+        L20 = "iwpriv wl0 kickmac \""
+        L21 = L18
+        L22 = "\""
+        L20 = L20 .. L21 .. L22
+        L19(L20)
+        L19 = os
+        L19 = L19.execute
+        L20 = "iwpriv wl1 kickmac \""
+        L21 = L18
+        L22 = "\""
+        L20 = L20 .. L21 .. L22
+        L19(L20)
+        L19 = os
+        L19 = L19.execute
+        L20 = "iwpriv wl14 kickmac \""
+        L21 = L18
+        L22 = "\""
+        L20 = L20 .. L21 .. L22
+        L19(L20)
+      end
+    elseif L14 == 1 then
+      L14(L15)
+      L14(L15)
+      L14(L15)
+      if L10 then
+        if L14 == "table" then
+          for L17, L18 in L14, L15, L16 do
+            L19 = L12[L18]
+            if not L19 then
+              L19 = _UPVALUE0_
+              L19 = L19._cmdformat
+              L20 = L18
+              L19 = L19(L20)
+              L20 = os
+              L20 = L20.execute
+              L21 = "iwpriv wl1 kickmac \""
+              L22 = L19
+              L23 = "\""
+              L21 = L21 .. L22 .. L23
+              L20(L21)
+            end
+          end
+        end
+      end
+      if L11 then
+        if L14 == "table" then
+          for L17, L18 in L14, L15, L16 do
+            L19 = L12[L18]
+            if not L19 then
+              L19 = _UPVALUE0_
+              L19 = L19._cmdformat
+              L20 = L18
+              L19 = L19(L20)
+              L20 = os
+              L20 = L20.execute
+              L21 = "iwpriv wl0 kickmac \""
+              L22 = L19
+              L23 = "\""
+              L21 = L21 .. L22 .. L23
+              L20(L21)
+            end
+          end
+        end
+      end
+      if L14 then
+        for L18, L19 in L15, L16, L17 do
+          L20 = _UPVALUE0_
+          L20 = L20.isStrNil
+          L21 = L19
+          L20 = L20(L21)
+          if not L20 then
+            L21 = L19
+            L20 = L19.match
+            L22 = "(%S+)"
+            L20 = L20(L21, L22)
+            if L20 then
+              L21 = _UPVALUE0_
+              L21 = L21._cmdformat
+              L22 = _UPVALUE0_
+              L22 = L22.macFormat
+              L23 = L20
+              L22, L23, L24 = L22(L23)
+              L21 = L21(L22, L23, L24)
+              L20 = L21
+              L21 = os
+              L21 = L21.execute
+              L22 = "iwpriv wl14 kickmac \""
+              L23 = L20
+              L24 = "\""
+              L22 = L22 .. L23 .. L24
+              L21(L22)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+setWiFiMacfilterModel = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = luci
+  L0 = L0.sys
+  L0 = L0.exec
+  L1 = "getmac wan"
+  L0 = L0(L1)
+  L1 = string
+  L1 = L1.upper
+  L2 = string
+  L2 = L2.sub
+  L3 = string
+  L3 = L3.gsub
+  L4 = L0
+  L5 = ":"
+  L6 = ""
+  L3 = L3(L4, L5, L6)
+  L4 = -5
+  L5 = -2
+  L2, L3, L4, L5, L6, L7, L8 = L2(L3, L4, L5)
+  L1 = L1(L2, L3, L4, L5, L6, L7, L8)
+  L2 = require
+  L3 = "xiaoqiang.XQCountryCode"
+  L2 = L2(L3)
+  L3 = L2.getCurrentCountryCode
+  L3 = L3()
+  L4 = require
+  L5 = "xiaoqiang.util.XQSysUtil"
+  L4 = L4(L5)
+  L5 = nil
+  L6 = "  MiShareWiFi_"
+  if L3 == "CN" then
+    L7 = L4.isRedmi
+    L7 = L7()
+    if 1 == L7 then
+      L6 = "  Redmi\229\133\177\228\186\171WiFi_"
+    else
+      L6 = "  \229\176\143\231\177\179\229\133\177\228\186\171WiFi_"
+    end
+  end
+  L7 = L6
+  L8 = L1
+  L5 = L7 .. L8
+  return L5
+end
+getGuestWifi_ssid = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "misc"
+  L5 = "modules"
+  L6 = "guestwifi"
+  L2 = L2(L3, L4, L5, L6)
+  if not L2 then
+    L3 = nil
+    return L3
+  end
+  L3 = tonumber
+  L4 = A0
+  L3 = L3(L4)
+  L4 = nil
+  if L3 then
+    L5 = getWifiStatus
+    L6 = L3
+    L5 = L5(L6)
+    L4 = L5
+    if L3 == 1 then
+      L3 = "guest_2G"
+    elseif L3 == 2 then
+      L3 = "guest_5G"
+    else
+      L3 = nil
+    end
+  end
+  L5 = nil
+  L6 = getGuestWifi_ssid
+  L6 = L6()
+  if L3 and L4 then
+    L8 = L1
+    L7 = L1.get_all
+    L9 = "wireless"
+    L10 = L3
+    L7 = L7(L8, L9, L10)
+    L5 = L7
+    if L5 then
+      L7 = {}
+      L8 = L5.ifname
+      L7.ifname = L8
+      L8 = L5.ssid
+      L8 = L8 or L8
+      L7.ssid = L8
+      L8 = L5.encryption
+      L8 = L8 or L8
+      L7.encryption = L8
+      L8 = L5.key
+      if not L8 then
+        L8 = L5.sae_password
+        L8 = L8 or L8
+      end
+      L7.password = L8
+      L8 = tonumber
+      L9 = L5.disabled
+      L8 = L8(L9)
+      if L8 == 0 then
+        L8 = 1
+        if L8 then
+          goto lbl_78
+        end
+      end
+      L8 = 0
+      ::lbl_78::
+      L7.status = L8
+      L7.enabled = "1"
+      return L7
+    end
+  end
+  if not L5 then
+    L7 = {}
+    L7.ifname = L2
+    L7.ssid = L6
+    L7.encryption = "psk2"
+    L7.password = "12345678"
+    L7.status = "0"
+    L7.enabled = "1"
+    L5 = L7
+  end
+  return L5
+end
+getGuestWifi = L18
+function L18(A0, A1, A2, A3, A4, A5, A6)
+  local L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23
+  L7 = require
+  L8 = "luci.model.network"
+  L7 = L7(L8)
+  L7 = L7.init
+  L7 = L7()
+  L9 = L7
+  L8 = L7.get_wifidev
+  L10 = _UPVALUE0_
+  L10 = L10.split
+  L11 = _wifiNameForIndex
+  L12 = 1
+  L11 = L11(L12)
+  L12 = "."
+  L10 = L10(L11, L12)
+  L10 = L10[1]
+  L8 = L8(L9, L10)
+  L10 = L7
+  L9 = L7.get_wifinet
+  L11 = _wifiNameForIndex
+  L12 = 1
+  L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23 = L11(L12)
+  L9 = L9(L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23)
+  if L8 == nil or L9 == nil then
+    L10 = false
+    return L10
+  end
+  L11 = L9
+  L10 = L9.get
+  L12 = "macfilter"
+  L10 = L10(L11, L12)
+  L11 = tonumber
+  L12 = A5
+  L11 = L11(L12)
+  L12 = tonumber
+  L14 = L8
+  L13 = L8.get
+  L15 = "disabled"
+  L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23 = L13(L14, L15)
+  L12 = L12(L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23)
+  L12 = L12 == 1
+  if L12 and L11 == 1 then
+    L14 = L8
+    L13 = L8.set
+    L15 = "disabled"
+    L16 = "0"
+    L13(L14, L15, L16)
+    L14 = L7
+    L13 = L7.commit
+    L15 = "wireless"
+    L13(L14, L15)
+  end
+  L13 = require
+  L14 = "luci.model.uci"
+  L13 = L13(L14)
+  L13 = L13.cursor
+  L13 = L13()
+  L14, L15 = nil, nil
+  L16 = tonumber
+  L17 = A4
+  L16 = L16(L17)
+  if L16 == 1 then
+    L16 = 1
+    if L16 then
+      goto lbl_68
+    end
+  end
+  L16 = 0
+  ::lbl_68::
+  L18 = L13
+  L17 = L13.get
+  L19 = "misc"
+  L20 = "modules"
+  L21 = "guestwifi"
+  L17 = L17(L18, L19, L20, L21)
+  if not L17 then
+    L18 = true
+    return L18
+  end
+  L18 = tonumber
+  L19 = A0
+  L18 = L18(L19)
+  if L18 == 1 then
+    L14 = "guest_2G"
+    L19 = L13
+    L18 = L13.get
+    L20 = "misc"
+    L21 = "wireless"
+    L22 = "ifname_guest_2G"
+    L18 = L18(L19, L20, L21, L22)
+    L15 = L18
+  else
+    L18 = tonumber
+    L19 = A0
+    L18 = L18(L19)
+    if L18 == 2 then
+      L14 = "guest_5G"
+    else
+      L18 = false
+      return L18
+    end
+  end
+  L19 = L13
+  L18 = L13.get_all
+  L20 = "wireless"
+  L21 = L14
+  L18 = L18(L19, L20, L21)
+  guestwifi = L18
+  L18 = guestwifi
+  if L18 then
+    L18 = guestwifi
+    L18.ifname = L15
+    L18 = _UPVALUE1_
+    L18 = L18.isStrNil
+    L19 = A1
+    L18 = L18(L19)
+    if not L18 then
+      L18 = _UPVALUE1_
+      L18 = L18.checkSSID
+      L19 = A1
+      L18 = L18(L19)
+      if L18 then
+        L18 = guestwifi
+        L18.ssid = A1
+      end
+    end
+    if A2 then
+      L18 = string
+      L18 = L18.lower
+      L19 = tostring
+      L20 = A2
+      L19, L20, L21, L22, L23 = L19(L20)
+      L18 = L18(L19, L20, L21, L22, L23)
+      if L18 == "none" then
+        if A3 then
+          L18 = string
+          L18 = L18.lower
+          L19 = tostring
+          L20 = A3
+          L19, L20, L21, L22, L23 = L19(L20)
+          L18 = L18(L19, L20, L21, L22, L23)
+          if L18 == "12345678" then
+            L18 = guestwifi
+            L18.encryption = "none"
+            L18 = guestwifi
+            L18.key = A3
+            L18 = guestwifi
+            L18.sae = ""
+            L18 = guestwifi
+            L18.sae_password = ""
+            L18 = guestwifi
+            L18.ieee80211w = ""
+        end
+        else
+          L18 = guestwifi
+          L18.encryption = "none"
+          L18 = guestwifi
+          L18.key = ""
+          L18 = guestwifi
+          L18.sae = ""
+          L18 = guestwifi
+          L18.sae_password = ""
+          L18 = guestwifi
+          L18.ieee80211w = ""
+        end
+      end
+    end
+    if A2 then
+      L18 = string
+      L18 = L18.lower
+      L19 = tostring
+      L20 = A2
+      L19, L20, L21, L22, L23 = L19(L20)
+      L18 = L18(L19, L20, L21, L22, L23)
+      if L18 ~= "none" then
+        L18 = _UPVALUE1_
+        L18 = L18.isStrNil
+        L19 = A3
+        L18 = L18(L19)
+        if not L18 then
+          L18 = checkWifiPasswd
+          L19 = A3
+          L20 = A2
+          L18 = L18(L19, L20)
+          if L18 == 0 then
+            L19 = guestwifi
+            L19.encryption = A2
+            L19 = guestwifi
+            L19.key = A3
+            L19 = string
+            L19 = L19.lower
+            L20 = tostring
+            L21 = A2
+            L20, L21, L22, L23 = L20(L21)
+            L19 = L19(L20, L21, L22, L23)
+            if L19 == "ccmp" then
+              L19 = guestwifi
+              L19.sae = 1
+              L19 = guestwifi
+              L19.key = ""
+              L19 = guestwifi
+              L19.sae_password = A3
+              L19 = guestwifi
+              L19.ieee80211w = 2
+            else
+              L19 = string
+              L19 = L19.lower
+              L20 = tostring
+              L21 = A2
+              L20, L21, L22, L23 = L20(L21)
+              L19 = L19(L20, L21, L22, L23)
+              if L19 == "psk2+ccmp" then
+                L19 = guestwifi
+                L19.sae = 1
+                L19 = guestwifi
+                L19.key = A3
+                L19 = guestwifi
+                L19.sae_password = A3
+                L19 = guestwifi
+                L19.ieee80211w = 1
+              else
+                L19 = guestwifi
+                L19.sae = ""
+                L19 = guestwifi
+                L19.sae_password = ""
+                L19 = guestwifi
+                L19.ieee80211w = ""
+              end
+            end
+          else
+            L19 = false
+            return L19
+          end
+        end
+      end
+    end
+    L18 = guestwifi
+    L18 = L18.disabled
+    L18 = L18 or L18
+    if L16 then
+      L19 = guestwifi
+      if L16 == 1 then
+        L20 = 0
+        if L20 then
+          goto lbl_247
+        end
+      end
+      L20 = 1
+      ::lbl_247::
+      L19.disabled = L20
+    end
+    if L11 then
+      L19 = guestwifi
+      if L11 == 1 then
+        L20 = 0
+        if L20 then
+          goto lbl_257
+        end
+      end
+      L20 = 1
+      ::lbl_257::
+      L19.disabled = L20
+    end
+    L19 = guestwifi
+    L19 = L19.disabled
+    if L18 ~= L19 then
+    end
+  else
+    L18 = _UPVALUE1_
+    L18 = L18.isStrNil
+    L19 = A1
+    L18 = L18(L19)
+    if not L18 then
+      L18 = _UPVALUE1_
+      L18 = L18.isStrNil
+      L19 = A2
+      L18 = L18(L19)
+      if not L18 then
+        goto lbl_277
+      end
+    end
+    L18 = false
+    do return L18 end
+    ::lbl_277::
+    L18 = 1
+    if L11 == 1 then
+      L18 = 0
+    end
+    L19 = {}
+    L20 = _UPVALUE2_
+    L20 = L20[A0]
+    L19.device = L20
+    L19.ifname = L15
+    L19.network = "guest"
+    L19.ssid = A1
+    L19.mode = "ap"
+    L19.encryption = A2
+    L19.key = A3
+    L19.disabled = L18
+    guestwifi = L19
+    L19 = string
+    L19 = L19.lower
+    L20 = tostring
+    L21 = A2
+    L20, L21, L22, L23 = L20(L21)
+    L19 = L19(L20, L21, L22, L23)
+    if L19 == "ccmp" then
+      L19 = guestwifi
+      L19.sae = 1
+      L19 = guestwifi
+      L19.key = ""
+      L19 = guestwifi
+      L19.sae_password = A3
+      L19 = guestwifi
+      L19.ieee80211w = 2
+    else
+      L19 = string
+      L19 = L19.lower
+      L20 = tostring
+      L21 = A2
+      L20, L21, L22, L23 = L20(L21)
+      L19 = L19(L20, L21, L22, L23)
+      if L19 == "psk2+ccmp" then
+        L19 = guestwifi
+        L19.sae = 1
+        L19 = guestwifi
+        L19.key = A3
+        L19 = guestwifi
+        L19.sae_password = A3
+        L19 = guestwifi
+        L19.ieee80211w = 1
+      else
+        L19 = guestwifi
+        L19.sae = ""
+        L19 = guestwifi
+        L19.sae_password = ""
+        L19 = guestwifi
+        L19.ieee80211w = ""
+      end
+    end
+    if L10 == "deny" then
+      L19 = guestwifi
+      L19.macfilter = L10
+      L19 = guestwifi
+      L20 = getCurrentMacfilterList
+      L20 = L20()
+      L19.maclist = L20
+    end
+  end
+  L18 = guestwifi
+  L19 = A6 or L19
+  if not A6 then
+    L19 = "XIAOMI_ROUTER_GUEST"
+  end
+  L18.wpsdevicename = L19
+  L19 = L13
+  L18 = L13.section
+  L20 = "wireless"
+  L21 = "wifi-iface"
+  L22 = L14
+  L23 = guestwifi
+  L18(L19, L20, L21, L22, L23)
+  L19 = L13
+  L18 = L13.commit
+  L20 = "wireless"
+  L18(L19, L20)
+  L18 = true
+  return L18
+end
+setGuestWifi = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = nil
+  L3 = tonumber
+  L4 = A0
+  L3 = L3(L4)
+  if L3 == 1 then
+    L2 = "guest_2G"
+  else
+    L3 = tonumber
+    L4 = A0
+    L3 = L3(L4)
+    if L3 == 2 then
+      L2 = "guest_5G"
+    else
+      L3 = false
+      return L3
+    end
+  end
+  L4 = L1
+  L3 = L1.delete
+  L5 = "wireless"
+  L6 = L2
+  L3(L4, L5, L6)
+  L4 = L1
+  L3 = L1.commit
+  L5 = "wireless"
+  L3(L4, L5)
+  L3 = true
+  return L3
+end
+delGuestWifi = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L1 = {}
+  L1.code = 0
+  L2, L3, L4, L5 = nil, nil, nil, nil
+  L6 = tonumber
+  L7 = A0
+  L6 = L6(L7)
+  if L6 == 1 then
+    L6 = "wl1"
+    if L6 then
+      goto lbl_13
+    end
+  end
+  L6 = "wl0"
+  ::lbl_13::
+  L7 = "setchanauto.sh "
+  L8 = tostring
+  L9 = L6
+  L8 = L8(L9)
+  L9 = " getresult"
+  L7 = L7 .. L8 .. L9
+  L8 = _UPVALUE0_
+  L8 = L8.execl
+  L9 = L7
+  L8 = L8(L9)
+  L9 = {}
+  if L8 then
+    for L13, L14 in L10, L11, L12 do
+      L15 = _UPVALUE1_
+      L15 = L15.isStrNil
+      L16 = L14
+      L15 = L15(L16)
+      if not L15 then
+        if not L2 or not L4 then
+          L16 = L14
+          L15 = L14.match
+          L17 = "^Current Channel (%S+) : Score = (%d+)"
+          L15, L16 = L15(L16, L17)
+          L4 = L16
+          L2 = L15
+        end
+        if not L3 or not L5 then
+          L16 = L14
+          L15 = L14.match
+          L17 = "^Select Channel (%S+) : Score = (%d+)"
+          L15, L16 = L15(L16, L17)
+          L5 = L16
+          L3 = L15
+        end
+        L16 = L14
+        L15 = L14.match
+        L17 = "^Channel (%S+) : Score = (%d+)"
+        L15, L16 = L15(L16, L17)
+        if L15 and L16 then
+          L17 = tonumber
+          L18 = L16
+          L17 = L17(L18)
+          L9[L15] = L17
+        end
+      end
+    end
+  end
+  if L2 and L3 and L4 and L5 then
+    L1.cchannel = L10
+    L1.schannel = L10
+    L1.cscore = L10
+    L1.sscore = L10
+    for L14, L15 in L11, L12, L13 do
+      if L14 ~= L2 then
+        L16 = L1.cscore
+        if L15 < L16 then
+        end
+      end
+    end
+    L1.ranking = L10
+  else
+    L1.code = 1
+    L1.cchannel = L10
+    L1.schannel = L10
+    L1.cscore = L10
+    L1.sscore = L10
+    L1.ranking = 0
+  end
+  return L1
+end
+scanWifiChannel = L18
+function L18()
+  local L0, L1, L2
+  L0 = getAllWifiInfo
+  L0 = L0()
+  L1 = L0[1]
+  if L1 then
+    L1 = L0[1]
+    L1 = L1.status
+    if L1 == "1" then
+      L1 = _UPVALUE0_
+      L1 = L1.forkExec
+      L2 = "sleep 4; iwpriv wl1 acsreport 1 > /dev/null"
+      L1(L2)
+    end
+  end
+end
+wifiChannelQuality = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  if A0 then
+    L2 = "sleep 4; iwconfig wl1 channel \""
+    L3 = _UPVALUE0_
+    L3 = L3._cmdformat
+    L4 = tostring
+    L5 = A0
+    L4, L5, L6, L7, L8, L9 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8, L9)
+    L4 = "\""
+    L2 = L2 .. L3 .. L4
+    L3 = channelHelper
+    L4 = A0
+    L3 = L3(L4)
+    L4 = _UPVALUE1_
+    L4 = L4.init
+    L4 = L4()
+    L6 = L4
+    L5 = L4.get_wifidev
+    L7 = _UPVALUE2_
+    L7 = L7.split
+    L8 = _wifiNameForIndex
+    L9 = 1
+    L8 = L8(L9)
+    L9 = "."
+    L7 = L7(L8, L9)
+    L7 = L7[1]
+    L5 = L5(L6, L7)
+    L7 = L5
+    L6 = L5.set
+    L8 = "bw"
+    L9 = L3.bandwidth
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "autoch"
+    L9 = "0"
+    L6(L7, L8, L9)
+    L7 = L5
+    L6 = L5.set
+    L8 = "channel"
+    L9 = L3.channel
+    L6(L7, L8, L9)
+    L7 = L4
+    L6 = L4.commit
+    L8 = "wireless"
+    L6(L7, L8)
+    L6 = _UPVALUE0_
+    L6 = L6.forkExec
+    L7 = L2
+    L6(L7)
+  end
+end
+iwprivSetChannel = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = _UPVALUE0_
+  L2 = L2.init
+  L2 = L2()
+  L4 = L1
+  L3 = L1.get_list
+  L5 = "misc"
+  L6 = "wireless"
+  L7 = "device_"
+  L8 = A0
+  L9 = "_name"
+  L7 = L7 .. L8 .. L9
+  L3 = L3(L4, L5, L6, L7)
+  if L3 ~= nil then
+    L5 = L2
+    L4 = L2.get_wifidev
+    L6 = L3
+    return L4(L5, L6)
+  else
+    L4 = nil
+    return L4
+  end
+end
+wifiutil_get_dev_info_form_band = L18
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9
+  L4 = _UPVALUE0_
+  L4 = L4.init
+  L4 = L4()
+  L6 = L4
+  L5 = L4.get_wifinet
+  L7 = _wifiNameForIndex
+  L8 = A0
+  L7, L8, L9 = L7(L8)
+  L5 = L5(L6, L7, L8, L9)
+  if L5 == nil then
+    L6 = false
+    return L6
+  end
+  L6 = _UPVALUE1_
+  L6 = L6.isStrNil
+  L7 = A1
+  L6 = L6(L7)
+  if not L6 then
+    L7 = L5
+    L6 = L5.set
+    L8 = "weakenable"
+    L9 = A1
+    L6(L7, L8, L9)
+  end
+  L6 = _UPVALUE1_
+  L6 = L6.isStrNil
+  L7 = A2
+  L6 = L6(L7)
+  if not L6 then
+    L7 = L5
+    L6 = L5.set
+    L8 = "weakthreshold"
+    L9 = A2
+    L6(L7, L8, L9)
+  end
+  L6 = _UPVALUE1_
+  L6 = L6.isStrNil
+  L7 = A3
+  L6 = L6(L7)
+  if not L6 then
+    L7 = L5
+    L6 = L5.set
+    L8 = "kickthreshold"
+    L9 = A3
+    L6(L7, L8, L9)
+  end
+  L7 = L4
+  L6 = L4.save
+  L8 = "wireless"
+  L6(L7, L8)
+  L7 = L4
+  L6 = L4.commit
+  L8 = "wireless"
+  L6(L7, L8)
+  L6 = true
+  return L6
+end
+setWifiWeakInfo = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L0 = {}
+  L1 = {}
+  L2 = wifiNetworks
+  L2 = L2()
+  for L6, L7 in L3, L4, L5 do
+    L8 = {}
+    L9 = 1
+    L10 = L7.networks
+    L10 = L10[L9]
+    L10 = L10.weakenable
+    L10 = L10 or L10
+    L8.weakenable = L10
+    L10 = L7.networks
+    L10 = L10[L9]
+    L10 = L10.weakthreshold
+    L10 = L10 or L10
+    L8.weakthreshold = L10
+    L10 = L7.networks
+    L10 = L10[L9]
+    L10 = L10.kickthreshold
+    L10 = L10 or L10
+    L8.kickthreshold = L10
+    L10 = L7.device
+    L1[L10] = L8
+  end
+  if L3 then
+    L3(L4, L5)
+  end
+  if L3 then
+    L3(L4, L5)
+  end
+  return L0
+end
+getWifiWeakInfo = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  if A0 then
+    L4 = L2
+    L3 = L2.set
+    L5 = "miscan"
+    L6 = "config"
+    L7 = "enabled"
+    L8 = "1"
+    L3(L4, L5, L6, L7, L8)
+  else
+    L4 = L2
+    L3 = L2.set
+    L5 = "miscan"
+    L6 = "config"
+    L7 = "enabled"
+    L8 = "0"
+    L3(L4, L5, L6, L7, L8)
+  end
+  L4 = L2
+  L3 = L2.commit
+  L5 = "miscan"
+  L3(L4, L5)
+  if A0 then
+    L3 = tonumber
+    L4 = os
+    L4 = L4.execute
+    L5 = "/etc/init.d/scan start"
+    L4, L5, L6, L7, L8 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8)
+    L1 = L3
+  else
+    L3 = tonumber
+    L4 = os
+    L4 = L4.execute
+    L5 = "/etc/init.d/scan stop"
+    L4, L5, L6, L7, L8 = L4(L5)
+    L3 = L3(L4, L5, L6, L7, L8)
+    L1 = L3
+  end
+  if L1 ~= 0 then
+    if A0 then
+      L4 = L2
+      L3 = L2.set
+      L5 = "miscan"
+      L6 = "config"
+      L7 = "enabled"
+      L8 = "0"
+      L3(L4, L5, L6, L7, L8)
+    else
+      L4 = L2
+      L3 = L2.set
+      L5 = "miscan"
+      L6 = "config"
+      L7 = "enabled"
+      L8 = "1"
+      L3(L4, L5, L6, L7, L8)
+    end
+    L4 = L2
+    L3 = L2.commit
+    L5 = "miscan"
+    L3(L4, L5)
+    L3 = false
+    return L3
+  end
+  L3 = _UPVALUE0_
+  L3 = L3.forkExec
+  L4 = "/sbin/whc_to_re_common_api.sh whc_sync"
+  L3(L4)
+  L3 = true
+  return L3
+end
+miscanSwitch = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get
+  L4 = "miscan"
+  L5 = "config"
+  L6 = "enabled"
+  L2 = L2(L3, L4, L5, L6)
+  L0 = L2 or L0
+  if not L2 then
+    L0 = "0"
+  end
+  return L0
+end
+getMiscanSwitch = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5
+  if A0 then
+    L1 = "iwconfig "
+    L2 = A0
+    L3 = " | awk 'NR==7' | awk -F '=' '{print $3}' | awk '{print $1}'"
+    L1 = L1 .. L2 .. L3
+    L2 = io
+    L2 = L2.popen
+    L3 = L1
+    L2 = L2(L3)
+    L4 = L2
+    L3 = L2.read
+    L5 = "*all"
+    L3 = L3(L4, L5)
+    L4 = tonumber
+    L5 = L3
+    return L4(L5)
+  else
+    L1 = 0
+    return L1
+  end
+end
+apcli_get_real_signal = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  if A1 ~= nil and A0 ~= nil then
+    if L2 ~= 0 then
+      goto lbl_10
+    end
+  end
+  do return L2 end
+  ::lbl_10::
+  for L5, L6 in L2, L3, L4 do
+    L7 = L6.mac
+    if L7 == A1 then
+      return L6
+    end
+  end
+  return L2
+end
+_mesh_scanitem_get = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L1 = require
+  L2 = "miwifi_mesh"
+  L1 = L1(L2)
+  L2 = {}
+  L3 = require
+  L4 = "cjson"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.util.XQSysUtil"
+  L4 = L4(L5)
+  L5 = L4.isSupportMeshVersion
+  L6 = 4
+  L5 = L5(L6)
+  if L5 then
+    L6 = _UPVALUE0_
+    L6 = L6.exec
+    L6(L7)
+  end
+  L6 = L1.relist
+  L6 = L6(L7)
+  if 0 < L7 then
+    for L10, L11 in L7, L8, L9 do
+      L13 = L2
+      L14 = L11
+      L12(L13, L14)
+    end
+  end
+  L13, L14, L15, L16, L17, L18 = L8(L9)
+  L7(L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18)
+  L13, L14, L15, L16, L17, L18 = L8(L9)
+  L7(L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18)
+  if L7 then
+    L9(L10, L11)
+    L9(L10)
+  end
+  if L5 then
+    if L8 ~= nil then
+      for L13, L14 in L10, L11, L12 do
+        L15 = _mesh_scanitem_get
+        L16 = L2
+        L17 = L14.mac
+        L15 = L15(L16, L17)
+        if L15 == nil then
+          L16 = table
+          L16 = L16.insert
+          L17 = L2
+          L18 = L14
+          L16(L17, L18)
+        else
+          L16 = L14.rssi
+          L17 = L15.rssi
+          if L16 > L17 then
+            L16 = L14.rssi
+            L15.rssi = L16
+          end
+        end
+      end
+      sort_rssi_dec = L10
+      L10(L11, L12)
+      L13, L14, L15, L16, L17, L18 = L11(L12)
+      L10(L11, L12, L13, L14, L15, L16, L17, L18)
+      L13, L14, L15, L16, L17, L18 = L11(L12)
+      L10(L11, L12, L13, L14, L15, L16, L17, L18)
+      for L13, L14 in L10, L11, L12 do
+        L15 = L14.mesh_ver
+        if 4 <= L15 then
+          L15 = _UPVALUE0_
+          L15 = L15.execl
+          L16 = string
+          L16 = L16.format
+          L17 = "echo \"%s\" >> /tmp/re_deal_list"
+          L18 = L14.mac
+          L16, L17, L18 = L16(L17, L18)
+          L15(L16, L17, L18)
+        end
+      end
+    end
+  end
+  return L2
+end
+mesh_get_scanlist = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = os
+  L2 = L2.execute
+  L3 = "ubus call xq_info_sync_mqtt add_node '{\"mac\":\""
+  L4 = A0
+  L5 = "\",\"locate\":\""
+  L6 = A1
+  L7 = "\"}'"
+  L3 = L3 .. L4 .. L5 .. L6 .. L7
+  L2(L3)
+  L2 = os
+  L2 = L2.execute
+  L3 = "ubus call miwifi-discovery add_node '{\"mac\":\""
+  L4 = A0
+  L5 = "\",\"locate\":\""
+  L6 = A1
+  L7 = "\"}'"
+  L3 = L3 .. L4 .. L5 .. L6 .. L7
+  L2(L3)
+end
+mesh_ver4_add_node = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L2 = require
+  L3 = "cjson"
+  L2 = L2(L3)
+  L3 = io
+  L3 = L3.open
+  L4 = "/tmp/re_scan_list"
+  L5 = "r"
+  L3 = L3(L4, L5)
+  L4 = {}
+  L5 = _UPVALUE0_
+  L5 = L5.execl
+  L6 = string
+  L6 = L6.format
+  L6, L10, L11, L12, L13, L14, L15 = L6(L7)
+  L5(L6, L7, L8, L9, L10, L11, L12, L13, L14, L15)
+  L5 = _UPVALUE0_
+  L5 = L5.execl
+  L6 = string
+  L6 = L6.format
+  L6, L10, L11, L12, L13, L14, L15 = L6(L7)
+  L5(L6, L7, L8, L9, L10, L11, L12, L13, L14, L15)
+  L5 = io
+  L5 = L5.open
+  L6 = "/var/run/scanrelist"
+  L5 = L5(L6, L7)
+  if L3 and L5 then
+    L6 = L3.read
+    L6 = L6(L7, L8)
+    L4 = L7
+    for L10, L11 in L7, L8, L9 do
+      L12 = L11.mac
+      if A0 == L12 then
+        L12 = L2.encode
+        L13 = L11
+        L12 = L12(L13)
+        L14 = L5
+        L13 = L5.write
+        L15 = L12
+        L13(L14, L15)
+      end
+    end
+  end
+  if L3 then
+    L6 = L3.close
+    L6(L7)
+  end
+  if L5 then
+    L6 = L5.close
+    L6(L7)
+  end
+  L6 = _UPVALUE1_
+  L6 = L6.isStrNil
+  L6 = L6(L7)
+  if L6 then
+    L6 = _UPVALUE1_
+    L6 = L6.forkExec
+    L10 = A0
+    L10, L11, L12, L13, L14, L15 = L9(L10)
+    L10, L11, L12, L13, L14, L15 = L7(L8, L9, L10, L11, L12, L13, L14, L15)
+    L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+  else
+    L6 = _UPVALUE1_
+    L6 = L6.forkExec
+    L10 = A0
+    L10 = _UPVALUE1_
+    L10 = L10._strformat
+    L11 = A1
+    L10, L11, L12, L13, L14, L15 = L10(L11)
+    L10, L11, L12, L13, L14, L15 = L7(L8, L9, L10, L11, L12, L13, L14, L15)
+    L6(L7, L8, L9, L10, L11, L12, L13, L14, L15)
+  end
+  L6 = 0
+  return L6
+end
+mesh_add_node = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = ":"
+  L4 = ""
+  L1 = L1(L2, L3, L4)
+  L2 = "/tmp/"
+  L3 = L1
+  L4 = "-status"
+  L2 = L2 .. L3 .. L4
+  L3 = "cat "
+  L4 = L2
+  L3 = L3 .. L4
+  L4 = nil
+  L5 = io
+  L5 = L5.open
+  L6 = L2
+  L7 = "r"
+  L5 = L5(L6, L7)
+  if L5 ~= nil then
+    L7 = L5
+    L6 = L5.read
+    L8 = "*all"
+    L6 = L6(L7, L8)
+    L4 = L6
+    L7 = L5
+    L6 = L5.close
+    L6(L7)
+    if L4 == nil then
+      L6 = 1
+      return L6
+    end
+    L7 = L4
+    L6 = L4.match
+    L8 = "init"
+    L6 = L6(L7, L8)
+    if L6 then
+      L6 = 1
+      return L6
+    end
+    L7 = L4
+    L6 = L4.match
+    L8 = "connected"
+    L6 = L6(L7, L8)
+    if L6 then
+      L6 = 2
+      return L6
+    end
+    L7 = L4
+    L6 = L4.match
+    L8 = "syncd"
+    L6 = L6(L7, L8)
+    if L6 then
+      L6 = 3
+      return L6
+    end
+    L7 = L4
+    L6 = L4.match
+    L8 = "failed"
+    L6 = L6(L7, L8)
+    if L6 then
+      L6 = 4
+      return L6
+    end
+    L7 = L4
+    L6 = L4.match
+    L8 = "success"
+    L6 = L6(L7, L8)
+    if L6 then
+      L6 = 0
+      return L6
+    end
+  else
+    L6 = 1
+    return L6
+  end
+  L6 = 4
+  return L6
+end
+mesh_get_status = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = require
+  L1 = "xiaoqiang.common.XQFunction"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "dualwifi"
+  L6 = "settings"
+  L7 = "enabled"
+  L3 = L3(L4, L5, L6, L7)
+  if L3 == "0" then
+    L4 = false
+    return L4
+  else
+    L4 = true
+    return L4
+  end
+end
+getDualWifiStatus = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = getDualWifiStatus
+  L1 = L1()
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  if A0 then
+    if not L1 then
+      L4 = L2
+      L3 = L2.set
+      L5 = "dualwifi"
+      L6 = "settings"
+      L7 = "enabled"
+      L8 = "1"
+      L3(L4, L5, L6, L7, L8)
+      L4 = L2
+      L3 = L2.commit
+      L5 = "dualwifi"
+      L3(L4, L5)
+      L3 = os
+      L3 = L3.execute
+      L4 = "/etc/init.d/dualwifi start > /dev/null 2>&1"
+      L3(L4)
+    end
+  elseif L1 then
+    L4 = L2
+    L3 = L2.set
+    L5 = "dualwifi"
+    L6 = "settings"
+    L7 = "enabled"
+    L8 = "0"
+    L3(L4, L5, L6, L7, L8)
+    L4 = L2
+    L3 = L2.commit
+    L5 = "dualwifi"
+    L3(L4, L5)
+    L3 = os
+    L3 = L3.execute
+    L4 = "/etc/init.d/dualwifi stop > /dev/null 2>&1"
+    L3(L4)
+  end
+  L3 = true
+  return L3
+end
+setDualwifiSwitch = L18
+function L18()
+  local L0, L1
+  L1 = getDualWifiStatus
+  L1 = L1()
+  if L1 then
+    L0 = 1
+  else
+    L0 = 0
+  end
+  return L0
+end
+getDualwifiSwitch = L18

@@ -1,0 +1,177 @@
+<script type="text/javascript">
+	function init()
+	{
+		// initEndPage;
+		(function(){
+			var bands = ["2G", "5G", "5G1", "5G2"];
+			var band2 = [FREQ_2G, FREQ_5G];
+			var band3 = [FREQ_2G, FREQ_5G1, FREQ_5G4];
+			var pLanIP;
+			var jumpPageHd;
+
+			if("1" == gLocalAPInfo[FREQ_BS].bs_enable)
+			{
+				var pSSid = document.createElement("p");
+				var pPwd = document.createElement("p");
+
+				pSSid.className = "ssid";
+				pPwd.className = "pwd";
+				pSSid.innerHTML = label.wirelessName + "： " + gLocalAPInfo[FREQ_BS].ssid;
+				pPwd.innerHTML = label.wirelessPwd + "： " +
+					("1" == gLocalAPInfo[FREQ_BS].encryption ? gLocalAPInfo[FREQ_BS].key : label.wirelessNoSecurity);
+				$(".ssidInfo").append(pSSid);
+				$(".ssidInfo").append(pPwd);
+			}
+			else
+			{
+				var freqs = gBandNum == BAND_3 ? band3 : band2;
+				for (var i = 0; i < freqs.length; i++) {
+					var freq = freqs[i];
+					var pSSid = document.createElement("p");
+					var pPwd = document.createElement("p");
+
+					pSSid.className = "ssid";
+					pSSid.style.marginTop = "20px";
+					pPwd.className = "pwd";
+					pSSid.innerHTML = label["wirelessName" + bands[freq]]  + "： " + gLocalAPInfo[freq].ssid;
+					pPwd.innerHTML = label["wirelessPwd" + bands[freq]] + "： " +
+						("1" == gLocalAPInfo[freq].encryption ? gLocalAPInfo[freq].key : label.wirelessNoSecurity);
+					$(".ssidInfo").append(pSSid);
+					$(".ssidInfo").append(pPwd);
+				}
+			}
+
+			wzdDone();
+
+			pLanIP = document.createElement("p");
+			pLanIP.innerHTML = label.ipAddr + "： " + gLanIP;
+			pLanIP.style.marginTop = "20px";
+			$(".ssidInfo").append(pLanIP);
+
+			$.action({"network":{"apply_lan_config":null},"wireless":{"wds_finish":null}}, null, true);
+			jumpPageHd = $.setTimeout(function() {
+				window.location.href = "http://" + gLanIP;
+			}, 60000);
+
+			$.changeDomain(gLanIP);
+			$.setTimeout(function() {
+				lanDetecting(function() {
+					window.location.href = "http://" + gLanIP;
+				});
+			}, 4000);
+		})();
+	}
+	init();
+</script>
+<style type="text/css">
+	div.WDSFiBlock{
+		margin:13px 0 11px 0;
+		padding-bottom:35px;
+		border:1px solid #CBCBCB;
+		background:#FCFCFC;
+		overflow:hidden;
+	}
+	p.WDSFiTitle{
+		font-size:14px;
+		font-weight:bold;
+		margin:20px 0 12px 51px;
+		text-align:left;
+	}
+	p.WDSFiDetail{
+		line-height:21px;
+		margin-left:51px;
+		text-align:left;
+		white-space:pre;
+	}
+	p.WDSFiLine{
+		font-size:0px;
+		padding:0px;
+		line-height:0px;
+		margin:13px 43px 0 43px;
+		border-bottom:1px solid #CCCCCC;
+	}
+	p.WDSFiLineS{
+		margin-top:21px !important;
+	}
+	ul.wdsGridLine{
+		padding-left:260px;
+		margin-top:0px !important;
+	}
+	ul.gridLine label span{
+		display:inline-block;
+	}
+	ul.gridLine label span pre{
+		overflow:hidden;
+		text-overflow:ellipsis;
+		vertical-align:middle;
+		width:300px;
+		display:inline-block;
+		*display:inline;
+		*zoom:1;
+	}
+	img.configGif{
+		height:30px;
+		margin:120px auto 40px;
+		width:30px;
+	}
+	.textCenter{
+		text-align:center;
+	}
+	.block p{
+		color:#FFFFFF;
+		font-size:14px;
+		text-align:center;
+	}
+	.ssidInfo{
+		display:inline-block;
+	}
+	.ssidInfo p{
+		text-align:left;
+	}
+</style>
+<div class="textCenter">
+	<img class="configGif" src="../web-static/images/wzdDetecting.gif" />
+</div>
+<div class="block">
+	<p>您的路由设置已完成</p>
+	<p>无线参数更改已生效，您的设备与路由器</p>
+	<p style="margin-bottom:32px;">的连接已断开，请重新进行无线连接</p>
+	<div style="text-align:center;">
+		<div class="ssidInfo">
+
+		</div>
+	</div>
+	<!-- <ul class="gridLine gridLineA gridLineA2">
+		<label class="desLblA">无线桥接</label>
+		<input id="wdsSwitchOn" name="wdsSwitch" class="switchRadio" type="radio" /><label class="noteLbl" for="wdsSwitchOn">开</label>
+		<input id="wdsSwitchOff" name="wdsSwitch" class="switchRadio switchRadioR" type="radio" /><label class="noteLbl" for="wdsSwitchOff">关</label>
+	</ul>
+	<ul class="gridLine gridLineA gridLineA2">
+		<label class="desLblA">桥接状态</label>
+		<label id="wdsStatus" class="noteLbl"></label>
+	</ul>
+	<ul class="gridLine gridLineA gridLineA2">
+		<label class="desLblA">主路由器</label>
+		<label class="noteLbl">无线名称：<span id="wdsSsid"></span></label>
+	</ul>
+	<ul class="gridLine gridLineA wdsGridLine">
+		<label class="noteLbl">无线密码：<span id="wdsPwd"></span></label>
+	</ul>
+	<ul class="gridLine gridLineA gridLineA2">
+		<label class="desLblA">本路由器</label>
+		<label class="noteLbl">无线名称：<span id="wlanSsid"></span></label>
+	</ul>
+	<ul class="gridLine gridLineA wdsGridLine">
+		<label class="noteLbl">无线密码：<span id="wlanPwd"></span></label>
+	</ul>
+	<ul class="gridLine gridLineA wdsGridLine">
+		<label class="noteLbl">DHCP服务器：<span id="wlanDhcpState"></span></label>
+	</ul>
+	<ul class="gridLine gridLineA wdsGridLine">
+		<label class="noteLbl">LAN口IP地址：<span id="lanIpAddr"></span></label>
+	</ul> -->
+</div>
+<!-- <div class="blockFuncA">
+	<input id="pre" type="button" value="更改桥接" class="btnA subBtn" />
+	<input id="save" type="button" value="保存" class="btnA subBtn" />
+</div> -->

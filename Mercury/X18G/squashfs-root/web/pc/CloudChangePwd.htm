@@ -1,0 +1,216 @@
+<script type="text/javascript">
+	(function(){
+		function showCloudChangePewErr(errNo)
+		{
+			var errText = "";
+
+			switch(errNo)
+			{
+			case ENONE:
+				cloudHistory.go(-1);
+				showToast(label.modifySuccess);
+				return true;
+			case EINVACCOUNTPWDERR:
+				oldPwd.showNote(errStr.invCloudOldPwdErr);
+				return;
+			case EINVACCOUNTNEWPWDERR:
+				newPwd.showNote(errStr.invCloudNewPwdErr);
+				return;
+			case EINVPASSWORDFMT:
+			case EINVACCOUNTPWDFMT:
+				errText = appendErrCode(errStr.invCloudOldPwdFmtErr, errNo);
+				break;
+			case EINVNEWPASSWORD:
+				errText = errStr.invCloudNewPwdFmtErr;
+				break;
+			case EINVCLOUDERRORRESETPWDTIMEOUT:
+				errText = appendErrCode(errStr.invRequestFailTrylater, errNo);
+				break;
+			default:
+				if (false == cloudErrHandle(errNo).result)
+				{
+					errText = cloudErrHandle(errNo).tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, errNo);
+				}
+				break;
+			}
+
+			showErrTip(errText);
+			return false;
+		}
+
+		function showErrTip(errText)
+		{
+			var $cloudErrTip = $("p.cloudErrTip").html('<i class="iconfont icon-error"></i>' + errText);
+			$cloudErrTip.css("display", "table");
+			$cloudErrTip.css("margin-left", -($cloudErrTip[0].offsetWidth/2) + "px");
+			$("p.cloudTip").css("visibility", "hidden");
+		}
+
+		function hideErrTip()
+		{
+			$("p.cloudErrTip").css("display", "none");
+			$("p.cloudTip").css("visibility", "visible");
+		}
+
+		function checkPwd()
+		{
+			if (this.input.value.length < 6)
+			{
+				this.showNote(errStr.pwdLenErrTip);
+				return false;
+			}
+
+			if (!/^[\x21-\x7e]+$/.test(this.input.value))
+			{
+				this.showNote(errStr.inputEliegalChar);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdBlur()
+		{
+			if (this.input.value.length == 0)
+			{
+				this.showNote(label.chgPwdnull);
+				return false;
+			}
+			else if (this.input.value.length < 6)
+			{
+				this.showNote(label.chgPwdLess);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdKeyup()
+		{
+			if (this.input.value == "")
+			{
+				return true;
+			}
+
+			if (/\s+/.test(this.input.value))
+			{
+				this.showNote(errStr.inputPwdCharExistBlank);
+				return false;
+			}
+
+			if (!(/^[\x21-\x7e]+$/.test(this.input.value)))
+			{
+				this.showNote(errStr.inputEliegalChar);
+				return false;
+			}
+
+			return true;
+		}
+
+		function changePwdHandle(){
+			var checkRes = true;
+
+			[oldPwd, newPwd].forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			if (newPwd.getValue() != newPwdConf.getValue())
+			{
+				showErrTip(label.chgPwdDif);
+				return;
+			}
+			else
+			{
+				hideErrTip();
+			}
+
+			showLoading();
+
+			cloudAccountModifyPwd(oldPwd.getValue(), newPwd.getValue(), function(type, state, result){
+				closeLoading(function(){
+					if (type == cloudResultType.FINISH)
+					{
+						showCloudChangePewErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.modifyAccountPwd][cloudClientStatus.optName.errCode]));
+					}
+					else
+					{
+						if (type == cloudResultType.ACTION_ERROR)
+						{
+							showCloudChangePewErr(state.errCode);
+						}
+						else if (state != undefined && state.result == false)
+						{
+							alarmDialog.show(state.errStr);
+						}
+					}
+				});
+			});
+		}
+
+		var oldPwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.password, position:Input.LABEL.INNER},
+			targetId:"inputPwd",
+			check:{blur:checkPwd},
+			props:{maxlength: '32', type: "password"}
+		});
+		var newPwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginSetPwd, position:Input.LABEL.INNER},
+			strength:{show: true, least:6, critical:12},
+			targetId:"inputPwd",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdPlaceHolder}
+		});
+		var newPwdConf = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginPwdConf, position:Input.LABEL.INNER},
+			targetId:"inputPwd",
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdConfPlaceHolder}});
+
+		var changePwdBtn = new Button({
+			text:btn.save,
+			onClick:null,
+			type:Button.TYPE.PRIMARY,
+			id:"changePwd"
+		});
+
+		if (USER_GROUP_REMOTE == $.authRltObj["group"])
+		{
+			changePwdBtn.setState({
+				type:Button.TYPE.SECONDARY,
+				onClick: null
+			});
+		}
+		else
+		{
+			changePwdBtn.setState({
+				type:Button.TYPE.PRIMARY,
+				onClick: changePwdHandle
+			});
+		}
+
+		$("#cloudAccount").html(cloudHistory.getState("account"));
+	})();
+</script>
+<style type="text/css">
+	li.wzdSubBtn{
+		margin-top:24px;
+	}
+</style>
+<h1 class="cloudTitle">{%label.cloudIDChangePwd%}</h1>
+<p class="cloudTip">{%label.cloudMEID%}{%label.colon%}<span id="cloudAccount"></span></p>
+<p class="cloudErrTip commonErrTip"></p>
+<div id="inputPwd"></div>
+<li class="wzdSubBtn">
+	<div id="changePwd"></div>
+</li>

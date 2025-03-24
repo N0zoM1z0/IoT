@@ -1,0 +1,10 @@
+Package: statistics
+Version: 1
+Depends: libc, libpthread, libcommon, libcjson, librt, tcpcheck
+Source: package/carystudio/statistics
+SourceName: statistics
+Section: CaryStudio Properties
+SourceDateEpoch: 1660995654
+Architecture: aarch64_cortex-a53
+Installed-Size: 5027
+Description:  statistics

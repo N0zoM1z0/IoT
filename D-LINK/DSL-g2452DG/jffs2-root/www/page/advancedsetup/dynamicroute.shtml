@@ -1,0 +1,376 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+    this.IPMode = "";
+}
+var n = 0;
+var Connection = new Array();
+
+/* LAN直接写死即可 */
+Connection[n] = new ConnectionTuple();
+Connection[n].Path = "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.";
+Connection[n].Type = "LAN";
+Connection[n].Name = "LAN";
+n++;
+
+/* wan需要动态获取 */
+<!--#getobject_noop "InternetGatewayDevice.WANDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+
+/*获取动态路由配置 */
+function DynamicRouteTuple(){
+    this.path="";
+    this.Enable="";
+    this.Protocol="";
+    this.Interface="";
+    this.RipPassive="";
+    this.BgpLocalAS="";
+    this.BgpRemoteAS="";
+    this.BgpNeighborIP="";
+}
+var index = 0;
+var gDynamicRoutingList = new Array();
+<!--#getobject_noop "InternetGatewayDevice.X_TRI_DynamicRoute. Enable Protocol Interface RipPassive BgpLocalAS BgpRemoteAS BgpNeighborIP" -->
+    gDynamicRoutingList[index] = new DynamicRouteTuple();
+    gDynamicRoutingList[index].path = "<!--#path -->";
+    gDynamicRoutingList[index].Enable = "<!--#leaf "1"-->";
+    gDynamicRoutingList[index].Protocol = "<!--#leaf "2"-->";
+    gDynamicRoutingList[index].Interface = "<!--#leaf "3"-->";
+    gDynamicRoutingList[index].RipPassive = "<!--#leaf "4"-->";
+    gDynamicRoutingList[index].BgpLocalAS = "<!--#leaf "5"-->";
+    gDynamicRoutingList[index].BgpRemoteAS = "<!--#leaf "6"-->";
+    gDynamicRoutingList[index].BgpNeighborIP = "<!--#leaf "7"-->";
+    index++;
+<!--#endgetobject -->
+
+var G_Operation; // 从adv_dynamicroute.shtml传递过来
+var G_index; // 从adv_dynamicroute.shtml传递过来
+var G_Path ; // 从adv_dynamicroute.shtml传递过来
+
+function uiBack()
+{
+    document.location.href = "adv_dynamicroute.shtml"
+}
+
+function GetConnectionNameByPath(path){
+    var conn_name = "";
+
+    for (i = 0; i < Connection.length; i++)
+    {
+        if (Connection[i].Path == path)
+        {
+            conn_name = Connection[i].Name;
+            break;
+        }
+    }
+    return conn_name;
+}
+
+
+function GetPathByConnectionName(conn_name)
+{
+    var path = "";
+
+    for (i = 0; i < Connection.length; i++)
+    {
+        if (Connection[i].Name == conn_name)
+        {
+            path = Connection[i].Path;
+            break;
+        }
+    }
+    return path;
+}
+
+/* 切换协议类型时调用 */
+function SwitchProtocol()
+{
+    var tmpElement = document.getElementById('ID_selectProtocol');
+
+    /* 如果是RIP, 需要输入选择是否使能Passive */
+    if(tmpElement.value == "RIPv1" || tmpElement.value == "RIPv2")
+    {
+        document.getElementById('ID_RipPassive').style.display="inline";
+        document.getElementById('ID_RipPassive_Colon').style.display="inline";
+    }
+    else
+    {
+        document.getElementById('ID_RipPassive').style.display="none";
+        document.getElementById('ID_RipPassive_Colon').style.display="none";
+    }
+
+    /* 如果是RIP, 需要输入选择是否使能Passive */
+    if(tmpElement.value == "BGP")
+    {
+        document.getElementById('ID_BgpLocalAS_Colon').style.display="inline";
+        document.getElementById('ID_BgpLocalAS').style.display="inline";
+        document.getElementById('ID_BgpRemoteAS_Colon').style.display="inline";
+        document.getElementById('ID_BgpRemoteAS').style.display="inline";
+        document.getElementById('ID_BgpNeighborIP_Colon').style.display="inline";
+        document.getElementById('ID_BgpNeighborIP').style.display="inline";
+    }
+    else
+    {
+        document.getElementById('ID_BgpLocalAS_Colon').style.display="none";
+        document.getElementById('ID_BgpLocalAS').style.display="none";
+        document.getElementById('ID_BgpRemoteAS_Colon').style.display="none";
+        document.getElementById('ID_BgpRemoteAS').style.display="none";
+        document.getElementById('ID_BgpNeighborIP_Colon').style.display="none";
+        document.getElementById('ID_BgpNeighborIP').style.display="none";
+    }
+}
+
+
+
+
+function uiSubmit()
+{
+    var selectedIndex = getValue;;
+    var object_path="";
+    var df = document.DynamicRouteDataform; 
+
+    if(!validateCode())
+        return false;
+
+    if(G_Operation == 'Add')
+    {
+        object_path="InternetGatewayDevice.X_TRI_DynamicRoute.{i}.";
+        AddElements(df, 'add_obj', "InternetGatewayDevice.X_TRI_DynamicRoute.");
+    }
+    else
+    {
+        object_path=G_Path;
+    }
+
+    if($('INPUT_Enable').checked== true)
+    {
+        AddElements(df, object_path+"Enable", 1);       
+    }
+    else
+    {
+        AddElements(df, object_path+"Enable", 0);   
+    }
+
+    /* 新增才需要配置Interface */
+    if(G_Operation == 'Add')
+    {
+        var ConnectionNameOptions = $('ID_selectConnectionName').options;
+        if(ConnectionNameOptions.selectedIndex == -1) //当没有选中任何连接时,直接返回
+            return false;
+
+        var ConnectionName = ConnectionNameOptions[ConnectionNameOptions.selectedIndex].text;
+        AddElements(df, object_path+"Interface", GetPathByConnectionName(ConnectionName));
+    }
+
+    AddElements(df, object_path+"Protocol", getValue('ID_selectProtocol'));
+
+    if($('ID_RipPassive').checked== true)
+    {
+        AddElements(df, object_path+"RipPassive", 1);       
+    }
+    else
+    {
+        AddElements(df, object_path+"RipPassive", 0);   
+    }
+
+    AddElements(df, object_path+"BgpLocalAS", getValue("ID_BgpLocalAS"));
+    AddElements(df, object_path+"BgpRemoteAS", getValue("ID_BgpRemoteAS"));
+    AddElements(df, object_path+"BgpNeighborIP", getValue("ID_BgpNeighborIP"));
+
+    df.submit();    
+}
+
+
+/* 判断connectionPath是否已经配置过了 */
+function IsConfigured(connectionPath)
+{
+    var i;
+
+    for (i = 0; i < gDynamicRoutingList.length; i++)
+    {
+        if(connectionPath == gDynamicRoutingList[i].Interface)
+            return true;
+    }
+
+    return false;
+}
+
+
+function __init()
+{
+    var arr=window.location.search; //arr为"?Op=Add"或者"?Op=Edit&id=1&path=InternetGatewayDevice.X_TRI_DynamicRoute.2."
+    var text = [];
+    var value = [];
+    var indexConnection = 0;
+
+    /* 当前是增加还是修改 */
+    var strArray = arr.split("&");
+    G_Operation = strArray[0].split("=")[1];
+
+
+    /* 创建协议类型选项 */
+    text = ['RIPv1','RIPv2', 'OSPF', 'BGP'];
+    value = text;
+    createOptions('ID_selectProtocol', text, value);
+
+
+    /* 创建lan和wan连接选项 */
+    text = [];
+    value = [];
+    for (i = 0; i < Connection.length; i++)
+    {
+        /* 一条连接只能配置一种模式 */
+        if( G_Operation == "Add" && IsConfigured(Connection[i].Path) )
+            continue;
+
+        /* 路过桥连接和ipv6的连接 */
+        if(isBridgedConn(Connection[i].ConnectionType) || Connection[i].IPMode=='2')
+            continue;
+
+        text[indexConnection] = Connection[i].Name;
+        value[indexConnection] = indexConnection;
+        indexConnection++;
+    }
+    createOptions('ID_selectConnectionName', text, value);
+
+
+    if (G_Operation == "Add")
+    {
+        /*默认选中第一个 */
+        $('ID_selectConnectionName').value = 0; 
+        $('ID_selectProtocol').value = 'RIPv1';
+    }
+    else
+    {
+        G_index=strArray[1].split("=")[1];
+        G_Path=strArray[2].split("=")[1];
+
+        var curName = GetConnectionNameByPath(gDynamicRoutingList[G_index].Interface);
+        $('ID_selectConnectionName').value = text.indexOf(curName);
+        $('ID_selectConnectionName').disabled = true;
+
+        if(gDynamicRoutingList[G_index].Enable=="1"){
+           $('INPUT_Enable').checked=true;
+        }
+        else
+        {
+           $('INPUT_Enable').checked=false;    
+        }
+
+        setValue("ID_selectProtocol", gDynamicRoutingList[G_index].Protocol);
+
+        if(gDynamicRoutingList[G_index].RipPassive == "1")
+            $('ID_RipPassive').checked=true;
+        else
+            $('ID_RipPassive').checked=false;
+
+        setValue("ID_BgpLocalAS", gDynamicRoutingList[G_index].BgpLocalAS);
+        setValue("ID_BgpRemoteAS", gDynamicRoutingList[G_index].BgpRemoteAS);
+        setValue("ID_BgpNeighborIP", gDynamicRoutingList[G_index].BgpNeighborIP);
+    }
+
+
+    /* 必须要调用,需要根据协议类型隐藏某些元素*/
+    SwitchProtocol();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_DynamicRouteSetting'))</script>
+<table width="600" cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr>
+    <td width="150" langkey="LK_ConnectionNamee"></td>
+    <td>
+        <select name="select" id="ID_selectConnectionName">
+            <option ></option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td langkey="LK_Enablee"></td>
+    <td><input type="checkbox" id="INPUT_Enable"></div><div class="div_right"></td>
+</tr>
+<tr>
+    <td langkey="LK_Protocol_Colon"></td>
+    <td>
+        <select name="select" id="ID_selectProtocol" onChange="SwitchProtocol();">
+            <option ></option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td id="ID_RipPassive_Colon" langkey="LK_RipPassive_Colon"></td>
+    <td><input type="checkbox" id="ID_RipPassive"></div><div class="div_right"></td>
+</tr>
+<tr>
+    <td id="ID_BgpLocalAS_Colon" langkey="LK_BgpLocalAS_Colon"></td>
+    <td><input id="ID_BgpLocalAS"></div><div class="div_right"></td>
+</tr>
+<tr>
+    <td id="ID_BgpRemoteAS_Colon" langkey="LK_BgpRemoteAS_Colon"></td>
+    <td><input id="ID_BgpRemoteAS"></div><div class="div_right"></td>
+</tr>
+<tr>
+    <td id="ID_BgpNeighborIP_Colon" langkey="LK_BgpNeighborIP_Colon"></td>
+    <td><input id="ID_BgpNeighborIP"></div><div class="div_right"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+    <td colspan="2">
+    <script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+    <script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+    <script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+    </td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="DynamicRouteDataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_dynamicroute.shtml">
+</form>
+</body>
+</html>

@@ -1,0 +1,10 @@
+/usr/lib/lua/luci/controller/hwnat.lua
+/usr/lib/lua/l1dat_parser.lua
+/usr/lib/lua/luci/controller/ipsec.lua
+/usr/lib/lua/luci/controller/mtkwifi.lua
+/usr/lib/lua/wps_action.lua
+/usr/lib/lua/luci/model/cbi/hwnat.lua
+/sbin/l1dat
+/usr/lib/lua/luci/model/cbi/ipsec.lua
+/usr/lib/lua/mtkwifi.lua
+/usr/lib/lua/ioctl_helper.so

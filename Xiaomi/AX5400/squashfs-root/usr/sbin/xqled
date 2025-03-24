@@ -1,0 +1,6 @@
+#!/bin/sh
+
+
+killall xqled_spi
+
+xqled_spi $1 &

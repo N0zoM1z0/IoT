@@ -1,0 +1,2913 @@
+<script type="text/javascript">
+	if (typeof advanceAutoFit != "function")
+	{
+		advanceAutoFit = function(){
+			var headHeight = $("#header").height(),
+				footHeight = $("#footer").height(),
+				clientHeight = document.documentElement.clientHeight;
+
+			$(".wrapper").css("min-height", clientHeight);
+
+			var fullHeight = $(".wrapper").height();
+			var dividingHeight = (fullHeight - headHeight - footHeight) + "px";
+			$(".dividingLine").css("height", dividingHeight);
+		}
+	}
+
+	if (typeof resizeWindow != "function")
+	{
+		resizeWindow = function (){
+			window.onresize = function(){
+				(id("advanceWrapper") != null || id("deviceListWrapper") != null)&&advanceAutoFit();
+			};
+		}
+		resizeWindow();
+	}
+	var gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+
+	(function(){
+		var
+			// 是不是Mesh机型
+			isMesh = false,
+			// 是否开启了WDS
+			wdsStatus = {
+				enable: false,
+				name: uciWireless.dynData.wds_2g
+			},
+			// WAN口连线
+			wanLine,
+			// LAN口连线
+			lanLine,
+			// 路由对象
+			router,
+			/* 当前拓扑id */
+			curTopoId;
+
+		var subMenuLoadDfd = $.Deferred(), subMenuLoadTag = false;
+
+		function speedConversion(speed)
+		{
+			var kSpeed = 1;
+			var mSpeed = kSpeed * 1024;
+			var gSpeed = mSpeed * 1024;
+			var unit;
+
+			if (null == speed)
+			{
+				return null;
+			}
+
+			speed = parseInt(speed);
+
+			if (speed >= gSpeed)
+			{
+				speed = (speed/gSpeed).toFixed(2);
+				unit = "GB/s";
+			}
+			else if (speed >= mSpeed)
+			{
+				speed = (speed/mSpeed).toFixed(1);
+				unit = "MB/s";
+			}
+			else
+			{
+				speed = (speed/kSpeed).toFixed(0);
+				unit = "KB/s";
+			}
+
+			return {
+				speed: speed,
+				unit: unit
+			};
+		}
+
+		/* 判断是否仍在当前页面，否则不再启动定时器 */
+		function isCurPage()
+		{
+			return (null != id(curTopoId));
+		}
+
+		function WanLine(target, state, mode)
+		{
+			this.STATE_NORMAL = 2;
+			this.STATE_CONNECTING = this.STATE_DISCONNECTING = 1;
+			this.STATE_ABNORMAL = 0;
+			this.WDS_MODE = "wds";
+			this.COMMON_MODE = "common";
+			this.iconAbnormal = "icon-connectionerror";
+			this.iconNormal = "icon-connectionnormal";
+			this.mode = mode || this.COMMON_MODE;
+			this.state = state || this.STATE_ABNORMAL;
+			this.dom = id(target);
+			this.timeoutId = null;
+
+			if (typeof WanLine.prototype.init != "function")
+			{
+				WanLine.prototype.init = function(){
+					var ul, li, span, icon;
+
+					ul = document.createElement("ul");
+					ul.className = "clearfix lineWrap";
+
+					li = document.createElement("li");
+					li.className = "line";
+					ul.appendChild(li);
+
+					for (i = 0; i < 17; i++)
+					{
+						span = document.createElement("span");
+						span.className = (i%2 == 0 ? "odd" : "even");
+						li.appendChild(span);
+					}
+
+					li = document.createElement("li");
+					ul.appendChild(li);
+
+					icon = document.createElement("i");
+					icon.className = "iconfont";
+					li.appendChild(icon);
+
+					li = document.createElement("li");
+					li.className = "line";
+					ul.appendChild(li);
+
+					for (i = 0; i < 17; i++)
+					{
+						span = document.createElement("span");
+						span.className = (i%2 == 0 ? "odd" : "even");
+						li.appendChild(span);
+					}
+
+					this.dom.appendChild(ul);
+					this.setMode(this.mode);
+				};
+
+				WanLine.prototype._animateLink = function(){
+					var self = this;
+					var animate = (function(){
+						var show = false;
+						return function(){
+							if (show)
+							{
+								$(self.dom).find("li.line span.odd").css("background", "transparent");
+							}
+							else
+							{
+								$(self.dom).find("li.line span.odd").css("background", "#fff");
+							}
+
+							show = !show;
+							if (self.STATE_CONNECTING == self.state)
+							{
+								self.timeoutId = setTimeout(arguments.callee, 600);
+							}
+							else
+							{
+								$(self.dom).find("li.line span.odd").css("background", "#fff");
+							}
+						}
+					})();
+
+					animate();
+				};
+
+				WanLine.prototype.setState = function(state){
+					var preState = this.state;
+					this.state = state;
+
+					if (this.STATE_NORMAL == state)
+					{
+						$(this.dom).removeClass("dashed");
+						$(this.dom).find("i").removeClass(this.iconAbnormal).addClass(this.iconNormal);
+					}
+					else
+					{
+						$(this.dom).addClass("dashed");
+						$(this.dom).find("i").removeClass(this.iconNormal).addClass(this.iconAbnormal);
+
+						if (this.STATE_CONNECTING == state && this.STATE_CONNECTING != preState)
+						{
+							clearTimeout(this.timeoutId);
+							this._animateLink();
+						}
+					}
+				};
+
+				WanLine.prototype.setMode = function(mode){
+					this.mode = mode;
+
+					if (this.COMMON_MODE == mode)
+					{
+						this.iconNormal = "icon-connectionnormal";
+					}
+					else if (this.WDS_MODE == mode)
+					{
+						this.iconNormal = "icon-wifi";
+					}
+
+					this.setState(this.state);
+				};
+			}
+
+			this.init();
+		}
+		function DualWanLine(target, stateUp, stateDown, mode)
+		{
+			this.STATE_NORMAL = 2;
+			this.STATE_CONNECTING = this.STATE_DISCONNECTING = 1;
+			this.STATE_ABNORMAL = 0;
+			this.WDS_MODE = "wds";
+			this.COMMON_MODE = "common";
+			this.iconAbnormal = "icon-connectionerror";
+			this.iconNormal = "icon-connectionnormal";
+			this.mode = mode || this.COMMON_MODE;
+			this.stateUp = stateUp || this.STATE_ABNORMAL;
+			this.stateDown = stateDown || this.STATE_ABNORMAL;
+			this.dom = id(target);
+			this.timeoutUpId = null;
+			this.timeoutDownId = null;
+
+			if (typeof DualWanLine.prototype.init != "function")
+			{
+				DualWanLine.prototype.init = function(){
+					var upUl,downUl;
+
+					upUl = document.createElement("ul");
+					upUl.className = "clearfix lineWrap upUl";
+					downUl = document.createElement("ul");
+					downUl.className = "clearfix lineWrap downUl";
+
+					this.addLiToUl(upUl);
+					this.addLiToUl(downUl);
+
+					this.dom.appendChild(upUl);
+					this.dom.appendChild(downUl);
+					this.setMode(this.mode);
+				};
+				DualWanLine.prototype.addLiToUl = function(ul){
+					var li, span, icon;
+					li = document.createElement("li");
+					li.className = "line";
+					ul.appendChild(li);
+
+					for (i = 0; i < 17; i++)
+					{
+						span = document.createElement("span");
+						span.className = (i%2 == 0 ? "odd" : "even");
+						li.appendChild(span);
+					}
+
+					li = document.createElement("li");
+					ul.appendChild(li);
+
+					icon = document.createElement("i");
+					icon.className = "iconfont";
+					li.appendChild(icon);
+
+					li = document.createElement("li");
+					li.className = "line";
+					ul.appendChild(li);
+
+					for (i = 0; i < 17; i++)
+					{
+						span = document.createElement("span");
+						span.className = (i%2 == 0 ? "odd" : "even");
+						li.appendChild(span);
+					}
+				}
+
+				DualWanLine.prototype._animateUpLink = function(){
+					var self = this;
+					var animateUp = (function(){
+						var show = false;
+						return function(){
+							if (show)
+							{
+								$(self.dom).find("ul.upUl li.line span.odd").css("background", "transparent");
+							}
+							else
+							{
+								$(self.dom).find("ul.upUl li.line span.odd").css("background", "#fff");
+							}
+
+							show = !show;
+							if (self.STATE_CONNECTING == self.stateUp)
+							{
+								self.timeoutUpId = setTimeout(arguments.callee, 600);
+							}
+							else
+							{
+								$(self.dom).find("ul.upUl li.line span.odd").css("background", "#fff");
+							}
+						}
+					})();
+
+					animateUp();
+				};
+				DualWanLine.prototype._animateDownLink = function(){
+					var self = this;
+					var animateDown = (function(){
+						var show = false;
+						return function(){
+							if (show)
+							{
+								$(self.dom).find("ul.downUl li.line span.odd").css("background", "transparent");
+							}
+							else
+							{
+								$(self.dom).find("ul.downUl li.line span.odd").css("background", "#fff");
+							}
+
+							show = !show;
+							if (self.STATE_CONNECTING == self.stateDown)
+							{
+								self.timeoutDownId = setTimeout(arguments.callee, 600);
+							}
+							else
+							{
+								$(self.dom).find("ul.downUl li.line span.odd").css("background", "#fff");
+							}
+						}
+					})();
+					animateDown();
+				};
+				DualWanLine.prototype.setState = function(state,position){
+					// position = 0表示上方WAN口连线，即WAN1状态
+					if(position == 0){
+						var preUpState = this.stateUp;
+						this.stateUp = state;
+						if (this.STATE_NORMAL == state)
+						{
+							$(this.dom).find("ul.upUl").removeClass("dashed");
+							$(this.dom).find("ul.upUl i").removeClass(this.iconAbnormal).addClass(this.iconNormal);
+						}
+						else
+						{
+							$(this.dom).find("ul.upUl").addClass("dashed");
+							$(this.dom).find("ul.upUl i").removeClass(this.iconNormal).addClass(this.iconAbnormal);
+
+							if (this.STATE_CONNECTING == state && this.STATE_CONNECTING != preUpState)
+							{
+								clearTimeout(this.timeoutUpId);
+								this._animateUpLink();
+							}
+						}
+					}else{
+						var preDownState = this.stateDown;
+						this.stateDown = state;
+						if (this.STATE_NORMAL == state)
+						{
+							$(this.dom).find("ul.downUl").removeClass("dashed");
+							$(this.dom).find("ul.downUl i").removeClass(this.iconAbnormal).addClass(this.iconNormal);
+						}
+						else
+						{
+							$(this.dom).find("ul.downUl").addClass("dashed");
+							$(this.dom).find("ul.downUl i").removeClass(this.iconNormal).addClass(this.iconAbnormal);
+
+							if (this.STATE_CONNECTING == state && this.STATE_CONNECTING != preDownState)
+							{
+								clearTimeout(this.timeoutDownId);
+								this._animateDownLink();
+							}
+						}
+					}
+				}
+
+				DualWanLine.prototype.setMode = function(mode){
+					this.mode = mode;
+
+					if (this.COMMON_MODE == mode)
+					{
+						this.iconNormal = "icon-connectionnormal";
+					}
+					else if (this.WDS_MODE == mode)
+					{
+						this.iconNormal = "icon-wifi";
+					}
+
+					this.setState(this.stateUp,0);
+					this.setState(this.stateDown,1);
+				};
+			}
+
+			this.init();
+		}
+
+		function LanLine(target, lineArr)
+		{
+			this.lineArr = lineArr || [];// 0为有线连接，1为无线连接，如[0]表示仅存在有线设备
+			this.dom = id(target);
+
+			if (typeof LanLine.prototype.init != "function")
+			{
+				LanLine.prototype.init = function(){
+					var ul, li, span, icon;
+
+					function newLine(typeClass)
+					{
+						var ul, li, span, icon;
+
+						ul = document.createElement("ul");
+						ul.className = "lineWrap clearfix " + typeClass;
+
+						li = document.createElement("li");
+						li.className = "line";
+						ul.appendChild(li);
+
+						span = document.createElement("span");
+						li.appendChild(span);
+
+						li = document.createElement("li");
+						ul.appendChild(li);
+
+						icon = document.createElement("i");
+						icon.className = "iconfont " +
+							("wireless" == typeClass ? "icon-wifi" : "icon-lan");
+						li.appendChild(icon);
+
+						li = document.createElement("li");
+						li.className = "line";
+						ul.appendChild(li);
+
+						span = document.createElement("span");
+						li.appendChild(span);
+
+						return ul;
+					}
+
+					this.dom.appendChild(newLine("wireless"));
+					this.dom.appendChild(newLine("wired"));
+
+					this.setLine(this.lineArr);
+				};
+
+				LanLine.prototype.setLine = function(arr){
+					if (Object.prototype.toString.call(arr) != "[object Array]" || arr.length > 2)
+					{
+						return;
+					}
+
+					var $line = $(this.dom).find("ul.lineWrap");
+					var typeClass = (0 == arr[0]) ? "wired" : "wireless";
+
+					if (2 == arr.length)
+					{
+						$(this.dom).addClass("doubleLine");
+						$line.css("display", "block");
+					}
+					else if (1 == arr.length)
+					{
+						$(this.dom).removeClass("doubleLine");
+						$line.css("display", "none");
+						$(this.dom).find("ul." + typeClass).css("display", "block");
+					}
+					else
+					{
+						$line.css("display", "none");
+					}
+				};
+			}
+
+			this.init();
+		}
+
+		function showDualWanLinkStatus(res1,res2){
+			var res = [res1,res2];
+			var errorCode = [parseInt(res1[uciNetwork.optName.code]),parseInt(res2[uciNetwork.optName.code])];
+			var linkStatus = [parseInt(res1[uciNetwork.optName.wanStatus]),parseInt(res2[uciNetwork.optName.wanStatus])];
+			var phyStatus = [parseInt(res1[uciNetwork.optName.phyStatus]),parseInt(res2[uciNetwork.optName.phyStatus])];
+			
+			var wanDownStr;
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 &&
+				router.isPortDetectOpen == true)
+			{
+				wanDownStr = errStr.linkPhyDownMesh;
+			}
+			else
+			{
+				wanDownStr = errStr.linkPhyDown;
+			}
+
+			if ($("div.topo").length == 0)
+			{
+				return;
+			}
+			for(var i=0;i<linkStatus.length;i++){
+				switch(linkStatus[i])
+				{
+				case LINK_DOWN:
+					$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "none");
+					$("#wanWrapper" + (i+1) + " p.noteP").css("display", "block");
+					$("#wanWrapper" + (i+1) + " p.noteP").children("i")[0].className = "iconfont icon-error";
+
+					if (0 == phyStatus)
+					{
+						errorCode = LINK_CODE_PHYDOWN;
+					}
+
+					switch(errorCode[i])
+					{
+					case LINK_CODE_PHYDOWN:
+						id("connectStatus" + (i+1)).innerHTML = wanDownStr;
+						break;
+					case LINK_CODE_AUTH_ERR:
+						id("connectStatus" + (i+1)).innerHTML = errStr.linkAuthErr;
+						break;
+					case LINK_CODE_MANUAL:
+					case LINK_CODE_SRVDOWN:
+						id("connectStatus" + (i+1)).innerHTML = errStr.linkManual;
+						break;
+					case LINK_CODE_NORMAL:
+					case LINK_CODE_NOECHO:
+					case LINK_CODE_UNKNOWN:
+					case LINK_CODE_DENY:
+					case LINK_CODE_OPT_UNSUPPORT:
+					case LINK_CODE_AUTH_UNSUPPORT:
+					default:
+						id("connectStatus" + (i+1)).innerHTML = errStr.linkExptErr;
+						break;
+					}
+					wanLine.setState(0,i);
+					break;
+				case LINK_UP:
+					var upSpeedObj = speedConversion(res[i][uciNetwork.optName.upSpeed]);
+					var downSpeedObj = speedConversion(res[i][uciNetwork.optName.downSpeed]);
+
+					if (null == upSpeedObj ||
+						null == downSpeedObj)
+					{
+						$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "none");
+						$("#wanWrapper" + (i+1) + " p.noteP").css("display", "block");
+						$("#wanWrapper" + (i+1) + " p.noteP").children("i")[0].className = "iconfont icon-success";
+						id("connectStatus" + (i+1)).innerHTML = label.goodNetworkCondition;
+					}
+					else
+					{
+						$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "block");
+						$("#wanWrapper" + (i+1) + " p.noteP").css("display", "none");
+						id("upSpeed" + (i+1)).innerHTML = upSpeedObj.speed;
+						id("upUnit" + (i+1)).innerHTML = upSpeedObj.unit;
+						id("downSpeed" + (i+1)).innerHTML = downSpeedObj.speed;
+						id("downUnit" + (i+1)).innerHTML = downSpeedObj.unit;
+					}
+					wanLine.setState(2,i);
+					break;
+				case LINKING_UP:
+					$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "none");
+					$("#wanWrapper" + (i+1) + " p.noteP").css("display", "block");
+					$("#wanWrapper" + (i+1) + " p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+
+					switch(errorCode)
+					{
+					case LINK_CODE_AUTH_ERR:
+						id("connectStatus" + (i+1)).innerHTML = errStr.linkAuthErr;
+						break;
+					case LINK_CODE_NOECHO:
+					case LINK_CODE_UNKNOWN:
+					case LINK_CODE_DENY:
+					case LINK_CODE_SRVDOWN:
+					case LINK_CODE_OPT_UNSUPPORT:
+					case LINK_CODE_AUTH_UNSUPPORT:
+						id("connectStatus" + (i+1)).innerHTML = errStr.linkExptErr;
+						break;
+					default:
+						id("connectStatus" + (i+1)).innerHTML = statusStr.connting;
+						break;
+					}
+					wanLine.setState(1,i);
+					break;
+				case LINKING_DOWN:
+					$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "none");
+					$("#wanWrapper" + (i+1) + " p.noteP").css("display", "block");
+					$("#wanWrapper" + (i+1) + " p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+
+					id("connectStatus" + (i+1)).innerHTML = statusStr.disconcting;
+					wanLine.setState(1,i);
+					break;
+				default:
+					$("#wanWrapper" + (i+1) + " ul.speedUl").css("display", "none");
+					$("#wanWrapper" + (i+1) + " p.noteP").css("display", "block");
+					$("#wanWrapper" + (i+1) + " p.noteP").children("i")[0].className = "iconfont icon-error";
+
+					id("connectStatus" + (i+1)).innerHTML = wanDownStr;
+					wanLine.setState(0,i);
+					break;
+				}
+			}
+			if(linkStatus[0] == LINK_DOWN && linkStatus[1] == LINK_DOWN && errorCode[0] == LINK_CODE_PHYDOWN && errorCode[1] == LINK_CODE_PHYDOWN){
+				router.setLinkState(false);
+			}else{
+				router.setLinkState(true);
+			}
+		}
+		function showWanLinkStatus(res)
+		{
+			var errorCode = parseInt(res[uciNetwork.optName.code]);
+			var linkStatus = parseInt(res[uciNetwork.optName.wanStatus]);
+			var phyStatus = parseInt(res[uciNetwork.optName.phyStatus]);
+			
+			var wanDownStr;
+
+			if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 &&
+				router.isPortDetectOpen == true)
+			{
+				wanDownStr = errStr.linkPhyDownMesh;
+			}
+			else
+			{
+				wanDownStr = errStr.linkPhyDown;
+			}
+
+			if ($("div.topo").length == 0)
+			{
+				return;
+			}
+
+			switch(linkStatus)
+			{
+			case LINK_DOWN:
+				$("ul.speedUl").css("display", "none");
+				$("p.noteP").css("display", "block");
+				$("p.noteP").children("i")[0].className = "iconfont icon-error";
+
+				if (0 == phyStatus)
+				{
+					errorCode = LINK_CODE_PHYDOWN;
+				}
+
+				switch(errorCode)
+				{
+				case LINK_CODE_PHYDOWN:
+					id("connectStatus").innerHTML = wanDownStr;
+					router.setLinkState(false);
+					break;
+				case LINK_CODE_AUTH_ERR:
+					id("connectStatus").innerHTML = errStr.linkAuthErr;
+					router.setLinkState(true);
+					break;
+				case LINK_CODE_MANUAL:
+				case LINK_CODE_SRVDOWN:
+					id("connectStatus").innerHTML = errStr.linkManual;
+					router.setLinkState(true);
+					break;
+				case LINK_CODE_NORMAL:
+				case LINK_CODE_NOECHO:
+				case LINK_CODE_UNKNOWN:
+				case LINK_CODE_DENY:
+				case LINK_CODE_OPT_UNSUPPORT:
+				case LINK_CODE_AUTH_UNSUPPORT:
+				default:
+					id("connectStatus").innerHTML = errStr.linkExptErr;
+					router.setLinkState(true);
+					break;
+				}
+
+				wanLine.setState(0);
+				break;
+			case LINK_UP:
+				var upSpeedObj = speedConversion(res[uciNetwork.optName.upSpeed]);
+				var downSpeedObj = speedConversion(res[uciNetwork.optName.downSpeed]);
+
+				if (null == upSpeedObj ||
+					null == downSpeedObj)
+				{
+					$("ul.speedUl").css("display", "none");
+					$("p.noteP").css("display", "block");
+					$("p.noteP").children("i")[0].className = "iconfont icon-success";
+					id("connectStatus").innerHTML = label.goodNetworkCondition;
+				}
+				else
+				{
+					$("ul.speedUl").css("display", "block");
+					$("p.noteP").css("display", "none");
+					id("upSpeed").innerHTML = upSpeedObj.speed;
+					id("upUnit").innerHTML = upSpeedObj.unit;
+					id("downSpeed").innerHTML = downSpeedObj.speed;
+					id("downUnit").innerHTML = downSpeedObj.unit;
+				}
+
+				router.setLinkState(true);
+				wanLine.setState(2);
+				break;
+			case LINKING_UP:
+				$("ul.speedUl").css("display", "none");
+				$("p.noteP").css("display", "block");
+				$("p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+
+				switch(errorCode)
+				{
+				case LINK_CODE_AUTH_ERR:
+					id("connectStatus").innerHTML = errStr.linkAuthErr;
+					break;
+				case LINK_CODE_NOECHO:
+				case LINK_CODE_UNKNOWN:
+				case LINK_CODE_DENY:
+				case LINK_CODE_SRVDOWN:
+				case LINK_CODE_OPT_UNSUPPORT:
+				case LINK_CODE_AUTH_UNSUPPORT:
+					id("connectStatus").innerHTML = errStr.linkExptErr;
+					break;
+				default:
+					id("connectStatus").innerHTML = statusStr.connting;
+					break;
+				}
+
+				router.setLinkState(true);
+				wanLine.setState(1);
+				break;
+			case LINKING_DOWN:
+				$("ul.speedUl").css("display", "none");
+				$("p.noteP").css("display", "block");
+				$("p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+
+				id("connectStatus").innerHTML = statusStr.disconcting;
+				router.setLinkState(true);
+				wanLine.setState(1);
+				break;
+			default:
+				$("ul.speedUl").css("display", "none");
+				$("p.noteP").css("display", "block");
+				$("p.noteP").children("i")[0].className = "iconfont icon-error";
+
+				id("connectStatus").innerHTML = wanDownStr;
+				router.setLinkState(true);
+				wanLine.setState(0);
+				break;
+			}
+		}
+		function drawWirelessRelayStatus(callback) {
+			var wdsCfgStatusArr = [];
+			var wlanWdsStatusArr = [];
+			var wdsCfgArr = [];
+			var config = {};
+			config.ssid = [];
+			var queryArg = {"protocol":{"name":"dhcp"}, "wireless":{}};
+			if (slp.DOUBLE == slp.bandsProvided) {
+				wdsCfgStatusArr = ["wds_cfg_status_2g", "wds_cfg_status_5g"];
+				wlanWdsStatusArr = ["wlan_wds_2g_status", "wlan_wds_5g_status"];
+				wdsCfgArr = ["wlan_wds_2g","wlan_wds_5g"];
+			} else {
+				wdsCfgStatusArr = ["wds_cfg_status_2g", "wds_cfg_status_5g_1", "wds_cfg_status_5g_4"];
+				wlanWdsStatusArr = ["wlan_wds_2g_status", "wlan_wds_5g_1_status", "wlan_wds_5g_4_status"];
+				wdsCfgArr = ["wlan_wds_2g","wlan_wds_5g_1","wlan_wds_5g_4"];
+			}
+			queryArg.wireless.name = wdsCfgStatusArr.concat(wlanWdsStatusArr).concat(wdsCfgArr);
+
+			$.query(queryArg, function(result) {
+				if (!errHandle(result[ERR_CODE])){
+					return;
+				}
+				capName = result.protocol.dhcp.hostname;
+
+				/*
+				* 未完成状态优先级最高。出现未完成状态时，继续走完WDS流程
+				* 正在中继状态优先级次之。多个频段同时桥接的情形，如有一个频段正在中继，就显示为正在中继
+				* 中继成功状态再次之。多个频段同时中继的情形，有的桥接成功，有的桥接失败，显示成功
+				*/
+				var IDLE = 0;
+				var FAIL = 1;
+				var SUCCESS = 2;
+				var CONNECTING = 3;
+				var UNFINISHED = 4;
+				var cfgStatus = IDLE;
+				var wlanWdsStatus = 0;
+				var finalStatus;
+				for (var i = 0; i < wdsCfgStatusArr.length; ++i) {
+					var status = result.wireless[wdsCfgStatusArr[i]].status;
+					switch (status) {
+						case "idle":
+							if (cfgStatus <= IDLE) {
+								cfgStatus = IDLE;
+								finalStatus = "idle";
+							}
+							break;
+						case "unfinished":
+							if (cfgStatus <= UNFINISHED) {
+								cfgStatus = UNFINISHED;
+								finalStatus = "unfinished";
+							}
+							break;
+						case "connecting":
+							if (cfgStatus <= CONNECTING) {
+								cfgStatus = CONNECTING;
+								finalStatus = "connecting";
+							}
+							break;
+						case "connect_fail":
+							if (cfgStatus <= FAIL) {
+								cfgStatus = FAIL;
+								finalStatus = "connect_fail";
+							}
+							break;
+						case "success":
+							config.ssid.push(result.wireless[wdsCfgArr[i]].ssid);
+							if (cfgStatus <= SUCCESS) {
+								cfgStatus = SUCCESS;
+								finalStatus = "success";
+							}
+							var tmpStatus = result.wireless[wlanWdsStatusArr[i]].status;
+							if (tmpStatus > 2) { //tmpStatus等于3,4,5时，显示连接失败
+								tmpStatus = 0;
+							}
+							wlanWdsStatus = Math.max(wlanWdsStatus, tmpStatus);
+							break;
+						default:
+							if (cfgStatus <= IDLE) {
+								cfgStatus = IDLE;
+								finalStatus = "idle";
+							}
+							break;
+					}
+				}
+
+				if (SUCCESS == cfgStatus) {
+					showWdsStatus(wlanWdsStatus.toString(),config);
+					typeof callback == "function" && callback();
+				} else {
+					showWdsStatus(finalStatus,config);
+					typeof callback == "function" && callback();
+				}
+			});
+		}
+
+		function showWdsStatus(status, config)
+		{
+			$("ul.speedUl").css("display", "none");
+			$("p.noteP").css("display", "block");
+
+			if ($("div.topo").length == 0)
+			{
+				return;
+			}
+
+			router.setSubTitle(config.ssid);
+			router.mainRouterSsid = config.ssid;
+
+			switch(status)
+			{
+			case "unfinished":
+				$("p.noteP").children("i")[0].className = "iconfont icon-error";
+				id("connectStatus").innerHTML = slp.gSysModeSupport? "无线中继未完成" : errStr.wdsUnfinished;
+				router.setLinkState(false);
+				router.linkStatus = LINK_DOWN;
+				wanLine.setState(0);
+				router.linkStatus = LINK_DOWN;
+				break;
+			case "connecting":
+			case "1":
+				$("p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+				id("connectStatus").innerHTML = slp.gSysModeSupport? "正在中继..." : statusStr.wdsConnecting;
+				router.setLinkState(false);
+				router.linkStatus = LINK_DOWN;
+				wanLine.setState(1);
+				break;
+			case "connect_fail":
+			case "0":
+				$("p.noteP").children("i")[0].className = "iconfont icon-error";
+				id("connectStatus").innerHTML = slp.gSysModeSupport? "无线中继失败" : errStr.wdsFail;
+				router.setLinkState(false);
+				router.linkStatus = LINK_DOWN;
+				wanLine.setState(0);
+				break;
+			case "success":
+			case "2":
+				$("p.noteP").children("i")[0].className = "iconfont icon-success";
+				id("connectStatus").innerHTML = slp.gSysModeSupport? "无线中继成功" : statusStr.wdsSuccess;
+				router.setLinkState(true);
+				router.linkStatus = LINK_UP;
+				wanLine.setState(2);
+				break;
+			case "idle":
+			default:
+				break;
+			}
+		}
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+				case ENONE:
+					return true;
+				case ESYSTEM:
+					showStr = errStr.systemErr;
+					break;
+				case ENOMEMORY:
+					showStr = errStr.invMemoryOut;
+					break;
+				case ENOECHO:
+					showStr = errStr.invRequestTimeout;
+					break;
+				case ESYSBUSY:
+					showStr = errStr.systemBusy;
+					break;
+				default:
+					showStr = errStr.unknown + errNo;
+					break;
+			}
+			alarmDialog.show(showStr);
+			return false;
+		}
+		function showApStatus(state)
+		{
+			$("ul.speedUl").css("display", "none");
+			$("p.noteP").css("display", "block");
+
+			if ($("div.topo").length == 0)
+			{
+				return;
+			}
+			var status = state.toString();
+			switch(status)
+			{
+				case "0":
+					$("p.noteP").children("i")[0].className = "iconfont icon-error";
+					id("connectStatus").innerHTML = statusStr.wiredNone;
+					router.setLinkState(false);
+					router.linkStatus = LINK_DOWN;
+					wanLine.setState(0);
+					break;
+				case "1":
+				case "2":
+					$("p.noteP").children("i")[0].className = "iconfont loading icon-loading";
+					id("connectStatus").innerHTML = statusStr.wiredConnecting;
+					router.setLinkState(false);
+					router.linkStatus = LINK_DOWN;
+					wanLine.setState(1);
+					break;
+				case "3":
+					$("p.noteP").children("i")[0].className = "iconfont icon-success";
+					id("connectStatus").innerHTML = statusStr.wiredSuccess;
+					router.setLinkState(true);
+					router.linkStatus = LINK_UP;
+					wanLine.setState(2);
+					break;
+				default:
+					break;
+			}
+		}
+		function object(superClass)
+		{
+			var MidClass = function(){};
+			MidClass.prototype = superClass.prototype;
+
+			return new MidClass();
+		}
+
+		function adjustRouterBtnCss()
+		{
+			var routerSet = $("#routerSet");
+			var btnArr = routerSet.find("div.topoBtn");
+			var length = 0;
+
+			for (var i = 0; i < btnArr.length; i++)
+			{
+				length += parseInt($(btnArr[i]).outerWidth(true));
+			}
+
+			routerSet.css("width", length);
+			routerSet.css("left", (160 / 2) - (length / 2));
+		}
+
+		/* 定义基本路由类 */
+		function Router(target)
+		{
+			var self = this;
+
+			this.target = target;
+			this.devListLen = 0;
+			this._ops = {
+				changeToWdsTitle: true
+			};
+			self.linkType = "";
+			self.linkStatus = "";
+			self.mainRouterSsid = "";
+			this.timeoutHd = [];
+			this.timedRefreshQueue = [];
+			this.timedRefreshQueue.push(function loop(){
+				var data = {};
+				data[uciHostsInfo.fileName] = {};
+				data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.online_host;
+
+				$.query(data, function(res){
+					var devList, lanArr = [], min;
+					if (ENONE == res[ERR_CODE])
+					{
+						devList = formatTableData(res[uciHostsInfo.fileName][uciHostsInfo.dynData.online_host]);
+						for (var i = 0; i < devList.length; i++)
+						{
+							min = Math.min(devList[i].type, 1);
+
+							if (0 == lanArr.length)
+							{
+								lanArr.push(min);
+							}
+							else if (1 == lanArr.length)
+							{
+								(lanArr[0] != min)&&lanArr.push(min);
+							}
+							else
+							{
+								break;
+							}
+						}
+
+						/* 如果当前仍处于首页，则等待2秒后刷新 */
+						if (true == isCurPage())
+						{
+							id("deviceNum").innerHTML = devList.length;
+							self.devListLen = devList.length;
+							lanLine.setLine(lanArr);
+							self.timeoutHd.push($.setTimeout(loop, 2*1000));
+						}
+					}
+				}, undefined, true);
+			});
+		}
+		Router.prototype.setTitle = function(title){
+			$(this.target).find("h2").html(title);
+		};
+		Router.prototype.setLinkState = function(linked){
+			var display = linked ? "none" : "inline";
+			$("#warning").css("display", display);
+		};
+		Router.prototype.setBtnState = function(normal, type){
+			var $icon = $("ul.canvas").find("div.topoBtn." + type + " i");
+			var display = normal ? "none" : "inline-block";
+			$icon.css("display", display);
+		};
+		Router.prototype.setBtnText = function(text, type){
+			$("ul.canvas").find("div.topoBtn." + type + " span").html(text);
+		};
+		Router.prototype.setBtnClick = function(callback, type){
+			$("ul.canvas").find("div.topoBtn." + type)[0].onclick = callback;
+		};
+		Router.prototype.setBtnDisplay = function(show, type){
+			var display = (show ? "inline-block" : "none");
+			$("ul.canvas").find("div.topoBtn." + type).css("display", display);
+		};
+		Router.prototype.refresh = function(){
+			this.timedRefreshQueue.forEach(function(f){f();});
+		};
+		Router.prototype.clear = function(){
+			this.timeoutHd.forEach(function(t){clearTimeout(t);});
+		};
+
+		/* 定义普通路由类 */
+		function ordinaryRouter(target)
+		{
+			var self = this;
+
+			Router.call(this, target);
+			this.init = function(){
+				this.setTitle(document.title);
+				this.setBtnDisplay(false);
+				adjustRouterBtnCss();
+				$("#network i")[0].className = "graphics internet";
+				$("#network span")[0].style.display = "none";
+
+				if (true == wdsStatus.enable)
+				{
+					addWdsFeature();
+				}
+				else if(gCurSysMode == uciSystem.optValue.sysMode.apMode)
+				{
+					addApFeature();
+				}
+
+				this.clear();
+				this.timeoutHd.length = 1;
+				this.timedRefreshQueue.length = 1;
+				this.timedRefreshQueue.push(function loop(){
+					getNetStatus(function(){
+						/* 如果当前仍处于首页，则等待1秒后刷新 */
+						if (true == isCurPage())
+						{
+							self.timeoutHd.push($.setTimeout(loop, 1*1000));
+						}
+					});
+				});
+
+				$.when(subMenuLoadDfd).done(function(){
+					self.refresh();
+				});
+			};
+		}
+		ordinaryRouter.prototype = object(Router);
+		ordinaryRouter.prototype.constructor = ordinaryRouter;
+
+		/* 桥模式下将获取的network LAN MAC + 1后即为出厂MAC */
+		function getFacMacUnderBridge(capMac)
+		{
+			var macInt = parseInt(capMac.replace(/-/g, ""), 16);
+			var facMacStr = (macInt + 1).toString(16).toUpperCase();
+			var facMacLen = facMacStr.length;
+			for (var i = 0; i < 12 - facMacLen; i++)
+			{
+				facMacStr = "0" + facMacStr;
+			}
+
+			var facMacStrArr = facMacStr.split("");
+			for (var i = 0; i < 5; i++)
+			{
+				facMacStrArr.splice(10 - 2 * i, 0, "-");
+			}
+			facMacStr = facMacStrArr.join("");
+
+			capMac = facMacStr;
+
+			return capMac;
+		}
+
+		/* 定义MESH路由类 */
+		function MeshRouter(target)
+		{
+			var self = this;
+
+			Router.call(this, target);
+
+			this.capObj = {};
+			this.macExtList = [];
+			this.meshTopoData = [];
+			this.meshTopoRenderHandle = null;
+			this.isEditing = false;
+			this._ops.changeToWdsTitle = false;
+			this.isPortDetectOpen = true;
+
+			this.init = function(){
+				$("#network i")[0].className = "graphics internet";
+				$("#network span")[0].style.display = "none";
+
+				if (true == wdsStatus.enable)
+				{
+					addWdsFeature();
+				}
+				else if(gCurSysMode == uciSystem.optValue.sysMode.apMode)
+				{
+					addApFeature();
+				}
+
+				this.clear();
+				this.timeoutHd.length = 1;
+				this.timedRefreshQueue.length = 1;
+
+				this.timedRefreshQueue.push(function loop(){
+					var data = {};
+					data[uciPlc.fileName] = {};
+					data[uciPlc.fileName][KEY_TABLE] = uciPlc.secType.connectedExt;
+					data[uciProto.fileName] = {};
+					data[uciProto.fileName][KEY_NAME] = uciProto.secName.dhcp;
+					data[uciNetwork.fileName] = {};
+					data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+					data[uciHostsInfo.fileName] = {};
+					data[uciHostsInfo.fileName][KEY_NAME] = uciHostsInfo.dynData.capHostNum;
+					data[uciWanPortDetect.fileName] = {};
+					data[uciWanPortDetect.fileName][KEY_NAME] = uciWanPortDetect.secName.config;
+
+					if (slp.modeSwitchSupport)
+					{
+						data[uciCustomNetwork.fileName] = {};
+						data[uciCustomNetwork.fileName][KEY_NAME] = uciCustomNetwork.dynData.bridgeStatus;
+					}
+
+					$.query(data, function(res){
+						if (ENONE == res[ERR_CODE])
+						{
+							/* 如果当前仍处于首页，则等待2秒后刷新 */
+							if (true == isCurPage())
+							{
+								self.timeoutHd.push($.setTimeout(loop, 2*1000));
+							}
+
+							self.isPortDetectOpen = res[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable]
+													== uciWanPortDetect.optValue.enable.on;
+
+							if (self.isPortDetectOpen)
+							{
+								$("#abridgedGeneralView").css("width", "300px");
+								$("#abridgedGeneralView p").html(label.checkWanLinkedMeshFirst + "<br>" + label.checkWanLinkedMeshSecond);
+							}
+							else
+							{
+								$("#abridgedGeneralView").css("width", "240px");
+								$("#abridgedGeneralView p").html(label.checkWanLinked);
+							}
+
+							if (self.isEditing)
+							{
+								return;
+							}
+
+							var list;
+
+							list = formatTableData(res[uciPlc.fileName][uciPlc.secType.connectedExt]);
+							self.setAmount(list.length);
+
+							var capMac = res[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.mac].toUpperCase();
+
+							/* 桥模式下主路由的LAN MAC非出厂MAC，将导致错误 */
+							if (slp.modeSwitchSupport)
+							{
+								var bridgeMode = res[uciCustomNetwork.fileName][uciCustomNetwork.dynData.bridgeStatus][uciCustomNetwork.optName.enable];
+
+								if (bridgeMode == uciCustomNetwork.optValue.mode.bridge)
+								{
+									/* 桥模式下将获取的network LAN MAC + 1后即为出厂MAC */
+									capMac = getFacMacUnderBridge(capMac);
+								}
+							}
+
+							self.capObj = {
+								name: res[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName],
+								mac: capMac,
+								ip: res[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.ip]
+							}
+
+							self.capHostNum = res[uciHostsInfo.fileName][uciHostsInfo.dynData.capHostNum]["host_num"] +
+											  res[uciHostsInfo.fileName][uciHostsInfo.dynData.capHostNum]["guest_num"];
+
+							self.macExtList = {};
+
+							for (var i = 0; i < list.length; i++)
+							{
+								self.macExtList[list[i]["mac"]] = {
+									mac:  			list[i]["mac"],
+									ip:   			list[i]["ip"],
+									name: 			list[i]["name"],
+									host_num: 		list[i]["sta_num_host"],
+									guest_num: 		list[i]["sta_num_guest"],
+									uplink_type : 	list[i]["uplink_type"],
+									rate: 			list[i]["rate"]
+								}
+							}
+
+							self.meshTopoData = self.initMeshTopoData(list);
+
+							if (list.length == 7)
+							{
+								meshTopoDialog._ops.bottom[0].obj.disable(true);
+							}
+							else
+							{
+								meshTopoDialog._ops.bottom[0].obj.disable(false);
+							}
+
+							if (meshTopoDialog.status != "idle")
+							{
+								self.renderMeshTopo(self.meshTopoData);
+							}
+						}
+					}, undefined, true);
+				});
+
+				this.timedRefreshQueue.push(function loop(){
+					getNetStatus(function(){
+						/* 如果当前仍处于首页，则等待1秒后刷新 */
+						if (true == isCurPage())
+						{
+							self.timeoutHd.push($.setTimeout(loop, 1*1000));
+						}
+					});
+				});
+
+				$.when(subMenuLoadDfd).done(function(){
+					self.refresh();
+				});
+			};
+
+			/* 设置按钮状态 */
+			this.setAmount = function(amount){
+				if (0 == amount)
+				{
+					this.setTitle(document.title);
+					this.setBtnText(btn.meshAddRouter, "mesh");
+					this.setBtnState(true, "mesh");
+					this.setBtnDisplay(true, "mesh");
+					adjustRouterBtnCss();
+					this.setBtnClick(function(){
+						meshAddDialog.isFromTopo = false;
+						meshAddDialog.show();
+					}, "mesh");
+				}
+				else
+				{
+					this.setTitle("Mesh组网");
+					this.setBtnText(btn.meshNetworkingTopo, "mesh");
+					this.setBtnState(true, "mesh");
+					this.setBtnDisplay(true, "mesh");
+					adjustRouterBtnCss();
+					this.setBtnClick(function(){
+						/* IN CASE TO SHOW BLANK WHEN OPEN THE MESH_TOPO_DIALOG */
+						self.renderMeshTopo(self.meshTopoData);
+						meshTopoDialog.show();
+					}, "mesh");
+				}
+			};
+
+			this.initMeshTopoData = function(data){
+				var routerTree = [], self = this;
+
+				var extData = $.extend(true, [], data);
+
+				function getChildList(mac)
+				{
+					var childList = [], child;
+					var counts = extData.length;
+
+					if (counts == 0)
+					{
+						return false;
+					}
+
+					for (var i = 0; i < counts; i ++)
+					{
+						child = extData.shift();
+						if (child.parent_router.toUpperCase() == mac.toUpperCase())
+						{
+							childList.push(child);
+						}
+						else
+						{
+							extData.push(child);
+						}
+					}
+
+					return childList;
+				}
+
+				function traversalChild(mac, tree)
+				{
+					var childList = getChildList(mac);
+					var child, childArray = [];
+
+					if (childList == false || childList.length == 0)
+					{
+						tree.push(mac.toUpperCase());
+					}
+					else
+					{
+						child = {};
+						child[mac.toUpperCase()] = childArray;
+						tree.push(child);
+						for (var i = 0; i < childList.length; i++)
+						{
+							traversalChild(childList[i].mac, childArray);
+						}
+					}
+				}
+
+				traversalChild(self.capObj.mac, routerTree);
+
+				return routerTree;
+			}
+
+			this.renderMeshTopo = function(data){
+				var canvas = id("meshTopoCanvas");
+				var div, i, childCanvas, childDeep = 0, childBreadth = 0;
+				var canvasWidth = 0, canvasHeight;
+				var hasExt = true;
+
+				data = data[0];
+
+				if (typeof data == "string")
+				{
+					hasExt = false;
+				}
+
+				$(canvas).empty();
+
+				function routerOptions(mode, data, hasChild)
+				{
+					var confirmTitle, confirmContent, reqSecName, defWaitTime, loadingTitle, loadingContent, loadingError;
+					self.isEditing = true;
+
+					if (mode == "disconnect")
+					{
+						confirmTitle = label.confirmTitle;
+						confirmContent = label.reDisconnectConfirm;
+						reqSecName = uciPlc.actionName.kickExt;
+						loadingError = statusStr.kickRouterFail;
+					}
+					else if (mode == "reboot")
+					{
+						confirmTitle = label.rebootRouter;
+						confirmContent = label.rebootRouterConfirmRe;
+						reqSecName = uciPlc.actionName.rebootExt;
+						defWaitTime = REBOOT_SECONDS;
+						loadingTitle = label.rebootRouter;
+						loadingContent = label.rebooting;
+						loadingError = statusStr.rebootRouterFail;
+					}
+					else if (mode == "reset")
+					{
+						confirmTitle = label.resetRouter;
+						confirmContent = label.resetRouterConfirmRe;
+						reqSecName = uciPlc.actionName.resetExt;
+						defWaitTime = RESET_SECONDS;
+						loadingTitle = label.resetRouter;
+						loadingContent = label.resetting;
+						loadingError = statusStr.resetRouterFail;
+					}
+					else
+					{
+						return;
+					}
+
+					confirmDialog.show({
+						title:confirmTitle,
+						content:confirmContent,
+						callback:function(result){
+							if (result == true)
+							{
+								var reqData = {};
+								var argData = {};
+								reqData[uciPlc.fileName] = {};
+								reqData[uciPlc.fileName][reqSecName] = argData;
+								argData[uciPlc.optName.mac] = data.mac;
+
+								$.action(reqData, function(result){
+									if (ENONE == result[ERR_CODE])
+									{
+										if (mode == "disconnect")
+										{
+											showToast(hasChild ? label.reDisconnectSuccessAndAutoMesh : label.reDisconnectSuccess);
+											self.isEditing = false;
+										}
+										else
+										{
+											var waitTime = result["wait_time"];
+											if (waitTime != undefined && parseInt(waitTime, 10) != 0)
+											{
+												waitTime = parseInt(waitTime, 10) * 1000;
+											}
+											else
+											{
+												waitTime = defWaitTime;
+											}
+
+											loadingDialog.show({
+												title: loadingTitle,
+												content:{
+													primary: loadingContent
+												}
+											}, function(){
+												self.isEditing = false;
+												loadingDialog.hide();
+											}, waitTime);
+										}
+									}
+									else
+									{
+										alarmDialog.show(loadingError);
+										self.isEditing = false;
+									}
+								});
+							}
+							else
+							{
+								self.isEditing = false;
+							}
+						}
+					});
+				}
+
+				function saveDevName(input, data, isCap)
+				{
+					var inputVal = input.getValue();
+
+					if (/[^0-9a-z_\-\u00b7\u4E00-\u9FFFF\s]/gi.test(inputVal) == true)
+					{
+						alarmDialog.show(errStr.hostNameErr);
+						self.isEditing = false;
+						return;
+					}
+
+					if (inputVal == data.name)
+					{
+						self.isEditing = false;
+						return;
+					}
+
+					if (getCNStrLen(inputVal) > DEVICE_NAME_LEN_MAX)
+					{
+						alarmDialog.show(errorStr.hostNameLenExceed);
+						self.isEditing = false;
+						return;
+					}
+
+					if (inputVal.length == 0)
+					{
+						alarmDialog.show(errorStr.hostNameNull);
+						self.isEditing = false;
+						return;
+					}
+
+					var reqData = {};
+					var argData = {};
+
+					if (isCap)
+					{
+						reqData[uciProto.fileName] = {};
+						reqData[uciProto.fileName][uciProto.secName.dhcp] = argData;
+						argData[uciProto.optName.hostName] = inputVal;
+
+						$.modify(reqData, function(){
+							showToast(label.saveSuccess);
+						});
+					}
+					else
+					{
+						reqData[uciPlc.fileName] = {};
+						reqData[uciPlc.fileName][uciPlc.actionName.setExtInfo] = argData;
+						argData[uciPlc.optName.mac] = data.mac;
+						argData[uciPlc.optName.name] = inputVal;
+
+						$.action(reqData, function(){
+							showToast(label.saveSuccess);
+							data.name = inputVal;
+						});
+					}
+
+					self.isEditing = false;
+				}
+
+				function renderRouterCon(container, data, isCap, hasChild)
+				{
+					var id, options, routerBoard, routerInfo, routerName, routerNameInput, i, devNumDiv;
+					var div = $('<div><span class="horizontalLine"></span><i class="iconfont meshStatus"></i><div class="meshRouterBoard"></div></div>').addClass("meshRouterCon")
+																																						.addClass(isCap ? "cap" : "re");
+
+					function getSubString(value){
+						var str = "", suffixStr = [], max = 150, subStrMax = 70;
+						var resultStr = "", strTemp, i, count = 0;
+
+						if (calStrLenPixel(value, 13) < max)
+						{
+							return value;
+						}
+
+						str = value.split("");
+
+						for (var i = 0; i < str.length; i++)
+						{
+							count += calStrLenPixel(str[i], 13);
+							if (count > subStrMax)
+							{
+								break;
+							}
+							resultStr += str[i];
+						}
+
+						resultStr += " ... ";
+						count = 0;
+						str = str.reverse();
+
+						for (i = 0; i < str.length; i++)
+						{
+							count += calStrLenPixel(str[i], 13);
+							if (count > subStrMax)
+							{
+								break;
+							}
+							suffixStr.push(str[i]);
+						}
+
+						resultStr += suffixStr.reverse().join("");
+						return resultStr;
+					}
+
+					container.appendChild(div[0]);
+
+					if (isCap)
+					{
+						div.find("i").addClass(self.linkStatus == LINK_UP? "icon-connectionnormal linkNormal" : "icon-connectionerror linkError");
+						div.find("span").addClass("Line40");
+					}
+					else
+					{
+						/*
+						*	UPLINK_TYPE:
+						*	WIRED: 		00000001 -> 1
+						*	WIRELESS:	00000010 -> 2
+						*	PLC:		00000100 -> 4
+						*/
+						if (parseInt(data.uplink_type) == 1)
+						{
+							div.find("i").addClass("icon-lan signalStrong");
+						}
+						else if (parseInt(data.uplink_type) == 2)
+						{
+							div.find("i").addClass("icon-wifi");
+							div.find("i").addClass(parseInt(data.rate)/1024/1024 >= 80 ? "signalStrong" : "signalNormal");
+						}
+
+						div.find("span").addClass("Line20");
+					}
+
+					if (hasChild)
+					{
+						div.find("div").after('<span class="horizontalLine Line20"></span>');
+					}
+
+					routerBoard = div.find("div.meshRouterBoard");
+
+					routerBoard.append('<i class="routerLogo"></i><div class="routerInfo"><div class="routerName"></div></div>');
+					routerInfo = routerBoard.find("div.routerInfo");
+					routerName = routerInfo.find("div.routerName");
+
+					id = "routerName_" + new Date().getTime() + "_" + data.mac;
+					routerName.attr("id", id);
+					routerName.attr("deviceNameTxt", data.name);
+					routerName[0].title = data.name;
+
+					options = {
+						targetId: id,
+						type: Input.TYPE.STATIC_TEXT,
+						props:{type: "text", maxlength: DEVICE_NAME_LEN_MAX,value: getSubString(data.name)},
+						size:Input.SIZE.SMALL,
+						containerType:Input.CONTAINER.NORMAL
+					};
+
+					options.check = {
+						blur: (function(data, isCap){
+							return function(){
+								var self = this;
+
+								saveDevName(self, data, isCap);
+								routerName.attr("deviceNameTxt", data.name);
+								self.setValue(getSubString(data.name));
+								self.toggleStatic(true);
+							}
+						})(data, isCap),
+						keyup: (function(data, isCap){
+							return function(event){
+								var self = this;
+
+								event = event || window.event;
+								if (event.keyCode == 13)
+								{
+									saveDevName(self, data, isCap);
+									routerName.attr("deviceNameTxt", data.name);
+									self.setValue(getSubString(data.name));
+									self.toggleStatic(true);
+								}
+							}
+						})(data, isCap)
+					};
+
+					routerNameInput = new Input(options);
+
+					$(routerNameInput.dom).click(function(){
+						if (!$(this).find("li.inputLi").hasClass('static'))
+						{
+							return;
+						}
+
+						self.isEditing = true;
+						routerNameInput.setValue(routerName.attr("deviceNameTxt"));
+						routerNameInput.toggleStatic(false);
+						routerNameInput.input.select();
+					});
+
+					routerInfo.append($('<span class="routerIpMac"></span>').html(data.ip));
+					routerInfo.append($('<span class="routerIpMac"></span>').html(data.mac).css("margin-bottom", "2px"));
+
+					if (!isCap)
+					{
+						routerInfo.append($('<span class="routerBtn reboot"></span>').html(btn.reboot).css("margin-right", "8px"));
+						routerInfo.append($('<span class="verticalLine"></span>').css("height", "12px"));
+						routerInfo.append($('<span class="routerBtn disconnect"></span>').html(btn.disconnect).css("margin-left", "8px")
+																											  .css("margin-right", "8px"));
+						routerInfo.append($('<span class="verticalLine"></span>').css("height", "12px"));
+						routerInfo.append($('<span class="routerBtn reset"></span>').html(btn.reset).css("margin-left", "8px"));
+					}
+
+					devNumDiv = $('<div class="routerNum"><i class="iconfont icon-device"></i><span></span></div>');
+
+					devNumDiv.find("span").html(isCap ? (self.capHostNum || 0) : data.host_num + data.guest_num);
+					routerBoard.append(devNumDiv);
+
+					/* Bind Event */
+					if (!isCap)
+					{
+						routerInfo.find("span.routerBtn").click((function(data, hasChild){
+							return function(){
+								var mode = $(this).hasClass("disconnect") ? "disconnect" : ($(this).hasClass("reboot") ? "reboot" : "reset");
+
+								routerOptions(mode, data, hasChild);
+							}
+						})(data, hasChild));
+					}
+
+					return div;
+				}
+
+				function traversalChild(topoTree, canvas, deep)
+				{
+					var router, childCanvas, deepChildCanvas, breadth = 0, fromTopToEnd = 0;
+
+					childCanvas = $('<div class="extTree"></div>')[0];
+
+					canvas.appendChild(childCanvas);
+
+					if (deep >= childDeep)
+					{
+						childDeep ++;
+					}
+
+					for (var i = 0; i < topoTree.length; i++)
+					{
+						if (typeof topoTree[i] != "string")
+						{
+							var mac = Object.keys(topoTree[i])[0];
+							var childBreadth;
+							deepChildCanvas = $('<div class="extTree"></div>');
+							deepChildCanvas.css("display", "block");
+							childCanvas.appendChild(deepChildCanvas[0]);
+
+							router = renderRouterCon(deepChildCanvas[0], self.macExtList[mac], false, true);
+							router.css("display", "inline-block");
+
+							childBreadth = traversalChild(topoTree[i][mac], deepChildCanvas[0], deep + 1);
+
+							breadth += childBreadth;
+							if (i != topoTree.length - 1)
+							{
+								fromTopToEnd += childBreadth;
+							}
+							else
+							{
+								fromTopToEnd ++;
+							}
+						}
+						else
+						{
+							router = renderRouterCon(childCanvas, self.macExtList[topoTree[i]], false, false);
+							router.css("display", "block");
+
+							breadth++;
+							fromTopToEnd++;
+						}
+
+						router.css("margin-bottom", "24px");
+					}
+
+					if (topoTree.length > 1)
+					{
+						$(childCanvas).before($('<span class="verticalLine"></span>').css("height", (fromTopToEnd - 1) * 124).css("margin-top", 51));
+					}
+
+					return breadth;
+				}
+
+				/* ADD INTERNET */
+				div = $('<div><i class="meshInternetPng"></i><span class="meshInternet"></span><span class="meshSubTitle"></span></div>').addClass("meshInternet");
+				if (router.linkType == "normal")
+				{
+					div.find("i.meshInternetPng").addClass("meshInternet");
+					div.find("span.meshInternet").html(label.network);
+				}
+				else if (router.linkType == "wds")
+				{
+					div.find("i.meshInternetPng").addClass("meshWds");
+					div.find("span.meshInternet").html(label.mainRouter);
+					div.find("span.meshSubTitle").html(generateBrHtmlStr(router.mainRouterSsid));
+				}
+				else if (router.linkType == "ap")
+				{
+					div.find("i.meshInternetPng").addClass("apWds");
+					div.find("span.meshInternet").html(label.mainRouter);
+				}
+
+				canvas.appendChild(div[0]);
+				canvasWidth += div.actual("outerWidth");
+
+				/* ADD CAP_ROUTER */
+				renderRouterCon(canvas, self.capObj, true, hasExt).css("display", "inline-block");
+				canvasWidth += 324;
+
+				/* ADD RE_ROUTER */
+				if (hasExt)
+				{
+					childBreadth = traversalChild(data[Object.keys(data)[0]], canvas, childDeep + 1);
+				}
+
+				canvasWidth += childDeep * 304;
+
+				$("div.meshTopoCanvasCon").css("width", canvasWidth);
+				$("div.meshTopoCanvasCon").css("height", childBreadth * (100 + 2) + 80);
+			}
+		}
+		MeshRouter.prototype = object(Router);
+		MeshRouter.prototype.constructor = MeshRouter;
+
+		function addWdsFeature()
+		{
+			wanLine.setMode("wds");
+
+			if (router._ops.changeToWdsTitle)
+			{
+				router.setTitle(label.selfRouter + " " + document.title);
+			}
+
+			router.setBtnDisplay(true, "wds");
+			adjustRouterBtnCss();
+			router.setBtnClick(function(){
+				if(!slp.gSysModeSupport){
+					menuConfig.menuTargetUrl = "WlanWDSCfg.htm";
+					loadPage("Advance.htm", "content");
+				}else{
+					gStartWirelessRepeater = true;
+					menuConfig.menuTargetUrl = "WanLoader.htm";
+					loadPage("Advance.htm", "content");
+				}
+			}, "wds");
+
+			$("#network i")[0].className = "graphics bridge";
+			$("#network h2").html(label.mainRouter);
+			$("#network span.subtitle")[0].style.display = "inline-block";
+
+			router.setLinkState = function(state){
+				router.setBtnState(state, "wds");
+			};
+
+			router.setSubTitle = function(ssid){
+				$("#network span.subtitle").html(generateBrHtmlStr(ssid));
+			};
+
+			if (slp.gSysModeSupport) {
+				$("#routerSet .wds span").html("桥接（无线中继）");
+				$("#routerSet .wds").addClass("wirelessRepeater");
+			}
+		}
+
+		function generateBrHtmlStr(strList){
+			var htmlStr = "";
+			if(strList instanceof Array){
+				for(var i=0;i<strList.length;i++){
+					htmlStr += htmlEscape(strList[i]) + '<br>';
+				}
+			}else{
+				htmlStr = htmlEscape(strList);
+			}
+			return htmlStr;
+		}
+		function addApFeature()
+		{
+			wanLine.setMode("common");
+
+			if (router._ops.changeToWdsTitle)
+			{
+				router.setTitle(label.selfRouter + " " + document.title);
+			}
+
+			router.setBtnDisplay(true, "ap");
+			adjustRouterBtnCss();
+			router.setBtnClick(function(){
+				menuConfig.menuTargetUrl = "WanLoader.htm";
+				loadPage("Advance.htm", "content");
+			}, "ap");
+
+			$("#network i")[0].className = "graphics bridge";
+			$("#network h2").html(label.mainRouter);
+
+			router.setLinkState = function(state){
+				router.setBtnState(state, "ap");
+			};
+
+			router.setSubTitle = function(ssid){
+				$("#network span.subtitle").html(generateBrHtmlStr(ssid));
+			};
+		}
+		function getNetStatus(callback)
+		{
+			slp.wds.getData({
+				success: function(res){
+					var wdsConf = res[uciWireless.fileName];
+					var wdsOn = false;
+
+					for (var wdsname in wdsConf)
+					{
+						if (!wdsConf.hasOwnProperty(wdsname)){
+							continue;
+						}
+						if (1 == wdsConf[wdsname][uciWireless.dynOptName.enable])
+						{
+							wdsStatus.enable = true;
+							wdsStatus.name = wdsname;
+							break;
+						}
+					}
+					if (true == wdsStatus.enable)
+					{
+						$("#dualWanStatus").hide();
+						$("#wanStatus").show();
+						router.linkType = "wds";
+
+						var data = {},
+							bridgeProcess,
+							bridgeStatus,
+							bridgeConfig;
+
+						switch(wdsStatus.name)
+						{
+						case uciWireless.dynData.wds_2g:
+							bridgeProcess = "wds_cfg_status_2g";
+							bridgeStatus = "wlan_wds_2g_status";
+							bridgeConfig = "wlan_wds_2g";
+							break;
+						case uciWireless.dynData.wds_5g:
+							bridgeProcess = "wds_cfg_status_5g";
+							bridgeStatus = "wlan_wds_5g_status";
+							bridgeConfig = "wlan_wds_5g";
+							break;
+						case uciWireless.dynData.wds_5g1:
+							bridgeProcess = "wds_cfg_status_5g_1";
+							bridgeStatus = "wlan_wds_5g_1_status";
+							bridgeConfig = "wlan_wds_5g_1";
+							break;
+						case uciWireless.dynData.wds_5g2:
+							bridgeProcess = "wds_cfg_status_5g_4";
+							bridgeStatus = "wlan_wds_5g_4_status";
+							bridgeConfig = "wlan_wds_5g_4";
+							break;
+						default:
+							break;
+						}
+
+						data[uciWireless.fileName] = {};
+						data[uciWireless.fileName][KEY_NAME] = {};
+						data[uciWireless.fileName][KEY_NAME] = [bridgeProcess, bridgeStatus, bridgeConfig];
+						if(slp.gSysModeSupport){
+							drawWirelessRelayStatus(callback);
+						}else{
+							$.query(data, function(res){
+								var status, config;
+								if (ENONE == res[ERR_CODE])
+								{
+									status = res[uciWireless.fileName][bridgeProcess].status;
+									/* wds流程走完时，需要取实际桥接状态 */
+									if ("success" == status)
+									{
+										status = res[uciWireless.fileName][bridgeStatus].status;
+									}
+
+									config = res[uciWireless.fileName][bridgeConfig];
+
+									showWdsStatus(status, config);
+
+									typeof callback == "function" && callback();
+								}
+							}, undefined, true);
+						}
+					}
+					else if (gCurSysMode == uciSystem.optValue.sysMode.apMode)
+					{
+						$("#dualWanStatus").hide();
+						$("#wanStatus").show();
+						router.linkType = "ap";
+						var args = {
+							"wired_extender":
+							{
+								"name": "status"
+							}
+						};
+						$.query(args, function(result) {
+							var ip = result.wired_extender.status.ip;
+							var state = result.wired_extender.status.state;
+							showApStatus(state);
+							typeof callback == "function" && callback();
+						});
+					}
+					else
+					{
+						router.setBtnDisplay(false, "wds");
+						router.setBtnDisplay(false, "ap");
+						router.linkType = "normal";
+						dualWanOpenCheck(function(){
+							slp.latestWanStatus(function(res1){
+								var res1 = res1;
+								slp.latestWanStatus(function(res2){
+									var res2 = res2;
+									showDualWanLinkStatus(res1,res2);
+									router.linkStatus = parseInt(res1[uciNetwork.optName.wanStatus] || res2[uciNetwork.optName.wanStatus]);
+									typeof callback == "function" && callback();
+								},true,2);
+							},true)
+						},function(){
+							slp.latestWanStatus(function(res){
+								showWanLinkStatus(res);
+								router.linkStatus = parseInt(res[uciNetwork.optName.wanStatus]);
+								typeof callback == "function" && callback();
+							});
+						})
+					}
+				}
+			});
+		}
+
+		function dualWanOpenCheck(openCallBack,closeCallBack){
+			if(!slp.gMulWanSupport){
+				$("#dualWanStatus").hide();
+				$("#wanStatus").show();
+				closeCallBack();
+			} else {
+				$.query({"port_manage":{"table":"mwan"}},function(res){
+					if(res[ERR_CODE] == ENONE){
+						var dualWanOpen = true;
+						var WAN_NUM = 2;
+						for(var i=0; i<WAN_NUM; i++){
+							if(res.port_manage.mwan[i]["mwan_"+(i+1)].enable == 0){
+								dualWanOpen = false;
+							}
+						}
+						if(dualWanOpen){
+							$("#wanStatus").hide();
+							$("#dualWanStatus").show();
+							openCallBack();
+						} else {
+							$("#dualWanStatus").hide();
+							$("#wanStatus").show();
+							closeCallBack();
+						}
+					}
+				})
+			}
+		}
+		function curSysModeCheck(callBack)
+		{
+			if(!slp.gSysModeSupport)
+			{
+				gCurSysMode = uciSystem.optValue.sysMode.routerMode;
+				callBack();
+			}
+			else
+			{
+				var data = {};
+				data[uciSystem.fileName] = {};
+				data[uciSystem.fileName][KEY_NAME] = [uciSystem.secName.sysMode];
+				$.query(data, function(result){
+					if(result[ERR_CODE] == ENONE){
+						gCurSysMode = result.system.sys_mode.mode;
+						callBack();
+					}
+				});
+			}
+		}
+		function initTopo(dualWanOpen)
+		{
+			var target = id("router");
+			if(typeof dualWanOpen != "undefined" && dualWanOpen && gCurSysMode == uciSystem.optValue.sysMode.routerMode){
+				wanLine = new DualWanLine("wanLine", 0, 0);
+			}else{
+				wanLine = new WanLine("wanLine", 0);
+			}
+			lanLine = new LanLine("lanLine", []);
+
+			if (true == isMesh)
+			{
+				router = new MeshRouter(target);
+			}
+			else
+			{
+				wanLine.setMode("common");
+				router = new ordinaryRouter(target);
+			}
+
+			router.init();
+
+			id("deviceList").onclick = function(){
+				loadPage("BasicEptManagement.htm", "content");
+			};
+
+			var fadeTimeout = null;
+			id("warning").onmouseover = function(){
+				id("abridgedGeneralView").style.display = "block";
+				clearTimeout(fadeTimeout);
+				$.setTimeout(function(){
+					id("abridgedGeneralView").style.opacity = "1";
+					id("abridgedGeneralView").style.filter = "alpha(opacity=100)";
+				}, 0);
+			};
+			id("warning").onmouseout = function(){
+				id("abridgedGeneralView").style.opacity = "0";
+				id("abridgedGeneralView").style.filter = "alpha(opacity=0)";
+				fadeTimeout = $.setTimeout(function(){
+					id("abridgedGeneralView").style.display = "none";
+				}, 500);
+			};
+		}
+
+		function loadMenu(page)
+		{
+			$(this).addClass("active").siblings().removeClass("active");
+			loadPage(page, "basicFieldSet", function(){
+				if (pushCloudUpgradeDialog)
+				{
+					var data = {};
+					data[uciCloudConfig.fileName] = {};
+					data[uciCloudConfig.fileName][KEY_NAME] = [uciCloudConfig.secName.upgradeInfo];
+
+					$.query(data, function(result){
+						upgradeInfo = result[uciCloudConfig.fileName][uciCloudConfig.secName.upgradeInfo];
+
+						var newSoftVer = upgradeInfo[uciCloudConfig.optName.version];
+						var newSoftContent = upgradeInfo[uciCloudConfig.optName.releaseLog].replace(/\\n/gi, "<br />").replace(/&/g, "&amp;");
+
+						showNewSoftVerDialog.show({
+							isCloudUpgradePush: true,
+							newSoftVer: newSoftVer,
+							newSoftContent: newSoftContent,
+							upgradeClick: function(){
+								showNewSoftVerDialog.hide(function(){
+									loadingDialog.show({
+										title: label.upgradeOnline,
+										content: {primary:label.gettingUpgradeInfo}
+									}, undefined, undefined, false, undefined);
+
+									onlineUpgrade(function(){
+										loadingDialog.hide(function(){
+											gOnlineUpgradeFail = true;
+
+											menuConfig.menuTargetUrl = "SysUpgrade.htm";
+											loadPage("Basic.htm", "Con", function(){
+												loadPage("Advance.htm", "content");
+											});
+										});
+									}, function(callback){
+										loadingDialog.hide(function(){
+											typeof callback == "function" && callback();
+										});
+									});
+								});
+							}
+						});
+						pushCloudUpgradeDialog = false;
+					});
+				}
+				else if (pushCloudIDSuggestDialog)
+				{
+					cloudIDSuggestDialog.show();
+					pushCloudIDSuggestDialog = false;
+				}
+
+				/* 点击菜单之后，会清除掉所有定时器，在此需要重新触发 */
+				if (subMenuLoadTag && router)
+				{
+					router.refresh();
+				}
+
+				if (!subMenuLoadTag)
+				{
+					subMenuLoadTag = true;
+					subMenuLoadDfd.resolve();
+				}
+			});
+		}
+
+		id("wifiSet").onclick = function(){
+			loadMenu.call(this, "BasicWireless.htm");
+		};
+		id("netSet").onclick = function(){
+			var that = this;
+			dualWanOpenCheck(function(){
+				if (gCurSysMode == uciSystem.optValue.sysMode.routerMode ){
+					loadMenu.call(that, "DualWanBasicNetWork.htm");
+				} else {
+					loadMenu.call(that, "BasicNetWork.htm");
+				}
+			},function(){
+				loadMenu.call(that, "BasicNetWork.htm");
+			})
+		};
+
+		function getBasicData()
+		{
+			/* MESH机型 */
+			if (slp.moduleSpec["wifison_mesh"] && slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				isMesh = true;
+			}
+
+			/* 检查WDS是否开启 */
+			slp.wds.getData({
+				success: function(res){
+					var wdsConf = res[uciWireless.fileName];
+					var wdsOn = false;
+
+					for (var wdsname in wdsConf)
+					{
+						if (!wdsConf.hasOwnProperty(wdsname)){
+							continue;
+						}
+						if (1 == wdsConf[wdsname][uciWireless.dynOptName.enable])
+						{
+							wdsStatus.enable = true;
+							wdsStatus.name = wdsname;
+							break;
+						}
+					}
+					curSysModeCheck(function(){
+						dualWanOpenCheck(function(){
+							initTopo(true);
+						},function(){
+							initTopo();
+						})
+					})
+				},
+				fail: function(){
+					curSysModeCheck(function(){
+						dualWanOpenCheck(function(){
+							initTopo(true);
+						},function(){
+							initTopo();
+						})
+					})
+				}
+			});
+		}
+
+		advanceAutoFit();
+
+		curTopoId = "topo_" + new Date().getTime();
+		$("div.topo")[0].id = curTopoId;
+
+		/* Fix IE8 or Less */
+		window.setTimeout(function(){
+			ieUnsupportCheck(function(){
+				/* 默认加载Wi-Fi设置 */
+				id("wifiSet").click();
+			});
+		}, 0);
+
+		/* 根据setting.js中配置判断是否显示andlink logo & 和家亲二维码，并在需要时才加载资源 */
+		showAndlinkQRcode && $("#andlinkQRcode img").attr("src", andlinkQRcodeSrc) && $("#andlinkQRcode").show();
+
+		getBasicData();/* 获取基本配置 */
+	})();
+</script>
+<style type="text/css">
+	div.topoWrapper{
+		height:440px;
+		width:100%;
+	}
+	div.topoWrapper div.topo{
+		width:1000px;
+		height:100%;
+		margin:0 auto;
+	}
+	div.basicSet{
+		position: relative;
+		width:1000px;
+		margin:40px auto 0;
+	}
+	div#andlinkQRcode{
+		position: absolute;
+		top: 216px;
+		margin-top: 0;
+	}
+	ul.basicMenu{
+		margin-right:40px;
+		float:left;
+	}
+	ul.basicMenu li{
+		width:104px;
+		height:88px;
+		border-radius:4px;
+		text-align:center;
+		cursor:pointer;
+		-webkit-transition:background-color .1s ease-in-out;
+		-moz-transition:background-color .1s ease-in-out;
+		-o-transition:background-color .1s ease-in-out;
+		transition:background-color .1s ease-in-out;
+	}
+	ul.basicMenu li + li{
+		margin-top:8px;
+	}
+	ul.basicMenu li.active,
+	ul.basicMenu li:active{
+		background-color:#f5f5f5;
+	}
+	ul.basicMenu i{
+		display:inline-block;
+		height:40px;
+		color:#fff;
+		width:40px;
+		border-radius:40px;
+		margin-top:12px;
+	}
+	ul.basicMenu i:before{
+		font-size:24px;
+		line-height:40px;
+	}
+	ul.basicMenu h2{
+		font-size:14px;
+		color:#333;
+		line-height:20px;
+		margin-top:8px;
+	}
+	#basicFieldSet{
+		width:856px;
+		float:left;
+	}
+	div.topo div.status{
+		color:#fff;
+		font-weight:bold;
+		padding:48px 0 40px;
+	}
+	div.status ul.speedUl,
+	div.status p.noteP{
+		height:80px;
+	}
+	div.status ul.speedUl{
+		display:none;
+	}
+	ul.speedUl li{
+		float:left;
+		min-width:320px;
+		margin-right:16px;
+	}
+	ul.speedUl span{
+		float:left;
+	}
+	ul.speedUl span.speed{
+		font-size:64px;
+		line-height:80px;
+		padding-right:9px;
+	}
+	ul.speedUl i{
+		font-size:48px;
+		font-weight:normal;
+		float:left;
+		line-height:80px;
+	}
+	ul.speedUl p.speedText{
+		float:left;
+		width:73px;
+	}
+	p.speedText span{
+		width:100%;
+		font-size:18px;
+		line-height:20px;
+	}
+	p.speedText span.unit{
+		margin-top:16px;
+	}
+	p.speedText span.tag{
+		margin-top:8px;
+	}
+	p.noteP i{
+		font-size:48px;
+		font-weight:normal;
+		vertical-align:middle;
+	}
+	p.noteP i.loading{
+		display:inline-block;
+	}
+	p.noteP i:before{
+		margin-top:4px;
+	}
+	p.noteP span{
+		font-size:28px;
+		vertical-align:middle;
+		line-height:80px;
+		margin-left:16px;
+	}
+	ul.canvas{
+		width:100%;
+		height:224px;
+	}
+	ul.canvas li.cell{
+		width:160px;
+		float:left;
+		text-align:center;
+		font-size:0;
+		position:relative;
+	}
+	ul.canvas li.junction{
+		float:left;
+		width:260px;
+		height:160px;
+		position:relative;
+	}
+	li.cell i.graphics{
+		display:inline-block;
+		width:160px;
+		height:160px;
+	}
+	li.cell i.internet{
+		background:url(../web-static/images/internet.png) no-repeat scroll;
+	}
+	li.cell i.bridge{
+		background:url(../web-static/images/bridge.png) no-repeat scroll;
+	}
+	li.cell i.router{
+		background:url(../web-static/images/router.png) no-repeat scroll;
+	}
+	li.cell i.terminal{
+		background:url(../web-static/images/terminal.png) no-repeat scroll;
+	}
+	#warning{
+		position:absolute;
+		display:none;
+		width:49px;
+		height:44px;
+		left:23px;
+		top:86px;
+		background:url(../web-static/images/basic.png) no-repeat scroll -192px 0;
+	}
+	#abridgedGeneralView{
+		position:absolute;
+		opacity:0;
+		filter:alpha(opacity=0);
+		display:none;
+		top:160px;
+		left:0;
+		width:240px;
+		padding:24px;
+		z-index:1001;
+		background:#fff;
+		box-shadow:0 4px 24px 0 rgba(0,0,0,.32);
+		border-radius:4px;
+		-webkit-transition:all ease-in-out .5s;
+		-moz-transition:all ease-in-out .5s;
+		-o-transition:all ease-in-out .5s;
+		transition:all ease-in-out .5s;
+	}
+	#abridgedGeneralView p{
+		font-size:13px;
+		color:#262729;
+		line-height:20px;
+		text-align:left;
+	}
+	#abridgedGeneralView i{
+		display:block;
+		background:url(../web-static/images/basic.png) no-repeat scroll -500px -400px;
+		width:240px;
+		height:104px;
+		margin:16px auto 0px;
+	}
+	li.cell h2{
+		font-size:16px;
+		line-height:24px;
+		color:#fff;
+		font-weight:bold;
+	}
+	li.cell span.subtitle{
+		display:inline-block;
+		font-size:14px;
+		margin-top:8px;
+		color:#fff;
+		word-break:break-all;
+		width: 160px;
+	}
+	li.cell div.buttonCMPT{
+		width:120px;
+		margin-top:8px;
+	}
+	li.junction ul.lineWrap{
+		width:100%;
+		line-height:24px;
+		position:absolute;
+		margin-top:-12px;
+		top:50%;
+	}
+	li.junction ul.lineWrap.upUl{
+		top: 42%;
+	}
+	li.junction ul.lineWrap.downUl{
+		top: 58%;
+	}
+	li.doubleLine ul.wireless{
+		margin-top:-24px;
+		display:none;
+	}
+	li.doubleLine ul.wired{
+		margin-top:0;
+		display:none;
+	}
+	ul.lineWrap li{
+		float:left;
+		height:24px;
+	}
+	ul.lineWrap i{
+		font-size:24px;
+		color:#fff;
+		padding:0 5px 0 7px;
+	}
+	li.line{
+		font-size:0;
+	}
+	li.line span{
+		height:2px;
+		width:112px;
+		display:inline-block;
+		background-color:#fff;
+		margin:11px 0;
+		opacity:0.8;
+		filter:alpha(opacity=80);
+		-webkit-transition:all ease-in-out .5s;
+		-moz-transition:all ease-in-out .5s;
+		-o-transition:all ease-in-out .5s;
+		transition:all ease-in-out .5s;
+	}
+	li.line span.odd{
+		width:8px;
+	}
+	li.line span.even{
+		width:5px;
+	}
+	li.dashed span.even{
+		background:transparent;
+	}
+	ul.dashed li.line span.even{
+		background: transparent;
+	}
+	div.topoBtn.router,
+	#network span{
+		display:none;
+	}
+	div.meshTopoPageCon{
+		height: 480px;
+		width: 896px;
+	}
+	div.dialogBox.meshTopoPage div.dialogContent{
+		padding: 32px !important;
+	}
+	div.meshTopoCanvasCon:before{
+		content:'';
+		display:inline-block;
+		vertical-align:middle;
+		min-height:480px;
+	}
+	#meshTopoCanvas{
+		display:inline-block;
+		vertical-align:middle;
+	}
+	div.meshInternet{
+		display: inline-block;
+		width:96px;
+		vertical-align: top;
+	}
+	i.meshInternetPng{
+		display: block;
+		width: 80px;
+		height: 80px;
+		margin: 0px auto;
+	}
+	i.meshInternet{
+		background:url(../web-static/images/mesh_internet.png) no-repeat scroll;
+	}
+	i.meshWds{
+		background:url(../web-static/images/wds_bridge.png) no-repeat scroll;
+	}
+	i.apWds{
+		background:url(../web-static/images/wds_bridge.png) no-repeat scroll;
+	}
+	span.meshInternet{
+		display: block;
+		width: 80px;
+		height: 20px;
+		line-height: 20px;
+		font-size: 13px;
+		font-weight: bold;
+		text-align: center;
+		margin: 0px auto;
+	}
+	span.meshSubTitle{
+		display:block;
+		width:96px;
+		line-height:18px;
+		font-size:12px;
+		text-align:center;
+		margin: 0px auto;
+		word-break:break-all;
+	}
+	div.meshRouterCon{
+		height: 100px;
+		vertical-align: top;
+	}
+	div.meshRouterBoard{
+		width: 226px;
+		height: 100px;
+		background-color: #FAFAFA;
+		border-radius: 8px;
+		border: 1px solid #E6E6E6;
+		margin-left: 8px;
+		vertical-align: middle;
+		display: inline-block;
+		padding-left: 12px;
+		position: relative;
+	}
+	div.meshRouterBoard i.routerLogo{
+		width: 48px;
+		height: 48px;
+		display: inline-block;
+		background: url(../web-static/images/basic.png) no-repeat scroll -144px -192px;
+		margin-right: 12px;
+		margin-top: 12px;
+	}
+	div.meshRouterBoard div.routerInfo{
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 8px;
+	}
+	div.meshRouterBoard div.routerInfo div.routerName{
+		width: 156px;
+		height: 24px;
+		margin-bottom: 2px;
+	}
+	div.meshRouterBoard div.routerInfo div.routerName ul{
+		margin-bottom: 0px;
+	}
+	div.meshRouterBoard div.routerInfo div.routerName li.inputLi.static{
+		border: 1px solid #FAFAFA !important;
+	}
+	div.re div.meshRouterBoard div.routerInfo div.routerName li.inputLi.static:hover{
+		border: 1px solid #CCCCCC !important;
+	}
+	div.meshRouterBoard div.routerInfo div.routerName li.inputLi.static:hover > input{
+		background-color: #F2F2F2;
+	}
+	div.meshRouterBoard div.routerInfo div.routerName li.inputLi.static > input{
+		padding: 0px; 0px;
+		height: 22px;
+		background-color: #FAFAFA;
+		line-height: 22px !important;
+		font-weight: bold;
+	}
+	div.meshRouterBoard div.routerInfo span.routerIpMac{
+		height: 18px;
+		line-height: 18px;
+		display:block;
+		font-size: 13px;
+		color: #333333;
+	}
+	div.meshRouterBoard div.routerInfo span.routerBtn{
+		height: 18px;
+		line-height: 18px;
+		color: #666666;
+		display: inline-block;
+		vertical-align: middle;
+		cursor: pointer;
+	}
+	div.meshRouterBoard div.routerNum{
+		width: 43px;
+		height: 18px;
+		position: absolute;
+		left: 0px;
+		bottom: 0px;
+		background-color: #FFFFFF;
+		border-radius: 0 0 0 8px;
+		border: 1px solid #E6E6E6;
+		border-left-width: 0px;
+		border-bottom-width: 0px;
+	}
+	div.meshRouterBoard div.routerNum i{
+		font-size: 16px;
+		color: #999999;
+		display: inline-block;
+		margin-left: 5px;
+		vertical-align: middle;
+		line-height: 18px;
+		margin-right: 4px;
+	}
+	div.meshRouterBoard div.routerNum span{
+		vertical-align: middle;
+		color: #999999;
+		display: inline-block;
+		font-size: 12px;
+		line-height: 18px;
+	}
+	span.horizontalLine{
+		height: 1px;
+		background-color: #CCCCCC;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	span.horizontalLine.Line40{
+		width: 40px;
+	}
+	span.horizontalLine.Line20{
+		width: 20px;
+	}
+	span.verticalLine{
+		width: 1px;
+		background-color: #CCCCCC;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	i.iconfont.meshStatus{
+		font-size: 16px;
+		vertical-align: middle;
+		display: inline-block;
+	}
+	i.meshStatus.linkNormal, i.meshStatus.signalStrong{
+		color: #24B353;
+	}
+	i.meshStatus.signalNormal{
+		color: #FFA31A;
+	}
+	i.meshStatus.linkError, i.meshStatus.signalWeak{
+		color: #FF3366;
+	}
+	div.extTree{
+		display: inline-block;
+		vertical-align: top;
+	}
+	#routerSet{
+		position: absolute;
+	}
+	div.topoBtn.router{
+		margin-left: 4px;
+		margin-right: 4px;
+	}
+	ul.speedUl.dualWan{
+		margin-top: 12px;
+	}
+	ul.speedUl.dualWan li{
+		min-width: 0;
+	}
+	ul.speedUl.dualWan i {
+		font-size: 24px;
+		line-height: 36px;
+	}
+	ul.speedUl.dualWan span.speed{
+		font-size: 36px;
+		line-height: 36px;
+	}
+	ul.dualWan p.speedText span.unit{
+		margin-top: 0px;
+		font-size: 12px;
+		line-height: 18px;
+	}
+	ul.dualWan p.speedText span.tag{
+		font-size: 12px;
+		line-height: 18px;
+		margin-top: 0px;
+	}
+	#wanWrapper1{
+		min-width: 585px;
+	}
+	div.wanWrapper{
+		display:inline-block;
+		vertical-align: top;
+	}
+	div.wanWrapper span{
+		font-size: 24px;
+	}
+	#dualWanStatus {
+		padding: 40px 0 32px;
+	}
+	div.status div.wanWrapper p.noteP{
+		height: 56px;
+		margin-top: 12px;
+	}
+	div.wanWrapper p.noteP span{
+		line-height: 24px;
+	}
+	div.wanWrapper p.noteP i{
+		font-size: 24px;
+	}
+	#routerSet .wirelessRepeater {
+		width: 140px;
+	}
+</style>
+<div class="topoWrapper mainGradient">
+	<div class="topo">
+		<div class="status disNone" id="dualWanStatus">
+			<div class="wanWrapper" id="wanWrapper1">
+				<span>WAN1</span>
+				<ul class="speedUl dualWan">
+					<li>
+						<i class="iconfont icon-upstream"></i>
+						<span id="upSpeed1" class="speed"></span>
+						<p class="speedText">
+							<span id="upUnit1" class="unit"></span>
+							<span class="tag">{%label.upSpeed%}</span>
+						</p>
+					</li>
+					<li>
+						<i class="iconfont icon-downstream"></i>
+						<span id="downSpeed1" class="speed"></span>
+						<p class="speedText">
+							<span id="downUnit1" class="unit"></span>
+							<span class="tag">{%label.downSpeed%}</span>
+						</p>
+					</li>
+				</ul>
+				<p class="noteP">
+					<i></i>
+					<span id="connectStatus1"></span>
+				</p>
+			</div>
+			<div class="wanWrapper" id="wanWrapper2">
+				<span>WAN2</span>
+				<ul class="speedUl dualWan">
+					<li>
+						<i class="iconfont icon-upstream"></i>
+						<span id="upSpeed2" class="speed"></span>
+						<p class="speedText">
+							<span id="upUnit2" class="unit"></span>
+							<span class="tag">{%label.upSpeed%}</span>
+						</p>
+					</li>
+					<li>
+						<i class="iconfont icon-downstream"></i>
+						<span id="downSpeed2" class="speed"></span>
+						<p class="speedText">
+							<span id="downUnit2" class="unit"></span>
+							<span class="tag">{%label.downSpeed%}</span>
+						</p>
+					</li>
+				</ul>
+				<p class="noteP">
+					<i></i>
+					<span id="connectStatus2"></span>
+				</p>
+			</div>
+		</div>
+		<div class="status" id="wanStatus">
+			<ul class="speedUl">
+				<li>
+					<i class="iconfont icon-upstream"></i>
+					<span id="upSpeed" class="speed"></span>
+					<p class="speedText">
+						<span id="upUnit" class="unit"></span>
+						<span class="tag">{%label.upSpeed%}</span>
+					</p>
+				</li>
+				<li>
+					<i class="iconfont icon-downstream"></i>
+					<span id="downSpeed" class="speed"></span>
+					<p class="speedText">
+						<span id="downUnit" class="unit"></span>
+						<span class="tag">{%label.downSpeed%}</span>
+					</p>
+				</li>
+			</ul>
+			<p class="noteP">
+				<i></i>
+				<span id="connectStatus"></span>
+			</p>
+		</div>
+		<ul class="canvas">
+			<li id="network" class="cell">
+				<i class="graphics bridge"></i>
+				<h2>{%label.network%}</h2>
+				<span class="subtitle"></span>
+			</li>
+			<li id="wanLine" class="junction"></li>
+			<li id="router" class="cell">
+				<i class="graphics router"></i>
+				<span id="warning"></span>
+				<div id="abridgedGeneralView">
+					<p>{%label.checkWanLinked%}</p>
+					<i></i>
+				</div>
+				<h2>{%label.router%}</h2>
+				<div id="routerSet">
+					<div class="buttonCMPT topoBtn router ap">
+						<i class="iconfont icon-warn"></i>
+						<span>{%label.apWired%}</span>
+					</div>
+					<div class="buttonCMPT topoBtn router wds">
+						<i class="iconfont icon-warn"></i>
+						<span>{%label.wirelessBridge%}</span>
+					</div>
+					<div class="buttonCMPT topoBtn router mesh">
+						<i class="iconfont icon-warn"></i>
+						<span></span>
+					</div>
+				</div>
+			</li>
+			<li id="lanLine" class="junction"></li>
+			<li id="device" class="cell">
+				<i class="graphics terminal"></i>
+				<h2>{%label.linkedEpt%}{%label.lBrackets%}<span id="deviceNum">0</span>{%label.rBrackets%}</h2>
+				<div id="deviceList" class="buttonCMPT topoBtn">
+					<span>{%label.deviceList%}</span>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="basicSet clearfix">
+	<ul class="basicMenu">
+		<li id="wifiSet" class="wifiSet">
+			<i class="iconfont icon-wifi"></i>
+			<h2>{%menuStr.wifi%}</h2>
+		</li>
+		<li id="netSet" class="netSet">
+			<i class="iconfont icon-lan"></i>
+			<h2>{%menuStr.wanSet%}</h2>
+		</li>
+	</ul>
+	<div id="basicFieldSet"></div>
+	<div id="andlinkQRcode">
+		<img/>
+	</div>
+</div>

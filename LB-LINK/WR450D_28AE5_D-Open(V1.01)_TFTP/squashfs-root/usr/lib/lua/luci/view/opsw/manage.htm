@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LB-LINK</title>
+		<link rel="icon" type="image/x-icon" href="/opsw/img/wireless_icon.png" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/main.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/elementUi.css" />
+		<script src="/opsw/js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/timeZone.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/tr.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hostUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "")%>';
+			var hostUrlSystem = '<%=luci.dispatcher.build_url("admin", "system", "")%>';
+			var hostDomain = '<%=luci.dispatcher.get_host_domain()%>';
+			var login_user = '<%=luci.dispatcher.get_login_user()%>';
+			var menu_idx = '<%=luci.dispatcher.get_menu_idx()%>';
+			var model_type = <%=luci.dispatcher.get_devmodel_type()%>;
+		</script>
+		<script src="/opsw/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/verify.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="container" style="display: none;" :style="{display:'block'}">
+			<div class="header flex flex-center">
+				<div class="navBar flex flex-align flex-between">
+					<div class="navBar-left">
+						<a>
+							<img src="/opsw/img/logo.png">
+						</a>
+					</div>
+					<ul class="navBar-right flex" style="margin: 0 20px;">
+						<li :style="tabIndex==0 ? {backgroundColor: '#ECECEC'} : ''" @click="tabIndex=0">
+							<a href="main.html">
+								<span>{{$t("home")}}</span>
+							</a>
+						</li>
+						<li :style="tabIndex==1 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("setup")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="window.location = 'http://' + window.location.host + hostUrl + '/wizard.html';">{{$t("wizard")}}</div>
+								<div class="dropDown-item" @click="toSetup(1)">{{$t("internet_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(2)">{{$t("wireless_set")}}</div>
+								<div class="dropDown-item" @click="toSetup(3)">{{$t("network_set")}}</div>
+							</div>
+						</li>
+						<li :style="tabIndex==2 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("Advanced")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toFeatures(0)" v-if="model_type!=2">{{$t("engine")}}</div>
+								<div class="dropDown-item" @click="toFeatures(1)">{{$t("firewall")}}</div>
+								<div class="dropDown-item" @click="toFeatures(2)">{{$t("portForward")}}</div>
+								<div class="dropDown-item" @click="toFeatures(3)">{{$t("website_filter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(4)">{{$t("staticRouter")}}</div>
+								<div class="dropDown-item" @click="toFeatures(5)">{{$t("dynamicDns")}}</div>
+							</div>
+						</li>
+						<li :style="tabIndex==3 ? {backgroundColor: '#ECECEC'} : ''">
+							<span>{{$t("management")}}</span>
+							<div class="li-dropDown">
+								<div class="dropDown-item" @click="toManage(0)">{{$t("onTimer")}}</div>
+								<div class="dropDown-item" @click="toManage(1)">{{$t("systemLog")}}</div>
+								<div class="dropDown-item" @click="toManage(2)">{{$t("systemAdmin")}}</div>
+								<div class="dropDown-item" @click="toManage(3)">{{$t("upgrade")}}</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div class="language">
+					<label>{{ $t("language") }}:</label>
+					<el-select v-model="curLanguage" @change="setLanguage" :placeholder="$t('plsChoose')" style="margin-left:5px;">
+						<el-option :key="0" value="TR" label="Turkey"></el-option>
+						<el-option :key="1" value="EN" label="English"></el-option>
+					</el-select>
+				</div>
+			</div>
+			<!-- 头部 -->
+			<div style="background-color: #F7F7F7;">
+				<div class="Features_tips WR900">
+					<h2>{{manage_title}}</h2>
+					<div class="wallimage">
+						<img :src="manage_img" width="195" height="119">
+					</div>
+					<div class="directions">
+						{{manage_description}}
+					</div>
+				</div>
+			</div>
+			<!-- 定时开关 -->
+			<div v-if="menu_idx=='0'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('management')}} >> {{$t('System_Time')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li :class="{active:time_type==0}" @click="time_type=0">{{$t('Time')}}</li>
+							<!-- <li :class="{active:time_type==1}" @click="time_type=1">Schedule</li> -->
+							<li class="btn" @click="setSystemTime">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<div v-if="time_type==0">
+							<h3 class="fw_bold">{{$t('Time_Configuration')}}</h3>
+							<ul class="modeList" style="padding-bottom: 20px;border-bottom: 1px solid #999;">
+								<li>
+									<label>{{$t('Time_Zone')}}:</label>
+									<template>
+										<el-select v-model="timeZoneIndex" :placeholder="$t('plsChoose')" style="width: 250px;">
+											<el-option v-for="(item,index) in timeZoneList" :key="index" :value="index" :label="item.zone_name"></el-option>
+										</el-select>
+									</template>
+								</li>
+								<li>
+									<label>{{$t('Time')}}:</label>
+									<span v-text="timeForm.time"></span>
+								</li>
+							</ul>
+							<h3 class="fw_bold">{{$t('Auto_Time_Configuration')}}</h3>
+							<ul class="modeList" style="padding-bottom: 20px;border-bottom: 1px solid #999;">
+								<li>
+									<label>{{$t('Update_Time_NTP_Server')}}:</label>
+									<el-switch v-model="timeForm.ntp_enabled" active-color="#13ce66">
+									</el-switch>
+								</li>
+								<div v-if="timeForm.ntp_enabled">
+									<li>
+										<label>{{$t('NTP_Server')}}:</label>
+										<input type="text" v-model="timeForm.ntp_server" />
+									</li>
+								</div>
+								<div v-else style="border-top:1px solid #999">
+									<h3 class="fw_bold">{{$t('Manual_Time_Configuration')}}</h3>
+									<li>
+										<div class="block">
+											<span class="demonstration inline-block ar" style="width: 378px;margin-right: 26px;">{{$t('Set_default_time')}}</span>
+											<el-date-picker v-model="systemTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" :placeholder="$t('choose_dateTime')" default-time="12:00:00">
+											</el-date-picker>
+										</div>
+									</li>
+								</div>
+							</ul>
+						</div>
+						<div v-if="time_type==1">
+							<div class="funcBar_block">
+								<div class="devicemode WR900">
+									<li class="ar" style="margin:15px 0;">
+										<button class="btn" @click="ipv6AddDialog=true;">{{$t('addRule')}}</button>
+									</li>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 系统日志 -->
+			<div v-if="menu_idx=='1'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('management')}} >> {{$t('systemLog')}}
+						</div>
+					</div>
+					<div class="devicemode WR900">
+						<h3>{{$t('SysLog_Settings')}}</h3>
+						<div class="system-journal">
+							<p v-for="(item,index) in syslog" :key="index" style="text-indent: 15px;">{{item}}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 系统管理 -->
+			<div v-if="menu_idx=='2'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('management')}} >> {{$t('admin')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li :class="{active:systemType==0}" @click="systemType=0">{{$t('admin')}}</li>
+							<li :class="{active:systemType==1}" @click="systemType=1">{{$t('System')}}</li>
+							<li :class="{active:systemType==2}" @click="systemType=2;getAcsMsg()">ACS</li>
+							<li class="btn" @click="adminSave">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<div v-if="systemType==0">
+							<div class="devicemode WR900">
+								<h3 class="fw_bold">{{$t('adminPwd')}}</h3>
+								<ul class="modeList">
+									<li>
+										<label>{{$t('NewPassword')}}</label>
+										<el-input type="password" v-model="adminForm.newPassword" class="width-220" show-password :placeholder="$t('content_notNull')"></el-input>
+									</li>
+									<li>
+										<label>{{$t('Confirm_NewPassword')}}</label>
+										<el-input type="password" v-model="adminForm.queryPassword" class="width-220" show-password :placeholder="$t('content_notNull')"></el-input>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div v-if="systemType==1">
+							<div class="devicemode WR900">
+								<h3 class="fw_bold">{{$t('System')}}</h3>
+								<ul class="modeList" style="padding-bottom: 20px;border-bottom: 1px solid #999;">
+									<li>
+										<label>{{$t('Restore_Settings')}}:</label>
+										<button class="btn" style="width: 200px;height: 38px;" @click="toRestore">{{$t('Restore')}}</button>
+									</li>
+								</ul>
+								<h3 class="fw_bold">{{$t('Auto_Reboot_Configuration')}}</h3>
+								<ul class="modeList" style="border-bottom: none;">
+									<li>
+										<label>{{$t('Reboot_Device')}}:</label>
+										<button class="btn" style="width: 200px;height: 38px;" @click="toReboot">{{$t('Reboot')}}</button>
+									</li>
+								</ul>
+							</div>
+						</div>
+					    <div v-if="systemType==2">
+					    	<div class="devicemode WR900">
+					    		<h3 class="fw_bold">ACS</h3>
+					    		<ul class="modeList">
+					    			<li>
+					    				<label>URL</label>
+					    				<el-input type="text" v-model="acsForm.url" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+					    			</li>
+					    			<li>
+					    				<label>{{$t('username')}}</label>
+					    				<el-input type="text" v-model="acsForm.username" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+					    			</li>
+									<li>
+										<label>{{$t('password')}}</label>
+										<el-input type="password" v-model="acsForm.password" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+									</li>
+					    		</ul>
+								<h3 class="fw_bold">{{$t('Request_Settings')}}</h3>
+								<ul class="modeList">
+									<li>
+										<label>{{$t('username')}}</label>
+										<el-input type="text" v-model="acsForm.local_username" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+									</li>
+									<li>
+										<label>{{$t('password')}}</label>
+										<el-input type="password" v-model="acsForm.local_password" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+									</li>
+									<li>
+										<label>{{$t('Port')}}</label>
+										<el-input type="number" v-model="acsForm.local_port" readonly style="width:270px;" :placeholder="$t('content_notNull')"></el-input>
+									</li>
+								</ul>
+					    	</div>
+					    </div>
+					</div>
+				</div>
+			</div>
+			<!-- 升级 -->
+			<div v-if="menu_idx=='3'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('management')}} >> {{$t('upgrade')}}
+						</div>
+					</div>
+					<div class="devicemode WR900">
+						<h3 class="fw_bold">{{$t('Upgrade_Manually')}}</h3>
+						<ul class="modeList" style="border-bottom: none;">
+							<li>
+								<label>{{$t('Current_Version')}}:</label>
+								<span>{{versionMsg.softwareVer}}</span>
+							</li>
+							<li class="flex">
+								<label>{{$t('Upgrade_Firmware')}}:</label>
+								<el-upload action='<%=luci.dispatcher.build_url("admin", "system" ,"flashops")%>' :limit="1" class="upload-demo"
+								 ref="upload" :on-success="submitSuccess" :file-list="fileList" name="image" :auto-upload="false" :on-change="uploadChange">
+									<el-button slot="trigger" size="small" style="background-color: #4598AA;color: #fff;padding: 12px 25px;font-size: 14px;">{{$t('SelectFile')}}</el-button>
+									<el-button size="small" @click="fileSubmit" style="margin-left: 10px;background-color: #4598AA;color: #fff;padding: 12px 25px;font-size: 14px;">{{$t('upgrade')}}</el-button>
+								</el-upload>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- 统计数据 -->
+			<div v-if="menu_idx=='4'">
+				<div class="funcBar_block">
+					<div class="funcBar overflow-hidden">
+						<div class="funcBar-left fl">
+							{{$t('Features')}} >> {{$t('website_filter')}}
+						</div>
+						<ul class="funcBar-right fr">
+							<li class="btn">{{$t('Save')}}</li>
+						</ul>
+					</div>
+					<div class="devicemode WR900">
+						<li class="ar" style="margin:15px 0;">
+							<button class="btn" @click="routeAddDialog=true;">{{$t('addRule')}}</button>
+						</li>
+						<template>
+							<el-table :data="portList" border height="500" style="width: 100%;" :key="2">
+								<el-table-column prop="Schedule" :label="$t('Schedule')" align="center" :resizable="false">
+								</el-table-column>
+								<el-table-column :label="$t('Operation')" width="200" align="center" :resizable="false">
+									<template slot-scope="scope">
+										<i class="el-icon-delete" style="font-size: 24px;margin:0 10px;"></i>
+									</template>
+								</el-table-column>
+							</el-table>
+						</template>
+					</div>
+				</div>
+			</div>
+			<div class="footer ac WR900">
+				<p class="copyright">{{$t('copyRightTip')}}</p>
+			</div>
+			<!-- QoS信息提示弹框 -->
+			<el-dialog title="" :visible.sync="QoSDialog" width="700px">
+				<p class="fs-15 fw_bold" style="padding-bottom:50px;line-height: 22px;">
+					{{$t('qosTip')}}
+				</p>
+				<div class="ac">
+					<button class="btn" @click="QoSDialog=false;">{{$t('OK')}}</button>
+				</div>
+			</el-dialog>
+			<div class="layer" v-if="layerShow"></div>
+			<div class="bulletFrame" v-if="layerShow">
+				<div class="bulletFrame-border">
+					<img src="/opsw/img/loading.gif" v-if="isCount==2">
+					<p class="bulletFrame-time" v-if="isCount==2">{{countdown}} {{$t('Second')}}</p>
+					<span>{{tips}}</span>
+					<div style="margin-top:35px;" v-if="isCount==0">
+						<button @click="layerShow=false;">{{$t('confirm')}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/opsw/js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		   getData();
+		   function getData(){
+			   var self = vm;
+			   self.tabIndex = 3;
+			   switch (menu_idx) {
+			   	case '0':
+			   		var img = '/opsw/img/page_TimeZone.png';
+			   		self.getHeadMsg(3, self.$t("time"), img, self.$t("time_directions"));
+			   		self.getSystemTime();
+			   		break;
+			   	case '1':
+			   		var img = '/opsw/img/page_log.png';
+			   		self.getHeadMsg(3, self.$t("systemLog"), img, self.$t("log_directions"));
+			   		self.getSystemLog();
+			   		break;
+			   	case '2':
+			   		var img = '/opsw/img/page_Admin.png';
+			   		self.getHeadMsg(3, self.$t("admin"), img, self.$t("admin_directions"));
+			   		break;
+			   	case '3':
+			   		var img = '/opsw/img/page_updateFW.png';
+			   		self.getHeadMsg(3, self.$t("upgrade"), img, self.$t("upgrade_directions"));
+			   		break;
+			   	case '4':
+			   		var img = '/opsw/img/page_TimeZone.png';
+			   		self.getHeadMsg(3, self.$t("statistics"), img, self.$t("statistics_directions"));
+			   		break;
+			   }
+			   self.getVersion();
+		   }
+		</script>
+	</body>
+</html>

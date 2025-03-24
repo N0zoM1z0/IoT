@@ -1,0 +1,170 @@
+
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript">
+
+
+function staticConnectionTuple(){
+    this.path="";
+    this.Enable="";
+    this.DestIPAddress="";
+    this.DestSubnetMask="";
+    this.GatewayIPAddress="";
+    this.Interface="";
+    this.ForwardingMetric="";
+    this.StaticRoute="";
+    this.ErrorInfo="";    
+}
+var index = 0;
+var staticRoutingList = new Array();
+<!--#getobject_noop "InternetGatewayDevice.Layer3Forwarding.Forwarding. Enable DestIPAddress DestSubnetMask GatewayIPAddress Interface ForwardingMetric StaticRoute X_CT-COM_ErrorInfo" -->
+    staticRoutingList[index] = new staticConnectionTuple();
+    staticRoutingList[index].path = "<!--#path -->";
+    staticRoutingList[index].Enable = "<!--#leaf "1"-->";
+    staticRoutingList[index].DestIPAddress = "<!--#leaf "2"-->";
+    staticRoutingList[index].DestSubnetMask = "<!--#leaf "3"-->";
+    staticRoutingList[index].GatewayIPAddress = "<!--#leaf "4"-->";
+    staticRoutingList[index].Interface = "<!--#leaf "5"-->";
+    staticRoutingList[index].ForwardingMetric = "<!--#leaf "6"-->";
+    staticRoutingList[index].StaticRoute = "<!--#leaf "7"-->";
+    staticRoutingList[index].ErrorInfo = "<!--#leaf "8"-->";
+    index++;
+<!--#endgetobject -->
+
+
+
+function uiAdd()
+{
+    if(staticRoutingList.length<30)
+    {
+        document.location.href='/page/advancedsetup/staticroute.shtml?Op=Add';
+    }
+    else
+    {
+        top.AlertMsg(getStr("LK_net_max30item2"));
+    }
+}
+
+
+function uiEdit(editingPath)
+{
+    document.location.href='/page/advancedsetup/staticroute.shtml?Op=Edit' +'&editingPath='+ editingPath;
+}
+
+
+function uiDelete(path)
+{
+	if(!validateCode())
+		return false;
+	top.ConfirmMsg(getStr('LK_net_confirmdelete'),"delete",path);
+}
+
+
+function createTable(){
+    var trs = "";
+
+    for(var i=0;i<staticRoutingList.length;i++){
+        var tr = "";
+        if(i%2 == 0)
+            tr += "<tr class='OddRowB'>";
+        else
+            tr += "<tr class='EvenRowB'>";
+        tr += "<td>"+(i+1)+"</td>";
+        if(staticRoutingList[i].Enable == '1')
+        {
+            tr += "<td>"+'Enable'+"</td>";
+        }
+        else
+        {
+            tr += "<td>"+'Disable'+"</td>";
+        }
+        tr += "<td>"+staticRoutingList[i].DestIPAddress+"</td>";
+        tr += "<td>"+staticRoutingList[i].DestSubnetMask+"</td>";
+        tr += "<td>"+staticRoutingList[i].GatewayIPAddress+"</td>";
+        tr += "<td>"+staticRoutingList[i].ForwardingMetric+"</td>";
+        if(staticRoutingList[i].StaticRoute == '1')
+        {
+            staticRoutingList[i].StaticRoute=getStr("LK_StaticRoute");
+            tr += "<td>"+staticRoutingList[i].StaticRoute+"</td>";
+        }else{
+            staticRoutingList[i].StaticRoute=getStr("LK_DynamicRoute");
+            tr += "<td>"+staticRoutingList[i].StaticRoute+"</td>";
+        }
+        tr += "<td>"+staticRoutingList[i].ErrorInfo+"</td>";
+        tr += "<td><img style='cursor:pointer' src='../../skin/edit.gif' name='edit' onclick='uiEdit(\"" +staticRoutingList[i].path+"\")'><img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +staticRoutingList[i].path+ "\")'></td>";                          
+        tr += "</tr>";
+        trs += tr;            
+     
+    }
+    if(trs == "")
+        trs = '<tr class="OddRowB"><td colspan="9">'+getStr('LK_NoRule')+'</td></tr>'
+    jQuery("#StaticRoutingList").append(trs);
+}
+
+
+/* 删除条目处理函数 */
+function ConfirmMsgResult(type,func,a)
+{
+	if(func == "delete")
+	{
+		if(type == "yes")
+		{
+			var df=document.ipv4_rtroutecfgdataform;
+			AddElements(df,'del_obj',a);
+			df.submit();
+		}
+		else
+		{
+			window.event.returnValue = false;
+		}
+	}
+
+} 
+
+
+function __init()
+{
+    createTable();
+
+    if(IsExistedFunction("project_init") == true)
+        project_init(GetCurrentFileName());
+}
+
+</script>
+
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StaticRoute'))</script>
+<table id='StaticRoutingList' cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Status"></td>
+	<td langkey="LK_DestinationSubnet"></td>
+	<td langkey="LK_Mask"></td>
+	<td langkey="LK_Gateway"></td>
+	<td langkey="LK_Metrics"></td>
+	<td langkey="LK_Type"></td>
+	<td langkey="LK_ErrorMessage"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td><script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script></td></tr>
+</table>	
+<script>printEndContent()</script>    
+</form>
+<form method="post" name ="ipv4_rtroutecfgdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_staticroute.shtml">
+</form>
+</body>
+</html>

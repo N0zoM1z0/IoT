@@ -1,0 +1,198 @@
+<script type="text/javascript">
+	(function(){
+		$("#wanTabCon").hide();
+		var iptvContent = $("#iptvContent");
+
+		var directRadio = new Radio({
+			targetId: "directRadio",
+			label: label.directMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				$("#vlanId").css("display","none");
+			}
+		});
+		var vlanRadio = new Radio({
+			targetId: "vlanRadio",
+			label: label.vlanMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				$("#vlanId").css("display","block");
+			}
+		});
+
+		directRadio.setValue(true);
+		$("#vlanId").css("display","none");
+
+		var iptvBtnNext = new Button({
+			text:btn.finish,
+			onClick:function(){
+				iptvModeChoosed[wanIdx] = {mode:directRadio.getValue()?"direct":"vlan"};
+				var checkRes = true;
+				if (iptvModeChoosed[wanIdx]["mode"] == "vlan" && !vlanId.checkAll()) {
+					$("#vlanIdInput input").blur();
+				}
+				else {
+					iptvModeChoosed[wanIdx]["vlanId"] = vlanId.getValue();
+					iptvCfgComplate();
+				}
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"iptvBtnNext",
+			props:{width:"120px", "margin-top":"48px"}
+		});
+
+		var iptvBtnPre = new Button({
+			text: btn.preStep,
+			onClick: function () {
+				stepPage(iptvSecondPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"iptvBtnPre",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+
+		var vlanId = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.vlanId},
+			targetId:"vlanIdInput",
+			props:{type:"number"},
+			check:{blur:checkVlanId}
+		});
+
+		function checkVlanId()
+		{
+			if ("" == this.input.value || this.input.value < 1 || this.input.value > 4094)
+			{
+				this.showNote(errStr.vlanIdErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function iptvCfgComplate() {
+			confirmDialog.show({
+				content: label.confirmSaveIptv,
+				button: {confirmStr:btn.btnY,
+							cancelStr:btn.btnN},
+				callback: function(choose){
+					if (choose)
+					{
+						loadingDialog.show({
+							title: label.iptvPort,
+							content:{
+								primary:label.wanSettingWait
+							}
+						});
+
+						var data = {}, capNum = 0, meshNum = 0;
+						data[uciPortConfig.fileName] = {};
+						data[uciPortConfig.fileName][KEY_TABLE] = [uciPortConfig.secType.devInfo];
+
+						$.query(data, function(result){
+							var err_code = result[ERR_CODE];
+							if (err_code == ENONE)
+							{
+								var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+								var capRouterIdx;
+								routerList.forEach(function(item, idx) {
+									if (item[uciPortConfig.dynOptName.cap] == "1") {
+										capRouterIdx = idx;
+									}
+								});
+								//portCfg用来修改port_manage中的iptv
+								var portCfg = {};
+								portCfg[uciPortConfig.fileName] = {};
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)] = {};
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy] = "-1";
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy] = iptvPortChoosed[wanIdx][0]["index"].toString();
+								portCfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev] = (iptvPortChoosed[wanIdx][0]["routerIndex"] == capRouterIdx? "FF-FF-FF-FF-FF-FF" : routerList[iptvPortChoosed[wanIdx][0]["routerIndex"]][uciPortConfig.dynOptName.mac]);
+								//iptvCfg用来修改iptv_manage中的iptv_entry
+								var iptvCfg = {};
+								iptvCfg[uciIptvConfig.fileName] = {};
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)] =  {};
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.wanIndex] = wanIdx+1;
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.linkMode] = iptvConnectModeChoosed[wanIdx] == "gather"? "1":"0";
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode] = iptvModeChoosed[wanIdx]["mode"] == "direct"? "0":"1";
+								iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.vlanId] = iptvModeChoosed[wanIdx]["mode"] == "direct"? "0":iptvModeChoosed[wanIdx]["vlanId"];
+
+								var err_code;
+								$.modify(portCfg,function(res) {
+									err_code = res[ERR_CODE];
+								});
+								$.modify(iptvCfg,function(res) {
+									err_code = err_code || res[ERR_CODE];
+								});
+
+								if (err_code == ENONE) {
+									loadingDialog.hide(function(){
+										showToast(label.iptvOpened);
+										stepPage(iptvEndPage);
+									});
+								}
+								else { //修改失败则把iptv开关关闭
+									loadingDialog.hide(function(){
+										errHandle(err_code);
+
+										var cfg = {};
+										cfg[uciPortConfig.fileName] = {};
+										cfg[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.off;
+										$.modify(cfg);
+									});
+								}
+							}
+							else
+							{
+								errHandle(err_code);
+							}
+						});
+					}
+				}
+			});
+		}
+	})()
+</script>
+<style type="text/css">
+	.chooseModeGuide{
+		color: #333333;
+		font-weight: bold;
+		margin-bottom: 20px;
+	}
+	div.radioLabel{
+		display: inline-block;
+		margin-right:16px;
+		color: #333333;
+	}
+	#vlanId{
+		position: relative;
+	}
+	#vlanId .vlanInputTips{
+		position: absolute;
+		top: 0;
+		line-height: 32px;
+		margin-left: 384px;
+		font-size: 13px;
+		color: #999999;
+	}
+	.vlanIdTips{
+		font-size: 12px;
+		color: #999999;
+		margin-left: 132px;
+	}
+</style>
+<div class="chooseModeGuide">
+	<h2>{%label.iptvModeChoose1%}</h2>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvMode%}</label>
+	<div id="directRadio" class="radioLabel"></div>
+	<div id="vlanRadio" class="radioLabel"></div>
+</ul>
+<div id="vlanId">
+	<div id="vlanIdInput"></div>
+	<span class="vlanInputTips">{%label.vlanInputTips%}</span>
+	<span class="vlanIdTips">{%label.vlanIdTips%}</span>
+</div>
+<div id="iptvBtnPre"></div>
+<div id="iptvBtnNext"></div>

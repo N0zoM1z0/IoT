@@ -1,0 +1,353 @@
+<style type="text/css">
+	#diagnosicResultCon{
+		width:760px;
+		height:280px;
+		font-size:13px;
+		color:#333;
+		border: 1px solid #DFDFDF;
+		white-space: pre;
+	}
+	#diagnosicResult{
+		padding:16px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var STATUS_RUNNING = 0;
+		var STATUS_COMPLETED = 1;
+
+		var getDiagResultHandle = null;
+
+		function showResult(result){
+			switch (result[ERR_CODE])
+			{
+			case ENONE:
+				/* SHOW THE RESULT */
+				var diagData = result["data"] || [];
+				var runStatus = parseInt(result["status"]);
+
+				var lines = "";
+				for (var line in diagData)
+				{
+					lines = lines + diagData[line] + "\n";
+				}
+
+				id("diagnosicResultCon").innerHTML = lines.replace(/\r\n/gi, "<br />");
+
+				switch (runStatus)
+				{
+				case STATUS_RUNNING:
+					getDiagResultHandle = $.setTimeout(getResult, DIAG_RESULT_FLASH_TIME);
+					break;
+				case STATUS_COMPLETED:
+					clearTimeout(getDiagResultHandle);
+					diagnosticBtn.setState({
+						text: btn.start,
+						type: Button.TYPE.PRIMARY,
+						onClick: onStart
+					});
+					break;
+				default:
+					clearTimeout(getDiagResultHandle);
+					diagnosticBtn.setState({
+						text: btn.start,
+						type: Button.TYPE.PRIMARY,
+						onClick: onStart
+					});
+					break;
+				}
+
+				break;
+			case EEXPT:
+				clearTimeout(getDiagResultHandle);
+				alarmDialog.show({content:errStr.systemErr});
+				diagnosticBtn.setState({
+					text: btn.start,
+					type: Button.TYPE.PRIMARY,
+					onClick: onStart
+				});
+				break;
+			case EINVARG:
+				clearTimeout(getDiagResultHandle);
+				alarmDialog.show({content:errStr.instructErr});
+				diagnosticBtn.setState({
+					text: btn.start,
+					type: Button.TYPE.PRIMARY,
+					onClick: onStart
+				});
+				break;
+			default:
+				clearTimeout(getDiagResultHandle);
+				alarmDialog.show({content:errStr.unknown + errNo});
+				diagnosticBtn.setState({
+					text: btn.start,
+					type: Button.TYPE.PRIMARY,
+					onClick: onStart
+				});
+				break;
+			}
+		}
+
+		function getResult(){
+			var data = {}, diagStart = {}, para = {};
+			data["diagnose"] = diagStart;
+			diagStart["get"] = para;
+			para["index"] = 0;
+
+			$.action(data, showResult);
+		}
+
+		function onStart(){
+			var diagParam = {};
+
+			if (!checkInput())
+			{
+				return;
+			}
+
+			clearTimeout(getDiagResultHandle);
+
+			var data = {}, diagStart = {}, para = {};
+			data["diagnose"] = diagStart;
+			diagStart["start"] = para;
+
+			if (pingRadio.getValue())
+			{
+				para["diag_type"] = "ping";
+				para["num"] = pingNum.getValue();
+				para["size"] = pingSize.getValue();
+				para["timeout"] = pingOvertime.getValue();
+				para["addr"] = ipaddrOrDomain.getValue();
+			}
+			else
+			{
+				para["diag_type"] = "tracert";
+				para["addr"] = ipaddrOrDomain.getValue();
+				para["hops"] = tracertHops.getValue();
+			}
+
+			id("diagnosicResultCon").innerHTML = "";
+
+			$.action(data, function(result){
+				switch(result[ERR_CODE])
+				{
+					case ENONE:
+						/* CHANGE BTN TO STOP_STATE */
+						diagnosticBtn.setState({
+							text: btn.end,
+							type: Button.TYPE.SECONDARY,
+							onClick: onStop
+						});
+						break;
+					case ESYSBUSY:
+						clearTimeout(getDiagResultHandle);
+						alarmDialog.show(errStr.diagBusy);
+						break;
+					default:
+						clearTimeout(getDiagResultHandle);
+						alarmDialog.show(errStr.unknown + result[ERR_CODE]);
+				}
+			});
+
+			getDiagResultHandle = $.setTimeout(getResult, DIAG_RESULT_FLASH_TIME);
+		}
+
+		function onStop(){
+			/* CHANGE BTN TO START_STATE */
+			diagnosticBtn.setState({
+				text: btn.start,
+				type: Button.TYPE.PRIMARY,
+				onClick: onStart
+			});
+
+			clearTimeout(getDiagResultHandle);
+
+			var data = {}, diagStart = {}, para = {};
+			data["diagnose"] = diagStart;
+			diagStart["stop"] = null;
+
+			$.action(data, null, true);
+
+			getDiagResultHandle = $.setTimeout(getResult, DIAG_RESULT_FLASH_TIME);
+		}
+
+		function checkInput(){
+			var checkRes = true;
+
+			var targetInputArr = pingRadio.getValue() == true ? [ipaddrOrDomain, pingNum, pingSize, pingOvertime]
+																: [ipaddrOrDomain, tracertHops];
+
+			targetInputArr.forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			return checkRes;
+		}
+
+		function addrKeyupSub(event){
+			event = event || window.event;
+			var keyCode = event.keyCode;
+
+			if (13 == keyCode)
+			{
+				onStart();
+			}
+		}
+
+		function checkNumValid(obj, max, min)
+		{
+			var value = obj.getValue();
+
+			if (isNaN(value) || parseInt(value) < min)
+			{
+				return false;
+			}
+			else if (parseInt(value) > max)
+			{
+				obj.setValue(max);
+			}
+
+			return true;
+		}
+
+		function checkPingNum(){
+			if (!checkNumValid(this, 50, 1))
+			{
+				this.showNote(errStr.pingNumErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkPingSize(){
+			if (!checkNumValid(this, 1472, 4))
+			{
+				this.showNote(errStr.pingSizeErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkPingOvertime(){
+			if (!checkNumValid(this, 2, 1))
+			{
+				this.showNote(errStr.overtimeErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checktracertHops(){
+			if (!checkNumValid(this, 30, 1))
+			{
+				this.showNote(errStr.hopsErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function diagnosticTypeClick(type){
+			if (type == "Ping")
+			{
+				$("#pingArguments").css("display", "block");
+				$("#tracertArguments").css("display", "none");
+			}
+			else
+			{
+				$("#pingArguments").css("display", "none");
+				$("#tracertArguments").css("display", "block");
+			}
+		}
+
+		var pingRadio = new Radio({
+			targetId: "diagnosticPing",
+			label: label.ping,
+			value: "Ping",
+			name: "diagnosticType",
+			onClick: diagnosticTypeClick
+		});
+		var tracertRadio = new Radio({
+			targetId: "diagnosticTracert",
+			label: label.tracert,
+			value: "Tracert",
+			name: "diagnosticType",
+			onClick: diagnosticTypeClick
+		});
+		var ipaddrOrDomain = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipAddrDoname},
+			targetId:"basicArguments",
+			check:{blur:checkIpaddrOrDomain},
+			props:{maxlength: '50', type: "text"/*, placeholder:"0.0.0.0"*/}
+		});
+		var pingNum = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.pingNum},
+			targetId:"pingArguments",
+			check:{blur:checkPingNum},
+			hint:{value:label.pingNumRange},
+			props:{maxlength: '2', type: "text", value: "4"}
+		});
+		var pingSize = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.pingSize},
+			targetId:"pingArguments",
+			check:{blur:checkPingSize},
+			hint:{value:label.pingSizeRange},
+			props:{maxlength: '4', type: "text", value: "64"}
+		});
+		var pingOvertime = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.pingOvertime},
+			targetId:"pingArguments",
+			check:{blur:checkPingOvertime},
+			tips:{value:label.unitSecond, className: "unit"},
+			hint:{value:label.pingOvertimeRange},
+			props:{maxlength: '1', type: "text", value: "1"}
+		});
+		var tracertHops = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.trHops},
+			targetId:"tracertArguments",
+			check:{blur:checktracertHops},
+			hint:{value:label.tracertHopsRange},
+			props:{maxlength: '2', type: "text", value: "20"}
+		});
+		var diagnosticBtn = new Button({
+			text:btn.start,
+			onClick:onStart,
+			type:Button.TYPE.PRIMARY,
+			id:"diagnosticBtn",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		var listScroll;
+		listScroll = new NiceScroll({targetId:"diagnosicResultCon"});
+		listScroll.scrollTipOpacity(1);
+		listScroll.init();
+
+		/* DEFAULT MODE : PING_MODE */
+		pingRadio.setValue(true, null, true);
+	})();
+</script>
+<div class="head">
+	<div class="title"><h1>{%menuStr.diagnostic%}</h1></div>
+	<p class="description">{%titleDescriptionStr.diagnosticDescription%}</p>
+</div>
+<div class="subTitle">
+	<h2>{%label.diagnosticType%}</h2>
+	<div id="diagnosticPing" class="radioLabel"></div>
+	<div id="diagnosticTracert" class="radioLabel"></div>
+</div>
+<div id="basicArguments"></div>
+<div id="pingArguments"></div>
+<div id="tracertArguments"></div>
+<div id="diagnosticBtn"></div>
+<div class="subTitle">
+	<h2>{%label.diagnosticResult%}</h2>
+</div>
+<div id="diagnosicResultCon"><div id="diagnosicResult"></div></div>

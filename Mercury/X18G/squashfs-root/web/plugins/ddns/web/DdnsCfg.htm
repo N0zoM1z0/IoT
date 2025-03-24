@@ -1,0 +1,482 @@
+<script type="text/javascript">
+	(function(){
+		var DDNS_STATE_STOP = 0;
+		var DDNS_STATE_READY = 1;
+		var DDNS_STATE_CONNECTING_WORKING_SERVER = 2;
+		var DDNS_STATE_UP = 3;
+		var DDNS_STATE_INVALID_URL = 4;
+		var DDNS_STATE_AUTH_FAIL = 5;
+		var timeout = 1000;
+		var timerHandle = -1;
+		var isHandleStart = false;
+		var uciFile = uciDdns.fileName;
+		var uciPhDdns = uciDdns.secName.phDdns;
+		var uciUsername = uciDdns.optName.username;
+		var uciPwd = uciDdns.optName.password;
+		var uciAutologin = uciDdns.optName.autologin;
+
+		var ddnsData = {};
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (parseInt(errNo))
+			{
+			case ENONE:
+				return true;
+			case EDDNSPWDBLANK:
+				showStr = errStr.ddnsPwdBlank;
+				break;
+			case ENAMEBLANK:
+				showStr = errStr.ddnsUsrNameBlank;
+				break;
+			case ENOLINK:
+				showStr = errStr.ddnsWanNotReady;
+				break;
+			case EINVNAMELEN:
+				showStr = errStr.ddnsInvalidNameLen;
+				break;
+			case DDNSPWDLEN:
+				showStr = errStr.ddnsInvalidPwdLen;
+				break;
+			case EINVNAME:
+				showStr = errStr.ddnsInvalidName;
+				break;
+			case EDDNSPWD:
+				showStr = errStr.ddnsInvalidPwd;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function adjustWidget(state)
+		{
+			if ((true != state) && (false != state))
+			{
+				return;
+			}
+
+			ddnsUser.disable(state);
+			ddnsPwd.disable(state);
+			loginBtn.disable(state);
+		}
+
+		function changeLinkState(type, str)
+		{
+			$("#stateLi").attr("class", type);
+			$("#stateText").text(str);
+		}
+
+		function changeBtnDisplay(status)
+		{
+			var loginDisplay;
+
+			switch (status)
+			{
+				case DDNS_STATE_STOP:
+				case DDNS_STATE_INVALID_URL:
+				case DDNS_STATE_AUTH_FAIL:
+				case "logoutSuccess":
+					loginDisplay = true;
+					break;
+				case DDNS_STATE_READY:
+				case DDNS_STATE_CONNECTING_WORKING_SERVER:
+				case DDNS_STATE_UP:
+				case "loginSuccess":
+					loginDisplay = false;
+					break;
+				default:
+					loginDisplay = true;
+					break;
+			}
+
+			$("#login").css("display", (loginDisplay ? "block" : "none"));
+			$("#logout").css("display", (!loginDisplay ? "block" : "none"));
+		}
+
+		function onLogin()
+		{
+			var cfg = {}, cfgDdnsFile = {}, cfgSecDdns = {};
+			cfg[uciFile] = cfgDdnsFile;
+			cfgDdnsFile[uciPhDdns] = cfgSecDdns;
+
+			var newUserName = ddnsUser.getValue();
+			var newPwd = ddnsPwd.getValue();
+			var newAutoLogin = authLogin.getValue();
+
+			var checkRes = true;
+
+			/* CHEKC VALID */
+
+			[ddnsUser, ddnsPwd].forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			cfgSecDdns[uciUsername] = newUserName;
+			cfgSecDdns[uciPwd] = newPwd;
+			cfgSecDdns[uciAutologin] = newAutoLogin ? 1 : 0;
+
+			loginBtn.disable(true);
+			$.modify(cfg, function(result){
+				if (true == errHandle(result[ERR_CODE]))
+				{
+					var data = {"ddns":{"login":null}};
+
+					$.action(data, function(result){
+						loginBtn.disable(false);
+
+						if (true == errHandle(result[ERR_CODE]))
+						{
+							/* LOGIN SUCCESS */
+							showToast(label.operateSuccess);
+							if ((-1 == timerHandle) && !isHandleStart)
+							{
+								isHandleStart = true;
+								getDdnsStatus();
+							}
+
+							changeBtnDisplay("loginSuccess");
+						}
+						else
+						{
+							adjustWidget(false);
+						}
+					}, true);
+				}
+				else
+				{
+					loginBtn.disable(false);
+					adjustWidget(false);
+				}
+			});
+		}
+
+		function onLogout()
+		{
+			var cfg = {}, cfgDdnsFile = {}, cfgSecDdns = {};
+			var newAutoLogin = authLogin.getValue();
+
+			cfg[uciFile] = cfgDdnsFile;
+			cfgDdnsFile[uciPhDdns] = cfgSecDdns;
+			cfgSecDdns[uciAutologin] = newAutoLogin ? 1 : 0;
+
+			logoutBtn.disable(true);
+			$.modify(cfg, function(result){
+				if (true == errHandle(result[ERR_CODE]))
+				{
+					var data = {"ddns":{"logout":null}};
+
+					$.action(data, function(result){
+						logoutBtn.disable(false);
+						if (true == errHandle(result[ERR_CODE]))
+						{
+							showToast(label.operateSuccess);
+							if ((-1 != timerHandle))
+							{
+								isHandleStart = false;
+								clearTimeout(timerHandle);
+								timerHandle = -1;
+							}
+
+							/* 调整控件状态 */
+							$("#serviceType").html(ddnsService[DDNS_SERVICE_TYPE_NONE]);
+							$("#domainInfo").html(label.none);
+							changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]);
+							changeBtnDisplay("logoutSuccess");
+							adjustWidget(false);
+						}
+					});
+				}
+				else
+				{
+					logoutBtn.disable(false);
+				}
+			});
+		}
+
+		function onAuthLogin()
+		{
+			var data = {}, cmdData = {}, swData = {};
+			var loginStat;
+			var autoLoginValue = authLogin.getValue();
+
+			/* RETURN WHEN OUT_LINE */
+			var statusQueryData = {};
+			statusQueryData[uciFile] = {};
+			statusQueryData[uciFile][KEY_NAME] = [uciDdns.dynData.ddnsStatus];
+
+			$.query(statusQueryData, function(result){
+				 var ddnsStatus = result[uciFile][uciDdns.dynData.ddnsStatus];
+				 if (DDNS_STATE_STOP != parseInt(ddnsStatus.status))
+				 {
+					/* CHANGE THE STATUS OF DDNS */
+					loginStat = autoLoginValue ? "on" : "off";
+					swData["switch"] = loginStat;
+					cmdData["change_ddns_status"] = swData;
+					data["ddns"] = cmdData;
+					$.action(data, function(result){
+						errHandle(result[ERR_CODE]);
+					}, true);
+				 }
+			});
+		}
+
+		function setDdnsStatus(ddnsStatus)
+		{
+			changeBtnDisplay(parseInt(ddnsStatus.status));
+
+			switch(parseInt(ddnsStatus.status))
+			{
+				case DDNS_STATE_STOP:
+					adjustWidget(false);
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]);
+					break;
+				case DDNS_STATE_READY:
+					adjustWidget(true);
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTING] + ddnsLinkStatus[DDNS_LINK_STATUS_GETTING_IP]);
+					break;
+				case DDNS_STATE_CONNECTING_WORKING_SERVER:
+					adjustWidget(true);
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTING] + ddnsLinkStatus[DDNS_LINK_STATUS_REGISTERRING]);
+					break;
+				case DDNS_STATE_UP:
+					adjustWidget(true);
+					changeLinkState("success", ddnsLinkStatus[DDNS_LINK_STATUS_CONNECTED]);
+					break;
+				case DDNS_STATE_INVALID_URL:
+					adjustWidget(false);
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED_SUB_STATE] + ddnsLinkStatus[DDNS_LINK_STATUS_DOMAINERROR]);
+					break;
+				case DDNS_STATE_AUTH_FAIL:
+					adjustWidget(false);
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED_SUB_STATE] + ddnsLinkStatus[DDNS_LINK_STATUS_VERIFYFAIL]);
+					break;
+
+				default:
+					changeLinkState("error", ddnsLinkStatus[DDNS_LINK_STATUS_DISCONNECTED]);
+					break;
+			}
+		}
+
+		function setDdnsInfo(ddnsStatus)
+		{
+			var serviceTypeIndex = DDNS_SERVICE_TYPE_NONE;
+			var i = 0, domainInfoStr = "";
+
+			if ((DDNS_STATE_UP == ddnsStatus.status)
+				&& (DDNS_SERVICE_TYPE_STA <= ddnsStatus.srv_type)
+				&& (DDNS_SERVICE_TYPE_NONE > ddnsStatus.srv_type))
+			{
+				serviceTypeIndex = ddnsStatus.srv_type;
+			}
+
+			$("#serviceType").html(ddnsService[serviceTypeIndex]);
+
+			if ((0 == parseInt(ddnsStatus.domain_num)) || (DDNS_STATE_UP != ddnsStatus.status))
+			{
+				$("#domainInfo").html(label.none);
+			}
+			else
+			{
+				$("#domainInfo").html("");
+				for (i = 0;i < parseInt(ddnsStatus.domain_num); i++)
+				{
+					domainInfoStr += (i + 1) + ". " + ddnsStatus.domains[i];
+					if (i != parseInt(ddnsStatus.domain_num))
+					{
+						domainInfoStr += "<br />";
+					}
+				}
+
+				$("#domainInfo").html(domainInfoStr);
+			}
+		}
+
+		function getDdnsStatus()
+		{
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = [uciDdns.dynData.ddnsStatus];
+
+			$.query(data, showDdnsStatus);
+		}
+
+		function showDdnsStatus(ALL_DATA)
+		{
+			var ddnsStatus = ALL_DATA[uciFile][uciDdns.dynData.ddnsStatus];
+
+			setDdnsStatus(ddnsStatus);
+			setDdnsInfo(ddnsStatus);
+
+			/* TRIGGER WHEN CLICK THE LOGIN_BUTTON */
+			if (true == isHandleStart)
+			{
+				timerHandle = $.setTimeout(getDdnsStatus, timeout);
+				return;
+			}
+
+			/* TRIGGER WHEN OPEN AUTO_LOGIN */
+			/* EMPTY USER/PASSWORD IS ALLOWED */
+			if (parseInt(ddnsData[uciAutologin]))
+			{
+				timerHandle = $.setTimeout(getDdnsStatus, timeout);
+				return;
+			}
+
+			/* TRIGGER WHEN DDNS IS WORK-REGULAR */
+			if ((DDNS_STATE_STOP != parseInt(ddnsStatus.status))
+			    && (DDNS_STATE_INVALID_URL != parseInt(ddnsStatus.status))
+				&& (DDNS_STATE_AUTH_FAIL != parseInt(ddnsStatus.status)))
+			{
+				timerHandle = $.setTimeout(getDdnsStatus, timeout);
+				return;
+			}
+			else
+			{
+				/* CANCEL THE TRIGGER WHEN DDNS IS WORK-UNUSUAL */
+				if (-1 != timerHandle)
+				{
+					isHandleStart = false;
+					clearTimeout(timerHandle);
+				}
+
+				return;
+			}
+		}
+
+		function fillData(ALL_DATA)
+		{
+			ddnsData = ALL_DATA[uciFile][uciPhDdns];
+			ddnsUser.setValue(ddnsData[uciUsername] ? ddnsData[uciUsername] : "");
+			ddnsPwd.setValue(ddnsData[uciPwd] ? ddnsData[uciPwd] : "");
+			authLogin.setValue(parseInt(ddnsData[uciAutologin]));
+
+			/* SHOW THE BUTTON */
+			changeBtnDisplay(ALL_DATA[uciFile][uciDdns.dynData.ddnsStatus]);
+
+			/* SHOW THE DDNS STATUS */
+			showDdnsStatus(ALL_DATA);
+		}
+
+		function requestData()
+		{
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = [uciPhDdns, uciDdns.dynData.ddnsStatus];
+
+			$.query(data, fillData);
+		}
+
+		var ddnsUser = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.userName},
+			targetId:"userCon",
+			isAllowBlank: false,
+			props:{maxlength: '63', type: "text"}});
+		var ddnsPwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.password},
+			targetId:"userCon",
+			isAllowBlank: false,
+			props:{maxlength: '63', type: "text"}});
+		var authLogin = new CheckBox({
+			targetId:"authLoginCon",
+			label:label.autoLogin,
+			checked:false,
+			onClick:onAuthLogin
+		});
+		var loginBtn = new Button({
+			text:btn.login,
+			onClick:onLogin,
+			type:Button.TYPE.PRIMARY,
+			id:"login",
+			props:{width:"240px", margin:"32px 0 0 132px"}
+		});
+		var logoutBtn = new Button({
+			text:btn.quit,
+			onClick:onLogout,
+			type:Button.TYPE.SECONDARY,
+			id:"logout",
+			props:{width:"240px", margin:"32px 0 0 132px"}
+		});
+		var ddnsAlert = new Dialog({
+			title: label.confirmTitle,
+			content: "",
+			size: Dialog.SIZE.SMALL,
+			hasCloseIcon: false,
+			type: Dialog.TYPE.ALARM
+		});
+
+
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	#serviceLink a{
+		margin-right:8px;
+		color:#333333;
+	}
+	#provider a{
+		margin-left:20px;
+		color:#FF3366;
+		text-decoration:none;
+	}
+	#authLoginCon{
+		height:24px;
+		line-height:24px;
+	}
+	#login, #logout{
+		display: none;
+	}
+</style>
+<div class="head">
+	<div class="title"><h1>{%label.phDdns%}</h1><i class="helpBtn iconfont icon-help" helpStr="DdnsHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.ddnsDescription%}</p>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.phState%}</label>
+	<li class="inputLi state"><span id="stateLi" class="error"><i class="circle"></i><span id="stateText"></span></span></li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.ddnsYielderLink%}</label>
+	<li class="inputLi state" id="serviceLink">
+		<a href="http://www.oray.com/passport/register.php" target="_blank">{%label.phServiceApply%}</a>
+		<a href="http://ask.oray.com/help" target="_blank">{%label.phServiceHelp%}</a>
+	</li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.serviceProvider%}</label>
+	<li class="inputLi state" id="provider">
+		<span >{%label.ddnsProvider%}</span>
+		<a href="http://www.oray.com/passport/register.php" target="_blank">{%label.regNewAccount%}</a>
+	</li>
+</ul>
+<div id="userCon"></div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl"></label>
+	<div id="authLoginCon"></div>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.serviceType%}</label>
+	<li class="inputLi state"><span id="serviceType">{%statusStr.ddnsNoneService%}</span></li>
+</ul>
+<ul class="inputCMPT medium">
+	<label class="outerLbl" style="vertical-align:top;">{%label.domainInfo%}</label>
+	<li class="inputLi state">
+		<span id="domainInfo"></span>
+	</li>
+</ul>
+<div id="login"></div>
+<div id="logout"></div>

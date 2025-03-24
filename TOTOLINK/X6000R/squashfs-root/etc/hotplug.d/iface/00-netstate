@@ -1,0 +1,14 @@
+[ ifup = "$ACTION" ] && {
+	uci_toggle_state network "$INTERFACE" up 1
+	[ -n "$DEVICE" ] && {
+		uci_toggle_state network "$INTERFACE" ifname "$DEVICE"
+	}
+	if [ wan = "$INTERFACE" ] || [ wan6 = "$INTERFACE" ] || [ vpn = "$INTERFACE" ];then
+                echo ---wanup:$ACTION,$INTERFACE,$DEVICE > /dev/console
+                lktos_reload firewall
+        fi
+}
+[ ifdown = "$ACTION" ] && {
+	datconf -f /tmp/cste/temp_status set ui_effect_now 1
+	lktos_reload wan_port_down
+}

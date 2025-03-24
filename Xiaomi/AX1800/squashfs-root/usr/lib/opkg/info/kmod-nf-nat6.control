@@ -1,0 +1,10 @@
+Package: kmod-nf-nat6
+Version: 4.4.198-1
+Depends: kernel (=4.4.198-1-924b3e090b99f2b48028e306a2d1519e), kmod-nf-conntrack6, kmod-nf-ipt6, kmod-nf-nat
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: mipsel_24kc
+Installed-Size: 4668
+Description:  Netfilter IPV6-NAT

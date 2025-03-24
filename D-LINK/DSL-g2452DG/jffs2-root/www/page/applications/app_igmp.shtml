@@ -1,0 +1,325 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script   language="javascript"> 
+
+function ConnectionTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = ""; 
+}
+var index = 0;
+var ConnectionS = new Array();
+//WAN Device
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].ServiceList = "<!--#leaf "2"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "3"-->";
+    ConnectionS[index].IPMode= "<!--#leaf "4"-->";
+    index++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].ServiceList = "<!--#leaf "2"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "3"-->";
+    ConnectionS[index].IPMode= "<!--#leaf "4"-->";
+    index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Multicast.IGMPSnooping. Enable" --> 
+    var G_SnoopingEnable = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy. Enable WANPathName DELWANPathName LANVersion QI QRI LMQI ROBUST MMDS FLEnable MJIenable WANVersion" --> 
+    var G_ProxyEnable = "<!--#leaf "1"-->";
+    var G_WANPathName = "<!--#leaf "2"-->";
+    var G_DELWANPathName = "<!--#leaf "3"-->";
+    var G_LANVERSION = "<!--#leaf "4"-->";
+    var G_QI = "<!--#leaf "5"-->";
+    var G_QRI = "<!--#leaf "6"-->";
+    var G_LMQI = "<!--#leaf "7"-->";
+    var G_ROBUST = "<!--#leaf "8"-->";
+    var G_MMDS = "<!--#leaf "9"-->";
+    var G_FLEnable = "<!--#leaf "10"-->";
+    var G_MJIenable = "<!--#leaf "11"-->";
+    var G_WANVERSION = "<!--#leaf "12"-->";
+<!--#endgetobject -->
+
+var num_wan = 0;
+var selected_wans = 0;
+var selected_wans_count = 0;
+
+function frmLoad(){
+    setValue('INPUT_Snooping_Enable',G_SnoopingEnable);
+    setValue('INPUT_Proxy_Enable',G_ProxyEnable);
+    setValue('select_igmpver_wan',G_WANVERSION);
+    setValue('select_igmpver_lan',G_LANVERSION);
+    setValue('INPUT_QI',G_QI);
+    setValue('INPUT_QRI',G_QRI);
+    setValue('INPUT_LMQI',G_LMQI);
+    setValue('INPUT_RV',G_ROBUST);
+    setValue('INPUT_MMDS',G_MMDS);
+    setValue('INPUT_FLE',G_FLEnable);
+    setValue('INPUT_MJI',G_MJIenable);
+}
+
+function value_limit()
+{
+	if(getValue('INPUT_QI') < 60)
+	{
+		  top.AlertMsg(getStr("LK_QI_Tips"));
+	    return -1;
+  }
+	if(getValue('INPUT_QRI') > getValue('INPUT_QI')) 
+	{   
+		  top.AlertMsg(getStr("LK_QRI_Tips"));
+		  return -1;
+	}
+	if(getValue('INPUT_LMQI') > 128)
+	{
+		  top.AlertMsg(getStr("LK_LMQI_Tips"));
+	    return -1;
+  }
+  if(getValue('INPUT_RV') < 2 )
+	{
+		  top.AlertMsg(getStr("LK_RV_Tips1"));
+	    return -1;
+  }
+  if(getValue('INPUT_RV') > 7)
+	{
+		  top.AlertMsg(getStr("LK_RV_Tips2"));
+	    return -1;
+  }
+  if(getValue('INPUT_RV') > 3)
+	{
+		  top.AlertMsg(getStr("LK_RV_Tips3"));
+	    return 0;
+  }
+  if(getValue('INPUT_MMDS') > 16)
+	{
+		  top.AlertMsg(getStr("LK_MMDS_Tips"));
+	    return -1;
+  }
+}
+
+function uiSubmit_igmp(){
+	  if(value_limit() == -1) return -1;
+    var df = document.app_mccfgform;
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.WANVersion', getValue('select_igmpver_wan'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.LANVersion', getValue('select_igmpver_lan'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.QI', getValue('INPUT_QI'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.QRI', getValue('INPUT_QRI'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.LMQI', getValue('INPUT_LMQI'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.ROBUST', getValue('INPUT_RV'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.MMDS', getValue('INPUT_MMDS'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.FLEnable', getValue('INPUT_FLE'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.MJIenable', getValue('INPUT_MJI'));
+    df.submit();
+}
+
+function uiSubmit_snoop(){
+	if(!validateCode())
+			return false;
+    var df = document.app_mccfgform;
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPSnooping.Enable', getValue('INPUT_Snooping_Enable'));
+    df.submit();
+}
+
+function uiSubmit_proxy(){
+    var df = document.app_mccfgform;
+    var WanPathName = '';
+    var DELWANPathName = '';
+
+    for(var i = 0; i < num_wan; i++){
+        if($('INPUT_WanConn' + i).checked){
+            WanPathName += $('INPUT_WanConn' + i).value + ',';
+        }
+        else
+        {
+            DELWANPathName += $('INPUT_WanConn' + i).value + ',';
+        }
+    } 
+
+	if(!validateCode(2))
+			return false;
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.Enable', getValue('INPUT_Proxy_Enable'));
+    if(WanPathName == null || WanPathName == "" ){
+         AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.WANPathName', "");
+    }else{
+         AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.WANPathName', WanPathName.replace(/(^,*)|(,*$)/g,''));
+    }
+
+    if(DELWANPathName == null || DELWANPathName == "" )
+    {
+        AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.DELWANPathName', "");
+    }
+    else
+    {
+        AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.IGMPProxy.DELWANPathName', DELWANPathName.replace(/(^,*)|(,*$)/g,''));
+    }
+    df.submit();
+}
+
+function createTable(){
+    var array_value = [];
+    var check_flag = 0;
+    var tmpwan_id;
+    var k= 0; 
+    selected_wans = G_WANPathName.split(",");
+    selected_wans_count = G_WANPathName.split(",").length;
+    for(var i = 0, j = 0, _len = ConnectionS.length; i < _len; i++){
+        if(ConnectionS[i].IPMode == "2" || isBridgedConn(ConnectionS[i].ConnectionType) || ConnectionS[i].ServiceList == "TR069" || ConnectionS[i].ServiceList == "VOIP") {
+            continue;
+        }else{
+			if(k%2==0)
+				document.write('<tr class="OddRowB">');
+			else
+                document.write("<tr class='EvenRowB'> ");
+            k++;
+            document.write("<td id='wlan_connect'>"+ConnectionS[i].Name+"</td>");
+            
+            document.write('<td id="Multicast_apply"><input type="checkbox" id="INPUT_WanConn' + j + '" value="' + ConnectionS[i].Path + '" ' + (G_WANPathName.indexOf(ConnectionS[i].Path) > -1 ? 'checked' : '') + '></td>');
+            document.write("</tr>");
+        }
+        num_wan = ++j;
+    }
+	if(k==0)
+	document.write('<tr class="OddRowB"><td colspan="2">'+getStr('LK_NoRule')+'</td></tr>');
+    
+}  
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());	
+}
+  
+</script> 
+  </head>
+  <body >
+    <form method="post" name ="app_mccfgform" action="/cgi-bin/setup.cgi?page/applications/app_igmp.shtml">
+    </form>
+        <form method="get" >
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_IGMPSettings'))</script>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+       <tr class="FlagText">
+          <td langkey="LK_IGMPTips1"></td>
+       </tr>
+</table>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+       <tr class="FlagText">
+           <td langkey="LK_IGMPTips2"></td>
+       </tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor" width="600">
+<tr>	     
+	      <td langkey="LK_DEFAULT_VERSION_WAN" width="300"></td>  
+        <td>
+            <select id="select_igmpver_wan" name="select_igmpver_wan">
+                <option value="3">IGMP v3</option>
+                <option value="2">IGMP v2</option>          
+            </select></td>
+</tr>
+<tr>	     
+	      <td langkey="LK_DEFAULT_VERSION_LAN" width="300"></td>  
+        <td>
+            <select id="select_igmpver_lan" name="select_igmpver_lan">
+                <option value="3">IGMP v3</option>
+                <option value="2">IGMP v2</option>          
+            </select></td>
+</tr>
+<tr>
+	<td langkey="LK_QUERY_INTERVAL"></td>
+	<td><input type="text" id="INPUT_QI"></td>
+</tr>
+<tr>
+	<td langkey="LK_QUERY_RESPONSE_INTERVAL"></td>
+	<td><input type="text" id="INPUT_QRI"></td>
+</tr>
+<tr>
+	<td langkey="LK_LAST_MEMBER_QUERY_INTERVAL"></td>
+	<td><input type="text" id="INPUT_LMQI"></td>
+</tr>
+<tr>
+	<td langkey="LK_ROBUSTNESS_VALUE"></td>
+	<td><input type="text" id="INPUT_RV"></td>
+</tr>
+<tr>
+	<td langkey="LK_MAXIMUM_MULTICAST_DATA_SOURCES"></td>
+	<td><input type="text" id="INPUT_MMDS"></td>
+</tr>
+<tr>
+	<td langkey="LK_FAST_LEAVE_ENABLE"></td>
+	<td><input type="checkbox" id="INPUT_FLE"></td>
+</tr>
+<tr>
+	<td langkey="LK_MEBERSHIP_JOIN_IMMEDIATE"></td>
+	<td><input type="checkbox" id="INPUT_MJI"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2"><script>PrintTriButton("submit_igmp",getStr('LK_Apply'),"uiSubmit_igmp()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script></td>
+</tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="200" langkey="LK_EnableIGMPSnoopingg"></td>
+	<td><input type="checkbox" id="INPUT_Snooping_Enable"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2"><script>PrintTriButton("submit_snoop",getStr('LK_Apply'),"uiSubmit_snoop()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script></td>
+</tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="200" langkey="LK_EnableIGMPProxyy"></td>
+	<td><input type="checkbox" id="INPUT_Proxy_Enable"></td>
+</tr>
+<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentBorder" width="300" cellpadding="0" cellspacing="0">
+<tr class="TitleRow">
+	<td langkey="LK_WANConnection"></td>
+	<td langkey="LK_EnableIGMP"></td>     
+</tr>
+ <script language="javascript">  
+                 createTable();
+            </script>
+</table>
+<br>
+<table class="ContentTableNoColor">
+<tr>
+	<td><script>PrintTriButton("submit_proxy",getStr('LK_Apply'),"uiSubmit_proxy()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script></td>
+</tr>
+</table>
+<script>printEndContent()</script>
+    </form> 
+</body></html> 

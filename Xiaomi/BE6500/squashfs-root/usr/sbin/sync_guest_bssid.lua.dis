@@ -1,0 +1,19 @@
+local L0, L1, L2, L3, L4, L5, L6
+L0 = require
+L1 = "xiaoqiang.util.XQWifiUtil"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.util.XQCryptoUtil"
+L1 = L1(L2)
+L2 = L0.getGuestWifiBssid
+L2 = L2()
+if L2 then
+  L3 = os
+  L3 = L3.execute
+  L4 = "matool --method setKVB64 --params bssid_guest "
+  L5 = L1.binaryBase64Enc
+  L6 = L2
+  L5 = L5(L6)
+  L4 = L4 .. L5
+  L3(L4)
+end

@@ -1,0 +1,8 @@
+Package: usr_flow
+Version: 4.5-1
+Depends: libc, libuci
+Source: package/blink/usr_flow
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 40649
+Description:  An program to config usr_flow

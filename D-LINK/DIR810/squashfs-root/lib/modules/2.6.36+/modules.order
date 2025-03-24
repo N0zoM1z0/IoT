@@ -1,0 +1,4 @@
+kernel/drivers/net/wireless/rt2860v2_ap/rt2860v2_ap.ko
+kernel/drivers/net/wireless/MT7610_ap/MT7610_ap.ko
+kernel/drivers/watchdog/ralink_wdt.ko
+kernel/net/nat/hw_nat/hw_nat.ko

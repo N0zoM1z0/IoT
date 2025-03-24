@@ -1,0 +1,132 @@
+config color red
+    option R 176
+    option G 23
+    option B 31
+
+config color blue
+    option R 0
+    option G 100
+    option B 200
+
+config color white
+    option R 245
+    option G 245
+    option B 245
+
+config color orange
+    option R 255
+    option G 43
+    option B 0
+
+config color purple
+    option R 144
+    option G 0
+    option B 144
+
+config color black
+    option R 0
+    option G 0
+    option B 0
+
+config color fac_red
+    option R 255
+    option G 0
+    option B 0
+
+config color fac_green
+    option R 0
+    option G 255
+    option B 0
+
+config color fac_blue
+    option R 0
+    option G 0
+    option B 255
+
+config func 'sys_ota'
+    option color    'blue'
+    option trigger  'blink'
+    option msec_on  '500'
+    option msec_off '500'
+
+config func 'sys_booting'
+    option color    'blue'
+    option trigger  'on'
+
+config func 'sys_init'
+    option color    'blue'
+    option trigger  'blink'
+    option msec_on  '1000'
+    option msec_off '1000'
+
+config func 'sys_ok'
+    option color    'white'
+    option trigger  'on'
+
+config func 'sys_off'
+    option color    'black'
+    option trigger  'off'
+
+config func 'internet_ok'
+    option color    'white'
+    option trigger  'on'
+
+config func 'link_down'
+    option color    'orange'
+    option trigger  'on'
+
+config func 'internet_fail'
+    option color    'orange'
+    option trigger  'on'
+
+config func 'link_good'
+    option color    'white'
+    option trigger  'on'
+
+config func 'link_poor'
+    option color    'orange'
+    option trigger  'on'
+
+config func 'link_lost'
+    option color    'red'
+    option trigger  'on'
+
+#0.2s
+config func 'meshing'
+    option color    'white'
+    option trigger  'blink'
+    option msec_on  '500'
+    option msec_off '500'
+#0.7s
+config func 'mesh_discovery'
+    option color    'white'
+    option trigger  'blink'
+    option msec_on  '1000'
+    option msec_off '1000'
+
+# memtest  ongoing & fail
+config func 'systest_fail'
+    option color    'purple'
+    option trigger  'on'
+
+config func 'systest_ongo'
+    option color    'purple'
+    option trigger  'blink'
+    option msec_on  '1000'
+    option msec_off '1000'
+
+config func 'factest_red'
+    option color    'fac_red'
+    option trigger  'on'
+
+config func 'factest_green'
+    option color    'fac_green'
+    option trigger  'on'
+
+config func 'factest_blue'
+    option color    'fac_blue'
+    option trigger  'on'
+
+config func 'factest_off'
+    option color    'black'
+    option trigger  'off'

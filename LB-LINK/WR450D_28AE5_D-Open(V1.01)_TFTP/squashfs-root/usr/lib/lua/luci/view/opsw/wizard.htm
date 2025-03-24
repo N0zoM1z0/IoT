@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LB-LINK</title>
+		<link rel="icon" type="image/x-icon" href="/opsw/img/wireless_icon.png" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/main.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/elementUi.css" />
+		<script src="/opsw/js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/tr.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hostUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "")%>';
+			var hostUrlSystem = '<%=luci.dispatcher.build_url("admin", "system", "")%>';
+			var hostDomain = '<%=luci.dispatcher.get_host_domain()%>';
+			var login_user = '<%=luci.dispatcher.get_login_user()%>';
+			var menu_idx = '<%=luci.dispatcher.get_menu_idx()%>';
+			var wizardUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "wizard_apply")%>';
+			var model_type = <%=luci.dispatcher.get_devmodel_type()%>;
+		</script>
+		<script src="/opsw/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/verify.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			#container {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				background-color: #666666;
+				z-index: 999;
+			}
+			
+			.header .language{
+			   position:static;
+			}
+			
+		
+			.frame {
+				margin: 3% auto 0;
+				width: 660px;
+				padding: 20px 20px 30px 0;
+				box-sizing: border-box;
+				background-color: #fff;
+				border-radius: 15px;
+				box-shadow: 3px 3px 25px #000;
+			}
+		
+			.frame-title {
+				position: relative;
+			}
+		
+			.frame-title-left {
+				width: 88%;
+				height: 41px;
+				line-height: 41px;
+				padding-left: 20px;
+				background: url(/opsw/img/title.png) no-repeat;
+				background-size: cover;
+				color: #fff;
+				font-size: 20px;
+			}
+		
+			.frame-title img {
+				position: absolute;
+				top: 2px;
+				right: 20px;
+				cursor: pointer;
+			}
+		
+			.topology {
+				margin: 20px 0 8px;
+			}
+		
+			.topology-name span {
+				display: inline-block;
+				width: 200px;
+				font-weight: bold;
+			}
+		
+			.wizard_wording {
+				padding: 0 22px;
+				line-height: 25px;
+			}
+		
+			ul.wizard_settings_body {
+				padding-top: 30px;
+				width: 350px;
+				margin: 0 auto;
+			}
+		
+			ul.wizard_settings_body li {
+				text-align: left;
+				font-weight: bold;
+				padding: 8px 0;
+			}
+		
+			.btn_next {
+				padding: 10px 25px;
+				background-color: #4598AA;
+				color: #fff;
+			}
+		
+			.wizard_loading {
+				margin: 60px 0;
+			}
+		
+			.wifiSetting {
+				margin: 20px 0;
+			}
+		
+			.wifiSetting-item {
+				padding: 8px 0;
+			}
+		
+			.wifiSetting-item label {
+				display: inline-block;
+				width: 270px;
+				text-align: right;
+				color: #333;
+				font-weight: bold;
+				margin-right: 10px;
+				padding-top: 6px;
+			}
+		
+			.wizard_settings_name {
+				line-height: 36px;
+			}
+		
+			.wizard_mode li p {
+				line-height: 20px;
+			}
+		
+			.wizard_settings_name input[type="radio"] {
+				width: 18px;
+				height: 18px;
+				vertical-align: middle;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container" style="display: none;" :style="{display:'block'}">
+			<div class="header" style="padding:0;">
+				<div class="topBar flex flex-align flex-between">
+					<div class="topBar-item">
+						<a>
+							<img src="/opsw/img/logo.png">
+						</a>
+					</div>
+					<div class="topBar-item">
+						<label>{{$t("modeName")}}:</label>
+						<span>{{versionMsg.model}}</span>
+					</div>
+					<div class="topBar-item">
+						<label>{{$t("hardwareName")}}:</label>
+						<span>{{versionMsg.hwVer}}</span>
+					</div>
+					<div class="topBar-item">
+						<label>{{$t("firmwareVersion")}}:</label>
+						<span>{{versionMsg.softwareVer}}</span>
+					</div>
+					<div class="language">
+						<label>{{ $t("language") }}:</label>
+						<el-select v-model="curLanguage" @change="setLanguage" :placeholder="$t('plsChoose')" style="margin-left:5px;">
+							<el-option :key="0" value="TR" label="Turkey"></el-option>
+							<el-option :key="1" value="EN" label="English"></el-option>
+						</el-select>
+					</div>
+				</div>
+			</div>
+			<div class="frame" v-if="frameShow">
+				<div class="frame-title">
+					<div class="frame-title-left">{{frame_title}}</div>
+					<img src="/opsw/img/closeDialog3.png" alt="" width="26" height="26" @click="wizardClose">
+				</div>
+				<div style="padding-left:20px;">
+					<div class="topology ac" v-if="wizardTopBar">
+						<div class="topology-item inline-block">
+							<img src="/opsw/img/internet.png" width="64" height="63">
+						</div>
+						<div class="wizard_wan_line inline-block">
+							<img :src="wizard_page==2 || wizard_page==3 || wizard_page==6 ?  '/opsw/img/line_z_on_y.png' : '/opsw/img/line_z_off.png' "
+							 width="130" height="5">
+						</div>
+						<div class="topology-item inline-block">
+							<img :src="wizard_page==5 ?  '/opsw/img/router_z_on_y.gif' : '/opsw/img/router_z_off.gif' " width="80" height="60">
+						</div>
+						<div class="topology-item inline-block">
+							<img :src="wizard_page==4 || wizard_page==6 ? '/opsw/img/wifi_on_y.png' : '/opsw/img/wifi_off.png'" width="130"
+							 height="50">
+						</div>
+						<div class="topology-item inline-block">
+							<img src="/opsw/img/wifiCients_z.png" width="54" height="66">
+						</div>
+					</div>
+					<div class="topology-name ac" v-if="wizardTopBar">
+						<span>{{$t("internet_set")}}</span>
+						<span>{{versionMsg.model}}</span>
+						<span>{{$t('wifiClient')}}</span>
+					</div>
+					<!-- 页面一 -->
+					<div class="wizard-page" v-if="wizard_page==1">
+						<div class="wizard_wording">{{$t('wizardPage1Tip')}}</div>
+						<ul class="wizard_settings_body ac">
+							<li>{{$t('step1')}}</li>
+							<li>{{$t('step2')}}</li>
+							<li>{{$t('step3')}}</li>
+						</ul>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameNext(1)">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面1.1 -->
+					<div class="wizard-page" v-if="wizard_page==1.1">
+						<div class="wizard_wording" style="padding:15px 22px 0;">{{$t('wizardPage1Tip2')}} </br>
+							{{$t('wizardPage1Tip3')}}</div>
+						<ul class="wizard_settings_body ac" style="padding:20px 0 35px;">
+							<li style="position: relative;">
+								<img src="/opsw/img/wanport.gif">
+								<span style="position: absolute;left:-56px;top:172px;">{{$t('yourDevice')}}</span>
+								<span style="position: absolute;right:-16px;top:172px;">{{$t('Cable_Broadband_Modem')}}</span>
+							</li>
+						</ul>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack('1-1')">{{$t('Back')}}</button>
+						</div>
+					</div>
+					<!-- 页面二 -->
+					<div v-if="wizard_page==2">
+						<div class="wizard_wording">{{$t('Detecting_Internet_Connection')}}...</div>
+						<div class="wizard_loading ac">
+							<img src="/opsw/img/loading.gif" alt="">
+						</div>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" disabled style="background-color: #ccc;">{{$t('Back')}}</button>
+							<button class="btn_next" disabled style="background-color: #ccc;">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面三 -->
+					<div v-if="wizard_page==3">
+						<div class="wizard_wording">{{$t('wizardPage3Tip')}}:</div>
+						<ul class="wizard_mode">
+							<li>
+								<div class="wizard_settings_name">
+									<input type="radio" name="modeSelect" id="" :value="0" v-model="networkType" />
+									<span class="fw_bold fs-15">{{$t('DHCP_Connection')}}</span>
+								</div>
+								<p>{{$t('wizardTip_dhcp')}}</p>
+							</li>
+							<li>
+								<div class="wizard_settings_name">
+									<input type="radio" name="modeSelect" id="" :value="1" v-model="networkType" />
+									<span class="fw_bold fs-15">{{$t('PPPoE_Connection')}}</span>
+								</div>
+								<p>{{$t('wizardTip_pppoe')}}</p>
+							</li>
+							<li>
+								<div class="wizard_settings_name">
+									<input type="radio" name="modeSelect" id="" :value="2" v-model="networkType" />
+									<span class="fw_bold fs-15">{{$t('Static_Connection')}}</span>
+								</div>
+								<p>{{$t('wizardTip_static')}}</p>
+							</li>
+						</ul>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack(3)">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext(3)">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面3.1 -->
+					<div v-if="wizard_page==3.1">
+						<div class="wizard_wording">{{$t('wizard_wanTip_pppoe')}}</div>
+						<div class="wifiSetting">
+							<div class="wifiSetting-item">
+								<label>{{$t('username')}}:</label>
+								<input type="text" v-model="pppoeForm.account">
+							</div>
+							<div class="wifiSetting-item">
+								<label>{{$t('password')}}:</label>
+								<input type="text" v-model="pppoeForm.password">
+							</div>
+						</div>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack('3-1')">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext('3-1')">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面3.2 -->
+					<div v-if="wizard_page==3.2">
+						<div class="wizard_wording">
+							{{$t('wizard_wanTip1_static')}}</br>
+							{{$t('wizard_wanTip2_static')}}
+						</div>
+						<div class="wifiSetting">
+							<div class="wifiSetting-item">
+								<label>{{$t('IP_Address')}}:</label>
+								<input type="text" v-model="staticForm.ip">
+							</div>
+							<div class="wifiSetting-item">
+								<label>{{$t('Subnet_Mask')}}:</label>
+								<input type="text" v-model="staticForm.mask">
+							</div>
+							<div class="wifiSetting-item">
+								<label>{{$t('Gateway_Address')}}:</label>
+								<input type="text" v-model="staticForm.gateway">
+							</div>
+							<div class="wifiSetting-item">
+								<label>{{$t('Primary_DNS_Address')}}:</label>
+								<input type="text" v-model="staticForm.dns1">
+							</div>
+							<div class="wifiSetting-item">
+								<label>{{$t('Secondary_DNS_Address')}}:</label>
+								<input type="text" v-model="staticForm.dns2">
+							</div>
+						</div>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack('3-2')">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext('3-2')">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面四 -->
+					<div v-if="wizard_page==4">
+						<div class="wizard_wording">{{$t('wizardTip_wifi')}}</div>
+						<div class="wifiSetting">
+							<div class="wifiSetting-item">
+								<label>{{$t('twoWifi_NetworkName')}}:</label>
+								<input type="text" v-model="twoWifiMsg.ssid">
+							</div>
+							<div class="wifiSetting-item" v-if="model_type == 1">
+								<label>{{$t('fiveWifi_NetworkName')}}:</label>
+								<input type="text" v-model="fiveWifiMsg.ssid">
+							</div>
+							<div class="wifiNameTip">
+							</div>
+						</div>
+						<div class="wizard_wording">
+							{{$t('wizardTip_wifiName')}}
+						</div>
+						<div class="wifiSetting">
+							<div class="wifiSetting-item">
+								<label>{{$t('twoWifi_Passowrd')}}:</label>
+								<input type="text" v-model="twoWifiMsg.password">
+							</div>
+							<div class="wifiSetting-item" v-if="model_type == 1">
+								<label>{{$t('fiveWifi_Passowrd')}}:</label>
+								<input type="text" v-model="fiveWifiMsg.password">
+							</div>
+						</div>
+						<div class="wizard_wording">
+							{{$t('wizardTip_wifiPwd')}}
+						</div>
+						<div style="padding:0 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack(4)">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext(4)">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面五 -->
+					<div v-if="wizard_page==5">
+						<div class="wizard_wording">{{$t('wizardPage5Tip')}}</div>
+						<div class="wifiSetting-item" style="text-align: left;">
+							<label>{{$t('Device_Admin_Password')}}:</label>
+							<input type="text" v-model="loginPwd" @keyup.enter="frameNext(5)">
+						</div>
+						<div style="padding:20px 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack(5)">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext(5)">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面六 -->
+					<div v-if="wizard_page==6">
+						<div class="wizard_wording">{{$t('wizardPage6Tip')}}</div>
+						<div class="wifiSetting-item" style="text-align: left;">
+							<label>{{$t('Connection_Type')}}:</label>
+							<span v-if="networkType==0">{{$t('Dynamic_IP_DHCP')}}</span>
+							<span v-if="networkType==1">{{$t('pppoe')}}</span>
+							<span v-if="networkType==2">{{$t('staticIp')}}</span>
+						</div>
+						<div class="wifiSetting-item" style="text-align: left;">
+							<label>{{$t('twoWifi_NetworkName')}}:</label>
+							<span>{{twoWifiMsg.ssid}}</span>
+						</div>
+						<div class="wifiSetting-item" style="text-align: left;">
+							<label>{{$t('twoWifi_Passowrd')}}:</label>
+							<span>{{twoWifiMsg.password}}</span>
+						</div>
+						<div class="wifiSetting-item" style="text-align: left;" v-if="model_type==1">
+							<label>{{$t('fiveWifi_NetworkName')}}:</label>
+							<span>{{fiveWifiMsg.ssid}}</span>
+						</div>
+						<div class="wifiSetting-item" style="text-align: left;" v-if="model_type==1">
+							<label>{{$t('fiveWifi_Passowrd')}}:</label>
+							<span>{{fiveWifiMsg.password}}</span>
+						</div>
+						<div class="wifiSetting-item" style="text-align: left;">
+							<label>{{$t('Device_Admin_Password')}}:</label>
+							<span>{{loginPwd}}</span>
+						</div>
+						<div style="padding:20px 30px;text-align: right;">
+							<button class="btn_next" @click="frameBack(6)">{{$t('Back')}}</button>
+							<button class="btn_next" @click="frameNext(6)">{{$t('Next')}}</button>
+						</div>
+					</div>
+					<!-- 页面七 -->
+					<div v-if="wizard_page==7">
+						<div class="wizard_wording">{{$t('wizardPage7Tip')}}</div>
+						<div class="wifiSetting-item ac">
+							<img src="/opsw/img/connected.png" alt="" width="35" height="35">
+							<img src="/opsw/img/internet.png" alt="" width="60" height="60" style="margin:0 12px;">
+							<label v-if="networkType==0">{{$t('Connection_Type')}}:{{$t('Dynamic_IP_DHCP')}}</label>
+							<label v-if="networkType==1">{{$t('Connection_Type')}}:{{$t('pppoe')}}</label>
+							<label v-if="networkType==2">{{$t('Connection_Type')}}:{{$t('staticIp')}}</label>
+						</div>
+						<div class="wifiSetting-item ac">
+							<img src="/opsw/img/connected.png" alt="" width="35" height="35">
+							<img src="/opsw/img/router_z_off.gif" alt="" width="60" height="60" style="margin:0 12px;">
+							<label>{{$t('Device_Admin_Password')}}: {{loginPwd}} </label>
+						</div>
+						<div class="wifiSetting-item ac">
+							<img src="/opsw/img/connected.png" alt="" width="35" height="35">
+							<img src="/opsw/img/wifiCients_z.png" alt="" width="60" height="60" style="margin:0 12px;">
+							<span class="inline-block" style="width: 330px;vertical-align: middle;">
+								<label style="width: 330px;text-align: left;">{{$t('twoWifi_NetworkName')}}:
+									<span class="active-color">{{twoWifiMsg.ssid}}</span>
+								</label>
+								<label style="width: 330px;text-align: left;">{{$t('twoWifi_Passowrd')}}:
+									<span class="active-color">{{twoWifiMsg.password}}</span>
+								</label>
+								<label style="width: 330px;text-align: left;" v-if="model_type==1">{{$t('fiveWifi_NetworkName')}}:
+									<span class="active-color">{{fiveWifiMsg.ssid}}</span>
+								</label>
+								<label style="width: 330px;text-align: left;" v-if="model_type==1">{{$t('fiveWifi_Passowrd')}}:
+									<span class="active-color">{{fiveWifiMsg.password}}</span>
+								</label>
+							</span>
+						</div>
+						<div style="padding:20px 30px;text-align: right;">
+							<button class="btn_next" @click="frameNext(7)">{{$t('Finish')}}</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layer" v-if="layerShow" :style="isCount==2 ? {backgroundColor:'#292929'} : '' "></div>
+			<div class="bulletFrame" v-if="layerShow">
+				<div class="bulletFrame-border">
+					<img src="/opsw/img/loading.gif" v-if="isCount==2">
+					<p class="bulletFrame-time" v-if="isCount">{{countdown}} {{$t('Second')}}</p>
+					<span>{{tips}}</span>
+					<div style="margin-top:35px;" v-if="isCount==0">
+						<button @click="layerShow=false;">{{$t('confirm')}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/opsw/js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		    var self = vm;
+			self.tabIndex = 1;
+			self.getVersion();
+			getData();
+			function getData(){
+				var page = self.wizard_page;
+				if(page==1){
+					self.frame_title = self.$t('Welcome');
+				}else if(page=='1.1'){
+					self.frame_title = self.$t('install');
+				}else if(page==2 || page==3){
+					self.frame_title = self.$t('Configure_Internet_Connection');
+				}else if(page=='3.1'){
+					self.frame_title = self.$t('PPPoE');
+				}else if(page=='3.2'){
+					self.frame_title = self.$t('Static IP');
+				}else if(page==4){
+					self.frame_title = self.$t('wifiSet');
+				}else if(page==5){
+					self.frame_title = self.$t('Device_Admin_Password');
+				}else if(page==6){
+					self.frame_title = self.$t('Summary');
+				}else if(page==7){
+					self.frame_title = self.$t('Congratulations');
+				}
+			}
+			
+			function frameNext(page) { //向导页下一步
+				switch (page) {
+					case 1:
+						self.wizardPageData(self.$t('Configure_Internet_Connection'), 2);
+						setTimeout(function() {
+							self.getWanMsg(1);
+						}, 3000)
+						break;
+					case 3:
+						if (self.networkType == 0) {
+							self.wizardPageData(self.$t('wifiSet'), 4);
+							self.getWifiMsg();
+						} else if (self.networkType == 1) {
+							self.wizardPageData('PPPoE', 3.1);
+						} else {
+							self.wizardPageData('Static IP', 3.2);
+						}
+						break;
+					case '3-1':
+						if (!checkPppoeUsername(self.pppoeForm.account)) return frameHstip(0,self.$t('pppoe_username_verify'));
+						if (!checkPppoePwd(self.pppoeForm.password)) return frameHstip(0,self.$t('pppoe_pwd_verify'));
+						self.wizardPageData(self.$t('wifiSet'), 4);
+						self.getWifiMsg();
+						break;
+					case '3-2':
+						if (!checkIp(self.staticForm.ip)) return frameHstip(0, self.$t('ip_verify'));
+						if (!checkMask(self.staticForm.mask)) return frameHstip(0,self.$t('mask_verify'));
+						if (!checkIp(self.staticForm.gateway)) return frameHstip(0, self.$t('gateway_verify'));
+						if (!checkIp(self.staticForm.dns1)) return frameHstip(0, self.$t('dns_verify'));
+						if (self.staticForm.dns2) {
+							if (!checkIp(self.staticForm.dns2)) return frameHstip(0, self.$t('dns_verify'));
+						}
+						self.wizardPageData(self.$t('wifiSet'), 4);
+						self.getWifiMsg();
+						break;
+					case 4:
+						if (!checkSsid(self.twoWifiMsg.ssid)) return frameHstip(0,self.$t('twoSsid_Format'));
+						if (!checkPassword(self.twoWifiMsg.password)) return frameHstip(0,self.$t('twoPwd_Format'));
+						if (model_type == 1) {
+							if (!checkSsid(self.fiveWifiMsg.ssid)) return frameHstip(0,self.$t('fiveSsid_Format'));
+							if (!checkPassword(self.fiveWifiMsg.password)) return frameHstip(0,self.$t('fivePwd_Format'));
+						}
+						self.wizardPageData(self.$t('Device_Admin_Password'), 5);
+						break;
+					case 5:
+						if (!checkLoginPwd(self.loginPwd)) return frameHstip(0,self.$t('loginPwd_verify'));
+						self.wizardPageData(self.$t('Summary'), 6);
+						break;
+					case 6:
+						self.wizardPageData(self.$t('Congratulations'), 7);
+						break;
+					case 7:
+						setWizardMsg();
+						break;
+				}
+			}
+
+			function frameBack(page) { //向导页返回
+				switch (page) {
+					case '1-1':
+						self.wizardTopBar = true;
+						self.wizardPageData(self.$t('Configure_Internet_Connection'), 3);
+						break;
+					case '3-1':
+						self.wizardPageData(self.$t('Configure_Internet_Connection'), 3);
+						break;
+					case '3-2':
+						self.wizardPageData(self.$t('Configure_Internet_Connection'), 3);
+						break;
+					case 3:
+						self.wizardPageData(self.$t('Welcome'), 1);
+						break;
+					case 4:
+						self.wizardPageData(self.$t('Configure_Internet_Connection'), 3);
+						break;
+					case 5:
+						self.wizardPageData(self.$t('wifiSet'), 4);
+						break;
+					case 6:
+						self.wizardPageData(self.$t('Device_Admin_Password'), 5);
+						break;
+				}
+			}
+
+			function setWizardMsg() { //信息保存
+				const self = vm;
+				let msg = {};
+				switch (self.networkType) {
+					case 0: //dhcp
+						msg = {
+							mode: "routerdhcp"
+						}
+						break;
+					case 1: // pppoe
+						msg = {
+							mode: "routerpppoe",
+							account: self.pppoeForm.account,
+							pppoePwd: self.pppoeForm.password
+						}
+						break;
+					case 2: //static ip
+						msg = {
+							mode: "routerstatic",
+							ip: self.staticForm.ip,
+							mask: self.staticForm.mask,
+							gateway: self.staticForm.gateway,
+							dns: self.staticForm.dns1 + ' ' + self.staticForm.dns2
+						}
+						break;
+				}
+				if (model_type == 1) {
+					msg.ssid5g = self.fiveWifiMsg.ssid;
+					msg.pwd5g = self.fiveWifiMsg.password;
+				}
+				msg.DualfireEna = 0;
+				msg.adminPass = self.loginPwd;
+				msg.ssid2g = self.twoWifiMsg.ssid;
+				msg.pwd2g = self.twoWifiMsg.password;
+				axios.post(wizardUrl, JSON.stringify(msg)).then(function(data) {
+					if ((typeof(data)) == "string") {
+						var data = JSON.parse(data)
+					}
+					if (data.data.result == 0) {
+						self.frameShow = false;
+						self.skipPageType = 1;
+						frameHstip(2,self.$t('wizardTips'),60);
+					} else {
+						frameHstip(1, self.$t('saveFail'))
+					}
+				})
+			}
+		</script>
+	</body>
+</html>

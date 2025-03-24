@@ -1,0 +1,314 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.util.XQQoS2Util"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "luci.model.uci"
+L0 = L0(L1)
+L0 = L0.cursor
+L0 = L0()
+L1 = require
+L2 = "xiaoqiang.common.XQFunction"
+L1 = L1(L2)
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = _UPVALUE0_
+  L2 = L1
+  L1 = L1.get
+  L3 = "qos2"
+  L4 = "core"
+  L5 = "enable"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  if A0 then
+    L2 = "1"
+    if L2 then
+      goto lbl_16
+    end
+  end
+  L2 = "0"
+  ::lbl_16::
+  if L1 == L2 then
+    L3 = 0
+    return L3
+  end
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.set
+  L5 = "qos2"
+  L6 = "core"
+  L7 = "enable"
+  if A0 then
+    L8 = "1"
+    if L8 then
+      goto lbl_31
+    end
+  end
+  L8 = "0"
+  ::lbl_31::
+  L3(L4, L5, L6, L7, L8)
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.commit
+  L5 = "qos2"
+  L3(L4, L5)
+  L3 = os
+  L3 = L3.execute
+  L4 = "/etc/init.d/qos2 reload"
+  L3 = L3(L4)
+  L3 = L3 == 0
+  return L3
+end
+qos2_enable = L2
+function L2(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.load
+  L6 = "qos2"
+  L4(L5, L6)
+  L4 = nil
+  L5 = string
+  L5 = L5.lower
+  L6 = A0
+  L5 = L5(L6)
+  A0 = L5
+  L5 = tonumber
+  L6 = A1
+  L5 = L5(L6)
+  A1 = L5
+  L5 = tonumber
+  L6 = A2
+  L5 = L5(L6)
+  A2 = L5
+  L5 = _UPVALUE0_
+  L6 = L5
+  L5 = L5.foreach
+  L7 = "qos2"
+  L8 = "device"
+  function L9(A0)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L2 = A0.mac
+    if L1 ~= L2 then
+      L1 = string
+      L1 = L1.upper
+      L2 = _UPVALUE0_
+      L1 = L1(L2)
+      L2 = A0.mac
+      if L1 ~= L2 then
+        goto lbl_14
+      end
+    end
+    L1 = A0[".name"]
+    _UPVALUE1_ = L1
+    ::lbl_14::
+  end
+  L5(L6, L7, L8, L9)
+  if A1 == 0 and A2 == 0 then
+    if L4 then
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.delete
+      L7 = "qos2"
+      L8 = L4
+      L5(L6, L7, L8)
+    end
+  else
+    if not L4 then
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.add
+      L7 = "qos2"
+      L8 = "device"
+      L5 = L5(L6, L7, L8)
+      L4 = L5
+    end
+    L5 = _UPVALUE0_
+    L6 = L5
+    L5 = L5.set
+    L7 = "qos2"
+    L8 = L4
+    L9 = "mac"
+    L10 = A0
+    L5(L6, L7, L8, L9, L10)
+    L5 = _UPVALUE1_
+    L5 = L5.isStrNil
+    L6 = A1
+    L5 = L5(L6)
+    if not L5 then
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.set
+      L7 = "qos2"
+      L8 = L4
+      L9 = "upload"
+      L10 = A1
+      L5(L6, L7, L8, L9, L10)
+    end
+    L5 = _UPVALUE1_
+    L5 = L5.isStrNil
+    L6 = A2
+    L5 = L5(L6)
+    if not L5 then
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.set
+      L7 = "qos2"
+      L8 = L4
+      L9 = "download"
+      L10 = A2
+      L5(L6, L7, L8, L9, L10)
+    end
+    if A3 then
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.set
+      L7 = "qos2"
+      L8 = L4
+      L9 = "aliasname"
+      L10 = A3
+      L5(L6, L7, L8, L9, L10)
+    else
+      L5 = _UPVALUE0_
+      L6 = L5
+      L5 = L5.delete
+      L7 = "qos2"
+      L8 = L4
+      L9 = "aliasname"
+      L5(L6, L7, L8, L9)
+    end
+  end
+  L5 = _UPVALUE0_
+  L6 = L5
+  L5 = L5.commit
+  L7 = "qos2"
+  L5(L6, L7)
+  L5 = os
+  L5 = L5.execute
+  L6 = "/etc/init.d/qos2 reload"
+  L5 = L5(L6)
+  L5 = L5 == 0
+  return L5
+end
+qos2_set = L2
+function L2()
+  local L0, L1, L2, L3, L4
+  L0 = _UPVALUE0_
+  L1 = L0
+  L0 = L0.get
+  L2 = "qos2"
+  L3 = "core"
+  L4 = "enable"
+  L0 = L0(L1, L2, L3, L4)
+  L0 = L0 or L0
+  return L0
+end
+qos2_Status = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  L0 = {}
+  L1 = _UPVALUE0_
+  L2 = L1
+  L1 = L1.load
+  L3 = "qos2"
+  L1(L2, L3)
+  L1 = _UPVALUE0_
+  L2 = L1
+  L1 = L1.get
+  L3 = "qos2"
+  L4 = "core"
+  L1 = L1(L2, L3, L4, L5)
+  L0.enable = L1
+  L0.code = 0
+  L2 = {}
+  L0.devs = L2
+  L2 = _UPVALUE0_
+  L3 = L2
+  L2 = L2.foreach
+  L4 = "qos2"
+  L2(L3, L4, L5, L6)
+  L2 = require
+  L3 = "ubus"
+  L2 = L2(L3)
+  L3 = L2.connect
+  L3 = L3()
+  if L3 then
+    L4 = L3.call
+    L8 = {}
+    L4 = L4(L5, L6, L7, L8)
+    if L4 then
+      for L8, L9 in L5, L6, L7 do
+        L10 = L9.is_ap
+        if L10 ~= 8 then
+          L10 = string
+          L10 = L10.lower
+          L11 = L8
+          L10 = L10(L11)
+          L11 = L9.assoc
+          if L11 == 0 then
+            L11 = L0.devs
+            L11 = L11[L10]
+            if L11 then
+              L11 = L0.devs
+              L11 = L11[L10]
+              L12 = L9.assoc
+              L11.online = L12
+              L11 = L0.devs
+              L11 = L11[L10]
+              L12 = L9.hostname
+              L11.hostname = L12
+            end
+          else
+            L11 = L0.devs
+            L11 = L11[L10]
+            if not L11 then
+              L11 = {}
+              L11.upload = 0
+              L11.download = 0
+              L12 = L0.devs
+              L12[L10] = L11
+            end
+            L11 = L0.devs
+            L11 = L11[L10]
+            L12 = L9.assoc
+            L11.online = L12
+            L11 = L0.devs
+            L11 = L11[L10]
+            L12 = L9.hostname
+            L11.hostname = L12
+            L11 = L0.devs
+            L11 = L11[L10]
+            L12 = L9.ip_list
+            L12 = L12[1]
+            L12 = L12.ip
+            L11.ip = L12
+            L11 = L9.ip_list
+            L11 = L11[1]
+            L11 = L11.rx_rate
+            L12 = L9.ip_list
+            L12 = L12[1]
+            L12 = L12.tx_rate
+            if L13 then
+              for L16, L17 in L13, L14, L15 do
+                L18 = L17.rx_rate
+                L11 = L11 + L18
+                L18 = L17.tx_rate
+                L12 = L12 + L18
+              end
+            end
+            L13.rx_rate = L11
+            L13.tx_rate = L12
+          end
+        end
+      end
+    end
+    L5(L6)
+  else
+    L0.code = 1606
+  end
+  return L0
+end
+qos2_list = L2

@@ -1,0 +1,10 @@
+Package: kmod-nft-nat
+Version: 5.4.213-1
+Depends: kernel (=5.4.213-1-cbe2a62f3338085642f53dd7a9d10d09), kmod-nft-core, kmod-nf-nat
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: arm_cortex-a7_neon-vfpv4
+Installed-Size: 3927
+Description:  Netfilter nf_tables NAT support

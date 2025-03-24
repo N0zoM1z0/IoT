@@ -1,0 +1,14 @@
+
+
+<div class="chooseModeGuide">
+	<h2>{%label.iptvConnectMode1%}</h2>
+</div>
+<div id="iptvModeRadioGroup">
+	<div id="gatherRadio" class="radioLabel"></div>
+	<div id="aloneRadio" class="radioLabel"></div><span class="aloneModeTips">{%label.aloneModeTips%}</span>
+</div>
+<div id="iptvBtnCancel"></div>
+<div id="iptvBtnNext"></div><script type="text/javascript">(function(){$("#wanTabCon").hide();$("#iptvContent");$("#iptvStepTab");var a;a=isMultiWan?$("#subIptvModeChoose"):$("#iptvModeChoose");var c=new Radio({targetId:"gatherRadio",label:label.gatherMode,name:"iptvModeSet",onClick:function(){a.css("display","inline-block")}}),f=new Radio({targetId:"aloneRadio",label:label.aloneMode,name:"iptvModeSet",onClick:function(){a.css("display","none")}});c.setValue(!0);a.css("display","inline-block");var d=function(){var a={},c=0,e=0;a[uciPortConfig.fileName]={};
+a[uciPortConfig.fileName][KEY_TABLE]=[uciPortConfig.secType.devInfo];$.query(a,function(a){var b=a[ERR_CODE];if(b==ENONE)for(a=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],b=0;b<a.length;b++){var d=a[b][uciPortConfig.dynOptName.phyInfo].filter(function(a){return"lan"==a[uciPortConfig.dynOptName.role]||a[uciPortConfig.dynOptName.role]=="uplink"+(wanIdx+1)||a[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)}).length;0==b&&(c=d);e+=d}else alarmDialog.show(b)},!1);return{capNum:c,meshNum:e}}();
+(1>d.capNum||2>d.meshNum)&&f.disable(!0);new Button({text:btn.nextStep,onClick:function(){iptvConnectModeChoosed[wanIdx]=c.getValue()?"gather":"alone";stepPage(iptvSecondPage)},type:Button.TYPE.PRIMARY,id:"iptvBtnNext",props:{width:"120px","margin-top":"48px"}});new Button({text:btn.cancel,onClick:function(){loadPage("IptvSingleWan.htm",isMultiWan?"tabConent":"iptvPage");isMultiWan&&$("#wanTabCon").show()},type:Button.TYPE.SECONDARY,id:"iptvBtnCancel",props:{width:"120px","margin-top":"48px","margin-left":"4px"}})})();
+</script><style type="text/css">.chooseModeGuide{color:#333;font-weight:bold}#iptvModeRadioGroup{margin-top:24px}#iptvModeRadioGroup>.radioLabel{margin-top:12px;color:#333;font-weight:bold}.aloneModeTips{font-size:12px;color:#999;margin-left:24px}</style>

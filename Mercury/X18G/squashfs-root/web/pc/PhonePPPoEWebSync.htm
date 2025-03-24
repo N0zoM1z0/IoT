@@ -1,0 +1,192 @@
+﻿<script type="text/javascript">
+	(function($){
+		/* 是否尝试导入过至少一次 */
+		var synDone = false;
+
+		var SYNC_OPERATE_IDEL = 0;
+		var SYNC_OPERATE_WORKING = 1;
+		var SYNC_FAIL_ERROR_LEADING = 2;
+		var SYNC_FAIL_ERROR_UNCONNECT = 3;
+
+		var SYNC_GET_SUCCESS = 10000;			/* 获取数据成功 */
+		var SYNC_GETTING = 10001;				/* 获取中 */
+		var SYNC_ADV = 10002;					/* 已发出宣告 */
+		var SYNC_GET_SYSTEM_ERROR = -10000;		/* 系统异常 */
+		var SYNC_GET_TIMEOUT = -10001;			/* 超时 */
+		var SYNC_GET_TOPO_ERROR = -10002;		/* 拓扑失败 */
+
+		var syncTimoutHd = null;
+		var syncLoopHd = null;
+
+		function querySyncStatus()
+		{
+			var data = {"cfgsync":{"get_pppoe_info":null}};
+			$.action(data, function(result){
+				if (ENONE != result[ERR_CODE])
+				{
+					/* 若查询结果有误，则继续查询 */
+					syncLoopHd = $.setTimeout(querySyncStatus, 1000);
+				}
+				else
+				{
+					switch(result["code"])
+					{
+					case SYNC_GET_SUCCESS:
+						gPPPoESyncSuccess = true;
+						gPPPoESyncCfg.username = result.pppoe.username;
+						gPPPoESyncCfg.password = result.pppoe.password;
+						loadPage('PhonePPPoEWeb.htm', "phCon");
+						break;
+					case SYNC_GETTING:
+						updateSyncState(SYNC_OPERATE_WORKING);
+						syncLoopHd = $.setTimeout(querySyncStatus, 1000);
+						break;
+					case SYNC_GET_TOPO_ERROR:
+						clearTimeout(syncTimoutHd);
+						updateSyncState(SYNC_FAIL_ERROR_UNCONNECT);
+						break;
+					default:
+						clearTimeout(syncTimoutHd);
+						updateSyncState(SYNC_FAIL_ERROR_LEADING);
+						break;
+					}
+				}
+			});
+		}
+
+		function doSync()
+		{
+			if (this.id == "resync")
+			{
+				synDone = true;
+			}
+
+			syncTimoutHd = $.setTimeout(function(){
+				clearTimeout(syncLoopHd);
+				updateSyncState(SYNC_FAIL_ERROR_LEADING);
+			}, 120000);
+
+			updateSyncState(SYNC_OPERATE_WORKING);
+			var data = {"cfgsync":{"start_get_pppoe_info":null}};
+			$.action(data, function(result){
+				if (ENONE != result[ERR_CODE])
+				{
+					clearTimeout(syncTimoutHd);
+					updateSyncState(SYNC_FAIL_ERROR_UNCONNECT);
+				}
+				else
+				{
+					$.setTimeout(querySyncStatus, 1000);
+				}
+			});
+		}
+
+		function updateSyncState(state)
+		{
+			switch(state)
+			{
+			case SYNC_OPERATE_WORKING:
+				$("#syncWarn, .phFunc").css("display", "none");
+				$(".syncingTip")
+					.css("display", "block")
+					.html(synDone ? label.resyncingPPPoE : label.syncingPPPoE);
+				break;
+			case SYNC_FAIL_ERROR_LEADING:
+				$("#syncWarn, #failTip, .phFunc").css("display", "block");
+				$(".syncingTip, #sync, #prepareTip, #lineDownTip").css("display", "none");
+				$("#resync").css("display", "inline-block");
+				$("#syncWarn").html(label.syncPPPoEFail);
+				break;
+			case SYNC_FAIL_ERROR_UNCONNECT:
+				$("#syncWarn, #lineDownTip, .phFunc").css("display", "block");
+				$(".syncingTip, #sync, #prepareTip, #failTip").css("display", "none");
+				$("#resync").css("display", "inline-block");
+				$("#syncWarn").html(label.syncFailLineDown);
+				break;
+			default:
+				break;
+			}
+		}
+
+		id("back").onclick = function(){
+			loadPage("PhonePPPoEWeb.htm", "phCon");
+		};
+		id("sync").onclick = doSync;
+		id("resync").onclick = doSync;
+	})(jQuery);
+</script>
+<style type="text/css">
+	ol.phInputOl{
+		font-size:14px;
+		padding-left:18px;
+		width:272px;
+		margin:0 auto;
+		line-height:26px;
+		color:#666;
+	}
+	ul.phInputUl img{
+		width:100%;
+		padding-top:11px;
+	}
+	div.phFunc{
+		margin-top:36px;
+	}
+	div.phFunc label.backBtn{
+		margin-top:7px;
+		background-color:#e0e0e0;
+		background-image:none;
+		color:#666;
+	}
+	h1.phoneTitle{
+		margin-bottom:0;
+	}
+	div.syncWarnCon{
+		font-size:12px;
+		height:40px;
+		line-height:40px;
+		text-align:center;
+		color:#ff3366;
+	}
+	p.syncingTip{
+		font-size:12px;
+		height:24px;
+		line-height:24px;
+		text-align:center;
+		color:#1785e6;
+		margin-top:38px;
+		display:none;
+	}
+	#resync, #failTip, #syncWarn{
+		display:none;
+	}
+	#lineDownTip{
+		font-size:14px;
+		color:#666;
+		display:none;
+	}
+</style>
+<h1 class="phoneTitle">{%label.syncPppoeCfgFromOld%}</h1>
+<div class="syncWarnCon">
+	<p id="syncWarn">{%label.syncPPPoEFail%}</p>
+</div>
+<ol class="phInputOl" id="prepareTip">
+	<li>{%label.syncPPPoETip1%}</li>
+	<li>{%label.syncPPPoETip2%}</li>
+</ol>
+<ol class="phInputOl" id="failTip">
+	<li>{%label.phSyncPPPoEFailTip1%}</li>
+	<li>{%label.phSyncPPPoEFailTip2%}</li>
+	<li>{%label.phSyncPPPoEFailTip3%}</li>
+</ol>
+<ul class="phInputUl" id="lineDownTip">
+	<li>{%label.syncFailLineDownTip%}</li>
+</ul>
+<ul class="phInputUl">
+	<li><img src="../web-static/images/phW2L.png" /></li>
+</ul>
+<p class="syncingTip">{%label.syncingPPPoE%}</p>
+<div class="phFunc">
+	<label id="sync" class="phOneBtn">{%btn.beginSync%}</label>
+	<label id="resync" class="phOneBtn">{%btn.retry%}</label>
+	<label id="back" class="phOneBtn backBtn">{%btn.back%}{%label.wizard%}</label>
+</div>

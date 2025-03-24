@@ -1,0 +1,51 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+OVERLAY="$( grep ' /overlay ' /proc/mounts )"
+logger "$BUTTON pressed for $SEEN seconds"
+
+bottonReset="/etc/resetFlag"
+rm -f /etc/checkButtonReset
+
+case "$ACTION" in
+pressed)
+	[ -z "$OVERLAY" ] && return 0
+
+	return 1
+;;
+timeout)
+	return 1
+;;
+released)
+	if [ -f "$bottonReset" ]; then
+		echo "disable botton reset!!!" > /dev/console
+		return 0;
+	fi
+	echo mesh-button time:"$SEEN" > /dev/console
+	
+	#start mesh [>1s]
+	if [ "$SEEN" -gt 0 ]; then
+#		rt_MapMode=$(datconf -f /etc/wireless/mediatek/mt7981.dbdc.b0.dat get MapMode)
+#		wl_MapMode=$(datconf -f /etc/wireless/mediatek/mt7981.dbdc.b1.dat get MapMode)
+#		if [ $rt_MapMode -eq 0 -a  $wl_MapMode -eq 0 ];then
+#			wl_wsc_begin=$(datconf -f /tmp/cste/temp_status get wl_wsc_begin)
+#			rt_wsc_begin=$(datconf -f /tmp/cste/temp_status get rt_wsc_begin)
+#			if [ $wl_wsc_begin -eq 0 -a  $rt_wsc_begin -eq 0 ];then
+#				echo "START WPS....." > /dev/console
+#				datconf -f /tmp/cste/temp_status set wl_wsc_begin 1
+#				datconf -f /tmp/cste/temp_status set rt_wsc_begin 1
+#				datconf -f /tmp/cste/temp_status set wsc_status 0
+#				cs_wps_exec -s 0 &
+#			else
+#				echo "WPS ING .....  RETURN!" > /dev/console
+#			fi
+#		else
+			echo "START MESH....." > /dev/console
+			cs_mesh_exec trigger_map_wps &
+#		fi
+	fi
+
+;;
+esac
+return 0

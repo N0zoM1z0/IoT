@@ -1,0 +1,9 @@
+Package: datconf
+Version: 1
+Depends: libc, kvcedit
+Source: mtk_sdk/mtk-openwrt-lede-4.2.0.0/applications/datconf
+Section: MTK Properties
+Maintainer: Weijie Gao <weijie.gao@mediatek.com>
+Architecture: mipsel_24kc
+Installed-Size: 5486
+Description:  Utility for editing dat files used by MediaTek Wi-Fi drivers

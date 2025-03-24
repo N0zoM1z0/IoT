@@ -1,0 +1,15 @@
+Package: kmod-br_hook_gn
+Version: 3.10.14+1.0
+Depends: kernel (=3.10.14-1-a74cf375559f80d758a3e54a15723d6b)
+Provides: 
+Source: tp_package/k_packages/br_hook_gn
+Section: ko util
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 12740
+Description:  br_hook_gn this kernel module is used for:
+ 1, mark pkts from guest network.
+ 2, provide a method that prevent guests from accessing host network.

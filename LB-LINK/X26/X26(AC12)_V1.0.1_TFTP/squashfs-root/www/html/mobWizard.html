@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link rel="icon" type="image/x-icon" href="../img/router.png" />
+		<link rel="stylesheet" href="../css/elementUi.css">
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../css/common.css">
+		<link rel="stylesheet" href="../css/mobile.css">
+		<script src="../js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/qs.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/verify.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="container" class="flex flex-column" v-cloak style="height: 100vh;">
+			<div class="header" style="position: static;">
+				<div class="topBar" v-if="softwareType!='neutral'" style="padding: 20px 0;">
+					<img src="../img/logo.png" width="151" height="20" style="padding-left: 20px;">
+				</div>
+				<div style="padding: 12px;box-sizing: border-box;">
+					<img src="../img/appCallback.png" width="23" height="21" @click="location=location.origin+'/html/mobile.html'">
+					<span class="inline-block ac fs-18" style="width: 90%;color: #fff;">{{$t('quickSetup')}}</span>
+				</div>
+			</div>
+			<div class="content-box flex-1" style="overflow: auto;">
+				<div class="feature-content">
+					<ul class="modeList" v-show="setupPage=='modePage'" style="width: 100%;padding: 0;">
+						<li @click.prevent="getPreviousWanMode();modeType='router';">
+							<el-radio v-model="modeType" label="router">{{$t('RouteMode')}} <span
+									class="modeListTips">（{{$t('wanModeTips')}}）</span>
+							</el-radio>
+						</li>
+						<!-- repeater -->
+						<li @click.prevent="getCurWispWifi();getwispWifiList();setupPage='wispPage';modeType='repeater';">
+							<el-radio v-model="modeType" label="repeater">{{$t('repeater')}}<span class="modeListTips"></span></el-radio>
+						</li>
+						<!-- wisp -->
+						<li @click.prevent="getCurWispWifi();getwispWifiList();setupPage='wispPage';modeType='wisp';">
+							<el-radio v-model="modeType" label="wisp">WISP<span class="modeListTips"></span></el-radio>
+						</li>
+						<!-- AP模式 -->
+						<li @click.prevent="getWifiMsg();setupPage='wifiPage';modeType='AP';">
+							<el-radio v-model="modeType" label="AP">{{$t('apMode')}}<span class="modeListTips"></span>
+							</el-radio>
+						</li>
+					</ul>
+					<!-- wan设置 -->
+					<div class="showbox wanset" v-show="setupPage=='wanPage'">
+						<div class="wanPageInfo">
+							<div class="wanPageInfo-item">
+								<label>{{$t('recommendWanModeTip')}}:</label>
+								<span v-show="previousMsg.wanmode=='dhcp'">{{$t('wandhcp')}}</span>
+								<span v-show="previousMsg.wanmode=='static'">{{$t('wanstatic')}}</span>
+								<span v-show="previousMsg.wanmode=='pppoe'">{{$t('wanpppoe')}}</span>
+							</div>
+							<div class="wanPageInfo-item" style="height: 19px;line-height: 19px;" v-cloak>
+								<div v-if="previousMsg.netlink=='online'">
+									<label style="color: rgb(55, 170, 55);">{{$t('hasNetTip')}}</label>
+								</div>
+								<div v-else-if="previousMsg.netlink=='offline'">
+									<label style="color: red;">{{previousMsg.wanmode=='unlink'?$t('noWanTip'):$t('noNetTip')}}</label>
+								</div>
+							</div>
+						</div>
+						<ul class="listform" style="padding: 0;">
+							<div v-show="wanType=='pppoe'">
+								<li class="listform-item">
+									<label>{{$t('account')}}</label>
+									<input type="text" v-model.trim="pppoeForm.pppoename" :placeholder="$t('pppoeName')" />
+								</li>
+								<li class="listform-item">
+									<label>{{$t('password')}}</label>
+									<input type="text" v-model.trim="pppoeForm.pppoepsw" :placeholder="$t('pppoePwd')" />
+								</li>
+								<li class="listform-item">
+									<span @click="pppoeShow=!pppoeShow" style="margin: 0 auto;">{{$t('moreSet')}}
+										<i :class="pppoeShow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+									</span>
+								</li>
+								<div v-show="pppoeShow">
+									<li class="listform-item">
+										<label>{{$t('serverName')}}</label>
+										<input type="text" v-model.trim="pppoeForm.server_name" />
+									</li>
+									<li class="listform-item">
+										<label>MTU</label>
+										<input type="text" v-model="pppoeForm.mtu" />
+									</li>
+								</div>
+							</div>
+							<div v-show="wanType=='static'">
+								<li class="listform-item">
+									<label>{{$t('ipAddress')}}</label>
+									<input type="text" v-model="staticForm.wanip" />
+								</li>
+								<li class="listform-item">
+									<label>{{$t('mask')}}</label>
+									<input type="text" v-model="staticForm.wanmsk" />
+								</li>
+								<li class="listform-item">
+									<label>{{$t('gateway')}}</label>
+									<input type="text" v-model="staticForm.wangw" />
+								</li>
+								<li class="listform-item">
+									<label>DNS</label>
+									<input type="text" v-model="staticForm.dns1" />
+								</li>
+							</div>
+						</ul>
+						<div class="ac" style="margin: 20px 0;">
+							<el-button type="primary" size="small" class="button-color" @click="backStep('wanPage')"
+								style="margin-right:8px;">{{$t('previous')}}</el-button>
+							<el-button type="primary" size="small" class="button-color" @click="nextStep('wanPage')">
+								{{$t('nextStep')}}
+							</el-button>
+						</div>
+						<div class="divider">
+							<span style="width: 35%;"></span>
+							<label>{{$t('or')}}</label>
+							<span style="width: 35%;"></span>
+						</div>
+						<ul class="setting-mode flex justify-content_flex-justify align-items_center"
+							style="width: 80%;">
+							<li :class="{active:wanType=='pppoe'}" @click="wanType='pppoe';">
+								{{$t('wanpppoe')}} >
+							</li>
+							<li :class="{active:wanType=='dhcp'}" @click="wanType='dhcp';">{{$t('wandhcp')}} >
+							</li>
+							<li :class="{active:wanType=='static'}" @click="wanType='static';">
+								{{$t('wanstatic')}} >
+							</li>
+						</ul>
+					</div>
+					<!-- wisp页面 -->
+					<div class="showbox" v-show="setupPage=='wispPage'" style="overflow: auto;">
+						<div class="full-width" style="padding:0 15px;box-sizing: border-box;">
+							<template>
+								<el-table :data="curPagewispData" v-loading="wispLoading" height="350"
+									style="width: 100%;" :key="1" @row-click="wispRowClick($event,1)">
+									<el-table-column prop="channel" :label="$t('channel')" align="center" :resizable="false" min-width="20%">
+										<template slot-scope="scope">
+											<i class="el-icon-check" v-if="curWispWifiMsg.mac&&scope.row.checked"
+												style="font-size: 22px;"></i>
+											<span v-else>{{scope.row.channel}}</span>
+										</template>
+									</el-table-column>
+									<el-table-column prop="ssid" :label="$t('wifiName')" align="center" :resizable="false" min-width="50%">
+									</el-table-column>
+									<el-table-column :label="$t('signalPower')" align="center" :resizable="false" min-width="30%">
+										<template slot-scope="scope">
+											<div v-if="scope.row.security.toUpperCase().indexOf('NONE')==-1">
+												<img src="../img/key1.png" alt="" width="28"
+													v-if="Number(scope.row.signal)<23">
+												<img src="../img/key2.png" alt="" width="28"
+													v-else-if="Number(scope.row.signal)>=23&&Number(scope.row.signal)<52">
+												<img src="../img/key3.png" alt="" width="28"
+													v-else-if="Number(scope.row.signal)>=52&&Number(scope.row.signal)<89">
+												<img src="../img/key4.png" alt="" width="28" v-else>
+											</div>
+											<div v-else>
+												<img src="../img/signal1.png" alt="" width="28"
+													v-if="Number(scope.row.signal)<23">
+												<img src="../img/signal2.png" alt="" width="28"
+													v-else-if="Number(scope.row.signal)>=23&&Number(scope.row.signal)<52">
+												<img src="../img/signal3.png" alt="" width="28"
+													v-else-if="Number(scope.row.signal)>=52&&Number(scope.row.signal)<89">
+												<img src="../img/signal4.png" alt="" width="28" v-else>
+											</div>
+										</template>
+									</el-table-column>
+								</el-table>
+							</template>
+						</div>
+						<el-pagination background small :current-page.sync="wispCurPage" @current-change="wispPageChange"
+							:page-size="6" layout="prev, pager, next,total" :total="wispList.length"
+							style="text-align:center;margin: 15px 0;">
+						</el-pagination>
+						<div class="ac" style="padding:20px 0;">
+							<el-button type="primary" size="small" class="button-color" @click="setupPage='modePage';"
+								style="margin-right:8px;">{{$t('back')}}</el-button>
+							<el-button type="primary" size="small" class="button-color" @click="getwispWifiList();getCurWispWifi();" v-show="!wispLoading">
+								{{$t('Rescan')}}
+							</el-button>
+						</div>
+					</div>
+					<!-- wisp模式wifi密码设置 -->
+					<div v-show="setupPage=='wispPwdPage'">
+						<ul class="listform">
+							<li class="listform-item">
+								<label>{{$t('wifiName')}}</label>
+								<input type="text" v-model.trim="wispForm.ssid" readonly />
+							</li>
+							<li class="listform-item" v-if="wispWifiRow.security.toUpperCase().indexOf('NONE')==-1">
+								<label>{{$t('wifiPwd')}}</label>
+								<input type="text" v-model.trim="wispForm.password" />
+							</li>
+							<li class="listform-item ac">
+								<el-button type="primary" size="small" class="button-color" @click="wispPwdSet"
+									v-text="$t('apply')"></el-button>
+							</li>
+						</ul>
+					</div>
+					<!-- wifi设置 -->
+					<div v-show="setupPage=='wifiPage'">
+						<div class="bg-fff feature-content">
+							<ul class="listform">
+								<div class="wifi_classify">2.4G WiFi</div>
+								<li class="listform-item">
+									<label>{{$t('wifiName')}}</label>
+									<input type="text" v-model.trim="twoWifiMsg.wlanssid" />
+								</li>
+								<li class="listform-item">
+									<label>{{$t('wifiPwd')}}</label>
+									<input type="text" v-model.trim="twoWifiMsg.wlanpsw" />
+								</li>
+								<div v-show="isDouble">
+									<div class="wifi_classify">5.8G WiFi</div>
+									<li class="listform-item">
+										<label>{{$t('wifiName')}}</label>
+										<input type="text" v-model.trim="fiveWifiMsg.wlanssid" />
+									</li>
+									<li class="listform-item">
+										<label>{{$t('wifiPwd')}}</label>
+										<input type="text" v-model.trim="fiveWifiMsg.wlanpsw" />
+									</li>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" size="small" class="button-color"
+										@click="modeType=='router' ? setupPage='wanPage' : setupPage='modePage';">
+										{{$t('previous')}}
+									</el-button>
+									<el-button type="primary" size="small" class="button-color" @click="setRouter">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</ul>
+						</div>
+					</div>
+					<!-- 设置页 -->
+					<div v-show="setupPage=='settingPage'">
+						<div class="feature-content" style="margin-top: 20px;">
+							<div class="setting">
+								<i class="el-icon-success" style="color: #00FF00;font-size: 50px;"></i>
+								<div class="setting-tips">
+									<p>
+										{{$t('pleaseWait')}}
+										<span>{{countdown}}</span>
+										{{$t('second')}}{{$t('reconnectionWifi')}}
+									</p>
+								</div>
+								<ul style="width: 80%;">
+									<h3>2.4G</h3>
+									<li>
+										<label>Wi-Fi{{$t('name')}}:</label>
+										<span>{{twoWifiMsg.wlanssid}}</span>
+									</li>
+									<li>
+										<label>Wi-Fi{{$t('password')}}:</label>
+										<span>{{twoWifiMsg.wlanpsw}}</span>
+									</li>
+									<div v-if="isDouble">
+										<h3>5.8G</h3>
+										<li>
+											<label>Wi-Fi{{$t('name')}}:</label>
+											<span>{{fiveWifiMsg.wlanssid}}</span>
+										</li>
+										<li>
+											<label>Wi-Fi{{$t('password')}}:</label>
+											<span>{{fiveWifiMsg.wlanpsw}}</span>
+										</li>
+									</div>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layer" v-show="layerShow"></div>
+				<div class="bulletFrame" v-show="frameShow">
+					<div class="bulletFrame-border">
+						<img src="../img/loading.gif" v-show="isCount==2">
+						<p class="bulletFrame-time" v-show="isCount==2">{{countdown}} {{$t('second')}}</p>
+						<span>{{tips}}</span>
+						<div style="margin-top:35px;" v-show="isCount==0">
+							<button @click="layerShow=false;frameShow=false;">{{$t('confirm')}}</button>
+						</div>
+					</div>
+				</div>
+				<!-- loading效果 -->
+				<div v-show="loading" class="frameLoading" style="display: none;">
+					<img src="../img/hd-loading.gif" width="50">
+				</div>
+			</div>
+		</div>
+		<script src="../js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var that = vm;
+			that.getModeMsg();
+			that.setLoginTimer();
+			var first_login = window.sessionStorage.getItem('first_login');
+			if (first_login==0) {
+				that.getPreviousWanMode();
+				that.setupPage = 'wanPage';
+				that.modeType = 'router';
+				window.sessionStorage.removeItem('first_login');
+			} else {
+				that.setupPage = 'modePage';
+			}
+		</script>
+	</body>
+</html>

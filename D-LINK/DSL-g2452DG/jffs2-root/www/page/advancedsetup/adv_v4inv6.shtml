@@ -1,0 +1,200 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+
+function ConnectionTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.DsliteEnable = "";
+    this.AftrMode = "";
+    this.AftrAddr = "";
+    this.IPMode = "";
+	this.ConnectionType = "";
+	this.ServiceList = "";
+}
+var index = 0;
+var ConnectionS = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_Dslite_Enable X_CT-COM_AftrMode X_CT-COM_Aftr X_CT-COM_IPMode ConnectionType X_CT-COM_ServiceList" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].DsliteEnable = <!--#leaf "2"-->;
+    ConnectionS[index].AftrMode = "<!--#leaf "3"-->";
+    ConnectionS[index].AftrAddr = "<!--#leaf "4"-->";
+    ConnectionS[index].IPMode = "<!--#leaf "5"-->";
+ 	ConnectionS[index].ConnectionType = "<!--#leaf "6"-->";
+ 	ConnectionS[index].ServiceList = "<!--#leaf "7"-->";
+    index++;
+    <!--#endgetobject -->
+
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_Dslite_Enable X_CT-COM_AftrMode X_CT-COM_Aftr X_CT-COM_IPMode ConnectionType X_CT-COM_ServiceList" -->
+    ConnectionS[index] = new ConnectionTuple();
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].DsliteEnable = <!--#leaf "2"-->;
+    ConnectionS[index].AftrMode = "<!--#leaf "3"-->";
+    ConnectionS[index].AftrAddr = "<!--#leaf "4"-->";
+    ConnectionS[index].IPMode = "<!--#leaf "5"-->";
+	ConnectionS[index].ConnectionType = "<!--#leaf "6"-->";
+ 	ConnectionS[index].ServiceList = "<!--#leaf "7"-->";
+    index++;
+    <!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+var enableindex = -1;
+var cur_index = -1;
+
+function createConnNameOptions()
+{
+    var text = [];
+    var value = [];
+    var conn = 0;
+    for (i = 0; i < ConnectionS.length; i++)
+    {    
+		if(ConnectionS[i].IPMode != '1' && !isBridgedConn(ConnectionS[i].ConnectionType) && isINTERNETService(ConnectionS[i].ServiceList)){
+			    text[conn] = ConnectionS[i].Name;
+				value[conn] = i;            
+	            if(ConnectionS[i].DsliteEnable == 1){
+		            enableindex = i;        
+			    }
+				conn++;
+		}
+    }
+    if (value.length > 0)
+        createOptions('SELECT_ip6Conn', text, value);
+}
+
+function setDsliteValue(){
+    update();
+    return true;
+}
+
+function setAftrMode(){
+var _Protocol = getValue("SELECT_AftrMode");
+    if (_Protocol == 0){  
+       disableCtrl("INPUT_AftrAddr",true);
+       return true;
+    } else {
+       disableCtrl("INPUT_AftrAddr",false);
+       return true;
+    }
+    return false;
+}
+        
+function update(){
+    cur_index = getValue('SELECT_ip6Conn');
+    setValue("INPUT_DsliteEnable", ConnectionS[cur_index].DsliteEnable);
+    setValue("SELECT_AftrMode", ConnectionS[cur_index].AftrMode);
+    setValue("INPUT_AftrAddr", ConnectionS[cur_index].AftrAddr);
+    setAftrMode();
+}
+
+function init()
+{   
+    createConnNameOptions();
+    if (enableindex != -1)
+    {
+        setValue("SELECT_ip6Conn", enableindex);
+        setValue("INPUT_DsliteEnable", ConnectionS[enableindex].DsliteEnable);
+        setValue("SELECT_AftrMode", ConnectionS[enableindex].AftrMode);
+        setValue("INPUT_AftrAddr", ConnectionS[enableindex].AftrAddr);
+    }
+    setAftrMode();
+} 
+
+function uiSubmit(){
+    var df = document.network_dslitesettingform;
+    cur_index = getValue('SELECT_ip6Conn');
+    if(getValue('SELECT_ip6Conn') == '-')
+    {
+        return false;
+    }
+	if(getValue('SELECT_AftrMode') =="1") {
+		if(getValue('INPUT_AftrAddr') ==""){
+		 	top.AlertMsg(getStr("LK_js_ipnoemp"));         
+			return false;
+		}else{
+			var patrn=/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
+			var address=getValue('INPUT_AftrAddr');
+			if (patrn.exec(address)) {
+				top.AlertMsg(getStr("LK_js_ip6fmterr"),"INPUT_AftrAddr");
+				return false;
+			}
+		}
+    }
+	if(!validateCode())
+		return false;
+    if(enableindex != -1 && cur_index != enableindex && getValue('INPUT_DsliteEnable') == 1)
+    {   
+        AddElements(df, ConnectionS[enableindex].Path + "X_CT-COM_Dslite_Enable", '0');
+    }
+    AddElements(df, ConnectionS[cur_index].Path + "X_CT-COM_Dslite_Enable", getValue('INPUT_DsliteEnable'));
+    AddElements(df, ConnectionS[cur_index].Path + "X_CT-COM_AftrMode", getValue('SELECT_AftrMode'));
+    AddElements(df, ConnectionS[cur_index].Path + "X_CT-COM_Aftr", getValue('INPUT_AftrAddr'));
+    df.submit();
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true)
+        project_init(GetCurrentFileName());        
+
+}
+</script> 
+</head>
+
+<body>
+<form method="get" >
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_DSLTunnelSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td langkey="LK_IPv6Connectionn"></td>
+	<td><select id="SELECT_ip6Conn" name="SELECT_ip6Conn" onChange="setDsliteValue()">
+                <option>-</option>
+              </select>
+	</td>
+</tr>            
+<tr>
+	<td langkey="LK_EnableDSLl"></td>
+	<td><input type="checkbox" id="INPUT_DsliteEnable" name="INPUT_DsliteEnable" onClick="boxChecked(this)"></td>
+</tr>
+<tr>
+	<td langkey="LK_AFTRSetupModee"></td>
+	<td><select id="SELECT_AftrMode" name="SELECT_AftrMode" onChange="setAftrMode()" style="width:60px">
+               <option value="0" langkey="LK_Auto"></option>
+               <option value="1" langkey="LK_Manual"></option>
+        </select></td>
+</tr>
+<tr>
+	<td langkey="LK_AFTRAddresss"></td>
+	<td><input type="text" id="INPUT_AftrAddr" name="INPUT_AftrAddr"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()")</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="network_dslitesettingform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_v4inv6.shtml">
+</form>
+</body>
+</html>
+

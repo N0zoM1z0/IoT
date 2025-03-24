@@ -1,0 +1,43 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functions   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.LANInterfaces."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_LANInterfaces"
+
+entry_execute_method_root_LANInterfaces() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.LANInterfaces."*)
+		common_execute_method_obj "$DMROOT.LANInterfaces." "0"
+		common_execute_method_param "$DMROOT.LANInterfaces.LANEthernetInterfaceNumberOfEntries" "0" "lan_interfaces_get_ethnumentries" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.LANInterfaces.LANWLANConfigurationNumberOfEntries" "0" "lan_interfaces_get_wlannumentries" "" "xsd:unsignedInt" "0"
+		
+		common_execute_method_obj "$DMROOT.LANInterfaces.LANEthernetInterfaceConfig." "0"
+		common_execute_method_obj "$DMROOT.LANInterfaces.LANEthernetInterfaceConfig.1." "0"
+		
+		common_execute_method_obj "$DMROOT.LANInterfaces.LANUSBInterfaceConfig." "0"
+		common_execute_method_obj "$DMROOT.LANInterfaces.LANUSBInterfaceConfig.1." "0"
+		
+		common_execute_method_obj "$DMROOT.LANInterfaces.WLANConfiguration." "0"
+		common_execute_method_obj "$DMROOT.LANInterfaces.WLANConfiguration.1." "0"
+		
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+lan_interfaces_get_ethnumentries() {
+	echo "0"
+}
+
+lan_interfaces_get_wlannumentries() {
+	echo "0"
+}
+

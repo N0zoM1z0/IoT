@@ -1,0 +1,8 @@
+Package: luci-app-easymesh
+Version: git-23.355.09801-21a606c-1
+Depends: libc, libmapd
+Source: package/mtk/ui/luci-mtk/luci-app-easymesh
+Section: luci
+Architecture: ramips_24kec
+Installed-Size: 359095
+Description:  MediaTek Proprietary Configuration.

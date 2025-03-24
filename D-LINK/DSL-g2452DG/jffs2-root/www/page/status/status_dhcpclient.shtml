@@ -1,0 +1,99 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<base target="_self">
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Path = "";
+    this.HostName = "";
+    this.MACAddress = "";
+    this.IPAddress = "";
+    this.LeaseTimeExpire = "";
+}
+
+var index = 0;
+var LanHosts = new Array();
+
+//目的是为了do op，生成InternetGatewayDevice.LANDevice.1.Hosts.Host.{i}
+<!--#getobject "InternetGatewayDevice.LANDevice.1.Hosts. HostNumberOfEntries" -->
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.Hosts.Host. HostName MACAddress IPAddress X_CT-COM_LeaseTimeExpire AddressSource" -->
+LanHosts[index] = new ConnectionTuple();
+LanHosts[index].HostName = "<!--#leaf "1"-->";
+LanHosts[index].MACAddress = "<!--#leaf "2"-->";
+LanHosts[index].IPAddress = "<!--#leaf "3"-->";
+LanHosts[index].LeaseTimeExpire = "<!--#leaf "4"-->";
+LanHosts[index].AddressSource = "<!--#leaf "5"-->";
+index++;
+<!--#endgetobject -->
+
+
+function createTable(){
+    var trs = "";
+    var dhcpClientIndex=0;
+
+    if(LanHosts.length == 0 )
+        trs = '<tr class="OddRowB"><td colspan="5">'+ getStr('LK_NoRule')+'</td></tr>';
+
+    for(var i = 0; i < LanHosts.length; i++)
+    {     
+        if(LanHosts[i].AddressSource!="DHCP")
+            continue;
+
+        var tr = "";
+        if(dhcpClientIndex%2 == 0)
+        {
+            tr += '<tr class="OddRowB">';
+        }
+        else
+        {
+            tr += '<tr class="EvenRowB">';
+        }
+        dhcpClientIndex++;
+
+        tr += "<td>"+LanHosts[i].HostName+"</td>";
+        tr += "<td>"+LanHosts[i].MACAddress+"</td>";
+        tr += "<td>"+LanHosts[i].IPAddress+"</td>";
+        tr += "<td>"+LanHosts[i].LeaseTimeExpire+"</td>";             
+        tr += "</tr>";
+        trs += tr;
+    }
+
+    jQuery("#td_table").append(trs);
+}
+
+function __init()
+{
+    createTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_LANDHCPClient'))</script>
+<form>
+</div>
+    <table width="600" cellpadding="0" cellspacing="0" class="ContentBorder" id="td_table">
+        <tr class="TitleRow">
+            <td langkey="LK_HostName"></td>
+            <td langkey="LK_MACAddress"></td>
+            <td langkey="LK_IPAddress"></td>
+            <td langkey="LK_LeaseTime"></td>
+        </tr>
+    </table>
+</form>
+<script>printEndContent();</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Package: mpstat
+Version: 1
+Depends: libc
+Source: tp_package/u_packages/mpstat
+Section: MTK Properties
+Architecture: rtl
+Installed-Size: 21257
+Description:  mpstat

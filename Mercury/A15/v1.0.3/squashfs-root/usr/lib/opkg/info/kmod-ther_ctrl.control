@@ -1,0 +1,8 @@
+Package: kmod-ther_ctrl
+Version: 4.4.176+2.5-1
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, wireless-tools
+Source: tp_package/wlan-driver/rtl/ther_ctrl
+Section: kernel
+Architecture: rtl
+Installed-Size: 7321
+Description:  Realtek thermal control support

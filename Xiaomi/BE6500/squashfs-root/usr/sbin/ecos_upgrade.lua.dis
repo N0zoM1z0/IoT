@@ -1,0 +1,132 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+L0 = require
+L1 = "nixio.fs"
+L0 = L0(L1)
+L1 = require
+L2 = "nixio"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.module.XQEcos"
+L2 = L2(L3)
+L3 = arg
+L3 = L3[1]
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = "wget -t3 -T30 '"
+  L4 = A0
+  L5 = "' -O "
+  L6 = A1
+  L3 = L3 .. L4 .. L5 .. L6
+  L4 = os
+  L4 = L4.execute
+  L5 = L3
+  L4(L5)
+  L4 = L2.md5File
+  L5 = A1
+  return L4(L5)
+end
+wget = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  if A0 and A1 then
+    L2 = "/tmp/"
+    L3 = A0
+    L2 = L2 .. L3
+    L3 = os
+    L3 = L3.execute
+    L4 = "echo "
+    L5 = A1
+    L6 = " > "
+    L7 = L2
+    L4 = L4 .. L5 .. L6 .. L7
+    L3(L4)
+  end
+end
+echo = L4
+if L3 then
+  L4 = echo
+  L5 = L3
+  L6 = "1"
+  L4(L5, L6)
+  L4 = L2._getEcosDevices
+  L4 = L4()
+  L4 = L4[L3]
+  if L4 then
+    L5 = L2._getEcosUpgrade
+    L6 = L4.version
+    L7 = L4.channel
+    L8 = L4.sn
+    L9 = L4.ctycode
+    L5 = L5(L6, L7, L8, L9)
+    if L5 then
+      L6 = "/tmp/"
+      L7 = L5.fullHash
+      L8 = ".img"
+      L6 = L6 .. L7 .. L8
+      L7 = wget
+      L8 = L5.downloadUrl
+      L9 = L6
+      L7 = L7(L8, L9)
+      L8 = L5.fullHash
+      if L7 == L8 then
+        L7 = os
+        L7 = L7.execute
+        L8 = "cd /tmp && mk_ecos_image -x "
+        L9 = L6
+        L8 = L8 .. L9
+        L7 = L7(L8)
+        if L7 ~= 0 then
+          L8 = echo
+          L9 = L3
+          L10 = "7"
+          L8(L9, L10)
+          return
+        end
+        L8 = os
+        L8 = L8.execute
+        L9 = "tbus postfile "
+        L10 = L4.ip
+        L11 = " "
+        L12 = "/tmp/eCos.img"
+        L9 = L9 .. L10 .. L11 .. L12
+        L8 = L8(L9)
+        if L8 ~= 0 then
+          L9 = echo
+          L10 = L3
+          L11 = "5"
+          L9(L10, L11)
+        else
+          L9 = echo
+          L10 = L3
+          L11 = "6"
+          L9(L10, L11)
+        end
+      else
+        L7 = echo
+        L8 = L3
+        L9 = "4"
+        L7(L8, L9)
+      end
+      L7 = os
+      L7 = L7.execute
+      L8 = "rm /tmp/eCos.img "
+      L9 = L6
+      L10 = " 2>/dev/null >/dev/null"
+      L8 = L8 .. L9 .. L10
+      L7(L8)
+    else
+      L6 = echo
+      L7 = L3
+      L8 = "3"
+      L6(L7, L8)
+    end
+  else
+    L5 = echo
+    L6 = L3
+    L7 = "2"
+    L5(L6, L7)
+  end
+end

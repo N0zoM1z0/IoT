@@ -1,0 +1,777 @@
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+function VoiceServiceExt()
+{
+    this.holdService = "";
+    this.threePartyServ = "";
+    this.conferenceUri = "";
+    this.hotlineUri = "";
+    this.cwService = "";
+
+    this.callForwardUnconditionalEnable = "";
+    this.callForwardUnconditionalNumber = "";
+    this.callForwardOnBusyEnable = "";
+    this.callForwardOnBusyNumber = "";
+    this.callForwardOnNoAnswerEnable = "";
+    this.callForwardOnNoAnswerNumber = "";
+    this.singleCallTransfer = "";
+    this.explicitCallTransfer = "";
+    this.callerIDEnable = "";
+    this.infoReportFlag = "";
+    this.hotLine = "";
+    this.antiPole = "";
+    this.subScribeEnable = "";
+
+    this.cfnrTimer = "";
+    this.dhlTimer = "";
+    this.mrf = "";
+
+    this.uri = "";
+}
+
+	function LineDescription(){
+			this.Description = "";
+		}
+	var num = 0;
+ var LineInfo = new Array();
+ <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+   <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Description" -->
+	   LineInfo[num] = new LineDescription();
+     LineInfo[num].Description= "<!--#leaf "1"-->";
+     num++;
+   <!--#endgetobject -->
+<!--#endgetobject -->
+
+
+var mode=0;
+var voiceServExt = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.X_CT-COM_IMS. hold-service three-party-service conference-uri hotline-uri"-->
+        voiceServExt[mode] = new VoiceServiceExt();
+        voiceServExt[mode].holdService = '<!--#leaf "1"-->';
+        voiceServExt[mode].threePartyServ = '<!--#leaf "2"-->';
+        voiceServExt[mode].conferenceUri = '<!--#leaf "3"-->';
+        voiceServExt[mode].hotlineUri = '<!--#leaf "4"-->';
+    <!--#endgetobject -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.CallingFeatures. CallForwardUnconditionalEnable CallForwardUnconditionalNumber CallForwardOnBusyEnable CallForwardOnBusyNumber CallForwardOnNoAnswerEnable CallForwardOnNoAnswerNumber CallWaitingEnable MWIEnable"-->
+        voiceServExt[mode].callForwardUnconditionalEnable = '<!--#leaf "1"-->';
+        voiceServExt[mode].callForwardUnconditionalNumber = '<!--#leaf "2"-->';
+        voiceServExt[mode].callForwardOnBusyEnable = '<!--#leaf "3"-->';
+        voiceServExt[mode].callForwardOnBusyNumber = '<!--#leaf "4"-->';
+        voiceServExt[mode].callForwardOnNoAnswerEnable = '<!--#leaf "5"-->';
+        voiceServExt[mode].callForwardOnNoAnswerNumber = '<!--#leaf "6"-->';
+        voiceServExt[mode].cwService = '<!--#leaf "7"-->';
+		voiceServExt[mode].subScribeEnable = '<!--#leaf "8"-->'
+    <!--#endgetobject -->
+
+		<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.X_CT-COM_IMS.X_TRI-VoiceServiceExt. SingleCallTransfer ExplicitCallTransfer CallerIDEnable InfoReportFlag ThreeWayMode HotLine AntiPole"-->
+
+        voiceServExt[mode].singleCallTransfer = '<!--#leaf "1"-->';
+        voiceServExt[mode].explicitCallTransfer = '<!--#leaf "2"-->';
+        voiceServExt[mode].callerIDEnable = '<!--#leaf "3"-->';
+        voiceServExt[mode].infoReportFlag = '<!--#leaf "4"-->';
+        voiceServExt[mode].threeWayMode = '<!--#leaf "5"-->';
+        voiceServExt[mode].hotLine = '<!--#leaf "6"-->';
+        voiceServExt[mode].antiPole = '<!--#leaf "7"-->';
+    <!--#endgetobject -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.X_TRI-VoiceServiceExtComm. CfnrTimer DhlTimer MRF"-->
+        voiceServExt[mode].cfnrTimer = '<!--#leaf "1"-->';
+        voiceServExt[mode].dhlTimer = '<!--#leaf "2"-->';
+        voiceServExt[mode].mrf = '<!--#leaf "3"-->';
+    <!--#endgetobject -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.SIP. URI" -->
+        voiceServExt[mode].uri = "<!--#leaf "1"-->";
+        mode++;
+    <!--#endgetobject -->
+<!--#endgetobject -->
+
+function Validation(str)
+{
+    var checkStr="0123456789";
+    checkStr+="#*";
+    if(str=="nodial")
+        return true;
+    for(var i=0;i<str.length;i++)
+    {
+        var c=str.charAt(i);
+        if(checkStr.indexOf(c)==-1)
+            return false;
+    }
+    return true;
+}
+
+function InfoReportFlagChange()
+{
+    if(getChecked("Frm_InfoReportFlag")==true)
+    {
+        if(getChecked("Frm_CallWaitingEnable")==true)
+	    setChecked("Frm_CallWaitingEnable",false);
+	if(getChecked("Frm_3WayTalking")==true)
+	    setChecked("Frm_3WayTalking",false);
+	//if(getChecked("Frm_3WayMode")==true)
+	    //setChecked("Frm_3WayMode",false);
+	if(getChecked("Frm_SingleCallTransfer")==true)
+	    setChecked("Frm_SingleCallTransfer",false);
+	if(getChecked("Frm_ExplicitCallTransfer")==true)
+	    setChecked("Frm_ExplicitCallTransfer",false);
+	setChecked("Frm_InfoReportFlag",true);
+    }
+    else 
+	setChecked("Frm_InfoReportFlag",false);
+}
+
+function DisableInfoReport()
+{
+    /*if(getChecked("Frm_SingleCallTransfer")==true||getChecked("Frm_ExplicitCallTransfer")==true)
+    {
+        if(getChecked("Frm_InfoReportFlag")==true)
+	    setChecked("Frm_InfoReportFlag",false);
+    }*/
+}
+
+function HotLineChange()
+{
+    var HotLineValue=getValue("Frm_HotLine");
+    if(2==HotLineValue)
+        jslEnable("Frm_DhlTimer");
+    else
+        jslDisable("Frm_DhlTimer");
+    if(0==HotLineValue)
+        jslDisable("Frm_HLNumber");
+    else
+    {
+        jslEnable("Frm_HLNumber");
+	//$('Frm_HLNumber').value = "";
+    }
+}
+
+function Enable_CallForwardNumber()
+{
+    /*if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true||getChecked("Frm_CallForwardUnconditionalEnable")==true||getChecked("Frm_CallForwardOnBusyEnable")==true)
+        setChecked("Frm_CallWaitingEnable",false);
+    else
+        setChecked("Frm_CallWaitingEnable",true);
+	*/
+}
+
+function Enable_CallForwardUnconditionalEnable()
+{
+    var index =getValue("Frm_TermNumber");
+    if(getChecked("Frm_CallForwardUnconditionalEnable")==true)
+    {
+        setChecked("Frm_CallForwardOnBusyEnable",false);
+	setChecked("Frm_CallForwardOnNoAnswerEnable",false);
+	jslEnable("Frm_CallForwardUnconditionalNumber");
+	jslDisable("Frm_CallForwardOnBusyNumber","Frm_CallForwardOnNoAnswerNumber");
+	setValue("Frm_CallForwardUnconditionalNumber",voiceServExt[index].callForwardUnconditionalNumber);
+    }
+    else 
+        jslDisable("Frm_CallForwardUnconditionalNumber");
+    Enable_CallForwardNumber();
+}
+
+function Enable_CallForwardOnBusyEnable()
+{
+    var index =getValue("Frm_TermNumber");
+    if(getChecked("Frm_CallForwardOnBusyEnable")==true)
+    {
+        setChecked("Frm_CallForwardUnconditionalEnable",false);
+	jslDisable("Frm_CallForwardUnconditionalNumber");
+	setValue("Frm_CallForwardOnBusyNumber",voiceServExt[index].callForwardOnBusyNumber);
+	jslEnable("Frm_CallForwardOnBusyNumber");
+    }
+    else 
+        jslDisable("Frm_CallForwardOnBusyNumber");
+    if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true)
+    {
+        setChecked("Frm_CallForwardUnconditionalEnable",false);
+	jslDisable("Frm_CallForwardUnconditionalNumber");
+	setValue("Frm_CallForwardOnNoAnswerNumber",voiceServExt[index].callForwardOnNoAnswerNumber);
+	jslEnable("Frm_CallForwardOnNoAnswerNumber");
+    }
+    else 
+        jslDisable("Frm_CallForwardOnNoAnswerNumber");
+    Enable_CallForwardNumber();
+}
+
+function Enable_CallWaitingEnable()
+{
+    if(getChecked("Frm_CallWaitingEnable")==true)
+    {
+        //if(getChecked("Frm_InfoReportFlag")==true)
+	    //setChecked("Frm_InfoReportFlag",false);
+	setChecked("Frm_CallForwardUnconditionalEnable",false);
+	setChecked("Frm_CallForwardOnBusyEnable",false);
+	setChecked("Frm_CallForwardOnNoAnswerEnable",false);
+	jslDisable("Frm_CallForwardUnconditionalNumber","Frm_CallForwardOnBusyNumber","Frm_CallForwardOnNoAnswerNumber");
+    }
+}
+
+/*function Enable_3WayMode()
+{
+    if(getChecked("Frm_3WayMode")==true)
+    {
+        if(getChecked("Frm_InfoReportFlag")==true)
+	    setChecked("Frm_InfoReportFlag",false);
+    }
+}*/
+
+function Enable_3WayTalking()
+{
+    if(getChecked("Frm_3WayTalking")==true)
+    {
+        //if(getChecked("Frm_InfoReportFlag")==true)
+	    //setChecked("Frm_InfoReportFlag",false);
+	//jslEnable("Frm_3WayMode");
+	//Enable_3WayMode();
+	//jslEnable("Frm_MRF");
+    }
+    else 
+		;
+        //jslDisable("Frm_3WayMode","Frm_MRF");
+        //jslDisable("Frm_3WayMode");
+}
+
+function TermNumberChange()
+{
+    var index =getValue("Frm_TermNumber");
+    if(getValue("Frm_TermNumber")==""||getValue("Frm_TermNumber")==null)
+    {
+        jslDisable("Frm_CallForwardUnconditionalEnable","Frm_CallForwardOnBusyEnable","Frm_CallForwardOnNoAnswerEnable","Frm_CallForwardUnconditionalNumber","Frm_CallForwardOnBusyNumber","Frm_CallForwardOnNoAnswerNumber","Frm_InfoReportFlag");
+	jslDisable("Frm_CallWaitingEnable","Frm_SingleCallTransfer","Frm_ExplicitCallTransfer","Frm_CallHoldFlag");
+	//jslDisable("Frm_CallWaitingEnable","Frm_SingleCallTransfer","Frm_ExplicitCallTransfer","Frm_CallHoldFlag","Frm_CallerIDEnable");
+	//jslDisable("Frm_3WayTalking","Frm_3WayMode","Frm_MRF");
+	jslDisable("Frm_3WayTalking","Frm");
+	jslDisable("Frm_HotLine","Frm_HLNumber","Frm_DhlTimer");
+	jslDisable("Frm_SubScribeEnable");
+	jslDisable("Frm_AntiPole");
+	return;
+    }
+    else
+    {
+        jslEnable("Frm_CallForwardUnconditionalEnable","Frm_CallForwardOnBusyEnable","Frm_CallForwardOnNoAnswerEnable","Frm_CallForwardUnconditionalNumber","Frm_CallForwardOnBusyNumber","Frm_CallForwardOnNoAnswerNumber");
+	jslEnable("Frm_CallWaitingEnable","Frm_SingleCallTransfer","Frm_ExplicitCallTransfer","Frm_CallHoldFlag","Frm_3WayTalking");
+	//jslEnable("Frm_CallWaitingEnable","Frm_SingleCallTransfer","Frm_ExplicitCallTransfer","Frm_CallerIDEnable","Frm_CallHoldFlag","Frm_3WayTalking","Frm_InfoReportFlag");
+	jslEnable("Frm_HotLine","Frm_HLNumber","Frm_DhlTimer");
+	jslEnable("Frm_SubScribeEnable");
+	jslEnable("Frm_AntiPole");
+	if(voiceServExt[index].hotLine==2)
+	    jslEnable("Frm_DhlTimer");
+	else 
+	    jslDisable("Frm_DhlTimer");
+	if(voiceServExt[index].hotLine==0) 
+	    jslDisable("Frm_HLNumber");
+	else 
+	    jslEnable("Frm_HLNumber");
+    }
+    if(voiceServExt[index].callForwardUnconditionalEnable==1)
+        setChecked("Frm_CallForwardUnconditionalEnable",true);
+    else 
+        setChecked("Frm_CallForwardUnconditionalEnable",false);
+    if(voiceServExt[index].callForwardOnBusyEnable==1)
+        setChecked("Frm_CallForwardOnBusyEnable",true);
+    else 
+        setChecked("Frm_CallForwardOnBusyEnable",false);
+    if(voiceServExt[index].callForwardOnNoAnswerEnable==1)
+        setChecked("Frm_CallForwardOnNoAnswerEnable",true);
+    else 
+        setChecked("Frm_CallForwardOnNoAnswerEnable",false);
+    setValue("Frm_CallForwardUnconditionalNumber", voiceServExt[index].callForwardUnconditionalNumber);
+    setValue("Frm_CallForwardOnBusyNumber", voiceServExt[index].callForwardOnBusyNumber);
+    setValue("Frm_CallForwardOnNoAnswerNumber",voiceServExt[index].callForwardOnNoAnswerNumber);
+    //setValue("Frm_CfnrTimer",voiceServExt[index].cfnrTimer);
+    if(voiceServExt[index].cwService==1)
+        setChecked("Frm_CallWaitingEnable",true);
+    else 
+        setChecked("Frm_CallWaitingEnable",false);
+    if(voiceServExt[index].singleCallTransfer==1)
+        setChecked("Frm_SingleCallTransfer",true);
+    else 
+        setChecked("Frm_SingleCallTransfer",false);
+    if(voiceServExt[index].explicitCallTransfer==1)
+        setChecked("Frm_ExplicitCallTransfer",true);
+    else 
+        setChecked("Frm_ExplicitCallTransfer",false);
+    /*if(voiceServExt[index].callerIDEnable==1)
+        setChecked("Frm_CallerIDEnable",true);
+    else 
+        setChecked("Frm_CallerIDEnable",false);*/
+    if(voiceServExt[index].holdService=='1')
+        setChecked("Frm_CallHoldFlag",true);
+    else 
+        setChecked("Frm_CallHoldFlag",false);
+    /*if(voiceServExt[index].infoReportFlag==1)
+        setChecked("Frm_InfoReportFlag",true);
+    else 
+        setChecked("Frm_InfoReportFlag",false);
+	*/
+    if(voiceServExt[index].threePartyServ==1)
+        setChecked("Frm_3WayTalking",true);
+    else 
+        setChecked("Frm_3WayTalking",false);
+    /*if(voiceServExt[index].threeWayMode==1)
+        setChecked("Frm_3WayMode",true);
+    else 
+        setChecked("Frm_3WayMode",false);*/
+    if(voiceServExt[index].antiPole==1)
+        setChecked("Frm_AntiPole",true);
+    else 
+        setChecked("Frm_AntiPole",false);
+    if(voiceServExt[index].subScribeEnable==1)
+        setChecked("Frm_SubScribeEnable",true);
+    else 
+        setChecked("Frm_SubScribeEnable",false);
+    Enable_CallForwardUnconditionalEnable();
+    Enable_CallForwardOnBusyEnable();
+    Enable_3WayTalking();
+    if(voiceServExt[index].hotLine==0||voiceServExt[index].hotLine==1||voiceServExt[index].hotLine==2)
+        jslDoShowComboBox("Frm_HotLine",voiceServExt[index].hotLine);
+    setValue("Frm_HLNumber",voiceServExt[index].hotlineUri);
+    setValue("Frm_DhlTimer",voiceServExt[index].dhlTimer);
+}
+
+function jslDoShowComboBox(viewid,value)
+{
+    var i;
+    var selector=document.getElementById(viewid);
+    if(selector==null)
+        return;
+    for(i=0;i<selector.length;i++)
+    {
+        if(selector.options[i].value==value)
+	{
+	    selector.selectedIndex=i;
+	    return;
+	}
+    }
+    selector.selectedIndex=-1;
+}
+
+function createTermNumOptions()
+{
+    var _text=[];
+    var _value=[];
+    var i = 0;
+    for(i; i < mode; i++)
+    {
+    	var LineNum = 0;
+    	if(LineInfo[i].Description=="LINE1")
+    		  LineNum = 1;
+    	else if (LineInfo[i].Description=="LINE2")
+    	    LineNum = 2;
+    	else
+    		LineNum = i+1;
+    	
+        _value.push(LineNum-1);
+        _text.push(voiceServExt[LineNum-1].uri);
+    }
+    createOptions('Frm_TermNumber', _text, _value);
+}
+
+function pageGetValue()
+{
+	  createsel();
+    var cversion="E8-C";
+    if(cversion=="E8-B") {
+        //jslDiDisplay("TR_CallWaitingEnable","TR_3WayTalking","TR_3WayMode","TR_MRF");
+        jslDiDisplay("TR_CallWaitingEnable","TR_3WayTalking");
+	}
+    else {
+        //jslEnDisplay("TR_CallWaitingEnable","TR_3WayTalking","TR_3WayMode","TR_MRF");
+        jslEnDisplay("TR_CallWaitingEnable","TR_3WayTalking");
+	}
+
+    //setValue("Frm_TermNumber",termNumber);
+    //setValue("Frm_MRF",mrf);
+    createTermNumOptions();
+    TermNumberChange();
+}
+
+function pageCheckValue()
+{
+    var msg="";
+    var srvValue="";
+    srvValue=getValue("Frm_TermNumber");
+    if(checkNull(srvValue)==false)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    if(getChecked("Frm_CallForwardUnconditionalEnable")==true)
+    {
+        srvValue=getValue("Frm_CallForwardUnconditionalNumber");
+	if(checkNull(srvValue)!=true)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkStrLengthRange(srvValue,1,32)!=true)
+	{
+	    msg=getmsg(102,1,32);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(srvValue.match("[^0-9]")!=null)
+	{
+	    msg=getmsg(805);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+    if(getChecked("Frm_CallForwardOnBusyEnable")==true)
+    {
+        srvValue=getValue("Frm_CallForwardOnBusyNumber");
+	if(checkNull(srvValue)!=true)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkStrLengthRange(srvValue,1,32)!=true)
+	{
+	    msg=getmsg(102,1,32);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(srvValue.match("[^0-9]")!=null)
+	{
+	    msg=getmsg(805);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+    if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true)
+    {
+        srvValue=getValue("Frm_CallForwardOnNoAnswerNumber");
+	if(checkNull(srvValue)!=true)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkStrLengthRange(srvValue,1,32)!=true)
+	{
+	    msg=getmsg(102,1,32);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(srvValue.match("[^0-9]")!=null)
+	{
+	    msg=getmsg(805);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+    if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true)
+    {
+    /*    if(checkNull(getValue("Frm_CfnrTimer"))!=true)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkInteger(getValue("Frm_CfnrTimer"))!=true)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkIntegerRange(getValue("Frm_CfnrTimer"),500,6000)!=true)
+	{
+	    msg=getmsg(116,500,6000);
+	    top.AlertMsg(msg);
+	    return false;
+	}*/
+    }
+    if(getChecked("Frm_3WayTalking")==true)
+    {
+        //srvValue=getValue("Frm_MRF");
+	if(checkStrLengthRange(srvValue,0,32)==-3)
+	{
+	    msg=getmsg(102,0,32);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+    var index =getValue("Frm_TermNumber");
+    if(getValue("Frm_HotLine")==1||getValue("Frm_HotLine")==2)
+    {
+        if(checkNull(getValue("Frm_HLNumber"))==false)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkStrLengthRange(getValue("Frm_HLNumber"),0,32)==-3)
+	{
+	    msg=getmsg(102,0,32);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	var HLNumber_Result=Validation(getValue("Frm_HLNumber"));
+	if(!HLNumber_Result)
+	{
+	   msg=getmsg(202);
+	   top.AlertMsg(msg);
+	   return false;
+	}
+    }
+    //var iStartTimer=getValue("StartTimer");
+    var iDhlTimer=checkIntegerRange(getValue("Frm_DhlTimer"),1,5000);
+    if(iDhlTimer==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(iDhlTimer==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(iDhlTimer==-3)
+    {
+        msg=getmsg(116);
+	top.AlertMsg(msg);
+	return false;
+    }
+	if(!validateCode())
+		return false;
+    return true;
+}
+
+function GetLineNumByDescription(Description){
+    for(var i = 0;i < LineInfo.length; i++)
+    {
+    	if(LineInfo[i].Description==Description)
+    	return i;
+    }
+    return false;
+}
+
+function uiSubmit()
+{
+    //if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true)
+      //  ReSetIpRmZero("Frm_CfnrTimer");
+    if(pageCheckValue()==true)
+    {
+        var df=$('fSubmit');
+	var line=parseInt(getValue("Frm_TermNumber"))+1;
+	var pathLine="InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.";
+        jslDisable("Btn_Submit","Btn_Cancel");
+
+	if(getValue("Frm_HotLine")==2)
+	{
+	    AddElements(df, pathLine + line + ".X_TRI-VoiceServiceExtComm.DhlTimer", getValue("Frm_DhlTimer"));
+	    AddElements(df, pathLine + line + ".X_CT-COM_IMS.hotline-uri", getValue("Frm_HLNumber"));
+	}
+	else if(getValue("Frm_HotLine")==1)
+	{
+	    AddElements(df, pathLine + line + ".X_CT-COM_IMS.hotline-uri", getValue("Frm_HLNumber"));
+	}
+
+	AddElements(df, pathLine + line + ".X_CT-COM_IMS.hold-service", getChecked("Frm_CallHoldFlag") ? 1 : 0);
+	AddElements(df, pathLine + line + ".X_CT-COM_IMS.three-party-service", getChecked("Frm_3WayTalking") ? 1 : 0);
+	//AddElements(df, pathLine + line + ".X_CT-COM_IMS.conference-uri", );
+	
+	AddElements(df, pathLine + line + ".CallingFeatures.CallWaitingEnable", getChecked("Frm_CallWaitingEnable") ? 1 : 0);
+
+    if(getChecked("Frm_CallForwardUnconditionalEnable")==true)
+	{
+        AddElements(df, pathLine + line + ".CallingFeatures.CallForwardUnconditionalEnable", 1);
+	}
+	else
+        AddElements(df, pathLine + line + ".CallingFeatures.CallForwardUnconditionalEnable", 0);
+	
+	
+	 AddElements(df, pathLine + line + ".CallingFeatures.CallForwardUnconditionalNumber", getValue("Frm_CallForwardUnconditionalNumber"));
+	if(getChecked("Frm_CallForwardOnBusyEnable")==true)
+	{
+	    AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnBusyEnable", 1);
+            
+	}
+	else {
+	    AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnBusyEnable", 0);
+	}
+    AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnBusyNumber", getValue("Frm_CallForwardOnBusyNumber"));
+	if(getChecked("Frm_CallForwardOnNoAnswerEnable")==true)
+	{
+	    AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnNoAnswerEnable", 1);
+	    //AddElements(df, pathLine + line + ".X_TRI-VoiceServiceExtComm.CfnrTimer", getValue("Frm_CfnrTimer"));
+	}
+	else {
+	    AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnNoAnswerEnable", 0);
+	    }
+        AddElements(df, pathLine + line + ".CallingFeatures.CallForwardOnNoAnswerNumber", getValue("Frm_CallForwardOnNoAnswerNumber"));
+        AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.SingleCallTransfer", getChecked("Frm_SingleCallTransfer")? 1 : 0);
+        AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.ExplicitCallTransfer", getChecked("Frm_ExplicitCallTransfer")? 1 : 0);
+        //AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.CallerIDEnable", getChecked("Frm_CallerIDEnable")? 1 : 0);
+        //AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.InfoReportFlag", getChecked("Frm_InfoReportFlag")? 1 : 0);
+	if(getChecked("Frm_3WayTalking")==true)
+	{
+         //AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.ThreeWayMode", getChecked("Frm_3WayMode")? 1 : 0);
+	    //AddElements(df, pathLine + line + ".X_TRI-VoiceServiceExtComm.MRF", getValue("Frm_MRF"));
+	}
+        AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.HotLine", getValue("Frm_HotLine"));
+        AddElements(df, pathLine + line + ".X_CT-COM_IMS.X_TRI-VoiceServiceExt.AntiPole", getChecked("Frm_AntiPole") ? 1 : 0);
+
+	if(getChecked("Frm_SubScribeEnable")==true) {
+
+        AddElements(df, pathLine + line + ".CallingFeatures.MWIEnable", 1);
+    }
+    else {
+        AddElements(df, pathLine + line + ".CallingFeatures.MWIEnable", 0);
+    }
+	df.submit();
+    }
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Default"), getStr("LK_RightNow"), getStr("LK_Delay")];
+  value = ['0', '1', '2'];
+	createOptions('Frm_HotLine', text, value);
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_VoiceOperation'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipvoiceservice.shtml">
+</form>
+<table class="ContentTableNoColor" id="PortIsolation" cellpadding="0" cellspacing="0">
+<!--tr class="FlagText">
+	<td colspan="2" langkey="LK_VoiceOperationText">
+	</td>
+</tr-->
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+	<td width="200" langkey="LK_Tell"></td>
+	<td>
+	<select size="1" id="Frm_TermNumber" onchange="TermNumberChange();">
+	</select>
+	</td>
+</tr>
+<tr>
+	<td id="Fnt_CallForwardUnconditionalNumber" langkey="LK_CallForwardUnconditionall"></td>
+	<td><input name="Frm_CallForwardUnconditionalEnable" id="Frm_CallForwardUnconditionalEnable" type="checkbox" value="" onclick="Enable_CallForwardUnconditionalEnable();"></td>
+</tr>
+<tr>
+	<td langkey="LK_Too"></td>
+	<td><input name="Frm_CallForwardUnconditionalNumber" id="Frm_CallForwardUnconditionalNumber" type="text" value="" class="inputId" disabled=""></td>
+</tr>
+<tr>
+	<td id="Fnt_CallForwardOnBusyNumber" langkey="LK_CallForwardOnBusyy"></td>
+	<td class="td2"><input name="Frm_CallForwardOnBusyEnable" id="Frm_CallForwardOnBusyEnable" type="checkbox" value="" onclick="Enable_CallForwardOnBusyEnable();"></td>
+</tr>
+<tr>
+	<td langkey="LK_Too"></td>
+	<td><input name="Frm_CallForwardOnBusyNumber" id="Frm_CallForwardOnBusyNumber" type="text" value="" class="inputId" disabled=""></td>
+</tr>
+<tr>
+	<td id="Fnt_CallForwardOnNoAnswerNumber" langkey="LK_CallForwardOnNoAnswerr"></td>
+	<td><input name="Frm_CallForwardOnNoAnswerEnable" id="Frm_CallForwardOnNoAnswerEnable" type="checkbox" value="" onclick="Enable_CallForwardOnBusyEnable();"></td>
+</tr>
+<tr>
+	<td langkey="LK_Too"></td>
+	<td><input name="Frm_CallForwardOnNoAnswerNumber" id="Frm_CallForwardOnNoAnswerNumber" type="text" value="" class="inputId" disabled=""></td>
+</tr>
+<!--tr>
+	<td langkey="LK_VibrantTimee"></td>
+	<td class="td2"><input name="Frm_CfnrTimer" id="Frm_CfnrTimer" type="text" value="" class="inputId">10ms</td>
+</tr-->
+<tr id="TR_CallWaitingEnable" style="">
+	<td langkey="LK_CallWaittingg"></td>
+	<td><input name="Frm_CallWaitingEnable" id="Frm_CallWaitingEnable" type="checkbox" value="" onclick="Enable_CallWaitingEnable();"></td>
+</tr>
+<tr>
+	<td langkey="LK_SingleCallTransferr"></td>
+	<td><input name="Frm_SingleCallTransfer" id="Frm_SingleCallTransfer" type="checkbox" value="" onclick="DisableInfoReport();"></td>
+</tr>
+<tr>
+	<td langkey="LK_ExplicitCallTransferr"></td>
+	<td><input name="Frm_ExplicitCallTransfer" id="Frm_ExplicitCallTransfer" type="checkbox" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_CallHoldFlagg"></td>
+	<td><input name="Frm_CallHoldFlag" id="Frm_CallHoldFlag" type="checkbox" value=""></td>
+</tr>
+<!--tr>
+	<td langkey="LK_CallerIDEnablee"></td>
+	<td><input name="Frm_CallerIDEnable" id="Frm_CallerIDEnable" type="checkbox" value=""></td>
+</tr!-->
+<!--tr>
+	<td langkey="LK_INFOReportFlagg"></td>
+	<td><input name="Frm_InfoReportFlag" id="Frm_InfoReportFlag" type="checkbox" value="" onclick="InfoReportFlagChange();">
+</tr-->
+<tr id="TR_3WayTalking" style="">
+	<td langkey="LK_3WayTalkingg"></td>
+	<td><input name="Frm_3WayTalking" id="Frm_3WayTalking" type="checkbox" value="" onclick="Enable_3WayTalking();"></td>
+</tr>
+<!--tr id="TR_3WayMode" style="">
+	<td langkey="LK_Mixingg"></td>
+	<td><input name="Frm_3WayMode" id="Frm_3WayMode" type="checkbox" value="" onclick="Enable_3WayMode()" disabled=""></td>
+</tr>
+<tr id="TR_MRF" style="">
+	<td langkey="LK_MeetingResourceCodee"></td>
+	<td><input name="Frm_MRF" id="Frm_MRF" type="text" value="" class="inputId" disabled=""></td>
+</tr-->
+<tr>
+	<td langkey="LK_HotLinee"></td>
+	<td class="td2">
+		<select size="1" class="list_6" id="Frm_HotLine" onchange="HotLineChange();">
+</select>
+</td>
+</tr>
+<tr>
+	<td langkey="LK_DestinationNumberr"></td>
+	<td><input name="Frm_HLNumber" id="Frm_HLNumber" type="text" value="" class="inputId" disabled=""></td>
+</tr>
+<tr>
+	<td langkey="LK_DelayLineTimerr"></td>
+	<td><input name="Frm_DhlTimer" id="Frm_DhlTimer" type="text" value="" class="inputId" disabled=""> ms</td>
+</tr>
+<tr>
+	<td langkey="LK_SignalEnablee"></td>
+	<td><input name="Frm_AntiPole" id="Frm_AntiPole" type="checkbox" value=""></td>
+</tr>
+<tr>
+	<td langkey="LK_EnableSubscribee"></td>
+	<td><input name="Frm_SubScribeEnable" id="Frm_SubScribeEnable" type="checkbox" value="" onclick=""></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

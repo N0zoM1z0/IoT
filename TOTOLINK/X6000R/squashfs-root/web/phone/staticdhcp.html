@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="toper">
+	<phone-back type="custom" :title="lang_t('menu.application')" @on-click="backFun"></phone-back>
+  </div>
+  <div class="nav">
+	<div style="float:left;width:83%;">{{ lang_t('menu.staticdhcp') }}</div>
+	<div class="nav-sw" v-show="editState == 'list'">
+	  <x-switch v-model="dhcpState" @change="changedhcpState"></x-switch>
+	</div>
+  </div>
+  <div class="nav" v-show="homepage&&dhcpState" style="color: #000;font-weight:normal;" @click="addBtn">
+	<img src="/static/images/phone/open.png">&nbsp;&nbsp;{{ lang_t('common.add_rules') }}
+  </div>
+  <div v-show="dhcpState">
+    <div class="content-list" v-show="homepage" :style="{height: listHeight,'overflow-y':'auto'}">
+	  <div class="list" v-for="(data,v) in data" @click="showBtn(data,v)">
+		<div class="list-l" style="padding-top: 9%;">
+		  <img src="/static/images/phone/pc.png">
+		</div>
+		<div class="list-c">
+		  <p>{{ data.desc }}</p>
+		  <p>{{ data.ip }}</p>
+		  <p>MAC: {{ data.mac }}</p>
+		</div>
+		<div class="list-r"  style="padding-top:12%;">
+		  <img src="/static/images/phone/sign_right.png">
+		</div>
+	  </div>
+    </div>
+    <div class="content" v-show="!homepage">
+	  <div class="group">
+		<div class="item-l">{{ lang_t('rule.description') }}</div>
+		<div class="item-r">
+			<input type="text" v-model="desc" :maxlength="descLen">
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('rule.mac') }}</div>
+		<div class="item-r">
+		<input type="text" v-model="mac" :maxlength="17">
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('rule.ip') }}</div>
+		<div class="item-r">
+		<input type="text" v-model="ip" :maxlength="17">
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-sw">{{ lang_t('qos.msg7') }}</div>
+		<div class="item-r">
+		  <x-switch v-model="setuser"></x-switch>
+		</div>
+	  </div>
+	  <div class="group" v-show="setuser">
+		<div class="item-l">{{ lang_t('qos.msg8') }}</div>
+		<div class="item-r">
+		  <select v-model="selectdata" @change="userFun">
+			<option value="0">{{ lang_t('wan.none') }}</option>
+			<option :value="(option)" v-for="(option,v) in options" :key="v">{{ option.mac +', '+ option.ip }}</option>
+		  </select>
+		</div>			
+	  </div>
+	  <div class="footer">
+		<button class="btn" :disabled="addbtn" @click="applyBtn">{{ lang_t('common.apply') }}</button><br>&nbsp;<br>
+		<button class="btn btn-red" v-show="this.tempIdx !== ''" @click="deleteBtn">{{ lang_t('common.delete') }}</button>
+	  </div>
+	  <div class="space"></div>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,listHeight:"300px",data:[],select:[],lanIp:"",lanNetmask:"",listIndex:"",editState:"list",desc:"",ip:"",mac:"",tempIdx:"",tempDelRuleName:"",descLen:globalConfig.descLen,dhcpState:!0,homepage:!0,options:[],selectdata:"0",setuser:!1,addbtn:!1}},computed:{phoneTitle:function(){return this.homepage?"":this.lang_t("menu.staticdhcp")}},created:function(){var n=this;n.listHeight=.75*window.innerHeight+"px",uiPost.getStaticDhcpRules(function(t){n.dhcpState="1"==t.enable,n.lanIp=t.lanIp,n.lanNetmask=t.lanNetmask,t.rule&&(n.data=t.rule)}),n.scanFun()},mounted:function(){},methods:{backFun:function(){this.homepage?location.href="/phone/application.html"+get_token_from_url():(this.homepage=!0,this.editState="list",this.addbtn=!1)},changedhcpState:function(t){this.applyBtn("switch",t)},scanFun:function(){var n=this;uiPost.getOnlineMsg(function(t){n.options=t})},userFun:function(){"0"!=this.selectdata?(this.desc=this.selectdata.name,this.mac=this.selectdata.mac,this.ip=this.selectdata.ip):(this.desc="",this.mac="",this.ip="")},addBtn:function(){this.homepage&&(this.listIndex="",this.editState="add",this.homepage=!1,this.desc="",this.mac="",this.ip="")},showBtn:function(t,n){var e=this;e.mac=t.mac,e.ip=t.ip,e.desc=t.desc,e.tempIdx=n,e.tempDelRuleName=t.delRuleName,e.editState="edit",e.homepage=!1},applyBtn:function(t,n){var e,a,o=this,l={};if("switch"!=t)return t=cs.commentstr(o.desc),e=cs.mac(o.mac),a=cs.ip(o.ip),1==t||2==t||3==t?(Cstool.Mark({content:o.lang_t("rule.msg4"),l_text:o.lang_t("common.back")}),!1):e?1==e?(Cstool.Mark({content:o.lang_t("rule.msg17"),l_text:o.lang_t("common.back")}),!1):2==e?(Cstool.Mark({content:o.lang_t("rule.msg18"),l_text:o.lang_t("common.back")}),!1):3==e?(Cstool.Mark({content:o.lang_t("rule.msg19"),l_text:o.lang_t("common.back")}),!1):!o.ip||0==a?(Cstool.Mark({content:o.lang_t("network.ip")+o.lang_t("network.msg1"),l_text:o.lang_t("common.back")}),!1):1==a?(Cstool.Mark({content:o.lang_t("network.ip")+o.lang_t("network.msg2"),l_text:o.lang_t("common.back")}),!1):2==a?(Cstool.Mark({content:o.lang_t("network.ip")+o.lang_t("wan.msg2"),l_text:o.lang_t("common.back")}),!1):3==a?(Cstool.Mark({content:o.lang_t("network.ip")+o.lang_t("wan.msg3"),l_text:o.lang_t("common.back")}),!1):4==a?(Cstool.Mark({content:o.lang_t("network.ip")+o.lang_t("wan.msg4"),l_text:o.lang_t("common.back")}),!1):cs.ip_subnet(o.ip,o.lanNetmask,o.lanIp)?(l.mac=o.mac.toUpperCase(),l.ip=o.ip,l.desc=o.desc,l.addEffect="edit"==o.editState?"2":"1",void uiPost.setStaticDhcpRules(l,function(t){o.addbtn=!1,postCallback(t)})):(Cstool.Mark({content:o.lang_t("rule.msg3"),l_text:o.lang_t("common.back")}),!1):(Cstool.Mark({content:o.lang_t("rule.mac")+o.lang_t("rule.msg12"),l_text:o.lang_t("common.back")}),!1);l.enable=0==n?"0":"1",l.addEffect="0",uiPost.setStaticDhcpRules(l,function(t){o.addBtn=!1})},deleteBtn:function(){let t={};t["delRule"+this.tempIdx]=String(this.tempIdx),Cstool.Mark({content:lang_t("vpn.msg8"),ok:function(){uiPost.delStaticDhcpRules(t,function(t){postCallback(t,{loadText:lang_t("common.deletion")})})}})}}}</script><script src="/static/js/main.js"></script></body></html>

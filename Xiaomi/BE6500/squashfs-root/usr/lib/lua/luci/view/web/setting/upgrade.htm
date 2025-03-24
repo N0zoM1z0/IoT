@@ -1,0 +1,39 @@
+<%
+--[[
+    Info    路由器固件升级
+]]--
+
+local ver = require("xiaoqiang.XQVersion").webVersion
+local features = require("xiaoqiang.XQFeatures").FEATURES
+local syslog = features["apps"]["syslog"] or "0"
+%>
+<%include("web/inc/head")%>
+<title><%:小米路由器%></title>
+<meta name="viewport" content="width=1200">
+<link href="<%=resource%>/web/css/bc.css?v=<%=ver%>" rel="stylesheet">
+<link href="<%=resource%>/web/css/upgrade.css?v=<%=ver%>" rel="stylesheet">
+</head>
+<body>
+<div id="doc">
+    <%include("web/inc/header")%>
+    <div id="bd">
+    <%include("web/inc/led-switch")%>
+    <%include("web/inc/temp-control")%>
+    <%include("web/inc/sysinfo")%>
+    <%if syslog == "1" then%>
+    <%include("web/inc/syslog")%>
+    <%end%>
+    </div>
+
+</div>
+<%include("web/inc/footer")%>
+<%include("web/inc/g.js")%>
+<%include("web/inc/reboot.js")%>
+<%include("web/inc/sysinfo.js")%>
+<%include("web/inc/led-switch.js")%>
+<%include("web/inc/temp-control.js")%>
+<%if syslog == "1" then%>
+<%include("web/inc/syslog.js")%>
+<%end%>
+</body>
+</html>

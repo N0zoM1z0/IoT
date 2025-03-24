@@ -1,0 +1,335 @@
+<script type="text/javascript">
+	(function(){
+		var AUTO = uciNetwork.optValue.ipMode.dynamic;
+		var MANUAL = uciNetwork.optValue.ipMode.manual;
+		var LAN_DETECT_WAIT_TIME = 120000;
+		var LAN_DETECT_TIME_DELAY = 4000;
+		var lanOptions = [
+			{str:label.lanIpAuto, value:AUTO},
+			{str:label.lanIpManual, value:MANUAL}
+		];
+
+		var isDomain = false, localPort = 80;
+		var lanData = null;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return false;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EINVMASK:
+				showStr = errStr.maskErr;
+				break;
+			case EINVNETID:
+				showStr = errStr.ipAddrNetIdErr;
+				break;
+			case EINVHOSTID:
+				showStr = errStr.ipAddrHostIdErr;
+				break;
+			case EINVIPMASKPAIR:
+				showStr = errStr.ipAddrMaskNotMatch;
+				break;
+			case ECOMFLICTNET:
+				showStr = errStr.ipAddrLanWanConflict;
+				break;
+			case ECONFLICTGATEWAY:
+				showStr = errStr.ipAddrLanGatewayConflict;
+				break;
+			case ECONFLICTFDNS:
+				showStr = errStr.ipAddrLanFDNSConflict;
+				break;
+			case ECONFLICTSDNS:
+				showStr = errStr.ipAddrLanSDNSConflict;
+				break;
+			case EMANUALLANMODE:
+				showStr = label.lanWDSTip;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return true;
+		}
+
+		function lanSelectChange(type)
+		{
+			ipAddr.toggleStatic(AUTO == type);
+			netmask.toggleStatic(AUTO == type);
+
+			if (AUTO == type)
+			{
+				ipAddr.setValue(lanData[uciNetwork.optName.ip]);
+				netmask.setValue(lanData[uciNetwork.optName.netmask]);
+			}
+		}
+
+		function setLanInfo(resp)
+		{
+			lanData = resp[uciNetwork.fileName][uciNetwork.secName.lan];
+
+			id("lanSel").changeSel(lanData[uciNetwork.optName.ipMode]);
+			macAddr.setValue(lanData[uciNetwork.optName.mac]);
+			ipAddr.setValue(lanData[uciNetwork.optName.ip]);
+			netmask.setValue(lanData[uciNetwork.optName.netmask]);
+
+			isDomain  = location.href.toString().indexOf(lanData[uciNetwork.optName.ip]) == -1;
+			localPort = location.port || 80;
+		}
+
+		function requestData()
+		{
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+
+			$.query(data, setLanInfo);
+		}
+
+		function lanConfigChange(ip)
+		{
+			var data = {"network":{"apply_lan_config":null}};
+			$.action(data, null, true);
+
+			function lanCfgChgReload()
+			{
+				if (false == isDomain || true == isIE)
+				{
+					window.location.href = "http://" + ip + ":" + localPort;
+				}
+				else
+				{
+					window.location.reload();
+				}
+			}
+
+			$.changeDomain(ip);
+			loadingDialog.show({
+				title: label.confirmTitle,
+				content:{primary:label.lanCfgChgTip}
+			}, undefined, undefined, false, undefined);
+
+			$.setTimeout(lanCfgChgReload, LAN_DETECT_WAIT_TIME);
+			$.setTimeout(function(){
+				lanDetecting(function(){
+					$.setTimeout(lanCfgChgReload, LAN_DETECT_TIME);
+				});
+			}, LAN_DETECT_TIME_DELAY);
+		}
+
+		function onSave()
+		{
+			var self = this;
+			var data = {}, param = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][uciNetwork.secName.lan] = param;
+
+			var ip = ipAddr.getValue();
+			var ipMode = id("lanSel").value;
+			var mask = netmask.getValue();
+
+			if (AUTO == ipMode)
+			{
+				param[uciNetwork.optName.ipMode] = AUTO;
+			}
+			else
+			{
+				if (!ipAddr.checkAll() || !netmask.checkAll())
+				{
+					return;
+				}
+
+				param[uciNetwork.optName.ipMode] = MANUAL;
+				param[uciNetwork.optName.ip] = ip;
+				param[uciNetwork.optName.netmask] = mask;
+			}
+
+			if (lanData[uciNetwork.optName.ipMode] == ipMode && (
+				AUTO == ipMode ||
+				MANUAL == ipMode &&
+				lanData[uciNetwork.optName.ip] == ip &&
+				lanData[uciNetwork.optName.netmask] ==mask))
+			{
+				return;
+			}
+			else
+			{
+				confirmDialog.show({
+					title: label.confirmTitle,
+					content: label.lanConfChgConfirm,
+					callback: function(choose){
+						if (choose)
+						{
+							$.modify(data, function(res){
+								if (!errHandle(res[ERR_CODE]))
+								{
+									var data = {};
+									data[uciNetwork.fileName] = {};
+									data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+
+									$.query(data, function(result){
+										var newData = result[uciNetwork.fileName][uciNetwork.secName.lan];
+
+										if (lanData[uciNetwork.optName.ip] == newData[uciNetwork.optName.ip] &&
+											lanData[uciNetwork.optName.netmask] == newData[uciNetwork.optName.netmask])
+										{
+											lanData[uciNetwork.optName.ipMode] = newData[uciNetwork.optName.ipMode];
+											showToast(label.saveSuccess);
+										}
+										else
+										{
+											lanConfigChange(ip);
+										}
+									});
+								}
+							});
+						}
+					}
+				});
+			}
+		}
+
+		function checkIpAddr()
+		{
+			var value = this.getValue();
+
+			if ("" == value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (ENONE != checkIp(value))
+			{
+				this.showNote(errStr.wzdStcIpErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkMaskAddr()
+		{
+			var value = this.getValue();
+
+			if ("" == value)
+			{
+				this.showNote(errStr.wzdStcMaskEmpty);
+				return false;
+			}
+			else if (ENONE != checkMask(value))
+			{
+				this.showNote(errStr.wzdStcMaskErr);
+				return false;
+			}
+
+			if (ENONE != checkIpMask(ipAddr.getValue(), value))
+			{
+				this.showNote(errStr.wzdStcIpMaskNotMatch);
+				return false;
+			}
+
+			return true;
+		}
+
+		var macAddr = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mac},
+			targetId:"macAddr",
+			props:{value:"00-00-00-00-00-00", type: "text"}
+		});
+		var ipAddr = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"ipSet",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"},
+			check:{blur:checkIpAddr}
+		});
+		var netmask = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"ipSet",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"},
+			check:{blur:checkMaskAddr}
+		});
+
+		new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"36px 0 0 132px"}
+		});
+
+		selectInit("lanSel", lanOptions, AUTO, lanSelectChange);
+		if (slp.modeSwitchSupport)
+		{
+			getBridgeStatus(function(bridgeEnable){
+				/* 桥模式下禁止更改上网模式及其他设置 */
+				if (bridgeEnable)
+				{
+					id("lanSel").disable(true);
+					$("#lanSelUl").hide();
+					var staticLanSel = new Input({
+						type:Input.TYPE.STATIC_TEXT,
+						label:{value:label.lanIpSetting},
+						targetId:"staticLanSel"
+					});
+					staticLanSel.setValue(label.lanIpAuto);
+					$("#staticLanSel").show();
+					$("#save").hide();
+					$("div.head p.description").hide();
+					addTitleError("bridgeWarning", label.bridgeLanWarning, {hasIcon: false});
+				}
+				else
+				{
+					$("#staticLanSel").hide();
+				}
+			});
+		}
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	p#highsetTitleError{
+		margin: 16px 0;
+	}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.lanSet%}</h1><i class="helpBtn iconfont icon-help" helpStr="lanHelp"></i></div>
+	<p class="description"></p>
+</div>
+<div id="macAddr"></div>
+<div id="ipSet">
+	<ul id="lanSelUl" class="inputCMPT medium selectUl">
+		<label class="outerLbl">{%label.lanIpSetting%}</label>
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="lanSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+	<div id="staticLanSel"></div>
+</div>
+<div id="save"></div>

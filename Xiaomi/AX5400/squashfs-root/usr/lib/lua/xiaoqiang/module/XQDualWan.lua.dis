@@ -1,0 +1,1688 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+L0 = module
+L1 = "xiaoqiang.module.XQDualWan"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.XQLog"
+L1 = L1(L2)
+L2 = pcall
+L3 = require
+L4 = "lsqlite3"
+L2, L3 = L2(L3, L4)
+L4 = require
+L5 = "xiaoqiang.util.XQDBUtil"
+L4 = L4(L5)
+L5 = require
+L6 = "luci.util"
+L5 = L5(L6)
+L6 = require
+L7 = "cjson"
+L6 = L6(L7)
+L7 = require
+L8 = "luci.model.uci"
+L7 = L7(L8)
+L7 = L7.cursor
+L7 = L7()
+L8 = "/etc/xqDb"
+L9 = "MANUAL_DEVICE"
+L10 = "100"
+L11 = "wan1"
+L12 = "wan2"
+L13 = "/usr/sbin/dualwan.sh"
+L14 = "dnscheck1"
+L15 = "dnscheck2"
+L16 = "linkcheck1"
+L17 = "linkcheck2"
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  if "up" == A0 and "down" == A2 then
+    L4 = "ubus call network.interface.wan status"
+    L5 = "ubus call network.interface.wan2 status"
+    L8 = _UPVALUE0_
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan_link_error"
+    L14 = 0
+    L9(L10, L11, L12, L13, L14)
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan2_link_error"
+    L14 = 1
+    L9(L10, L11, L12, L13, L14)
+  elseif "down" == A0 and "up" == A2 then
+    L4 = "ubus call network.interface.wan2 status"
+    L5 = "ubus call network.interface.wan status"
+    L8 = _UPVALUE2_
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan_link_error"
+    L14 = 1
+    L9(L10, L11, L12, L13, L14)
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan2_link_error"
+    L14 = 0
+    L9(L10, L11, L12, L13, L14)
+  elseif "up" == A0 and "up" == A2 then
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan_link_error"
+    L14 = 0
+    L9(L10, L11, L12, L13, L14)
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan2_link_error"
+    L14 = 0
+    L9(L10, L11, L12, L13, L14)
+    L4 = "ip route | grep nexthop | grep weight"
+    L9 = _UPVALUE3_
+    L9 = L9.exec
+    L10 = L4
+    L9 = L9(L10)
+    L6 = L9
+    L9 = _UPVALUE4_
+    L9 = L9.isStrNil
+    L10 = L6
+    L9 = L9(L10)
+    if L9 then
+      L9 = _UPVALUE5_
+      L10 = " dual_wan_reset"
+      L4 = L9 .. L10
+      L9 = _UPVALUE3_
+      L9 = L9.exec
+      L10 = L4
+      L9(L10)
+      L9 = _UPVALUE6_
+      L9 = L9.log
+      L10 = 3
+      L11 = "dualwan changeDefaultRoute: single route to dual route"
+      L9(L10, L11)
+    end
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.commit
+    L11 = "dualwan"
+    L9(L10, L11)
+    return
+  elseif "down" == A0 and "down" == A2 then
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan_link_error"
+    L14 = 1
+    L9(L10, L11, L12, L13, L14)
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.set
+    L11 = "dualwan"
+    L12 = "common"
+    L13 = "wan2_link_error"
+    L14 = 1
+    L9(L10, L11, L12, L13, L14)
+    L9 = _UPVALUE1_
+    L10 = L9
+    L9 = L9.commit
+    L11 = "dualwan"
+    L9(L10, L11)
+    return
+  end
+  L9 = _UPVALUE1_
+  L10 = L9
+  L9 = L9.commit
+  L11 = "dualwan"
+  L9(L10, L11)
+  L9 = _UPVALUE3_
+  L9 = L9.exec
+  L10 = L4
+  L9 = L9(L10)
+  L6 = L9
+  L9 = _UPVALUE3_
+  L9 = L9.exec
+  L10 = L5
+  L9 = L9(L10)
+  L7 = L9
+  L9 = _UPVALUE4_
+  L9 = L9.isStrNil
+  L10 = L6
+  L9 = L9(L10)
+  if not L9 then
+    L9 = _UPVALUE4_
+    L9 = L9.isStrNil
+    L10 = L7
+    L9 = L9(L10)
+    if not L9 then
+      goto lbl_143
+    end
+  end
+  do return end
+  ::lbl_143::
+  L9 = _UPVALUE7_
+  L9 = L9.decode
+  L10 = L6
+  L9 = L9(L10)
+  L6 = L9
+  L9 = _UPVALUE7_
+  L9 = L9.decode
+  L10 = L7
+  L9 = L9(L10)
+  L7 = L9
+  if L6 and L7 then
+    L9 = L6.l3_device
+    if L9 then
+      L9 = L7.l3_device
+      if L9 then
+        L9 = L6.route
+        if L9 then
+          L9 = L7.route
+          if L9 then
+            L9 = L6.route
+            L9 = L9[1]
+            if L9 then
+              L9 = L7.route
+              L9 = L9[1]
+              if L9 then
+                L9 = L6.route
+                L9 = L9[1]
+                L9 = L9.nexthop
+                if L9 then
+                  L9 = L7.route
+                  L9 = L9[1]
+                  L9 = L9.nexthop
+                  if L9 then
+                    L9 = L6.l3_device
+                    L10 = L6.route
+                    L10 = L10[1]
+                    L10 = L10.nexthop
+                    L11 = L7.l3_device
+                    L12 = L7.route
+                    L12 = L12[1]
+                    L12 = L12.nexthop
+                    L13 = "ip route | grep default | grep "
+                    L14 = L10
+                    L15 = " | grep "
+                    L16 = L9
+                    L17 = " | grep -v metric"
+                    L4 = L13 .. L14 .. L15 .. L16 .. L17
+                    L13 = _UPVALUE3_
+                    L13 = L13.exec
+                    L14 = L4
+                    L13 = L13(L14)
+                    L6 = L13
+                    L13 = _UPVALUE4_
+                    L13 = L13.isStrNil
+                    L14 = L6
+                    L13 = L13(L14)
+                    if L13 then
+                      L13 = "ip route replace default via "
+                      L14 = L10
+                      L15 = " dev "
+                      L16 = L9
+                      L4 = L13 .. L14 .. L15 .. L16
+                      L13 = _UPVALUE3_
+                      L13 = L13.exec
+                      L14 = L4
+                      L13(L14)
+                      L13 = _UPVALUE5_
+                      L14 = " del_dns_route "
+                      L15 = L12
+                      L16 = " "
+                      L17 = L8
+                      L4 = L13 .. L14 .. L15 .. L16 .. L17
+                      L13 = _UPVALUE3_
+                      L13 = L13.exec
+                      L14 = L4
+                      L13(L14)
+                      L13 = _UPVALUE6_
+                      L13 = L13.log
+                      L14 = 3
+                      L15 = "dualwan changeDefaultRoute: "
+                      L16 = L9
+                      L17 = " -> ["
+                      L18 = L10
+                      L19 = "]"
+                      L15 = L15 .. L16 .. L17 .. L18 .. L19
+                      L13(L14, L15)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+changeDefaultRoute = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  if "replace" == A1 then
+    L2 = "ubus call network.interface."
+    L3 = A0
+    L4 = " status"
+    L2 = L2 .. L3 .. L4
+    L3 = _UPVALUE0_
+    L3 = L3.exec
+    L4 = L2
+    L3 = L3(L4)
+    L4 = _UPVALUE1_
+    L4 = L4.isStrNil
+    L5 = L3
+    L4 = L4(L5)
+    if L4 then
+      return
+    end
+    L4 = _UPVALUE2_
+    L4 = L4.decode
+    L5 = L3
+    L4 = L4(L5)
+    L3 = L4
+    if not L3 then
+      goto lbl_116
+    end
+    L4 = L3.l3_device
+    if not L4 then
+      goto lbl_116
+    end
+    L4 = L3.route
+    if not L4 then
+      goto lbl_116
+    end
+    L4 = L3.route
+    L4 = L4[1]
+    if not L4 then
+      goto lbl_116
+    end
+    L4 = L3.route
+    L4 = L4[1]
+    L4 = L4.nexthop
+    if not L4 then
+      goto lbl_116
+    end
+    L4 = L3.l3_device
+    L5 = L3.route
+    L5 = L5[1]
+    L5 = L5.nexthop
+    L6 = nil
+    if A0 == "wan" then
+      L6 = _UPVALUE3_
+    else
+      L6 = iink_check_table2
+    end
+    L7 = "ip route show table "
+    L8 = L6
+    L9 = " | grep "
+    L10 = L5
+    L11 = " | grep "
+    L12 = L4
+    L13 = " | wc -l"
+    L2 = L7 .. L8 .. L9 .. L10 .. L11 .. L12 .. L13
+    L7 = _UPVALUE0_
+    L7 = L7.exec
+    L8 = L2
+    L7 = L7(L8)
+    num = L7
+    L7 = _UPVALUE1_
+    L7 = L7.isStrNil
+    L8 = num
+    L7 = L7(L8)
+    if L7 then
+      L7 = ""
+      if L7 then
+        goto lbl_73
+      end
+    end
+    L7 = num
+    ::lbl_73::
+    num = L7
+    L7 = string
+    L7 = L7.gsub
+    L8 = num
+    L9 = "\n"
+    L10 = ""
+    L7 = L7(L8, L9, L10)
+    num = L7
+    L7 = num
+    if L7 == "0" then
+      L7 = "ip route replace default via "
+      L8 = L5
+      L9 = " dev "
+      L10 = L4
+      L11 = " table "
+      L12 = L6
+      L2 = L7 .. L8 .. L9 .. L10 .. L11 .. L12
+      L7 = _UPVALUE0_
+      L7 = L7.exec
+      L8 = L2
+      L7(L8)
+    end
+  elseif "del" == A1 and "-" == A0 then
+    L2 = "ip route del default table "
+    L3 = _UPVALUE3_
+    L2 = L2 .. L3
+    cmd = L2
+    L2 = _UPVALUE0_
+    L2 = L2.exec
+    L3 = cmd
+    L2(L3)
+    L2 = "ip route del default table "
+    L3 = _UPVALUE4_
+    L2 = L2 .. L3
+    cmd = L2
+    L2 = _UPVALUE0_
+    L2 = L2.exec
+    L3 = cmd
+    L2(L3)
+  end
+  ::lbl_116::
+end
+resetFwmarkRouteLink = L18
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L4 = _UPVALUE0_
+  L4 = L4.log
+  L5 = 3
+  L6 = "dualwan resetFwmarkRouteDns: ["
+  L7 = A0
+  L8 = "]["
+  L9 = A1
+  L10 = "]["
+  L11 = A2
+  L12 = "]["
+  L13 = A3
+  L14 = "]"
+  L6 = L6 .. L7 .. L8 .. L9 .. L10 .. L11 .. L12 .. L13 .. L14
+  L4(L5, L6)
+  L4 = _UPVALUE1_
+  L5 = " reset_dns_route "
+  L6 = A0
+  L7 = " "
+  L8 = A1
+  L9 = " "
+  L10 = A2
+  L11 = " "
+  L12 = A3
+  L4 = L4 .. L5 .. L6 .. L7 .. L8 .. L9 .. L10 .. L11 .. L12
+  cmd = L4
+  L4 = _UPVALUE2_
+  L4 = L4.exec
+  L5 = cmd
+  L4(L5)
+end
+resetFwmarkRouteDns = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = _UPVALUE0_
+  L2 = L2.exec
+  L3 = _UPVALUE1_
+  L4 = " del_ip "
+  L5 = A0
+  L6 = " "
+  L7 = A1
+  L3 = L3 .. L4 .. L5 .. L6 .. L7
+  L2(L3)
+end
+_delIpRule = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = _UPVALUE0_
+  L2 = L2.exec
+  L3 = _UPVALUE1_
+  L4 = " add_ip "
+  L5 = A0
+  L6 = " "
+  L7 = A1
+  L3 = L3 .. L4 .. L5 .. L6 .. L7
+  L2(L3)
+end
+_addIpRule = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = require
+  L1 = "ubus"
+  L0 = L0(L1)
+  L0 = L0.connect
+  L0 = L0()
+  L1 = _UPVALUE0_
+  L2 = L1
+  L1 = L1.get
+  L3 = "network"
+  L4 = "lan"
+  L5 = "ipaddr"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L2 = _UPVALUE0_
+  L3 = L2
+  L2 = L2.get
+  L4 = "network"
+  L5 = "lan"
+  L6 = "netmask"
+  L2 = L2(L3, L4, L5, L6)
+  L2 = L2 or L2
+  L3 = nil
+  if L1 and L2 then
+    if L2 == "255.255.255.0" then
+      L5 = L1
+      L4 = L1.gsub
+      L6 = ".%d+$"
+      L7 = ""
+      L4 = L4(L5, L6, L7)
+      L5 = ".0/24"
+      L3 = L4 .. L5
+    else
+      L5 = L1
+      L4 = L1.gsub
+      L6 = ".%d+.%d+$"
+      L7 = ""
+      L4 = L4(L5, L6, L7)
+      L5 = ".0.0/16"
+      L3 = L4 .. L5
+    end
+  end
+  return L3
+end
+_getLanStatus = L18
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.get
+  L6 = "dualwan"
+  L4 = L4(L5, L6, L7, L8)
+  if L4 == "0" then
+    return
+  end
+  L5 = _UPVALUE0_
+  L6 = L5
+  L5 = L5.get_all
+  L5 = L5(L6, L7, L8)
+  L6 = _UPVALUE0_
+  L6 = L6.get_all
+  L6 = L6(L7, L8, L9)
+  if L5 then
+    if L7 then
+      if L7 == "table" then
+        for L10, L11 in L7, L8, L9 do
+          if L11 == A1 then
+            L14 = "dualwan trafficd event: ["
+            L15 = A0
+            L16 = "]["
+            L17 = A1
+            L18 = "]["
+            L19 = A2
+            L20 = "]["
+            L21 = A0
+            L22 = "]["
+            L23 = A3
+            L24 = "]"
+            L14 = L14 .. L15 .. L16 .. L17 .. L18 .. L19 .. L20 .. L21 .. L22 .. L23 .. L24
+            L12(L13, L14)
+            if A2 == "3" then
+              if A3 ~= "nil" then
+                L14 = _UPVALUE2_
+                L12(L13, L14)
+                L14 = _UPVALUE3_
+                L12(L13, L14)
+              end
+              L14 = _UPVALUE2_
+              L12(L13, L14)
+              return
+            end
+            if A2 == "0" then
+              L14 = _UPVALUE2_
+              L12(L13, L14)
+              L14 = _UPVALUE3_
+              L12(L13, L14)
+              break
+            elseif A2 == "1" then
+              L14 = _UPVALUE2_
+              L12(L13, L14)
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+  if L6 then
+    if L7 then
+      if L7 == "table" then
+        for L10, L11 in L7, L8, L9 do
+          if L11 == A1 then
+            L14 = "dualwan trafficd event: ["
+            L15 = A0
+            L16 = "]["
+            L17 = A1
+            L18 = "]["
+            L19 = A2
+            L20 = "]["
+            L21 = A3
+            L22 = "]"
+            L14 = L14 .. L15 .. L16 .. L17 .. L18 .. L19 .. L20 .. L21 .. L22
+            L12(L13, L14)
+            if A2 == "3" then
+              if A3 ~= "nil" then
+                L14 = _UPVALUE2_
+                L12(L13, L14)
+                L14 = _UPVALUE3_
+                L12(L13, L14)
+              end
+              L14 = _UPVALUE3_
+              L12(L13, L14)
+              return
+            end
+            if A2 == "0" then
+              L14 = _UPVALUE2_
+              L12(L13, L14)
+              L14 = _UPVALUE3_
+              L12(L13, L14)
+              break
+            elseif A2 == "1" then
+              L14 = _UPVALUE3_
+              L12(L13, L14)
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+  if L7 == false then
+    return
+  end
+  L10 = "select * from "
+  L14 = "'"
+  L10 = L10 .. L11 .. L12 .. L13 .. L14
+  L10 = string
+  L10 = L10.format
+  L14 = _UPVALUE3_
+  L15 = "'"
+  L10 = L10(L11, L12)
+  L14 = A0
+  L15 = "]["
+  L16 = A1
+  L17 = "]["
+  L18 = A2
+  L19 = "]["
+  L20 = A3
+  L21 = "]"
+  L11(L12, L13)
+  for L14 in L11, L12, L13 do
+    if L14 then
+      L15 = _UPVALUE1_
+      L15 = L15.log
+      L16 = 3
+      L17 = _UPVALUE8_
+      L17 = L17.encode
+      L18 = L14
+      L17, L18, L19, L20, L21, L22, L23, L24 = L17(L18)
+      L15(L16, L17, L18, L19, L20, L21, L22, L23, L24)
+      L15 = _UPVALUE1_
+      L15 = L15.log
+      L16 = 3
+      L17 = "dualwan trafficd event: check by manual: exist"
+      L15(L16, L17)
+    end
+  end
+  if L7 == true then
+    L14 = _UPVALUE2_
+    L15 = " exist"
+    L11(L12, L13)
+    if A2 == "3" then
+      if A3 ~= "nil" then
+        L11(L12, L13)
+        L11(L12, L13)
+      end
+      L11(L12, L13)
+    end
+    if A2 == "0" then
+      L11(L12, L13)
+      L11(L12, L13)
+    elseif A2 == "1" then
+      L11(L12, L13)
+    end
+  end
+  for L14 in L11, L12, L13 do
+    if L14 then
+    end
+  end
+  if L7 == true then
+    L14 = _UPVALUE3_
+    L15 = " exist"
+    L11(L12, L13)
+    if A2 == "3" then
+      if A3 ~= "nil" then
+        L11(L12, L13)
+        L11(L12, L13)
+      end
+      L11(L12, L13)
+    end
+    if A2 == "0" then
+      L11(L12, L13)
+      L11(L12, L13)
+    elseif A2 == "1" then
+      L11(L12, L13)
+    end
+  end
+  L11(L12)
+end
+setIpRuleByEvent = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = {}
+  L5 = A0
+  maclist = L2
+  if L2 then
+    if L2 then
+      for L5, L6 in L2, L3, L4 do
+        L1[L6] = L6
+      end
+    else
+    end
+  end
+  return L1
+end
+getMacList = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L0 = require
+  L1 = "xiaoqiang.util.XQDeviceUtil"
+  L0 = L0(L1)
+  L1 = getMacList
+  L2 = "maclistwan1"
+  L1 = L1(L2)
+  L2 = getMacList
+  L3 = "maclistwan2"
+  L2 = L2(L3)
+  L3 = {}
+  L4 = {}
+  L3 = L5
+  for L8, L9 in L5, L6, L7 do
+    L10 = L9.mac
+    L11 = L9.mac
+    L11 = L1[L11]
+    if L10 ~= L11 then
+      L10 = L9.mac
+      L11 = L9.mac
+      L11 = L2[L11]
+      if L10 ~= L11 then
+        L10 = {}
+        L11 = L9.mac
+        L10.mac = L11
+        L11 = L9.oname
+        L10.oname = L11
+        L11 = L9.ip
+        if L11 then
+          L11 = L9.ip
+          L11 = L11[1]
+          if L11 then
+            L11 = L9.ip
+            L11 = L11[1]
+            L11 = L11.ip
+            L10.ip = L11
+          end
+        end
+        L11 = table
+        L11 = L11.insert
+        L12 = L4
+        L13 = L10
+        L11(L12, L13)
+      end
+    end
+  end
+  return L4
+end
+getToAddList = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L0 = require
+  L1 = "xiaoqiang.util.XQDeviceUtil"
+  L0 = L0(L1)
+  L1 = _UPVALUE0_
+  L2 = L1
+  L1 = L1.get_all
+  L3 = "dualwan"
+  L4 = "maclistwan1"
+  L1 = L1(L2, L3, L4)
+  L2 = _UPVALUE0_
+  L3 = L2
+  L2 = L2.get_all
+  L4 = "dualwan"
+  L5 = "maclistwan2"
+  L2 = L2(L3, L4, L5)
+  L3 = "ubus call trafficd hw"
+  L4 = _UPVALUE1_
+  L4 = L4.exec
+  L5 = L3
+  L4 = L4(L5)
+  L5 = {}
+  if L6 then
+    return L6
+  else
+    L4 = L6
+  end
+  if L1 then
+    if L6 then
+      for L9, L10 in L6, L7, L8 do
+        L11 = {}
+        L11.mac = L10
+        L11.wan = 1
+        L12 = L4[L10]
+        if L12 then
+          L12 = L4[L10]
+          L12 = L12.hw
+          if L12 then
+            L12 = L4[L10]
+            L12 = L12.hostname
+            if L12 then
+              L12 = L4[L10]
+              L12 = L12.hostname
+              L11.oname = L12
+          end
+        end
+        else
+          L11.oname = "unknown"
+        end
+        L12 = table
+        L12 = L12.insert
+        L13 = L5
+        L14 = L11
+        L12(L13, L14)
+      end
+    end
+  end
+  if L2 then
+    if L6 then
+      for L9, L10 in L6, L7, L8 do
+        L11 = {}
+        L11.mac = L10
+        L11.wan = 2
+        L12 = L4[L10]
+        if L12 then
+          L12 = L4[L10]
+          L12 = L12.hw
+          if L12 then
+            L12 = L4[L10]
+            L12 = L12.hostname
+            if L12 then
+              L12 = L4[L10]
+              L12 = L12.hostname
+              L11.oname = L12
+          end
+        end
+        else
+          L11.oname = "unknown"
+        end
+        L12 = table
+        L12 = L12.insert
+        L13 = L5
+        L14 = L11
+        L12(L13, L14)
+      end
+    end
+  end
+  return L5
+end
+getAddedList = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L0 = {}
+  L1 = _UPVALUE0_
+  L1 = L1.table_is_exist
+  L2 = _UPVALUE1_
+  L3 = db
+  L1 = L1(L2, L3)
+  if L1 == false then
+    L2 = createTable
+    L3 = _UPVALUE1_
+    L2(L3)
+    return L0
+  end
+  L2 = _UPVALUE2_
+  L2 = L2.open
+  L3 = _UPVALUE3_
+  L2 = L2(L3)
+  L3 = string
+  L3 = L3.format
+  L3 = L3(L4, L5)
+  for L7 in L4, L5, L6 do
+    if L7 then
+      L8 = {}
+      L9 = L7[1]
+      L8.mac = L9
+      L9 = L7[2]
+      L8.oname = L9
+      L9 = L7[3]
+      L10 = _UPVALUE4_
+      if L9 == L10 then
+        L8.wan = "1"
+      else
+        L8.wan = "2"
+      end
+      L9 = table
+      L9 = L9.insert
+      L10 = L0
+      L11 = L8
+      L9(L10, L11)
+    end
+  end
+  L4(L5)
+  return L0
+end
+getAddedManualList = L18
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.get
+  L6 = "dualwan"
+  L7 = "common"
+  L8 = "enable"
+  L4 = L4(L5, L6, L7, L8)
+  if L4 == "0" then
+    return
+  end
+  L5 = _delIpRule
+  L6 = A0
+  L7 = _UPVALUE1_
+  L5(L6, L7)
+  L5 = _delIpRule
+  L6 = A0
+  L7 = _UPVALUE2_
+  L5(L6, L7)
+  if A2 == nil or A2 == "" or A2 == 0 or A2 == "0" then
+    L5 = _addIpRule
+    L6 = A0
+    L7 = A1
+    L5(L6, L7)
+  end
+end
+_setIpRule = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.get
+  L5 = "dualwan"
+  L6 = "common"
+  L7 = "enable"
+  L3 = L3(L4, L5, L6, L7)
+  if L3 == "0" then
+    return
+  end
+  L4 = "ubus call trafficd hw"
+  L5 = _UPVALUE1_
+  L5 = L5.exec
+  L6 = L4
+  L5 = L5(L6)
+  L6 = _UPVALUE2_
+  L6 = L6.isStrNil
+  L7 = L5
+  L6 = L6(L7)
+  if L6 then
+    L6 = false
+    return L6
+  else
+    L6 = _UPVALUE3_
+    L6 = L6.decode
+    L7 = L5
+    L6 = L6(L7)
+    L5 = L6
+    L6 = L5[A0]
+    if L6 then
+      L6 = L5[A0]
+      L6 = L6.online_timer
+      if L6 then
+        L6 = L5[A0]
+        L6 = L6.ip_list
+        if L6 then
+          L6 = L5[A0]
+          L6 = L6.ip_list
+          L6 = L6[1]
+          if L6 then
+            L6 = L5[A0]
+            L6 = L6.ip_list
+            L6 = L6[1]
+            L6 = L6.ip
+            if L6 then
+              L6 = L5[A0]
+              L6 = L6.ip_list
+              L6 = L6[1]
+              L6 = L6.ip
+              L7 = _setIpRule
+              L8 = L6
+              L9 = A1
+              L10 = A2
+              L11 = true
+              L7(L8, L9, L10, L11)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+_setIpRuleByMac = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _UPVALUE0_
+  L1 = L1.open
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = string
+  L2 = L2.format
+  L3 = "CREATE TABLE "
+  L4 = A0
+  L5 = " (MAC TEXT PRIMARY KEY NOT NULL, ONAME TEXT, WAN TEXT);"
+  L3 = L3 .. L4 .. L5
+  L2 = L2(L3)
+  L3 = _UPVALUE2_
+  L3 = L3.sql_exec
+  L4 = L2
+  L5 = L1
+  L3 = L3(L4, L5)
+  if L3 == false then
+    L4 = print
+    L5 = "sql_exec error"
+    L4(L5)
+  end
+  L5 = L1
+  L4 = L1.close
+  L4(L5)
+end
+createTable = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _UPVALUE0_
+  L1 = L1.open
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = string
+  L2 = L2.format
+  L3 = "DROP TABLE "
+  L4 = A0
+  L3 = L3 .. L4
+  L2 = L2(L3)
+  L3 = print
+  L4 = L2
+  L3(L4)
+  L3 = _UPVALUE2_
+  L3 = L3.sql_exec
+  L4 = L2
+  L5 = L1
+  L3 = L3(L4, L5)
+  if L3 == false then
+    L4 = print
+    L5 = "sql_exec error"
+    L4(L5)
+  end
+  L5 = L1
+  L4 = L1.close
+  L4(L5)
+end
+dropTable = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = _UPVALUE0_
+  L1 = L1.open
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = string
+  L2 = L2.format
+  L2 = L2(L3, L4)
+  for L6 in L3, L4, L5 do
+    L7 = print
+    L8 = "--"
+    L7(L8)
+    L7 = print
+    L8 = _UPVALUE2_
+    L8 = L8.encode
+    L9 = L6
+    L8, L9 = L8(L9)
+    L7(L8, L9)
+  end
+  L3(L4)
+end
+dumpTable = L18
+function L18()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L0 = "ubus call trafficd hw"
+  L1 = _UPVALUE0_
+  L1 = L1.exec
+  L2 = L0
+  L1 = L1(L2)
+  L2 = {}
+  L3 = _UPVALUE1_
+  L3 = L3.isStrNil
+  L4 = L1
+  L3 = L3(L4)
+  if L3 then
+    L3 = false
+    return L3
+  else
+    L3 = _UPVALUE2_
+    L3 = L3.decode
+    L4 = L1
+    L3 = L3(L4)
+    L1 = L3
+    L3 = _UPVALUE3_
+    L4 = L3
+    L3 = L3.get_all
+    L3 = L3(L4, L5, L6)
+    L4 = _UPVALUE3_
+    L4 = L4.get_all
+    L4 = L4(L5, L6, L7)
+    if L3 then
+      if L5 then
+        for L8, L9 in L5, L6, L7 do
+          L10.mac = L9
+          L11 = _UPVALUE4_
+          L10.wan = L11
+          L11 = table
+          L11 = L11.insert
+          L12 = L2
+          L13 = L10
+          L11(L12, L13)
+        end
+      end
+    end
+    if L4 then
+      if L5 then
+        for L8, L9 in L5, L6, L7 do
+          L10.mac = L9
+          L11 = _UPVALUE5_
+          L10.wan = L11
+          L11 = table
+          L11 = L11.insert
+          L12 = L2
+          L13 = L10
+          L11(L12, L13)
+        end
+      end
+    end
+    if L5 == false then
+      L6(L7)
+    end
+    for L11 in L8, L9, L10 do
+      if L11 then
+        L12 = {}
+        L13 = L11[1]
+        L12.mac = L13
+        L13 = L11[3]
+        L12.wan = L13
+        L13 = table
+        L13 = L13.insert
+        L14 = L2
+        L15 = L12
+        L13(L14, L15)
+      end
+    end
+    L8(L9)
+    L8(L9)
+    for L11, L12 in L8, L9, L10 do
+      if L1 then
+        L13 = L12.mac
+        L13 = L1[L13]
+        if L13 then
+          L13 = L12.mac
+          L13 = L1[L13]
+          L13 = L13.online_timer
+          if L13 then
+            L13 = L12.mac
+            L13 = L1[L13]
+            L13 = L13.ip_list
+            if L13 then
+              L13 = L12.mac
+              L13 = L1[L13]
+              L13 = L13.ip_list
+              L13 = L13[1]
+              if L13 then
+                L13 = L12.mac
+                L13 = L1[L13]
+                L13 = L13.ip_list
+                L13 = L13[1]
+                L13 = L13.ip
+                if L13 then
+                  L13 = L12.mac
+                  L13 = L1[L13]
+                  L13 = L13.ip_list
+                  L13 = L13[1]
+                  L13 = L13.ip
+                  L14 = _UPVALUE0_
+                  L14 = L14.exec
+                  L15 = _UPVALUE10_
+                  L16 = " add_ip "
+                  L17 = L13
+                  L18 = " "
+                  L19 = L12.wan
+                  L15 = L15 .. L16 .. L17 .. L18 .. L19
+                  L14(L15)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+resetIpRule = L18
+function L18()
+  local L0, L1, L2
+  L0 = _UPVALUE0_
+  L0 = L0.exec
+  L1 = _UPVALUE1_
+  L2 = " clean_set"
+  L1 = L1 .. L2
+  L0(L1)
+end
+cleanIpRule = L18
+function L18(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = string
+  L1 = L1.upper
+  L2 = A0
+  L1 = L1(L2)
+  A0 = L1
+  L1 = _UPVALUE0_
+  L1 = L1.open
+  L2 = _UPVALUE1_
+  L1 = L1(L2)
+  L2 = string
+  L2 = L2.format
+  L3 = "select * from "
+  L3 = L3 .. L4 .. L5
+  L2 = L2(L3, L4)
+  L3 = false
+  exist = L3
+  L3 = nil
+  for L7 in L4, L5, L6 do
+    if L7 then
+      L8 = true
+      exist = L8
+    end
+  end
+  L4(L5)
+  return L4
+end
+_checkDBExist = L18
+function L18(A0)
+  local L1, L2, L3
+  L1 = getMacList
+  L2 = "maclistwan1"
+  L1 = L1(L2)
+  L2 = getMacList
+  L3 = "maclistwan2"
+  L2 = L2(L3)
+  L3 = L1[A0]
+  if A0 ~= L3 then
+    L3 = L2[A0]
+    if A0 ~= L3 then
+      goto lbl_16
+    end
+  end
+  L3 = true
+  do return L3 end
+  goto lbl_18
+  ::lbl_16::
+  L3 = false
+  do return L3 end
+  ::lbl_18::
+end
+_checkUciExist = L18
+function L18(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L3 = getMacList
+  L4 = "maclistwan1"
+  L3 = L3(L4)
+  L4 = getMacList
+  L5 = "maclistwan2"
+  L4 = L4(L5)
+  L5 = "ubus call trafficd hw"
+  L6 = _UPVALUE0_
+  L6 = L6.exec
+  L7 = L5
+  L6 = L6(L7)
+  L7, L8 = nil, nil
+  if true == L9 then
+    return
+  end
+  if A1 == 1 or A1 == "1" then
+    A1 = _UPVALUE1_
+  else
+    A1 = _UPVALUE2_
+  end
+  if L9 then
+    return L9
+  else
+    L6 = L9
+    if A0 ~= L9 then
+    end
+    if A0 == L9 and (A2 == "0" or A2 == 0) then
+      if A0 == L9 then
+        L8 = "maclistwan1"
+      end
+      if A0 == L9 then
+        L8 = "maclistwan2"
+      end
+      L12 = L8
+      L7 = L9
+      if L7 then
+        if L9 then
+          for L12, L13 in L9, L10, L11 do
+            if L13 == A0 then
+              L14 = table
+              L14 = L14.remove
+              L15 = L7.mac
+              L16 = L12
+              L14(L15, L16)
+            end
+          end
+          if L9 == 0 then
+            L12 = L8
+            L13 = "mac"
+            L9(L10, L11, L12, L13)
+          else
+            L12 = "core"
+            L13 = L8
+            L14 = L7
+            L9(L10, L11, L12, L13, L14)
+          end
+        end
+      end
+      L9(L10, L11)
+      L12 = "maclist"
+      L13 = A1
+      L12 = L12 .. L13
+      L7 = L9
+      if L7 ~= nil then
+        if L9 ~= nil then
+          goto lbl_123
+        end
+      end
+      L7 = L9
+      L9.mac = L10
+      L7 = L9
+      ::lbl_123::
+      L9(L10, L11)
+      L12 = "core"
+      L13 = "maclist"
+      L14 = A1
+      L13 = L13 .. L14
+      L14 = L7
+      L9(L10, L11, L12, L13, L14)
+      L9(L10, L11)
+      if L9 then
+        if L9 then
+          if L9 then
+            if L9 then
+              L12 = A2
+              L13 = true
+              L9(L10, L11, L12, L13)
+            end
+          end
+        end
+      end
+      return
+    end
+  end
+  L12 = "maclist"
+  L13 = A1
+  L12 = L12 .. L13
+  L7 = L9
+  if A2 == "0" or A2 == 0 then
+    if L7 ~= nil then
+      if L9 ~= nil then
+        goto lbl_192
+      end
+    end
+    L7 = L9
+    L9.mac = L10
+    L7 = L9
+    ::lbl_192::
+    L9(L10, L11)
+    L12 = "core"
+    L13 = "maclist"
+    L14 = A1
+    L13 = L13 .. L14
+    L14 = L7
+    L9(L10, L11, L12, L13, L14)
+  elseif L7 == nil then
+    return L9
+  else
+    if L7 then
+      if L9 then
+        for L12, L13 in L9, L10, L11 do
+          if L13 == A0 then
+            L14 = table
+            L14 = L14.remove
+            L15 = L7.mac
+            L16 = L12
+            L14(L15, L16)
+          end
+        end
+      end
+    end
+    if L9 == 0 then
+      L12 = "maclist"
+      L13 = A1
+      L12 = L12 .. L13
+      L13 = "mac"
+      L9(L10, L11, L12, L13)
+    else
+      L12 = "core"
+      L13 = "maclist"
+      L14 = A1
+      L13 = L13 .. L14
+      L14 = L7
+      L9(L10, L11, L12, L13, L14)
+    end
+  end
+  L9(L10, L11)
+  if L9 then
+    if L9 then
+      if L9 then
+        if L9 then
+          L12 = A2
+          L13 = false
+          L9(L10, L11, L12, L13)
+        end
+      end
+    end
+  end
+end
+setPolicyRoutingByMac = L18
+function L18(A0, A1, A2, A3)
+  local L4, L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L4 = _checkUciExist
+  L5 = A0
+  L4 = L4(L5)
+  if true == L4 then
+    return
+  end
+  L4 = _UPVALUE0_
+  L4 = L4.table_is_exist
+  L5 = _UPVALUE1_
+  L6 = db
+  L4 = L4(L5, L6)
+  if A2 == 1 or A2 == "1" then
+    A2 = _UPVALUE2_
+  else
+    A2 = _UPVALUE3_
+  end
+  if L4 == false then
+    L5 = createTable
+    L6 = _UPVALUE1_
+    L5(L6)
+  else
+    L5 = _UPVALUE4_
+    L5 = L5.open
+    L6 = _UPVALUE5_
+    L5 = L5(L6)
+    L6 = string
+    L6 = L6.format
+    L7 = "select * from "
+    L7 = L7 .. L8 .. L9
+    L6 = L6(L7, L8)
+    L4 = false
+    L7 = nil
+    for L11 in L8, L9, L10 do
+      if L11 then
+        L4 = true
+      end
+    end
+    A0 = L8
+    if not L4 and A3 == "0" then
+      L11 = " values('%s', '%s', '%s')"
+      L11 = A1
+      L12 = A2
+      L7 = L8
+    elseif A3 == "0" then
+      L11 = " set MAC = '%s', ONAME = '%s', WAN = '%s' where MAC = '%s'"
+      L11 = A1
+      L12 = A2
+      L13 = A0
+      L7 = L8
+    elseif L4 and A3 == "1" then
+      L11 = " where MAC = '%s' and ONAME = '%s' and WAN = '%s'"
+      L11 = A1
+      L12 = A2
+      L7 = L8
+    elseif not L4 and A3 == "1" then
+      L11 = A3
+      L8(L9, L10, L11)
+      return
+    end
+    L11 = A3
+    L8(L9, L10, L11)
+    L8(L9, L10)
+    L8(L9)
+  end
+end
+setPolicyRoutingByManual = L18
+function L18(A0, A1)
+  local L2
+  while 0 < A1 do
+    L2 = A0 % A1
+    A0 = A1
+    A1 = L2
+  end
+  return A0
+end
+_gcd = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = _UPVALUE0_
+  L3 = L2
+  L2 = L2.get
+  L4 = "dualwan"
+  L5 = "common"
+  L6 = "enable"
+  L2 = L2(L3, L4, L5, L6)
+  if L2 == "0" then
+    return
+  end
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.set
+  L5 = "dualwan"
+  L6 = "common"
+  L7 = "bandwidth_wan1"
+  L8 = A0
+  L3(L4, L5, L6, L7, L8)
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.set
+  L5 = "dualwan"
+  L6 = "common"
+  L7 = "bandwidth_wan2"
+  L8 = A1
+  L3(L4, L5, L6, L7, L8)
+  L3 = 256
+  L4 = _gcd
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  L6 = tonumber
+  L7 = A1
+  L6, L7, L8, L9 = L6(L7)
+  L4 = L4(L5, L6, L7, L8, L9)
+  bandwidth_gcd = L4
+  L4 = tonumber
+  L5 = A0
+  L4 = L4(L5)
+  L5 = bandwidth_gcd
+  L4 = L4 / L5
+  scale_wan1 = L4
+  L4 = tonumber
+  L5 = A1
+  L4 = L4(L5)
+  L5 = bandwidth_gcd
+  L4 = L4 / L5
+  scale_wan2 = L4
+  L4 = scale_wan1
+  if L3 > L4 then
+    L4 = scale_wan2
+    if L3 > L4 then
+      L4 = scale_wan1
+      weight_wan1 = L4
+      L4 = scale_wan2
+      weight_wan2 = L4
+  end
+  else
+    L4 = scale_wan1
+    if L3 < L4 then
+      L4 = scale_wan2
+      if L3 < L4 then
+        L4 = math
+        L4 = L4.floor
+        L5 = scale_wan1
+        L5 = L5 / L3
+        L5 = L5 + 0.5
+        L4 = L4(L5)
+        weight_wan1 = L4
+        L4 = math
+        L4 = L4.floor
+        L5 = scale_wan2
+        L5 = L5 / L3
+        L5 = L5 + 0.5
+        L4 = L4(L5)
+        weight_wan2 = L4
+    end
+    else
+      L4 = scale_wan1
+      if L3 > L4 then
+        L4 = scale_wan2
+        if L3 < L4 then
+          L4 = 1
+          weight_wan1 = L4
+          L4 = math
+          L4 = L4.floor
+          L5 = scale_wan2
+          L6 = scale_wan1
+          L5 = L5 / L6
+          L5 = L5 + 0.5
+          L4 = L4(L5)
+          weight_wan2 = L4
+          L4 = weight_wan2
+          if L3 < L4 then
+            weight_wan2 = L3
+          end
+      end
+      else
+        L4 = scale_wan1
+        if L3 < L4 then
+          L4 = scale_wan2
+          if L3 > L4 then
+            L4 = math
+            L4 = L4.floor
+            L5 = scale_wan1
+            L6 = scale_wan2
+            L5 = L5 / L6
+            L5 = L5 + 0.5
+            L4 = L4(L5)
+            weight_wan1 = L4
+            L4 = weight_wan1
+            if L3 < L4 then
+              weight_wan1 = L3
+            end
+            L4 = 1
+            weight_wan2 = L4
+          end
+        end
+      end
+    end
+  end
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.set
+  L6 = "dualwan"
+  L7 = "common"
+  L8 = "weight_wan1"
+  L9 = weight_wan1
+  L4(L5, L6, L7, L8, L9)
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.set
+  L6 = "dualwan"
+  L7 = "common"
+  L8 = "weight_wan2"
+  L9 = weight_wan2
+  L4(L5, L6, L7, L8, L9)
+  L4 = _UPVALUE0_
+  L5 = L4
+  L4 = L4.commit
+  L6 = "dualwan"
+  L4(L5, L6)
+  L4 = _UPVALUE1_
+  L5 = " dual_wan_reset"
+  L4 = L4 .. L5
+  L5 = _UPVALUE2_
+  L5 = L5.exec
+  L6 = L4
+  L5(L6)
+end
+setWeight = L18
+function L18(A0, A1)
+  local L2, L3, L4, L5, L6
+  L2 = _UPVALUE0_
+  L3 = L2
+  L2 = L2.get
+  L4 = "dualwan"
+  L5 = "common"
+  L6 = "enable"
+  L2 = L2(L3, L4, L5, L6)
+  if L2 == "0" then
+    return
+  end
+  L3 = _UPVALUE1_
+  L3 = L3.isStrNil
+  L4 = A0
+  L3 = L3(L4)
+  if L3 then
+    L3 = _UPVALUE1_
+    L3 = L3.isStrNil
+    L4 = A1
+    L3 = L3(L4)
+    if L3 then
+      return
+    end
+  end
+  L3 = _UPVALUE2_
+  L4 = " dual_wan_reset"
+  L3 = L3 .. L4
+  L4 = _UPVALUE3_
+  L4 = L4.exec
+  L5 = cmd
+  L4(L5)
+  L4 = _UPVALUE1_
+  L4 = L4.forkExec
+  L5 = "sleep 3; /etc/init.d/dnsmasq restart > /dev/null"
+  L4(L5)
+end
+checkRoute = L18

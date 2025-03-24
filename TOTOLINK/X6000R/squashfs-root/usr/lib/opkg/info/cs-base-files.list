@@ -1,0 +1,7 @@
+/etc/config/meshinfo
+/etc/config/csfw
+/etc/init.d/cs_boot
+/etc/hotplug.d/switch/001-switch.sh
+/etc/config/wireless
+/etc/uci-defaults/13_cs-default
+/etc/config/network

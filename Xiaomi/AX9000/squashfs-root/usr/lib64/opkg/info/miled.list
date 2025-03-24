@@ -1,0 +1,3 @@
+/etc/config/miled
+/usr/sbin/miled
+/etc/init.d/miled

@@ -1,0 +1,24 @@
+{
+	"/administration/administration/modify_login_pwd":{
+		"old_acc":{
+			"type": "string",
+			"length": 36,
+			"default": "admin"
+		},
+		"old_pwd":{
+			"type": "string",
+			"length": 36,
+			"default": "WaQ7xbhc9TefbwK"
+		},
+		"new_acc":{
+			"type": "string",
+			"length": 36,
+			"default": "admin"
+		},
+		"new_pwd":{
+			"type": "string",
+			"length": 36,
+			"default": "WaQ7xbhc9TefbwK"
+		}
+	}
+}

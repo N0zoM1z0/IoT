@@ -1,0 +1,681 @@
+
+
+<%
+local xqlanwanutil = require "xiaoqiang.util.XQLanWanUtil"
+local remote_addr = luci.http.getenv("REMOTE_ADDR")
+local mac = string.upper(luci.sys.net.ip4mac(remote_addr))
+local mode = xqlanwanutil.getWanLanMode()
+%>
+<link href="<%=resource%>/web/css/dual-wan.css?v=<%=ver%>" rel="stylesheet">
+<div class="dual-wan-wrapper">
+    <div class="dual-wan-header mod-set">
+        <div class="hd clearfix">
+            <div class="help hd-tips">
+                <span class="ico"></span>
+                <span class="arrow-wrap" id="helpArrow">
+                    <span class="arrow1"></span>
+                    <span class="arrow2"></span>
+                </span>
+            </div>
+            <div class="hd-tips-desc">双WAN功能介绍</div>
+            <h3><%:双WAN设置%></h3>
+            <div class="switch">
+                <a href="#" id="wan2Switch" class="btn-switch btn-switch-off"></a>
+            </div>
+        </div>
+        <div class="bd">
+            <div class="section section-help" id="helpSection">
+                <div class="help-cont">
+                    <span class="help-close"></span>
+                </div>
+                <div class="help-content-wrapper">
+                    <div class="help-content-header">什么是双WAN？</div>
+                    <div class="help-content-title">双WAN功能是指支持两条外网宽带线路同时工作以带来更佳的网络体验，其主要的功能如下：</div>
+                    <div class="help-content-section">
+                        <p>（1）增加带宽：可同时使用两条外网宽带线路以增加外网总带宽，实现更大的下载速率</p>
+                        <p>（2）冗余备份：如果其中一条外网宽带出现故障，可以数据分流到另一条宽带上，以保障与外部网络连通</p>
+                        <p>（3）外网路径选择：可选择部分设备的数据优先通过固定的WAN口宽带，比如部分数据走移动网络，部分数据走电信网络</p>
+                    </div>
+                    <div class="help-content-tips">注：</div>
+                    <div class="help-content-section">
+                        <p>1.开启双WAN功能后会与部分功能冲突，若仍想使用冲突功能,请先尝试关闭双WAN后再试</p>
+                        <p>2.若某些终端设备出现金融类app无法正常使用的情况，可尝试在“WAN口策略”功能中将该设备设置为“WAN1优先”或“WAN2优先”后再试</p>
+                        <p>3.请勿将WAN1或WAN2口与其他Mesh组网设备相连</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dual-wan-body">
+        <div class="mod-set dual-wan">
+            <div class="bd">
+                <div class="wan-hardware">
+                    <div class="wan-hardware-png">
+                        <div class="wan-hardware-usb"><%if(mode == '2.5G') then%>WAN2<%else%>WAN1<%end%></div>
+                        <div class="wan-hardware-usb"><%if(mode == '2.5G') then%>WAN1<%else%>WAN2<%end%></div>
+                    </div>
+                    <div class="wan-hardware-desc">
+                        <p>1. 请参考上图将两台光猫所连网线分别插入高亮网口</p>
+                        <p>2. 请进行下述WAN2口上网设置，保存后方可生效</p>
+                        <p class="help-content-tips">注意：</p>
+                        <div>
+                            <p>1.开启双WAN功能后会与部分功能冲突，若仍想使用冲突功能，请先尝试关闭双WAN后再试</p>
+                            <p>2.若某些终端设备出现金融类app无法正常使用的情况，可尝试在“WAN口策略”功能中将该设备设置为“WAN1优先”或“WAN2优先”后再试</p>
+                            <p>3.请勿将WAN1或WAN2口与其他Mesh组网设备相连</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="mod-set wan-info">
+            <div class="hd">
+                <h3><%:WAN2口上网信息%></h3>
+            </div>
+            <div class="bd">
+                <div class="mod-set-wan" id="wanStatus"></div>
+                <div class="mod-set-wan" style="min-height: 0" id="wanStatus_ipv6"></div>
+            </div>
+        </div>
+        <div class="mod-set">
+            <div class="hd">
+                <h3><%:WAN2口上网设置%></h3>
+            </div>
+            <div class="bd">
+                <div class="mod-set-wan" id="wan2Set">
+                    <div class="tab clearfix">
+                        <div class="form-item-select">
+                            <label class="k"><%:上网方式%></label>
+                            <span class="v">
+                                <select name="wantypeselect" id="wantypeselect" class="beautify">
+                                    <option value="0">PPPoE</option>
+                                    <option value="1">DHCP</option>
+                                    <option value="2"><%:静态IP%></option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="tab-con">
+                        <div class="tab-con-item">
+                            <form action="#" name="pppoe" id="pppoe" class="form form-pppoe" autocomplete="off">
+                                <input type="hidden" name="wanType" value="pppoe">
+                                <div class="form-item">
+                                    <label class="k"><%:账号%></label>
+                                    <span class="v"><input type="text" name="pppoeName" class="ipt-text" autocomplete="off" reqMsg="<%:账号%>"></span>
+                                    <em class="t"></em>
+                                </div>
+                                <div class="form-item">
+                                    <label class="k"><%:密码%></label>
+                                    <span class="v">
+                                        <input type="text" name="pppoePwd" class="ipt-text" autocomplete="off" reqMsg="<%:密码%>">
+                                    </span>
+                                    <em class="t"></em>
+                                </div>
+                                <div class="item-more">
+                                    <label><input class="set-wan-more" type="radio" name="autoset" value="0" checked="checked"> <span><%:自动配置%></span></label>
+                                    <label><input class="set-wan-more" type="radio" name="autoset" value="1"> <span><%:手动配置%></span></label>
+                                </div>
+                                <div class="item-more-group clearfix">
+                                    <div class="form-item">
+                                        <label for="special"><input type="checkbox" name="special" id="special" value="1"> <span><%:特殊拨号%></span></label>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="k"><%:MTU%></label>
+                                        <span class="v">
+                                            <input type="text" id="mtu" name="mtu" class="ipt-text" value="1480" autocomplete="off" reqMsg="<%:MTU%>" datatype="n" minValue="576" maxValue="1492">
+                                        </span>
+                                        <em class="t"><%:字节（网络正常情况下不建议修改）%></em>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="k"><%:服务名%></label>
+                                        <span class="v">
+                                            <input type="text" name="service" class="ipt-text" autocomplete="off">
+                                        </span>
+                                        <em class="t"></em>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="k"><%:DNS1%></label>
+                                        <span class="v">
+                                            <input type="text" name="dns1" class="ipt-text" autocomplete="off" datatype="ipaddr">
+                                        </span>
+                                        <em class="t"></em>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="k"><%:DNS2%></label>
+                                        <span class="v">
+                                            <input type="text" name="dns2" class="ipt-text" autocomplete="off" datatype="ipaddr">
+                                        </span>
+                                        <em class="t"></em>
+                                    </div>
+                                </div>
+                                <div class="form-contral clearfix">
+                                    <button type="submit" class="btn btn-primary btn-m l hidden"><span><%:应用%></span></button> <a href="#" class="btn btn-dft btn-m r btn-cancel-set hidden"><span><%:取消%></span></a>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- dhcp -->
+                        <div class="tab-con-item">
+                            <form action="#" name="dhcp" id="dhcp" class="form form-dhcp" autocomplete="off">
+                                <input type="hidden" name="wanType" value="dhcp">
+                                <div class="item-more">
+                                    <label><input class="set-wan-more" type="radio" name="autoset" value="0" checked="checked"> <span><%:自动配置DNS%></span></label>
+                                    <label><input class="set-wan-more" type="radio" name="autoset" value="1"> <span><%:手动配置DNS%></span></label>
+                                </div>
+                                <div class="item-more-group clearfix">
+                                    <div class="form-item">
+                                        <label class="k"><%:DNS1%></label>
+                                        <span class="v">
+                                            <input type="text" name="dns1" class="ipt-text" autocomplete="off" datatype="ipaddr" reqMsg="<%:DNS1%>">
+                                        </span>
+                                        <em class="t"><%:必填%></em>
+                                    </div>
+                                    <div class="form-item">
+                                        <label class="k"><%:DNS2%></label>
+                                        <span class="v">
+                                            <input type="text" name="dns2" class="ipt-text" autocomplete="off" datatype="ipaddr">
+                                        </span>
+                                        <em class="t"></em>
+                                    </div>
+                                </div>
+                                <div class="form-contral clearfix">
+                                    <button type="submit" class="btn btn-primary btn-m l hidden"><span><%:应用%></span></button> <a href="#" class="btn btn-dft btn-m r btn-cancel-set hidden"><span><%:取消%></span></a>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- static ip -->
+                        <div class="tab-con-item">
+                            <form action="#" name="static" id="static" class="form form-static" autocomplete="off" autocomplete="off">
+                                <input type="hidden" name="wanType" value="static">
+                                <div class="form-item">
+                                    <label class="k"><%:IP地址%></label>
+                                    <span class="v">
+                                        <input type="text" name="staticIp" class="ipt-text" autocomplete="off" datatype="ipaddr" reqMsg="<%:IP地址%>">
+                                    </span>
+                                    <em class="t"></em>
+                                </div>
+                                <div class="form-item">
+                                    <label class="k"><%:子网掩码%></label>
+                                    <span class="v">
+                                        <input type="text" name="staticMask" class="ipt-text" autocomplete="off" datatype="ipaddr" reqMsg="<%:子网掩码%>">
+                                    </span>
+                                    <em class="t"></em>
+                                </div>
+                                <div class="form-item">
+                                    <label class="k"><%:网关%></label>
+                                    <span class="v">
+                                        <input type="text" name="staticGateway" class="ipt-text" autocomplete="off" datatype="ipaddr" reqMsg="<%:网关%>">
+                                    </span>
+                                    <em class="t"></em>
+                                </div>
+                                <div class="form-item">
+                                    <label class="k"><%:DNS1%></label>
+                                    <span class="v">
+                                        <input type="text" name="dns1" class="ipt-text" autocomplete="off" datatype="ipaddr" reqMsg="<%:DNS1%>">
+                                    </span>
+                                    <em class="t"><%:必填%></em>
+                                </div>
+                                <div class="form-item">
+                                    <label class="k"><%:DNS2%></label>
+                                    <span class="v">
+                                        <input type="text" name="dns2" class="ipt-text" autocomplete="off" datatype="ipaddr">
+                                    </span>
+                                    <em class="t"><%:选填%></em>
+                                </div>
+                                <div class="form-contral clearfix">
+                                    <button type="submit" class="btn btn-primary btn-m l hidden"><span><%:应用%></span></button> <a href="#" class="btn btn-dft btn-m r btncancelset hidden"><span><%:取消%></span></a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mod-set mac-address-clone">
+            <div class="hd">
+                <h3><%:WAN2口MAC地址克隆%></h3>
+            </div>
+            <div class="bd">
+                <form action="#" class="form form-macclone" name="macClone" id="macClone">
+                    <input type="hidden" name="oldmac">
+                    <div class="item">
+                        <p><%:当前使用的MAC地址是%><span id="currMac"><%:获取中...%></span></p>
+                    </div>
+                    <div class="set">
+                        <div class="form-item">
+                            <label class="k"><%:MAC地址%></label>
+                            <span class="v">
+                                <input type="text" name="mac" id="macAddr" class="ipt-text"  maxlength="17" datatype="macaddr" value="<%=mac%>" reqMsg="<%:MAC地址%>">
+                            </span>
+                            <em class="t"><%:当前管理终端的MAC地址，可以手动更改为其他MAC地址%></em>
+                        </div>
+                    </div>
+                    <div class="form-contral clearfix">
+                        <button type="submit" id="btnMacSubmit" class="btn btn-primary btn-m l"><span><%:克隆%></span></button>
+                        <button type="submit" id="btnMacRecover" class="btn btn-primary btn-m r"><span><%:恢复%></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mod-set wan-speed-ratio">
+            <div class="hd">
+                <h3><%:WAN1口/WAN2口转发比例设置%></h3>
+            </div>
+            <div class="bd">
+                <div class="speed-ratio">
+                    <div class="speed-ratio-item">
+                        <span class="speed-name">WAN1口</span>
+                        <span>:</span>
+                        <span class="speed-name">WAN2口</span>
+                    </div>
+                    <div class="speed-ratio-item">
+                        <span class="speed-num" id="wan1Speed">1</span>
+                        <span>:</span>
+                        <span class="speed-num" id="wan2Speed">1</span>
+                    </div>
+                </div>
+                <button type="submit" id="btnWanSpeedRatioSet" class="btn btn-primary btn-m l"><span><%:设置%></span></button>
+            </div>
+        </div>
+        <div class="mod-set policy-routing">
+            <div class="hd">
+                <h3><%:WAN口转发规则设置%></h3>
+            </div>
+            <div class="bd">
+                <h4><%:WAN口转发规则列表：%></h4>
+                <form name="policyFormEdit">
+                    <table class="table table-nat">
+                        <thead>
+                            <tr>
+                                <th><%:设备名称%></th>
+                                <th><%:MAC地址%></th>
+                                <th><%:WAN口策略%></th>
+                                <th width="80" style="padding-left:21px;"><%:操作%></th>
+                            </tr>
+                        </thead>
+                        <tbody id="policyList">
+                            <tr>
+                                <td colspan="3"><%:正在查询中...%></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <div class="form-btn-wrapper">
+                    <div id="btnDevicesAdd" class="btn btn-dft btn-m form-btn"><span><%:从在线列表添加%></span></div>
+                    <div id="btnSelfAdd" class="btn btn-dft btn-m form-btn"><span><%:手工添加%></span></div>
+                </div>
+            </div>
+        </div>
+  </div>
+</div>
+<script type="tmpl/text" id="tmplPPPoE">
+  <div class="wanStatus">
+      <ul>
+          <li class="nofloat"><span class="k"><%:连接类型：%></span><span class="v">PPPoE</span></li>
+          <li><span class="k"><%:账户：%></span><span class="v">{$username}</span></li>
+          <li><span class="k"><%:IP地址：%></span><span class="v">{$ip}</span></li>
+          <li><span class="k"><%:子网掩码：%></span><span class="v">{$mask}</span></li>
+          <li><span class="k"><%:默认网关：%></span><span class="v">{$gateway}</span></li>
+          <li class="nofloat"><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]}
+              {/for}
+          {/if}
+          </span></li>
+          <li class="nofloat"><span class="k"><%:外网状态：%></span><span class="v">{$status} {$action}</span></li>
+          {if($showissue)}
+              <li>
+                  <span class="k"></span>
+                  <span class="v">
+                      <a href="#" id="showpppoeissue" data-perror = "{$perror}"><%:问题排查%></a>
+                  </span>
+              </li>
+          {/if}
+      </ul>
+  </div>
+</script>
+<script type="tmpl/text" id="tmplPPPoEissue">
+    {if($perror == 33)}
+    <div class="dialog-pppoe-issue">
+        <table>
+            <tr>
+                <td class="reason">
+                    <%:宽带拨号帐号密码输入错误%>
+                </td>
+                <td class="bor-r-0">
+                    <%:请检查帐号密码是否输入正确%>
+                </td>
+                <td class="bor-l-0">
+                    <a href='<%=luci.dispatcher.build_url("web", "setting", "wan")%>' class="btn btn-primary btn-m" ><span><%:PPPOE设置页面%></span></a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <%:宽带因欠费无法继续使用%>
+                </td>
+                <td class="bor-r-0">
+                    <%:联系运营商查询宽带是否欠费%>
+                </td>
+                <td class="bor-l-0">
+                </td>
+            </tr>
+        </table>
+    </div>
+    {elseif($perror == 34)}
+    <div class="dialog-pppoe-issue">
+        <table>
+            <tr>
+                <td class="reason">
+                    <%:宽带因欠费无法继续使用%>
+                </td>
+                <td>
+                    <%:联系运营商查询宽带是否欠费%>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <%:宽带运营商机房故障%>
+                </td>
+                <td>
+                    <%:联系运营商了解是否当地有线路故障%>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {elseif($perror == 35)}
+    <div class="dialog-pppoe-issue">
+        <table>
+            <tr>
+                <td class="reason" rowspan = "4">
+                    <%:拨号状态异常%>
+                </td>
+                <td class="bor-r-0">
+                    <%:办法1:尝试关闭调制解调器(猫)和路由器，几分钟后重新通电再次尝试拨号%>
+                </td>
+                <td class="bor-l-0">
+                </td>
+            </tr>
+            <tr>
+                <td class="bor-r-0">
+                    <%:办法2:使用电脑或者旧路由器完成拨号，然后手工选择“结束连接”或“关闭连接”，再尝试使用Redmi路由器拨号。%>
+                </td>
+                <td class="bor-l-0">
+                </td>
+            </tr>
+            <tr>
+                <td class="bor-r-0">
+                    <%:办法3:尝试在路由器上网设置中进行mac地址克隆，然后重新拨号%>
+                </td>
+                <td class="bor-l-0">
+                    <a href='<%=luci.dispatcher.build_url("web", "setting", "wan")%>' class="btn btn-primary btn-m" ><span><%:MAC地址克隆设置%></span></a>
+                </td>
+            </tr>
+            <tr>
+                <td class="bor-r-0">
+                    <%:办法4:尝试调整WAN口协商速率，然后重新拨号%>
+                </td>
+                <td class="bor-l-0">
+                    <a href='<%=luci.dispatcher.build_url("web", "setting", "wan")%>' class="btn btn-primary btn-m" ><span><%:WAN口协商速率设置%></span></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {elseif($perror == 36)}
+    <div class="dialog-pppoe-issue">
+        <table>
+            <tr>
+                <td class="reason">
+                    <%:宽带因欠费无法继续使用%>
+                </td>
+                <td>
+                    <%:联系运营商查询宽带是否欠费%>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <%:更换了接入宽带%>
+                </td>
+                <td>
+                    <%:检查WAN口接入的宽带是否已经变更%>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {/if}
+</script>    
+<script type="tmpl/text" id="tmplDHCP">
+  <div class="wanStatus">
+      <ul>
+          <li class="nofloat"><span class="k"><%:连接类型：%></span><span class="v">DHCP</span></li>
+          <li><span class="k"><%:IP地址：%></span><span class="v">{$ip}</span></li>
+          <li><span class="k"><%:子网掩码：%></span><span class="v">{$mask}</span></li>
+          <li><span class="k"><%:默认网关：%></span><span class="v">{$gateway}</span></li>
+          <li><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]}
+              {/for}
+          {/if}
+          </span></li>
+      </ul>
+  </div>
+</script>
+<script type="tmpl/text" id="tmplStaticIP">
+  <div class="wanStatus">
+      <ul>
+          <li class="nofloat"><span class="k"><%:连接类型：%></span><span class="v"><%:静态IP%> </span></li>
+          <li><span class="k"><%:IP地址：%></span><span class="v">{$ip}</span></li>
+          <li><span class="k"><%:子网掩码：%></span><span class="v">{$mask}</span></li>
+          <li><span class="k"><%:默认网关：%></span><span class="v">{$gateway}</span></li>
+          <li><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]}
+              {/for}
+          {/if}
+          </span></li>
+      </ul>
+  </div>
+</script>
+<script type="tmpl/text" id="tmplDHCP_ipv6">
+  <div class="wanStatus">
+       <ul>
+          <li><span class="k"><%:IPv6连接类型：%></span><span class="v">Native</span></li>
+          <li><span class="k"><%:WAN IPv6地址：%></span><span class="v">
+          {if($ip.length > 0 )}
+              {for(var i=0; i<$ip.length;i++)}
+              {$ip[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li><span class="k"><%:WAN IPv6网关：%></span><span class="v">{$gateway}</span></li>
+  
+          <li><span class="k"><%:LAN IPv6地址：%></span><span class="v">{$in_ip}</span></li>
+          <li><span class="k"><%:LAN IPv6前缀：%></span><span class="v">
+           {if($in_prefix.length > 0 )}
+              {for(var i=0; i<$in_prefix.length;i++)}
+              {$in_prefix[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li class="nofloat"><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+      </ul>
+  </div>
+</script>
+  
+<script type="tmpl/text" id="tmplStaticIP_ipv6">
+  <div class="wanStatus">
+      <ul>
+          <li><span class="k"><%:IPv6连接类型：%></span><span class="v"></span>静态IPv6</li>
+          <li><span class="k"><%:WAN IPv6地址：%></span><span class="v">
+          {if($ip.length > 0 )}
+              {for(var i=0; i<$ip.length;i++)}
+              {$ip[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li><span class="k"><%:WAN IPv6网关：%></span><span class="v">{$gateway}</span></li>
+  
+          <li><span class="k"><%:LAN IPv6地址：%></span><span class="v">{$in_ip}</span></li>
+          <li><span class="k"><%:LAN IPv6前缀：%></span><span class="v">
+           {if($in_prefix.length > 0 )}
+              {for(var i=0; i<$in_prefix.length;i++)}
+              {$in_prefix[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li class="nofloat"><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+      </ul>
+  </div>
+</script>
+<script type="tmpl/text" id="tmploff_ipv6">
+  <div class="wanStatus">
+      <ul>
+          <li><span class="k"><%:IPv6连接类型：%></span><span class="v">None</span></li>
+      </ul>
+  </div>
+</script>
+<script type="tmpl/text" id="tmplNAT6_ipv6">
+  <div class="wanStatus">
+      <ul>
+          <li><span class="k"><%:IPv6连接类型：%></span><span class="v">NAT6</span></li>
+          <li><span class="k"><%:WAN IPv6地址：%></span><span class="v">
+          {if($ip.length > 0 )}
+              {for(var i=0; i<$ip.length;i++)}
+              {$ip[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li><span class="k"><%:WAN IPv6网关：%></span><span class="v">{$gateway}</span></li>
+  
+          <li><span class="k"><%:LAN IPv6地址：%></span><span class="v">{$in_ip}</span></li>
+          <li><span class="k"><%:LAN IPv6前缀：%></span><span class="v">
+           {if($in_prefix.length > 0 )}
+              {for(var i=0; i<$in_prefix.length;i++)}
+              {$in_prefix[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+          <li class="nofloat"><span class="k"><%:DNS：%></span><span class="v">
+          {if($dns.length > 0 )}
+              {for(var i=0; i<$dns.length;i++)}
+              {$dns[i]} <br/>
+              {/for}
+          {/if}
+          </span></li>
+      </ul>
+  </div>
+</script>
+<script type="tmpl/html" id="tmplDevicesAdd">
+  <div class="dialog-listadd-form-wrap">
+      <form action="#" class="form" name="devicesAdd" id="devicesAdd">
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th><%:设备名称%></th>
+                      <th><%:设备信息%></th>
+                      <th><%:设备IP%></th>
+                      <th width="80"><%:操作%></th>
+                  </tr>
+              </thead>
+              <tbody id="dialogdeviceslist">
+                  <tr>
+                      <td colspan="4"><%:正在查询中...%></td>
+                  </tr>
+              </tbody>
+          </table>
+          <div class="form-contral">
+              <button tyle="submit" class="btn btn-primary btn-l" id="devicesAddSubmit"><span><%:添加%></span>
+              </button>
+          </div>
+		</form>
+  </div>
+</script>
+<script type="tmpl/html" id="tmplAddSelf">
+<div class="dialog-form-wrap">
+	<form action="#" class="form" name="selfadd" id="selfAdd" autocomplete="off">
+		<div class="form-item form-item-input">
+			<label class="k">
+				<%:名称%>
+			</label>
+			<span class="v">
+				<input type="text" id="oname" name="oname" datatype="ssid" autocomplete="off" minlength="1" maxlength="100" class="ipt-text" reqMsg="<%:名称%>" />
+			</span>
+			<em class="t"></em>
+		</div>
+		<div class="form-item form-item-input">
+			<label class="k">
+				<%:MAC地址%>
+			</label>
+			<span class="v">
+				<input type="text" id="mac" name="mac" datatype="macaddr" autocomplete="off" maxlength="17" class="ipt-text" reqMsg="<%:MAC地址%>" />
+			</span>
+			<em class="t"></em>
+		</div>
+		<div class="form-contral">
+			<button class="btn btn-primary btn-l" type="submit" id="selfAddSubmit"><span><%:确定%></span></button>
+		</div>
+	</form>
+</div>
+</script>
+<script type="tmpl/html" id="tmplWanSpeedRatio">
+<div class="wanSpeedRatio">
+	<form action="#" class="form form-horizontal" name="wanSpeedRatio" id="wanSpeedRatio" autocomplete="off">
+		<div class="form-item form-item-input">
+			<label class="k"><%:WAN1口带宽%></label>
+			<span class="v"><input type="text" name="wan1Speed" reqMsg="<%:WAN1口带宽%>" datatype="n" autocomplete="off" minValue="1" maxValue="10000" maxIntVal="10000" n-pattern="5" class="ipt-text" value="{$wan1Speed}"></span>
+			<em class="t">Mbps</em>
+		</div>
+		<div class="form-item form-item-input">
+			<label class="k"><%:WAN2口带宽%></label>
+			<span class="v"><input type="text" name="wan2Speed" reqMsg="<%:WAN2口带宽%>" datatype="n" autocomplete="off" minValue="1" maxValue="10000" maxIntVal="10000" n-pattern="5" class="ipt-text" value="{$wan2Speed}"></span>
+			<em class="t">Mbps</em>
+		</div>
+		<div class="form-contral">
+			<button type="submit" id="wanSpeedRatioSubmitBtn" class="btn btn-primary btn-l"><span><%:确定%></span></button>
+		</div>
+    </form>
+</div>
+</script>
+<script type="tmpl/html" id="tmplOnlineDevice">
+    <tr>
+        <td>{$oname}</td>
+        <td>{$mac}</td>
+        <td>{$ip}</td>
+        <td>
+            <input class="devicesInputCheck" type="checkbox" name="devicesInputCheck" value="{$val}" />
+        </td>
+    </tr>
+</script>
+<script type="tmpl/html" id="tmplRouterPolicyTable">
+    <tr value={$value}>
+        <td>{$oname}</td>
+        <td>{$mac}</td>
+		<td>
+			<div class="form-item-select">
+				<span class="v">
+					<select name="wan" class="beautify encryption" >
+						<option value="1"><%:WAN1优先%></option>
+						<option value="2"><%:WAN2优先%></option>
+					</select>
+				</span>
+				<em class="t0"></em>
+			</div>
+		</td>
+        <td>
+            <div class="table-btn btn btn-dft btn-s form-btn" name="routerPolicyDeleteBtn"><span><%:删除%></span></div>
+        </td>
+    </tr>
+</script>

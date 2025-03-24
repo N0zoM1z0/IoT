@@ -1,0 +1,182 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Logger. LogTFTPServer LogUploadTrigger LogClearTrigger RemoteLogEnabled RemoteLogger RemotePort DisplayLevel"-->
+var LogTFTPServer = "<!--#leaf "1"-->";
+var LogUploadTrigger = "<!--#leaf "2"-->";
+var LogClearTrigger = "<!--#leaf "3"-->";
+var RemoteLogEnabled = "<!--#leaf "4"-->";
+var RemoteLogger = "<!--#leaf "5"-->";
+var RemotePort = "<!--#leaf "6"-->";
+var DisplayLevel = "<!--#leaf "7"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_Syslog. Enable Level" -->
+var Enable = "<!--#leaf "1"-->";
+var Level = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+var LogLevelMap = ["Emergency","Alert","Critical","Error","Warning","Notic","Informational","Debug"];
+function frmLoad()
+{
+	setValue('SELECT_DisplayLevel',DisplayLevel);
+	index = getValue('SELECT_DisplayLevel');
+	GetLogText();
+}
+function GetLogText()
+{
+	var _url = "/cgi-bin/cat_log.cgi";
+	ajax = Ajax.getInstance(_url,"level=" + index ,0 , LogMsgFormat);
+	ajax.get();
+}
+function LogMsgFormat(responseText)
+{
+	var Pattern4  = /^<html>/    //匹配是否回传回来是网页代码，如果是，认为已经超时
+	if (responseText.search(Pattern4) != -1) 
+	{
+		top.location.href="/page/login/login.html";
+		return;
+	}
+	var Pattern1 = /\d{4}-\d{2}-\d{2}.+/g;
+	var Pattern2 = /\s\[\d\]/;
+	var Pattern3 = /\s\[(Emergency|Alert|Critical|Error|Warning|Notic|Informational|Debug)\]/;
+
+	var Level = $("SELECT_DisplayLevel").value;
+	
+	var txt_log = responseText;
+	var header_idx = txt_log.search(/\d{4}-\d{2}-\d{2}/);
+	var header_log = txt_log.substring(0,header_idx - 1);
+	var str_log = header_log ?header_log : txt_log;
+	var body_log = txt_log.match(Pattern1);
+	for(var i=0, _len = body_log ? body_log.length : 0, _temp,_num;i<_len;i++)
+	{
+		if((_temp = body_log[i].match(Pattern3)) != null && (_num = getLogLevel(_temp[0])) <= Number(Level))
+		{
+			str_log += body_log[i] + unescape("%0a");
+		}
+	}
+	$('TEXTAREA_LogMsg').value = '';
+	$('TEXTAREA_LogMsg').value = str_log;
+}
+function getLogLevel(_msg)
+{
+	if(!_msg)
+	{
+		top.AlertMsg(getStr("LK_LogError"));
+		return 0;
+	}
+	for(var i = 0,_len = LogLevelMap.length ; i< _len;i++)
+	{
+		if(_msg.indexOf(LogLevelMap[i]) > -1)
+			return i;
+	}
+	return 0;
+}
+var index = 0;
+function autoSetLogLevel()
+{
+	index = getValue('SELECT_DisplayLevel');
+	GetLogText();
+}
+function DownloadLog()
+{
+    if(!validateCode())
+        return false;
+	var loadlevel = getValue('SELECT_DisplayLevel');
+	document.location.href='/cgi-bin/download_log.cgi?loadlevel='+loadlevel+'';
+}
+function uiClearLog()
+{
+    if(!validateCode())
+        return false;
+	var df= document.Mngt_Logs;
+	AddElements(df,'InternetGatewayDevice.X_CT-COM_Logger.LogClearTrigger',1);
+	jQuery.post(
+		"/cgi-bin/setup.cgi",
+		jQuery(df).serialize(),
+		function() {
+				GetLogText();
+		}
+	);
+}
+function uiSubmit()
+{
+
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Emergency"), getStr("LK_Alert"), getStr("LK_Critical"), getStr("LK_Error"), 
+	getStr("LK_Warning"), getStr("LK_Notice"), getStr("LK_Informational"), getStr("LK_Debug")];
+  value = ['1' , '2', '3', '4', '5', '6', '7', '8'];
+	createOptions('SELECT_DisplayLevel', text, value);
+}
+
+function __init()
+{
+    createsel();
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_AccountManagementLogs"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="150" langkey="LK_ShowLogLevel"></td>
+			<td>
+			<select id="SELECT_DisplayLevel" onChange="autoSetLogLevel()">
+			</select>	
+			</td>
+		</tr>
+		<tr>
+			<td>
+			</td>
+			<td>
+				<textarea id="TEXTAREA_LogMsg" cols="80" rows="20" style="font-size:12px;" readonly></textarea>
+			</td>
+			</select>
+			</td>	
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+			<script>PrintTriButton("INPUT_ClearLog",getStr("LK_ClearLogFile"),onClick="uiClearLog();");</script>
+			&nbsp;&nbsp;
+			<script>PrintTriButton("INPUT_downloadLog",getStr("LK_DownloadLogFile"),onClick="DownloadLog();");</script>
+			&nbsp;&nbsp;
+			<script>PrintTriButton("INPUT_refresh",getStr("LK_Refresh"),onClick="GetLogText();");</script>
+			</td>
+		</tr>
+	</table>
+	<form name="uiPostForm" id="uiPostForm" method="post" action="webproc"></form>
+	<form name="uiDownloadLog" id="uiDownloadLog" method="post" action="webupg">
+		<input type="hidden" name="name" value="downloadSysEvtLogFIle">
+	</form>
+	<form name="uiShowLog" id="uiShowLog" method="post" action="webupg">
+		<input type="hidden" name="name" value="index">
+	</form>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="Mngt_Logs" id="Mngt_Logs" action="/cgi-bin/setup.cgi?page/management/mngt_logs.shtml">
+</form>
+</body>
+</html>

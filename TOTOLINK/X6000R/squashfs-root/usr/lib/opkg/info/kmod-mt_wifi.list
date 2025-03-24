@@ -1,0 +1,3 @@
+/lib/modules/5.4.194/mt_wifi.ko
+/lib/modules/5.4.194/mtk_warp_proxy.ko
+/etc/modules.d/mt_wifi

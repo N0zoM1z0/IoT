@@ -1,0 +1,46 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+OVERLAY="$( grep ' /overlay ' /proc/mounts )"
+logger "$BUTTON pressed for $SEEN seconds"
+
+bottonReset="/etc/resetFlag"
+
+rm -f /etc/checkButtonReset
+
+case "$ACTION" in
+pressed)
+	[ -z "$OVERLAY" ] && return 0
+
+	return 5
+;;
+timeout)
+	touch /tmp/restore_default
+	echo none  > /sys/class/leds/sys_red/trigger
+	echo 0     > /sys/class/leds/sys_red/brightness
+	echo timer > /sys/class/leds/sys_blue/trigger
+	echo 100 > /sys/class/leds/sys_blue/delay_on
+	echo 100 > /sys/class/leds/sys_blue/delay_off
+	. /etc/diag.sh
+	set_state failsafe
+;;
+released)
+
+	if [ -f "$bottonReset" ]; then
+		echo "disable botton reset!!!" > /dev/console
+		return 0;
+	fi
+
+	echo reset-button time:"$SEEN" > /dev/console
+	
+	#reset [5s - ...]
+	if [ "$SEEN" -gt 4 -a -n "$OVERLAY" ]; then
+		echo "enable botton reset ----------------------!!!" > /dev/console
+		cs reset
+		sleep 1
+		reboot &
+	fi
+;;
+esac
+return 0

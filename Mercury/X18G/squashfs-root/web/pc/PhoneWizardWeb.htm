@@ -1,0 +1,164 @@
+﻿<script type="text/javascript">
+	var wzOptions = [{str:label.pppoe, value:WAN_TYPE_PPPOE},
+					 {str:label.staticIp, value:WAN_TYPE_STATIC},
+					 {str:label.dhcp, value:WAN_TYPE_DHCP}];
+
+	var gNetworkCfg = {};
+	var gWifiCfgToSave = {};
+	var bWzdWanTypeDetected = false;
+	var gIsWifiCfgChged = false;
+	var gIsWifiCfgChged2g = false;
+	var gIsWifiCfgChged5g1 = false;
+	var gIsWifiCfgChged5g2 = false;
+
+	var isWizard = true;
+
+	/* PPPoE页面的配置同步成功标志 */
+	var gPPPoESyncSuccess = false;
+	/* PPPoE页面的配置同步数据 */
+	var gPPPoESyncCfg = {"username":"", "password":""};
+
+	/* WAN口上网类型配置 */
+	gNetworkCfg[uciProto.optName.type] = uciProto.optValue.proto.pppoe;
+
+	/* PPPoE临时配置 */
+	gNetworkCfg[uciProto.optValue.proto.pppoe] = {};
+	gNetworkCfg[uciProto.optValue.proto.pppoe][uciProto.optName.pppoeUsr] = "";
+	gNetworkCfg[uciProto.optValue.proto.pppoe][uciProto.optName.pppoePwd] = "";
+
+	/* 静态IP临时配置 */
+	gNetworkCfg[uciProto.optValue.proto.staticIp] = {};
+	gNetworkCfg[uciProto.optValue.proto.staticIp][uciProto.optName.ip] = "";
+	gNetworkCfg[uciProto.optValue.proto.staticIp][uciProto.optName.netmask] = "";
+	gNetworkCfg[uciProto.optValue.proto.staticIp][uciProto.optName.gateway] = "";
+	gNetworkCfg[uciProto.optValue.proto.staticIp][uciProto.optName.priDns] = "";
+	gNetworkCfg[uciProto.optValue.proto.staticIp][uciProto.optName.sndDns] = "";
+
+	/* 自动获取IP临时配置 */
+	gNetworkCfg[uciProto.optValue.proto.dynIp] = {};
+
+	/* 页面input元素id和uci配置的映射关系 */
+	var keyMap = {};
+	keyMap[uciProto.optValue.proto.pppoe] = [{id:"pppoeAccount", uciKey:uciProto.optName.pppoeUsr},
+											 {id:"pppoePasswd", uciKey:uciProto.optName.pppoePwd}];
+	keyMap[uciProto.optValue.proto.staticIp] = [{id:"ipAddrIn", uciKey:uciProto.optName.ip},
+											 {id:"netMaskIn", uciKey:uciProto.optName.netmask},
+											 {id:"gatewayIn", uciKey:uciProto.optName.gateway},
+											 {id:"dns0In", uciKey:uciProto.optName.priDns},
+											 {id:"dns1In", uciKey:uciProto.optName.sndDns}];
+	keyMap[uciProto.optValue.proto.dynIp] = [];
+
+	/* 将上网设置临时配置显示到对应页面 */
+	function showNetworkCfg(wanType)
+	{
+		for (var i = 0; i < keyMap[wanType].length; i++)
+		{
+			var idStr = keyMap[wanType][i]["id"];
+			var uciKeyStr = keyMap[wanType][i]["uciKey"];
+
+			gNetworkCfg[wanType][uciKeyStr] = gNetworkCfg[wanType][uciKeyStr] ? gNetworkCfg[wanType][uciKeyStr] : "";
+
+			id(idStr).value = gNetworkCfg[wanType][uciKeyStr];
+		}
+	}
+
+	/* 将页面的配置生成要保存的接口格式 */
+	function saveNetworkCfg(wanType, callBack)
+	{
+		var cfgToSave = {}, cfgFile = {}, cfgProto = {}, cfgWan = {};
+
+		gNetworkCfg[uciProto.optName.type] = wanType;
+
+		cfgToSave[uciProto.fileName] = cfgFile;
+		cfgFile[uciProto.secName.wan] = cfgWan;
+		cfgWan[uciProto.optName.type] = wanType
+
+		var cfgSec = uciProto.secName.pppoe;
+		switch(wanType)
+		{
+		case uciProto.optValue.proto.staticIp:
+			cfgSec = uciProto.secName.sta;
+			break;
+		case uciProto.optValue.proto.dynIp:
+			cfgSec = uciProto.secName.dhcp;
+			break;
+		default:
+			cfgSec = uciProto.secName.pppoe;
+			break;
+		}
+
+		cfgFile[cfgSec] = cfgProto;
+
+		for (var i = 0; i < keyMap[wanType].length; i++)
+		{
+			var idStr = keyMap[wanType][i]["id"];
+			var uciKeyStr = keyMap[wanType][i]["uciKey"];
+
+			gNetworkCfg[wanType][uciKeyStr] = id(idStr).value;
+			cfgProto[uciKeyStr] = gNetworkCfg[wanType][uciKeyStr];
+		}
+
+		/* 保存配置 */
+		$.modify(cfgToSave, callBack);
+	}
+
+	/* 切换上网模式 */
+	function wzdNetWorkModeChange(value)
+	{
+		switch(value)
+		{
+		case WAN_TYPE_STATIC:
+		case uciProto.optValue.proto.staticIp:
+			gNetworkCfg[uciProto.optName.type] = uciProto.optValue.proto.staticIp;
+			loadPage("PhoneStaticIpWeb.htm", "phCon");
+			break;
+		case WAN_TYPE_DHCP:
+		case uciProto.optValue.proto.dynIp:
+			gNetworkCfg[uciProto.optName.type] = uciProto.optValue.proto.dynIp;
+			loadPage("PhoneDynamicIpWeb.htm", "phCon");
+			break;
+		case WAN_TYPE_PPPOE:
+		case uciProto.optValue.proto.pppoe:
+		default:
+			gNetworkCfg[uciProto.optName.type] = uciProto.optValue.proto.pppoe;
+			loadPage("PhonePPPoEWeb.htm", "phCon");
+			break;
+		}
+	}
+
+	/* 初始化上网方式选下拉框 */
+	function wzdSelectInit(idStr, options, value, callback)
+	{
+		selectInit(idStr, options, value, callback, 30);
+	}
+
+	/* 完成设置向导 */
+	function wzdDone()
+	{
+		var data = {};
+
+		data[uciSystem.fileName] = {};
+		data[uciSystem.fileName][uciSystem.secName.sys] = {};
+		data[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory] = uciSystem.optValue.isFactory.no;
+
+		$.modify(data);
+	}
+
+	function init()
+	{
+		loadPage("PhoneNetworkWeb.htm", "phCon");
+	}
+	init();
+</script>
+<style type="text/css">
+	#Con{
+		min-width:0px;
+	}
+</style>
+<div class="phoneCon">
+	<div id="phCon"></div>
+	<div class="phoneFoot">
+		<img class="phoneLogo" src="../web-static/images/mercury_ph.png" />
+		<span class="phoneHwInfo"><label>{%titleStr.hardwareinfo%}</label></span>
+	</div>
+</div>

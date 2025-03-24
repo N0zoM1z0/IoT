@@ -1,0 +1,10 @@
+Package: mtkhnat_util
+Version: 1-r17391-e554c7eb25
+Depends: libc
+Source: package/mtk-open/mtkhnat_util
+SourceName: mtkhnat_util
+Section: net
+SourceDateEpoch: 1652901453
+Architecture: aarch64_cortex-a53
+Installed-Size: 2424
+Description:  mtk hnat util to init hnat module

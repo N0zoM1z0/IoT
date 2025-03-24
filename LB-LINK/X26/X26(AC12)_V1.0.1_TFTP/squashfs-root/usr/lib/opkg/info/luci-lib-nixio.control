@@ -1,0 +1,8 @@
+Package: luci-lib-nixio
+Version: git-23.355.09801-21a606c-1
+Depends: libc, liblua
+Source: package/mtk/ui/luci-mtk/luci-lib-nixio
+Section: luci
+Architecture: ramips_24kec
+Installed-Size: 29091
+Description:  NIXIO POSIX library

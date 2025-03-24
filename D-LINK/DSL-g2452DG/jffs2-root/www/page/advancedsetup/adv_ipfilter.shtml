@@ -1,0 +1,387 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var G_IPFilterEnable ='<!--#getsingle "InternetGatewayDevice.X_CT-COM_Firewall.IPFilterEnable" -->';
+var G_LanFilterTable ='<!--#getsingle "InternetGatewayDevice.X_CT-COM_Firewall.CurrentLANFilterTable" -->';
+var G_WanFilterTable ='<!--#getsingle "InternetGatewayDevice.X_CT-COM_Firewall.CurrentWANFilterTable" -->';
+
+function FilterTuple()
+{    
+    this.Enable = "";
+    this.SrcIP = "";
+    this.SrcMask = "";
+    this.SrcPort="";
+    this.DestIP = "";
+    this.DstMask = "";
+    this.DestPort="";
+    this.Protocol="";
+    this.Description="";
+    this.DevPath="";
+}
+var m = 0;
+var G_Wan_Black = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.WanBlackFilter. Enable SrcIP SrcMask SrcPort DestIP DstMask DestPort Protocol Description DevPath" -->
+    G_Wan_Black[m] = new FilterTuple();
+    G_Wan_Black[m].path = "<!--#path -->";
+    G_Wan_Black[m].Enable = "<!--#leaf "1"-->";
+    G_Wan_Black[m].SrcIP = "<!--#leaf "2"-->";
+    G_Wan_Black[m].SrcMask = "<!--#leaf "3"-->";
+    G_Wan_Black[m].SrcPort = "<!--#leaf "4"-->";
+    G_Wan_Black[m].DestIP = "<!--#leaf "5"-->";
+    G_Wan_Black[m].DstMask = "<!--#leaf "6"-->";
+    G_Wan_Black[m].DestPort = "<!--#leaf "7"-->";
+    G_Wan_Black[m].Protocol = "<!--#leaf "8"-->";
+    G_Wan_Black[m].Description = "<!--#leaf "9"-->";
+    G_Wan_Black[m].DevPath = "<!--#leaf "10"-->";
+    m++;
+<!--#endgetobject -->
+var n = 0;
+var G_Wan_White = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.WanWhiteFilter. Enable SrcIP SrcMask SrcPort DestIP DstMask DestPort Protocol Description DevPath" -->
+    G_Wan_White[n] = new FilterTuple();
+    G_Wan_White[n].path = "<!--#path -->";
+    G_Wan_White[n].Enable = "<!--#leaf "1"-->";
+    G_Wan_White[n].SrcIP = "<!--#leaf "2"-->";
+    G_Wan_White[n].SrcMask = "<!--#leaf "3"-->";
+    G_Wan_White[n].SrcPort = "<!--#leaf "4"-->";
+    G_Wan_White[n].DestIP = "<!--#leaf "5"-->";
+    G_Wan_White[n].DstMask = "<!--#leaf "6"-->";
+    G_Wan_White[n].DestPort = "<!--#leaf "7"-->";
+    G_Wan_White[n].Protocol = "<!--#leaf "8"-->";
+    G_Wan_White[n].Description = "<!--#leaf "9"-->";
+    G_Wan_White[n].DevPath = "<!--#leaf "10"-->";
+    n++;
+<!--#endgetobject -->
+var x = 0;
+var G_Lan_Black = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.LanBlackFilter. Enable SrcIP SrcMask SrcPort DestIP DstMask DestPort Protocol Description DevPath" -->
+    G_Lan_Black[x] = new FilterTuple();
+    G_Lan_Black[x].path = "<!--#path -->";
+    G_Lan_Black[x].Enable = "<!--#leaf "1"-->";
+    G_Lan_Black[x].SrcIP = "<!--#leaf "2"-->";
+    G_Lan_Black[x].SrcMask = "<!--#leaf "3"-->";
+    G_Lan_Black[x].SrcPort = "<!--#leaf "4"-->";
+    G_Lan_Black[x].DestIP = "<!--#leaf "5"-->";
+    G_Lan_Black[x].DstMask = "<!--#leaf "6"-->";
+    G_Lan_Black[x].DestPort = "<!--#leaf "7"-->";
+    G_Lan_Black[x].Protocol = "<!--#leaf "8"-->";
+    G_Lan_Black[x].Description = "<!--#leaf "9"-->";
+    G_Lan_Black[x].DevPath = "<!--#leaf "10"-->";
+    x++;
+<!--#endgetobject -->
+var y = 0;
+var G_Lan_White = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Firewall.LanWhiteFilter. Enable SrcIP SrcMask SrcPort DestIP DstMask DestPort Protocol Description DevPath" -->
+    G_Lan_White[y] = new FilterTuple();
+    G_Lan_White[y].path = "<!--#path -->";
+    G_Lan_White[y].Enable = "<!--#leaf "1"-->";
+    G_Lan_White[y].SrcIP = "<!--#leaf "2"-->";
+    G_Lan_White[y].SrcMask = "<!--#leaf "3"-->";
+    G_Lan_White[y].SrcPort = "<!--#leaf "4"-->";
+    G_Lan_White[y].DestIP = "<!--#leaf "5"-->";
+    G_Lan_White[y].DstMask = "<!--#leaf "6"-->";
+    G_Lan_White[y].DestPort = "<!--#leaf "7"-->";
+    G_Lan_White[y].Protocol = "<!--#leaf "8"-->";
+    G_Lan_White[y].Description = "<!--#leaf "9"-->";
+    G_Lan_White[y].DevPath = "<!--#leaf "10"-->";
+    y++;
+<!--#endgetobject -->
+function ConnectionTuple()
+{    
+    this.Path = "";
+    this.Name = "";
+}
+var s = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name" -->
+    Connection[s] = new ConnectionTuple();
+    Connection[s].Path = "<!--#path -->";
+    Connection[s].Name = "<!--#leaf "1"-->";
+    s++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name" -->
+    Connection[s] = new ConnectionTuple();
+    Connection[s].Path = "<!--#path -->";
+    Connection[s].Name = "<!--#leaf "1"-->";
+    s++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var G_Operation = "Add";
+var G_Path ;
+var ConnIdx;
+
+function init(){
+	setValue("INPUT_Enable",G_IPFilterEnable);
+	setValue('wanToLan',G_WanFilterTable);
+	setValue('lanToWan',G_LanFilterTable);
+	
+	setValue("INPUT_Enable",G_IPFilterEnable);
+    var radio_node = $('INPUT_WanToLan_White','INPUT_WanToLan_Black','INPUT_LanToWan_White','INPUT_LanToWan_Black');
+    var lang_node  = $('lang_wanToLan_white','lang_wanToLan_black','lang_lanToWan_white','lang_lanToWan_black');
+    for(var i = 0; i < 4; i++){
+        radio_node[i].disabled = false;
+        lang_node[i].style.color = "#000000";
+    }
+
+    setValue('wanToLan',G_WanFilterTable);
+    setValue('lanToWan',G_LanFilterTable);
+    
+    
+}
+function searchDevPath(DevPath){
+    for(var i = 0; i < Connection.length; i++) {
+        if(Connection[i].Path == DevPath) {
+            return Connection[i].Name;
+        }
+    }
+    return '';
+}
+
+function uiEdit(path,idx)
+{    
+    G_Path = path;
+    G_Operation = "Edit";
+    document.location.href='/page/advancedsetup/adv_ipfilter_edit.shtml?id='+idx+'&Op='+ G_Operation+'&G_Path='+ path+'';   
+}
+
+function uiDelete(path){
+	if(!validateCode())
+		return false;
+    var df = document.sec_firewalldataform; 
+    AddElements(df, 'del_obj',path);
+    df.submit(); 
+}
+
+function uiAdd(listType){    
+    var filterType = GetFilterType(listType);
+    switch(filterType){
+        case 'WanWhite' :
+            ConnIdx=(G_Wan_White.length+1);
+            break;
+        case 'WanBlack' :
+            ConnIdx=(G_Wan_Black.length+1);
+            break;
+        case 'LanWhite' :
+            ConnIdx=(G_Lan_White.length+1);
+            break;
+        case 'LanBlack' :
+            ConnIdx=(G_Lan_Black.length+1);
+            break;
+    }
+    document.location.href='/page/advancedsetup/adv_ipfilter_edit.shtml?id='+ConnIdx+'&Op='+ G_Operation+'&filterType='+filterType+'';
+}
+
+function GetFilterType(listType)
+{
+    var filterType;    
+            filterType = listType == 'wan' ? (getValue('wanToLan') == '1' ? 'WanWhite' : 'WanBlack') : (getValue('lanToWan') == '1' ? 'LanWhite' : 'LanBlack');
+
+    return filterType;
+}
+
+function getRuleTrs(rules)
+{
+	var trs = "";
+	
+	if(rules.length == 0)
+	{
+		trs = '<tr class="OddRowB"><td colspan="8">'+getStr('LK_NoRule')+'</td></tr>';
+	}
+	
+	if (rules == null) {
+		return trs;
+	}
+	
+	for(var i = 0; i < rules.length; i++){
+		var rule = rules[i];
+		if(i%2==0)
+			trs += "<tr class='OddRowB'>";
+		else
+			trs += "<tr class='EvenRowB'>";   
+		trs += "<td>" + (i+1) + "</td>"; 
+		trs += "<td>" + rule.Enable+"</td>"; 
+		trs += "<td>" + rule.SrcIP + "/" + rule.SrcPort + "</td>"; 
+		trs += "<td>" + rule.DestIP + "/" + rule.DestPort + "</td>"; 
+		trs += "<td>" + rule.Protocol + "</td>"; 
+		trs += "<td>" + rule.Description + "</td>"; 
+		trs += "<td>" + searchDevPath(rule.DevPath) + "</td>"; 
+		trs += "<td>"
+			+ "<img name='edit' src='../../skin/edit.gif' style='cursor:pointer'"
+			+ " onclick='uiEdit(\"" + rule.path + "\",\"" + (i) + "\")'>"
+			+ "<img name='delete' src='../../skin/trash.gif' style='cursor:pointer' onclick='uiDelete(\"" + rule.path+ "\")'></td>";              
+		trs += "</tr>";
+	}
+	return trs;
+}
+
+function createWanToLanTable() {
+
+    var filterType = GetFilterType("wan");
+	var trs = "";
+	trs += "<tr class='TitleRow'>";
+	trs += "<td>" + getStr('LK_Number') +"</td>";
+	trs += "<td>" + getStr('LK_Enable') +"</td>";
+	trs += "<td>" + getStr('LK_IPPortRangeS') +"</td>";
+	trs += "<td>" + getStr('LK_IPPortRangeD') +"</td>";
+	trs += "<td>" + getStr('LK_Protocol') +"</td>";
+	trs += "<td>" + getStr('LK_Description') +"</td>";
+	trs += "<td>" + getStr('LK_DeviceName') +"</td>";
+	trs += "<td>" + getStr('LK_Action') +"</td>";
+	trs += "</tr>";    
+	if (filterType == "WanBlack") {
+		trs += getRuleTrs(G_Wan_Black);
+    } else if (filterType == "WanWhite") {
+		trs += getRuleTrs(G_Wan_White);
+    }
+	jQuery("#td_iplist_wan").empty();
+	jQuery("#td_iplist_wan").append(trs);
+}
+
+function createLanToWanTable() {
+    var filterType = GetFilterType("lan");
+	var trs = "";
+    
+	trs += "<tr class='TitleRow'>";
+	trs += "<td>" + getStr('LK_Number') +"</td>";
+	trs += "<td>" + getStr('LK_Enable') +"</td>";
+	trs += "<td>" + getStr('LK_IPPortRangeS') +"</td>";
+	trs += "<td>" + getStr('LK_IPPortRangeD') +"</td>";
+	trs += "<td>" + getStr('LK_Protocol') +"</td>";
+	trs += "<td>" + getStr('LK_Description') +"</td>";
+	trs += "<td>" + getStr('LK_DeviceName') +"</td>";
+	trs += "<td>" + getStr('LK_Action') +"</td>";
+	trs += "</tr>";    
+    if (filterType=="LanBlack") {
+		trs += getRuleTrs(G_Lan_Black);
+    } else if (filterType=="LanWhite") {
+		trs += getRuleTrs(G_Lan_White);
+	}
+	jQuery("#td_iplist_lan").empty();
+	jQuery("#td_iplist_lan").append(trs);
+}
+
+function uiSubmit(){
+	var df = document.sec_firewalldataform;
+	var WanFilterNum = Number(getValue('wanToLan')) + 2;
+	var LanFilterNum = Number(getValue('lanToWan'));
+	var object_path="InternetGatewayDevice.X_CT-COM_Firewall."; 
+	if(!validateCode())
+		return false;
+	AddElements(df, object_path+"IPFilterEnable",getValue('INPUT_Enable'));
+	AddElements(df, object_path+"SecurityLevel",getValue('SELECT_SecurityLevel'));
+	if($('INPUT_WanToLan_White').checked==true){
+	  AddElements(df, object_path+"CurrentWANFilterTable",1);
+	}else {
+	  AddElements(df, object_path+"CurrentWANFilterTable",2);
+	}
+
+	if($('INPUT_LanToWan_White').checked==true){
+	  AddElements(df, object_path+"CurrentLANFilterTable",1);
+	}else {
+	  AddElements(df, object_path+"CurrentLANFilterTable",2);
+	}
+
+	df.submit();  
+}
+function __init()
+{
+    init();
+    createWanToLanTable();
+    createLanToWanTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function createTable()
+{
+	createWanToLanTable();
+	createLanToWanTable();	
+}
+</script>
+</head>
+<body>
+<form>
+<script>SetContentTitle(getStr('LK_IPFiltering'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td class="FlagText" colspan="2" langkey="LK_sec_warningtips"></td>
+</tr>
+<tr class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="800" class="ContentTableNoColor">
+<tr>
+<tr>
+	<td width="150" langkey="LK_Firewalll"></td>
+	<td><input type="checkbox" name="INPUT_Enable" id="INPUT_Enable"></td>
+<tr class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td><script>document.write(getStr('LK_WAN')+'&#8594;'+getStr('LK_LAN'));</script></td>
+	<td><input type="radio" name="wanToLan" id="INPUT_WanToLan_White" value="1" onClick="createTable()"><span id="lang_wanToLan_white" langkey="LK_sec_wantolanwhite"></span>
+            <input type="radio" name="wanToLan" id="INPUT_WanToLan_Black" value="2" onClick="createTable()"><span id="lang_wanToLan_black" langkey="LK_sec_wantolanblack"></span>
+	&nbsp;<script>PrintTriButton("add_wan",getStr('LK_Add'),"uiAdd('wan')")</script></td>	
+</tr>
+</table>
+<br>
+<table id="td_iplist_wan" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_IPPortRangeS"></td>
+	<td langkey="LK_IPPortRangeD"></td>
+	<td langkey="LK_Protocol"></td>
+	<td langkey="LK_Description"></td>
+	<td langkey="LK_DeviceName"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" width="800" class="ContentTableNoColor">
+<tr>
+	<td width="150"><script>document.write(getStr('LK_LAN')+'&#8594;'+getStr('LK_WAN'));</script></td>
+        <td><input type="radio" name="lanToWan" id="INPUT_LanToWan_White" value="1" onClick="createTable()"><span id="lang_lanToWan_white" langkey="LK_sec_wantolanwhite"></span> 
+	    <input type="radio" name="lanToWan" id="INPUT_LanToWan_Black" value="2" onClick="createTable()"><span id="lang_lanToWan_black" langkey="LK_sec_wantolanblack"></span>
+	&nbsp;<script>PrintTriButton("add_lan",getStr('LK_Add'),"uiAdd('lan')")</script></td>
+</tr>
+</table>
+<br>
+<table id="td_iplist_lan" cellpadding="0" cellspacing="0"  class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_IPPortRangeS"></td>
+	<td langkey="LK_IPPortRangeD"></td>
+	<td langkey="LK_Protocol"></td>
+	<td langkey="LK_Description"></td>
+	<td langkey="LK_DeviceName"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()")</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+	</form>
+	<form method="post" name ="sec_firewalldataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_ipfilter.shtml">
+</form>
+  </body>
+</html>
+

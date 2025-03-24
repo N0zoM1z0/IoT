@@ -1,0 +1,156 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=10
+STOP=98
+
+uci_apply_defaults() {
+	. /lib/functions/system.sh
+
+	cd /etc/uci-defaults || return 0
+	files="$(ls)"
+	[ -z "$files" ] && return 0
+	mkdir -p /tmp/.uci
+	for file in $files; do
+		( . "./$(basename $file)" ) && rm -f "$file"
+	done
+	uci commit
+}
+
+
+link_down()
+{
+	# get original register value
+	get_mii=`mii_mgr -g -p $1 -r 0`
+	orig=`echo $get_mii | sed 's/^.....................//'`
+	# stupid hex value calculation.
+	pre=`echo $orig | sed 's/...$//'`
+	post=`echo $orig | sed 's/^..//'` 
+	num_hex=`echo $orig | sed 's/^.//' | sed 's/..$//'`
+	case $num_hex in
+		"0")	rep="8"	;;
+		"1")	rep="9"	;;
+		"2")	rep="a"	;;
+		"3")	rep="b"	;;
+		"4")	rep="c"	;;
+		"5")	rep="d"	;;
+		"6")	rep="e"	;;
+		"7")	rep="f"	;;
+		# The power is already down
+		*)		echo "Port$1 is down. Skip.";return;;
+	esac
+	new=$pre$rep$post
+	# power down
+	mii_mgr -s -p $1 -r 0 -v $new
+}
+
+
+Link_Down_Port()
+{
+	link_down 0
+	link_down 1
+	link_down 2
+	link_down 3
+}
+
+boot() {
+	[ -f /proc/mounts ] || /sbin/mount_root
+	[ -f /proc/jffs2_bbc ] && echo "S" > /proc/jffs2_bbc
+	[ -f /proc/net/vlan/config ] && vconfig set_name_type DEV_PLUS_VID_NO_PAD
+
+	mkdir -p /var/run
+	mkdir -p /var/log
+	mkdir -p /var/lock
+	mkdir -p /var/state
+	mkdir -p /var/tmp
+	mkdir -p /tmp/.uci
+	chmod 0700 /tmp/.uci
+	mkdir -p /tmp/.jail
+	touch /var/log/wtmp
+	touch /var/log/lastlog
+	touch /tmp/resolv.conf.auto
+	ln -sf /tmp/resolv.conf.auto /tmp/resolv.conf
+	grep -q debugfs /proc/filesystems && /bin/mount -o noatime -t debugfs debugfs /sys/kernel/debug
+	[ "$FAILSAFE" = "true" ] && touch /tmp/.failsafe
+	
+	/sbin/kmodloader
+
+	# allow wifi modules time to settle
+	sleep 1
+
+	/bin/board_detect
+	uci_apply_defaults
+	Link_Down_Port
+	# temporary hack until configd exists
+	/sbin/reload_config
+
+	# create /dev/root if it doesn't exist
+	[ -e /dev/root -o -h /dev/root ] || {
+		rootdev=$(awk 'BEGIN { RS=" "; FS="="; } $1 == "root" { print $2 }' < /proc/cmdline)
+		[ -n "$rootdev" ] && ln -s "$rootdev" /dev/root
+	}
+
+	date "+%Y-%m-%dT%H:%M:%SZ" > /tmp/VendorConfigFile #for tr069
+	
+	sys_default=`uci get system.route.sys_default | tr -d '\n'`
+	echo "sys_default=${sys_default}"
+    if [ "$sys_default" == '1' ]; then
+		#ssid_mac=`uci get network.lan_dev.macaddr | tr -d :| tr [:lower:] [:upper:] | cut -c 9-12 | tr -d '\n'`
+		#ssid_mac=`mtk_factory_rw.sh -r lan | tr -d - | tr [:lower:] [:upper:] | cut -c 9-12 | tr 'a-z' 'A-Z' | tr -d '\n'`
+		ssid_mac=`ifconfig eth0.1 | grep HWaddr | cut -c 39-55 | tr -d :| tr [:lower:] [:upper:] | cut -c 9-12 | tr -d '\n'`
+		ssid_first=`nvram get blink default_ssid | tr -d '\n'`
+		[ -z "$ssid_first" ] && {
+			ssid_first=BLINK
+		}
+		
+		wan_hostname=`nvram get blink Model | tr -d '\n'`
+		[ -z "$wan_hostname" ] && {
+			wan_hostname=BLINK
+		}
+		
+		uci set network.wan.hostname="$wan_hostname"
+		
+		ssid="$ssid_first"-"$ssid_mac"
+		wifi_enable_2g=`uci get system.route.switch_2g`
+		wifi_enable_2g_guest=`uci get system.route.switch_2g_guest`
+		wifi_enable_5g=`uci get system.route.switch_5g`
+		wifi_enable_5g_guest=`uci get system.route.switch_5g_guest`
+		
+		if [ "$wifi_enable_2g" == "1" ];then
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set SSID1 $ssid
+		else
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set SSID1 "095460F1071109BBE3C7E494BBBC8BDE"
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set HideSSID 0 1
+		fi
+		
+		if [ "$wifi_enable_2g_guest" == "1" ];then
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set SSID2 $ssid-Guest
+		else
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set SSID2 "E9E476DC869F4311CEBA1FB7F6A291E8"
+			wificonf -f /etc/wireless/mt7628/mt7628.dat set HideSSID 1 1
+		fi
+		
+		if [ "$wifi_enable_5g" == "1" ];then
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set SSID1 $ssid-5G
+		else
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set SSID1 "C7CBAF4186660BA55327A196D352A33D"
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set HideSSID 0 1
+		fi
+		
+		if [ "$wifi_enable_5g_guest" == "1" ];then
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set SSID2 $ssid-5G-Guest
+		else
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set SSID2 "85DCF176FACFF0EADFE394597A324ED5"
+			wificonf -f /etc/wireless/mt7663/mt7663.2.dat set HideSSID 1 1
+		fi
+		
+		uci set system.route.ssid_2g=$ssid
+		uci set system.route.ssid_2g_guest=$ssid-Guest
+		uci set system.route.ssid_5g=$ssid-5G
+		uci set system.route.ssid_5g_guest=$ssid-5G-Guest
+
+	
+		uci set system.route.sys_default=0
+		uci commit
+	fi
+}

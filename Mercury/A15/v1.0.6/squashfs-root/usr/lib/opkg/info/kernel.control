@@ -1,0 +1,9 @@
+Package: kernel
+Version: 4.4.176-1-ccf593a113351d85e0d5f640ca33947f
+Depends: libc
+Source: package/kernel
+Section: sys
+Status: unknown hold not-installed
+Architecture: rtl
+Installed-Size: 104
+Description:  Virtual kernel package

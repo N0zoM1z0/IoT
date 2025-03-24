@@ -1,0 +1,9 @@
+/usr/lib/lua/l1dat_parser.lua
+/www/luci-static/resources/vis.js
+/www/luci-static/resources/monCon.js
+/usr/lib/lua/wps_action.lua
+/sbin/l1dat
+/usr/lib/lua/luci/controller/easymesh.lua
+/usr/lib/lua/mtkwifi.lua
+/usr/lib/lua/map_helper.so
+/usr/lib/lua/ioctl_helper.so

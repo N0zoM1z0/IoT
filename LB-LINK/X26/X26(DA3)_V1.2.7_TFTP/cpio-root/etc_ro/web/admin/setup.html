@@ -1,0 +1,2978 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>设置向导</title>
+  <!-- Bootstrap -->
+  <link href="css/router.css" rel="stylesheet" />
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <link href="css/form.css" rel="stylesheet" />
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+      <script src="js/Respond.min.js"></script>
+    <![endif]-->
+  <style>
+    .menu .i-5 {
+      background: url('images/term.png') no-repeat 3px 3px;
+    }
+
+    .server_name {
+      position: relative;
+      color: #777;
+    }
+
+    .server_name #server_optional {
+      position: absolute;
+      top: -30px;
+      right: 105px;
+    }
+
+    .media-w {
+      height: 140px;
+      margin: 0 auto;
+    }
+
+    .img-rounded {
+      width: 166px;
+    }
+
+    .menu {
+      margin: 60px 30px 0 0;
+      display: none;
+    }
+
+    .nav-content {
+      width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+
+    .containe {
+      width: 950px;
+      margin: 25px auto 0;
+      text-align: left;
+    }
+
+    .graph {
+      text-align: center;
+    }
+
+    .graph div {
+      display: inline-block;
+    }
+
+    .mode-width {
+      width: 760px;
+      margin: 0 auto;
+    }
+
+    #websit_info img {
+      width: 30px;
+      padding-right: 5px;
+    }
+
+    .inpt {
+      height: 35px;
+    }
+
+    .pagination>.active>a {
+      background: #557cb7;
+    }
+
+    #en_eula,
+    #zhcn_eula {
+      display: none;
+      background: #ffffff;
+      padding: 20px 35px;
+    }
+
+    @media screen and (max-width: 1025px) {
+      body {
+        width: 100%;
+      }
+
+      .top {
+        width: 90%;
+      }
+
+      .nav-content {
+        width: 90%;
+      }
+
+      .all {
+        text-align: center;
+      }
+
+      .containe {
+        width: 80%;
+        margin: 45px auto 0;
+      }
+
+      .graph {
+        text-align: center;
+      }
+
+      .graph div {
+        display: inline-block;
+      }
+
+      .mode-width {
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    @media screen and (max-width: 825px) {
+      .menu {
+        margin-right: 5px;
+      }
+
+      .server_name #server_optional {
+        position: absolute;
+        top: -30px;
+        right: 85px;
+      }
+
+      .NetWork {
+        width: 60px;
+      }
+
+      .linkStatus {
+        width: 130px;
+      }
+
+      .host {
+        width: 80px;
+      }
+
+      /* 新增 */
+      .setting-mode {
+        width: 80%;
+        padding: 0;
+      }
+
+      .setting ul {
+        width: 90%;
+        font-size: 12px;
+      }
+    }
+
+    @media screen and (max-width: 665px) {
+      .menu {
+        position: absolute;
+        left: 0;
+      }
+
+      .containe {
+        width: 100%;
+        margin: 45px auto 0;
+      }
+
+      .NetWork {
+        width: 50px;
+      }
+
+      .linkStatus {
+        width: 120px;
+      }
+
+      .host {
+        width: 70px;
+      }
+    }
+
+    @media screen and (max-width: 435px) {
+
+      #en_eula,
+      #zhcn_eula {
+        padding: 20px 15px;
+      }
+
+      .img-rounded {
+        width: 110px;
+      }
+
+      #websit_info img {
+        width: 25px;
+      }
+
+      .containe>.graph>.media-w {
+        height: 120px;
+        margin: 20px auto 0;
+      }
+
+      .breadcrumb {
+        font-size: 12px;
+      }
+
+      .listform {
+        min-width: 250px;
+        width: 90%;
+        margin: 0 auto;
+        padding: 0;
+        border: 0;
+      }
+
+      .listform li .sp-l {
+        min-width: 80px;
+        width: 30%;
+      }
+      .listform li .sp-r{
+        float:left;
+      }
+
+      .listform li #server_name {
+        padding-right: 0;
+      }
+
+      .listform li .sp-r {
+        min-width: 160px;
+        /* width: 70%; */
+        text-align: left;
+        position: relative;
+      }
+
+      .listform li input{
+        width: 100%;
+      }
+
+      .lefttd {
+        width: 45px;
+        display: inline-block;
+      }
+
+      .midtd {
+        width: 55%;
+      }
+
+      .righttd {
+        width: 25%;
+      }
+
+      .NetWork {
+        width: 50px;
+      }
+
+      .linkStatus {
+        width: 120px;
+      }
+
+      .host {
+        width: 70px;
+      }
+
+      .all {
+        padding: 0px;
+      }
+
+      .server_name #server_optional {
+        position: absolute;
+        top: -30px;
+        right: 5%;
+      }
+
+      .ModeList .ListRow .Tdleft {
+        width: 5%;
+      }
+
+      .ModeList .ListRow .Tdright {
+        width: 5%;
+      }
+
+      .ModeList .ListRow .Tdmiddle {
+        width: 90%;
+      }
+
+      .demospan {
+        margin-left: 3px;
+      }
+
+      .ModeList .ListRow td em {
+        font-size: 14px;
+      }
+    }
+
+    @media screen and (max-width: 320px) {
+      .table>tbody>tr>.wifiCol {
+        padding: 3px;
+      }
+
+      .server_name #server_optional {
+        position: absolute;
+        top: -30px;
+        right: 0%;
+      }
+
+      .ModeList .ListRow td em {
+        font-size: 12px;
+      }
+    }
+
+    .more_set {
+      text-align: right;
+      margin: 10px auto 15px;
+      width: 80%;
+    }
+
+    .more_set span {
+      cursor: pointer;
+    }
+
+    .wanPppoe {
+      display: none;
+    }
+
+    .Tdmiddle span {
+      color: #ce443a;
+      font-size: 13px;
+    }
+
+    input:-webkit-autofill,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px white inset;
+      -webkit-text-fill-color: #838383;
+    }
+  </style>
+
+  <script>
+    var browser = {
+      versions: (function () {
+        var u = navigator.userAgent,
+          app = navigator.appVersion
+        return {
+          trident: u.indexOf('Trident') > -1, //IE内核
+          presto: u.indexOf('Presto') > -1, //opera内核
+          webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+          gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+          mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+          ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+          android: u.indexOf('Android') > -1, //android终端或uc浏览器
+          iPhone: u.indexOf('iPhone') > -1, //是否为iPhone或者QQHD浏览器
+          iPad: u.indexOf('iPad') > -1, //是否iPad
+          webApp: u.indexOf('Safari') == -1, //是否web应该程序，没有头部与底部
+        }
+      })(),
+      language: (
+        navigator.browserLanguage || navigator.language
+      ).toLowerCase(),
+    }
+
+    function getMobile() { //1代表手机端，0代表pc端
+      var mob = 0;
+      if (browser.versions.mobile || browser.versions.android || browser.versions.iPhone) {
+        mob = 1;
+      }
+      return mob
+    }
+  </script>
+</head>
+
+<body style="background: #557cb7">
+  <div class="top">
+    <a class="logo-box"> <img id="hostLogo" class="img-rounded" /></a>
+    <a target="_blank" class="user" id="websit_info">
+      <img src="images/web.png" />
+      <span></span>
+    </a>
+  </div>
+  <div class="nav-content">
+    <div class="menu">
+      <a href="main.html"><i class="png_ie i-1"></i><span id="hostPage"></span></a>
+      <a href="more.html"><i class="png_ie i-3"></i><span id="MoreFunction"></span></a>
+      <a href="setup.html" class="selected"><i class="png_ie i-2"></i><span id="ChangeMode"></span></a>
+      <a href="terminal.html"><i class="png_ie i-5"></i><span id="term"></span></a>
+      <a href="upload_firmware.html"><i class="png_ie i-4"></i><span id="getNew"></span></a>
+    </div>
+    <div class="containe" style="display: inline-block; vertical-align: top">
+      <div class="graph">
+        <div><img class="NetWork" src="images/network.png" /></div>
+        <div style="margin: 0 5%">
+          <img id="linkStatus" class="linkStatus" src="images/lineOn.png" />
+        </div>
+        <div><img class="host" src="images/host.png" /></div>
+      </div>
+      <div class="showbox" style="margin: 30px 0">
+        <div class="mode-width" style="background: #fff; border-radius: 16px; padding: 0px">
+          <ol class="breadcrumb">
+            <li>
+              <a id="host" href="#"><span class="glyphicon glyphicon-home" aria-hidden="true"></span><span
+                  id="modeChange"></span></a>
+            </li>
+            <li class="active" style="display: none" id="breadcrumb-mode"></li>
+            <li class="active" style="display: none" id="breadcrumb-msg"></li>
+            <li id="help" style="float: right">
+              <span id="help-info" style="color: rgb(0, 204, 255)"
+                class="glyphicon glyphicon-question-sign hand"></span>
+            </li>
+          </ol>
+          <div class="page-index" style="padding-bottom: 10px">
+            <table class="ModeList" style="margin-bottom: 0">
+              <tbody>
+                <!-- 路由模式 -->
+                <tr class="ListRow oddrow hand">
+                  <td class="Tdleft">
+                    <span class="demospan">
+                      <input name="demo2" id="mode1" class="radiogroup" type="radio" />
+                    </span>
+                  </td>
+                  <td class="Tdmiddle">
+                    <em></em>
+                    <span></span>
+                  </td>
+                  <td class="Tdright">
+                    <img style="width: 20px" src="images/mode.png" />
+                  </td>
+                </tr>
+                <!-- 万能中继模式 -->
+                <tr class="ListRow evenrow hand">
+                  <td class="Tdleft">
+                    <span class="demospan">
+                      <input name="demo2" id="mode3" class="radiogroup" type="radio" />
+                    </span>
+                  </td>
+                  <td class="Tdmiddle">
+                    <em></em>
+                    <span></span>
+                  </td>
+                  <td class="Tdright">
+                    <img style="width: 20px" src="images/mode.png" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- <p style="width: 80%; margin: 10px auto 0px">
+              <span id="logo_prev" style="display: inline-block; width: 19%; cursor: pointer"></span>
+            </p> -->
+            <p style="width: 80%; margin: 10px auto 0px">
+              <span id="logo_prev" style="display: none; width: 19%; cursor: pointer"></span>
+            </p>
+          </div>
+          <!-- wan设置 -->
+          <div class="wan-set" style="display: none">
+            <div class="wanPageInfo">
+              <div class="wanPageInfo-item">
+                <label id="wanCheckTip"></label>
+                <span class="curWanMode"></span>
+              </div>
+              <div class="wanPageInfo-item" style="height: 21px; line-height: 21px">
+                <span id="wanTip" style="display: none"></span>
+              </div>
+            </div>
+            <!-- pppoe内容 -->
+            <div id="pppoeBox" style="display: none">
+              <ul class="listform">
+                <li>
+                  <span id="Change_pppoeuser" class="sp-l"></span>
+                  <span class="sp-r">
+                    <label for="pppoeUser"></label>
+                    <input class="inpt inpt-mini" id="pppoeUser" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l" id="Change_pppoepass"></span>
+                  <span class="sp-r">
+                    <label for="pppoePass"></label>
+                    <input class="inpt inpt-mini" id="pppoePass" />
+                  </span>
+                </li>
+                <li class="wanPppoe">
+                  <span id="Change_pppoeserver" class="sp-l"></span>
+                  <span class="sp-r">
+                    <label for="pppoeServer"></label>
+                    <input class="inpt inpt-mini" maxlength="128" id="pppoeServer" name="pppoeserver" />
+                  </span>
+                </li>
+              </ul>
+              <!-- <div class="server_name wanPppoe">
+                <span id="server_optional"></span>
+              </div> -->
+              <ul class="listform wanPppoe">
+                <li>
+                  <span class="sp-l" id="vpn_mtu_span">MTU</span>
+                  <span class="sp-r">
+                    <label for="vpn_mtu" id="vpn_mtu_label"></label>
+                    <input class="inpt inpt-mini" id="Spppoe_mtu" value="1480" name="SpppoeMTU" maxlength="4" />
+                  </span>
+                </li>
+              </ul>
+              <p class="more_set" id="wanPppoe_set" style="text-align: center; color: #777">
+                <span></span>
+                <span class="glyphicon glyphicon-menu-down"></span>
+                <span class="glyphicon glyphicon-menu-up" style="display: none"></span>
+              </p>
+            </div>
+            <!-- dhcp内容 -->
+            <div id="dhcpBox" style="display: none"></div>
+            <!-- static内容 -->
+            <div id="staticBox" style="display: none">
+              <ul class="listform">
+                <li>
+                  <span class="sp-l" id="Change_staticip"></span>
+                  <span class="sp-r">
+                    <label for="staticIp"></label>
+                    <input class="inpt inpt-mini" id="staticIp" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l" id="Change_staticmask"></span>
+                  <span class="sp-r">
+                    <label for="staticMask"></label>
+                    <input class="inpt inpt-mini" id="staticMask" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l" id="Change_staticgw"></span>
+                  <span class="sp-r">
+                    <label for="staticGw"></label>
+                    <input class="inpt inpt-mini" id="staticGw" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l">DNS</span>
+                  <span class="sp-r">
+                    <label for="staticDNS"></label>
+                    <input class="inpt inpt-mini" id="staticDNS" />
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div class="buttonbox">
+              <a id="wan_prev" class="btn list-btn"></a>
+              <a id="wan_after" class="btn list-btn"></a>
+            </div>
+            <div class="divider">
+              <span></span>
+              <label></label>
+              <span></span>
+            </div>
+            <ul class="setting-mode flex justify-content_flex-justify align-items_center">
+              <li id="wan_type1" onclick="wanChange('pppoe')"></li>
+              <li id="wan_type2" onclick="wanChange('dhcp')"></li>
+              <li id="wan_type3" onclick="wanChange('static')"></li>
+            </ul>
+          </div>
+          <!-- wifi设置 -->
+          <div class="wlan-set" style="display: none">
+            <div id="floatWlan">
+              <h4 class="wlan-title">2.4G WiFi</h4>
+              <ul class="listform">
+                <li>
+                  <span class="sp-l" id="Fwifi"></span>
+                  <span class="sp-r">
+                    <label for="floatWifiName"></label>
+                    <input class="inpt inpt-mini" id="floatWifiName" style="width: 100%" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l" id="Fpass"></span>
+                  <span class="sp-r">
+                    <label for="floatWifiPass"></label>
+                    <input class="inpt inpt-mini" id="floatWifiPass" style="width: 100%" maxlength="64" />
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div id="doubleWlan" style="display: none">
+              <h4 class="wlan-title">5G WiFi</h4>
+              <ul class="listform">
+                <li>
+                  <span class="sp-l" id="Dwifi"></span>
+                  <span class="sp-r">
+                    <label for="doubleWifiName"></label>
+                    <input class="inpt inpt-mini" id="doubleWifiName" style="width: 100%" />
+                  </span>
+                </li>
+                <li>
+                  <span class="sp-l" id="Dpass"></span>
+                  <span class="sp-r">
+                    <label for="doubleWifiPass"></label>
+                    <input class="inpt inpt-mini" id="doubleWifiPass" style="width: 100%" maxlength="64" />
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div class="buttonbox">
+              <a id="wlan_prev" class="btn list-btn"></a>
+              <a id="wlan_after" class="btn list-btn"></a>
+            </div>
+          </div>
+          <!-- 中继wifi扫描列表 -->
+          <div class="ssid-list" style="display: none">
+            <div>
+              <table style="width: 90%; margin: 0 auto" class="table">
+                <tbody id="WifiList"></tbody>
+              </table>
+              <nav style="text-align: center">
+                <ul class="pagination" id="pagination"></ul>
+              </nav>
+            </div>
+            <div class="buttonbox" style="margin-top: 0px">
+              <a id="list_prev" class="btn list-btn"></a>
+              <a style="display: none" id="list_after" class="btn list-btn"></a>
+              <a id="toScan" class="btn list-btn"></a>
+            </div>
+          </div>
+          <!-- 登录密码设置 -->
+          <!-- <div class="login-set" style="display: none">
+            <ul class="listform">
+              <li>
+                <span class="sp-l" id="mangepass"></span>
+                <span class="sp-r">
+                  <label for="routerpwd"></label>
+                  <input class="inpt inpt-mini" id="routerpwd" maxlength="64" />
+                </span>
+              </li>
+            </ul>
+            <h5 style="text-align: center; color: #666" id="routertip"></h5>
+            <p style="text-align: center">
+              <input type="checkbox" id="user_checked" checked="checked" style="cursor: pointer; vertical-align: top" />
+              <a id="eula_user" style="color: #0bb7f5"></a>
+            </p>
+            <div class="buttonbox">
+              <a id="login_after" class="btn list-btn"></a>
+            </div>
+          </div> -->
+          <!-- 设置完成 -->
+          <div class="setting finish-set" style="display: none;">
+            <img src="images/wanOK2.png" width="50" style="margin-bottom: 8px;">
+            <div class="setting-tips">
+              <p>
+                <span></span>
+                <span></span>
+                <span></span>
+              </p>
+            </div>
+            <ul>
+              <h3>2.4G</h3>
+              <li>
+                <label></label>
+                <span class="twoWifiSsid"></span>
+              </li>
+              <li>
+                <label></label>
+                <span class="twoWifiPassword"></span>
+              </li>
+              <div class="isDual" style="display: none;">
+                <h3>5.8G</h3>
+                <li>
+                  <label></label>
+                  <span class="fiveWifiSsid"></span>
+                </li>
+                <li>
+                  <label></label>
+                  <span class="fiveWifiPassword"></span>
+                </li>
+              </div>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-2 col-xs-0"></div>
+      </div>
+    </div>
+  </div>
+  <div id="zhcn_eula">
+    <div align="center">用户服务协议</div>
+    《用户服务协议》（以下简称"本协议"）是您（或称"用户"，指注册、登录、使用、浏览本服务的个人或组织）与必联公司及其关联公司（以下简称"必联"）
+    及其运营合作单位（以下简称"合作单位"）之间关于必联网站（http://www..net.cn/，简称本网站）与必联智能路由器程序及
+    服务所订立的协议.<br />
+    本协议中各条款，包括免除或者限制必联责任的免责条款及对用户的权利限制条款。请您审慎阅读并选择接受或不接受本协议(未成年人应在法定监护人陪同下阅
+    读）。除非您接受本协议所有条款，否则您无权注册、登录或使用本协议所涉相关服务。您的注册、登录、使用等行为将视为对本协议的接受，并同意接受本协议各
+    项条款的约束。<br />
+    您对本协议的接受即自愿接受全部条款的约束，包括接受必联公司对任一服务条款随时所做的任何修改。本协议可由必联随时更新，更新后的协议条款一旦公布即代
+    替原来的协议条款，恕不再另行通知，用户可在本网站查阅最新版协议条款。在必联修改本协议相关条款之后，如果用户不接受修改后的条款，请立即停止使用必联
+    提供的服务，用户继续使用必联提供的服务将被视为已接受了修改后的协议。<br /><br />
+    一、用户使用规则<br />
+    1.您无需用户账户即可浏览本网站。但某些网站功能、必联产品、程序和服务需要您注册必联账户。如果您想使用本网站与必联产品、程序和服务的更多功能，您
+    必须注册相应账户并且于注册页面上提供相关的个人信息。您可以按照网站说明随时终止使用您的账户，本网站将会依据本协议规定保留或终止您的账户。您必须承
+    诺和保证：<br />
+    1)您了解并同意，本网站是一个【应用服务产品】，用户须对注册信息的真实性、合法性、有效性承担全部责任；用户不得冒充他人，不得利用他人的名义发布任何信息；不得恶意使用注册账户导致其他用户误认；否则我们有权立即停止提供服务，您独自承担由此而产生的一切法律责任。<br />
+    2)您使用本网站与必联产品、程序及服务的行为必须合法，您必须为自己注册账户下的一切行为负责，包括您所发表的任何内容以及由此产生的任何结果。用户应
+    对其中的内容自行加以判断，并承担因使用内容而引起的所有风险，包括因对内容的正确性、完整性或实用性的依赖而产生的风险。必联公司无法且不会对因用户行
+    为而导致的任何损失或损害承担责任。
+    3)您对您的登录信息保密、不被其他人获取并使用并且对您在本网站账户下的所有行为负责。您必须将任何有可能触犯法律的，未授权使用或怀疑为未授权使用的
+    行为在第一时间通知本网站，本网站不对您因未能遵守上述要求而造成的损失承担责任。<br />
+    4)您通过本网站发表的信息为公开的信息，其他第三方均可以通过本平台获取用户发表的信息，用户对任何信息的发表即认可该信息为公开的信息，并单独对此行为承担法律责任；任何用户不愿被其他第三人获知的信息都不应在该平台上进行发表。<br />
+    2.您必须知悉并确认：<br />
+    1)我们因业务发展需要，单方面对本服务的全部或部分服务内容在任何时候不经任何通知的情况下变更、暂停、限制、终止或撤销我们服务的权利，用户需承担此风险。<br />
+    2)我们提供的服务中可能包括广告等活动，用户同意在使用过程中显示我们及关联方与第三方供应商、合作伙伴提供的广告以及其他活动。<br />
+    3)我们自行判断，对违反有关法律法规或本协议约定；或侵犯、妨害、威胁任何人权利或安全的内容，或者假冒他人的行为，有权依法停止传输任何相关内容，并
+    有权依其自行判断对违反本协议的任何人士采取适当的法律行动，包括但不限于，从服务中删除具有违法性、侵权性、不当性等内容，终止违反者的成员资格，阻止
+    其使用我们全部或部分服务，并且依据法律法规保存有关信息并向有关部门报告等。如果你认为其他用户侵犯了您的合法权益，应向我们提供详细说明及相应证据，
+    我们才能及时判断并作出合适的回应。<br />
+    4)我们的某些产品服务必须在联网的情况下才可以使用。您必须自行负担个人上网或第三方（包括但不限于电信、联通或移动通讯提供商）收取的通讯费、信息费等相关费用。如涉及电信增值服务，我们建议您与增值服务提供商确认相关费用问题。<br />
+    5)隐私政策。在任何时候，您的信息均依照必联公司的隐私政策处理。<br />
+    二、用户内容<br />
+    1.用户内容是指该用户下载、发布或以其他方式使用本网站与必联产品、程序及服务时产生的所有内容（例如：您的信息、图片、音乐或其他内容）；
+    您是您的用户内容唯一的责任人，您将承担因您的用户内容披露而导致的您或任何第三方被识别的风险。<br />
+    2.您通过上传、发行或其他方式使用您在本网站与必联产品、程序及服务的用户内容时，即视为自动授权且承诺和保证您有权授权给我们不可撤销的、非独家的、免版税的且足额缴纳的全球许可，用以：<br />
+    1)仅为向您提供本网站与必联产品和程序服务或改进本网站与必联产品、程序及服务之目的，复制、发行、公开展示和表演、制作衍生作品、将其纳入其他作品或以其他方式使用您的用户账户（排除您的个人信息）；并授予上述事项的转让许可；<br />
+    2)仅为向目标接收者提供个人信息之目的，复制、发行您的用户内容中的私人信息；<br />
+    3)您同意不可撤销的、放弃的（并会导致被放弃）关于您用户内容的道德权利和归属的声明。<br />
+    三、用户权利及义务<br />
+    1.合法使用本网站的权利；<br />
+    2.在您所有的移动通信设备上下载、安装、使用必联产品、程序及服务的权利；<br />
+    3.必联账户的所有权归必联及其关联公司所有，您完成申请注册手续后，获得必联账户的使用权，该使用权仅属于初始申请注册人，禁止赠与、借用、租用、转让或售卖。必联因经营需要，有权回收用户的账户；<br />
+    4.您有权更改、删除在本网站上的个人资料、注册信息及发布内容等，但需注意，删除有关信息的同时也会删除任何您储存在系统中的文字和图片。用户需承担该风险；<br />
+    5.您有责任妥善保管注册账户信息及账户密码的安全，您需要对注册账户以及密码下的行为承担法律责任。用户同意在任何情况下不使用其他成员的账户或密码。在您怀疑他人在使用您的账户或密码时，您同意立即通知必联。<br />
+    6.权利限制 ：<br />
+    1)您不得对本网站内容或必联产品、程序及服务（包括但不限于内容或产品中的广告或赞助内容）进行任何形式的许可、出售、租赁、转让、
+    发行或做其他商业用途；<br />
+    2)您不得以创建相同或竞争服务为目的访问本网站或使用必联产品、程序及服务；<br />
+    3)除非法律明文规定，否则您不得对本网站或必联产品、程序及服务（包括但不限于内容或产品中的广告或赞助内容）的任何部分以任何形式或方法进行复制、发行、再版、下载、显示、张贴、修改、翻译、合并、利用、分解或反向编译等；<br />
+    4)您已同意通过上传、发布或以其他方式使用本网站或必联产品、程序和服务，在使用过程中，您将承担因下述行为所造成的风险而产生的全部法律责任：
+    破坏宪法所确定的基本原则的；
+    危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一的;
+    损害国家荣誉和利益的； 煽动民族仇恨、民族歧视，破坏民族团结的；
+    破坏国家宗教政策，宣扬邪教和封建迷信的；
+    散布谣言，扰乱社会秩序，破坏社会稳定的；
+    散布淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；
+    侮辱或者诽谤他人，侵害他人合法权益的；
+    含有法律法规、行政规章所禁止的其他内容的。<br />
+    5)您已同意不在本网站或利用必联产品、程序及服务从事下列行为：上传或发布电脑病毒、蠕虫、恶意代码、故意破坏或改变计算机系统或数据的软件；未授权的
+    情况下，收集其他用户的信息或数据，例如电子邮箱地址等；禁用本网站的网络连接，给本网站造成过度的负担或以其他方式干扰或损害网站服务器和网络链接；
+    在未授权的情况下，尝试访问本网站、服务器或本网站的网络链接；干扰、破坏其它用户正常使用本网站或必联产品、程序及服务。<br />
+    6)如您的行为造成必联或本网站有任何经济上或名誉上的损害，我们将依法保留要求您赔偿损失的权利。<br />
+    四、第三方<br />
+    1.您已知晓或同意我们的服务是基于第三方如安卓系统等的技术支持获得。您已知晓本协议是在您与必联之间签订，而非您与上述第三方之间签订。必联是基于本
+    网站和必联产品、程序及服务所产生的内容、维护、支持服务、保证和由此产生的诉讼等事项的唯一责任人。您已同意遵守且授权给本网站和必联产品、程序及服务
+    限制您有条件的使用本网站和必联智能路由器的服务。<br />
+    2.用户内容是指该用户下载、发布或以其他方式使用本网站与必联产品、程序及服务时产生的所有内容（例如：您的信息、图片、音乐或其他内容）；
+    您是您的用户内容唯一的责任人，您将承担因您的用户内容披露而导致的您或任何第三方被识别的风险。<br />
+    3.您需对您使用第三方网站和广告产生的风险承担法律责任。当您访问第三方网站和广告时，适用第三方的条款和政策。<br />
+    4.本网站和必联产品、程序及服务包含其他用户提供的用户内容。您与其他用户的互动仅属于您与其他用户之间的行为，必联不控制且不对以上用户内容承担法律
+    责任，也没有检查、监控、审批、核准以上用户内容的义务。您对因使用该用户内容以及与其他用户互动产生的风险承担法律责任。本网站和必联产品、程序及服务
+    对此类行为不承担任何法律责任。<br />
+    五、损害赔偿<br />
+    1.您已同意无害的使用本网站和必联产品、程序及服务，避免必联因下述行为或相关行为遭受来自第三方的任何投诉、诉讼、损失、损害、责任、成本和费用（包括但不限于律师费）：您使用本网站和必联产品、程序及服务的行为；您的用户内容；您违反本协议的行为。<br />
+    2.用户内容是指该用户下载、发布或以其他方式使用本网站与必联产品、程序及服务时产生的所有内容（例如：您的信息、图片、音乐或其他内容）；
+    您是您的用户内容唯一的责任人，您将承担因您的用户内容披露而导致的您或任何第三方被识别的风险。<br />
+    3.您已同意，除非获得必联书面同意，您不得在您与必联共同对第三方提起的诉讼中单方和解。<br />
+    4.必联将尽合理努力将此类诉讼、诉讼行为或进程通知您。<br />
+    5.在任何情况下，必联都不对您或任何第三方因本协议产生的任何间接性、后果性、惩戒性的、偶然的、特殊或惩罚性的损害赔偿承担责任。访问、使用本网站和必联产品、程序及服务所产生的损坏计算机系统或移动通讯设备数据库的风险将由您个人承担。<br />
+    六、免责声明<br />
+    1.如发生下述情形，必联不承担任何法律责任：第三方被识别的风险。<br />
+    1)依据法律规定或相关政府部门的要求提供您的个人信息；<br />
+    2)由于您的使用不当或其他自身原因而导致任何个人信息的泄露；<br />
+    3)任何由于黑客攻击，电脑病毒的侵入，非法内容信息、骚扰信息的屏蔽，政府管制以及其他任何网络、技术、通信线路、信息安全管理措施等原因造成的服务中断、受阻等不能满足用户要求的情形；<br />
+    4)用户因第三方如运营商的通讯线路故障、技术问题、网络、电脑故障、系统不稳定及其他因不可抗力造成的损失的情形；<br />
+    5)使用必联产品、程序及服务可能存在的来自他人匿名或冒名的含有威胁、诽谤、令人反感或非法内容的信息而招致的风险；<br />
+    6)用户之间通过本网站或必联产品、程序及服务与其他用户交往，因受误导或欺骗而导致或可能导致的任何心理、生理上的伤害以及经济上的损失；<br />
+    7)本网站和必联产品、程序及服务明文声明，不以明示、默示或以任何形式对必联及其合作公司服务之及时性、安全性、准确性做出担保。<br />
+    2.用户在本网站所发布的任何内容并不代表和反映必联的任何观点或政策，必联对此不承担任何责任。<br />
+    3.在任何情况下，必联均不对任何间接性、后果性、惩罚性、偶然性、特殊性或刑罚性的损害，包括因用户使用必联服务而遭受的利润损失，承担责任。尽管本协
+    议中可能含有相悖的规定，我们对您承担的全部责任，无论因何原因或何种行为方式，始终不超过您在注册期内因使用必联服务而支付给必联的费用(如有)。<br />
+    七、知识产权<br />
+    1.用户在必联网站或互动平台上发布的信息不得侵犯任何第三人的知识产权，未经具有相关所有权所有者之事先书面同意，用户不得以任何方式上传、发布、修
+    改、传播或复制任何受著作权保护的材料、商标或属于其他人的专有信息。如果收到任何著作权人或其合法代表发给必联的适当通知后，我们将在审查的基础上移除
+    该等侵犯他人著作权的内容。<br />
+    2.必联服务中所涉及的等图形、文字或其组成，以及其他必联标志及产品、服务名称，均为必联之商标。未经必联事先书面同意，用户不得将必联标
+    识以任何方式展示或使用或作其他处理，任何单位及个人不得以任何方式或理由对该商标的任何部分进行使用、复制、修改、传播、抄录或与其它产品捆绑使用销
+    售。<br />
+    3.除前述规定以外，如果您认为有人复制并在必联网站服务上发布您的作品，并已构成对您著作权的侵犯，请及时与我们联系，联系电话
+    【400-652-9989】，并提供包含如下信息的书面通知：①证明您作为涉嫌侵权内容所有者的权属证明；②
+    明确的身份证明、住址、联系方式；③ 涉嫌侵权内容在必联服务上的位置；④
+    您声称遭受侵犯的著作权作品的描述；⑤您著作权遭受侵犯的相关证明；⑥在同意承担伪证处罚之后果的前提下，出具书面陈述以声明您在通知中所述内容是准确和
+    真实的。录或与其它产品捆绑使用销售。<br />
+    八、修改与终止<br />
+    1.修改<br />
+    1)本协议容许变更。如果本协议有任何实质性变更，我们将通过本网站的公告来通知您。变更通知之后，继续使用本网站和必联产品、程序及服务则视为您已知晓此类变更并同意受条款其约束；<br />
+    2)必联保留在任何时候无需通知而修改、保留或关闭本网站、必联产品、程序或任何服务之权利；<br />
+    3)您已同意必联无需因修改、保留或关闭本网站、必联产品、程序或其他服务的行为对您或第三方承担责任。<br />
+    2.终止<br />
+    1)本协议自您接受之日起生效，在您使用本网站和必联产品、程序及服务的过程中持续有效，直至依据本协议终止；<br />
+    2)尽管有上述规定，如果您使用本网站和必联产品、程序及服务的时间早于您接受本协议的时间，您在此知晓或应当知晓并同意本协议于您第一次使用本网站和必联产品、程序及服务时生效，除非依据本协议提前终止。<br />
+    3.我们可能会：依据法律的规定，保留您使用本网站、必联产品、程序及服务、或者本网站账户的权利；无论是否通知，我们将在任何时间以任何原因终止本协议，包括出于善意的相信您违反了我们可接受使用政策或本协议的其他规定。<br />
+    4.不受前款规定所限，如果用户侵犯第三人的版权且必联接到版权所有人或版权所有人的合法代理人的通知后，必联保留终止本协议的权利。<br />
+    5.一旦本协议终止，您的网站账户和使用本网站和必联产品、程序及服务的权利即告终止。您应当知晓您的网站账户终止意味着您的用户内容将从我们的活动数据库中删除。必联不因终止本协议对您承担任何责任，包括终止您的用户账户和删除您的用户内容。<br />
+    6.任何本网站的更新版本或必联产品、程序及服务的未来版本、更新或者其他变更将受到本协议约束。<br />
+    九、其他<br />
+    1.反馈<br />
+    1)您对必联提出建议（或称"反馈"），即视为您向必联转让"反馈"的全部权利并同意必联有权利以任何合理方式使用此反馈及其相关信息。我们将视此类反馈信息为非保密且非专有；
+    2)您已同意您不会向必联提供任何您视为保密和专有的信息；<br />
+    3)我们将保留基于我们的判断检查用户内容的权利（而非义务）。无论通知与否，我们有权在任何时间以任何理由删除或移动您的用户内容。依据第8条规定，我们有权保留或终止您的账户。<br />
+    2.通知<br />
+    1)您必须提供您最近经常使用的有效的电子邮件地址。您所提供的电子邮件地址无法使用或者因任何原因我们无法将通知送达给您而产生的风险，必联不承担责任。
+    本网站发布的公告通知及向您所发送的包含此类通知的电子邮件毫无疑问构成有效通知。<br />
+    3.适用法律<br />
+    1)本协议适用中华人民共和国法律。<br />
+    2)如果双方发生纠纷，应本着友好的原则协商解决；如协商不成，应向深圳必联科技有限公司所在地的法院提起诉讼。<br />
+    4.独立性<br />
+    1)若本协议中的某些条款因故无法适用，则本协议的其他条款继续适用且无法适用的条款将会被修改，以便其能够依法适用。<br />
+    5.完整性<br />
+    1)本协议是您和必联之间关于本网站和必联产品、程序及服务相关事项的最终的、完整的、排他的协议，且取代和合并之前当事人关于此类事项（包括之前的最终用户许可、服务条款）的讨论和协议。<br />
+    2)每部分的题目只为阅读之便而无任何法律或合同义务。<br />
+    3)除非必联书面同意，您不得转让本协议所规定的权利义务。任何违反上述规定企图转让的行为均无效。<br />
+    十、联系方式<br />
+    我们的地址：广东省深圳市光明新区观光路华强创意产业园A1座10-11楼<br />
+    联系电话:0755-29584964 <br />
+    传真:0755-28029002<br />
+    邮政编码：518107 <br />
+    <br />
+    关注L<br />
+    新浪微博：http://weibo.com/blink1997<br />
+    新浪博客：http://blog.sina.com.cn/u/1487253561<br />
+    腾讯微博：http://t.qq.com/2005<br />
+    公众微信号：必联电子<br />
+    <br />
+    <div class="buttonbox" style="min-width: auto; width: 56%">
+      <a class="eula_cancel btn list-btn WCancel"></a>
+    </div>
+  </div>
+  <div id="en_eula">
+     User Agreement (the "Agreement") is entered into among you (or
+    "User", means all individuals or entities who register, log in, use or
+    browse our Services),  Inc., its subsidiaries and affiliates
+    (hereinafter referred to as "" or "we") and our operational
+    cooperators (hereinafter referred to as "Cooperator"), with respect to
+    info@l.cn (hereinafter referred to as "Site") and the products,
+    programs and services (hereinafter referred to as "Services", including
+    but not limited to ) of . <br />
+    Please read this Agreement carefully and fully understand, including the
+    terms of Disclaim<span id="transmark"></span>er of Warranty, Limitation of
+    Liability, and Rights and Limitations, and choose to accept or not to
+    accept this Agreement (minors should read this Agreement accompanied by
+    legal guardian).  may suspend or stop providing our Services to you
+    if you do not comply with our terms or policies. By your registration,
+    login, usage of the Services or other actions, you acknowledge that you
+    have read and understood, and agree to accept and be bound by the terms
+    and conditions of this Agreement. <br />
+    By accepting this Agreement, you agree to accept all constraints,
+    including accepting  to reserve the right to modify the terms of
+    this Agreement at any time, without additional notice to you. You can log
+    in on our webpage at any time to check the latest User Agreement. If you
+    cannot accept any content that we have changed, you shall stop using
+     Services. By your continued use of our Services, you agree to
+    accept and will be bound by the modified terms of this Agreement. <br />
+    Terms of Usage of Our Services <br />
+    You may visit the Site without registration. However, you need a 
+    Account ("Account") and provide relevant personal information on the
+    registration webpage in order to access more Services. You can delete or
+    suspend your account under the instructions of the Site, and we will keep
+    or delete your Account based on this Agreement. <br />
+    You hereby commit and undertake the following: <br />
+    You understand and agree that the Site is an application service product.
+    You shall take full responsibilities for the authenticity, legality,
+    accuracy and validity of your registration information; You shall also be
+    responsible for updating any changes in your registration information to
+    keep it up to date; You shall not post any information in the name of
+    others; you shall not use registered accounts maliciously; otherwise, we
+    reserve the right to suspend the Services and you shall fully bear all
+    legal liability. We do not accept any responsibility or liability for any
+    claims or loss arising from your actions. <br />
+    You shall use the Site and Services in accordance with all applicable laws
+    and take all responsibility for activities under your registered Accounts,
+    including your statements and any loss or damage that may directly or
+    indirectly arise from your statements. You should estimate the risks of
+    the content on your own and take all risks from it, including the risk
+    that lies on the correctness, integrity or practicability of the content.
+     will not take any responsibility for any loss or damage that
+    results from this behavior or activity; <br />
+    You have the obligation to take good care of the registration information
+    on the Site and are responsible for all the activities. You must
+    immediately notify  if you find any illegal or unauthorized
+    activities.  will not be liable for damages or losses arising from a
+    user’s non-compliance with any of the provision(s) above; <br />
+    All your statements on the Site are public information that any third
+    party has access to. Any statement posted on the Site will be deemed as
+    public information, and user should bear legal liability for this action.
+    If you do not want any third party to get your statements, please do not
+    post them on the Site. <br />
+    You shall also understand and hereby acknowledge the following: <br />
+    The user accepts that in relation to business development, we may change,
+    suspend, restrict, terminate or revoke the rights of our services at any
+    time without notice <br />
+    We may include advertisements, etc. in our Services. You agree to the
+    display of advertisements and other events from us or our related parties
+    or cooperators while enjoying our Services; <br />
+    We have the right to suspend, at our sole discretion or determination, any
+    content that violates the laws and regulations in any jurisdiction or the
+    terms of this Agreement; that infringes, prejudices, threatens any right
+    or safety; or that impersonates others, . We also retain the right to take
+    proper legal actions, including but not limited to removing any illegal or
+    infringing content, suspending the qualification of violators and saving
+    relative information and reporting to relevant authorities based on the
+    applicable laws and regulations; <br />
+    Some of our Services have to be used with other networks, including but
+    not limited to the application market and the theme market. You shall bear
+    all the related communication fees or fees from any third party service
+    providers. We strongly advise you to contact your providers for related
+    fees if there are value-added services involved in your activities; <br />
+    You hereby consent that  Talk may analyze your phone contacts to
+    search for your friends who also use  Talk.  Talk codes your
+    telephone number through highly intensive and irreversible encryption
+    algorithm and retrieve your contacts in this way to match you with
+    existing phone book contacts on  Talk. Other users also can find you
+    through  Talk if you are on their phone book list. <br />
+    When you shop on the Site, you can only modify any of the following
+    information for maintaining the account’s safety: your name, address and
+    phone number. If you need any help, please call customer service using the
+    phone number you put in the order. Any call from any number other than in
+    the order requires confirmation. <br />
+    User Content <br />
+    User Content refers to all the content (your information, picture, music
+    or others) resulting from downloads, releases or other activities through
+    the Site and  Service. You are solely responsible for such content,
+    and bear all risks that result from your disclosure of such User Content.
+    <br />
+    Once you upload, release or engage in activities through the Site and
+     Services, you automatically grant to  an irrevocable,
+    non-exclusive, sub-licensable, transferrable and royalty-free global
+    licence to: <br />
+    Provide you with  products and services or for the purposes of
+    improving  products and services through our use of User Content. We
+    may also copy, publish, display, make derivative works and/or bring it to
+    other works, or use your user Account (except for your personal
+    information) in other ways; and you authorize us the transferrable
+    permission for the preceding subject matter; <br />
+    Copy and publish your content and personal information only to designated
+    receiver; <br />
+    You agree that you irrevocably waive any and all ownership, legal and
+    moral rights to your user content. <br />
+    Rights and Obligations <br />
+    You have the right to use the Site legally. <br />
+    You have the right to upload, download, install, and use  products
+    and services on mobile communication devices. <br />
+     and its related companies possess the ownership of the 
+    Accounts. You have the right to use  Accounts after you complete
+    your registration. The rights to use  Accounts only belong to you,
+    and you are not allowed to borrow, lease, license, transfer, gift or sell
+     Accounts.  has the right to retrieve any Account for
+    operational needs. <br />
+    You have the right to change and remove personal information, registered
+    information, and any content posted. Please note that you have to take the
+    risk that any picture or word saved in the system might also be deleted
+    when you remove related information. <br />
+    You are responsible for the safety of your Account information and
+    password, and should bear legal liability for activities under registered
+    Accounts. You agree not to use the passwords and Accounts of others under
+    any circumstances. You agree to immediately notify  once you suspect
+    others using your password or Account. <br />
+    Rights Limitations and Restrictions <br />
+    You shall not sell, lease, transfer, release or make other commercial use
+    of the content from the Site or  products and services (including
+    but not limited to the content or the advertisements or sponsored
+    content); <br />
+    You shall not visit the Site or use  Services to establish similar
+    or competitive services; <br />
+    Unless expressly prescribed by laws, you shall not copy, publish,
+    download, change, translate, merge, decompose, and paste or decompile etc.
+    any part of the Site or  Services (including but not limited to the
+    content or the advertisements or sponsored content) in any manner; <br />
+    You agree to bear all the risks and take full legal liability for the
+    following activities while using the Site or Services: <br />
+    Opposing the basic principles determined in the Constitution of the
+    People's Republic of China; <br />
+    Endangering national security, leaking state secrets, subverting the
+    government, and undermining national unity; <br />
+    Harming national honor and interests; <br />
+    Inciting ethnic hatred or ethnic discrimination, and undermining national
+    unity; <br />
+    Undermining national religious policy, promoting cults and superstitions;
+    <br />
+    Spreading rumor, disturbing social order, undermining social stability;
+    <br />
+    Spreading obscenity, pornography, gambling, violence, murder, terrorism or
+    instigating others to commit crimes; <br />
+    Insulting or slandering others, infringing upon the legal rights and
+    interests of others; <br />
+    All other content prohibited by the administrative regulations and laws.
+    <br />
+    You shall not use the Site or  Services to engage in any behavior or
+    activity stated below: <br />
+    Upload or release virus, worm, and malware to damage or change computer
+    system or data; <br />
+    Collect the information or data of other users, such as email address,
+    without authorization; <br />
+    Disable network connection of the Site, make the Site to over handle,
+    interrupt or undermine the website server and connection in other ways;
+    <br />
+    Attempt to visit the Site,  Talk, our server or the Site connection
+    without authorization; <br />
+    Interrupt or undermine other users' normal use of the  Services.
+    <br />
+    Third Party <br />
+    You understand and agree that our services are based on technical support
+    from third parties such as Android, etc. You understand and consent that
+    we may provide some of your personal data to such third parties in the
+    course of receiving technical or any other support from them. You agree
+    and authorize the Site and  products and services to limit your
+    rights of using the Site and  Talk services. <br />
+    User Content means the content that is downloaded, released or generated
+    while using the Site and  products and services by users. You have
+    to take legal responsibilities for content disclosure caused by you.
+    <br />
+    When you visit the websites and advertisement of a third party, the third
+    party’s terms and policy applies. You will bear all risks and legal
+    responsibility when you use third party’s services. <br />
+    The Site and  products and services include content provided by
+    other users; and the interaction between you and other users only belongs
+    to you and other users.  does not control such User Content, bear
+    legal liability, or own the obligations to check, monitor, examine and
+    approve such User Content. You thus bear legal liability for the risks of
+    such interaction. <br />
+    Liability for our Services <br />
+    You agree to use the Site or Services harmlessly and help  to avoid
+    bearing any lawsuit, complaint, loss, damage, responsibility, cost and
+    fees (including but not limited to counsel fees) from any third party
+    caused by the use of the Site or Services, your user content, your
+    violation of this Agreement. <br />
+     reserves the exclusive right to defend and the right to claim for
+    compensation. <br />
+    User Content refers to all the content (your information, picture, music
+    or others) results from downloads, releases or other activities through
+    the Site and  Services. You are solely responsible for such content,
+    and bear all the risks results from your disclosing user content. <br />
+    You will not unilaterally reconcile when you and  jointly file a
+    lawsuit against any third party without written consent from .
+    <br />
+     will reasonably notify you such lawsuit or action at law. <br />
+    Under no circumstances  will bear any indirect, consequential,
+    exemplary, incidental, exceptional or punitive compensation results from
+    this Agreement. You bear all the risks from using the computer system and
+    mobile database through the Site or Services. <br />
+    We do not accept any responsibility or liability for any claims or loss
+    arising from <br />
+    Disclaimer of Warranty <br />
+     will not bear any legal liability under circumstances stated below:
+    <br />
+    Provide your personal information requested by government departments or
+    the laws; <br />
+    Disclose private information caused by your negligent actions; <br />
+    Any circumstances caused by suspension, breakdown and so on that result
+    from the hacking, virus invasion, blockings due to illegal and harassing
+    content, government control or any other reasons related to network,
+    technique, communication line and information security management; <br />
+    Cause losses to the users because of any third party, such as the
+    communication line breakdown, technical problems, the network and computer
+    breakdown, and other cases of force majeure; <br />
+    Risks come from threat, defamation, offensive or illegal information that
+    caused by anonymous or percolation through the Site or  products and
+    services; <br />
+    Any psychological or physical suffer and economic losses due to misleading
+    or deceiving when you interact with others through the Site or Services.
+    <br />
+    The Site or  products and services expressively declare that we do
+    not guarantee timeliness, security and accuracy of the Services expressly,
+    impliedly or in other forms. The Services include but not limited to the
+    following, <br />
+    The "Intelligent Phone Number Recognition" Service, where the "Intelligent
+    Phone Number Recognition" Service refers to the service that recognize
+    phone numbers that come from incoming and outgoing calls or text messages.
+     will upload such number to its server, therefore identify the
+    "Marked Information" of such number. Your data and information in this
+    Service will be strictly protected, and we make sure you cannot be
+    identified result from uploading such information. <br />
+    Such Marked Information is provided by users or network partners. We use
+    technical means to ensure that (i) such Marked Information is consistent
+    with the information uploaded by many users during a period of time (i.e.,
+    when the tag information of a strange phone number is "a fraud telephone
+    marked by 500 people", it indicates that a large number of users determine
+    the number of telephone is a fraud and update the Marked Information
+    within a period of time); (ii) filter and select the most reliable Marked
+    Information, and indicate the sources of such information to you.
+    Meanwhile, we provide the option for users to send us feedback on Marked
+    Information. <br />
+    Any content posted by the user on the Site does not represent or reflect
+    any viewpoint or policy of ;  does not bear any responsibility
+    for this. <br />
+    Under no circumstances shall  bear any responsibility for any
+    indirect, consequential, exemplary, incidental, exceptional or punitive
+    damages, including profit losses caused by using ’s Services. In
+    spite of the provisions in this Agreement, the responsibilities we bear
+    will not exceed the fees (if any) you pay for  Services during
+    registration valid period, for any reason or in any manner. <br />
+    INTELLECTUAL PROPERTY <br />
+    Any information posted on the Site or the interactive platform should not
+    infringe the intellectual property of any third party. You cannot upload,
+    release, change, spread or copy any material or trademark under copyright
+    protection, or proprietary information of others, without the written
+    consent of the owner. If  receives the appropriate notice from any
+    copyright owner or its legal representative, we will remove the related
+    content after investigation. <br />
+    Graphics, words and composition involving  and other  logos
+    appear in  products and services are the trademarks of .
+    Without written consent, you cannot display or use them in other manners
+    in any way. By no means can any entity or individual use, copy, change,
+    spread, transcribe any part of the trademark or bundling sell with other
+    products. <br />
+    In addition to the provisions therefore, you can promptly contact us
+    through our email address (info@l.cn ) if you think someone copies
+    or publishes your work on the Site, and also infringe your copyright.
+    Please also include the following information in the written notice: (i)
+    materials evidencing that you have copyright or you are authorized to
+    exercise copyright of the allegedly infringing content; (ii) your explicit
+    identification, address and contact information; (iii) the network address
+    of the allegedly infringing content; (iv) the description of the allegedly
+    infringing copyright works; (v) materials evidencing that your copyright
+    infringed; (vi) under the premise that you agree to bear all consequences
+    of perjury, you issue written statement of the accuracy and authenticity
+    of the content in your written notice. <br />
+    Modification and Termination <br />
+    Modified Terms <br />
+    We may change or modify terms of this Agreement at any time, and will
+    notify you through your email address or notifications on the Site. Your
+    use of the Site and all other services of  after modifications to
+    the terms indicate that you agree to such changes; <br />
+     reserves the right to modify, keep and suspend the Site and 
+    products and services without notification from time to time; <br />
+    You agree that  will not take any responsibility for changing,
+    reserving or suspending the Site and  products and services, the
+    actions taken by other services, or third parties. <br />
+    Termination <br />
+    This Agreement becomes valid and stays valid during your use of the Site
+    and  products and services, until the termination according to this
+    Agreement. <br />
+    In spite of the preceding provisions, this Agreement becomes effective the
+    first time you use the Site and  products and services if that
+    happens before you accept this Agreement. This stays valid unless the
+    early termination applies. <br />
+    We may reserve your right to access the Site,  Services, and your
+    account; we may terminate this Agreement at any time for any reason
+    without notice, as believe you violate our acceptable policies or other
+    terms of this Agreement. <br />
+    Not subject to the preceding provisions,  reserves the right to
+    terminate this Agreement if the user infringe the copyright of the third
+    party and receive the notice from the owner or legal representative of the
+    owner. <br />
+    Once this Agreement terminated, all your website accounts and your right
+    to use the Site and  products and services will also be terminated.
+    You should understand this means your User Content will be removed from
+    our database.  will not take any responsibility for terminating this
+    Agreement, including terminating your user account and removing your User
+    Content. <br />
+    Any revised version of the Site, updates or other changes of the 
+    Services will restrained by this Agreement. <br />
+    Additional Terms <br />
+    Feedback <br />
+    Your suggestion to  ("Feedback") is regarded as transferring all
+    rights of Feedback;  has the right to use the Feedback in any
+    appropriate method. We also consider this feedback unclassified and
+    non-exclusive. <br />
+    You agree to not provide any information you regard as privacy and
+    proprietary to . We reserve the rights (not obligations) to examine
+    your content on our judgments. We have the right to remove your content at
+    anytime for any reason. According to the terms of Modification and
+    Termination, we have the right to reserve or terminate your account.
+    <br />
+    Notification <br />
+    You must provide the latest, most used and valid email address. 
+    will not take any responsibility if we are unable to reach you through the
+    email address you provide. Undoubtedly, the notifications on the Site and
+    emails sent to you consist of valid notifications. <br />
+    Applicable Law <br />
+    The interpretation of the terms of this Agreement, effectiveness and
+    dispute resolution, are applicable to the laws of PRC. If any dispute or
+    controversy aroused between you and , it should first be settled
+    through friendly consultation. If consultation falls, you agree to submit
+    the dispute to the jurisdiction court where  is located. <br />
+    Independence <br />
+    If some provisions of this Agreement cannot be applied for some reasons,
+    they will be revised to apply legally; and other provisions remain
+    applicable. <br />
+    Integrality <br />
+    This Agreement (including the Privacy Policy) is the ultimate, integral
+    and exclusive agreement between you and , in relation to any matter
+    relating to the Site and  products and services. <br />
+    The title of each paragraph is written only for the convenience of reading
+    and does not have any legal or contractual obligations. <br />
+    Without written consent from , you cannot transfer the rights and
+    obligations stated in this Agreement. Any behavior or activity violates
+    the provision about such a transfer attempt is invalid. <br />
+    Contact Us <br />
+    Address: 10-11/F,Building A1, Huaqiang idea park, Guangming district,
+    Shenzhen.Guangming, China <br />
+    Zip code: 518107 <br />
+    Website: www.l.cn <br />
+    Tel: (86)755-28023440<br />
+    Fax: (86)755-28029002 <br />
+    <div class="buttonbox" style="min-width: auto; width: 56%">
+      <a class="eula_cancel btn list-btn WCancel"></a>
+    </div>
+  </div>
+  <div id="helpInfo" style="
+        display: none;
+        background: rgb(0, 204, 255);
+        color: #fff;
+        padding: 10px;
+      ">
+    <h3 style="text-align: center; margin-top: 0px" id="hlepTip"></h3>
+    <ul id="helpcontant">
+      <li></li>
+      <li></li>
+      <!--li></li>
+			<li></li>
+			<li></li-->
+    </ul>
+  </div>
+  <!--wan口没插-->
+  <div id="message_layer">
+    <div id="msg_type" class="success"><img src="images/122.gif" /></div>
+    <div id="msg" class="word"></div>
+  </div>
+  <!--提交动画-->
+  <!--无线中继（wisp）对话框-->
+  <div id="wlanInfo" style="display: none; width: auto">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="mySmallModalLabel"></h4>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" value="" id="wifiFlag" />
+        <ul class="listform">
+          <li>
+            <span class="sp-l" id="dialogWifi"></span>
+            <span class="sp-r">
+              <label></label>
+              <input class="inpt inpt-disabled inpt-mini" style="width: 90%" id="wlanSSID" disabled="disabled" />
+            </span>
+          </li>
+          <li id="wlanPassRow">
+            <span class="sp-l" id="dialogPass"></span>
+            <span class="sp-r">
+              <label></label>
+              <input class="inpt inpt-mini" style="width: 90%" id="wlanPass" />
+            </span>
+          </li>
+        </ul>
+        <div class="buttonbox">
+          <a id="wlan_link" class="btn list-btn"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--提醒用户切换到其他模式提醒-->
+  <div id="ChangeInfo" style="display: none; width: auto">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="ChangeInfoLabel"></h4>
+      </div>
+      <div class="modal-body" id="ChangeInfoBody" style="text-align: center; color: rgb(206, 68, 58); font-size: 15px">
+      </div>
+      <div class="buttonbox">
+        <a id="changeTrue" class="btn list-btn"></a>
+        <a id="changeFalse" class="btn list-btn WCancel"></a>
+      </div>
+    </div>
+  </div>
+  <div id="footer"></div>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script src="js/lang_public.js"></script>
+  <script src="js/lang_setup.js"></script>
+  <script src="js/restart.js"></script>
+  <script src="js/layer/layer.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/jquery.placeholder.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+    var NowMode = -1,
+      IsFirst = true,
+      curVersion = false,
+      oldPass,
+      animation = '',
+      REBOOT = null,
+      set_restore = 0
+    var netStatusTimerBool = true;
+    
+    if (getLang() == 'zhcn') {
+      var curlang = lang.zhcn
+      $('#eula_user').click(function () {
+        layer.open({
+          type: 1,
+          title: false,
+          shade: [0.7, '#000'],
+          closeBtn: true,
+          offset: '135px',
+          area: ['85%', '65%'],
+          content: $('#zhcn_eula'),
+          skin: 'cy-class',
+        })
+      })
+    } else {
+      var curlang = lang.en
+      $('#eula_user').click(function () {
+        layer.open({
+          type: 1,
+          title: false,
+          shade: [0.7, '#000'],
+          closeBtn: true,
+          offset: '135px',
+          area: ['85%', '65%'],
+          content: $('#en_eula'),
+          skin: 'cy-class',
+        })
+      })
+    }
+
+    function checkWlanInfo() {
+      if (NowMode == 4 && curVersion) {
+        var twoName = CheckSSID($('#doubleWifiName').val())
+        if (!twoName) {
+          return false
+        }
+        var twoPass = CheckSSIDKey($('#doubleWifiPass').val())
+        if (!twoPass) {
+          return false
+        }
+        return true
+      } else {
+        var oneName = CheckSSID($('#floatWifiName').val())
+        if (!oneName) {
+          return false
+        }
+        var onePass = CheckSSIDKey($('#floatWifiPass').val())
+        if (!onePass) {
+          return false
+        }
+        if (curVersion) {
+          var twoName = CheckSSID($('#doubleWifiName').val())
+          if (!twoName) {
+            return false
+          }
+          var twoPass = CheckSSIDKey($('#doubleWifiPass').val())
+          if (!twoPass) {
+            return false
+          }
+        }
+        return true
+      }
+    }
+    if (getLang() == 'zhcn') {
+      var curlangs = langs.zhcn
+    } else {
+      var curlangs = langs.en
+    }
+    function IsChangeMode() {
+      $('#wlan_after').unbind()
+      $('#wlan_after').html(curlangs.Apply);
+      $('#wlan_after').click(function () {
+        if (checkWlanInfo()) {
+          showanimation(1)
+          showanimation(4);
+          setTimeout(function () {
+            setRouter()
+          }, 2000)
+        }
+      })
+    }
+
+    $('.eula_cancel').click(function () {
+      layer.closeAll()
+    })
+    //wan pppoe设置
+    var wanpppoe = true
+    $('#wanPppoe_set').click(function () {
+      if (wanpppoe) {
+        $('.wanPppoe').show()
+        $('.glyphicon-menu-down').hide()
+        $('.glyphicon-menu-up').css('display', 'inline-block')
+        wanpppoe = false
+      } else {
+        $('.wanPppoe').hide()
+        $('.glyphicon-menu-down').css('display', 'inline-block')
+        $('.glyphicon-menu-up').hide()
+        wanpppoe = true
+      }
+    })
+    //更多模式
+    var setupVar = true
+    $('#setup_more span').click(function () {
+      if (setupVar) {
+        $('.ListRow').eq(2).show()
+        $('.ListRow').eq(3).show()
+        $('.ListRow').eq(4).show()
+        $('.glyphicon-menu-down').hide()
+        $('.glyphicon-menu-up').css('display', 'inline-block')
+        setupVar = false
+      } else {
+        $('.ListRow').eq(2).hide()
+        $('.ListRow').eq(3).hide()
+        $('.ListRow').eq(4).hide()
+        $('.glyphicon-menu-down').css('display', 'inline-block')
+        $('.glyphicon-menu-up').hide()
+        setupVar = true
+      }
+    })
+    //易操作绑定
+    function compVer(str2, str1) {
+      var local_ver = str1.split('.')
+      var ser_ver = str2.split('.')
+      if (parseInt(local_ver[0]) < parseInt(ser_ver[0])) {
+        return true
+      } else if (parseInt(local_ver[0]) > parseInt(ser_ver[0])) {
+        return false
+      } else {
+        if (parseInt(local_ver[1]) < parseInt(ser_ver[1])) {
+          return true
+        } else if (parseInt(local_ver[1]) > parseInt(ser_ver[1])) {
+          return false
+        } else {
+          if (
+            parseInt(local_ver[2].split('_')[0]) <
+            parseInt(ser_ver[2].split('_')[0])
+          ) {
+            return true
+          } else if (
+            parseInt(local_ver[2].split('_')[0]) >
+            parseInt(ser_ver[2].split('_')[0])
+          ) {
+            return false
+          } else {
+            return false
+          }
+        }
+      }
+      return false
+    }
+    //升级请求
+    function restart(type) {
+      lb_restart(type)
+      var word
+      if (type == 'update') {
+        word = curlang.updatetime
+      } else {
+        word = curlang.waitingtime
+      }
+      window.reset = layer.open({
+        type: 1,
+        closeBtn: 0, //不显示关闭按钮
+        shift: 3,
+        offset: '150px',
+        skin: 'layui-layer-loading',
+        scrollbar: false,
+        title: false,
+        shade: [0.7, '#000'],
+        content:
+          '<div style="margin:0 auto;width:90px;height:90px;background: url(js/layer/skin/default/loading-2.gif) no-repeat;background-size: cover;-ms-behavior: url(/admin/backgroundsize.min.htc);behavior: url(/admin/backgroundsize.min.htc);" class="layui-layer-content layui-layer-loading2"></div><h4 style="text-align:center;font-size:15px;color:#fff"><span>' +
+          word +
+          '</span><label id="curTime" style="color:#7eda3d"></label>s</h4>',
+      })
+    }
+    function lb_restart(type) {
+      var Time
+      if (type == 'update') {
+        Time = 150
+      } else {
+        if (curVersion) {
+          Time = 75
+        } else {
+          Time = 70
+        }
+      }
+      var time = parseInt(Time, 10)
+      $('#curTime').html(time)
+      if (REBOOT) {
+        window.clearInterval(REBOOT)
+      }
+      REBOOT = window.setInterval(function () {
+        time--
+        $('#curTime').html(time)
+        if (time == 0) {
+          window.onbeforeunload = null
+          window.clearInterval(REBOOT)
+          window.location = '../login.asp'
+        }
+      }, 1000)
+    }
+    //获取易操作基本信息
+    function CheckPass() {
+      var Pass = ManagePasswords($('#routerpwd').val())
+      if (!Pass) {
+        return false
+      }
+      return true
+    }
+    function GetEseayInfo() {
+      $('.page-index').css('display', 'none')
+      $('.ListRow').eq(2).hide()
+      $('.ListRow').eq(3).hide()
+      $('.ListRow').eq(4).hide()
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_easy_cfg',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          if (data.result == 8) {
+            GetEseayInfo();
+          }
+          if (data.version.split('-')[4] == 'D') { //是否是双频
+            $('#doubleWlan').show();
+            curVersion = true;
+          } else {
+            $('#doubleWlan').hide();
+            curVersion = false;
+          }
+          oldPass = data.password;  //旧登录密码
+          if (data.netstatus.toString() == 'unlink') {
+            $('#linkStatus').attr('src', 'images/lineOFF.png');
+          }
+          // window.getflag = setInterval(getLoginStatus, 8000);
+          // IsChangeMode();
+
+          if (data.jumpflag == "1") { //第一次登录
+            IsFirst = true;
+            $('.menu').css('display', 'none');
+          } else {
+            IsFirst = false;
+            $('.page-index').show();
+            $('#logo_prev').hide();
+            $('#setup_more').css('width', '100%');
+            if (getMobile() == 1) { //手机端
+              $('.menu').css('display', 'none');
+            } else {
+              $('.menu').css('display', 'inline-block');
+            }
+          }
+          if (data.operationmode.toString() == 'router') {
+            NowMode = 1;
+            $('#mode1').attr('checked', true)
+            $('#mode1').parent('span').addClass('radioOn')
+            $('#mode1').parent('span').parent('td').siblings('td').children('img').css('display', 'block');
+            if (IsFirst) {
+              //第一次登录
+              $('#host').show();
+              Get_wanMode();
+              // $('#login_after').click(function () {
+              //   if (!CheckPass()) {
+              //     return
+              //   }
+              //   if (!$('#user_checked').prop('checked')) {
+              //     layer.msg(curlangs.userAgreement_info, { icon: 5 })
+              //     return
+              //   }
+              //   $('#host').show()
+              //   $('#logo_prev').unbind('click')
+              //   $('#logo_prev').click(function () {
+              //     $('.login-set').css('display', 'block')
+              //     $('.page-index').css('display', 'none')
+              //     $('#host').hide()
+              //   })
+              //   if (data.wanstatus.toString() == 'unlink') {
+              //     $('.login-set').hide()
+              //     $('.wan-set').css('display', 'block')
+              //     $('.page-index').css('display', 'none')
+              //     if (getMobile()) {
+              //       $('.buttonbox').css('min-width', '240px')
+              //       $('.buttonbox a').css('width', '110px')
+              //       layer.open({
+              //         type: 1,
+              //         closeBtn: 0,
+              //         shift: 6,
+              //         offset: '150px',
+              //         area: ['280px', 'auto'],
+              //         title: false,
+              //         shade: [0.7, '#000'],
+              //         content: $('#ChangeInfo'),
+              //       })
+              //     } else {
+              //       layer.open({
+              //         type: 1,
+              //         closeBtn: 0,
+              //         shift: 6,
+              //         offset: '150px',
+              //         area: ['480px', 'auto'],
+              //         title: false,
+              //         shade: [0.7, '#000'],
+              //         content: $('#ChangeInfo'),
+              //       })
+              //     }
+              //   } else {
+              //     $('.login-set').hide()
+              //     $('.wan-set').css('display', 'block')
+              //     $('.page-index').css('display', 'none')
+              //     NowMode = 1
+              //     Get_wanMode()
+              //   }
+              // })
+
+              $('#changeTrue').click(function () {
+                NowMode = 3;
+                $('.wan-set').css('display', 'none');
+                $('.ssid-list').css('display', 'block');
+                layer.closeAll();
+                getData_wificonnet();
+                Get_wifilist();
+              })
+              $('#changeFalse').click(function () {
+                NowMode = 1;
+                Get_wanMode();
+                layer.closeAll();
+              })
+            } else {
+              $('.wan-set').css('display', 'none');
+              $('.page-index').css('display', 'block');
+            }
+          }
+
+          if (data.operationmode.toString() == 'WISP') {
+            NowMode = 3
+            $('.wan-set').css('display', 'none');
+            $('.page-index').css('display', 'block');
+            $('#mode3').attr('checked', true);
+            $('#mode3').parent('span').addClass('radioOn');
+            $('#mode3').parent('span').parent('td').siblings('td').children('img').css('display', 'block');
+          }
+          $('#toScan').click(function () {
+            layer.closeAll()
+            getData_wificonnet()
+            Get_wifilist()
+          })
+
+          if (data.operationmode.toString() == 'repeater') {
+            NowMode = 2
+            //$(".wan-set").css("display","none");
+            //$(".page-index").css("display","none");
+            $('.menu a').eq(3).css('display', 'none')
+            $('.wan-set').css('display', 'none')
+            $('.page-index').css('display', 'block')
+            $('#mode2').attr('checked', true)
+            $('#mode2').parent('span').addClass('radioOn')
+            $('#mode2')
+              .parent('span')
+              .parent('td')
+              .siblings('td')
+              .children('img')
+              .css('display', 'block')
+          }
+
+          if (data.operationmode.toString() == 'client') {
+            NowMode = 4
+            $('.menu a').eq(3).css('display', 'none')
+            $('.wan-set').css('display', 'none')
+            $('.page-index').css('display', 'block')
+            $('#mode4').attr('checked', true)
+            $('#mode4').parent('span').addClass('radioOn')
+            $('#mode4')
+              .parent('span')
+              .parent('td')
+              .siblings('td')
+              .children('img')
+              .css('display', 'block')
+          }
+
+          if (data.operationmode.toString() == 'bridge') {
+            NowMode = 5
+            $('.menu a').eq(3).css('display', 'none')
+            $('.wan-set').css('display', 'none')
+            $('.page-index').css('display', 'block')
+            $('#mode5').attr('checked', true)
+            $('#mode5').parent('span').addClass('radioOn')
+            $('#mode5')
+              .parent('span')
+              .parent('td')
+              .siblings('td')
+              .children('img')
+              .css('display', 'block')
+            $('#breadcrumb-mode').html(curlang.BridgeMode)
+            $('#breadcrumb-msg').html(curlangs.WIFISet)
+          }
+        },
+        error: function (msg) { },
+      })
+    }
+
+    //路由器学习获取wan信息
+    function Get_wanMode() {
+      set_restore = 1;
+      layer.open({
+        type: 1,
+        closeBtn: 0, //不显示关闭按钮
+        shift: 3,
+        offset: '150px',
+        skin: 'layui-layer-loading',
+        scrollbar: false,
+        title: false,
+        shade: [0.7, '#000'],
+        content:
+          '<div style="margin:0 auto;width:90px;height:90px;background: url(js/layer/skin/default/loading-2.gif) no-repeat;background-size: cover;-ms-behavior: url(backgroundsize.min.htc);behavior: url(backgroundsize.min.htc);" class="layui-layer-content layui-layer-loading2"></div><h5 style="color:#fff">' +
+          curlang.WanScan +
+          '</h5>',
+      })
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_wanmode_data',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          layer.closeAll();
+				  $('.wanPageInfo').css('display','block');
+          $('.wan-set').show();
+          $('#wanTip').css('display', 'block');
+          $('.curWanMode').show();
+          if (data.wanmode == 'unlink') {
+            $('.curWanMode').html('')
+            $('#wanTip').html(curlang.noWanTip)
+            $('#wanTip').css('color', 'red')
+          } else {
+            if (data.netlink == 'online') {
+              $('#wanTip').html(curlang.hasNetTip)
+              $('#wanTip').css('color', 'rgb(55, 170, 55)')
+            } else {
+              $('#wanTip').html(curlang.noNetTip)
+              $('#wanTip').css('color', 'red')
+            }
+            $('.curWanMode').html(curlang['wan' + data.wanmode])
+            for (var i = 1; i < 4; i++) {
+              $('#wan_type' + i).removeClass('on')
+            }
+            if (data.wanmode == 'static') {
+              $('#wan_type3').addClass('on')
+              $('#staticBox').show()
+            } else if (data.wanmode == 'pppoe') {
+              $('#wan_type1').addClass('on')
+              $('#pppoeBox').show()
+            } else {
+              $('#wan_type2').addClass('on')
+              $('#dhcpBox').show()
+            }
+          }
+          set_restore = 0;
+          getNetStatus();
+        },
+        error: function (msg) { },
+      })
+    }
+
+    // 获取网络状态
+    function getNetStatus() {
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_wanmode_data',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          $('#wanTip').css('display', 'block')
+          $('.curWanMode').show()
+          if (data.wanmode == 'unlink') {
+            $('.curWanMode').html('')
+            $('#wanTip').html(curlang.noWanTip)
+            $('#wanTip').css('color', 'red')
+          } else {
+            if (data.netlink == 'online') {
+              $('#wanTip').html(curlang.hasNetTip)
+              $('#wanTip').css('color', 'rgb(55, 170, 55)')
+            } else {
+              $('#wanTip').html(curlang.noNetTip)
+              $('#wanTip').css('color', 'red')
+            }
+            $('.curWanMode').html(curlang['wan' + data.wanmode])
+            var bool = true;
+            for (var i = 1; i < 4; i++) {
+              if ($('#wan_type' + i).hasClass("on")) {
+                bool = false;
+              }
+            }
+            if (bool) {
+              $('#staticBox').hide();
+              $('#pppoeBox').hide();
+              $('#dhcpBox').hide();
+              if (data.wanmode == 'static') {
+                $('#wan_type3').addClass('on')
+                $('#staticBox').show()
+              } else if (data.wanmode == 'pppoe') {
+                $('#wan_type1').addClass('on')
+                $('#pppoeBox').show()
+              } else {
+                $('#wan_type2').addClass('on')
+                $('#dhcpBox').show()
+              }
+            }
+          }
+          if(netStatusTimerBool){
+            setTimeout(getNetStatus,3000);
+          }
+        },
+        error: function (msg) { },
+      })
+    }
+
+
+
+
+    //wan模式切换
+    function wanChange(type) {
+      var list = ['pppoe', 'dhcp', 'static']
+      for (var i = 0; i < list.length; i++) {
+        $('#' + list[i] + 'Box').hide()
+        $('#wan_type' + (i + 1)).removeClass('on')
+        if (type == list[i]) {
+          $('#wan_type' + (i + 1)).addClass('on')
+        }
+      }
+      $('#' + type + 'Box').css('display', 'block')
+    }
+
+    //获取后台wan配置信息
+    function Get_wan_info() {
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_wanset_info',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          if (data.wanmode == 'static') {
+            $('#wan_type3').addClass('on')
+            $('#wan_type3').siblings().removeClass('on')
+            $('#wan_app3').css('display', 'block')
+            // $('#wan_app3').siblings().css('display', 'none')
+            $('#staticIp').val(data.wanip)
+            $('#staticMask').val(data.wanmsk)
+            $('#staticGw').val(data.wangw)
+            $('#staticDNS').val(data.dns1)
+            $('#Spppoe_mtu').val(data.mtu)
+          } else if (data.wanmode == 'pppoe') {
+            $('#wan_type1').addClass('on')
+            $('#wan_type1').siblings().removeClass('on')
+            $('#wan_app1').css('display', 'block')
+            // $('#wan_app1').siblings().css('display', 'none')
+            $('#pppoeUser').val(data.pppoename)
+            $('#pppoePass').val(data.pppoepsw)
+            $('#login_server').val(data.server_name)
+            $('#Spppoe_mtu').val(data.mtu)
+          } else {
+            $('#wan_type2').addClass('on')
+            $('#wan_type2').siblings().removeClass('on')
+            $('#wan_app2').css('display', 'block')
+            // $('#wan_app2').siblings().css('display', 'none')
+            $('#Spppoe_mtu').val(data.mtu)
+          }
+        },
+        error: function (msg) { },
+      })
+    }
+
+    //获取2.4gwifi信息
+    function Get_24gwifi_info() {
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_wifi_info',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          $('#floatWifiName').val(data.wlanssid)
+          $('#floatWifiPass').val(data.wlanpsw)
+        },
+        error: function (msg) { },
+      })
+    }
+    //获取5gwifi信息
+    function Get_5gwifi_info() {
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_5wifi_info',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          $('#doubleWifiName').val(data.wlan5ssid)
+          $('#doubleWifiPass').val(data.wlan5psw)
+        },
+        error: function (msg) { },
+      })
+    }
+    function getData_wificonnet() {
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_connetsta_cfg',
+        data: { type: 'setrepeaterinfo' },
+        dataType: 'json',
+        success: function (data) {
+          //Get_wifilist();
+          if (data == null || data == '') {
+            return
+          } else {
+            if (typeof data == 'object') {
+              var msg = data
+            } else {
+              var msg = eval('(' + data + ')')
+            }
+            window.curmac = msg.mac
+          }
+        },
+        error: function (data) { },
+      })
+    }
+    function testMac(m1, m2) {
+      var num1 = testMac.arguments[0]
+      var num2 = testMac.arguments[1]
+      if (num1.toUpperCase() != num2.toUpperCase()) {
+        return false
+      }
+      return true
+    }
+    //获取版本号浏览器 add by wgl 20170216 begin
+    function myBrowser() {
+      var userAgent = navigator.userAgent //取得浏览器的userAgent字符串
+      var isOpera = userAgent.indexOf('Opera') > -1 //判断是否Opera浏览器
+      var isIE =
+        userAgent.indexOf('compatible') > -1 &&
+        userAgent.indexOf('MSIE') > -1 &&
+        !isOpera //判断是否IE浏览器
+      if (isIE) {
+        var IE8 = (IE9 = false)
+        var reIE = new RegExp('MSIE (\\d+\\.\\d+);')
+        reIE.test(userAgent)
+        var fIEVersion = parseFloat(RegExp['$1'])
+        IE8 = fIEVersion == 8.0
+        IE9 = fIEVersion == 9.0
+        if (IE8) {
+          return 'IE8'
+        }
+        if (IE9) {
+          return 'IE9'
+        }
+      } //isIE end
+    }
+    //add by wgl 20170216 end
+    //获取wifi列表
+    function Get_wifilist() {
+      layer.open({
+        type: 1,
+        closeBtn: 0, //不显示关闭按钮
+        shift: 3,
+        offset: '150px',
+        skin: 'layui-layer-loading',
+        scrollbar: false,
+        title: false,
+        shade: [0.7, '#000'],
+        content:
+          '<div style="margin:0 auto;width:90px;height:90px;background: url(js/layer/skin/default/loading-2.gif) no-repeat;background-size: cover;-ms-behavior: url(backgroundsize.min.htc);behavior: url(backgroundsize.min.htc);" class="layui-layer-content layui-layer-loading2"></div><h5 style="color:#fff">' +
+          curlang.WlanScan +
+          '</h5>',
+      })
+      $.ajax({
+        type: 'get',
+        url: '/goform/get_RepeaterScan_cfg',
+        dataType: 'json',
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          if (typeof msg == 'object') {
+            var data = msg
+          } else {
+            var data = eval('(' + msg + ')')
+          }
+          $('.wifirow').unbind()
+          $('#pagination li a').unbind()
+          $('#WifiList').children().remove()
+          $('#pagination').children().remove()
+          if (!data.list) {
+            return
+          }
+          var buff =
+            "<tr class='wifihead'><td class='wifiCol lefttd'>" +
+            curlang.No +
+            "</td><td class='wifiCol midtd'>" +
+            curlang.ssid +
+            "</td><td class='wifiCol righttd' style='min-width:42px'>" +
+            curlang.SQ +
+            '</td></tr>'
+          var linkbuff = ''
+          var width = parseInt($(window).width())
+          var name
+          for (var i = 1; i <= data.list.length; i++) {
+            if (data.list[i - 1].ssid == '' || data.list[i - 1].bssid == '') {
+              continue
+            }
+            if (testMac(window.curmac, data.list[i - 1].bssid)) {
+              name = data.list[i - 1].ssid
+              if (width < 415 && width >= 375) {
+                if (name.length > 28) {
+                  name = name.substr(0, 27)
+                }
+              }
+              if (width > 320 && width < 375) {
+                if (name.length > 24) {
+                  name = name.substr(0, 24)
+                }
+              }
+              if (width <= 320) {
+                if (name.length > 21) {
+                  name = name.substr(0, 21)
+                }
+              }
+              if (data.list[i - 1].security.split('/')[0] == 'NONE') {
+                if (data.list[i - 1].signal < 45) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0;' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal1.png'/></td></tr>"
+                } else if (
+                  data.list[i - 1].signal < 65 &&
+                  data.list[i - 1].signal >= 45
+                ) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0;' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal2.png'/></td></tr>"
+                } else if (
+                  data.list[i - 1].signal < 85 &&
+                  data.list[i - 1].signal >= 65
+                ) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal3.png'/></td></tr>"
+                } else {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal4.png'/></td></tr>"
+                }
+              } else {
+                if (data.list[i - 1].signal < 45) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key1.png'/></td></tr>"
+                } else if (
+                  data.list[i - 1].signal < 65 &&
+                  data.list[i - 1].signal >= 45
+                ) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key2.png'/></td></tr>"
+                } else if (
+                  data.list[i - 1].signal < 85 &&
+                  data.list[i - 1].signal >= 65
+                ) {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key3.png'/></td></tr>"
+                } else {
+                  linkbuff =
+                    linkbuff +
+                    "<tr id='wlan0' class='wifirow'><input type='hidden' id='channel0' value='" +
+                    data.list[i - 1].channel +
+                    "' /><input type='hidden' id='bssid0' value='" +
+                    data.list[i - 1].bssid +
+                    "' /><input type='hidden' id='security0' value='" +
+                    data.list[i - 1].security.split('/')[0] +
+                    "' /><input type='hidden' id='arithmetic0' value='" +
+                    data.list[i - 1].security.split('/')[1] +
+                    "' /><input type='hidden' id='siganl0' value='" +
+                    data.list[i - 1].signal +
+                    "' /><input type='hidden' id='ext_ch0' value='" +
+                    data.list[i - 1].ext_ch +
+                    "' /><input type='hidden' id='wlanname0' value='" +
+                    data.list[i - 1].ssid +
+                    "' /><td class='wifiCol' style='width:10%'><img style='width:20px;padding:0' src='images/gou.png'/></td><td class='wifiCol' style='width:70%'>" +
+                    name +
+                    "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key4.png'/></td></tr>"
+                }
+              }
+              continue
+            }
+            name = data.list[i - 1].ssid
+            if (width < 415 && width >= 375) {
+              if (name.length > 28) {
+                name = name.substr(0, 27)
+              }
+            }
+            if (width > 320 && width < 375) {
+              if (name.length > 24) {
+                name = name.substr(0, 24)
+              }
+            }
+            if (width <= 320) {
+              if (name.length > 21) {
+                name = name.substr(0, 21)
+              }
+            }
+            if (data.list[i - 1].security.split('/')[0] == 'NONE') {
+              if (data.list[i - 1].signal < 23) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal1.png'/></td></tr>"
+              } else if (
+                data.list[i - 1].signal < 52 &&
+                data.list[i - 1].signal >= 23
+              ) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal2.png'/></td></tr>"
+              } else if (
+                data.list[i - 1].signal < 89 &&
+                data.list[i - 1].signal >= 52
+              ) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal3.png'/></td></tr>"
+              } else {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/signal4.png'/></td></tr>"
+              }
+            } else {
+              if (data.list[i - 1].signal < 23) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key1.png'/></td></tr>"
+              } else if (
+                data.list[i - 1].signal < 52 &&
+                data.list[i - 1].signal >= 23
+              ) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key2.png'/></td></tr>"
+              } else if (
+                data.list[i - 1].signal < 89 &&
+                data.list[i - 1].signal >= 52
+              ) {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key3.png'/></td></tr>"
+              } else {
+                buff =
+                  buff +
+                  "<tr id='wlan" +
+                  i +
+                  "' class='wifirow'><input type='hidden' id='channel" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].channel +
+                  "' /><input type='hidden' id='bssid" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].bssid +
+                  "' /><input type='hidden' id='security" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[0] +
+                  "' /><input type='hidden' id='arithmetic" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].security.split('/')[1] +
+                  "' /><input type='hidden' id='siganl" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].signal +
+                  "' /><input type='hidden' id='ext_ch" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ext_ch +
+                  "' /><input type='hidden' id='wlanname" +
+                  i +
+                  "' value='" +
+                  data.list[i - 1].ssid +
+                  "' /><td class='wifiCol' style='width:10%'>" +
+                  data.list[i - 1].channel +
+                  "</td><td class='wifiCol' style='width:70%'>" +
+                  name +
+                  "</td><td class='wifiCol' style='width:20%;min-width:42px'><img src='images/key4.png'/></td></tr>"
+              }
+            }
+          }
+          $('#WifiList').html(buff)
+          var strbuf = ''
+          for (var j = 1; j <= Math.ceil(data.list.length / 9); j++) {
+            strbuf =
+              strbuf +
+              "<li><a style='margin-right:5px;cursor:pointer;' id='page" +
+              j +
+              "'>" +
+              j +
+              '</a></li>'
+          }
+          $('#pagination').html(strbuf)
+          $('#pagination').children(':first').addClass('active')
+          $('#pagination li a').click(function () {
+            $(this).parent().addClass('active')
+            $(this).parent().siblings().removeClass('active')
+            var num = $(this).attr('id').replace('page', '')
+            $('.wifirow').css('display', 'none')
+            for (var j = 9 * num - 8; j <= 9 * num; j++) {
+              $('#wlan' + j).css('display', '')
+            }
+            $('#wlan0').css('display', '')
+          })
+          $('#page1').trigger('click')
+          $('#WifiList .wifihead').after(linkbuff)
+          $('.wifirow').click(function () {
+            var number = $(this).attr('id').replace('wlan', '')
+            $('#wifiFlag').val(number)
+            if ($('#security' + number).val() == 'NONE') {
+              $('#wlanPassRow').css('display', 'none')
+            } else {
+              $('#wlanPassRow').css('display', 'block')
+            }
+            $('#wlanSSID').val($(this).find('td').eq(1).text())
+            $('#wlanPass').val('')
+            $('#wlanPass').focus()
+            if (NowMode === 3) {
+              $('#mySmallModalLabel').html(curlangs.WISP_Setup)
+            } else if (NowMode === 2) {
+              $('#mySmallModalLabel').html(curlangs.Relay_Setup)
+            } else {
+              $('#mySmallModalLabel').html(curlangs.Client_Setup)
+            }
+            if (getMobile()) {
+              $('.buttonbox').css('min-width', '240px')
+              $('.buttonbox a').css('width', '110px')
+              $('.listform').css('min-width', '250px')
+              $('.listform li .sp-l').css('min-width', '80px')
+              $('.listform li .sp-r').css('min-width', '160px')
+              layer.open({
+                type: 1,
+                closeBtn: 0,
+                shift: 6,
+                offset: '150px',
+                area: ['280px', ''],
+                title: false,
+                shade: [0.7, '#000'],
+                content: $('#wlanInfo'),
+              })
+            } else {
+              //if (!(myBrowser() == "IE8") && !(myBrowser() == "IE9"))
+              //console.log(getMobile());
+              layer.open({
+                type: 1,
+                closeBtn: 0,
+                shift: 6,
+                offset: '150px',
+                area: ['480px', 'auto'],
+                title: false,
+                shade: [0.7, '#000'],
+                content: $('#wlanInfo'),
+              })
+            }
+            if (IsFirst || (curVersion && NowMode == 4) || NowMode == 3) {
+              $('#wlan_link').html(curlang.Connect)
+            } else {
+              $('#wlan_link').html(curlangs.Apply)
+            }
+          })
+          layer.closeAll()
+        },
+        error: function (msg) { },
+      })
+    }
+    //提交数据包装
+    function Datapackage() {
+      var numFlag = $('#wifiFlag').val()
+      var buff
+      if (NowMode == 1) {
+        buff = {
+          type: 'seteasycfg',
+          opermode: 'router',
+          wlan2ssid: $('#floatWifiName').val(),
+          wlan2psw: $('#floatWifiPass').val(),
+        }
+        if ($('#wan_type1').hasClass('on')) {
+          buff = $.extend({}, buff, {
+            wanmode: 'pppoe',
+            pppoename: $('#pppoeUser').val(),
+            pppoepsw: $('#pppoePass').val(),
+            pppoeserver: $('#pppoeServer').val(),
+            mtu: $('#Spppoe_mtu').val(),
+          })
+        }
+        if ($('#wan_type2').hasClass('on')) {
+          buff = $.extend({}, buff, { wanmode: 'dhcp' })
+        }
+        if ($('#wan_type3').hasClass('on')) {
+          buff = $.extend({}, buff, {
+            wanmode: 'static',
+            wanip: $('#staticIp').val(),
+            wanmsk: $('#staticMask').val(),
+            wangw: $('#staticGw').val(),
+            dns1: $('#staticDNS').val(),
+          })
+        }
+        if (curVersion) {
+          buff = $.extend({}, buff, {
+            wlan5ssid: $('#doubleWifiName').val(),
+            wlan5psw: $('#doubleWifiPass').val(),
+          })
+        }
+        // if (IsFirst) {
+        //   buff = $.extend({}, buff, { routepwd: $('#routerpwd').val() })
+        // } else {
+        //   buff = $.extend({}, buff, { routepwd: oldPass })
+        // }
+        buff = $.extend({}, buff, { routepwd: oldPass })
+      }
+      if (NowMode == 2) {
+        buff = {
+          type: 'seteasycfg',
+          opermode: 'repeater',
+          channel: $('#channel' + numFlag).val(),
+          bssid: $('#bssid' + numFlag).val(),
+          ssid: $('#wlanSSID').val(),
+          security: $('#security' + numFlag).val(),
+          arithmetic: $('#arithmetic' + numFlag).val(),
+          key: $('#wlanPass').val(),
+          ext_ch: $('#ext_ch' + numFlag).val(),
+          wlan2ssid: $('#floatWifiName').val(),
+          wlan2psw: $('#floatWifiPass').val(),
+        }
+        if (curVersion) {
+          buff = $.extend({}, buff, {
+            wlan5ssid: $('#doubleWifiName').val(),
+            wlan5psw: $('#doubleWifiPass').val(),
+          })
+        }
+        if (IsFirst) {
+          buff = $.extend({}, buff, { routepwd: $('#routerpwd').val() })
+        } else {
+          buff = $.extend({}, buff, { routepwd: oldPass })
+        }
+      }
+      if (NowMode == 3) { //wisp中继模式
+        buff = {
+          type: 'seteasycfg',
+          opermode: 'WISP',
+          channel: $('#channel' + numFlag).val(),
+          bssid: $('#bssid' + numFlag).val(),
+          ssid: $('#wlanSSID').val(),
+          security: $('#security' + numFlag).val(),
+          arithmetic: $('#arithmetic' + numFlag).val(),
+          key: $('#wlanPass').val(),
+          ext_ch: $('#ext_ch' + numFlag).val(),
+          wlan2ssid: $('#floatWifiName').val(),
+          wlan2psw: $('#floatWifiPass').val(),
+        }
+        if (IsFirst) {
+          buff = $.extend({}, buff, { wanmode: 'dhcp' })
+        } else {
+          if ($('#wan_type1').hasClass('on')) {
+            buff = $.extend({}, buff, {
+              wanmode: 'pppoe',
+              pppoename: $('#pppoeUser').val(),
+              pppoepsw: $('#pppoePass').val(),
+              pppoeserver: $('#pppoeServer').val(),
+              mtu: $('#Spppoe_mtu').val()
+            })
+          }
+          if ($('#wan_type2').hasClass('on')) {
+            buff = $.extend({}, buff, { wanmode: 'dhcp' })
+          }
+          if ($('#wan_type3').hasClass('on')) {
+            buff = $.extend({}, buff, {
+              wanmode: 'static',
+              wanip: $('#staticIp').val(),
+              wanmsk: $('#staticMask').val(),
+              wangw: $('#staticGw').val(),
+              dns1: $('#staticDNS').val()
+            })
+          }
+        }
+        if (curVersion) {
+          buff = $.extend({}, buff, {
+            wlan5ssid: $('#doubleWifiName').val(),
+            wlan5psw: $('#doubleWifiPass').val(),
+          })
+        }
+        buff = $.extend({}, buff, { routepwd: oldPass })
+      }
+      if (NowMode == 4) {
+        buff = {
+          type: 'seteasycfg',
+          opermode: 'client',
+          channel: $('#channel' + numFlag).val(),
+          bssid: $('#bssid' + numFlag).val(),
+          ssid: $('#wlanSSID').val(),
+          security: $('#security' + numFlag).val(),
+          arithmetic: $('#arithmetic' + numFlag).val(),
+          key: $('#wlanPass').val(),
+          ext_ch: $('#ext_ch' + numFlag).val(),
+          wlan2ssid: $('#floatWifiName').val(),
+          wlan2psw: $('#floatWifiPass').val(),
+        }
+        if (curVersion) {
+          buff = $.extend({}, buff, {
+            wlan5ssid: $('#doubleWifiName').val(),
+            wlan5psw: $('#doubleWifiPass').val(),
+          })
+        }
+        if (IsFirst) {
+          buff = $.extend({}, buff, { routepwd: $('#routerpwd').val() })
+        } else {
+          buff = $.extend({}, buff, { routepwd: oldPass })
+        }
+      }
+      if (NowMode == 5) {
+        buff = {
+          type: 'seteasycfg',
+          opermode: 'bridge',
+          wlan2ssid: $('#floatWifiName').val(),
+          wlan2psw: $('#floatWifiPass').val(),
+        }
+        if (curVersion) {
+          buff = $.extend({}, buff, {
+            wlan5ssid: $('#doubleWifiName').val(),
+            wlan5psw: $('#doubleWifiPass').val(),
+          })
+        }
+        if (IsFirst) {
+          buff = $.extend({}, buff, { routepwd: $('#routerpwd').val() })
+        } else {
+          buff = $.extend({}, buff, { routepwd: oldPass })
+        }
+      }
+      return buff
+    }
+
+    function setRouterResponse() {
+      $(".wlan-set").css("display", "none");
+      $(".wan-set").css("display", "none");
+      $('.finish-set').css("display", "block");
+      $("#wlan_prev").css("display", "inline-block");
+      $("#floatWlan").css("display", "block");
+      $("#doubleWlan").css("display", "none");
+      $('.twoWifiSsid').html($('#floatWifiName').val());
+      $('.twoWifiPassword').html($('#floatWifiPass').val());
+      if (curVersion) {
+        $('.isDual').css("display", "block");
+        $('.fiveWifiSsid').html($('#doubleWifiName').val());
+        $('.fiveWifiPassword').html($('#doubleWifiPass').val());
+      }
+      var time = curVersion ? 75 : 70;
+      var timer = setInterval(function () {
+        time--;
+        $('.setting-tips').find('span').eq(1).html(time);
+        if (time == 0) {
+          clearInterval(timer);
+          window.location = '../login.asp'
+        }
+      }, 1000)
+    }
+
+    //设置路由器
+    function setRouter() {
+      set_restore = 1
+      var data = Datapackage();
+      showanimation(1);
+      $.ajax({
+        type: 'post',
+        url: '/goform/set_EasyCfg',
+        dataType: 'json',
+        data: data,
+        success: function (msg) {
+          if (msg == '' || msg == 'undefine') {
+            return
+          }
+          showanimation(5);
+          setRouterResponse();
+        },
+        error: function (msg) { },
+      })
+    }
+    //动画显示 1 开始 2 成功 3 失败
+    function showanimation(type) {
+      if (type == 1) {
+        $('#msg_type').children('img').attr('src', 'images/122.gif')
+        $('#msg').html(curlang.PeaseWait)
+        animation = layer.open({
+          type: 1,
+          closeBtn: 0, //不显示关闭按钮
+          shift: 3,
+          offset: '150px',
+          scrollbar: false,
+          title: false,
+          shade: [0.7, '#000'],
+          content: $('#message_layer'),
+        })
+      }
+      if (type == 2) {
+        $('#msg_type').children('img').attr('src', 'images/msg-success.png')
+        $('#msg').html(curlang.info2)
+        setTimeout(function () {
+          layer.closeAll()
+          restart('update')
+        }, 2000)
+      }
+      if (type == 3) {
+        $('#msg_type').children('img').attr('src', 'images/msg-error.png')
+        $('#msg').html(curlang.info3)
+        setTimeout(function () {
+          layer.close(animation)
+        }, 2000)
+      }
+      if (type == 4) {
+        $('#msg_type').children('img').attr('src', 'images/msg-success.png')
+        $('#msg').html(curlangs.ApplySuc)
+        setTimeout(function () {
+          layer.close(animation)
+          restart('reboot')
+        }, 2000)
+      }
+      if (type == 5) {
+        $('#msg_type')
+          .children('img')
+          .attr('src', '/admin/images/msg-success.png')
+        setTimeout(function () {
+          layer.close(window.animation)
+        }, 1000)
+      }
+    }
+    //解析ajax请求信息
+    function showMsg(obj) {
+      if (obj == null || obj == '' || !obj) {
+        return
+      } else {
+        if (typeof obj == 'object') {
+          var msg = obj
+        } else {
+          var msg = JSON.parse(obj)
+        }
+        if (msg.result == 0) {
+          showanimation(4)
+        } else {
+          showanimation(3)
+        }
+      }
+    }
+    //状态查询
+    function getweblink() {
+      function getlinkmsg() {
+        $.ajax({
+          type: 'get',
+          url: '/goform/get_lang_cfg',
+          dataType: 'json',
+          success: function (msg) {
+            window.location = '../login.asp'
+          },
+          error: function (msg) { },
+        })
+      }
+      setInterval(getlinkmsg, 2000)
+    }
+    function getLoginStatus() {
+      if (set_restore == 0) {
+        $.ajax({
+          type: 'get',
+          url: '/goform/webheartbeat',
+          timeout: 5000,
+          dataType: 'json',
+          success: function (msg) {
+            if (typeof msg == 'object') {
+              var data = msg
+            } else {
+              var data = eval('(' + msg + ')')
+            }
+            if (data.result == 8) {
+              window.location = '../login.asp'
+            } else {
+            }
+          },
+          error: function (msg) {
+            getweblink()
+          },
+        })
+      }
+    }
+    $(function () {
+      $('input, textarea').placeholder()
+      getPage()
+      getPages()
+      GetEseayInfo()
+      $('#upgrade_button').click(function () {
+        onform_upgrade_versoin()
+      })
+    })
+  </script>
+</body>
+
+</html>

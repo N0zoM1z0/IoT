@@ -1,0 +1,199 @@
+#! /bin/sh
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/syscfg:/usr/sbin/wifi
+export LD_LIBRARY_PATH=/lib:/lib/so:/lib/sdk:/usr/lib
+
+# Clearing the console to fullscreen
+clear
+
+echo "
+            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            \  _  _   _  _ _ _ _ _ _ _ _ _ _ _ _ _
+                  /  /  /  /      \  \  /  /
+                 /  /  /  / _ __ _/ /  /  /
+                /  /  /  /_ ___ _ _/  /  /
+               /  /  /  /\ \         /  /
+  _ _ _ _ _ _ /  /_ /  /_ \ \_ _ _ _/ _/ _ _ _
+  ___________/_ /__/__/____\_\_____/__/________
+"
+echo "mount file system"
+
+mount -t proc  proc /proc
+mount -t sysfs sysfs /sys
+mount -t tmpfs tmpfs /dev
+mount -t tmpfs -o mode=0775 tmpfs /mnt
+mount -t tmpfs -o nodev,size=512m none /tmp
+mkdir /tmp/var
+mkdir /tmp/var/dhcpv6
+mkdir /var/run
+
+mknod   /dev/null               c   1  3
+mknod   /dev/console            c   5  1
+mknod   /dev/tty                c   5  0
+mknod   /dev/ttyAMA0            c 204 64
+mknod   /dev/ttyAMA1            c 204 65
+
+mknod   /dev/mtd0               c  90  0
+mknod   /dev/mtd1               c  90  2
+mknod   /dev/mtd2               c  90  4
+mknod   /dev/mtd3               c  90  6
+mknod   /dev/mtd4               c  90  8
+mknod   /dev/mtd5               c  90  10
+mknod   /dev/mtd6               c  90  12
+mknod   /dev/mtd7               c  90  14
+mknod   /dev/mtd14              c  90  28
+
+mknod   /dev/mtdblock0          b  31  0
+mknod   /dev/mtdblock1          b  31  1
+mknod   /dev/mtdblock2          b  31  2
+mknod   /dev/mtdblock3          b  31  3
+mknod   /dev/mtdblock4          b  31  4
+mknod   /dev/mtdblock5          b  31  5
+mknod   /dev/mtdblock6          b  31  6
+mknod   /dev/mtdblock7          b  31  7
+mknod   /dev/mtdblock14         b  31  14
+
+mknod   /dev/hi_hlp             c  10 19
+
+mknod   /dev/ptmx               c  5  2
+mkdir   /dev/pts
+mknod   /dev/pts/0              c  136 0
+mknod   /dev/pts/1              c  136 1
+mknod   /dev/pts/2              c  136 2
+mknod   /dev/pts/3              c  136 3
+mount -t devpts devpts /dev/pts
+mknod   /dev/ptyp0              c  2  200
+mknod   /dev/ptyp1              c  2  201
+mknod   /dev/ptyp2              c  2  202
+mknod   /dev/ptyp3              c  2  203
+mknod   /dev/ptyp4              c  2  204
+mknod   /dev/ptyp5              c  2  205
+mknod   /dev/ptyp6              c  2  206
+mknod   /dev/ptyp7              c  2  207
+mknod   /dev/ptyp8              c  2  208
+
+mknod   /dev/urandom            c  1  9
+
+mknod	/dev/ppp				c  108 0
+
+#dfe
+mknod   /dev/mem                                c  1  1
+mknod   /dev/ipcdrv                             c 251 0
+mknod   /dev/hi_sci                             c 253 0
+
+echo "Loading TRID modules"
+#init base common
+insmod  /lib/ko/hi_kbasic.ko
+insmod  /lib/ko/hi_sdk_l0.ko
+insmod  /lib/ko/hi_sdk_l1.ko
+insmod  /lib/ko/hi_kmisc.ko
+insmod  /lib/ko/hi_keth.ko
+insmod  /lib/ko/hi_kmdio.ko
+insmod  /lib/ko/hi_kphy.ko
+insmod  /lib/ko/hi_sdk_l0_dump.ko
+insmod  /lib/ko/hi_kgpio.ko
+#insmod  /lib/ko/hi_kefuse.ko
+#insmod  /lib/ko/hi_kpower.ko
+insmod  /lib/ko/hi_ksci.ko
+#insmod  /lib/ko/hi_kdying_gasp.ko
+
+insmod  /lib/ko/hi_kphy_mng_ar8035.ko
+insmod  /lib/ko/hi_kport.ko
+
+#init forward mode
+cs_cli /home/cli/api/srv/set_flowrange -v srvname qos start 384 stop 511
+cs_cli /home/cli/api/srv/set_flowrange -v srvname normal start 0 stop 383
+
+insmod  /lib/ko/hi_sdk_l2.ko
+insmod  /lib/ko/hi_kcfe_res.ko
+insmod  /lib/ko/hi_kcfe_srv_mark.ko
+insmod  /lib/ko/hi_kcfe_srv_qos.ko
+insmod  /lib/ko/hi_kcfe_srv_accel.ko
+#insmod  /lib/ko/hi_kcfe_srv_ifusb.ko
+#insmod  /lib/ko/hi_kcfe_srv_ifwifi_bcm43217.ko
+#insmod  /lib/ko/hi_kcfe_srv_ifwifi_rt5392.ko
+#insmod  /lib/ko/hi_kcfe_srv_ifwifi_hub.ko
+insmod  /lib/ko/hi_kcfe_fw_deliver.ko
+insmod  /lib/ko/hi_kcfe_sw_normal.ko
+insmod  /lib/ko/hi_kcfe_sw_mc.ko
+insmod  /lib/ko/hi_kcfe_lrn_br.ko
+insmod  /lib/ko/hi_kcfe_lrn_napt.ko
+insmod  /lib/ko/hi_kcfe_lrn_mc.ko
+insmod  /lib/ko/hi_kcfe_lrn_rt.ko
+insmod  /lib/ko/hi_kcfe_lrn_tnl.ko
+insmod /lib/ko/hi_kdying_gasp.ko
+
+#Enable the LAN LED
+cs_cli /home/cli/debug/test/kmem/phymw -v addr 0x1490018c data 0x80000018
+
+#patch the phy
+cs_cli /home/cli/api/ecs/port/patch_phy
+#open esd detect
+cs_cli /home/cli/debug/driver/kmdio/write_exreg -v phy_addr 0x1 reg_addr 0x3180 data 0x1
+cs_cli /home/cli/debug/test/port/set_isolate_attr -v enable 1
+
+#init chip
+chip_id=`cat /proc/chip_id`
+if [ "$chip_id" = "T" ]; then
+cs_cli /home/cli/api/ecs/mdio/write_exreg -v phy_addr 0x1 reg_addr 0x3183 data 0x1
+cs_cli /home/cli/debug/test/kmem/phymw -v addr 0x1490018c data 0x2008
+cs_cli /home/cli/debug/test/kmem/phymw -v addr 0x149001a0 data 0x80002
+cs_cli /home/cli/debug/driver/kmdio/write_exreg  -v phy_addr 0x1 reg_addr 0x1e50 data 0x41
+cs_cli /home/cli/debug/driver/kmdio/write_exreg  -v phy_addr 0x2 reg_addr 0x1e50 data 0x41
+cs_cli /home/cli/debug/driver/kmdio/write_exreg  -v phy_addr 0x3 reg_addr 0x1e50 data 0x41
+cs_cli /home/cli/debug/driver/kmdio/write_exreg  -v phy_addr 0x4 reg_addr 0x1e50 data 0x41
+cs_cli /home/cli/debug/driver/kmdio/write_exreg  -v phy_addr 0x5 reg_addr 0x1e50 data 0x41
+fi
+
+insmod /lib/modules/3.14.18/trigpio.ko
+insmod /lib/modules/3.14.18/flow_accel.ko
+insmod /lib/modules/3.14.18/phycallback.ko
+insmod /lib/modules/3.14.18/donglecallback.ko
+
+insmod /lib/modules/3.14.18/xt_ndpi.ko
+
+port_init
+cs_cli /home/cli/api/ecs/mem/phymw -v addr 0x12300038 data 0x011e0000
+
+cs_cli /home/cli/debug/driver/kphy/power_down_all
+
+
+#init upstream and downstream loop port
+cs_cli /home/cli/api/qos/set_loop_port -v upport 2 dnport 13
+
+#init default flows
+# upstream
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 0 loop_pri 0
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 1 loop_pri 1
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 2 loop_pri 2
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 3 loop_pri 3
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 4 loop_pri 4
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 5 loop_pri 5
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 6 loop_pri 6
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 0 igr 0x1001 egr 0x0001 match_pri 7 pa_que_pri 7 loop_pri 7
+# downstream
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 0 loop_pri 0
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 1 loop_pri 1
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 2 loop_pri 2
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 3 loop_pri 3
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 4 loop_pri 4
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 5 loop_pri 5
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 6 loop_pri 6
+cs_cli /home/cli/api/qos/set_default_flow -v valid 1 dir 1 igr 0x0001 egr 0x1001 match_pri 7 pa_que_pri 7 loop_pri 7
+
+
+
+
+#keep the min free bytes
+echo 9760 > /proc/sys/vm/min_free_kbytes
+echo 15 > /proc/sys/vm/dirty_ratio
+
+/etc/rc.d/histart
+
+ifconfig lo up
+
+/usr/syscfg/sys.init.sh
+
+/usr/syscfg/usb/dongle/dongle_reset.sh
+
+/bin/sh

@@ -1,0 +1,10 @@
+var PAGE_NAME=3;
+var PAGE_POWER=4;
+var PAGE_HELP=5;
+var Menu=new Array(); 
+var sid=0;
+Menu[0]=new Array();
+Menu[0][sid++]=new Array(__T("SSL VPN Portal"),__T("Portal Information"),'','portal_info.asp',0,'installing2.html');
+Menu[0][sid++]=new Array(__T("SSL VPN Portal"),__T("VPN Tunnel"),'','portal_vpntunnel.asp',0,'installing2.html');
+Menu[0][sid++]=new Array(__T("SSL VPN Portal"),__T("Port Forwarding"),'','portal_port_forwarding.asp',0,'installing2.html');
+Menu[0][sid++]=new Array(__T("SSL VPN Portal"),__T("Change Passowrd"),'','portal_chgpwd.asp',0,'installing2.html');

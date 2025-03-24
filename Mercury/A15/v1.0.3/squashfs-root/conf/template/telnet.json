@@ -1,0 +1,12 @@
+{
+	"/telnet/telnet/rule": {
+		"enable": {
+			"type": "intStr32",
+			"default": 0
+		},
+		"port": {
+			"type": "intStr16",
+			"default": 23
+		}
+	}
+}

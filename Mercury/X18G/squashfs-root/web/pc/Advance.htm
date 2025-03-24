@@ -1,0 +1,93 @@
+<script type="text/javascript">
+	if (typeof advanceAutoFit != "function")
+	{
+		advanceAutoFit = function(){
+			var headHeight = $("#header").height(),
+				footHeight = $("#footer").height(),
+				clientHeight = document.documentElement.clientHeight;
+
+			$(".wrapper").css("min-height", clientHeight);
+
+			var fullHeight = $(".wrapper").height();
+			var dividingHeight = (fullHeight - headHeight - footHeight) + "px";
+			$(".dividingLine").css("height", dividingHeight);
+		}
+	}
+
+	if (typeof resizeWindow != "function")
+	{
+		resizeWindow = function (){
+			window.onresize = function(){
+				(id("advanceWrapper") != null || id("deviceListWrapper") != null)&&advanceAutoFit();
+			};
+		}
+		resizeWindow();
+	}
+
+	if (typeof resizeAdvance != "function")
+	{
+		resizeAdvance = function(){
+			$("#menuLoader").resize(function(){
+				advanceAutoFit();
+			});
+		}
+		resizeAdvance();
+	}
+
+	(function(){
+		advanceAutoFit();
+
+		/* Fix IE8 or Less */
+		window.setTimeout(function(){
+			ieUnsupportCheck(function(){
+				menuInit();
+			});
+		});
+
+		clearTimeout(cloudRefreshHandle);
+		refreshRoutine();
+
+		/* 根据setting.js中配置判断是否显示andlink logo & 和家亲二维码，并在需要时才加载资源 */
+		showAndlinkQRcode && $("#andlinkQRcode img").attr("src", andlinkQRcodeSrc) && $("#andlinkQRcode").show();
+	})();
+</script>
+<style type="text/css">
+	body{
+		overflow-y:scroll;
+		*overflow-y:visible;
+	}
+	#advanceWrapper{
+		width:1000px;
+		margin:0 auto;
+	}
+	div.menuWrapper{
+		float:left;
+		width:192px;
+		margin-top:24px;
+	}
+	div.pageWrapper{
+		width:808px;
+		float:left;
+		position:relative;
+	}
+	.dividingLine{
+		width:1px;
+		background:#e6e6e6;
+		position:absolute;
+	}
+	#menuLoader{
+		padding-left:47px;
+	}
+</style>
+<div id="advanceWrapper" class="clearfix">
+	<div class="menuWrapper">
+		<div id="menuList"></div>
+		<div id="andlinkQRcode">
+			<img/>
+		</div>
+	</div>
+	<div class="pageWrapper">
+		<div class="dividingLine"></div>
+		<div id="menuLoader"></div>
+	</div>
+</div>

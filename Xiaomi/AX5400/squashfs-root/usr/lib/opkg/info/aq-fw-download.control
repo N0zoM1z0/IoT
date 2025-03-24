@@ -1,0 +1,8 @@
+Package: aq-fw-download
+Version: 1.0-1
+Depends: libc
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/nss/aq-fw-download
+Section: QCA
+Architecture: arm_cortex-a7
+Installed-Size: 6666
+Description:  Aquantia FW downloader utitlity

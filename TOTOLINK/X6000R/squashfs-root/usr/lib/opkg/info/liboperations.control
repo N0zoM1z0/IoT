@@ -1,0 +1,10 @@
+Package: liboperations
+Version: 1
+Depends: libc, libpthread, zlib, libcommon
+Source: package/carystudio/liboperations
+SourceName: liboperations
+Section: carystudio
+SourceDateEpoch: 1689238875
+Architecture: aarch64_cortex-a53
+Installed-Size: 10311
+Description:  liboperations

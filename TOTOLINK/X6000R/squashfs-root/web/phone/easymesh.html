@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"><style type="text/css">.main-pad{padding:1% 3% 1% 3%}.label-list{margin-bottom:15px;border-radius:10px;display:flex}.label-list label{padding:8px 10px;min-width:26px;border:1px #ddd solid;display:inline-block;text-align:center}.label-list label.active{background:#43a7ff;color:#fff}.checkbox{float:right;margin:-7px 0 0 0}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="toper">
+  	<phone-back type="custom" :title="lang_t('menu.easymesh_set')" @on-click="backFun"></phone-back>
+  </div>
+  <div class="content">
+  	<div class="group">
+	  <div class="item-sw"><b>{{ lang_t('easymesh.state') }}</b></div>
+	  <div class="item-r">
+		<x-switch v-model="enabled" @change="submit_status"></x-switch>
+	  </div>
+    </div>
+    <div v-show="enabled">
+	  <div class="group">
+		<div class="item-l">{{ lang_t('easymesh.mode') }}</div>
+		<div class="item-r">
+		  <select v-model="mode" @change="modeChange">
+			<option value="controller">{{lang_t('easymesh.controller')}}</option>
+			<option value="agent">{{lang_t('easymesh.agent')}}</option>
+			<option value="auto" v-if="globalConfig.autoMeshModeSupport">{{ lang_t('wifi.auto') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group" v-if="origMode == 'auto'">
+		<div class="item-l">{{ lang_t('easymesh.character') }}</div>
+		<div class="item-r">
+		  {{isConfig=='unknown'?lang_t('common.unknown'):isConfig}}
+		</div>
+	  </div>
+	  <div class="group" v-show="!applyShow && isConfig=='agent'">
+		<div class="item-l">{{ lang_t('easymesh.link_status') }}</div>
+		<div class="item-r">
+		  <div v-html="linkStatusHtml"></div>
+		</div>
+	  </div>
+	  <div class="login-bottom">
+		<div v-show="(!bssShow && isConfig!='unknown') || applyShow">	
+		  <button class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+		</div>
+		<div v-show="(bssShow || isConfig=='unknown') && !applyShow">
+		  <button class="btn" @click="startFun">{{ lang_t('easymesh.pair') }}</button>
+		</div>
+	  </div>
+	</div>
+	<div v-show="enabled && bssShow && !applyShow && isConfig=='controller'">
+	  <div class="group" style="margin-top: 20px;">
+		<div class="item-l"><b>{{ lang_t('easymesh.bss') }}</b></div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('easymesh.back_haul_pre') }}</div>
+		<div class="item-r">
+		  <select v-model="backHaulPre" style="width:100px;">
+			<option value="0">{{ lang_t('easymesh.disable') }}</option>
+			<option value="3">{{ lang_t('easymesh.low') }}</option>
+			<option value="1">{{ lang_t('easymesh.high') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('easymesh.back_haul_pre5g') }}</div>
+		<div class="item-r select_input">
+		  <select v-model="backHaulPre5g" style="width:100px;">
+			<option value="0">{{ lang_t('easymesh.disable') }}</option>
+			<option value="3">{{ lang_t('easymesh.low') }}</option>
+			<option value="1">{{ lang_t('easymesh.high') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group" v-show="false">
+		<div class="item-sw"><p>{{ lang_t('easymesh.steering') }}:</p></div>
+		<div class="item-r">
+		  <x-switch v-model="steering"></x-switch>
+		</div>
+	  </div>
+	  <div class="group" v-show="false">
+		<div class="item-l"><p>{{lang_t('easymesh.rssi_threshold')}}:<br><small>({{ lang_t('easymesh.range') }}:-90~0)</small></p></div>
+		<div class="item-r">
+		  <input class="right" type="text" v-model="rssiThreshold" maxlength="3">
+		</div>
+	  </div>
+	  <div class="group" v-show="false">
+		<div class="item-l">2.4G {{lang_t('easymesh.channel_pre')}}</div>
+		<div class="item-r select_input">
+		  <select v-model="channelPre">
+			<!-- <option value="0">{{ lang_t('wifi.auto') }}</option> -->
+			<option v-for="v in channel2gOption" :key="v" :value="v">{{ v }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group" v-show="false">
+		<div class="item-l">5G {{lang_t('easymesh.channel_pre')}}</div>
+		<div class="item-r select_input">
+		  <select v-model="channelPre5g">
+			<!-- <option value="0">{{ lang_t('wifi.auto') }}</option> -->
+			<option v-for="_channel in channel5gOption" :value="_channel">{{ _channel }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div v-show="false">
+		<div class="content">
+		  <div>
+		    <div class="label-list">
+			  <label style="width:50%;" :class="[0==bIndex?'active':'']" @click="bIndex=0;initData(1);">2.4G</label>
+			  <label style="width:50%;" :class="[1==bIndex?'active':'']" @click="bIndex=1;initData(1);">5G</label>
+		    </div>
+		    <div class="label-list">
+			  <label :style="{width: apLabelWidth}" :class="[v==apIndex?'active':'']" @click="apIndex=v;initData(2);" v-for="(a,v) in apNum" v-show="(wifiEnables0[v]==0&&bIndex==0)||(wifiEnables1[v]==0&&bIndex==1)">AP-{{v}}</label>
+		    </div>
+		  </div>
+		  <div class="group">		
+			<div class="item-l">{{ lang_t('wifi.hide_ssid') }}</div>
+			<div class="item-r checkbox">		  
+			  <span>
+				<x-checkbox v-model="hssid" ></x-checkbox>
+			  </span>
+			</div>
+		  </div>
+		  <div class="group">		
+			<div class="item-l">{{ lang_t('wifi.ssid') }}</div>
+			<div class="item-r">
+			  <input v-model="ssid" maxlength="32" />
+			</div>
+		  </div>
+		  <div class="group">		
+			<div class="item-l">{{ lang_t('wifi.pass_state') }}</div>
+			<div class="item-r checkbox">
+			  <span>
+				<x-checkbox v-model="ispass"></x-checkbox>
+			  </span>
+			</div>
+		  </div>
+		  <div class="group" v-show="ispass">		
+			<div class="item-l">{{ lang_t('wifi.pass') }}</div>
+			<div class="item-r">
+			  <input v-model="key" maxlength="63" v-pass :disabled="!ispass || wifiOff" />
+			</div>
+		  </div>
+		  <div class="group" v-if="globalConfig.wifiWpa3Support && ispass">	
+			<div class="item-l">{{ lang_t('wifi.wpa3') }}</div>	
+			<div class="item-r">		  
+			  <span style="padding-left:10px;">
+				<x-checkbox v-model="wpaMode" @change="tipsFun" :disabled="key==''"></x-checkbox>
+			  </span>
+			</div>
+		  </div>	
+		</div>
+	  </div>		
+	  <div class="footer" v-if="enabled">
+	    <button class="btn" @click="applyFun()">{{ lang_t('common.apply') }}</button>
+	  </div>
+	</div>
+	<div v-show="enabled && bssShow && !applyShow && isConfig=='controller'">
+	  <div class="group" style="margin-top: 20px;">
+		<div class="item-l"><b>{{ lang_t('easymesh.channel_pre') }}</b></div>
+	  </div>
+	  <div class="group">
+		<div class="item-sw">{{ lang_t('common.state') }}</div>
+		<div class="item-r">
+		  <x-switch v-model="ChPlanningEnable" @change="ChPlanningChange"></x-switch>
+		</div>
+	  </div>
+	  <div class="group" v-show="ChPlanningEnable">
+		<div class="item-l">{{ lang_t('easymesh.current_channel') }}</div>
+		<div class="item-r">
+		  <b>{{ current_channel }}</b>
+		</div>
+	  </div>
+	  <div class="footer" v-show="ChPlanningEnable">
+		<button class="btn" @click="triggerFun()">{{ lang_t('easymesh.trigger') }}</button>
+	  </div>  
+	</div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,bssShow:!1,applyShow:!1,funPage:0,enabled:!1,origEnabled:"0",mode:"controller",origMode:"controller",isConfig:"0",steering:!1,ChPlanningEnable:!1,current_channel:"",countryCode:"CN",bw5g:"0",band5g:"14",channelPre:"0",channelPre5g:"0",backHaulPre:"0",backHaulPre5g:"0",rssiThreshold:"0",linkStatus:"",band:[""],wifiIdx:[""],wifiOff:[""],hssid:[!1],ssid:[""],key:[""],wpaMode:[!1],hssidclass:!1,ispass:[!1],mulAp:1,apIndex:0,bIndex:0,wifiEnables0:[],wifiEnables1:[],apLabelWidth:"20%",apNum:5}},computed:{linkStatusHtml:function(){var n=this.lang_t("index.disconnected"),t="#db3b21";return"connected"==this.linkStatus&&(n=this.lang_t("index.connected"),t="ff6600"),'<span style="color:'+t+';">'+n+"</span>"},channel2gOption:function(){var n=[],t=1,i=13;for("US"===this.countryCode&&(i=11);t<=i;t++)n.push(t);return n},channel5gOption:function(){var n=this.countryCode,t=this.bw5g,i=["149","153","157","161"],s=["36","40","44","48"];"2"!=this.band5g&&"1"==t&&i.push("165");var e=s.concat(["52","56","60","64","100","104","108","112","116","132","136","140"],i),a=s.concat(i),o=[];switch(n){case"CN":o=s.concat(i);break;case"US":o=a;break;case"EU":o=s;break;case"OT":o=e;break;case"IA":o=i}return o}},created:function(){var t=this;uiPost.getEasyMeshCfg(function(n){if(t.origEnabled="1"==n.enabled,t.enabled="1"==n.enabled,t.linkStatus=n.status,t.mode=n.mode,t.origMode=n.mode,t.isConfig=n.isConfig,t.enabled||(t.applyShow=!0),"auto"==n.mode){if("unknown"==n.isConfig)return;t.bssShow=!0}else t.bssShow=n.mode==n.isConfig;t.bssShow&&t.wifiInit()}),uiPost.getWiFiEasyCfg(function(n){t.isWifiOn="0"==n.wifiOff||"0"==n.wifiOff5g})},methods:{backFun:function(){this.bssShow&&"agent"==globalConfig.meshMode?location.href="home.html"+get_token_from_url():location.href="easymesh_info.html"+get_token_from_url()},tipsFun:function(){var n=lang_t("wifi.wpa3_info");globalConfig.wpsSupport||(n=lang_t("wifi.wpa3_info_nowps")),this.wpaMode&&Cstool.Mark({content:n,l_text:this.lang_t("common.back")})},modeChange:function(){this.origEnabled&&(this.applyShow=this.mode!=this.origMode)},submit_status:function(n){var t=this;!this.isWifiOn&&n?Cstool.Mark({content:lang_t("easymesh.on_5wifi"),l_text:lang_t("common.back"),ok:function(){t.enabled=!t.enabled}}):n||n==this.origEnabled||(n={enabled:"0"},uiPost.setEasyMeshCfg(n,function(n){postCallback(n,15)}))},getEasyMeshStatus:function(){uiPost.getEasyMeshStatus({},function(n){"br"!=globalConfig.opmode&&"connected"==n.status?Cstool.Flag({content:lang_t("easymesh.success"),btnText:lang_t("common.back"),ok:function(){location.href="/phone/home.html"+get_token_from_url()}}):Cstool.Flag({content:"br"==globalConfig.opmode?lang_t("common.set_success"):lang_t("easymesh.fail"),btnText:lang_t("common.back"),ok:function(){location.reload()}})})},ChPlanningChange:function(){var n={};n.ChPlanningEnable=this.ChPlanningEnable?"1":"0",uiPost.setChPlanningTrigger(n,function(n){postCallback(n,15)})},triggerFun:function(){var n={};this.ChPlanningEnable&&(n.ChPlanningTrigger="1"),uiPost.setChPlanningTrigger(n,function(n){postCallback(n,15)})},startFun:function(){var t=this;uiPost.setEasyMeshStart({},function(n){postCallback(n,15,function(){t.getEasyMeshStatus()},!1)})},clearFun:function(){var n={};Cstool.Mark({content:lang_t("easymesh.msg3"),ok:function(){uiPost.setWiFiEasyGuestCfg(n,function(n){postCallback(n,15)})}})},handleSubmit:function(){var n={enabled:"1"};n.mode=this.mode,uiPost.setEasyMeshCfg(n,function(n){postCallback(n,60)})},wifiInit:function(n){var t=this;this.bIndex=0,this.apIndex=0,uiPost.getEasyMeshBssCfg(function(n){("controller"==t.origMode||"auto"==t.origMode&&"controller"==t.isConfig)&&(t.steering="1"==n.steering,t.rssiThreshold=n.rssiThreshold,t.countryCode=n.countryCode,t.bw5g=n.bw,t.band5g=n.band,t.channelPre=n.channelPre,t.channelPre5g=n.channelPre5g,t.ChPlanningEnable="1"==n.ChPlanningEnable,t.current_channel=n.current_channel,cs.isInArray(t.channel5gOption,t.channelPre5g)||(t.channelPre5g="0"),n.mulAp)&&(t.tempResAp=n.mulAp,t.mulAp=n.mulAp.length,t.apNum=t.mulAp/2,t.apEnableInit(),t.initData(0)),t.backHaulPre=n.backHaulPre,t.backHaulPre5g=n.backHaulPre5g})},apEnableInit:function(){var n=function(n){this["wifiEnables"+n]=[];for(var t=0;t<this.apNum;t++)this["wifiEnables"+n][t]=(0==t?this.getIdxAp(n,t):this.getIdxAp(n,t+1)).wifiOff}.bind(this);n(0),n(1)},getIdxAp:function(n,t){null==n&&(n=this.bIndex),null==t&&(t=0<this.apIndex?this.apIndex+1:this.apIndex);for(var i=0;i<this.tempResAp.length;i++){var s=this.tempResAp[i];if((0==n&&"2.4G"==s.band||1==n&&"5G"==s.band)&&s.wifiIdx==t)return s}},initData:function(n){if(0!=n){var t=this.errorFun,i=!0,s=cs.ssid(this.ssid);if(0==s?t(lang_t("wifi.msg1")):4==s?t(lang_t("wifi.msg18")):5==s?t(lang_t("wifi.msg5")):1==s?t(lang_t("wifi.msg2")):2==s&&t(lang_t("wifi.msg3")),99!=s&&(i=!1),passwordVerify("wifi",lang_t("wifi.pass"),this.key,function(n){n&&(t(n),i=!1)},this.ispass&&i),!i)return 1===n?this.bIndex=this.tempbIndex:this.apIndex=this.tempApIndex,!1;this.lastAp.hssid=this.hssid?"1":"0",this.lastAp.ssid=this.ssid,this.lastAp.key=this.ispass?this.key:"",this.lastAp.wpaMode=this.wpaMode?"2":"1"}if(1===n||0===n){for(var e=0,a=0;a<this.apNum;a++)"0"==this["wifiEnables"+this.bIndex][a]&&e++;this.apLabelWidth=100/e+"%"}this.tempbIndex===this.bIndex&&this.tempApIndex===this.apIndex||(s=this.getIdxAp(),this.lastAp=s,this.tempbIndex=this.bIndex,this.tempApIndex=this.apIndex,this.wifiOff="1"==s.wifiOff,this.band=s.band,this.wifiIdx=s.wifiIdx,this.hssid="1"==s.hssid,this.ssid=s.ssid,this.key=s.key,this.wpaMode="2"==s.wpaMode,this.ispass=""!=s.key)},applyFun:function(){var n=this,t=(this.errorFun,{});if("controller"==n.mode||"auto"==this.mode&&"controller"==this.isConfig){if(!1===this.initData(3))return;for(var n=this,t={},i=0;i<this.mulAp;i++)t["mulAp"+i]=this.tempResAp[i];t.channelPre=n.channelPre,t.channelPre5g=n.channelPre5g,t.steering=n.steering?"1":"0",t.rssiThreshold=n.rssiThreshold}t.backHaulPre=n.backHaulPre,t.backHaulPre5g=n.backHaulPre5g,uiPost.setEasyMeshBssCfg(t,function(n){postCallback(n,15)})},errorFun:function(n){Cstool.Mark({content:n,l_text:this.lang_t("common.back")})}}}</script><script src="/static/js/main.js"></script></body></html>

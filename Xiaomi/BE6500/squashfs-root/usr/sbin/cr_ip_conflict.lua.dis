@@ -1,0 +1,105 @@
+local L0, L1, L2, L3, L4, L5
+L0 = require
+L1 = "nixio.fs"
+L0 = L0(L1)
+L1 = require
+L2 = "nixio"
+L1 = L1(L2)
+L2 = require
+L3 = "posix"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.util"
+L3 = L3(L4)
+L4 = require
+L5 = "xiaoqiang.module.XQMessageBox"
+L4 = L4(L5)
+function L5(...)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L4 = LOG_USER
+  L1(L2, L3, L4)
+  L4, L5, L6, L7, L8, L9 = ...
+  L2[1] = L3
+  L2[2] = L4
+  L2[3] = L5
+  L2[4] = L6
+  L2[5] = L7
+  L2[6] = L8
+  L2[7] = L9
+  for L4, L5 in L1, L2, L3 do
+    L6 = _UPVALUE0_
+    L6 = L6.syslog
+    L7 = 4
+    L8 = _UPVALUE1_
+    L8 = L8.serialize_data
+    L9 = L5
+    L8, L9 = L8(L9)
+    L6(L7, L8, L9)
+  end
+  L1()
+end
+log = L5
+function L5()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = "/tmp/mi_ip_conflict_pid"
+  L1 = _UPVALUE0_
+  L1 = L1.readfile
+  L2 = L0
+  L1 = L1(L2)
+  if L1 and L1 ~= "" then
+    L2 = os
+    L2 = L2.execute
+    L3 = "kill -0 "
+    L4 = tostring
+    L5 = L1
+    L4 = L4(L5)
+    L5 = " 2>/dev/null"
+    L3 = L3 .. L4 .. L5
+    L2 = L2(L3)
+    if 0 == L2 then
+      return
+    end
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.writefile
+  L3 = L0
+  L4 = _UPVALUE1_
+  L4 = L4.getpid
+  L4, L5, L6, L7, L8 = L4()
+  L2(L3, L4, L5, L6, L7, L8)
+  L2 = require
+  L3 = "xiaoqiang.util.XQSysUtil"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.module.XQIPConflict"
+  L3 = L3(L4)
+  L4 = L3.ip_conflict_detection
+  L4 = L4()
+  L5 = L2.getInitInfo
+  L5 = L5()
+  if L5 and L4 then
+    L5 = log
+    L6 = "There is IP conflict: newip="
+    L7 = tostring
+    L8 = L4
+    L7 = L7(L8)
+    L6 = L6 .. L7
+    L5(L6)
+    L5 = _UPVALUE2_
+    L5 = L5.addMessage
+    L6 = {}
+    L6.type = 4
+    L7 = {}
+    L7.ip = L4
+    L6.data = L7
+    L5(L6)
+  elseif not L4 then
+    L5 = _UPVALUE2_
+    L5 = L5.removeMessage
+    L6 = 4
+    L5(L6)
+  end
+end
+main = L5
+L5 = main
+L5()

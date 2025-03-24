@@ -1,0 +1,10 @@
+Package: cs_tools
+Version: 1
+Depends: libc, libpthread, libcommon
+Source: package/carystudio/cs_tools
+SourceName: cs_tools
+Section: CaryStudio Properties
+SourceDateEpoch: 1688126617
+Architecture: aarch64_cortex-a53
+Installed-Size: 9778
+Description:  tool to read or wirte product info

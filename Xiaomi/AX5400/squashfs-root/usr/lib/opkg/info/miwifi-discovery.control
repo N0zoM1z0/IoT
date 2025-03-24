@@ -1,0 +1,8 @@
+Package: miwifi-discovery
+Version: 0
+Depends: libc, libubus, libblobmsg-json, libubox, libnl, qca-cfg80211, libmbedtls, kmod-qca-wifi
+Source: package/miwifi/miwifi-discovery
+Section: net
+Architecture: arm_cortex-a7
+Installed-Size: 17534
+Description:  MiWiFi new router discovery

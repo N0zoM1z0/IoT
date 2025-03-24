@@ -1,0 +1,9 @@
+Package: qca-nss-fw-mp-retail
+Version: 12-1
+Depends: libc
+Provides: qca-nss-fw-mp
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/nss/qca-nss-fw-mp-retail
+Section: kernel
+Architecture: arm_cortex-a7
+Installed-Size: 291610
+Description:  This package contains the NSS firmwares (retail) for QCA chipset

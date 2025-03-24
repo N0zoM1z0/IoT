@@ -1,0 +1,552 @@
+<script type="text/javascript">
+	var wdsTargetIndex = [];
+
+	function init()
+	{
+		var MAX_AP_ENTRY, LOAD = 64;
+		var getScanResultHd = null;
+		var wdsScanTable = null;
+		var scanRetryCounts = 1;
+		var selectedFreq = {};
+
+		selectedFreq[FREQ_2G] = false;
+		selectedFreq[FREQ_5G] = false;
+		selectedFreq[FREQ_5G1] = false;
+		selectedFreq[FREQ_5G4] = false;
+
+		/* 需要扫描的无线频段列表 */
+		var scanWiFiList = [];
+		scanWiFiList[FREQ_2G ] = false;
+		scanWiFiList[FREQ_5G ] = false;
+		scanWiFiList[FREQ_5G1] = false;
+		scanWiFiList[FREQ_5G4] = false;
+
+		var tableNiceScroll = null;
+		tableNiceScroll = new NiceScroll({targetId:"scrollCon"});
+		tableNiceScroll.scrollTipSet({"display":"none"});
+		tableNiceScroll.scrollTipOpacity(1);
+		tableNiceScroll.init();
+
+		switch(slp.bandsProvided - 1)
+		{
+            case BAND_3:
+                MAX_AP_ENTRY = LOAD*3;
+                break;
+            case BAND_2:
+                MAX_AP_ENTRY = LOAD*2;
+                break;
+            case BAND_1:
+            default:
+                MAX_AP_ENTRY = LOAD;
+                break;
+		}
+
+		function signalLevel(rssi)
+		{
+			if (rssi >= 20) {
+				if (rssi >= 30) {
+					return 4;
+					// if (rssi >= 50) {
+					// 	return 5;		/* rssi∈[50, 100) */
+					// }
+					// else {
+					// 	return 4;		/* rssi∈[30, 50) */
+					// }
+				}
+				else {
+					return 3;			/* rssi∈[20, 30) */
+				}
+			}
+			else {
+				if (rssi >= 10) {
+					return 2;			/* rssi∈[10, 20) */
+				}
+				else {
+					return 1;			/* rssi∈[0, 10) */
+				}
+			}
+		}
+
+		function fmtApList(apList, freq)
+		{
+			var len = apList.length;
+			var prefix = "ap_";
+			var ftmList = [];
+
+			for(var i = 0; i < len; i++)
+			{
+				var idx = i + 1;
+
+				ftmList[i] = {};
+				ftmList[i]["freq"] = freq;
+				ftmList[i]["freqArr"] = [freq];
+				ftmList[i]["freqInfo"] = gFreqInfo[freq];
+				ftmList[i]["ssid"] = apList[i][prefix + idx]["ssid"];
+				ftmList[i]["encryption"] = apList[i][prefix + idx]["encryption"];
+				ftmList[i]["rssi"] = apList[i][prefix + idx]["rssi"];
+				ftmList[i]["signal"] = signalLevel(apList[i][prefix + idx]["rssi"]);
+			}
+
+			return ftmList;
+		}
+
+		/* 格式化扫描到的Root AP列表 */
+		function getScanApList(data)
+		{
+			var apList = [], name; tmpApList = {};
+			for (var freq in scanWiFiList)
+			{
+				if (!scanWiFiList.hasOwnProperty(freq)){
+					continue;
+				}
+				if (scanWiFiList[freq])
+				{
+					name = gWDSModel[freq].wlan_scan;
+					tmpApList[freq] = fmtApList(data.wireless[name], freq);
+
+					for (var i = 0; i < tmpApList[freq].length; ++i) {
+						var found = false;
+						for (var j = 0; j < apList.length; ++j) {
+							//SSID相同且加密方式相同的合并
+							if (apList[j].ssid == tmpApList[freq][i].ssid &&
+								apList[j].encryption == tmpApList[freq][i].encryption) {
+								found = true;
+								apList[j].rssi = Math.max(apList[j].rssi, tmpApList[freq][i].rssi);
+								apList[j].signal = Math.max(apList[j].signal, tmpApList[freq][i].signal);
+
+								// 解决出现 2.4G & 5G & 5G，这种情况
+								if ($.inArray(tmpApList[freq][i].freq, apList[j].freqArr) == -1) {
+									apList[j].freqArr.push(tmpApList[freq][i].freq);
+									apList[j].freqInfo = apList[j].freqInfo + ' & ' + tmpApList[freq][i].freqInfo;
+									apList[j].freq = FREQ_BS;
+								}
+								break;
+							}
+						}
+						if (!found) {
+							apList.push(tmpApList[freq][i]);
+						}
+					}
+				}
+			}
+
+			return apList;
+		}
+
+		function wdsTargetSelHandler(index, params)
+		{
+			var freq = scanList[index].freq;
+			var freqArr = scanList[index].freqArr;
+			var checked = params.obj.className == 'checkboxBtn' ? true : false;
+
+			if (checked)
+			{
+				var encryption = scanList[index].encryption;
+
+				if (freq == FREQ_BS) {
+					for (var i = 0; i < freqArr.length; i++) {
+						selectedFreq[freqArr[i]] = true;
+					}
+				} else {
+					selectedFreq[freq] = true;
+				}
+
+				if (encryption != uciWireless.encryptionType.none && encryption != uciWireless.encryptionType.psk2_psk &&
+					encryption != uciWireless.encryptionType.psk2_sae3 && encryption != uciWireless.encryptionType.sae3 &&
+					encryption != uciWireless.encryptionType.wpa3)
+				{
+					showPhWzdAlert("所选的路由器加密方式过旧，请将该路由器的加密方式更改为WPA/WPA2-PSK AES或WPA2-PSK/WPA3-SAE后重新连接。");
+					params.obj.className = "checkboxBtnUn";	/* 取消选择 */
+					return;
+				}
+				for (var i = 0; i < scanList.length; i++) {
+					//已勾选的跳过
+					if (i == index || $("#WDSTbl input")[scanList.length - 1 - i].className == 'checkboxBtn') continue;
+
+					if (scanList[i].freq == FREQ_BS) {
+						for (var j = 0; j < scanList[i].freqArr.length; j++) {
+							if (selectedFreq[scanList[i].freqArr[j]]) {
+								$("#WDSTbl input")[scanList.length - 1 - i].className = 'checkboxBtnDis';
+								break;
+							}
+						}
+					} else {
+						if (selectedFreq[scanList[i].freq]) {
+							$("#WDSTbl input")[scanList.length - 1 - i].className = 'checkboxBtnDis';
+						}
+					}
+				}
+
+				if($.inArray(index, wdsTargetIndex) == -1){
+					wdsTargetIndex.push(index);
+				}
+
+				//勾选的项为合并项
+				if (freq == FREQ_BS) {
+					for (var i = 0; i < freqArr.length; ++i) {
+						wdsTargetSelFreq[freqArr[i]] = {"selected": true, "bs": true};
+						gRootAPInfo[freqArr[i]].ssid = scanList[index].ssid;
+						gRootAPInfo[freqArr[i]].key = "";
+						gRootAPInfo[freqArr[i]].encryption = parseInt(encryption) ? 1 : 0;
+					}
+				} else {
+					wdsTargetSelFreq[freq] = {"selected": true, "bs": false};
+					gRootAPInfo[freq].ssid = scanList[index].ssid;
+					gRootAPInfo[freq].key = "";
+					gRootAPInfo[freq].encryption = parseInt(encryption) ? 1 : 0;
+				}
+			} else {
+				if (freq == FREQ_BS) {
+					for (var i = 0; i < freqArr.length; i++) {
+						selectedFreq[freqArr[i]] = false;
+					}
+				} else {
+					selectedFreq[freq] = false;
+				}
+
+				//取消勾选的项为合并项
+				if (freq == FREQ_BS) {
+					for (var i = 0; i < freqArr.length; ++i) {
+						wdsTargetSelFreq[i] = {"selected": false, "bs": false};
+					}
+				} else {
+					wdsTargetSelFreq[freq] = {"selected": false, "bs": false};
+				}
+				if ($.inArray(index,wdsTargetIndex) != -1){
+					wdsTargetIndex.splice($.inArray(index, wdsTargetIndex),1)
+				}
+				if (wdsTargetIndex.length == 0) {
+					$("#WDSTbl input.checkboxBtnDis").attr("class", 'checkboxBtnUn');
+				} else {
+					//与勾选项频段相同的解禁
+					for (var i = 0; i < scanList.length; i++) {
+						if (scanList[i].freq == FREQ_BS) {
+							var unSelect = true;
+							for (var j = 0; j < scanList[i].freqArr.length; j++) {
+								if (selectedFreq[scanList[i].freqArr[j]]) {
+									unSelect = false;
+									break;
+								}
+							}
+
+							if (unSelect) {
+								$("#WDSTbl input")[scanList.length - 1 - i].className = 'checkboxBtnUn';
+							}
+						} else {
+							if (!selectedFreq[scanList[i].freq]) {
+								$("#WDSTbl input")[scanList.length - 1 - i].className = 'checkboxBtnUn';
+							}
+						}
+					}
+				}
+			}
+		}
+
+		function wdsScanTableInit()
+		{
+			wdsScanTable = new Table({
+                targetId: "WDSTbl",
+                data: scanList,
+                head:[
+					{field:label.select, width:"0.1"},
+                    {field:label.wirelessNa, width:"0.9"},
+					{field:label.secInfo, width:"0.1", props:{"text-align":"center"}},
+                    {field:label.sigDep, width:"0.1", props:{"text-align":"center"}},
+
+                ],
+                column:[
+					{className:"checkboxBtn", classNameUn:"checkboxBtnUn", classNameDis:"checkboxBtnDis",
+					  type:"enablePot", subType:"checkbox", click:wdsTargetSelHandler},
+					{name:"ssid", type:"ssidAndFreq"},
+					{name:"authMode", type: "password"},
+                    {name:"signal", type:"signal"}
+     
+                ],
+                loadingOptions:{
+                    str: label.scaningWiFiSignal
+                },
+                blankOptions:{
+                    str: label.nonWdsScanData
+				},
+				hasFixedHeight: 9,
+				numPerPage: MAX_AP_ENTRY,
+				hasHead: false,
+                hasAllCheckBox: false,
+                editable: false,
+                hasCheckBox: false,
+                deletable: false,
+                addable: false,
+                max: MAX_AP_ENTRY,
+                isPhoneScrollFixedHeight: true
+            });
+		}
+
+		function loadScanResult()
+		{
+            var arg = {"wireless":{"table":[]}};
+
+            for (var band in scanWiFiList)
+            {
+                if (!scanWiFiList.hasOwnProperty(band)){
+                    continue;
+                }
+                if (scanWiFiList[band])
+                {
+                    arg.wireless.table.push(gWDSModel[band].wlan_scan);
+                }
+            }
+
+            $.query(arg, function(data){
+                if (ENONE == data[ERR_CODE]){
+                    scanList = getScanApList(data);
+                    scanList.sort(function(pre, next){
+                        var preRssi = parseInt(pre.rssi);
+                        var nextRssi = parseInt(next.rssi);
+                        if (preRssi > nextRssi) {
+                            return 1;
+                        }
+                        else if (preRssi == nextRssi) {
+                            return 0;
+                        }
+                        else {
+                            return -1;
+                        }
+                    });
+
+                    scanList = scanList.slice(-MAX_AP_ENTRY);
+                    wdsTargetIndex = [];
+                    wdsTargetSelFreq = {};
+                    // disabledBtn("next",true)
+                }
+                else{
+                    scanList = [];
+                    scanList.length = 0;
+                    errHandle(data[ERR_CODE]);
+                }
+                wdsScanTable.setDataSource(scanList);
+                wdsScanTable.closeLoading(function(){
+                    wdsScanTable.loadData();
+				});
+            });
+        }
+
+		function getScanResult()
+		{
+			var arg = {"wireless":{"name": []}};
+			for (var freq in scanWiFiList)
+			{
+				if (!scanWiFiList.hasOwnProperty(freq)){
+					continue;
+				}
+				if (scanWiFiList[freq])
+				{
+					arg.wireless.name.push(gWDSModel[freq].wlan_scan_status);
+				}
+			}
+
+			$.query(arg, function(ret) {
+				var bFinsh = true;
+				var SCAN_FINSH = 1;
+				for (var name in ret.wireless)
+				{
+					if (!ret.wireless.hasOwnProperty(name)){
+						continue;
+					}
+					if (SCAN_FINSH != ret.wireless[name].status)
+					{
+						bFinsh = false;
+					}
+				}
+				if (true == bFinsh) {
+					loadScanResult();
+				}
+				else {
+					getScanResultHd = $.setTimeout(getScanResult, 2000);
+				}
+			});
+		}
+
+		function refreshScanList()
+		{
+			wdsScanTable.showLoading();
+			selectedFreq[FREQ_2G] = false;
+			selectedFreq[FREQ_5G] = false;
+			selectedFreq[FREQ_5G1] = false;
+			selectedFreq[FREQ_5G4] = false;
+
+			for (var freq in scanWiFiList)
+			{
+				if (!scanWiFiList.hasOwnProperty(freq)){
+					continue;
+				}
+				if (scanWiFiList[freq])
+				{
+					/* 发送开始扫描动作 */
+					$.action(gWDSModel[freq].scan_start);
+				}
+			}
+
+			scanRetryCounts = 1;
+			getScanResultHd = $.setTimeout(getScanResult, 3000);
+		}
+
+		function nextStep()
+		{
+			if (wdsTargetIndex.length == 0)
+			{
+				showPhWzdAlert("请选择您要中继的条目");
+			}
+			else
+			{
+				loadPage("PhoneWlanWDSCfgSecond.htm", "phCon");
+			}
+		}
+
+		function preNextStep() {
+			backFromNextPage = false;
+
+			if (slp.wifiSwitchSupport){
+				checkWifiSwitchOff(nextStep);
+			} else {
+				nextStep();
+			}
+		}
+
+		// 初始化需要扫描的频段列表
+		if (slp.bandSteeringProvided && "1" == gLocalAPInfo[FREQ_BS].bs_enable)
+		{
+			if ("1" == gLocalAPInfo[FREQ_BS].wifi_enable)
+			{
+				for (var freq in gKeyNames[slp.bandsProvided - 1].wlan_wds)
+				{
+					if (!gKeyNames[slp.bandsProvided - 1].wlan_wds.hasOwnProperty(freq)){
+						continue;
+					}
+					if (null != gKeyNames[slp.bandsProvided - 1].wlan_wds[freq])
+					{
+						scanWiFiList[freq] = true;
+					}
+				}
+			}
+		}
+		else
+		{
+			for (var freq in gLocalAPInfo)
+			{
+				if (!gLocalAPInfo.hasOwnProperty(freq)){
+					continue;
+				}
+				if (FREQ_BS != freq)
+				{
+					scanWiFiList[freq] = ("1" == gLocalAPInfo[freq].enable);
+				}
+			}
+		}
+
+		bInWizard = true;
+		$("#refreshBtn").click(refreshScanList);
+		$("#next").click(preNextStep);
+		$("#back").click(function(){
+			loadPage("PhoneWirelessRepeaterWeb.htm","phCon");
+		})
+		// 暂不实现手动添加
+		// $("p.WDSAddHandle").click(wdsManualHandler);
+
+		wdsScanTableInit();
+		refreshScanList();
+	}
+	init();
+</script>
+<style type="text/css">
+label#refreshBtn {
+	float: right;
+	margin-right: 24px;
+	font-size: 15px;
+	line-height: 24px;
+	color: #FF3366;
+}
+i.refresh {
+	width: 24px;
+	height: 24px;
+	display: inline-block;
+	vertical-align: top;
+	background:url(../web-static/images/portal.png) -315px -8px no-repeat;
+}
+p.WDSTitle {
+	color: #333333;
+	font-size: 15px;
+	line-height: 24px;
+	text-align: left;
+	margin-left: 24px;
+	margin-bottom: 10px;
+}
+#WDSTbl {
+	width: 100%;
+}
+#WDSTbl .tableLoadingCon {
+	margin: 0 auto;
+}
+#WDSTbl .WDSTblTableContainer{
+	border: none;
+}
+input.checkboxBtn{
+	height:24px;
+	width:24px;
+	border:0px;
+	font-size:0px;
+	cursor:pointer;
+	outline:none;
+	vertical-align:middle;
+	background:url(../web-static/images/portal.png) -411px -8px no-repeat;
+}
+input.checkboxBtnUn{
+	height:24px;
+	width:24px;
+	border:0px;
+	font-size:0px;
+	cursor:pointer;
+	outline:none;
+	vertical-align:middle;
+	background:url(../web-static/images/portal.png) -346px -8px no-repeat;
+}
+input.checkboxBtnDis{
+	height:24px;
+	width:24px;
+	border:0px;
+	font-size:0px;
+	cursor:pointer;
+	outline:none;
+	vertical-align:middle;
+	background:url(../web-static/images/portal.png) -379px -8px no-repeat;
+}
+#WDSTbl .ssidCon{
+	font-size: 16px;
+	color: #000000;
+	line-height: 24px;
+	opacity: 0.8;
+}
+#WDSTbl .freqCon{
+	font-size: 16px;
+	color: #000000;
+	line-height: 24px;
+	opacity: 0.4;
+}
+#scrollCon{
+	padding-left:10px;
+	padding-right: 20px;
+}
+</style>
+<h1 class="phoneTitle">桥接（无线中继）</h1>
+<div class="phoneBlockTable">
+	<label id="refreshBtn">刷新<i class="refresh"></i></label>
+	<p class="WDSTitle">
+		<span>请选择您需要中继的前端路由器</span>
+	</p>
+	<div id="scrollCon">
+		<table id="WDSTbl"></table>
+	</div>
+</div>
+<div class="phFunc">
+	<label id="back" class="phTwoBtnL">上一步</label>
+	<label id="next" class="phTwoBtnR">下一步</label>
+</div>

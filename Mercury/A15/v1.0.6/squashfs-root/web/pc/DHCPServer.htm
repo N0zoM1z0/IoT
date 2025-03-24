@@ -1,0 +1,47 @@
+
+<style>
+span.abnormalState i.disc{
+	background:#ff3366;
+}
+span.abnormalState span.state{
+	color:#ff3366;
+}
+span#dhcpOff{
+	display: none;
+}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.DHCPServer%}</h1><i class="helpBtn iconfont icon-help" helpStr="dhcpServerHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.dhcpServerDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<div class="subTitle">
+	<h2>{%menuStr.DHCPServer%}</h2>
+	<span id="dhcpOff" class="abnormalState"><i class="disc"></i><span class="state">{%statusStr.offed%}</span></span>
+	<div id="radioGroup">
+		<div id="dhcpServerOn" class="radioLabel"></div>
+		<div id="dhcpServerOff" class="radioLabel"></div>
+		<div id="dhcpServerAuto" class="radioLabel"></div>
+	</div>
+</div>
+<div id="basicArguments"></div>
+<div id="save"></div>
+<div id="dhcpEquipmentTable" class="advanceTable"></div><script type="text/javascript">(function(){function F(){var a={};a[f]={};a[f][KEY_NAME]=[D];a[f][KEY_TABLE]=[uciDhcpd.dynData.dhcpClient];a[uciNetwork.fileName]={};a[uciNetwork.fileName][KEY_NAME]=[uciNetwork.secName.lan];slp.gSysModeSupport&&(a.system={name:"sys_mode"});$.query(a,S)}function S(a){var d=a[uciNetwork.fileName][uciNetwork.secName.lan];y=d[uciNetwork.optName.ip];c=d[uciNetwork.optName.netmask];d=d[uciNetwork.optName.facIp];$("#dhcpHelpLanIp").text(d);T(a[f][D]);slp.gSysModeSupport&&(q=a.system.sys_mode.mode,q!=G&&
+($(".relayErrorTip").show(),z.disable(!0),A.disable(!0),B.disable(!0),H(!0),$("#dhcpEquipmentTable").html(""),r=new Table({targetId:"dhcpEquipmentTable",title:label.dhcpEquipment,head:[{field:label.host,width:"0.25"},{field:label.mac,width:"0.25"},{field:label.ipAddr,width:"0.25"},{field:label.availTime,width:"0.25"}],column:[{name:uciDhcpd.optName.hostName,type:"str"},{name:uciDhcpd.optName.mac,type:"mac"},{name:uciDhcpd.optName.ip,type:"ip"},{name:uciDhcpd.optName.expires,type:"timeP"}],tableOption:[{icon:"icon-refresh",
+str:btn.refresh,type:"refresh",func:I}],deletable:!1,editable:!1,hasCheckBox:!1,addable:!1,disableState:!0}),q==U?$("#relayTipText").text("上网方式为AP（有线中继）时，DHCP服务器默认自动，不可修改。"):$("#relayTipText").text("上网方式为桥接（无线中继）时，DHCP服务器默认自动，不可修改。")));J(a)}function I(){var a={};a[f]={};a[f][KEY_TABLE]=[uciDhcpd.dynData.dhcpClient];h="refresh";$.query(a,J)}function H(a){k.disable(a);l.disable(a);C.disable(a);s.disable(a);t.disable(a);u.disable(a);E.disable(a)}function T(a){var d="0"==a[K]?!1:!0,c="0"==a[V]?!1:!0;
+slp.modeSwitchSupport&&getBridgeStatus(function(a){a&&(z.disable(!0),A.disable(!0),B.disable(!0),c&&!d&&H(!0))});c?B.setValue(!0):d?z.setValue(!0):A.setValue(!0);d?L.setValue(c?label.autoOpen:label.open,{color:"#24B353"}):L.setValue(c?label.autoClose:label.close,{color:"#FF3366"});k.setValue(a[M]);l.setValue(a[N]);C.setValue(parseInt(parseInt(a[O])/60));s.setValue(a[P]||"0.0.0.0");t.setValue(a[Q]||"0.0.0.0");u.setValue(a[R]||"0.0.0.0")}function J(a){g=formatTableData(a[f][uciDhcpd.dynData.dhcpClient])||
+[];for(a=0;a<g.length;a++)0==g[a].hostname.length&&(g[a].hostname=label.anonymousHost);r.setDataSource(g);r.loadData();"refresh"==h&&showToast(label.refreshSuccess);h="normal"}function m(){var a=this.input.value;return""==a||"0.0.0.0"==a?!0:checkInputIp.call(this)}var f=uciDhcpd.fileName,D=uciDhcpd.secName.udhcpd,K=uciDhcpd.optName.enable,M=uciDhcpd.optName.poolStart,N=uciDhcpd.optName.poolEnd,O=uciDhcpd.optName.leaseTime,P=uciDhcpd.optName.gateway,Q=uciDhcpd.optName.priDns,R=uciDhcpd.optName.sndDns,
+V=uciDhcpd.optName.auto,y,c,g=[],h="normal",G=0,U=1,q=G,z=new Radio({targetId:"dhcpServerOn",label:label.open,name:"dhcpServer"}),A=new Radio({targetId:"dhcpServerOff",label:label.close,name:"dhcpServer"}),B=new Radio({targetId:"dhcpServerAuto",label:label.auto,name:"dhcpServer"}),L=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.dhcpServerState},targetId:"basicArguments",props:{type:"text"}}),k=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.addrPoolStart},targetId:"basicArguments",
+check:{blur:checkInputIp},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),l=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.addrPoolEnd},targetId:"basicArguments",check:{blur:checkInputIp},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),C=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.addrLease},targetId:"basicArguments",tips:{value:label.unitMinute,className:"unit"},hint:{value:label.dhcpLeaseMin},check:{blur:function(){if(!checkNum(this.input.value))return this.showNote(errStr.inputFmtErr),
+!1;2880<this.input.value?this.setValue((2880).toString()):1>this.input.value&&this.setValue((1).toString());return!0}},props:{maxlength:"4",type:"text"}}),s=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.gateway},targetId:"basicArguments",check:{blur:m},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),t=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.dns0},targetId:"basicArguments",check:{blur:m},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),u=new Input({type:Input.TYPE.PLAIN_TEXT,
+label:{value:label.dns1},targetId:"basicArguments",check:{blur:m},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),E=new Button({text:btn.save,onClick:function(){function a(){E.disable(!0);$.modify(d,function(a){E.disable(!1);a:{a=a[ERR_CODE];var b="";switch(a){case ENONE:a=!0;break a;case EINVSTARTADDRPOOL:b=errStr.dhcpsStrtAddrPoolErr;break;case EINVENDADDRPOOL:b=errStr.dhcpsEndAddrPoolErr;break;case EINVLEASETIME:b=errStr.dhcpsLeaseErr;break;case EDHCPDGTW:b=errStr.gatewayErr;break;case EGTWNOTLANSUBNET:b=
+errStr.dhcpsGateWayErr;break;case EDHCPDPRIDNS:b=errStr.primDnsErr;break;case EDHCPDSNDDNS:b=errStr.seDnsErr;break;case EINVIP:b=errStr.ipAddrErr;break;case EINVIPFMT:b=errStr.ipAddrFmtErr;break;case EINVGROUPIP:b=errStr.ipAddrGroupErr;break;case EINVLOOPIP:b=errStr.ipAddrLoopErr;break;case EINVMACFMT:b=errStr.macFmtErr;break;case EINVMACZERO:b=errStr.macZeroErr;break;case EINVMACBROAD:b=errStr.macBroadErr;break;case EINVMACGROUP:b=errStr.macGroupErr;break;case EMULTIWANENABLE:b=errStr.dhcpsCloseConflict;
+break;case EWDSMODEOPEN:b=errStr.wdsOnDhcpsOpen;break;case EAPMODEOPEN:b=errStr.apOnDhcpsOpen;break;case EWDSMODECLOSE:b=errStr.wdsOnDhcpsClose;break;case EAPMODECLOSE:b=errStr.apOnDhcpsClose;break;default:b=errStr.unknown+a}alarmDialog.show(b);a=!1}!0==a&&(showToast(label.saveSuccess),F())})}var d={},g={},e={},v,x,w,q,n,p,r,h,m=!0;[k,l,C,s,t,u].forEach(function(a){"string"==typeof a.getValue()&&a.setValue(hideLeadingZeros(a.getValue()));m=a.checkAll()&&m});if(m)if(n=k.getValue(),p=l.getValue(),q=
+C.getValue(),v=s.getValue(),x=t.getValue(),w=u.getValue(),r=!0==z.getValue()?1:0,h=!0==B.getValue()?1:0,d[f]=g,g[D]=e,0==h&&(e[K]=r),e.auto=h,0!=(transIp(n)&transIp(c)^transIp(y)&transIp(c))||ENONE!=checkIpMask(n,c))k.showNote(errStr.inputStrtAddrPoolErr);else if(0!=(transIp(p)&transIp(c)^transIp(y)&transIp(c))||ENONE!=checkIpMask(p,c))l.showNote(errStr.inputEndAddrPoolErr);else{ipStart=transIp(n);ipEnd=transIp(p);ipStart>ipEnd&&(k.setValue(p),l.setValue(n),n=k.getValue(),p=l.getValue());if(""!=v&&
+"0.0.0.0"!=v){if(ENONE!=checkIpMask(v,c)){s.showNote(errStr.inputGatewayErr);return}if(0!=(transIp(v)&transIp(c)^transIp(y)&transIp(c))){s.showNote(errStr.inputGatewayLanSameNetErr);return}}e[M]=n;e[N]=p;e[O]=60*q;e[P]=v;"0.0.0.0"==x&&"0.0.0.0"!=w&&""!=w&&(t.setValue(w),u.setValue(x),x=t.getValue(),w=u.getValue());e[Q]=x;e[R]=w;slp.moduleSpec.wifison_mesh&&1==slp.moduleSpec.wifison_mesh&&!0==A.getValue()?confirmDialog.show({content:label.dhcpCloseTipsMesh,callback:function(c){c&&a()}}):a()}},type:Button.TYPE.PRIMARY,
+id:"save",props:{width:"240px",margin:"12px 0 0 132px"}}),r=new Table({targetId:"dhcpEquipmentTable",title:label.dhcpEquipment,head:[{field:label.host,width:"0.25"},{field:label.mac,width:"0.25"},{field:label.ipAddr,width:"0.25"},{field:label.availTime,width:"0.25"}],column:[{name:uciDhcpd.optName.hostName,type:"str"},{name:uciDhcpd.optName.mac,type:"mac"},{name:uciDhcpd.optName.ip,type:"ip"},{name:uciDhcpd.optName.expires,type:"timeP"}],tableOption:[{icon:"icon-refresh",str:btn.refresh,type:"refresh",
+func:I}],deletable:!1,editable:!1,hasCheckBox:!1,addable:!1});F()})();
+</script>

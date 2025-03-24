@@ -1,0 +1,437 @@
+<style type="text/css">
+	i.completeImg{
+		display:inline-block;
+		width:160px;
+		height:160px;
+		background: url(../web-static/images/wizardEndDut.png) no-repeat;
+	}
+	li.wizardBody{
+		text-align:center;
+	}
+	#conclusion{
+		font-size:24px;
+		font-weight:bold;
+		color:#333;
+		line-height:36px;
+		margin-top:16px;
+	}
+	#bindStatus{
+		display:none;
+		font-size:13px;
+		color:#666;
+		line-height:20px;
+		margin-top:8px;
+	}
+	ul.wifiList{
+		margin:24px 0;
+	}
+	ul.wifiList li{
+		width:206px;
+		height:106px;
+		border:1px solid #e0e0e0;
+		border-radius:4px;
+		display:inline-block;
+		padding:24px;
+		text-align:left;
+	}
+	ul.wifiList li + li{
+		margin-left:16px;
+	}
+	ul.wifiList h2{
+		font-size:24px;
+		font-weight:bold;
+		color:#666;
+		line-height:36px;
+		margin-bottom:14px;
+	}
+	ul.wifiList p{
+		margin-bottom:8px;
+	}
+	ul.wifiList i{
+		font-size:24px;
+		color:#969799;
+		vertical-align:middle;
+	}
+	ul.wifiList span{
+		font-size:14px;
+		color:#333;
+		vertical-align:middle;
+		margin-left:9px;
+		white-space:nowrap;
+		text-overflow:ellipsis;
+		overflow:hidden;
+		display:inline-block;
+		width:173px;
+	}
+	#finish{
+		display:none;
+		width:280px;
+	}
+	div.dfsTipsCon {
+		display: none;
+		font-size: 13px;
+	}
+	div.dfsTipsCon p.dfsP {
+		margin-top: 8px;
+		line-height: 20px;
+	}
+	div.dfsTipsCon p.dfsCountdownP {
+		line-height: 32px;
+	}
+	div.dfsTipsCon #wizardDFScountdown {
+		font-size: 24px;
+		font-weight: bold;
+		color: #FF3366;
+	}
+	div.dfsTipsCon p.dfsCountdownP span.dfsSecond {
+		color: #FF3366;
+	}
+	.lanIp{
+		display:none;
+		font-size:13px;
+		color: #666666;
+	}
+</style>
+<ul class="wzdUl">
+	<li class="wizardSkip"></li>
+	<li class="wizardBody">
+		<i id="completeImg" class="completeImg"></i>
+		<p id="lanIpAddr" class="lanIp">LAN口 IP: <span id="lanIpAddrVal" class="lanIp"></span></p>
+		<p id="conclusion"></p>
+		<div class="dfsTipsCon" id="dfsTips">
+			<p class="dfsP">遵照国家法律法规，路由器正在做退避雷达信号探测，</p>
+			<p class="dfsCountdownP">Wi-Fi信号要 <span id="wizardDFScountdown"></span><span class="dfsSecond">秒</span> 后才能上线，请稍候...</p>
+		</div>
+		<p id="bindStatus"></p>
+		<ul class="wifiList" id="wifiList"></ul>
+		<div id="finish"></div>
+	</li>
+</ul>
+<script type="text/javascript">
+	function init(){
+		var countdown = 0;
+		var countdownHandle = null;
+		var REDIRECT_WAIT_TIME = 4*1000;
+
+		function changeCountDownText(callback) {
+			$("#wizardDFScountdown").html(countdown);
+			countdownHandle = setInterval(function(){
+				countdown--;
+				$("#wizardDFScountdown").html(countdown);
+				if (countdown <= 0)
+				{
+					clearInterval(countdownHandle);
+					typeof callback != "undefined" && callback();
+				}
+			}, 1000);
+		}
+
+		function formatData(raw)
+		{
+			var BS_ENABLE = uciWireless.optValue.bsEnable.enable;
+			var dataArr = [], bsName = uciWireless.secName.wlanBS;
+			var bandSteeringOpen = gWizardData.isBandSteeringOpen;
+
+			function dataPackage(name, title)
+			{
+				dataArr.push({
+					title: title,
+					name: name,
+					ssid: raw[name][uciWireless.dynOptName.ssid],
+					key:  raw[name][uciWireless.dynOptName.key]
+				});
+			}
+
+			switch(slp.bandsProvided)
+			{
+			case slp.SINGLE:
+				dataPackage(uciWireless.dynData.host_2g, label.wirelessHost);
+				break;
+			case slp.DOUBLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(uciWireless.secName.wlanBS, label.wirelessHost);
+				}
+				else
+				{
+					dataPackage(uciWireless.dynData.host_2g, label.wirelessNet2G);
+					dataPackage(uciWireless.dynData.host_5g, label.wirelessNet5G);
+				}
+				break;
+			case slp.TRIPLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(uciWireless.secName.wlanBS,  label.wirelessHost);
+				}
+				else
+				{
+					dataPackage(uciWireless.dynData.host_2g,  label.wirelessNet2G);
+					dataPackage(uciWireless.dynData.host_5g1, label.wirelessNet5G1);
+					dataPackage(uciWireless.dynData.host_5g2, label.wirelessNet5G2);
+				}
+				break;
+			}
+
+			return dataArr;
+		}
+
+		function createWifiList()
+		{
+			var panel = id("wifiList");
+
+			formatData(gWizardData.wifiConf).forEach(function(obj){
+				if (gWizardData.gWifiCfgSave[obj.name] != undefined)
+				{
+					if (gWizardData.gWifiCfgSave[obj.name].ssid != undefined)
+					{
+						gWizardData.wifiConf[obj.name].ssid = gWizardData.gWifiCfgSave[obj.name].ssid;
+					}
+
+					if (gWizardData.gWifiCfgSave[obj.name].key != undefined)
+					{
+						gWizardData.wifiConf[obj.name].key = gWizardData.gWifiCfgSave[obj.name].key;
+					}
+				}
+			});
+
+			formatData(gWizardData.wifiConf).forEach(function(obj){
+				var li, h2, p, i, span;
+
+				li = document.createElement("li");
+				panel.appendChild(li);
+
+				h2 = document.createElement("h2");
+				h2.innerHTML = obj.title;
+				li.appendChild(h2);
+
+				p = document.createElement("p");
+				li.appendChild(p);
+
+				i = document.createElement("i");
+				i.className = "iconfont icon-wifi";
+				p.appendChild(i);
+
+				span = document.createElement("span");
+				span.innerHTML = htmlEscape(obj.ssid);
+				span.title = obj.ssid;
+				p.appendChild(span);
+
+				p = document.createElement("p");
+				li.appendChild(p);
+
+				i = document.createElement("i");
+				i.className = "iconfont icon-password";
+				p.appendChild(i);
+
+				span = document.createElement("span");
+				span.innerHTML = htmlEscape(obj.key.length == 0 ? label.noHasPwd : obj.key);
+				span.title = obj.key.length == 0 ? label.noHasPwd : obj.key;
+				p.appendChild(span);
+			});
+		}
+
+		function redirect()
+		{
+			/* 等待重连成功后再跳转，尽量多等些时间较好 */
+			$.setTimeout(function(){
+				lanDetecting(function(){
+					loadPage("Basic.htm", "Con");
+				});
+			}, REDIRECT_WAIT_TIME);
+		}
+
+		createWifiList();
+
+		var data = {};
+
+		if (slp.gSysModeSupport && gSysMode == uciSystem.optValue.sysMode.wdsMode) {
+			$("#lanIpAddrVal").html(gLanIP);
+			$(".lanIp").show();
+			id("conclusion").innerHTML = label.wizardDoneAndRememberWiFi;
+			id("finish").style.display = "inline-block";
+			if (gWizardData.bShowDFS)
+			{
+				countdown = gWizardData.countdown;
+				changeCountDownText(function(){
+					$("#dfsTips").hide();
+				});
+				$("#dfsTips").show();
+			}
+
+			/* 查看是否已关联CLOUD ID */
+			if (null != cloudHistory)
+			{
+				id("bindStatus").style.display = "block";
+				if (cloudHistory.state.bind)
+				{
+					id("bindStatus").innerHTML = label.bindedCloudId + label.colon + htmlEscape(cloudHistory.state.account);
+				}
+				else
+				{
+					id("bindStatus").innerHTML = label.noBindCloudId;
+				}
+			}
+
+			new Button({
+				text:btn.confirmTip,
+				onClick:function(){
+					var data = {};
+					var dhcpsArg = {"udhcpd":{"enable":"0", "auto":"1"}};
+					var lanArg = {"lan":{"ipaddr":gLanIP, "ip_mode":"dynamic", "netmask":gLanMask}};
+					data.network = lanArg;
+					data.dhcpd = dhcpsArg;
+					data[uciWireless.fileName] = gWizardData.gWifiCfgSave;
+					loadingDialog.show({
+						content: {primary: "正在保存设置，请稍候..."}
+					});
+					$.modify(data, function(ret) {
+						if (gSysMode == uciSystem.optValue.sysMode.apMode) {
+							$.action({"wired_extender": {"set_ip": null}});
+						} else if (gSysMode == uciSystem.optValue.sysMode.wdsMode) {
+							$.action({"network":{"apply_lan_config":null}, "wireless":{"wds_finish":null}}, null, true);
+						}
+
+						if (gIsLanIpChanged) {
+							var jumpPageHd = $.setTimeout(function() {
+								window.location.href = "http://" + gLanIP;
+							}, 60000);
+
+							$.changeDomain(gLanIP);
+							$.setTimeout(function() {
+								lanDetecting(function() {
+									window.location.href = "http://" + gLanIP;
+								});
+							}, 4000);
+						} else {
+							redirect();
+						}
+					})
+				},
+				type:Button.TYPE.PRIMARY,
+				id:"finish"
+			});
+			return;
+		}
+		if (slp.gSysModeSupport && gSysMode == uciSystem.optValue.sysMode.apMode) {
+			$("#lanIpAddrVal").html(gLanIP);
+			$(".lanIp").show();
+			id("finish").style.display = "inline-block";
+			new Button({
+				text:btn.confirmTip,
+				onClick:function(){
+					var data = {};
+					data[uciWireless.fileName] = gWizardData.gWifiCfgSave;
+					loadingDialog.show({
+						content: {primary: "正在保存设置，请稍候..."}
+					});
+					$.modify(data, function(ret) {
+						$.action({"wired_extender": {"set_ip": null}});
+						$.setTimeout(function() {
+							window.location.href = "http://" + gLanIP;
+						}, 60000);
+
+						$.changeDomain(gLanIP);
+						$.setTimeout(function() {
+							lanDetecting(function() {
+								window.location.href = "http://" + gLanIP;
+							});
+						}, 4000);
+					});
+				},
+				type:Button.TYPE.PRIMARY,
+				id:"finish"
+			});
+			return;
+		}
+		if (gWizardData.wifiDisconnect && gWizardData.wifiChanged)
+		{
+			$("#conclusion").html(gBeInCNA == "NO" ? label.wizardDoneAndReconnectWiFi : label.wizardDoneAndClickDone);
+
+			wzdDone();
+			data[uciWireless.fileName] = gWizardData.gWifiCfgSave;
+
+			$.modify(data, function(result){
+				if (result[ERR_CODE] != ENONE)
+				{
+					loadingDialog.hide(function(){
+						alarmDialog.show(errStr.unknown + result[ERR_CODE]);
+					});
+
+					if (gBeInCNA == "NO")
+					{
+						redirect();
+					}
+				}
+				else
+				{
+					if (result["dfs_wait_time"] && result["dfs_wait_time"] != 0)
+					{
+						countdown = result["dfs_wait_time"];
+						changeCountDownText(function(){
+							$("#dfsTips").hide();
+							if (gBeInCNA == "NO")
+							{
+								redirect();
+							}
+						});
+						$("#dfsTips").show();
+					}
+					else
+					{
+						if (gBeInCNA == "NO")
+						{
+							redirect();
+						}
+					}
+				}
+			});
+		}
+		else
+		{
+			id("conclusion").innerHTML = label.wizardDoneAndRememberWiFi;
+			id("finish").style.display = "inline-block";
+
+			if (gWizardData.bShowDFS)
+			{
+				countdown = gWizardData.countdown;
+				changeCountDownText(function(){
+					$("#dfsTips").hide();
+				});
+				$("#dfsTips").show();
+			}
+
+			/* 查看是否已关联CLOUD ID */
+			if (null != cloudHistory)
+			{
+				id("bindStatus").style.display = "block";
+				if (cloudHistory.state.bind)
+				{
+					id("bindStatus").innerHTML = label.bindedCloudId + label.colon + htmlEscape(cloudHistory.state.account);
+				}
+				else
+				{
+					id("bindStatus").innerHTML = label.noBindCloudId;
+				}
+			}
+
+			if (gBeInCNA == "NO")
+			{
+				if (!slp.gSysModeSupport || gSysMode == uciSystem.optValue.sysMode.routerMode){
+					new Button({
+						text:btn.confirmTip,
+						onClick:function(){
+							loadPage("Basic.htm", "Con");
+						},
+						type:Button.TYPE.PRIMARY,
+						id:"finish"
+					});
+				}
+			}
+			else
+			{
+				$("#conclusion").html(label.wizardDoneAndClickDone);
+			}
+		}
+	};
+	init();
+</script>

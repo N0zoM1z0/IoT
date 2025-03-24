@@ -1,0 +1,188 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+function WLANStatus()
+{
+	this.Path = "";
+	this.enable = "";
+	this.SSID = "";
+	this.BSSID = "";
+	this.BeaconType = "";
+	this.BeaconTypeExt = "";
+	this.WEPEncryptionLevel = "";
+	this.WEPKeyIndex = "";
+	this.BasicAuthenticationMode = "";
+	this.BasicEncryptionModes = "";
+	this.WPAAuthenticationMode = "";
+	this.WPAEncryptionModes = "";
+	this.IEEE11iAuthenticationMode = "";
+	this.IEEE11iEncryptionModes = "";
+	this.PSKExpression = "";
+	this.KeyPassphrase = "";
+	this.PreSharedKey = "";
+}
+
+var index = 0;
+var G_Wireless = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. Enable SSID BSSID BeaconType BeaconTypeExt WEPEncryptionLevel WEPKeyIndex BasicAuthenticationMode BasicEncryptionModes WPAAuthenticationMode WPAEncryptionModes IEEE11iAuthenticationMode IEEE11iEncryptionModes PSKExpression KeyPassphrase PreSharedKey" -->
+	G_Wireless[index] = new WLANStatus();
+	G_Wireless[index].Path = "<!--#path -->";
+	G_Wireless[index].Enable = "<!--#leaf "1"-->";
+	G_Wireless[index].SSID = "<!--#leaf "2"-->";
+	G_Wireless[index].BSSID = "<!--#leaf "3"-->";
+	G_Wireless[index].BeaconType ="<!--#leaf "4"-->";
+	G_Wireless[index].BeaconTypeExt = "<!--#leaf "5"-->";
+	G_Wireless[index].WEPEncryptionLevel = "<!--#leaf "6"-->";
+	G_Wireless[index].WEPKeyIndex ="<!--#leaf "7"-->";
+	G_Wireless[index].BasicAuthenticationMode ="<!--#leaf "8"-->";
+	G_Wireless[index].BasicEncryptionModes = "<!--#leaf "9"-->";
+	G_Wireless[index].WPAAuthenticationMode = "<!--#leaf "10"-->";
+	G_Wireless[index].WPAEncryptionModes = "<!--#leaf "11"-->";
+	G_Wireless[index].IEEE11iAuthenticationMode = "<!--#leaf "12"-->";
+	G_Wireless[index].IEEE11iEncryptionModes = "<!--#leaf "13"-->";
+	G_Wireless[index].PSKExpression ="<!--#leaf "14"-->";
+	G_Wireless[index].KeyPassphrase = "<!--#leaf "15"-->";
+	G_Wireless[index].PreSharedKey = "<!--#leaf "16"-->";
+	index++;
+<!--#endgetobject -->
+
+function G_wlanconnectTuple()
+{
+	this.ip= "";
+	this.mac = "";
+}
+
+var i = 0;
+var G_wlanconnect = new Array();
+var vanguard = '<!--#getsingle "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.AssociatedDevice.X_TRI-vanguard" -->';
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration." -->
+	<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{i}.AssociatedDevice. AssociatedDeviceIPAddress AssociatedDeviceMACAddress" -->
+	G_wlanconnect[i] = new G_wlanconnectTuple();
+	G_wlanconnect[i].ip = "<!--#leaf "1"-->";
+	G_wlanconnect[i].mac = "<!--#leaf "2"-->";
+	i++;
+	<!--#endgetobject -->
+<!--#endgetobject -->
+function getWlanMode(m)
+{
+	var auth,encryp;
+	var mode = G_Wireless[m].BeaconType;
+
+	switch(mode)
+	{
+		case 'None' :
+			auth = "None";
+			encryp = "None";
+			return [auth,encryp];
+		case 'Basic' :
+			auth   = G_Wireless[m].BasicAuthenticationMode == 'None' ? 'None':'Shared';
+			encryp = G_Wireless[m].BasicEncryptionModes;
+			return [auth,encryp];
+		case 'WPA' :
+			auth = 'WPA-PSK';
+			encryp = G_Wireless[m].WPAEncryptionModes;
+			return [auth,encryp];
+		case '11i' :
+			auth = "WPA2-PSK";
+			encryp = G_Wireless[m].IEEE11iEncryptionModes;
+			return [auth,encryp];
+		case 'WPAand11i' :
+			auth = "WPA-PSK/WPA2-PSK";
+			encryp = G_Wireless[m].IEEE11iEncryptionModes;
+			return [auth,encryp];
+	}
+}
+
+function createTable()
+{
+	var trs = "";
+	for(var m= 0 ; m < G_Wireless.length ; m++)
+	{
+		if(m%2 == 0)
+			trs += "<tr class='OddRowB'>";
+		else
+			trs += '<tr class="EvenRowB">';
+		trs += '<td>SSID-'+(m+1)+'</td>'
+		trs += '<td>'+G_Wireless[m].SSID+'</td>';
+		trs += '<td>'+G_Wireless[m].BSSID+'</td>';
+		if(G_Wireless[m].Enable == 1)
+			trs += '<td>'+getStr('LK_Enable')+'</td>';
+		else	
+			trs += '<td>'+getStr('LK_Disable')+'</td>';
+		var wlan = getWlanMode(m);
+		trs += '<td>'+ wlan[0]+'</td>';
+		trs += '<td>'+ wlan[1]+'</td>';
+		trs += '</tr>';
+
+	}
+	jQuery("#td_table").append(trs);
+
+
+}
+function createconnectTable()
+{
+	var trs= "";
+	if( G_wlanconnect.length == 0)
+		trs += '<tr class="OddRowB"><td colspan="2">'+ getStr("LK_NoRule")+'</td></tr>';
+	else
+	{
+		for(var j = 0; j<G_wlanconnect.length; j++)
+		{
+			if(j%2 == 0)
+				trs += '<tr class="OddRowB">';
+			else
+				trs += '<tr class="EvenRowB">';
+			trs += '<td>'+G_wlanconnect[j].ip+'</td>';
+			trs += '<td>'+G_wlanconnect[j].mac+'</td>';
+			trs += '</tr>'
+		}
+	}	
+	jQuery("#user_table").append(trs);
+}
+function __init()
+{
+	createTable();
+	createconnectTable();
+	if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+</script>        
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_LANWLAN'))</script>
+<form method="get"> 
+<table class="ContentBorder" width="800" id="td_table" cellpadding="0" cellspacing="0">
+<tr class="TitleRow">
+	<td langkey="LK_SSIDIndex"></td>
+	<td langkey="LK_SSID"></td>
+	<td langkey="LK_BSSID"></td>
+	<td langkey="LK_Status"></td>
+	<td langkey="LK_AuthenticationMode"></td>
+	<td langkey="LK_EncryptionMode"></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_AttachedDevicesInfo'))</script>
+<table width="300" class="ContentBorder" cellspacing="0" cellpadding="0" id="user_table">
+<tr class="TitleRow">
+<td width="100" langkey="LK_IPAddress"></td>
+<td langkey="LK_MACAddress"></td>
+<tr>
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();")</script>
+</td></tr></table>
+<script>printEndContent();</script>
+</form>
+</body>
+</html>

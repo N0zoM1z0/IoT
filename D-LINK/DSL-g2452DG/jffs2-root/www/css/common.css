@@ -1,0 +1,338 @@
+/*menu*/
+.hideList {
+display:none;
+}
+.showList {
+
+}
+.MenuBody {
+background-color:#C0D4E6;
+margin:0;
+overflow:auto;
+}
+.MenuTable {
+width:100%;
+}
+
+.firstMenu_normal {
+background-image:url("../skin/menu0.gif");
+margin:0;
+padding:0;
+}
+
+.firstMenu_hover {
+background-color:#00D2FF;
+margin:0;
+padding:0;
+}
+
+.firstMenu_selected {
+background-color:#03A6ff;
+margin:0;
+padding:0;
+}
+
+.firstMenu_selected a, .firstMenu_selected a:hover, .firstMenu_selected a, .firstMenu_selected a:hover{
+color:#FFFFFF;
+font-family:Arial;
+text-decoration:none
+}
+
+.firstMenu_normal a, .firstMenu_normal a:hover, .firstMenu_hover a, .firstMenu_hover a:hover{
+color:#000;
+margin:0;
+padding:0;
+text-decoration:none;
+}
+
+.firstMenu_Content{
+background:transparent url("../skin/arrow1.gif") no-repeat scroll 0 0;
+color: #000000;
+font-weight:normal;
+text-align:left;
+vertical-align:top;
+}
+
+.firstMenu_Content_open{
+background:transparent url("../skin/arrow2.gif") no-repeat scroll 0 0;
+color: #000000;
+font-weight:normal;
+text-align:left;
+vertical-align:top;
+}
+
+.firstMenu_Content_nochild{
+color: #000000;
+font-weight:normal;
+text-align:left;
+vertical-align:top;
+}
+
+.firstMenu_Content_nochild,.firstMenu_Content,.firstMenu_Content_open, .menuDivBg_ChildS, .menuDivBg_SelectedChildS, .menuDivBg_SelectedChildN {
+
+cursor: pointer;
+font-family: Arial;
+font-size: 12px;
+line-height: 21px;
+padding-left: 15px;
+}
+
+.SecMenu, .ThirdMenu{
+line-height:19px;
+padding:0;
+width:99%
+}
+
+div.SecMenu ul{
+list-style-image:none;
+list-style-position:outside;
+list-style-type:none;
+margin:0;
+padding-left:27px;
+
+}
+
+div.ThirdMenu ul{
+list-style-image:none;
+list-style-position:outside;
+list-style-type:none;
+margin:0;
+padding-left:39px;
+}
+
+div.SecMenu li.unselect, div.SecMenu li.unselect a, div.ThirdMenu li.unselect, div.ThirdMenu li.unselect a{
+color:#000000;
+display:block;
+font-family:Arial;
+font-size:12px;
+text-decoration:none;
+text-indent:2px;
+width:99%;
+}
+
+div.SecMenu li.unselect a:hover, div.ThirdMenu li.unselect a:hover{
+color:#0088C2;
+}
+
+div.SecMenu li.select, div.SecMenu li.select a, div.ThirdMenu li.select, div.ThirdMenu li.select a{
+color:#FFFFFF;
+font-family:Arial;
+font-size:12px;
+padding-left:2px;
+text-decoration:none;
+width:auto;
+}
+
+.select a, .select a:hover{
+background-color:#03a6ff;
+padding:0 2px;
+}
+
+.SecChildMenu{
+
+line-height:19px;
+padding:0;
+width:99%
+}
+
+div.SecChildMenu ul{
+background:transparent url("../skin/arrow5.gif") no-repeat scroll 0 0;
+list-style-image:none;
+list-style-position:outside;
+list-style-type:none;
+margin:0;
+padding-left:27px;
+
+}
+
+div.SecChildMenu li.unselect, div.SecChildMenu li.unselect a{
+color:#000000;
+display:block;
+font-family:Arial;
+font-size:12px;
+text-decoration:none;
+text-indent:2px;
+width:99%;
+cursor:pointer;
+}
+
+div.SecChildMenu li.unselect a:hover{
+color:#0088C2;
+}
+
+.SecChildMenuTwo{
+
+line-height:19px;
+padding:0;
+width:99%
+}
+
+div.SecChildMenuTwo ul{
+background:transparent url("../skin/arrow6.gif") no-repeat scroll 0 0;
+list-style-image:none;
+list-style-position:outside;
+list-style-type:none;
+margin:0;
+padding-left:27px;
+
+}
+
+div.SecChildMenuTwo li.unselect, div.SecChildMenuTwo li.unselect a{
+color:#000000;
+display:block;
+font-family:Arial;
+font-size:12px;
+text-decoration:none;
+text-indent:2px;
+width:99%;
+cursor:pointer;
+}
+/*default*/
+.pageMain
+{
+	background-color:#fff;
+	margin:0;
+	overflow: auto;
+	width: 100%;
+	
+}
+
+.pageBgDiv
+{
+	left:0;
+	position:absolute;
+	top:0;
+	width:100%;
+	z-index:-1;
+}
+
+.bodyDiv
+{
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	width: 100%;
+}
+
+.leftheaderfont {
+padding-bottom:2px;
+padding-bottom:15px;
+}
+
+.Logo {
+background-attachment:scroll;
+background-color:transparent;
+background:url(../skin/logo.png);
+background-position:0 0;
+background-repeat:repeat;
+cursor:pointer;
+height:34px;
+width:64px;
+}
+
+.modelBar {
+	-x-system-font:none;
+	color:#FFFFFF;
+	font-family:Arial,Helvetica,sans-serif;
+	font-size:22px;
+	font-size-adjust:none;
+	font-stretch:normal;
+	font-style:normal;
+	font-variant:normal;
+	font-weight:normal;
+	line-height:normal;
+	padding-left:15px;
+}
+.upperheader {
+-x-system-font:none;
+color:#FFFFFF;
+font-family:Arial,Helvetica,sans-serif;
+font-size:14px;
+font-size-adjust:none;
+font-stretch:normal;
+font-style:normal;
+font-variant:normal;
+font-weight:normal;
+line-height:normal;
+padding-bottom:0px;
+padding-left:15px;
+}
+
+.rightheaderfont, .rightheaderfont a:link, .rightheaderfont a:visited {
+-x-system-font:none;
+color:#000;
+font-family:Arial,Helvetica,sans-serif;
+font-size:11px;
+font-size-adjust:none;
+font-stretch:normal;
+font-style:normal;
+font-variant:normal;
+font-weight:normal;
+line-height:normal;
+padding-top:10;
+text-align:right;
+text-decoration:none;
+vertical-align:top;
+}
+
+.menuTdBg{
+	background: url("../skin/opacity67.png") repeat scroll 0 0 transparent
+}
+
+.sizeBarBgNormal{
+background-color:#fff;
+cursor:col-resize;
+width:4px;
+}
+.sizeBarBgHover{
+background:#0088C2;
+cursor:col-resize;
+width:4px;
+}
+.sizeBar{
+background:transparent url(../skin/three_spot.gif) no-repeat scroll 50% 50%;
+cursor:col-resize;
+}
+
+.contentTdBg{
+    width: auto;
+}
+
+#topBar {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 50px;
+}
+
+#mainContent {
+	position: absolute;
+	top: 75px;
+	left: 0px;
+	right: 0px;
+	bottom: 60px;
+}
+
+
+.divNothing{z-index:9; background-color:#000; display:none; height:100%; left:0; opacity:0.5; overflow:hidden; position:absolute; top:0; width:100%; filter:alpha(opacity=50)}
+.divAll{z-index:9; background-color:#000; display:none; height:100%; left:0; opacity:0.5; overflow:hidden; position:absolute; top:0; width:100%; filter:alpha(opacity=50)}
+.divLeft{float:left}
+.divRight{float:right}
+.divRight {
+    display: none;
+    left: 0;
+    opacity: 0.25;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 1200px;
+    z-index: 999;
+	display:none;
+}
+.Tributton{background-Color:#717171;padding-left:9px; padding-right:9px; vertical-align:middle; border-width:1px; border-color:rgba(132, 132, 132, 1); color:#fff; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; cursor:pointer; border-radius:2px 2px 2px 2px;  overflow:visible; background-size:100% 100%;}
+.Tributton.Hover{background-Color:#9f9f9f;padding-left:9px; padding-right:9px; vertical-align:middle; border-width:1px; border-color:rgba(132, 132, 132, 1); color:#000; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }
+.Tributton.Pressed{padding-left:9px; padding-right:9px; vertical-align:middle; border-width:1px; border-color:#1fa0d5; color:#026c99; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }
+.Tributton.Primary{padding-left:9px; padding-right:9px; vertical-align:middle; border-width:1px; border-color:#0088C2; color:#000; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%;}
+.Tributton.Disable{padding-left:9px; padding-right:9px; vertical-align:middle; border-width:1px; border-color:#BBC2C5; color:#8E8E8E; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }

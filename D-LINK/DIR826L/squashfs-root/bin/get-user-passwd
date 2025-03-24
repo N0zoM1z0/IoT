@@ -1,0 +1,7 @@
+#!/bin/sh
+USER=$1
+PASSWD=$2
+echo "get-user-passwd">/dev/console
+echo "USER=$" >/dev/console
+echo "PASSWD=$PASSWD">/dev/console
+app_sync 1032 0 "act=leam" "USER=$USER" "PASSWD=$PASSWD"

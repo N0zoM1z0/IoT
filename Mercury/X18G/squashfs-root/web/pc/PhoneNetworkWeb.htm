@@ -1,0 +1,206 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		var uciFile = uciProto.fileName;
+		var uciWan = uciProto.secName.wan;
+		var uciStatic = uciProto.secName.sta;
+		var uciPppoe = uciProto.secName.pppoe;
+		var uciDynIp = uciProto.secName.dhcp;
+		var wanDetectWaitHd = null;
+		var wanDetectHd = null;
+
+		/* 根据获取到的WAN口数据，进行初始化 */
+		function initWanCfg(result)
+		{
+			if (ENONE == result[ERR_CODE])
+			{
+				var info = result[uciDeviceInfo.fileName][uciDeviceInfo.secName.info];
+				var version = (info[uciDeviceInfo.optName.swVer].split(" "))[0];
+
+				gNetworkCfg[uciProto.optName.type] = result[uciFile][uciWan][uciProto.optName.type];
+				gNetworkCfg[uciProto.optValue.proto.pppoe] = result[uciFile][uciPppoe];
+				gNetworkCfg[uciProto.optValue.proto.staticIp] = result[uciFile][uciStatic];
+				gNetworkCfg[uciProto.optValue.proto.dynIp] = result[uciFile][uciDynIp];
+				gNetworkCfg["lanIp"] = result[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.ip];
+
+				gCloudAccountBR["softVersion"] = info[uciDeviceInfo.optName.swVer];
+			}
+		}
+
+		/* 获取WAN口设置 */
+		function getWanCfg()
+		{
+			var data = {};
+
+			data[uciFile] = {};
+			data[uciFile][KEY_NAME] = [uciWan, uciStatic, uciPppoe, uciDynIp];
+			data[uciDeviceInfo.fileName] = {};
+			data[uciDeviceInfo.fileName][KEY_NAME] = uciDeviceInfo.secName.info;
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.secName.lan;
+
+			$.query(data, initWanCfg);
+		}
+
+		/* 若跳过检测，则默认加载PPPOE设置 */
+		id("skipWanDetect").onclick = function(){
+			wzdNetWorkModeChange(WAN_TYPE_PPPOE);
+		};
+
+		/* 再次探测 */
+		function continueDetect()
+		{
+			var data = {};
+
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][uciNetwork.action.wanDetect] = null;
+			$.action(data, function(result){
+				var wanType = parseInt(result[uciNetwork.optName.proto]);
+
+				switch(wanType)
+				{
+				case ERROR_INTERNEL_ERROR:
+				case ERROR_INPUT_PARA_ERROR:
+				case WAN_IFACE_NOT_LINK:
+					$.setTimeout(continueDetect, 1000);
+					break;
+				case WAN_TYPE_DETECTING:
+				case WAN_TYPE_STATIC:
+				case WAN_TYPE_DHCP:
+				case WAN_TYPE_PPPOE:
+				default:
+					$("#detecting").css("display", "block");
+					$("#detectErr").css("display", "none");
+					$.setTimeout(function(){
+						wanDetectWaitHd = $.setTimeout(function(){
+							$("#detecting").css("display", "none");
+							$("#detectErr").css("display", "block");
+							continueDetect();
+						}, 10*1000);
+						wzdWanDetect();
+					}, 2000);
+					break;
+				}
+			});
+		}
+
+		/* 启动探测 */
+		function wzdWanDetect()
+		{
+			var data = {};
+
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][uciNetwork.action.wanDetect] = null;
+
+			function wzdWanDetectResult()
+			{
+				$.action(data, function(resp){
+					var wanType = parseInt(resp[uciNetwork.optName.proto]);
+
+					if (true == $.local)
+					{
+						wanType = WAN_TYPE_PPPOE;
+					}
+
+					switch(wanType)
+					{
+					case ERROR_INTERNEL_ERROR:
+					case ERROR_INPUT_PARA_ERROR:
+					case WAN_IFACE_NOT_LINK:
+						$("#detecting").css("display", "none");
+						$("#detectErr").css("display", "block");
+						clearTimeout(wanDetectWaitHd);
+						continueDetect();
+						break;
+					case WAN_TYPE_DETECTING:
+						wanDetectHd = $.setTimeout(wzdWanDetectResult, 1000);
+						break;
+					case WAN_TYPE_STATIC:
+					case WAN_TYPE_DHCP:
+					case WAN_TYPE_PPPOE:
+					default:
+						clearTimeout(wanDetectWaitHd);
+						wzdNetWorkModeChange(wanType);
+						break;
+					}
+				});
+			}
+
+			wzdWanDetectResult();
+		}
+
+		try
+		{
+			getWanCfg();
+		}catch(ex){};
+
+		/*设定超时操作*/
+		wanDetectWaitHd = $.setTimeout(function(){
+			clearTimeout(wanDetectHd);
+			$("#detecting").css("display", "none");
+			$("#detectErr").css("display", "block");
+			continueDetect();
+		}, 10*1000);
+
+		if (slp.moduleSpec["wifison_mesh"] && slp.moduleSpec["wifison_mesh"] == 1)
+		{
+			$("p.wanLinkDown").text(label.phWanLinkDownMesh);
+			$("p.detectTipDes").text(label.phWanWzdCheckNoteTMesh)
+		}
+
+		wzdWanDetect();
+	}
+	init();
+</script>
+<style type="text/css">
+	img.detectingGif{
+		height:20px;
+		margin:120px auto 0;
+		width:20px;
+	}
+	p.detectTip{
+		color:#000;
+		font-size:16px;
+		text-align:center;
+	}
+	p.detectTipDes{
+		color: #8D9199;
+		font-size:14px;
+		text-align:center;
+		margin-top:10px;
+	}
+	.textCenter{
+		text-align:center;
+	}
+	.bold{
+		font-weight:bold;
+	}
+	p.detecting{
+		margin-top:20px;
+	}
+	p.wanLinkDown{
+		margin-top:20px;
+	}
+	img.detectErr{
+		height:80px;
+		margin:120px auto 0;
+		width:80px;
+	}
+	label.skip{
+		color:#FF66A3;
+		display:block;
+		font-size:16px;
+		margin:20px auto 0;
+		width:140px;
+	}
+</style>
+<div class="textCenter" id="detecting">
+	<img class="detectingGif" src="../web-static/images/wanDetecting.gif" />
+	<p class="detectTip detecting">{%label.checkingWait%}</p>
+</div>
+<div class="textCenter disNone" id="detectErr">
+	<img class="detectErr" src="../web-static/images/phoneWarn.png" />
+	<p class="detectTip wanLinkDown">{%errStr.phWanLinkDown%}</p>
+	<p class="detectTipDes">{%label.phWanWzdCheckNoteT%}</p>
+	<label id="skipWanDetect" class="skip">{%errStr.skipWanDetect%}</a>
+</div>

@@ -1,0 +1,116 @@
+
+
+<div id="accessCtrlPage">
+	<div class="head">
+		<div class="title">
+			<h1>{%menuStr.actionControl%}</h1>
+			<i class="helpBtn iconfont icon-help" helpStr="accessCtrlHelp"></i>
+		</div>
+		<p class="description">{%titleDescriptionStr.accessControlDescription%}</p>
+	</div>
+	<div id="deviceTable"></div>
+</div>
+<div id="deviceDetail">
+	<div class="head">
+		<span id="deviceDetailBack"><i class="iconfont icon-back"></i><span class="deviceDetailBackText">{%btn.backToAccessControl%}</span></span>
+		<div class="deviceDetailTitle">
+			<i class="deviceDetailLogo"></i>
+			<div class="deviceDetailInfoCon">
+				<span class="deviceDetailName"></span>
+				<span class="deviceDetailIpMacLink" id="ipAddr"><span id="ipv4Label">{%label.ip%}</span>{%label.colon%}<span id="deviceDetailIp"></span></span>
+				<span class="deviceDetailIpMacLink" id="ipv6Addr">{%label.ipv6%}{%label.colon%}<span id="deviceDetailIpv6"></span></span>
+				<span class="deviceDetailIpMacLink">{%label.mac%}{%label.colon%}<span id="deviceDetailMac"></span></span>
+				<span class="deviceDetailIpMacLink">{%label.deviceLinkType%}{%label.colon%}<span id="deviceDetailLink"></span></span>
+			</div>
+		</div>
+	</div>
+	<div class="subTitle">
+		<h2>{%label.deviceNetSpeed%}</h2>
+	</div>
+	<ul class="dashBoard clearfix">
+		<li class="board">
+			<div class="speedInfo">
+				<i class="iconfont icon-upstream"></i>
+				<span id="upSpeed" class="speed">---</span>
+				<p class="speedText"><span id="upUnit">---</span><span>{%label.upSpeed%}</span></p>
+			</div>
+			<div class="speedLimit up">
+				<div class="speedLimitShow up">
+					<span class="speedLimit"></span>
+					<div class="speedLimitBtn limit up">
+						<i class="iconfont icon-speedlimit"></i>
+						<span>{%label.speedLimit%}</span>
+					</div>
+				</div>
+				<div class="speedLimitInput up">
+					<div class="speedLimitInputCon" id="deviceUpSpeedLimit"></div>
+					<div class="speedLimitBtn cancel up">
+						<i class="iconfont icon-close"></i>
+						<span>{%btn.cancel%}</span>
+					</div>
+					<div class="speedLimitBtn commit up">
+						<i class="iconfont icon-ok"></i>
+						<span>{%btn.ok%}</span>
+					</div>
+				</div>
+			</div>
+		</li>
+		<li class="board">
+			<div class="speedInfo">
+				<i class="iconfont icon-downstream"></i>
+				<span id="downSpeed" class="speed">---</span>
+				<p class="speedText"><span id="downUnit">---</span><span>{%label.downSpeed%}</span></p>
+			</div>
+			<div class="speedLimit down">
+				<div class="speedLimitShow down">
+					<span  class="speedLimit"></span>
+					<div class="speedLimitBtn limit down">
+						<i class="iconfont icon-speedlimit"></i>
+						<span>{%label.speedLimit%}</span>
+					</div>
+				</div>
+				<div class="speedLimitInput down">
+					<div class="speedLimitInputCon" id="deviceDownSpeedLimit"></div>
+					<div class="speedLimitBtn cancel down">
+						<i class="iconfont icon-close"></i>
+						<span>{%btn.cancel%}</span>
+					</div>
+					<div class="speedLimitBtn commit down">
+						<i class="iconfont icon-ok"></i>
+						<span>{%btn.ok%}</span>
+					</div>
+				</div>
+			</div>
+		</li>
+	</ul>
+	<div id="accessCtrlTable" class="advanceTable"></div>
+</div><script type="text/javascript">(function(){function s(a){var b="";switch(a){case ENONE:return!0;case ESYSTEM:b=errStr.systemErr;break;case ENOMEMORY:b=errStr.invMemoryOut;break;case ENOECHO:b=errStr.invRequestTimeout;break;case ESYSBUSY:b=errStr.systemBusy;break;case EENTRYEXIST:b=errStr.entryExistErr;break;case EENTRYNOTEXIST:b=errStr.entryNoExistErr;break;case EENTRYCONFLIC:b=errStr.entryConflicErr;break;case ETABLEFULL:b=errStr.tableFullErr;break;case ELACKARG:b=errStr.acIncompleteArg;break;case ETIMEPERIODBLANK:b=errStr.timePeriodBlank;
+break;case ETIMEPERIODTOOLONG:b=errStr.timePeriodTooLong;break;case EINVTLBEGINTIME:b=errStr.invTlBeginTime;break;case EINVTLEENDTIME:b=errStr.invTlEndTime;break;case ETLREPEATBLANK:b=errStr.tlRepeatBlank;break;default:b=errStr.unknown+a}alarmDialog.show(b);return!1}function v(a){var b="";showList=[];for(var c=0;c<a.length;c++)b="",showList[c]={},showList[c][m]=a[c][m],showList[c][SEC_NAME]=a[c][SEC_NAME],a[c][y]>a[c][z]&&(b=label.lBrackets+label.timePeriodNextDay+label.rBrackets),showList[c].timeDesc=
+a[c][y]+"/"+b+a[c][z],showList[c].weekDesc=("0"==a[c][D]?"":p.mon)+("0"==a[c][E]?"":p.tue)+("0"==a[c][F]?"":p.wed)+("0"==a[c][G]?"":p.thu)+("0"==a[c][H]?"":p.fri)+("0"==a[c][I]?"":p.sat)+("0"==a[c][J]?"":p.sun),showList[c].state=W(a[c])?K:R;return showList}function S(a){var b;if(null==a)return null;a=parseInt(a);1073741824<=a?(a=(a/1073741824).toFixed(1),b="GB/s"):1048576<=a?(a=(a/1048576).toFixed(1),b="MB/s"):(a=(a/1024).toFixed(1),b="KB/s");return{speed:a,unit:b}}function A(a){var b="";n=[];$("i.deviceDetailLogo")[0].style.background=
+"url(../web-static/images/basic.png) no-repeat scroll "+a.logoPosX+"px "+a.logoPosY+"px";$("span.deviceDetailName").html(""==a.name?label.anonymousHost:a.name);a.ip&&($("#ipAddr").show(),$("#deviceDetailIp").html(a.ip));a.ipv6&&"::"!=a.ipv6&&($("#ipv6Addr").show(),$("#deviceDetailIpv6").html(a.ipv6),$("#ipv4Label").html(label.ipv4));$("#deviceDetailMac").html(a.mac.toUpperCase());if(a.blocked==uciHostsInfo.optValue.isBlocked.yes)b=label.unLink;else if("1"==a.type)switch(a.wifi_mode){case uciHostsInfo.optValue.wifiMode.h2G:b=
+label.wirelessNet2G;break;case uciHostsInfo.optValue.wifiMode.h5G:b=label.wirelessNet5G;break;case uciHostsInfo.optValue.wifiMode.h5G1:b=label.wirelessNet5G1;break;case uciHostsInfo.optValue.wifiMode.h5G4:b=label.wirelessNet5G2;break;default:b=label.wirelessLink}else b="0"==a.type?label.inetLink:"2"==a.type?label.wirelessLink:"- - -";$("#deviceDetailLink").html(b);T(a);var b=a.upLimit,c=a.downLimit;$("div.speedLimitShow").css("display","block");$("div.speedLimitInput").css("display","none");$("div.speedLimitShow.up span.speedLimit").html(0==
+parseInt(b)?label.upSpeed+label.notYetNetLimit:label.upSpeed+label.colon+b+label.unitKBs);$("div.speedLimitShow.down span.speedLimit").html(0==parseInt(c)?label.downSpeed+label.notYetNetLimit:label.downSpeed+label.colon+c+label.unitKBs);a=a.forbid_time.split(",");for(b=0;b<a.length;b++)for(c=0;c<h.length;c++)h[c][SEC_NAME]==a[b]&&n.push(h[c]);U=v(n);L.setDataSource(U);L.loadData()}function M(a){a=parseInt(a);a=1073741824<=a?(a/1073741824).toFixed(1)+"GB/s":1048576<=a?(a/1048576).toFixed(1)+"MB/s":
+(a/1024).toFixed(1)+"KB/s";return a.toString()}function T(a){var b=S(a.up);a=S(a.down);id("upSpeed").innerHTML=b.speed;id("upUnit").innerHTML=b.unit;id("downSpeed").innerHTML=a.speed;id("downUnit").innerHTML=a.unit}function W(a){for(var b=!1,c=0;c<d.length;c++)d[c].forbid_time.split(",").forEach(function(c){c==a[SEC_NAME]&&(b=!0)});return b}function X(){for(var a=q._getSelectItem().selArrStr.split("-"),b=!1,c=0;c<a.length;c++)if(k[a[c]].state==K){b=!0;break}confirmDialog.show({title:btn.deleteSel,
+content:b?label.deleteSelTimePeriodWhichUsedConfirm:label.deleteSelTimePeriodConfirm,button:{confirmStr:btn.clear},callback:function(b){if(b){b={};var f={};b[uciHostsInfo.fileName]=f;f[m]=[];for(c=0;c<a.length;c++)f[m].push(k[a[c]][SEC_NAME]);$.del(b,function(a){s(a[ERR_CODE])&&N(function(){k=v(h);q.setDataSource(k);q.loadData();showToast(label.deleteSuccess)})})}}})}function V(){var a={},b;b=calcNextIndex(h);a.mode="add";a.index=b;a.name=label.timeSection+b;a.startHour=a.startMin=a.endHour=a.endMin=
+"00";a.mon=a.tue=a.wed=a.thu=a.fri=a.sat=a.sun=!0;timePeriodDialog.show(a)}function B(){var a={},b,c;null!=t&&(clearTimeout(t),t=null);a[uciHostsInfo.fileName]={};a[uciHostsInfo.fileName][KEY_TABLE]=uciHostsInfo.dynData.host_info;$.query(a,function(a){t=$.setTimeout(B,2E3);d.length=0;b=formatTableData(a[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);for(var f=a=0;f<b.length;f++)if(b[f].blocked!=uciHostsInfo.optValue.isBlocked.yes||""!=b[f].forbid_time)d[a]={},d[a].type=b[f].type,d[a].blocked=
+b[f].blocked,d[a].name=b[f].hostname,d[a].ip=b[f].ip,d[a].ipv6=b[f].ipv6||"::",d[a].mac=b[f].mac,d[a].up=b[f].up_speed,d[a].upLimit=b[f].up_limit,d[a].down=b[f].down_speed,d[a].downLimit=b[f].down_limit,d[a].isCurHost=b[f].is_cur_host,d[a].cfgValid=b[f].cfg_valid,d[a].cfgname=b[f].mac,d[a].wifi_mode=b[f].wifi_mode,d[a].forbid_time=b[f].forbid_time,a++;d.sort(function(a,b){for(var c=a.ip.split("."),f=b.ip.split("."),e=0;4>e;e++)if(parseInt(c[e],10)!=parseInt(f[e],10))return parseInt(c[e],10)>parseInt(f[e],
+10)?-1:1;return 0});for(a=0;a<d.length;a++)if(deviceTemp=d[a],u&&deviceTemp.mac.toUpperCase()==e.mac.toUpperCase()&&T(d[a]),"1"==deviceTemp.isCurHost){c=d.splice(a,1);d.push(c[0]);break}u||(r.setDataSource(d),r.loadData(r.getCurrentPage()))})}function N(a){var b={};b[uciHostsInfo.fileName]={};b[uciHostsInfo.fileName][KEY_TABLE]=uciHostsInfo.optName.forbidTime;$.query(b,function(b){b[ERR_CODE]==ENONE&&(h=formatTableData(b[uciHostsInfo.fileName][uciHostsInfo.optName.forbidTime]),"function"==typeof a&&
+a())})}function Y(){var a={};a[uciHNat.fileName]={};a[uciHNat.fileName][m]=uciHNat.secName.main;$.query(a,function(a){w=a[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable]==uciHNat.optValue.enable.on;w||(l.head.splice(2,0,{field:label.deviceNetSpeed,width:"0.20"}),l.head[1].width="0.20",l.column.splice(2,0,{name:"netSpeed",type:"deviceSpeed",onTrans:M}));r=new Table(l);w&&($(r.titleBtnContainer).find("div.tableOption").addClass("disabled"),addTitleError("hNatFail",label.hNatForAccessCtrlFail,
+{hasIcon:!1,hasBtn:!0,btnArr:[{btnStr:btn.closeHNatAndManage,btnOnclick:function(){var a={};a[uciHNat.fileName]={};a[uciHNat.fileName][uciHNat.secName.main]={};a[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable]=uciHNat.optValue.enable.off;$.modify(a,function(a){s(a[ERR_CODE])&&(showToast(label.hNatClosed),removeTitleError("hNatFail"),w=!1,l.head.splice(2,0,{field:label.deviceNetSpeed,width:"0.20"}),l.head[1].width="0.20",l.column.splice(2,0,{name:"netSpeed",type:"deviceSpeed",onTrans:M}),
+clearTimeout(t),t=null,id("deviceTable").innerHTML="",r=new Table(l),B())})}}]}));B()})}var u=!1,t=null,d=[],h=[],k=[],n=[],U=[],e,r,L,x,q,C,O,P,Q,w=!1,K=1,R=0,m=uciTimeSwitch.optName.name,D=uciTimeSwitch.optName.mon,E=uciTimeSwitch.optName.tue,F=uciTimeSwitch.optName.wed,G=uciTimeSwitch.optName.thu,H=uciTimeSwitch.optName.fri,I=uciTimeSwitch.optName.sat,J=uciTimeSwitch.optName.sun,y=uciTimeSwitch.optName.startTime,z=uciTimeSwitch.optName.endTime,p={mon:label.one,tue:label.two,wed:label.three,thu:label.four,
+fri:label.five,sat:label.six,sun:label.day},l={targetId:"deviceTable",hasCheckBox:!1,editable:!1,deletable:!1,addable:!1,head:[{field:label.deviceName,width:"0.60"},{field:label.deviceLinkType,width:"0.40"}],column:[{name:"basicInfo",type:"deviceBasicInfo",isEditable:!1},{name:"linkType",type:"deviceLinkType"}],itemOption:[{icon:"icon-manage",type:"manage",str:btn.manage,func:function(a){e=$.extend({},d[a]);A(e);$("#accessCtrlPage").fadeOut(200,function(){$("#deviceDetail").fadeIn(200)});u=!0},onRender:function(){return w?
+{result:!0,str:""}:{result:!1}}}],tableOption:[{icon:"icon-time",str:btn.forbidTimeManage,selRelate:!1,type:"timeManage",func:function(){k=v(h);q.setDataSource(k);q.loadData();O.show()}}],pageTurnCallback:advanceAutoFit,type:Table.TYPE.DEVICE};L=new Table({targetId:"accessCtrlTable",title:label.forbidNetTime,head:[{field:label.periodDesc,width:"0.38"},{field:label.timeSection,width:"0.42"},{field:label.repeatWeek,width:"0.20"}],column:[{name:m,type:"str"},{name:"timeDesc",type:"str"},{name:"weekDesc",
+type:"str"}],hasCheckBox:!0,editable:!1,addable:!1,tableOption:[{icon:"icon-add",type:"add",str:btn.selectExistTimePeriod,func:function(){k=v(h);x.setDataSource(k);x.loadData();for(i=0;i<n.length;i++)for(var a=0;a<k.length;a++)if(n[i][SEC_NAME]==k[a][SEC_NAME]){k[a].CHECK_BOX.setValue(!0);break}C.show()},selRelate:!1}],max:ACCESS_CONTROL_RULE_DEVICE_NUM_MAX,clickList:{click_del_item:{func:function(a,b){for(var c={},d={},f=e.forbid_time.split(","),h=a.split("-"),g=0;g<h.length;g++)for(var k=0;k<f.length;k++)if(f[k]==
+n[h[g]][SEC_NAME]){f.splice(k,1);break}f=f.join(",");c[uciHostsInfo.fileName]={};c[uciHostsInfo.fileName][uciHostsInfo.dynData.setHostInfo]=d;d.name=e.name;d.mac=e.mac;d.up_limit=e.upLimit;d.down_limit=e.downLimit;d.is_blocked=e.blocked;d.forbid_time=f;$.action(c,function(a){s(a[ERR_CODE])?(showToast(label.deleteSuccess),b(!0),e.forbid_time=f,A(e)):b(!1)})},asyn:!0}}});C=new Dialog({title:label.addForbidNetTimePeriod,content:'<div id="accessCtrlPoolTable"></div>',size:component.Dialog.SIZE.MEDIUM,
+type:component.Dialog.TYPE.CUSTOM,closeIconHandle:null,bottom:[{type:component.Button.TYPE.SECONDARY,text:btn.cancelTip,id:"accessCtrlPoolTableCancel",onClick:function(){C.hide()}},{type:component.Button.TYPE.PRIMARY,text:btn.confirmTip,id:"accessCtrlPoolTableSubmit",onClick:function(){var a=x._getSelectItem(),b,c={},d={};if(0==a.selArr.length)b="";else{if(4<a.selArr.length){showToast(label.uCanAddAtMost+ACCESS_CONTROL_RULE_DEVICE_NUM_MAX+label.timePeriodAndReselect);return}b=[];a.selArrStr.split("-").forEach(function(a){b.push(k[a][SEC_NAME])});
+b=b.join(",")}c[uciHostsInfo.fileName]={};c[uciHostsInfo.fileName][uciHostsInfo.dynData.setHostInfo]=d;d.name=e.name;d.mac=e.mac;d.up_limit=e.upLimit;d.down_limit=e.downLimit;d.is_blocked=e.blocked;d.forbid_time=b;$.action(c,function(a){s(a[ERR_CODE])&&C.hide(function(){showToast(label.saveSuccess);e.forbid_time=b;A(e)})})}}],renderCallBack:function(){x=new Table({targetId:"accessCtrlPoolTable",head:[{field:label.periodDesc,width:"0.40"},{field:label.timeSection,width:"0.37"},{field:label.repeatWeek,
+width:"0.23"}],column:[{name:m,type:"str"},{name:"timeDesc",type:"str"},{name:"weekDesc",type:"str"}],hasCheckBox:!0,editable:!1,addable:!1,deletable:!1,max:ACCESS_CONTROL_RULE_NUM_MAX,numPerPage:8,tableOption:[{icon:"icon-manual",type:"add",str:btn.addTimePeriodManual,func:V,selRelate:!1}]})}});O=new Dialog({title:btn.forbidTimeManage,content:'<div id="accessCtrlPoolManageTable"></div>',size:component.Dialog.SIZE.MEDIUM,type:component.Dialog.TYPE.CUSTOM,closeIconHandle:null,bottom:[{type:component.Button.TYPE.PRIMARY,
+text:btn.finish,id:"accessCtrlPoolManageTableCancel",onClick:function(){O.hide()}}],renderCallBack:function(){q=new Table({targetId:"accessCtrlPoolManageTable",head:[{field:label.periodDesc,width:"0.32"},{field:label.timeSection,width:"0.30"},{field:label.repeatWeek,width:"0.23"},{field:label.currentState,width:"0.15"}],column:[{name:m,type:"str"},{name:"timeDesc",type:"str"},{name:"weekDesc",type:"str"},{name:"state",type:"strSelect",options:[{str:label.isUse,value:K},{str:label.idle,value:R}]}],
+hasCheckBox:!0,editable:!1,addable:!1,deletable:!1,max:ACCESS_CONTROL_RULE_NUM_MAX,numPerPage:8,tableOption:[{icon:"icon-delete",type:"delete",str:btn.deleteSel,func:X,selRelate:!0},{icon:"icon-add",type:"add",str:btn.addTimePeriod,func:V,selRelate:!1}]})}});P=new Input({targetId:"deviceUpSpeedLimit",type:Input.TYPE.PLAIN_TEXT,tips:{value:label.unitKBs,className:"unit"},props:{type:"text",maxLength:6,placeholder:label.zeroForNoSpeedLimit},size:Input.SIZE.SMALL});Q=new Input({targetId:"deviceDownSpeedLimit",
+type:Input.TYPE.PLAIN_TEXT,tips:{value:label.unitKBs,className:"unit"},props:{type:"text",maxLength:6,placeholder:label.zeroForNoSpeedLimit},size:Input.SIZE.SMALL});$("#deviceDetailBack").click(function(){$("#deviceDetail").fadeOut(200,function(){$("#accessCtrlPage").fadeIn(200);u=!1;e=null})});$("div.speedLimitBtn.limit").click(function(){var a=$(this).hasClass("up")?"up":"down";"up"==a?P.setValue(e.upLimit):Q.setValue(e.downLimit);$("div.speedLimitShow."+a).css("display","none");$("div.speedLimitInput."+
+a).css("display","block")});$("div.speedLimitBtn.cancel").click(function(){var a=$(this).hasClass("up")?"up":"down";$("div.speedLimitShow."+a).css("display","block");$("div.speedLimitInput."+a).css("display","none")});$("div.speedLimitBtn.commit").click(function(){var a=$(this).hasClass("up")?"up":"down",b;if("up"==a)if(b=P.getValue(),0<b.length){if(!checkNum(b)||parseInt(e.upLimit)==parseInt(b)){$("div.speedLimitBtn.cancel."+a).trigger("click");return}}else{if(0==parseInt(e.upLimit)){$("div.speedLimitBtn.cancel."+
+a).trigger("click");return}b="0"}else if(b=Q.getValue(),0<b.length){if(!checkNum(b)||parseInt(e.downLimit)==parseInt(b)){$("div.speedLimitBtn.cancel."+a).trigger("click");return}}else{if(0==parseInt(e.downLimit)){$("div.speedLimitBtn.cancel."+a).trigger("click");return}b="0"}var c={hosts_info:{set_flux_limit:{mac:e.mac,name:e.name,is_blocked:e.blocked}}};"up"==a?(c.hosts_info.set_flux_limit.up_limit=b,c.hosts_info.set_flux_limit.down_limit=e.downLimit):(c.hosts_info.set_flux_limit.up_limit=e.upLimit,
+c.hosts_info.set_flux_limit.down_limit=b);$.action(c,function(c){s(c[ERR_CODE])&&("up"==a?e.upLimit=b:e.downLimit=b,A(e),showToast(label.modifySuccess))})});timePeriodDialog.resetTpType(timePeriodDialog.tpType.PARENT_CONTROL);timePeriodDialog.resetCommit(function(a){for(var b=[D,E,F,G,H,I,J],c={},d={},e={},l,g=0;g<h.length;g++)if((!1==a.mon?"0":"1")==h[g][D]&&(!1==a.tue?"0":"1")==h[g][E]&&(!1==a.wed?"0":"1")==h[g][F]&&(!1==a.thu?"0":"1")==h[g][G]&&(!1==a.fri?"0":"1")==h[g][H]&&(!1==a.sat?"0":"1")==
+h[g][I]&&(!1==a.sun?"0":"1")==h[g][J]&&a.startHour+":"+a.startMin==h[g][y]&&a.endHour+":"+a.endMin==h[g][z]){showToast(label.sameRule);return}c[uciHostsInfo.fileName]=d;d[KEY_TABLE]=uciHostsInfo.optName.forbidTime;d[m]=d[KEY_TABLE]+"_"+a.index;d[KEY_PARA]=e;e[m]=a[m];for(g=0;g<b.length;g++)e[b[g]]=!0==a[b[g]]?"1":"0";e[y]=a.startHour+":"+a.startMin;e[z]=a.endHour+":"+a.endMin;$.add(c,function(a){s(a[ERR_CODE])&&(l=u?x:q,N(function(){k=v(h);l.setDataSource(k);l.loadData();if(u)for(g=0;g<n.length;g++)for(var a=
+0;a<k.length;a++)if(n[g][SEC_NAME]==k[a][SEC_NAME]){k[a].CHECK_BOX.setValue(!0);break}timePeriodDialog.hide(function(){showToast(label.addSuccess)})}))})});N();1==slp.moduleSpec.hnat?Y():(l.head.splice(2,0,{field:label.deviceNetSpeed,width:"0.20"}),l.head[1].width="0.20",l.column.splice(2,0,{name:"netSpeed",type:"deviceSpeed",onTrans:M}),r=new Table(l),B())})();
+</script><style type="text/css">#deviceDetail{display:none}#deviceDetailBack{display:block;color:#333;font-size:13px;cursor:pointer;line-height:24px;height:24px;width:124px}#deviceDetailBack i.iconfont{display:inline-block;font-size:16px;margin-right:4px;vertical-align:middle}span.deviceDetailBackText{vertical-align:middle}div.deviceDetailTitle{padding-top:24px;padding-bottom:16px}i.deviceDetailLogo{width:48px;height:48px;vertical-align:middle;display:inline-block}div.deviceDetailInfoCon{margin-left:16px;vertical-align:middle;display:inline-block;max-width:690px}span.deviceDetailName{display:block;height:24px;line-height:24px;font-size:16px;font-weight:bold;color:#333;margin-bottom:4px}span.deviceDetailIpMacLink{margin-right:16px;display:inline-block;color:#666;font-size:13px;line-height:20px}ul.dashBoard{margin-bottom:-24px}ul.dashBoard li.board{float:left;width:338px;border:1px solid #e6e6e6;border-radius:4px;padding:16px}ul.dashBoard li+li{margin-left:16px}li.board div.speedInfo i{font-size:24px;color:#999;margin:0 4px 0 16px;vertical-align:middle}li.board span.speed{font-size:36px;color:#666;vertical-align:middle;font-weight:bold}li.board p.speedText{display:inline-block;vertical-align:middle;margin-left:8px;width:65px}p.speedText span{float:left;width:100%;font-size:12px;color:#666;line-height:18px}div.speedLimitShow,div.speedLimitInput{height:24px;margin-top:8px;font-size:0}div.speedLimitInput{display:none}div.speedLimitBtn{height:24px;display:inline-block;font-size:0;cursor:pointer}div.speedLimitBtn i.iconfont{display:inline-block;vertical-align:middle;font-size:16px;height:24px;line-height:24px;margin-right:4px;color:#333}div.speedLimitBtn span{display:inline-block;vertical-align:middle;height:24px;line-height:24px;font-size:13px;color:#333}div.speedLimitShow span{display:inline-block;height:24px;line-height:24px;color:#666;font-size:13px}div.speedLimitShow div.speedLimitBtn{float:right}div.speedLimitInput div.speedLimitInputCon{width:212px;display:inline-block;vertical-align:middle}div.speedLimitInput div.speedLimitInputCon ul{margin-bottom:0}div.speedLimitInput div.speedLimitBtn{margin-left:16px}#ipv6Addr,#ipAddr{display:none}</style>

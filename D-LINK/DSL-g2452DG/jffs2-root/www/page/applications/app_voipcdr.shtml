@@ -1,0 +1,102 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+
+
+
+function frmLoad()
+{
+	GetCDRText();
+}
+function GetCDRText()
+{
+	var _url = "/cgi-bin/cdr.cgi";
+	ajax = Ajax.getInstance(_url,0 ,0 , CDRMsgFormat);
+	ajax.get();
+}
+function CDRMsgFormat(responseText)
+{	
+	$('TEXTAREA_CDRMsg').value = '';
+	$('TEXTAREA_CDRMsg').value = responseText;
+}
+
+function DownloadCDR()
+{
+    if(!validateCode())
+        return false;
+        
+	document.location.href='/cgi-bin/download_cdr.cgi';
+}
+function uiClearCDR()
+{
+    if(!validateCode())
+        return false;
+	
+	document.location.href='/cgi-bin/clear_cdr.cgi';
+}
+
+function uiSubmit()
+{
+
+}
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_CDR"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="150" langkey="LK_ShowCDR"></td>
+		</tr>
+		<tr>
+			<td>
+			</td>
+			<td>
+				<textarea id="TEXTAREA_CDRMsg" cols="80" rows="20" style="font-size:12px;"></textarea>
+			</td>
+			</select>
+			</td>	
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+			<script>PrintTriButton("INPUT_ClearCDR",getStr("LK_ClearCDRFile"),onClick="uiClearCDR();");</script>
+			&nbsp;&nbsp;
+			<script>PrintTriButton("INPUT_downloadCDR",getStr("LK_DownloadCDRFile"),onClick="DownloadCDR();");</script>
+			&nbsp;&nbsp;
+			<script>PrintTriButton("INPUT_refresh",getStr("LK_Refresh"),"uiPageRefresh();");</script>
+			</td>
+		</tr>
+	</table>
+	<form name="uiPostForm" id="uiPostForm" method="post" action="webproc"></form>
+	<form name="uiDownloadCDR" id="uiDownloadCDR" method="post" action="webupg">
+		<input type="hidden" name="name" value="downloadCDRFile">
+	</form>
+	<form name="uiShowCDR" id="uiShowCDR" method="post" action="webupg">
+		<input type="hidden" name="name" value="index">
+	</form>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="Mngt_CDR" id="Mngt_CDR" action="/cgi-bin/setup.cgi?page/applications/app_voipcdr.shtml">
+</form>
+</body>
+</html>

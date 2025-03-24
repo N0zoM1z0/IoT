@@ -1,0 +1,10 @@
+Package: vpn_server
+Version: 1
+Depends: libc, libpthread, libcommon, libcjson, librt
+Source: package/carystudio/vpn_server
+SourceName: vpn_server
+Section: CaryStudio Properties
+SourceDateEpoch: 1660901935
+Architecture: aarch64_cortex-a53
+Installed-Size: 6312
+Description:  vpn_server

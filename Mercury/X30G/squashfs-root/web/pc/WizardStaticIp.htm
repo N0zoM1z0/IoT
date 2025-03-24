@@ -1,0 +1,275 @@
+<style type="text/css">
+	li.inputLi label.M{
+		width:130px;
+	}
+	li.inputLi input.M{
+		width:130px;
+	}
+</style>
+<script type="text/javascript">
+	function init()
+	{
+		function errHandle(errNo)
+		{
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case ECONFLICTGATEWAY:
+				gateway.showNote(errStr.wzdStcIpLanConflict);
+				break;
+			case ECONFLICTFDNS:
+				priDns.showNote(errStr.wzdStcIpLanConflict);
+				break;
+			case ECONFLICTSDNS:
+				secDns.showNote(errStr.wzdStcIpLanConflict);
+				break;
+			default:
+				alarmDialog.show(errStr.unknown + errNo);
+			}
+
+			return false;
+		}
+
+		function checkLanConflict(ipVal, maskVal)
+		{
+			var conf = gWizardData.lanConf[uciNetwork.secName.lan];
+			var lanIp = transIp(conf[uciNetwork.optName.ip]), lanMask = transIp(conf[uciNetwork.optName.netmask]);
+			var stcIp = transIp(ipVal), stcMask = transIp(maskVal);
+
+			return (0 == ((lanIp ^ stcIp) & lanMask & stcMask)) ? ECOMFLICTNET : ENONE;
+		}
+
+		function fillData()
+		{
+			var dataObj = gWizardData.networkConf[uciProto.secName.sta];
+
+			ipAddr.setValue(dataObj[uciProto.optName.ip]);
+			maskAddr.setValue(dataObj[uciProto.optName.netmask]);
+			gateway.setValue(dataObj[uciProto.optName.gateway]);
+			priDns.setValue(dataObj[uciProto.optName.priDns]);
+			secDns.setValue(dataObj[uciProto.optName.sndDns] || "");
+		}
+
+		function checkIpAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (!checkInputIp.call(this))
+			{
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+
+		function checkIpMaskRelate()
+		{
+			if ("" != maskAddr.getValue() 					&&
+				"0.0.0.0" != maskAddr.getValue()			&&
+				"" != ipAddr.getValue()						&&
+				"0.0.0.0" != ipAddr.getValue()				&&
+				ENONE == checkMask(maskAddr.getValue())		&&
+				ENONE == checkIp(ipAddr.getValue()))
+			{
+				if (ENONE != checkIpMask(ipAddr.getValue(), maskAddr.getValue()))
+				{
+					maskAddr.showNote(errStr.wzdStcIpMaskNotMatch);
+					return false;
+				}
+				else
+				{
+					maskAddr.closeNote();
+				}
+
+				if (ENONE != checkLanConflict(ipAddr.getValue(), maskAddr.getValue()))
+				{
+					ipAddr.showNote(errStr.wzdStcIpLanConflict);
+					return false;
+				}
+				else
+				{
+					ipAddr.closeNote();
+				}
+			}
+
+			return true;
+		}
+
+		function checkMaskAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcMaskEmpty);
+				return false;
+			}
+			else if (ENONE != checkMask(this.input.value))
+			{
+				this.showNote(errStr.wzdStcMaskErr);
+				return false;
+			}
+
+			return checkIpMaskRelate();
+		}
+
+		function commonCheck(blank, error)
+		{
+			if ("" == this.input.value)
+			{
+				/* 不允许为空 */
+				if (blank)
+				{
+					this.showNote(blank);
+					return false;
+				}
+			}
+			else if (ENONE != checkIp(this.input.value))
+			{
+				this.showNote(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkGateway()
+		{
+			return commonCheck.call(this, errStr.wzdStcGatewayEmpty, errStr.wzdStcGatewayErr);
+		}
+
+		function checkPriDns()
+		{
+			return commonCheck.call(this, errStr.wzdPrimDnsEmpty, errStr.wzdPrimDnsErr);
+		}
+
+		function checkSecDns()
+		{
+			if ("0.0.0.0" == this.input.value)
+			{
+				return true;
+			}
+
+			return commonCheck.call(this, null, errStr.wzdSeDnsErr);
+		}
+
+		function next()
+		{
+			var checkRes = true;
+			var inputArr = [ipAddr, maskAddr, gateway, priDns, secDns];
+
+			gateway.closeNote();
+			priDns.closeNote();
+			secDns.closeNote();
+
+			inputArr.forEach(function(o){
+				o.setValue(hideLeadingZeros(o.getValue()));
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			/* 输入非法 */
+			if (!checkRes)
+			{
+				return;
+			}
+
+			var data = {};
+			data[uciProto.secName.wan] = {};
+			data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.staticIp;
+
+			data[uciProto.secName.sta] = {};
+			data[uciProto.secName.sta][uciProto.optName.ip] = ipAddr.getValue();
+			data[uciProto.secName.sta][uciProto.optName.netmask] = maskAddr.getValue();
+			data[uciProto.secName.sta][uciProto.optName.gateway] = gateway.getValue();
+			data[uciProto.secName.sta][uciProto.optName.priDns] = priDns.getValue();
+			data[uciProto.secName.sta][uciProto.optName.sndDns] = secDns.getValue();
+
+			slp.protocol.setData({
+				data: data,
+				success: function(res){
+					/* 备份数据 */
+					Object.keys(data).forEach(function(k){
+						gWizardData.networkConf[k] = data[k];
+					});
+
+					loadPage("WizardWireless.htm", "wizardCon");
+				},
+				fail: function(res){
+					errHandle(res[ERR_CODE]);
+				}
+			});
+		}
+
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipAddr, position:Input.LABEL.INNER},
+			targetId:"wizardBody",
+			check:{blur:checkIpAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var maskAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mask, position:Input.LABEL.INNER},
+			targetId:"wizardBody",
+			check:{blur:checkMaskAddr},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var gateway = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway, position:Input.LABEL.INNER},
+			targetId:"wizardBody",
+			check:{blur:checkGateway},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dns0, position:Input.LABEL.INNER},
+			targetId:"wizardBody",
+			check:{blur:checkPriDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var secDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dns1, position:Input.LABEL.INNER},
+			targetId:"wizardBody",
+			check:{blur:checkSecDns},
+			props:{maxlength: '15', type: "text", placeholder:"0.0.0.0"}});
+		var autoDetect = new Button({
+			text: btn.autoDetect,
+			onClick: wzdWanDetect,
+			type: Button.TYPE.SECONDARY,
+			props:{width: "84px", marginLeft: "16px", display: "inline-table"},
+			id:"autoDetect"
+		});
+		var nextBtn = new Button({
+			text:btn.nextStep,
+			onClick:next,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		selectInit("netModeSel", gWizardData.wanSelectOptions, LINK_TYPE_STATIC_IP, wzdNetWorkModeChange);
+		fillData();
+	}
+	init();
+</script>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody">
+		<h1>{%label.netSet%}</h1>
+		<p class="wizardTip">{%label.stcIpWzdTip%}</p>
+		<ul class="inputCMPT medium innerLbl">
+			<li class="inputLi" style="display:inline-table">
+				<label>{%label.netMode%}</label>
+				<span class="selectWrap">
+					<span id="netModeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+			<div id="autoDetect"></div>
+		</ul>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="sub"></div>
+	</li>
+</ul>

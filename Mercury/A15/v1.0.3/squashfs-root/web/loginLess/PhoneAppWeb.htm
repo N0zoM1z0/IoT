@@ -1,0 +1,11 @@
+﻿
+
+<div class="phoneCon">
+	<img class="appLogo" src="../web-static/images/phoneCloud.png" />
+	<p class="phoneApp">{%label.phoneAppTip%}</p>
+	<div class="phFunc">
+		<label id="continuePCSet" class="appBtn">{%label.phoneAppBrowser%}</label>
+		<label id="downLoadApp" class="appBtn btnS">{%label.phoneAppDownload%}</label>
+	</div>
+</div><script type="text/javascript">id("downLoadApp").onclick=function(){location.href="https://app-srv.mercuryclouds.com.cn/appdown/mercurywifi"};id("continuePCSet").onclick=function(){phoneSet.bContinuePCSet=!0;!0==phoneSet.bPhoneWizardSet?(phoneSet.bPhoneWizardSet=!1,loadPage("Content.htm","Con")):showLogin()};
+</script><style type="text/css">div.phoneCon{background:#fff;box-sizing:border-box;font-size:0;min-height:100%;overflow:hidden;padding-bottom:60px;position:relative;width:100%;text-align:center}img.appLogo{height:100px;margin:80px auto 0;width:150px}p.phoneApp{color:#1b1c1f;font-size:16px;margin:0 auto 50px;line-height:30px}#Con{min-width:0}</style>

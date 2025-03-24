@@ -1,0 +1,27 @@
+
+
+
+<div class="head">
+	<div class="title"><h1>{%menuStr.macSet%}</h1><i class="helpBtn iconfont icon-help" helpStr="macCloneHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.macSetDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+	<div id="wanPortMacTab"></div>
+</div>
+<div id="macRadioGroup">
+	<ul class="medium macSetting"><div id="routerMacRadio" class="radioLabel"></div><span id="routerMacAddr"></span></ul>
+	<ul class="medium macSetting" id="hostMacUL"><div id="hostMacRadio" class="radioLabel"></div><span id="hostMacAddr"></span></ul>
+	<ul class="medium macSetting"><div id="manualMacRadio" class="radioLabel"></div><ul id="manualMacAddr" class="inputCMPT inputInline"></ul></ul>
+	<div id="save"></div>
+</div>
+<div id="macText"></div><script type="text/javascript">(function(){function s(a,b){var c=!1;slp.gMulWanSupport?$.query({port_manage:{table:"mwan"}},function(e){if(e[ERR_CODE]==ENONE){c=!0;for(var d=0;2>d;d++)0==e.port_manage.mwan[d]["mwan_"+(d+1)].enable&&(c=!1);c?a():b()}else n(e[ERR_CODE])}):(c=!1,b())}function t(){new Tab({list:[{name:label.wan1Port,onClick:function(){h=1;l()}},{name:label.wan2Port,onClick:function(){h=2;l()}}],targetId:"wanPortMacTab"})}function l(){var a={};a[uciNetwork.fileName]={};a[uciNetwork.fileName][KEY_NAME]=[uciNetwork.dynData.ifaceMac];
+a[uciProto.fileName]={};var b=uciProto.secName.wan;1!=h&&(b+="_"+h);a[uciProto.fileName][KEY_NAME]=[b];$.query(a,u)}function u(a){for(var b,c=Object.keys(a.protocol),e=/wan/,d=0;d<c.length;d++)if(e.test(c[d])){b=c[d];break}c=a.protocol[b].fac_macaddr.toUpperCase();e=a[uciNetwork.fileName][uciNetwork.dynData.ifaceMac][uciNetwork.optValue.ifname.host].toUpperCase();g=a.protocol[b].macaddr.toUpperCase();id("routerMacAddr").innerHTML=c;p.setValue(c==g);id("hostMacAddr").innerHTML=e;q.setValue(e==g);slp.modeSwitchSupport&&
+(id("macText").innerHTML=label.routerMacText+c);g!=c&&g!=e?(f.setValue(g.toUpperCase()),k.setValue(!0)):(f.setValue(""),k.setValue(!1),f.disable(!0));m!=r&&(p.disable(!0),q.disable(!0),k.disable(!0),f.disable(!0),v.disable(!0),$(".relayErrorTip").show(),m==w?$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用MAC地址设置功能。"):$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用MAC地址设置功能。"))}function n(a){var b="";switch(a){case ENONE:return;case EINVMACFMT:b=errStr.macFmtErr;break;case EINVMACZERO:b=errStr.macZeroErr;
+break;case EINVMACBROAD:b=errStr.macBroadErr;break;case EINVMACGROUP:b=errStr.macGroupErr;break;case EMACCLONECONFLICT:b=errStr.macCloneConflict;break;case ECONFLICTWANMAC:b=errStr.mulWanMacConflict;break;default:b=errStr.unknown+a}alarmDialog.show(b)}function x(){var a="";!0==p.getValue()?a=id("routerMacAddr").innerHTML:!0==q.getValue()?a=id("hostMacAddr").innerHTML:!0==k.getValue()&&(a=f.getValue());return a.toUpperCase()}var h=1,r=0,w=1,m=r,p=new Radio({targetId:"routerMacRadio",label:label.routerMac+
+label.colon,name:"macSet"}),q=new Radio({targetId:"hostMacRadio",label:label.cloneMac+label.colon,name:"macSet"}),k=new Radio({targetId:"manualMacRadio",label:label.customMac+label.colon,name:"macSet"}),f=new Input({type:Input.TYPE.PLAIN_TEXT,targetId:"manualMacAddr",isAllowBlank:!1,isAllowBlankStr:errStr.inputMac,props:{maxlength:"17",type:"text",placeholder:"格式: XX-XX-XX-XX-XX-XX"},check:{blur:checkInputMac}});$(k.radio).on("ev_cancel",function(){!0!=f.disabled&&f.disable(!0)}).on("ev_select",function(){!1!=
+f.disabled&&f.disable(!1)});var v=new Button({text:btn.save,onClick:function(){var a=x(),b;if(!0==k.getValue()&&(b=f.checkAll(),!0!=b))return;if(g!=a)if(USER_GROUP_REMOTE==$.authRltObj.group&&a==id("hostMacAddr").innerHTML)n(EMACCLONECONFLICT);else{b={};var c={},e={};b[uciProto.fileName]=c;var d=uciProto.secName.wan;1!=h&&(d+="_"+h);c[d]=e;e[uciProto.optName.macaddr]=a;$.modify(b,function(b){g=ENONE==b[ERR_CODE]?a:g;n(b[ERR_CODE]);b[ERR_CODE]==ENONE&&showToast(label.saveSuccess)})}},type:Button.TYPE.PRIMARY,
+id:"save",props:{width:"240px",margin:"36px 0 0 0px"}}),g="00-00-00-00-00-00";USER_GROUP_REMOTE==$.authRltObj.group&&(id("hostMacUL").style.display="none");slp.modeSwitchSupport&&getBridgeStatus(function(a){a&&($("#macRadioGroup").hide(),$("#macText").show(),addTitleError("bridgeWarning",label.bridgeMacWarning,{hasIcon:!1}))});(function(a){slp.gSysModeSupport?$.query({system:{name:"sys_mode"}},function(b){m=b.system.sys_mode.mode;"function"==typeof a&&a()}):"function"==typeof a&&a()})(function(){m!=
+r?l():s(function(){t()},function(){l()})})})();
+</script><style type="text/css">ul.macSetting span{font-size:13px;vertical-align:middle}ul.inputInline{display:inline-table;margin-left:12px}ul.inputInline ul.inputCMPT{margin-bottom:0}div.radioLabel{display:inline-block}</style><style type="text/css">div#macText{display:none;font-size:13px;color:#333;line-height:20px}</style>

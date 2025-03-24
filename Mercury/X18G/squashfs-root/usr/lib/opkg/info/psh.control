@@ -1,0 +1,13 @@
+Package: psh
+Version: 1
+Depends: libc
+Provides: 
+Source: tp_package/sys_packages/psh
+Section: utils
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 85854
+Description:  A protect shell based on busybox 1.19.4 ash

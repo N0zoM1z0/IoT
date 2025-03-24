@@ -1,0 +1,8 @@
+Package: dns_parse
+Version: 1
+Depends: libc, libuci, libeasyuci, libpthread, libblinkapi
+Source: package/B-LINK/dns_parse
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 6971
+Description:  dns parse for optimal dns server

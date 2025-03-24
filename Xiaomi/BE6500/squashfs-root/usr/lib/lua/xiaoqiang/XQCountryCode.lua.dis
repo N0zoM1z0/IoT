@@ -1,0 +1,762 @@
+local L0, L1, L2, L3, L4, L5
+L0 = module
+L1 = "xiaoqiang.XQCountryCode"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "luci.i18n"
+L1 = L1(L2)
+function L2(A0)
+  local L1, L2
+  L1 = _UPVALUE0_
+  L1 = L1.translate
+  L2 = A0
+  return L1(L2)
+end
+_ = L2
+L2 = string
+L2 = L2.upper
+L3 = L0.nvramGet
+L4 = "CountryCode"
+L5 = ""
+L3, L4, L5 = L3(L4, L5)
+L2 = L2(L3, L4, L5)
+L3 = L0.isStrNil
+L4 = L2
+L3 = L3(L4)
+if L3 then
+  L3 = string
+  L3 = L3.upper
+  L4 = L0.bdataGet
+  L5 = "CountryCode"
+  L4, L5 = L4(L5)
+  L3 = L3(L4, L5)
+  L2 = L3
+end
+L3 = true
+if L2 == "CN" then
+  L3 = false
+end
+L4 = {}
+L5 = {}
+L5.region = 1
+L5.regionABand = 0
+L4.CN = L5
+L5 = {}
+L5.region = 0
+L5.regionABand = 13
+L4.TW = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 0
+L4.HK = L5
+L5 = {}
+L5.region = 0
+L5.regionABand = 10
+L4.US = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.EU = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 23
+L4.KR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 5
+L4.ID = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.IN = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.SG = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.MY = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.FR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.DE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.IT = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.ES = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PH = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.TH = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.VN = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.BR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.RU = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.MX = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.TR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.AE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.AU = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.BE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CH = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CL = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.DK = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.EG = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.FI = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.IE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.IL = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.MA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.NG = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.NL = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.NO = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PL = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.SE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.UA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.GB = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.NZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PT = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.KE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.BG = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CO = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.EE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.GR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.HR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.HU = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.JO = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.KH = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.LT = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.LV = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.MT = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.RO = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.SK = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.LA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.ZA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.MZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CI = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PK = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.OM = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.QA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.TN = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.AT = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.IQ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.SA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.RS = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.AL = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.SI = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PY = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.PA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.EC = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CR = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.BY = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.KZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.UZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.AZ = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.BA = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.LI = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.CY = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.GE = L5
+L5 = {}
+L5.region = 1
+L5.regionABand = 6
+L4.LU = L5
+REGION = L4
+L4 = {}
+L4.zh_cn = "zh_CN"
+L4.zh_tw = "zh_TW"
+L4.zh_hk = "zh_HK"
+L4.en = "en_US"
+L4.ko_kr = "ko_KR"
+L4.en_id = "en_ID"
+L4.fr = "fr"
+L4.pt_br = "pt_br"
+L4.de = "de"
+L4.es = "es"
+L4.it = "it"
+L4.ru = "ru"
+L4.tr = "tr"
+L4.uk_ua = "uk_UA"
+L4.pt = "pt"
+L4.pl = "pl"
+L4.uk = "uk"
+JLANGUAGE = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "country_specialized"
+  L6 = A0
+  L7 = A1
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  if L3 ~= "notfound" then
+    L4 = true
+    return L4
+  end
+  L4 = false
+  return L4
+end
+isCountrySpecialized = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "country_specialized"
+  L6 = A0
+  L7 = A1
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  if L3 ~= "notfound" then
+    L5 = L2
+    L4 = L2.set
+    L6 = "wireless"
+    L7 = "wifi0"
+    L8 = "country"
+    L9 = L3
+    L4(L5, L6, L7, L8, L9)
+    L5 = L2
+    L4 = L2.set
+    L6 = "wireless"
+    L7 = "wifi1"
+    L8 = "country"
+    L9 = L3
+    L4(L5, L6, L7, L8, L9)
+    L5 = L2
+    L4 = L2.set
+    L6 = "wireless"
+    L7 = "wifi2"
+    L8 = "country"
+    L9 = L3
+    L4(L5, L6, L7, L8, L9)
+    L5 = L2
+    L4 = L2.commit
+    L6 = "wireless"
+    L4(L5, L6)
+  end
+end
+CountrySpecialize = L4
+function L4(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get
+  L5 = "country_specialized"
+  L6 = A0
+  L7 = A1
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  return L3
+end
+getSpecializedCountry = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  if A0 then
+    L3 = require
+    L4 = "luci.i18n"
+    L3 = L3(L4)
+    L3 = L3.setlanguage
+    L4 = A0
+    L3(L4)
+  end
+  L4 = L1
+  L3 = L1.foreach
+  L5 = "country_mapping"
+  L6 = "mapping"
+  function L7(A0)
+    local L1, L2, L3, L4
+    L1 = {}
+    L2 = A0.name
+    if L2 then
+      L2 = A0[".name"]
+      L1.code = L2
+      L2 = translate
+      L3 = A0.name
+      L2 = L2(L3)
+      L1.name = L2
+      L2 = table
+      L2 = L2.insert
+      L3 = _UPVALUE0_
+      L4 = L1
+      L2(L3, L4)
+    end
+  end
+  L3(L4, L5, L6, L7)
+  L3 = table
+  L3 = L3.sort
+  L4 = L2
+  function L5(A0, A1)
+    local L2, L3
+    L2 = A0.code
+    L3 = A1.code
+    L2 = L2 < L3
+    return L2
+  end
+  L3(L4, L5)
+  return L2
+end
+getCountryCodeList = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = _UPVALUE0_
+  L1 = L1.nvramGet
+  L2 = "CountryCode"
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.getFeature
+  L3 = "0"
+  L4 = "system"
+  L5 = "cpe"
+  L2 = L2(L3, L4, L5)
+  if L2 == "1" then
+    L2 = require
+    L3 = "xiaoqiang.util.XQSimUtil"
+    L2 = L2(L3)
+    L3 = require
+    L4 = "luci.model.uci"
+    L3 = L3(L4)
+    L3 = L3.cursor
+    L3 = L3()
+    L4 = _UPVALUE0_
+    L4 = L4.bdataGet
+    L5 = "subModel"
+    L6 = ""
+    L4 = L4(L5, L6)
+    L5 = L2.GetSIMStatus
+    L5 = L5()
+    L7 = L3
+    L6 = L3.get
+    L8 = "mobile"
+    L9 = "sim"
+    L10 = "country_code"
+    L6 = L6(L7, L8, L9, L10)
+    L6 = L6 or L6
+    L7 = _UPVALUE0_
+    L7 = L7.isStrNil
+    L8 = L4
+    L7 = L7(L8)
+    if not L7 then
+      return L4
+    end
+    L7 = tonumber
+    L8 = L5
+    L7 = L7(L8)
+    if L7 == 1 then
+      L7 = _UPVALUE0_
+      L7 = L7.isStrNil
+      L8 = L6
+      L7 = L7(L8)
+      if not L7 then
+        return L6
+      end
+    end
+    return L1
+  end
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L2 = "CN"
+    return L2
+  end
+  L3 = L0
+  L2 = L0.get
+  L4 = "region_mapping"
+  L5 = L1
+  L6 = "CountryCode"
+  L2 = L2(L3, L4, L5, L6)
+  if L2 ~= nil then
+    return L2
+  end
+  return L1
+end
+getCurrentCountryCode = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "mobile"
+  L4 = "sim"
+  L5 = "country_code"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = _UPVALUE0_
+  L2 = L2.isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L2 = ""
+    return L2
+  end
+  return L1
+end
+getSimCountryCode = L4
+function L4()
+  local L0, L1, L2
+  L0 = _UPVALUE0_
+  L0 = L0.bdataGet
+  L1 = "CountryCode"
+  L0 = L0(L1)
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = L0
+  L1 = L1(L2)
+  if L1 then
+    L1 = "CN"
+    return L1
+  end
+  return L0
+end
+getBDataRegion = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L1 = require
+  L2 = "xiaoqiang.util.XQSysUtil"
+  L1 = L1(L2)
+  L2 = getBDataRegion
+  L2 = L2()
+  L3 = _UPVALUE0_
+  L3 = L3.nvramGet
+  L4 = "CountryCode"
+  L3 = L3(L4)
+  L5 = L0
+  L4 = L0.get
+  L6 = "region_mapping"
+  L7 = L2
+  L8 = "CountryCode"
+  L4 = L4(L5, L6, L7, L8)
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = L4
+  L5 = L5(L6)
+  if L5 then
+    L4 = L2
+  end
+  L5 = getSpecializedCountry
+  L6 = L2
+  L7 = L3
+  L5 = L5(L6, L7)
+  if L5 ~= "notfound" then
+    L4 = L5
+  end
+  return L4
+end
+getBDataCountryCode = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if not L1 then
+    L1 = REGION
+    L1 = L1[A0]
+    if L1 ~= nil then
+      goto lbl_13
+    end
+  end
+  L1 = false
+  do return L1 end
+  ::lbl_13::
+  L1 = require
+  L2 = "xiaoqiang.util.XQWifiUtil"
+  L1 = L1(L2)
+  L2 = _UPVALUE0_
+  L2 = L2.nvramSet
+  L3 = "CountryCode"
+  L4 = A0
+  L2(L3, L4)
+  L2 = _UPVALUE0_
+  L2 = L2.nvramCommit
+  L2()
+  L2 = L1.setWifiRegion
+  L3 = A0
+  L4 = REGION
+  L4 = L4[A0]
+  L4 = L4.region
+  L5 = REGION
+  L5 = L5[A0]
+  L5 = L5.regionABand
+  L2(L3, L4, L5)
+  L2 = true
+  return L2
+end
+setCurrentCountryCode = L4
+function L4()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.util.XQSysUtil"
+  L0 = L0(L1)
+  L1 = "zh_cn"
+  L2 = _UPVALUE0_
+  if L2 then
+    L1 = "en"
+  end
+  L2 = L0.getLang
+  L2 = L2()
+  L2 = L2 or L2
+  L3 = JLANGUAGE
+  L3 = L3[L2]
+  if not L3 then
+    L3 = JLANGUAGE
+    L3 = L3[L1]
+  end
+  return L3
+end
+getCurrentJLan = L4

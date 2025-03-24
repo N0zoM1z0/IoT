@@ -1,0 +1,115 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=10
+STOP=98
+
+uci_apply_defaults() {
+	. /lib/functions/system.sh
+
+	cd /etc/uci-defaults || return 0
+	files="$(ls)"
+	[ -z "$files" ] && return 0
+	mkdir -p /tmp/.uci
+	for file in $files; do
+		( . "./$(basename $file)" ) && rm -f "$file"
+	done
+	uci commit
+}
+
+boot() {
+	[ -f /proc/mounts ] || /sbin/mount_root
+	[ -f /proc/jffs2_bbc ] && echo "S" > /proc/jffs2_bbc
+	[ -f /proc/net/vlan/config ] && vconfig set_name_type DEV_PLUS_VID_NO_PAD
+
+	mkdir -p /var/run
+	mkdir -p /var/log
+	mkdir -p /var/lock
+	mkdir -p /var/state
+	mkdir -p /tmp/.uci
+	chmod 0700 /tmp/.uci
+	mkdir -p /tmp/.jail
+	touch /var/log/wtmp
+	touch /var/log/lastlog
+	touch /tmp/resolv.conf.auto
+	ln -sf /tmp/resolv.conf.auto /tmp/resolv.conf
+	grep -q debugfs /proc/filesystems && /bin/mount -o noatime -t debugfs debugfs /sys/kernel/debug
+	[ "$FAILSAFE" = "true" ] && touch /tmp/.failsafe
+
+	/sbin/kmodloader
+
+	# allow wifi modules time to settle
+	sleep 1
+
+	/sbin/wifi detect > /tmp/wireless.tmp
+	[ -s /tmp/wireless.tmp ] && {
+		cat /tmp/wireless.tmp >> /etc/config/wireless
+	}
+	rm -f /tmp/wireless.tmp
+
+	/bin/board_detect
+	uci_apply_defaults
+	
+	# temporary hack until configd exists
+	/sbin/reload_config
+
+	# create /dev/root if it doesn't exist
+	[ -e /dev/root -o -h /dev/root ] || {
+		rootdev=$(awk 'BEGIN { RS=" "; FS="="; } $1 == "root" { print $2 }' < /proc/cmdline)
+		[ -n "$rootdev" ] && ln -s "$rootdev" /dev/root
+	}
+
+	# touch router_booting flag.
+	touch /tmp/router_booting
+
+	# run btnd daemon for WPS & reset function.
+	/usr/bin/btnd reset 38 &
+
+	# set wifi ssid and key according lan mac.
+	if [ ! -f /etc/dlink_mac ]; then
+		lanmac=`mac r lan | awk -F' ' '{print $1$2$3$4$5$6}'`
+		echo $lanmac > /tmp/lanmac
+		# D_Link ssid
+		lastdigit=`echo $lanmac | cut -b 9-12`
+		ssid=`echo BLINK-$lastdigit`
+		tstr="_guest"
+		ssid_guest=`echo BLINK-$lastdigit$tstr`
+		echo $ssid
+
+		# key
+		# cal_md5=`md5sum /tmp/lanmac | awk '{printf $1}'`
+		# key=`echo $cal_md5 | cut -b 1-8`
+		
+		# tr-link wifi key.
+		# key="12345678"
+		# LBINK India wifi key.
+		key=""
+		echo $key
+		
+		# default language
+		uci set misc.misc.language="EN"
+		uci commit misc
+		
+		# LBINK India.
+		uci set easycwmp.@local[0].enable="0"
+		uci commit easycwmp
+
+		# 2.4g
+		uci set wireless.@wifi-iface[0].ssid=$ssid
+		uci set wireless.@wifi-iface[0].key=$key
+		uci set wireless.@wifi-iface[0].encryption="none"
+		uci set wireless.@wifi-iface[1].ssid=$ssid_guest
+		uci set wireless.@wifi-iface[1].key=$key
+		# 5g
+		uci set wireless.@wifi-iface[4].ssid=$ssid'_5g'      
+		uci set wireless.@wifi-iface[4].key=$key
+		uci set wireless.@wifi-iface[4].encryption="none"        
+		uci set wireless.@wifi-iface[5].ssid=$ssid_guest'_5g'
+		uci set wireless.@wifi-iface[5].key=$key
+		uci commit wireless
+
+		touch /etc/dlink_mac
+	fi
+
+        
+}

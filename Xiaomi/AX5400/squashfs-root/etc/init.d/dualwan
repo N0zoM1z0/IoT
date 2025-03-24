@@ -1,0 +1,132 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+EXTRA_COMMANDS=" start_dual_wan stop_dual_wan "
+
+start_dual_wan(){
+    local enable=$(uci -q get dualwan.common.enable)
+    if [ "$enable" != "1" ]; then
+        return
+    fi
+
+    local wan2=$(uci -q get dualwan.common.wanMode)
+    local wan2_if="0"
+
+    if [ "$wan2" == "1G" ]; then
+	wan2_if="eth0.4"
+    elif [ "$wan2" == "2.5G" ]; then
+	wan2_if="eth1.5"
+    else
+        return
+    fi
+
+    local wan_type=$(uci -q get xiaoqiang.common.wan_port_type)
+    local wan1_if=$(uci -q get network.wan.ifname)
+    [ "$wan_type" == "1G" ] && wan1_if="eth0.4"
+
+    local wan_if=$(uci -q get network.wan.ifname)
+    if [ "$wan2_if" == "$wan_if" ]; then
+	return
+    fi
+
+    local ip6_on=$(uci -q get ipv6.settings.enabled)
+    local ip6_mode=$(uci -q get network.wan.proto)
+    if [ "$ip6_on" == "1" -a "$ip6_mode" != "pppoe" ];then
+        uci -q batch <<EOF
+        set network.wan_6.ifname=$wan1_if
+        commit network
+EOF
+    fi
+
+    uci -q batch <<EOF
+    set network.wan.ifname='$wan1_if'
+    set network.lan.ifname='eth0.1 eth1.2 eth1.3'
+    commit network
+EOF
+
+    uci -q batch <<EOF
+    set misc.sw_reg.sw_lan_ports='0 1 2'
+    set misc.samba.et_ifname='eth0.1 eth1.2 eth1.3'
+    commit misc
+EOF
+
+    # config firewall
+    local network=$(uci -q get firewall.@zone[1].network)
+    local wan2_exist=$(echo $network | grep "wan2")
+    if [[ "$wan2_exist" == "" ]]; then
+        uci set firewall.@zone[1].network="$network wan2"
+    fi
+    local forwarding=$(uci -q get firewall.@forwarding[1])
+    echo $forwarding
+    if [[ "$forwarding" == "" ]]; then
+        uci add firewall forwarding
+    fi
+    uci set firewall.@forwarding[1].src="lan"
+    uci set firewall.@forwarding[1].dest="wan2"
+    uci commit firewall
+
+#    brctl delif br-lan $wan_new
+#    brctl addif br-lan $wan_old
+    /etc/init.d/samba restart
+    fw3 reload
+    /etc/init.d/network restart
+    /etc/init.d/lag reset
+}
+
+stop_dual_wan(){
+
+    local wan2=$(uci -q get dualwan.common.wanMode)
+    local wan2_if="0"
+    local port="0"
+
+    if [ "$wan2" == "1G" ]; then
+        wan2_if="eth1.4"
+        port="3"
+    elif [ "$wan2" == "2.5G" ]; then
+        wan2_if="eth1.5"
+        port="5"
+    else
+        return
+    fi
+
+    local wan_type=$(uci -q get xiaoqiang.common.wan_port_type)
+    local wan1_if=$(uci -q get network.wan.ifname)
+    [ "$wan_type" == "1G" ] && wan1_if="eth1.4"
+
+   local ip6_on=$(uci -q get ipv6.settings.enabled)
+   local ip6_mode=$(uci -q get network.wan.proto)
+   if [ "$ip6_on" == "1" -a "$ip6_mode" != "pppoe" ];then
+        uci -q batch <<EOF
+        set network.wan_6.ifname=$wan1_if
+        commit network
+EOF
+   fi
+
+    uci -q batch <<EOF
+    set network.lan.ifname='eth0.1 eth1.2 eth1.3 $wan2_if'
+    set network.wan.ifname='$wan1_if'
+    delete network.wan2;
+    commit network
+
+    set misc.sw_reg.sw_lan_ports='0 1 2 $port'
+    set misc.samba.et_ifname='eth0.1 eth1.2 eth1.3 $wan2_if'
+    commit misc
+EOF
+    # config firewall
+    uci -q batch <<EOF
+    del firewall.@forwarding[1]
+    commit firewall
+EOF
+    /etc/init.d/samba restart
+    ip rule del fwmark 0x100/0x300 table dnscheck1
+    ip rule del fwmark 0x200/0x300 table dnscheck2
+    ip rule del fwmark 0x400/0xc00 table linkcheck1
+    ip rule del fwmark 0x800/0xc00 table linkcheck2
+    fw3 reload
+    /etc/init.d/network restart
+    /etc/init.d/lag reset
+}
+
+# Synchronizing DNS Configurations
+ubus call wan_check reset

@@ -1,0 +1,6 @@
+#!/bin/sh
+INTERFACE=$1
+DEV=$2
+
+echo "ip-down"
+app_sync 1028 0 "act=down" "INTERFACE=$INTERFACE" "DEV=$DEV" "PID=$10" "REASON=$3"

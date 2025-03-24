@@ -1,0 +1,370 @@
+<script type="text/javascript">
+	(function(){
+		var speedNull = "---";
+		var updateTimerHandle = null;
+		var protocolData, portDetectData;
+		var isPortDetectOpen = false;
+
+		var curIP;
+		var lanIPMode;
+		var oldSysMode = 0;
+		var compatibleMode = "0";
+		var isRelaySuccess = false;
+
+		var EXTENDER_STATUS_DHCPC = 2;
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVFDNSVR:
+				showStr = errStr.primDnsErr;
+				break;
+			case EINVSDNSVR:
+				showStr = errStr.seDnsErr;
+				break;
+			case EHOSTNAME:
+				showStr = errStr.hostNameErr;
+				break;
+			case ENOLINK:
+				if (slp.moduleSpec["wan_port_detect"] && slp.moduleSpec["wan_port_detect"] == 1 && isPortDetectOpen)
+				{
+					showStr = errStr.linkPhyDownMesh;
+				}
+				else
+				{
+					showStr = errStr.wanLinkDown;
+				}
+				break;
+			case ECONFLICTGATEWAY:
+				showStr = errStr.ipAddrLanGatewayConflict;
+				break;
+			case ECONFLICTFDNS:
+				showStr = errStr.ipAddrLanFDNSConflict;
+				break;
+			case ECONFLICTSDNS:
+				showStr = errStr.ipAddrLanSDNSConflict;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			if (alarmDialog.status == "idle")
+			{
+				alarmDialog.show(showStr);
+			}
+			return false;
+		}
+
+		function lanIpModeHandle(callback)
+		{
+			if ("manual" == lanIPMode) {
+				confirmDialog.show({
+					title: "AP（有线中继）",
+					content: "当前路由器的LAN口IP为手动设置，使用AP（有线中继）将更改为自动，确定更改LAN口IP设置？",
+					callback: function(choose){
+						if (choose)
+						{
+							lanIPMode = "dynamic";
+							$.modify({"network":{"lan":{"ip_mode":"dynamic"}}}, null, true);
+							callback();
+						}
+					}
+				});
+			}
+			else {
+				callback();
+			}
+		}
+
+		function setLanIp(newIP)
+		{
+			$.action({"wired_extender": {"set_ip": null}});
+
+			loadingDialog.show({
+				content:{
+					primary: "连接成功，路由器IP地址已更改为：" + newIP + "。页面将自动跳转到新的IP地址，请稍候..."
+				}
+			});
+			$.changeDomain(newIP);
+
+			$.setTimeout(function () {
+				window.location.href = "http://" + newIP;
+			}, 6000);
+
+			$.setTimeout(function () {
+				lanDetecting(function () {
+					window.location.href = "http://" + newIP;
+				});
+			}, 4000);
+		}
+
+		function onSave(callback) {
+			var cfg = {};
+			cfg.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.apMode}};
+			switch (slp.bandsProvided) {
+				case slp.SINGLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"}};
+					break;
+				case slp.DOUBLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}};
+					break;
+				case slp.TRIPLE:
+					cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}};
+					break;
+			}
+
+			if (compatibleOn.getValue()) {
+				cfg.wired_extender = {"config":{"compat_mode":"1"}};
+			} else {
+				cfg.wired_extender = {"config":{"compat_mode":"0"}};
+			}
+
+			$.modify(cfg, function(result) {
+				if (result.error_code != ENONE) {
+					alarmDialog.show(errStr.invRequestFail);
+				} else {
+					typeof callback == "function" && callback();
+					compatibleMode = cfg.wired_extender.config.compat_mode;
+					refreshRelayStatus();
+				}
+			});
+		}
+
+		function onSaveBtn() {
+			var bCompatibleChanged = compatibleMode === "0" ? compatibleOn.getValue() : compatibleOff.getValue();
+
+			if (oldSysMode == uciSystem.optValue.sysMode.apMode) {
+				if (bCompatibleChanged) {
+					onSave(function(){
+						showToast(label.saveSuccess);
+					});
+				}
+				return;
+			}
+
+			if (oldSysMode == uciSystem.optValue.sysMode.wdsMode) {
+				confirmDialog.show({
+					title: "AP（有线中继）",
+					content: "切换为AP（有线中继）后，桥接（无线中继）将会自动关闭。确定切换吗？",
+					callback: function(choose){
+						if (choose)
+						{
+							onSave(function(){
+								menuLoad("WanLoader.htm");
+							});
+						}
+					}
+				});
+			} else {
+				changeSysModeAlert("switch", uciSystem.optValue.sysMode.apMode, function(){
+					lanIpModeHandle(function(){
+						onSave(function(){
+							menuLoad("WanLoader.htm");
+						})
+					});
+				});
+			}
+		}
+
+		function refreshRelayStatus() {
+			var args = {
+				"wired_extender":
+				{
+					"name": "status"
+				}
+			};
+
+			$.query(args, function(result) {
+				var ip = result.wired_extender.status.ip;
+				var state = result.wired_extender.status.state;
+				if (ip == '0.0.0.0') {
+					setLinkState(false,"正在中继");
+				} else {
+					isRelaySuccess = true;
+					setLinkState(true,"中继成功");
+					closeLoading();
+
+					if (ip !== curIP && state >= EXTENDER_STATUS_DHCPC) {
+						setLanIp(ip);
+					}
+				}
+
+				ipAddrAuto.setValue(result.wired_extender.status.ip);
+				netmaskAuto.setValue(result.wired_extender.status.mask);
+				gatewayAuto.setValue(result.wired_extender.status.root_ip);
+				dnsAuto.setValue(result.wired_extender.status.pri_dns + ' , ' + result.wired_extender.status.snd_dns);
+			});
+
+			// 防止网口down导致页面轮询停止，不等待响应就进行下一次轮询
+			if (!isRelaySuccess) {
+				$.setTimeout(refreshRelayStatus, 2000);
+			}
+		}
+
+		function init() {
+			var args = {
+				"system": {
+					"name": "sys_mode"
+				},
+				"network": {
+					"name": "lan"
+				},
+				"wired_extender": {
+					"name": "config"
+				}
+			};
+			$.query(args, function(result) {
+				curIP = result.network.lan.ipaddr;
+				lanIPMode = result.network.lan.ip_mode;
+				oldSysMode = result.system.sys_mode.mode;
+				compatibleMode = result.wired_extender.config.compat_mode;
+				if (oldSysMode == uciSystem.optValue.sysMode.apMode) {
+					refreshRelayStatus();
+				} else {
+					setLinkState(false,"未中继");
+					ipAddrAuto.setValue("0.0.0.0");
+					netmaskAuto.setValue("0.0.0.0");
+					gatewayAuto.setValue("0.0.0.0");
+					dnsAuto.setValue("0.0.0.0 , 0.0.0.0");
+				}
+
+				if (compatibleMode === "1") {
+					compatibleOn.setValue(true)
+				} else {
+					compatibleOff.setValue(true);
+				}
+			});
+		}
+
+		init();
+
+		var compatibleOn = new Radio({
+			targetId: "compatibleOn",
+			label: label.open,
+			name: "compatibleMode"
+		});
+		var compatibleOff = new Radio({
+			targetId: "compatibleOff",
+			label: label.close,
+			name: "compatibleMode"
+		});
+		var ipAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipAddr},
+			targetId:"wiredRepeaterContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var netmaskAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.mask},
+			targetId:"wiredRepeaterContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var gatewayAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.gateway},
+			targetId:"wiredRepeaterContainer",
+			props:{value:"0.0.0.0", maxlength: '15', type: "text"}});
+		var dnsAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"wiredRepeaterContainer",
+			props:{value:"0.0.0.0 , 0.0.0.0", type: "text"}});
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:onSaveBtn,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", marginLeft:"12px 0 0 132px"}
+		});
+		$("#menuLoader i.helpBtn").hide();
+		selectInit("wanSel", wanOptions, LINK_TYPE_WIRED_REPEATER, loadPageByIndex);
+	})();
+</script>
+<style type="text/css">
+	#unicast label.checkbox,
+	#dnsServer label.checkbox{
+		margin:14px 0;
+		font-weight:bold;
+	}
+	span.unicastNote{
+		font-size:12px;
+		font-weight:normal;
+		color:#999;
+	}
+	i.wanPortDetectImg{
+		margin-bottom: 12px;
+	}
+	p#bridgeWarning{
+		display: none;
+		margin-bottom: 12px;
+	}
+	.meshHelp{
+		margin-top: 24px;
+	}
+	.meshHelpTip{
+		width: 336px;
+		margin-left: 132px;
+		font-size: 12px;
+		color: #999999;
+	}
+	#radioGroup .radioLabel{
+		display: inline-block;
+    	margin-left: 16px;
+	}
+	#radioGroup .radioLabel .radioLabel{
+		margin-left: 8px;
+	}
+	#compatModeDesc{
+		display: table-cell;
+		vertical-align: middle;
+		padding-left: 12px;
+		font-size: 12px;
+		color: #999999;
+	}
+	#wanSelUl .inputLi {
+		display: inline-block;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul id="wanSelUl" class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="wiredRepeaterContainer">
+	<ul class="inputCMPT medium">
+		<label id="compatibleLbl" class="outerLbl">兼容模式</label>
+		<div id="radioGroup">
+			<div id="compatibleOn" class="radioLabel"></div>
+			<div id="compatibleOff" class="radioLabel"></div>
+		</div>
+		<span id="compatModeDesc">如果前端路由不是水星路由器，推荐开启兼容模式。</span>
+	</ul>
+</div>
+<div class="buttonGroup">
+	<div id="save"></div>
+</div>
+<div class="meshHelp">
+	<div id="meshHelpTip1" class="meshHelpTip">
+		1.如果前端路由器为"Mesh"路由器，推荐使用"Mesh"功能扩展无线网络。仅在前端路由器不支持"Mesh"功能时，才推荐使用本路由器的AP（有线中继）模式。
+	</div>
+	<div id="meshHelpTip2" class="meshHelpTip">
+		2.通过AP（有线中继）模式扩展现有网络时，请确保本路由器与前端路由器的LAN口通过网线连接。
+	</div>
+</div>

@@ -1,0 +1,8 @@
+Package: ddns-scripts
+Version: 2.4.3-2
+Depends: libc
+Source: package/network/config/ddns-scripts
+Section: utils
+Architecture: all
+Installed-Size: 10257
+Description:  A set of ddns scripts.

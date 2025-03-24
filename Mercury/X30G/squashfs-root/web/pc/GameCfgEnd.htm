@@ -1,0 +1,64 @@
+<script type="text/javascript">
+	(function(){
+		var dev_info,routerIdx,port;
+		var gemeBtnReset = new Button({
+			text: btn.reSelPort,
+			onClick: function () {
+				loadPage("GameCfg.htm","gameContent"); //显示配置页面
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"gameBtnReset",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+
+		function init() {
+			// 获取路由器端口数据
+			var data = {};
+
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+				var routerIdx;
+
+				if (err_code == ENONE) {
+					dev_info = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					//获取端口数据所在的路由器index
+					var data = {};
+					data[uciPortConfig.fileName] = {};
+					data[uciPortConfig.fileName][KEY_NAME] = uciPortConfig.secType.game;
+
+					$.query(data, function(result){
+						var err_code = result[ERR_CODE], game_dev;
+
+						if (err_code == ENONE) {
+							game_dev = result[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev];
+							dev_info.forEach(function(router,idx) {
+								if (router[uciPortConfig.dynOptName.mac] == game_dev || (game_dev == "FF-FF-FF-FF-FF-FF" && router[uciPortConfig.dynOptName.cap] == "1")) {
+									routerIdx = idx;
+
+									// 角色为game的端口state设为active
+									router[uciPortConfig.dynOptName.phyInfo].forEach(function(portItem,idx) {
+										if (portItem[uciPortConfig.dynOptName.role] == "game") {
+											router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+										}
+									});
+								}
+							});
+
+							port = new PortConfig().initDevInfo("routerPort",JSON.parse(JSON.stringify(dev_info[routerIdx])));
+						}
+					});
+				}
+			});
+		}
+
+		init();
+	})()
+</script>
+<style type="text/css">
+</style>
+<div id="routerPort"></div>
+<div id="gameBtnReset"></div>

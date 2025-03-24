@@ -1,0 +1,8 @@
+Package: mtk_factory_rw
+Version: 1-unknown
+Depends: libc
+Source: mtk_sdk/mtk-openwrt-lede-4.2.0.0/misc/mtk_factory_rw
+Section: MTK Properties
+Architecture: mipsel_24kc
+Installed-Size: 1285
+Description:  mtk factory's data read and write

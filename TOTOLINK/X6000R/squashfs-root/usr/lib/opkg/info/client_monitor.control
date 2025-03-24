@@ -1,0 +1,10 @@
+Package: client_monitor
+Version: 1
+Depends: libc, libpthread, librt, libcjson, libuci20130104, libcommon
+Source: package/carystudio/client_monitor
+SourceName: client_monitor
+Section: CaryStudio Properties
+SourceDateEpoch: 1689238875
+Architecture: aarch64_cortex-a53
+Installed-Size: 6660
+Description:  client status monitor

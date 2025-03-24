@@ -1,0 +1,13 @@
+#!/bin/sh
+iface=$1
+dev=$2
+pid=$3
+reason=$4
+SUPPORT_V6=$5
+UNIT=$6
+
+if [ "$SUPPORT_V6" == "1" ]; then
+	app_sync 1045 0 "act=Authfail" "unit=$UNIT" "Support_v6=$SUPPORT_V6" "REASON=$reason"
+	else
+	app_sync 1028 1 "INTERFACE=$iface" "PID=$pid" "act=Authfailv4" "unit=$UNIT" "Support_v6=$SUPPORT_V6" "REASON=$reason"
+	fi

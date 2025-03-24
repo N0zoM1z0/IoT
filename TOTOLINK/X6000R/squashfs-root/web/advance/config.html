@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="tools"></adv-child-menu>   
+  <div class="advance-box">
+	<br>
+	<br>
+	<div class="fun-box">
+      <table class="table"> 
+        <tbody v-if="!globalConfig.elinkSupport">  
+			<tr>
+			<td>
+				<button type="button" class="btn" @click="submit_save">{{ lang_t('config.save') }}</button>
+			</td>
+			<td>
+				{{ lang_t('config.save_msg') }}
+			</td>
+			</tr>
+			
+			<tr>
+			<td>
+				<button type="button" class="btn" @click.prevent="submit_update">{{ lang_t('config.restore') }}</button>
+			</td>
+			<td>
+				{{ lang_t('config.restore_msg') }}
+			</td>
+			</tr>
+			<tr>
+			<td colspan="2">
+				<input type="file" id="f_upload" @change="filechange">
+			</td>
+			</tr>
+		</tbody>
+		<tbody>
+		<tr>
+		  <td>
+		    <button type="button" class="btn" @click="submit_restore" >{{ lang_t('config.reset') }}</button>
+		  </td>
+          <td>
+		    {{ lang_t('config.reset_msg') }}
+		  </td>
+		</tr>
+		<tr>
+		  <td>
+		    <button type="button" class="btn" @click="submit_reboot">{{ lang_t('config.reboot') }}</button>
+		  </td>
+          <td>
+		    {{ lang_t('config.reboot_msg') }}
+		  </td>
+		</tr>
+		  <tr v-if="globalConfig.elinkSupport&&!globalConfig.elinkWebSupport">
+			<td>
+				{{ lang_t('opmode.sync_cfg') }}
+			</td>
+			<td>
+			  <x-switch v-model="elinkSync" @change="syncSmart"></x-switch>
+			</td>
+		  </tr>
+	    </tbody>
+      </table>
+    </div>
+    <div style="display: none;">
+      <form ref="save" class="form-horizontal" method="post"></form>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,lanIp:"",elinkSync:!1,filename:"",importAction:"/cgi-bin/cstecgi.cgi?action=upload&setting/setUploadSetting"}},created:function(){var n=this;uiPost.SystemSettings(function(t){n.lanIp=t.lanIp,n.elinkSync="1"==t.elinkSync,t.importAction&&(n.importAction=t.importAction)})},methods:{submit_save:function(t){uiPost.saveSystemSetting(function(t){location.href="http://"+location.host+"/"+t.url+get_token_from_url()})},submit_restore:function(){Cstool.Msg({content:this.lang_t("config.msg4"),type:"confirm",ok:function(){uiPost.LoadDefSettings(function(t){applyCallback(t,120,function(){location.href="/login.html"})})}})},submit_reboot:function(){location.host;Cstool.Msg({content:this.lang_t("config.msg5"),type:"confirm",ok:function(){uiPost.RebootSystem(function(t){applyCallback(t,120,function(){location.href="/login.html"})})}})},syncSmart:function(t){uiPost.setElinkSyncCfg({elinkSync:t?"1":"0"},applyCallback)},filechange:function(){var t=document.getElementById("f_upload");if(t.files[0].name.indexOf(".dat")<0)return Cstool.Msg({content:this.lang_t("config.msg2")}),t.value="",!1},submit_update:function(){var t,n,o,i=this;return""==$("#f_upload").val()?(Cstool.Msg({content:this.lang_t("config.msg1")}),!1):1<(t=document.getElementById("f_upload").files[0]).size/1048576?(Cstool.Msg({content:this.lang_t("config.msg3")}),!1):((o="")!=(n=get_token_from_url())&&(o=n.split("?")[1]),void upload.fileUpload({data:t,url:this.importAction+"&"+o,success:function(t){if("1"==t.settingERR){var n=location.host;Cstool.Count(60,"js",function(){parent.location.href="http://"+n+"/login.html"})}else if(""!=t.settingERR)return Cstool.Msg({content:i.lang_t('config["'+t.settingERR+'"]')}),!1},error:function(t){if(""!=t.settingERR)return Cstool.Msg({content:i.lang_t('config["'+t.settingERR+'"]')}),!1}}))}}}</script><script src="/static/js/main.js"></script></body></html>

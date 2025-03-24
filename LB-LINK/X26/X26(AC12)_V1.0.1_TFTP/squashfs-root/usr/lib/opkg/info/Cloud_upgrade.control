@@ -1,0 +1,8 @@
+Package: Cloud_upgrade
+Version: 1
+Depends: libc, libuci
+Source: package/B-LINK/Cloud_upgrade
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 5923
+Description:  Translate uci config into ralink wifi dat format

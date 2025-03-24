@@ -1,0 +1,65 @@
+#!/bin/sh
+
+path="/lib/ko"
+
+VOIP_URL="InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable"
+HAS_VOIP=`nvram get $VOIP_URL`
+
+if [ "$HAS_VOIP" == "0" ];then
+	exit
+fi
+
+if [ ! -f "$path/hi_khw.ko" ];then
+	cfgcmd set ${VOIP_URL} 0
+	nvram commit
+	exit
+fi
+
+if [ ! -f "$path/hi_kvoip.ko" ];then
+	cfgcmd set ${VOIP_URL} 0
+	nvram commit
+	exit
+fi
+
+if [ ! -f "$path/hi_kspi.ko" ];then
+	cfgcmd set ${VOIP_URL} 0
+	nvram commit
+	exit
+fi
+
+if [ ! -f "$path/hi_kslic.ko" ];then
+	cfgcmd set ${VOIP_URL} 0
+	nvram commit
+	exit
+fi
+
+if [ ! -f "/usr/sbin/triphone" ];then
+	cfgcmd set ${VOIP_URL} 0
+	nvram commit
+	exit
+fi
+
+
+insmod $path/hi_khw.ko
+insmod $path/hi_kvoip.ko
+insmod $path/hi_kspi.ko
+insmod $path/hi_kslic.ko
+
+
+if [ "$HAS_VOIP" != "1" ];then
+	cfgcmd set ${VOIP_URL} 1
+	nvram commit
+fi
+
+###################below code should be removed if new style of default settings implements
+
+default_dp="[*#][0-9][0-9*].#|**xx|#*#|*#xx#|#*99|##|010xxxxxxxx|02xxxxxxxxx|0[3-9]xxxxxxxxx|0311xxxxxxxx|037[179]xxxxxxxx|04[15]1xxxxxxxx|043[12]xxxxxxxx|051[0-9]xxxxxxxx|052[37]xxxxxxxx|053[12]xxxxxxxx|057[1345679]xxxxxxxx|059[15]xxxxxxxx|0731xxxxxxxx|075[457]xxxxxxxx|076[09]xxxxxxxx|0898xxxxxxxx|00xxx.|[2-8][1-9]xxxxxx|1[3458]xxxxxxxxx|01[3458]xxxxxxxxx|11[02479]|12[0268]|11[13568]x.|125xx|12[13479]x.|100[015678]x|100[2349]x.|10[1-9]xx.|14xx.|1[79]xx.|160|168xxxxx|16[1-79]x.|[48]00xxxxxxx|[48]0[1-9]x.|[23567]0xx.|1630x|955xx|9699[*#]|95[0-46-9]xxx.|9[0-46-9]xxxx.|x.|"
+dp=`nvram get InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DigitMap`
+
+sleep 3
+if [ "$dp" != "" ];then
+	cfgcmd sset InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DigitMap "$dp"
+else
+	cfgcmd sset InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DigitMap "\"$default_dp\""
+fi
+

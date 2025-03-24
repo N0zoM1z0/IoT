@@ -1,0 +1,15 @@
+
+
+<div class="subTitle">
+	<h2>{%label.wdsOrgNetGuide%}</h2>
+</div>
+<ul class="wdsHelp">
+	<li>{%label.WDSWzdHpLF%}</li>
+	<li>{%label.WDSWzdHpLS%}</li>
+</ul>
+<i class="wdsGuidePng"></i>
+<div id="wdsBtnNext"></div>
+<div id="wdsBtnBack"></div><script type="text/javascript">(function(){function d(b){$.setTimeout(function(){if(b)gLocalAPInfo[BAND_STEER].wifi_enable="1";else for(var a=0;a<gKeyNames.wlan_host.length;a++)null!=gKeyNames.wlan_host[a]&&(gLocalAPInfo[a].enable="1");stepPage(secondPage)},3E3)}function e(b){var a={wireless:{}};b?a.wireless.wlan_bs={wifi_enable:"1"}:$.each(gKeyNames.wlan_host,function(b,c){null!=c&&(a.wireless[c]={enable:"1"})});$.modify(a,function(a){var c=a[ERR_CODE];ENONE!==c?errHandle(c):a.dfs_wait_time&&0!=a.dfs_wait_time?dfsDialog.show(a.dfs_wait_time,
+function(){d(b)}):d(b)})}function f(){if(slp.bandSteeringProvided&&"1"==gLocalAPInfo[BAND_STEER].bs_enable)"1"==gLocalAPInfo[BAND_STEER].wifi_enable?stepPage(secondPage):confirmDialog.show({title:menuStr.wifiWDS,content:label.alertWifiOpen,callback:function(a){!0==a&&e(!0)}});else{for(var b=0;b<gLocalAPInfo.length;b++)if("1"==gLocalAPInfo[b].enable){stepPage(secondPage);return}confirmDialog.show({title:menuStr.wifiWDS,content:label.alertWifiOpen,callback:function(a){!0==a&&e(!1)}})}}new Button({text:btn.nextStep,
+onClick:function(){lanIpModeHandle(f)},type:Button.TYPE.PRIMARY,id:"wdsBtnNext",props:{width:"240px",position:"absolute",top:"208px",right:"0px"}});var g=new Button({text:btn.preStep,onClick:null,type:Button.TYPE.SECONDARY,id:"wdsBtnBack",props:{width:"240px",position:"absolute",top:"264px",right:"0px"}});!0==backFromEndPage&&($("#wdsBtnBack").css("display","block"),g._ops.onClick=function(){stepPage(endPage)})})();
+</script><style type="text/css">ul.wdsHelp{width:480px}ul.wdsHelp li{list-style:outside;color:#666;font-size:13px;line-height:20px;margin-left:0;padding:0;margin-left:18px}i.wdsGuidePng{background:url(../web-static/images/basic.png) no-repeat scroll 0 -240px;width:240px;height:160px;position:absolute;right:0;top:0}#wdsBtnBack{display:none}</style>

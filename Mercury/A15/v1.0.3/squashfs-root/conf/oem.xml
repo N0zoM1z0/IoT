@@ -1,0 +1,31 @@
+<root>
+<oem name="oem_info">
+	<device name="a15v1">
+		<element name="fullName">MERCURY Wireless Router A15</element>
+		<element name="facturer">MERCURY</element>
+		<element name="modelName">A15</element>
+		<element name="deviceInfo">A15V1 Wireless Router</element>
+		<element name="modelVer">1.0</element>
+		<element name="domainEnable">true</element>
+		<element name="domainName">melogin.cn</element>
+		<element name="prodId">0x0015A411</element>
+		<element name="languId">CN</element>
+		<element name="oemId">0x00000000</element>
+		<element name="cloudSefDomain">device-find.mercuryclouds.com.cn</element>
+		<element name="cloudSefPort">60443</element>
+		<element name="cloudSrvDomain">device-conn.mercuryclouds.com.cn</element>
+		<element name="cloudSrvPort">50443</element>
+		<element name="cloudSrvTLD">*.mercuryclouds.com.cn</element>
+		<element name="cloudBrandMacURL">http://download.mercuryclouds.com.cn/brand_mac/</element>
+		<element name="cloudCAFilePath">/conf/m_root_ca.pem</element>
+		<element name="cloudCAFileSize">4096</element>
+		<element name="deviceType">8</element>
+		<element name="rebootTime">45</element>
+		<element name="resetTime">50</element>
+		<element name="upgradeTime">125</element>
+		<element name="wanPortIndexList">0-1-2-3</element>
+		<element name="wanPortRateList">auto_100F_100H_10F_10H-auto_100F_100H_10F_10H-auto_100F_100H_10F_10H-auto_100F_100H_10F_10H</element>
+		<element name="wanPortRateDescList">10M/100M自动协商_100M全双工_100M半双工_10M全双工_10M半双工-10M/100M自动协商_100M全双工_100M半双工_10M全双工_10M半双工-10M/100M自动协商_100M全双工_100M半双工_10M全双工_10M半双工-10M/100M自动协商_100M全双工_100M半双工_10M全双工_10M半双工</element>
+	</device>
+</oem>
+</root>

@@ -1,0 +1,10 @@
+Package: kmod-iptables-addons
+Version: 5.4.194-1
+Depends: kernel (=5.4.194-1-17bc2b3df327d9db79dfae29df0e4c80), kmod-ipt-core, kmod-ipt-conntrack
+Source: package/carystudio/iptables-addons
+SourceName: kmod-iptables-addons
+Section: CaryStudio Properties
+SourceDateEpoch: 1657536839
+Architecture: aarch64_cortex-a53
+Installed-Size: 8460
+Description:  extra iptables modules ko

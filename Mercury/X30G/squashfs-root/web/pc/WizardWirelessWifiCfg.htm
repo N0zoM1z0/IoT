@@ -1,0 +1,800 @@
+<style type="text/css">
+	p.blockTitle {
+	    font-size:16px;
+		color:#333;
+	    font-weight:bold;
+	    margin:24px 0 12px 317px;
+	    text-align:left;
+	}
+	li.wzdSubBtn div.primary{
+		width:160px !important;
+	}
+	div.topTitle{
+		width:280px;
+		margin:24px auto;
+		display:none;
+	}
+	div.topTitle label{
+		font-size:16px;
+		color:#333;
+		line-height:24px;
+		font-weight:bold;
+		vertical-align:middle;
+		display:inline-block;
+		width:240px;
+		margin-right:8px;
+	}
+	div.topTitle p{
+		font-size:12px;
+		color:#666;
+		text-align:justify;
+		line-height:18px;
+		margin-top:12px;
+	}
+	li.wizardBody{
+		/* 定义最小高度，不然会有闪烁的滚动条出现 */
+		min-height:132px;
+	}
+</style>
+<script type="text/javascript">
+	function init()
+	{
+		var SSID_MAX_LENGTH = 32;
+		var SSID_MIN_LENGTH = 1;
+		var BS_ENABLE = uciWireless.optValue.bsEnable.enable;
+		var BS_DISABLE = uciWireless.optValue.bsEnable.disable;
+		var bandSteeringOpen;
+		var inputObjArr = [];
+		var firstLoad = true;
+		var hasCNChar = false;
+		var getApStatusHd = null;
+		var retryCount;
+
+		function formatData(raw)
+		{
+			var dataArr = [], bsName = uciWireless.secName.wlanBS;
+
+			function dataPackage(name, title, follow)
+			{
+				dataArr.push({
+					name: name,
+					title: title,
+					follow: follow,
+					ssid: raw[name][uciWireless.dynOptName.ssid],
+					key:  raw[name][uciWireless.dynOptName.key]
+				});
+			}
+
+			switch(slp.bandsProvided)
+			{
+				case slp.SINGLE:
+					dataPackage(uciWireless.dynData.host_2g);
+					break;
+				case slp.DOUBLE:
+					if (true == bandSteeringOpen)
+					{
+						dataPackage(uciWireless.secName.wlanBS);
+					}
+					else
+					{
+						dataPackage(uciWireless.dynData.host_2g, label.wirelessNet2G);
+						dataPackage(uciWireless.dynData.host_5g, label.wirelessNet5G, gWizardData.followPwd[0]);
+					}
+					break;
+				case slp.TRIPLE:
+					if (true == bandSteeringOpen)
+					{
+						dataPackage(uciWireless.secName.wlanBS);
+					}
+					else
+					{
+						dataPackage(uciWireless.dynData.host_2g,  label.wirelessNet2G);
+						dataPackage(uciWireless.dynData.host_5g1, label.wirelessNet5G1, gWizardData.followPwd[1]);
+						dataPackage(uciWireless.dynData.host_5g2, label.wirelessNet5G2, gWizardData.followPwd[2]);
+					}
+					break;
+			}
+
+			return dataArr;
+		}
+
+		function fillEditArea()
+		{
+			var editingArea = id("editingArea");
+
+			/* 清空数据 */
+			emptyNodes(editingArea);
+			inputObjArr = [];
+
+			formatData(gWizardData.wifiConf).forEach(function(obj){
+				var p, div, ul, input, checkbox;
+
+				/* 创建title */
+				if (undefined != obj.title)
+				{
+					p = document.createElement("p");
+					p.className = "blockTitle";
+					p.innerHTML = obj.title;
+					editingArea.appendChild(p);
+				}
+
+				/* 创建Wi-Fi名称 */
+				input = new Input({
+					type:Input.TYPE.PLAIN_TEXT,
+					label:{value:label.wirelessName, position:Input.LABEL.INNER},
+					targetId:"editingArea",
+					check:{blur:checkSsidInput},
+					props:{maxlength: '32', type: "text", value: obj.ssid}
+				});
+				/* 保存参数标识 */
+				input.argument = {
+					name: obj.name,
+					opt: uciWireless.dynOptName.ssid
+				};
+				inputObjArr.push(input);
+
+				/* 创建Wi-Fi密码 */
+				input = new Input({
+					type:Input.TYPE.CIPHER_TEXT,
+					label:{value:label.wirelessPwd, position:Input.LABEL.INNER},
+					strength:{show: true, least:8, critical:12},
+					targetId:"editingArea",
+					check:{blur:onPwdBlur, keyup:onPwdKeyup},
+					props:{maxlength: '63', type: "text", value: obj.key}
+				});
+				/* 保存参数标识 */
+				input.argument = {
+					name: obj.name,
+					opt: uciWireless.dynOptName.key
+				};
+				inputObjArr.push(input);
+
+				/* 创建复选框 */
+				if (undefined != obj.follow)
+				{
+					ul = document.createElement("ul");
+					ul.className = "inputCMPT";
+					ul.id = obj.name + new Date().getTime();
+					editingArea.appendChild(ul);
+
+					checkbox = new CheckBox({
+						targetId:ul.id,
+						label:label.wlanWzdUse2gPwdFor5g,
+						onClick:function(){
+							followPwd.call(this, input);
+						},
+						checked:obj.follow
+					});
+
+					/* 模拟点击一次 */
+					followPwd.call(checkbox.checkbox, input);
+				}
+			});
+
+			/* 消除最后一个元素的外边距 */
+			$("#editingArea").find("ul:last-child").css("margin-bottom", '0');
+		}
+
+		function checkSsidInput()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wlanSsidErr);
+				return false;
+			}
+
+			if (/^ +$/gi.test(this.input.value))
+			{
+				this.showNote(errStr.wlanSsidBlank);
+				return false;
+			}
+
+			if (!checkWifiName(this.input.value, SSID_MAX_LENGTH, SSID_MIN_LENGTH))
+			{
+				this.showNote(errStr.wlanSsidLenErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdKeyup()
+		{
+			var self = this;
+
+			if (EINVWLANPWD == checkWlanPwd(this.input.value))
+			{
+				this.showNote(errStr.wlanWzdPwdValid);
+				return false;
+			}
+
+			if (this.argument.name == uciWireless.dynData.host_2g)
+			{
+				/* 若有5G密码跟随，则修改监听者 */
+				gWizardData.followPwd.forEach(function(bool, i){
+					if (bool)
+					{
+						switch(i)
+						{
+						case 0:
+							findComponentByArgument({
+								name: uciWireless.dynData.host_5g,
+								opt: uciWireless.dynOptName.key
+							}).setValue(self.input.value);
+							break;
+						case 1:
+							findComponentByArgument({
+								name: uciWireless.dynData.host_5g1,
+								opt: uciWireless.dynOptName.key
+							}).setValue(self.input.value);
+							break;
+						case 2:
+							findComponentByArgument({
+								name: uciWireless.dynData.host_5g2,
+								opt: uciWireless.dynOptName.key
+							}).setValue(self.input.value);
+							break;
+						default:
+							break;
+						}
+					}
+				});
+			}
+
+			return true;
+		}
+
+		function backwards()
+		{
+			var wanType;
+
+			switch(gWizardData.networkConf[uciProto.secName.wan][uciProto.optName.type])
+			{
+			case uciProto.optValue.proto.pppoe:
+				wanType = LINK_TYPE_PPPOE;
+				break;
+			case uciProto.optValue.proto.dynIp:
+				wanType = LINK_TYPE_DHCP;
+				break;
+			case uciProto.optValue.proto.staticIp:
+				wanType = LINK_TYPE_STATIC_IP;
+				break;
+			default:
+				wanType = LINK_TYPE_PPPOE;
+				break;
+			}
+			if (slp.gSysModeSupport && gSysMode == uciSystem.optValue.sysMode.wdsMode)
+			{
+				wanType = LINK_TYPE_WIRELESS_REPEATER;
+			}
+			if (slp.gSysModeSupport && gSysMode == uciSystem.optValue.sysMode.apMode)
+			{
+				wanType = LINK_TYPE_WIRED_REPEATER;
+			}
+			wzdNetWorkModeChange(wanType);
+		}
+
+		function checkCloudStatus()
+		{
+			var timeout = 5;
+
+			(function polling(){
+				if (timeout-- == 0)
+				{
+					loadingDialog.hide(function(){
+						loadPage("WizardEnd.htm", "wizardCon");
+					});
+					return;
+				}
+
+				var data = {};
+				var cloudST = cloudClientStatus.fileName;
+				var cloudIF = cloudClientStatus.secName.clientInfo;
+				var cloudCS = cloudClientStatus.optName.connectStatus;
+
+				data[cloudST] = {};
+				data[cloudST][KEY_NAME] = cloudIF;
+
+				$.query(data, function(result){
+					if (ENONE == result[ERR_CODE] &&
+						1 == result[cloudST][cloudIF][cloudCS])
+					{
+						loadingDialog.hide(function(){
+							loadPage("WizardCloudMEID.htm", "wizardCon");
+						});
+					}
+					else
+					{
+						$.setTimeout(polling, 1*1000);
+					}
+				}, undefined, true);
+			})();
+		}
+
+		function checkIfWlanHost(callback)
+		{
+			var data = {};
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.online_host;
+
+			$.query(data, function(res){
+				var hosts = res[uciHostsInfo.fileName][uciHostsInfo.dynData.online_host];
+				formatTableData(hosts).forEach(function(host){
+					if (host[uciHostsInfo.optName.isCurHost] == "1" &&
+						host[uciHostsInfo.optName.type] != "0")
+					{
+						gWizardData.iAmWifiDevice = true;
+					}
+				});
+
+				typeof callback == "function" && callback();
+			});
+		}
+
+		function navigateTo()
+		{
+			if (gWizardData.wifiChanged && gWizardData.iAmWifiDevice)
+			{
+				loadingDialog.hide(function(){
+					gWizardData.wifiDisconnect = true;
+					loadPage("WizardEnd.htm", "wizardCon");
+				});
+
+				return;
+			}
+
+			checkCloudStatus();
+		}
+
+		function onSave()
+		{
+			var tmp = {}, nameArray, i = 0, data = {}, isWlanBsChange;
+
+			gWizardData.gWifiCfgSave = null;
+
+			inputObjArr.forEach(function(o){
+				var name = o.argument.name;
+				var opt = o.argument.opt;
+				var ON  = uciWireless.dynOptValue.encryption.on;
+				var OFF = uciWireless.dynOptValue.encryption.off;
+
+				/* 只保存更改的参数 */
+				if (gWizardData.wifiConf[name][opt] != o.getValue())
+				{
+					tmp[name] = tmp[name] || {};
+					tmp[name][opt] = o.getValue();
+
+					if (opt == uciWireless.dynOptName.key)
+					{
+						tmp[name][uciWireless.dynOptName.encryption] = (o.getValue().length == 0) ? OFF : ON;
+					}
+
+					/* 无线参数发生改变 */
+					gWizardData.wifiChanged = true;
+				}
+			});
+
+			/* 多频开关是否发生变化 */
+			if (slp.bandSteeringProvided)
+			{
+				var oldBandSteeringOpen = (BS_ENABLE == gWizardData.wifiConf[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable]);
+				if (bandSteeringOpen != oldBandSteeringOpen)
+				{
+					if (tmp[uciWireless.secName.wlanBS] == undefined)
+					{
+						tmp[uciWireless.secName.wlanBS] = {};
+					}
+					tmp[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable] = bandSteeringOpen ? BS_ENABLE : BS_DISABLE;
+					gWizardData.wifiChanged = true;
+				}
+			}
+			gWizardData.gWifiCfgSave = tmp;
+			gWizardData.isBandSteeringOpen = bandSteeringOpen;
+			nameArray = Object.keys(tmp);
+
+			if (gWizardData.wifiChanged)
+			{
+				/* CHECK WPS */
+				data = {};
+				data[uciWireless.fileName] = {};
+				data[uciWireless.fileName][KEY_NAME] = [];
+
+				for (i = 0; i < nameArray.length; i++)
+				{
+					switch (nameArray[i])
+					{
+					case uciWireless.dynData.host_2g:
+						data[uciWireless.fileName][KEY_NAME].push("wps_status_2g");
+						break;
+					case uciWireless.dynData.host_5g:
+						data[uciWireless.fileName][KEY_NAME].push("wps_status_5g");
+						break;
+					case uciWireless.dynData.host_5g1:
+						data[uciWireless.fileName][KEY_NAME].push("wps_status_5g1");
+						break;
+					case uciWireless.dynData.host_5g2:
+						data[uciWireless.fileName][KEY_NAME].push("wps_status_5g4");
+						break;
+					}
+				}
+
+				$.query(data, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						var wpsStatusResult = false;
+
+						for (i = 0; i < data[uciWireless.fileName][KEY_NAME].length; i++)
+						{
+							wpsStatusResult = wpsStatusResult && (result[uciWireless.fileName][data[uciWireless.fileName][KEY_NAME][i]]["status"] == 1);
+						}
+
+						if (wpsStatusResult)
+						{
+							confirmDialog.show({
+								content: label.wpsConfigShowTip,
+								callback: function(choose){
+									if (choose)
+									{
+										checkIfWlanHost(readyToSend);
+									}
+								}
+							});
+						}
+						else
+						{
+							checkIfWlanHost(readyToSend);
+						}
+					}
+					else
+					{
+						/* IF WPS MODULE IS NOT EXIST OR HAS SOME PROBLEMS, JUST SAVE IT */
+						checkIfWlanHost(readyToSend);
+					}
+				});
+			}
+			else
+			{
+				if (slp.g11AXSupport["wlan2g"] || slp.g11AXSupport["wlan5g"] || slp.g11AXSupport["wlan5g1"] || slp.g11AXSupport["wlan5g4"])
+				{
+					checkIfWlanHost(function(){
+						loadPage("WizardWirelessAx.htm", "wizardCon");
+					});
+				}
+				else {
+					loadingDialog.show({
+						content: {primary: label.configging}
+					}, undefined, undefined, false, undefined);
+
+					wzdDone();
+					navigateTo();
+				}
+			}
+
+			function readyToSend(){
+				if (slp.g11AXSupport["wlan2g"] || slp.g11AXSupport["wlan5g"] || slp.g11AXSupport["wlan5g1"] || slp.g11AXSupport["wlan5g4"])
+				{
+					var cfg = {};
+					cfg.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.apMode}};
+					switch (slp.bandsProvided - 1) {
+						case BAND_1:
+							cfg.wireless = {"wlan_wds_2g":{"enable":"0"}};
+							break;
+						case BAND_2:
+							cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g":{"enable":"0"}};
+							break;
+						case BAND_3:
+							cfg.wireless = {"wlan_wds_2g":{"enable":"0"},"wlan_wds_5g_1":{"enable":"0"},"wlan_wds_5g_4":{"enable":"0"}};
+							break;
+					}
+
+					$.modify(cfg, function(result) {
+						if (false == errHandle(result[ERR_CODE])) {
+							gSysMode = uciSystem.optValue.sysMode.apMode;
+							retryCount = 0;
+							loadingDialog.show({
+								content: "正在中继..."
+							})
+							getApStatus();
+						}
+					});
+					loadPage("WizardWirelessAx.htm", "wizardCon");
+				}
+				else
+				{
+					var data = {};
+					data[uciWireless.fileName] = tmp;
+
+					if (gWizardData.wifiChanged == true && gWizardData.iAmWifiDevice == true)
+					{
+						navigateTo();
+						return;
+					}
+
+					loadingDialog.show({
+						content: {primary: label.configging}
+					}, undefined, undefined, false, undefined);
+
+					wzdDone();
+					$.modify(data, function(result){
+						if (result[ERR_CODE] == ENONE)
+						{
+							formatData(gWizardData.wifiConf).forEach(function(obj){
+								if (tmp[obj.name] != undefined)
+								{
+									if (tmp[obj.name].ssid != undefined)
+									{
+										gWizardData.wifiConf[obj.name].ssid = tmp[obj.name].ssid;
+									}
+
+									if (tmp[obj.name].key != undefined)
+									{
+										gWizardData.wifiConf[obj.name].key = tmp[obj.name].key;
+									}
+								}
+							});
+
+							navigateTo();
+						}
+						else
+						{
+							loadingDialog.hide(function(){
+								alarmDialog.show(errStr.unknown + result[ERR_CODE]);
+							});
+						}
+					}, undefined, true);
+				}
+			};
+		}
+
+		function apFailed() {
+			confirmDialog.show({
+				content: '中继失败，请确定是否重试？',
+				button: {confirmStr:"下一步",cancelStr:"重试"},
+				callback: function(choose){
+					if (choose) {
+						retryCount = 0;
+						loadingDialog.show({
+							content: '正在中继...'
+						})
+						getApStatus();
+					} else {
+						loadPage('WizardWirelessCfg.htm',"wizardCon");
+					}
+				}
+			})
+		}
+
+		function getApStatus() {
+			clearTimeout(getApStatusHd);
+			if (retryCount > 20) {
+				loadingDialog.hide(function(){
+					apFailed();
+				})
+				return;
+			}
+			$.query({"wired_extender":{"name": "status"}}, function(result) {
+				if (result.error_code == ENONE) {
+					var ip = result.wired_extender.status.ip;
+					if (ip == '0.0.0.0') {
+						retryCount++;
+						getApStatusHd = $.setTimeout(getApStatus, 1000);
+					} else {
+						loadingDialog.hide(function(){
+							gLanIP = result.wired_extender.status.ip;
+							loadPage('WizardWirelessCfg.htm', "wizardCon");
+						})
+					}
+				}
+			});
+		}
+
+		function forwards()
+		{
+			var good = true;
+			var securityWarn = false;
+			var firstUnsetPwd = null;
+			var firstChSsid = null;
+
+			hasCNChar = false;
+
+			/* CHECK INPUT VALID */
+			inputObjArr.forEach(function(o){
+				/* ONLY CHECK WHICH STILL ENABLE */
+				if (!o.disabled)
+				{
+					good = o.checkAll() && good;
+					if (o.argument.opt == uciWireless.dynOptName.key &&
+						o.getValue() == "")
+					{
+						if (firstUnsetPwd == null)
+						{
+							firstUnsetPwd = o;
+						}
+
+						securityWarn = true;
+					}
+
+					if (o.argument.opt == uciWireless.dynOptName.ssid &&
+						checkStrHasCN(o.getValue()))
+					{
+						if (firstChSsid == null)
+						{
+							firstChSsid = o;
+						}
+
+						hasCNChar = true;
+					}
+				}
+			});
+
+			if (!good)
+			{
+				return;
+			}
+
+			/* IF WIRELESS SSID HAS CHINESE CHAR, SHOW TIPS */
+			if (hasCNChar)
+			{
+				confirmDialog.show({
+					content: label.confirmSsidHasCNChar,
+					isCloseHandleBindSubmit: true,
+					button: {confirmStr:btn.btnY,
+							 cancelStr:btn.btnN},
+					callback: function(choose){
+						if (choose)
+						{
+							firstChSsid.input.select();
+						}
+						else
+						{
+							securityCallback();
+						}
+					}
+				});
+
+				return;
+			}
+
+			securityCallback();
+
+			function securityCallback()
+			{
+				/* IF WILRLESS HAS NOT_ENCRIPTION, SHOW TIPS */
+				if (securityWarn)
+				{
+					confirmDialog.show({
+						content: label.confirmNoWirelessPwd,
+						isCloseHandleBindSubmit: true,
+						button: {
+							cancelStr: btn.noConfig,
+							confirmStr: btn.goConfig
+						},
+						callback: function(choose){
+							if (choose)
+							{
+								firstUnsetPwd.input.select();
+							}
+							else
+							{
+								onSave();
+							}
+						}
+					});
+
+					return;
+				}
+
+				onSave();
+			}
+		}
+
+		/* GET THE TARGET COMPONENT */
+		function findComponentByArgument(argument)
+		{
+			for (var i in inputObjArr)
+			{
+				if (!inputObjArr.hasOwnProperty(i)){
+					continue;
+				}
+				if (inputObjArr[i].argument.name == argument.name &&
+					inputObjArr[i].argument.opt == argument.opt)
+				{
+					return inputObjArr[i];
+				}
+			}
+
+			return new Object();
+		}
+
+		function followPwd(target)
+		{
+			if (this.checked)
+			{
+				target.setValue(findComponentByArgument({
+					name: uciWireless.dynData.host_2g,
+					opt: uciWireless.dynOptName.key
+				}).getValue());
+				target.disable(true);
+			}
+			else
+			{
+				target.disable(false);
+			}
+
+			switch(target.argument.name)
+			{
+			case uciWireless.dynData.host_5g:
+				gWizardData.followPwd[0] = this.checked;
+				break;
+			case uciWireless.dynData.host_5g1:
+				gWizardData.followPwd[1] = this.checked;
+				break;
+			case uciWireless.dynData.host_5g2:
+				gWizardData.followPwd[2] = this.checked;
+				break;
+			default:
+				break;
+			}
+		}
+
+		function switchBandSteering(value)
+		{
+			var self = this;
+			bandSteeringOpen = BS_ENABLE == value;
+
+			fillEditArea();
+		}
+
+		new Button({
+			text:btn.preStep,
+			onClick:backwards,
+			type:Button.TYPE.SECONDARY,
+			id:"pre"
+		});
+		var nextBtn = new Button({
+			text:btn.nextStep,
+			onClick:forwards,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		var listScroll = new NiceScroll({targetId:"wizardBody", hrzLine: true});
+		listScroll.scrollTipOpacity(1);
+		listScroll.init();
+
+		if (slp.bandSteeringProvided)
+		{
+			bandSteeringOpen = BS_ENABLE == gWizardData.wifiConf[uciWireless.secName.wlanBS][uciWireless.optName.bsEnable];
+		}
+
+		/* INIT THE EDIT_AREA */
+		fillEditArea();
+
+		/* SHOW THE BAND_STEERING BUTTON IF NEEDED */
+		if (slp.bandSteeringProvided)
+		{
+			$("div.topTitle").css("display", "block");
+			new Switch("bsSwitch", (bandSteeringOpen ? 1 : 0), switchBandSteering, false);
+		}
+	}
+	init();
+</script>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody">
+		<h1>{%menuStr.wifi%}</h1>
+		<div class="topTitle">
+			<label>{%label.multiBandIntegration%}</label>
+			<div id="bsSwitch" class="switchCon">
+				<i class="switchBg"></i>
+				<i class="switchBall"/></i>
+			</div>
+			<p>{%label.bsHelp%}</p>
+		</div>
+		<div id="editingArea"></div>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="pre"></div>
+		<div id="sub"></div>
+	</li>
+</ul>

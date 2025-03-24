@@ -1,0 +1,8 @@
+Package: tdmp-resource
+Version: 1
+Depends: libc
+Source: tp_package/u_packages/resource
+Section: utils
+Architecture: rtl
+Installed-Size: 629848
+Description:  TDMP Resource

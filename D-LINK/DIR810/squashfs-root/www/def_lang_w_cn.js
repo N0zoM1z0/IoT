@@ -1,0 +1,686 @@
+//Version=1.03b02
+//Language=CHINESE
+//Date=Tue, 30, Jul, 2013
+//Merged=FALSE
+//Merged Fw=FALSE
+var which_lang = new Array ( //_NO_SHARE_NAME_
+	"取消", //_cancel
+	"复制您计算机的MAC地址", //_clone
+	"DHCP连接（动态IP地址）", //_dhcpconn
+	"IP地址", //_ipaddr
+	"L2TP", //_L2TP
+	"L2TP网关IP地址", //_L2TPgw
+	"L2TP IP地址", //_L2TPip
+	"L2TP子网掩码", //_L2TPsubnet
+	"语言", //_Language
+	"MAC地址", //_macaddr
+	"下一个", //_next
+	"否", //_no
+	"（可选）", //_optional
+	"密码", //_password
+	"PPTP网关IP地址", //_PPTPgw
+	"PPTP IP地址", //_PPTPip
+	"生产前试验的程序子网掩码", //_PPTPsubnet
+	"前一个", //_prev
+	"請確認管理者的兩組密碼相同後再試一次", //_pwsame_admin
+	"静态IP", //_sdi_staticip
+	"子网掩码", //_subnet
+	"用户名", //_username
+	"验证密码", //_verifypw
+	"你想放弃所有你在向导中作出的改变吗？", //_wizquit
+	"是", //_yes
+	"无效L2TP服务器IP地址", //bwn_alert_17
+	"地址模式", //bwn_AM
+	"BigPond服务器", //bwn_BPS
+	"TKIP和AES", //bws_CT_3
+	"动态 IP", //carriertype_ct_0
+	"路由器正在检测您的互联网连接类型，请稍等……", //ES_auto_detect_desc
+	"路由器无法侦测到您的互联网连接类型。", //ES_auto_detect_failed_desc
+	"您想将 “D-Link 路由器 Web 管理”页面添加为书签吗？", //ES_bookmark
+	"重试", //ES_btn_try_again
+	"插入路由器所配的以太网线的一端到路由器背后标有INTERNET的端口。插入另一端到您调制解调器的以太网端口，然后重启调制解调器。", //ES_cable_lost_desc
+	"步骤2：配置 Wi-Fi 安全方式", //ES_step_wifi_security
+	"步骤3：设置您的密码", //ES_title_s3
+	"步骤4：选择您所在的时区", //ES_title_s4
+	"步骤5：保存设置", //ES_title_s5
+	"步骤5：确认 Wi-Fi 设置", //ES_title_s5_0
+	"步骤6：注册MYDLINK", //ES_title_s6
+	"注册MYDLINK", //ES_title_s6_myd
+	"步骤1：配置您的Internet连接", //ES_wwa_title_s1
+	"无效的DHCP客户端名称", //GW_DHCP_CLIENT_CLIENT_NAME_INVALID
+	"无效DHCP+密码", //GW_WAN_DHCPPLUS_PASSWORD_INVALID
+	"无效DHCP+用户名", //GW_WAN_DHCPPLUS_USERNAME_INVALID
+	"必须指定一个L2TP用户名。", //GW_WAN_L2TP_USERNAME_INVALID
+	"必须指定一个PPTP密码。", //GW_WAN_PPTP_PASSWORD_INVALID
+	"无效网络密钥!", //IPV6_TEXT2
+	"无效的MAC地址。", //KR3
+	"自动（WPA或WPA2) - 个人", //KR48
+	"Adelphia电源连接", //manul_conn_01
+	"ALLTEL DSL", //manul_conn_02
+	"ATAT DSL服务", //manul_conn_03
+	"Bell Sympatico", //manul_conn_04
+	"贝尔南方电讯公司", //manul_conn_05
+	"Charter高速互联网", //manul_conn_06
+	"Comcast电信公司", //manul_conn_07
+	"Covad通信公司", //manul_conn_08
+	"Cox通信公司", //manul_conn_09
+	"Earthlink线缆", //manul_conn_10
+	"Earthlink通信公司DSL服务", //manul_conn_11
+	"FrontierNet", //manul_conn_12
+	"优化在线", //manul_conn_13
+	"RCN", //manul_conn_14
+	"Road Runner", //manul_conn_15
+	"Rogers Yahoo!", //manul_conn_16
+	"SBC-雅虎DSL服务", //manul_conn_17
+	"Shaw", //manul_conn_18
+	"Speakeasy", //manul_conn_19
+	"美国疾跑通信FastConnect", //manul_conn_20
+	"Telus电信公司", //manul_conn_21
+	"时代华纳有线电视公司", //manul_conn_22
+	"美国西部/ Qwest", //manul_conn_23
+	"Verizon Online DSL服务", //manul_conn_24
+	"XO通信", //manul_conn_25
+	"通过mydlink注册您的产品，则可使用mydlink激活的功能，包括通过mydlink网站在线访问和管理您的设备。", //mydlink_tx01
+	"是否通过mydlink注册您的设备？", //mydlink_tx02
+	"请输入用户名", //PPP_USERNAME_EMPTY
+	"支持PPPoE Plus", //pppoe_plus_dail
+	"密码只能包含可打印字符。", //S493
+	"保存设置", //save_settings
+	"正保存设置", //save_wait
+	"固件版本", //sd_FWV
+	"产品页面", //TA2
+	"硬件版本", //TA3
+	"(GMT-12:00) 埃内韦塔克, 夸贾林环礁", //up_tz_00
+	"(GMT-11:00) 中途岛, 萨摩亚群岛", //up_tz_01
+	"(GMT-10:00) 夏威夷", //up_tz_02
+	"(GMT-09:00) 阿拉斯加", //up_tz_03
+	"(GMT-08:00) 太平洋时间（美国/加拿大）, 提花纳", //up_tz_04
+	"(GMT-07:00) 亚利桑那", //up_tz_05
+	"(GMT-07:00) 山地时间（美国/加拉大）", //up_tz_06
+	"(GMT-06:00) 中美洲", //up_tz_07
+	"(GMT-06:00) 中央时间（美国/加拿大）", //up_tz_08
+	"(GMT-06:00) 墨西哥城", //up_tz_09
+	"(GMT-06:00) 萨斯喀彻温", //up_tz_10
+	"(GMT-05:00) 波哥大, 利马, 基多", //up_tz_11
+	"(GMT-05:00) 东部时间（美国/加拿大）", //up_tz_12
+	"(GMT-05:00) 印第安娜（东部)", //up_tz_13
+	"(GMT-04:00) 大西洋时间（加拿大）", //up_tz_14
+	"(GMT-04:00) 加拉加斯, 拉巴斯", //up_tz_15
+	"(GMT-04:00) 圣地亚哥", //up_tz_16
+	"(GMT-03:30) 纽芬兰", //up_tz_17
+	"(GMT-03:00) 巴西利亚", //up_tz_18
+	"(GMT-03:00) 布益诺斯艾利斯, 乔治敦", //up_tz_19
+	"(GMT-03:00) 格陵兰", //up_tz_20
+	"(GMT-02:00) 中大西洋", //up_tz_21
+	"(GMT-01:00) 亚速尔群岛", //up_tz_22
+	"(GMT-01:00) 佛得角群岛", //up_tz_23
+	"(GMT) 卡萨布兰卡, 蒙罗维亚", //up_tz_24
+	"(GMT) 格林威治时间：都柏林, 爱丁堡, 里斯本, 伦敦", //up_tz_25
+	"(GMT+01:00) 阿姆斯特丹, 柏林, 伯尔尼, 罗马, 斯德哥尔摩, 维也纳", //up_tz_26
+	"(GMT+01:00) 贝尔格莱德, 布拉迪斯拉发, 布达佩斯, 卢布尔雅那, 布拉格", //up_tz_27
+	"(GMT+01:00) 布鲁塞尔, 哥本哈根, 马德里, 巴黎", //up_tz_28
+	"(GMT+01:00) 萨拉热窝, 斯科普里, 索非亚, 维尔纽斯, 萨格勒布", //up_tz_29
+	"(GMT+01:00) 布达佩斯, 维也纳, 布拉格, 华沙", //up_tz_29b
+	"(GMT+01:00) 中非西部", //up_tz_30
+	"(GMT+02:00) 雅典, 伊斯坦布尔, 明斯克", //up_tz_31
+	"(GMT+02:00) 布加勒斯特", //up_tz_32
+	"(GMT+02:00) 开罗", //up_tz_33
+	"(GMT+02:00) 哈拉雷, 比勒陀利亚", //up_tz_34
+	"(GMT+02:00) 赫尔辛基, 里加, 塔林", //up_tz_35
+	"(GMT+02:00) 耶路撒冷", //up_tz_36
+	"(GMT+03:00) 巴格达", //up_tz_37
+	"(GMT+03:00) 科威特, 利雅得", //up_tz_38
+	"(GMT+04:00) 莫斯科, 伏尔加格勒, 圣彼得堡", //up_tz_39
+	"(GMT+03:00) 内罗毕", //up_tz_40
+	"(GMT+03:30) 德黑兰", //up_tz_41
+	"(GMT+04:00) 阿布扎比, 马斯喀特", //up_tz_42
+	"(GMT+04:00) 巴库, 第比利斯, 耶烈万", //up_tz_43
+	"(GMT+04:30) 喀布尔", //up_tz_44
+	"(GMT+06:00) 叶卡捷琳堡", //up_tz_45
+	"(GMT+05:00) 伊斯兰堡, 卡拉奇, 塔什干", //up_tz_46
+	"(GMT+05:30) 加尔各答,  辰內, 孟买, 新德里", //up_tz_47
+	"(GMT+05:45) 加德满都", //up_tz_48
+	"(GMT+06:00) 阿拉木图", //up_tz_49
+	"(GMT+06:00) 阿斯塔纳, 达卡", //up_tz_50
+	"(GMT+06:00) 斯里哈亚华凳尼普拉", //up_tz_51
+	"(GMT+06:30) 仰光", //up_tz_52
+	"(GMT+07:00) 曼谷, 河内, 雅加达", //up_tz_53
+	"(GMT+08:00) 克拉斯诺亚尔斯克", //up_tz_54
+	"(GMT+08:00) 北京, 重庆, 香港特别行政区, 乌鲁木齐", //up_tz_55
+	"(GMT+09:00) 伊尔库茨克，乌兰巴托", //up_tz_56
+	"(GMT+08:00) 吉隆坡, 新加坡", //up_tz_57
+	"(GMT+08:00) 珀斯", //up_tz_58
+	"(GMT+08:00) 台北", //up_tz_59
+	"(GMT+09:00) 大坂, 札幌, 东京", //up_tz_60
+	"(GMT+09:00) 首尔", //up_tz_61
+	"(GMT+10:00) 雅库茨克", //up_tz_62
+	"(GMT+09:30) 阿德睐德", //up_tz_63
+	"(GMT+09:30) 达尔文", //up_tz_64
+	"(GMT+10:00) 布里斯班", //up_tz_65
+	"(GMT+10:00) 堪培拉, 墨尔本, 悉尼", //up_tz_66
+	"(GMT+10:00) 关岛, 莫尔兹比港", //up_tz_67
+	"(GMT+10:00) 霍巴特", //up_tz_68
+	"(GMT+11:00) 海参崴", //up_tz_69
+	"(GMT+11:00) 所罗门群岛, 新喀里多尼亚", //up_tz_70
+	"(GMT+12:00) 奥克兰, 惠灵顿", //up_tz_71
+	"(GMT+12:00) 斐济, 勘察加半岛, 马绍尔群岛", //up_tz_72
+	"(GMT+13:00) 努库阿洛法,汤加", //up_tz_73
+	"(GMT+07:00) 新西伯利亚", //up_tz_74
+	"(GMT+12:00) 马加丹", //up_tz_75
+	"(GMT-12:00) 日界线西", //up_tz_76
+	"(GMT-11:00) 中途岛", //up_tz_77
+	"(GMT-07:00) 奇瓦瓦, 拉巴斯, 马扎特兰", //up_tz_78
+	"(GMT-06:00) 瓜达拉哈拉, 墨西哥城, 蒙特雷", //up_tz_79
+	"(GMT-05:00) 波哥大, 利马, 基多, 印第安纳州(东部)", //up_tz_80
+	"(GMT-04:30) 加拉加斯", //up_tz_81
+	"(GMT-04:00) 乔治敦, 拉巴斯", //up_tz_82
+	"(GMT-03:00) 布宜诺斯艾利斯", //up_tz_83
+	"(GMT+01:00) 萨拉热窝, 斯科普里, 华沙, 萨格雷布", //up_tz_84
+	"(GMT+02:00) 赫尔辛基, 基辅, 里加, 索菲亚, 塔林, 维尔纽斯", //up_tz_85
+	"(GMT+05:30) 马德拉斯, 加尔各答, 孟买, 新德里", //up_tz_86
+	"(GMT+07:00) 阿拉木图, 新西伯利亚", //up_tz_87
+	"(GMT+05:30) 斯里兰卡 斯里贾亚瓦德纳普拉科特", //up_tz_88
+	"(GMT+08:00) 乌兰巴托", //up_tz_89
+	"(GMT+09:00) 伊尔库茨克", //up_tz_90
+	"(GMT+13:00) 努库阿洛法", //up_tz_91
+	"(GMT+13:00) 萨摩亚", //up_tz_92
+	"DNS 设置", //wwa_dnsset
+	"网关地址", //wwa_gw
+	"默认情况下，在新D-Link路由器上管理员无需密码即可访问到基于Web的配置页面。为了保护您新网络设备，请在下面设置并验证密码，并启用CAPTCHA 图像验证从而提供附加的安全保护用来防止未授权的在线用户以及黑客软件访问到网络设置。", //wwa_intro_s1
+	"选择您所在地相符的时区。此类信息要求配置时间为基础的选项。将设置您路由器从NTP服务器自动更新内部时钟。", //wwa_intro_s2
+	"请从下面选择Internet 连接类型：", //wwa_intro_s3
+	"该想到将引导您通过一步步的过程配置您的新D-Link路由器并连接到互联网。", //wwa_intro_wel
+	"L2TP 服务器IP地址（可能与网关相同）", //wwa_l2tp_svra
+	"如果您的互联网连接自动为您提供一个IP地址请选择该项目。大多数同轴线缆Modem使用该连接类型。", //wwa_msg_dhcp
+	"如果没有列出您的互联网服务供应商或您不知道供应商是谁，请选择以下的互联网连接类型：", //wwa_msg_ispnot
+	"如果 互联网 连接需要用户名和密码连接，则选择此选项，多数DSL调制解调器使用此类连接。", //wwa_msg_pppoe
+	"PPTP客戶端", //wwa_msg_pptp
+	"要建立此连接，请确认您是用一台有宽带连接的计算机连接到D-Link路由器的。如果是，请点击复制MAC按钮将计算机的MAC地址复制到路由器。", //wwa_msg_set_dhcp
+	"要设置此连接，您需要从互联网服务供应商获得用户名和密码。如果您没有获得此信息，请联系您的ISP。", //wwa_msg_set_pppoe
+	"为了安装连接，你将需要来自你的互联网服务供应商的用户名＆密码。你也将需要生产前试验的程序IP地址。如果你不需要这些信息，请联系你的互联网服务供应商。", //wwa_msg_set_pptp
+	"如果您的互联网设置供应商为您提供的IP地址信息需要手动配置，请选择该选项。", //wwa_msg_sipa
+	"注意：您可能需要提供一个主机名。如果您没有或不知道此信息，请联系您的ISP。", //wwa_note_hostname
+	"首选DNS地址", //wwa_pdns
+	"PPPTP服务器IP地址（可能与网管相同）", //wwa_pptp_svraddr
+	"备用DNS地址", //wwa_sdns
+	"不能被列出或者不知道", //wwa_selectisp_not
+	"设置用户名和密码连接（L2TP）", //wwa_set_l2tp_title
+	"要建立此连接，您需要一份由您的ISP提供的完成的IP信息列表。如果您使用静态IP连接且没有此信息，请联系您的ISP。", //wwa_set_sipa_msg
+	"设置静态IP地址连接", //wwa_set_sipa_title
+	"设置BigPond线缆连接", //wwa_title_set_bigpond
+	"设置用户名和密码连接（PPPoE)", //wwa_title_set_pppoe
+	"设置用户名和密码连接(PPTP)", //wwa_title_set_pptp
+	"欢迎进入 D-Link设置向导。", //wwa_title_wel
+	"BigPond", //wwa_wanmode_bigpond
+	"用户名/密码连接（L2TP）", //wwa_wanmode_l2tp
+	"用户名/密码连接（PPPoE）", //wwa_wanmode_pppoe
+	"用户名/密码连接(PPTP)", //wwa_wanmode_pptp
+	"静态IP地址连接", //wwa_wanmode_sipa
+	"请设置您Wi-Fi网络名称。", //wwz_wwl_intro_s2_1
+	"Wi-Fi网络名称（SSID）", //wwz_wwl_intro_s2_1_1
+	"(最多可使用32个字符)", //wwz_wwl_intro_s2_1_2
+	"请设置您Wi-Fi网络密码。", //wwz_wwl_intro_s2_2
+	"Wi-Fi密码", //wwz_wwl_intro_s2_2_1
+	"(8至63个字符)", //wwz_wwl_intro_s2_2_2
+	"赋予您的网络一个名称，最多使用32个字符", //wwz_wwl_intro_s3_1
+	"步骤1：欢迎进入D-LINK无线安全设置向导", //wwz_wwl_title_s3
+	"无效PPTP服务器IP 地址", //YM108
+	"请在2.4GHz和5GHz频段使用相同的无线安全密码。 ", //wwl_SSP
+	"请设置您Wi-Fi网络名称和密码。", //wwz_wwl_intro_s0
+	"%s的第一个地址必须是整数。", //MSG002
+	"%s的第二个地址必须是整数。", //MSG003
+	"%s的第三个地址必须是整数。", //MSG004
+	"%s的第四个地址必须是整数。", //MSG005
+	"%s是一个无效地址。", //MSG006
+	"%s不能为0。", //MSG007
+	"输入的%s端口是无效的。", //MSG008
+	"输入的%s秘密是无效的。", //MSG009
+	"%s不允许条目回送IP或多播IP（127.x.x.x,224.x.x.x~239.x.x.x）。", //MSG010
+	"请输入另一个%s值，", //MSG012
+	"%s值必须是数字！", //MSG013
+	"%s的范围是%1n到%2n。", //MSG014
+	"%s值必须是偶数。", //MSG015
+	"密匙是无效的。您输入的密匙必须是一个由5个或10个字符组成的十六进制的数字。", //MSG016
+	"密匙是无效的。您输入的密匙必须是一个由13个或26个字符组成的十六进制的数字。", //MSG017
+	"%s的第一个地址必须是十六进制的。", //MSG018
+	"%s的第二个地址必须是十六进制的。", //MSG019
+	"%s的第三个地址必须是十六进制的。", //MSG020
+	"%s的第四个地址必须是十六进制的。", //MSG021
+	"%s的第五个地址必须是十六进制的。", //MSG022
+	"%s的第六个地址必须是十六进制的。", //MSG023
+	"%s的第七个地址必须是十六进制的。", //MSG024
+	"%s的第八个地址必须是十六进制的。", //MSG025
+	"%s范围一必须介于", //MSG026
+	"%s范围二必须介于", //MSG027
+	"%s范围三必须介于", //MSG028
+	"%s范围四必须介于", //MSG029
+	"%s范围五必须介于", //MSG030
+	"%s范围六必须介于", //MSG031
+	"%s范围七必须介于", //MSG032
+	"%s范围八必须介于", //MSG033
+	"%s不允许条目回送IP（::1）。", //MSG034
+	"%s不允许条目多播IP（FFxx:0:0:0:0:0:0:2或ffxx:0:0:0:0:0:0:2", //MSG035
+	"无效度量", //MSG043
+	"Metric值应该是（1..16）之间。", //ar_alert_3
+	"無效的子網路遮罩.", //ar_alert_5
+	"密钥", //TEXT042_1
+	"输入错误，有效字符为：0〜9，A〜F或a〜f。", //TEXT042_2
+	"注释：你也需要提供一服务名。如果你没有或不知道这些信息，请联系你的互联网服务供应商。", //wwa_note_svcn
+	"L2TP客户端。", //wwa_msg_l2tp
+	"要设置此连接，您需要从互联网服务供应商获得用户名和密码。您也需要L2TP IP地址。如果您没有获得此信息，请联系您的ISP。", //wwa_set_l2tp_msg
+	"如需建立连接，请输入Internet服务供应商（ISP）提供的用户名、密码以及BigPond服务器IP地址。如果不知道该信息，请联系您的ISP。", //wwa_msg_set_bigpond
+	"主机名", //_hostname
+	"2.4GHz频段", //GW_WLAN_RADIO_0_NAME
+	"5GHz频段", //GW_WLAN_RADIO_1_NAME
+	"以下是您Wi-Fi安全设置的详细内容。请打印此页,或将信息写在一张纸上，以便您将来正确地配置您的Wi-Fi设备。", //wwl_intro_end
+	"请稍等……", //_please_wait
+	"Copyright &copy; 2014 D-Link Corporation. All rights reserved.", //_copyright
+	"连接", //_connect
+	"通过Internet连接设置向导", //ES_btn_guide_me
+	"启用图形化验证", //_graph_auth
+	"D-LINK有限公司 | 无线路由器| 家庭式", //TEXT000
+	"L2TP的密码必须被指定。", //GW_WAN_L2TP_PASSWORD_INVALID
+	"未检测到网络连接，是否重启向导？", //mydlink_tx03
+	"管理员密码不能为空。", //mydlink_tx04
+	"检测WAN连接", //mydlink_tx05
+	"剩余秒数", //sec_left
+	"重试", //_retry
+	"您是否具有mydlink账户？", //mydlink_tx06
+	"是的，我有mydlink账户。", //mydlink_tx07
+	"没有，我希望使用新账户注册并登录。", //mydlink_tx08
+	"电子邮件地址（账号）", //mydlink_tx09
+	"请填写选项完成注册。", //mydlink_tx10
+	"密码确认", //chk_pass
+	"姓", //Lname
+	"名", //Fname
+	"我接受mydlink条款。", //mydlink_tx12
+	"请检查您收件箱中的确认邮件，完成mydlink注册。", //mydlink_tx13_1
+	"确认电子邮件地址后，请单击“登录”按钮。", //mydlink_tx13_2
+	"登录", //_login
+	"确认", //_ok
+	"储存", //_save
+	"请确认两次输入的密码相同然后重试。", //_pwsame
+	"如需使用 <a href=\"http://tw.mydlink.com\" target=\"_blank\">mydlink.com</a> 和mydlink Lite APP, 您需要 <a href=\"http://tw.mydlink.com\"  target=\"_blank\">mydlink.com</a>账户。", //mydlink_reg_into_1
+	"如果您已有账户，请选择 <strong>是的，我有mydlink账户 </strong> 然后单击“下一步”在<a href=\"http://tw.mydlink.com\" target=\"_blank\">mydlink.com</a>注册路由器。", //mydlink_reg_into_2
+	"如果您没有账户，请选择 <strong>没有，我希望使用新账户注册并登录</strong> 然后单击“下一步”创建新账户。", //mydlink_reg_into_3
+	"如果您不想注册mydlink服务，请单击“取消”。", //mydlink_reg_into_4_a
+	"该电子邮件地址已被使用，请输入不同的邮件地址。", //mydlink_pop_01
+	"您需要接受这些条款才能继续。", //mydlink_pop_02
+	"不能为空。", //mydlink_pop_03
+	"无效。", //mydlink_pop_04
+	"您现在可以使用设备的mydlink服务了。", //mydlink_pop_05
+	"登录失败", //mydlink_pop_06
+	"注册", //_signup
+	"完成mydlink注册后,您的路由器连接默认设置会保持一直连接状态,如你的宽带是计时付费方式,请手动设置您的连接设置", //mydlink_pop_09
+	"无法登录到mydlink.", //mdl_errmsg_01
+	"登录请求发送失败。", //mdl_errmsg_02
+	"无法发送登录请求。", //mdl_errmsg_03
+	"注册请求发送失败。", //mdl_errmsg_04
+	"无法发送注册请求。", //mdl_errmsg_05
+	"SSID栏不能为空", //SSID_EMPTY_ERROR
+	"输入的密码不匹配", //YM102
+	"必须指定一个 PPPoE 密码。", //GW_WAN_PPPoE_PASSWORD_INVALID
+	"账户密码必须超过6个字符", //limit_pass_msg
+	"跳过", //_skip
+	"如果您不想注册mydlink服务，请点击“跳过”。", //mydlink_reg_into_4
+	"保存无线设置中。", //mydlink_WiFi_save
+	"俄罗斯PPTP（双接入）", //rus_wan_pptp
+	"俄罗斯PPTP（双接入）网络连接类型", //rus_wan_pptp_01
+	"俄罗斯L2TP（双接入）", //rus_wan_l2tp
+	"俄罗斯L2TP（双接入）网络连接类型", //rus_wan_l2tp_01
+	"俄罗斯PPPoE（双接入）", //rus_wan_pppoe
+	"俄罗斯PPPoE（双接入）网络连接类型", //rus_wan_pppoe_02
+	"WAN物理设置", //rus_wan_pppoe_03
+	" 此设备有mydlink-enabled功能，您可使用此功能在mydlink.com网站上或通过mydlink mobile app远程监控和管理您的网络。", //_wz_mydlink_into_1
+	"您可检测您的网络速度，查看已连接的用户，设备浏览记录，和接收关于新用户或入侵尝试的通知。", //_wz_mydlink_into_2
+	"您可用现有的mydlink账户注册设备。若没有账户，您可新建一个账户。", //_wz_mydlink_into_3
+	"请查看您的邮箱是否有一封关于确认指令邮件。", //_wz_mydlink_email_1
+	"路由器正在检测Internet连接，请稍等。", //_chk_wanconn_msg_00
+	"Would you like to skip mydlink registration?", //_wz_skip_mydlink
+	"Metric值应该是（1..15）之间。", //ar_alert_3a
+	"伺服器 IP 位址", //SERVER_IP_DESC
+	"%s 网关IP地址%s必须在WAN子网内。", //TEXT043
+	"WAN", //WAN
+	"SSID should be represent with ASCII character from code 32 to 126.", //ssid_ascii_range
+	"IP地址不应与闸道IP地址相同", //ip_gateway_check
+	"" //MAX
+);
+var _cancel=0;
+var _clone=1;
+var _dhcpconn=2;
+var _ipaddr=3;
+var _L2TP=4;
+var _L2TPgw=5;
+var _L2TPip=6;
+var _L2TPsubnet=7;
+var _Language=8;
+var _macaddr=9;
+var _next=10;
+var _no=11;
+var _optional=12;
+var _password=13;
+var _PPTPgw=14;
+var _PPTPip=15;
+var _PPTPsubnet=16;
+var _prev=17;
+var _pwsame_admin=18;
+var _sdi_staticip=19;
+var _subnet=20;
+var _username=21;
+var _verifypw=22;
+var _wizquit=23;
+var _yes=24;
+var bwn_alert_17=25;
+var bwn_AM=26;
+var bwn_BPS=27;
+var bws_CT_3=28;
+var carriertype_ct_0=29;
+var ES_auto_detect_desc=30;
+var ES_auto_detect_failed_desc=31;
+var ES_bookmark=32;
+var ES_btn_try_again=33;
+var ES_cable_lost_desc=34;
+var ES_step_wifi_security=35;
+var ES_title_s3=36;
+var ES_title_s4=37;
+var ES_title_s5=38;
+var ES_title_s5_0=39;
+var ES_title_s6=40;
+var ES_title_s6_myd=41;
+var ES_wwa_title_s1=42;
+var GW_DHCP_CLIENT_CLIENT_NAME_INVALID=43;
+var GW_WAN_DHCPPLUS_PASSWORD_INVALID=44;
+var GW_WAN_DHCPPLUS_USERNAME_INVALID=45;
+var GW_WAN_L2TP_USERNAME_INVALID=46;
+var GW_WAN_PPTP_PASSWORD_INVALID=47;
+var IPV6_TEXT2=48;
+var KR3=49;
+var KR48=50;
+var manul_conn_01=51;
+var manul_conn_02=52;
+var manul_conn_03=53;
+var manul_conn_04=54;
+var manul_conn_05=55;
+var manul_conn_06=56;
+var manul_conn_07=57;
+var manul_conn_08=58;
+var manul_conn_09=59;
+var manul_conn_10=60;
+var manul_conn_11=61;
+var manul_conn_12=62;
+var manul_conn_13=63;
+var manul_conn_14=64;
+var manul_conn_15=65;
+var manul_conn_16=66;
+var manul_conn_17=67;
+var manul_conn_18=68;
+var manul_conn_19=69;
+var manul_conn_20=70;
+var manul_conn_21=71;
+var manul_conn_22=72;
+var manul_conn_23=73;
+var manul_conn_24=74;
+var manul_conn_25=75;
+var mydlink_tx01=76;
+var mydlink_tx02=77;
+var PPP_USERNAME_EMPTY=78;
+var pppoe_plus_dail=79;
+var S493=80;
+var save_settings=81;
+var save_wait=82;
+var sd_FWV=83;
+var TA2=84;
+var TA3=85;
+var up_tz_00=86;
+var up_tz_01=87;
+var up_tz_02=88;
+var up_tz_03=89;
+var up_tz_04=90;
+var up_tz_05=91;
+var up_tz_06=92;
+var up_tz_07=93;
+var up_tz_08=94;
+var up_tz_09=95;
+var up_tz_10=96;
+var up_tz_11=97;
+var up_tz_12=98;
+var up_tz_13=99;
+var up_tz_14=100;
+var up_tz_15=101;
+var up_tz_16=102;
+var up_tz_17=103;
+var up_tz_18=104;
+var up_tz_19=105;
+var up_tz_20=106;
+var up_tz_21=107;
+var up_tz_22=108;
+var up_tz_23=109;
+var up_tz_24=110;
+var up_tz_25=111;
+var up_tz_26=112;
+var up_tz_27=113;
+var up_tz_28=114;
+var up_tz_29=115;
+var up_tz_29b=116;
+var up_tz_30=117;
+var up_tz_31=118;
+var up_tz_32=119;
+var up_tz_33=120;
+var up_tz_34=121;
+var up_tz_35=122;
+var up_tz_36=123;
+var up_tz_37=124;
+var up_tz_38=125;
+var up_tz_39=126;
+var up_tz_40=127;
+var up_tz_41=128;
+var up_tz_42=129;
+var up_tz_43=130;
+var up_tz_44=131;
+var up_tz_45=132;
+var up_tz_46=133;
+var up_tz_47=134;
+var up_tz_48=135;
+var up_tz_49=136;
+var up_tz_50=137;
+var up_tz_51=138;
+var up_tz_52=139;
+var up_tz_53=140;
+var up_tz_54=141;
+var up_tz_55=142;
+var up_tz_56=143;
+var up_tz_57=144;
+var up_tz_58=145;
+var up_tz_59=146;
+var up_tz_60=147;
+var up_tz_61=148;
+var up_tz_62=149;
+var up_tz_63=150;
+var up_tz_64=151;
+var up_tz_65=152;
+var up_tz_66=153;
+var up_tz_67=154;
+var up_tz_68=155;
+var up_tz_69=156;
+var up_tz_70=157;
+var up_tz_71=158;
+var up_tz_72=159;
+var up_tz_73=160;
+var up_tz_74=161;
+var up_tz_75=162;
+var up_tz_76=163;
+var up_tz_77=164;
+var up_tz_78=165;
+var up_tz_79=166;
+var up_tz_80=167;
+var up_tz_81=168;
+var up_tz_82=169;
+var up_tz_83=170;
+var up_tz_84=171;
+var up_tz_85=172;
+var up_tz_86=173;
+var up_tz_87=174;
+var up_tz_88=175;
+var up_tz_89=176;
+var up_tz_90=177;
+var up_tz_91=178;
+var up_tz_92=179;
+var wwa_dnsset=180;
+var wwa_gw=181;
+var wwa_intro_s1=182;
+var wwa_intro_s2=183;
+var wwa_intro_s3=184;
+var wwa_intro_wel=185;
+var wwa_l2tp_svra=186;
+var wwa_msg_dhcp=187;
+var wwa_msg_ispnot=188;
+var wwa_msg_pppoe=189;
+var wwa_msg_pptp=190;
+var wwa_msg_set_dhcp=191;
+var wwa_msg_set_pppoe=192;
+var wwa_msg_set_pptp=193;
+var wwa_msg_sipa=194;
+var wwa_note_hostname=195;
+var wwa_pdns=196;
+var wwa_pptp_svraddr=197;
+var wwa_sdns=198;
+var wwa_selectisp_not=199;
+var wwa_set_l2tp_title=200;
+var wwa_set_sipa_msg=201;
+var wwa_set_sipa_title=202;
+var wwa_title_set_bigpond=203;
+var wwa_title_set_pppoe=204;
+var wwa_title_set_pptp=205;
+var wwa_title_wel=206;
+var wwa_wanmode_bigpond=207;
+var wwa_wanmode_l2tp=208;
+var wwa_wanmode_pppoe=209;
+var wwa_wanmode_pptp=210;
+var wwa_wanmode_sipa=211;
+var wwz_wwl_intro_s2_1=212;
+var wwz_wwl_intro_s2_1_1=213;
+var wwz_wwl_intro_s2_1_2=214;
+var wwz_wwl_intro_s2_2=215;
+var wwz_wwl_intro_s2_2_1=216;
+var wwz_wwl_intro_s2_2_2=217;
+var wwz_wwl_intro_s3_1=218;
+var wwz_wwl_title_s3=219;
+var YM108=220;
+var wwl_SSP=221;
+var wwz_wwl_intro_s0=222;
+var MSG002=223;
+var MSG003=224;
+var MSG004=225;
+var MSG005=226;
+var MSG006=227;
+var MSG007=228;
+var MSG008=229;
+var MSG009=230;
+var MSG010=231;
+var MSG012=232;
+var MSG013=233;
+var MSG014=234;
+var MSG015=235;
+var MSG016=236;
+var MSG017=237;
+var MSG018=238;
+var MSG019=239;
+var MSG020=240;
+var MSG021=241;
+var MSG022=242;
+var MSG023=243;
+var MSG024=244;
+var MSG025=245;
+var MSG026=246;
+var MSG027=247;
+var MSG028=248;
+var MSG029=249;
+var MSG030=250;
+var MSG031=251;
+var MSG032=252;
+var MSG033=253;
+var MSG034=254;
+var MSG035=255;
+var MSG043=256;
+var ar_alert_3=257;
+var ar_alert_5=258;
+var TEXT042_1=259;
+var TEXT042_2=260;
+var wwa_note_svcn=261;
+var wwa_msg_l2tp=262;
+var wwa_set_l2tp_msg=263;
+var wwa_msg_set_bigpond=264;
+var _hostname=265;
+var GW_WLAN_RADIO_0_NAME=266;
+var GW_WLAN_RADIO_1_NAME=267;
+var wwl_intro_end=268;
+var _please_wait=269;
+var _copyright=270;
+var _connect=271;
+var ES_btn_guide_me=272;
+var _graph_auth=273;
+var TEXT000=274;
+var GW_WAN_L2TP_PASSWORD_INVALID=275;
+var mydlink_tx03=276;
+var mydlink_tx04=277;
+var mydlink_tx05=278;
+var sec_left=279;
+var _retry=280;
+var mydlink_tx06=281;
+var mydlink_tx07=282;
+var mydlink_tx08=283;
+var mydlink_tx09=284;
+var mydlink_tx10=285;
+var chk_pass=286;
+var Lname=287;
+var Fname=288;
+var mydlink_tx12=289;
+var mydlink_tx13_1=290;
+var mydlink_tx13_2=291;
+var _login=292;
+var _ok=293;
+var _save=294;
+var _pwsame=295;
+var mydlink_reg_into_1=296;
+var mydlink_reg_into_2=297;
+var mydlink_reg_into_3=298;
+var mydlink_reg_into_4_a=299;
+var mydlink_pop_01=300;
+var mydlink_pop_02=301;
+var mydlink_pop_03=302;
+var mydlink_pop_04=303;
+var mydlink_pop_05=304;
+var mydlink_pop_06=305;
+var _signup=306;
+var mydlink_pop_09=307;
+var mdl_errmsg_01=308;
+var mdl_errmsg_02=309;
+var mdl_errmsg_03=310;
+var mdl_errmsg_04=311;
+var mdl_errmsg_05=312;
+var SSID_EMPTY_ERROR=313;
+var YM102=314;
+var GW_WAN_PPPoE_PASSWORD_INVALID=315;
+var limit_pass_msg=316;
+var _skip=317;
+var mydlink_reg_into_4=318;
+var mydlink_WiFi_save=319;
+var rus_wan_pptp=320;
+var rus_wan_pptp_01=321;
+var rus_wan_l2tp=322;
+var rus_wan_l2tp_01=323;
+var rus_wan_pppoe=324;
+var rus_wan_pppoe_02=325;
+var rus_wan_pppoe_03=326;
+var _wz_mydlink_into_1=327;
+var _wz_mydlink_into_2=328;
+var _wz_mydlink_into_3=329;
+var _wz_mydlink_email_1=330;
+var _chk_wanconn_msg_00=331;
+var _wz_skip_mydlink=332;
+var ar_alert_3a=333;
+var SERVER_IP_DESC=334;
+var TEXT043=335;
+var WAN=336;
+var ssid_ascii_range=337;
+var ip_gateway_check=338;

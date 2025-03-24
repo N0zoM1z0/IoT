@@ -1,0 +1,47 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.util.XQSysUtil"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.XQLog"
+L2 = L2(L3)
+L3 = require
+L4 = "xiaoqiang.util.XQCryptoUtil"
+L3 = L3(L4)
+L4 = arg
+L4 = L4[1]
+if L4 == "locale" then
+  L5 = L3.binaryBase64Dec
+  L6 = arg
+  L6 = L6[2]
+  L5 = L5(L6)
+  L6 = L0.nvramGet
+  L7 = "wl1_ssid"
+  L8 = "XiaomiRouter"
+  L6 = L6(L7, L8)
+  L7 = L1.setRouterName
+  L8 = L6
+  L7(L8)
+  L7 = L1.setRouterLocale
+  L8 = L5
+  L7(L8)
+  L7 = L1.setSPwd
+  L7()
+elseif L4 == "country_code" then
+  L5 = arg
+  L5 = L5[2]
+  L6 = L1.setLocation
+  L7 = L5
+  L8 = false
+  L6(L7, L8)
+else
+  L5 = L2.log
+  L6 = 4
+  L7 = "set_mesh_info unvalid cmd:"
+  L8 = arg
+  L8 = L8[1]
+  L5(L6, L7, L8)
+end

@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="service"></adv-child-menu>
+  <div class="advance-box">
+  	<x-help :text="lang_t('remote_tables.help')"></x-help><br><br>
+	<div class="fun-box">
+	  <table class="table">
+		<tbody>
+			<tr>
+				<td class="fun-left"></td>
+				<td><b>WAN</b></td>
+				<td><b>LAN</b></td>
+			</tr>
+			<tr>
+				<td class="fun-left">HTTPS</td>
+				<td>
+				<select v-model="https_wan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+				<td>
+				<select v-model="https_lan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="fun-left">SSH</td>
+				<td>
+				<select v-model="ssh_wan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+				<td>
+				<select v-model="ssh_lan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="fun-left">TELNET</td>
+				<td>
+				<select v-model="telnet_wan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+				<td>
+				<select v-model="telnet_lan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="fun-left">ICMP</td>
+				<td>
+				<select v-model="icmp_wan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+				<td>
+				<select v-model="icmp_lan_enable" style="width: 140px;">
+					<option value="0">{{ lang_t('remote_tables.disabled') }}</option>
+					<option value="1">{{ lang_t('remote_tables.enabled') }}</option>
+					</select>
+				</td>
+			</tr>
+		<tr>
+		  <td class="fun-left"></td>
+		  <td>
+			<button type="button" class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+		  </td>
+		</tr>
+	  	</tbody> 
+	  </table>
+	  <table class="table">
+		<tbody>
+			<tr><td colspan="2">&nbsp;</td></tr>
+			<tr>
+				<td class="fun-left">{{ lang_t('remote_tables.mcl_enable') }}</td>
+				<td>
+					<x-switch v-model="status"  @change="mcl_on_off"></x-switch>
+				</td>
+			</tr>
+			<tr v-if="status">
+				<td class="fun-left">{{ lang_t('remote_tables.icmp_control') }}</td>
+				<td>
+				<select v-model="icmp_control" style="width: 140px;">
+					<option value="0">ALL IP</option>
+					<option value="1">List</option>
+					</select>
+				</td>
+			</tr>
+			<tr v-if="status">
+			  <td class="fun-left"></td>
+			  <td>
+				<button type="button" class="btn" @click="submitApply">{{ lang_t('common.apply') }}</button>
+			  </td>
+			</tr>
+	  	</tbody> 
+	</table>
+	<table class="table" v-show="status&&MCL_enable =='1'">
+		<tbody>
+			<tr>
+			<td class="icon-right">
+				<x-icon type="add" cursor="pointer" @click="addRuleVal">{{ lang_t('common.add') }}</x-icon>
+			  <x-icon type="del" cursor="pointer" @click="trashFun('all')">{{ lang_t('common.delete') }}</x-icon>
+			</td>
+			</tr>
+		  	<tr><td height="5"></td></tr>
+			<tr>
+				<td><table class="t_table3 table-bordered table-striped">
+					 <thead>
+				  <tr>
+					  	<th>{{ lang_t('rule.description') }}</th>
+						<th>{{ lang_t('rule.ip') }}</th>
+						<th>{{ lang_t('static_route.mask') }}</th>
+						<th style="min-width: 60px;">{{ lang_t('rule.operate') }}</th>
+						<th style="min-width: 60px;">{{ lang_t('common.select') }}<x-checkbox v-model="selectall" @change="selectAll"></x-checkbox></th>
+				  </tr>
+				  </thead>
+				  <tr v-show="addShow">
+					  <td>
+							<input type="text" v-verify="formRules" data-name="desc" class="desc" v-model="desc" :maxlength="descLen">
+						</td>
+						 <td>
+							 <input type="text" v-verify="formRules" data-name="ip" class="ip" v-model="ip"  maxlength="15" @input="faultTolerance">
+						 </td>
+						<td>
+							<input type="text" v-verify="formRules" data-name="mask" class="ip" v-model="mask"  maxlength="15" @input="faultTolerance">
+						</td>
+						<td><button :disabled="disable_addBtn" @click="addRule"><img src="/static/images/added.png" :title="lang_t('common.add')" class="cursor"></button></td>
+					<td></td>
+					</tr>
+					<tbody>
+				  <tr v-for="(rule,v) in ruleList">
+					<td>
+						<input type="text" class="desc" v-model="editDesc[rule.idx-1]" v-verify="formRules" :data-name="'desc'+Number(rule.idx-1)" :maxlength="descLen" v-if="edit[rule.idx-1]" @input="watchValue(rule.idx-1)">
+						<span v-else>{{ rule.desc }}</span>
+					</td>
+					<td>
+						<div v-if="edit[rule.idx-1]">
+							<input type="text" class="ip" v-model="editIp[rule.idx-1]"  maxlength="15" v-verify="formRules" :data-name="'ip'+Number(rule.idx-1)" @input="watchValue(rule.idx-1,'ip')">
+					  </div>
+						<span v-else>{{ rule.ip }}</span>
+					</td>
+					<td>
+						<div v-if="edit[rule.idx-1]">
+							<input type="text" class="ip" v-model="editMask[rule.idx-1]" maxlength="15" v-verify="formRules" :data-name="'mask'+Number(rule.idx-1)" @input="watchValue(rule.idx-1,'mask')">
+					  </div>
+						<span v-else>{{ rule.mask }}</span>
+					</td>
+					<td>
+					  <img :src="operate[rule.idx-1]" :title="lang_t('rule.edit')" class="cursor" @click="editFun(rule.idx-1)">&nbsp;&nbsp;
+					  <img src="/static/images/trash.png" :title="lang_t('common.delete')" class="cursor" @click="trashFun(rule.idx-1)">
+					</td>
+					<td>
+					  <x-checkbox v-model="select[rule.idx-1]"></x-checkbox>
+					</td>
+				  </tr>
+				  <tr v-show="dataTotal==0">
+					<td colspan="5">{{ lang_t('common.no_data') }}</td>
+				  </tr>
+					</tbody>
+				</table></td>
+			  </tr>
+	  	</tbody>
+	  </table>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,selectall:!1,status:!1,MCL_enable:"0",addShow:!1,disable_addBtn:!1,ip:"",desc:"",mask:"",select:[],operate:[],edit:[],ruleList:[],data:[],editDesc:[],editIface:[],editIp:[],editMask:[],editGw:[],editMetric:[],icmp_control:"0",icmp_control_enable:"0",https_wan_enable:"0",https_lan_enable:"0",ssh_wan_enable:"0",ssh_lan_enable:"0",telnet_wan_enable:"0",telnet_lan_enable:"0",icmp_wan_enable:"0",icmp_lan_enable:"0",dataTotal:0,descLen:globalConfig.descLen}},watch:{select:function(){var t,e=0;for(t in this.select)this.select[t]&&e++;e==this.select.length?this.selectall=!0:this.selectall=!1}},computed:{formRules:function(){var i=this;return{desc:function(t,e){t=cs.commentstr(t);1==t||2==t?e(i.lang_t("rule.msg4")):0!=t&&99!=t||e()},ip:function(t,e){var a=cs.ip(t);4==a&&"0"==t.split(".")[3]&&(a=99),t?99!=a?e(i.lang_t("net_strategy.msg11")):e():e(i.lang_t("net_strategy.msg10"))},mask:function(t,e){var a=cs.route_mask(t);t?0==a||1==a?e(i.lang_t("static_route.msg9")):e():e(i.lang_t("static_route.msg8"))}}}},created:function(){var e=this;uiPost.getRemoteManagementCfg(function(t){e.https_wan_enable=t.https_wan_enable,e.https_lan_enable=t.https_lan_enable,e.ssh_wan_enable=t.ssh_wan_enable,e.ssh_lan_enable=t.ssh_lan_enable,e.telnet_wan_enable=t.telnet_wan_enable,e.telnet_lan_enable=t.telnet_lan_enable,e.icmp_wan_enable=t.icmp_wan_enable,e.icmp_lan_enable=t.icmp_lan_enable}),uiPost.getRemoteControlListCfg(function(t){e.status=1==t.MCL_enable,e.MCL_enable=t.MCL_enable,e.icmp_control=t.icmp_control,e.icmp_control_enable=t.icmp_control,t.rule&&(e.ruleList=t.rule,e.dataTotal=e.ruleList.length,e.data=t.rule,e.tableInit(t.rule))})},methods:{mcl_on_off:function(t){"1"!=this.MCL_enable||t||(t={MCL_enable:"0"},uiPost.setRemoteControlListCfg(t,applyCallback))},selectAll:function(t){var e=!1,a=((this.selectall=t)&&(e=!0),this.select.length);this.select=[];for(var i=0;i<a;i++)this.select[i]=e},addRuleVal:function(){this.addShow=!0},faultTolerance:function(t){/^\d+$/.test(t)?this.editIp[t]=this.ipMaskTolerance(this.editIp[t],this.editMask[t]):this.ip=this.ipMaskTolerance(this.ip,this.mask)},ipMaskTolerance:function(t,e){var a=t.split("."),i=e.split(".");if(4!=a.length||""==a[3]||4!=i.length||99!=cs.mask(e))return t;for(var n=[],l=0;l<4;l++)n.push(a[l]&i[l]);return n.join(".")},watchValue:function(t,e){var a=this.data[t];this.editDesc[t]!=a.desc||this.editIface[t]!=a.iface||this.editIp[t]!=a.ip||this.editMask[t]!=a.mask||this.editGw[t]!=a.gw||this.editMetric[t]!=a.metric?"/static/images/edited.png"!=this.operate[t]&&(this.operate.splice(t,1),this.operate.splice(t,0,"/static/images/edited.png")):(this.operate.splice(t,1),this.operate.splice(t,0,"/static/images/edit.png")),null!=e&&this.faultTolerance(t)},editFun:function(t){selectIe(),"/static/images/edit.png"==this.operate[t]?this.edit[t]?(this.edit.splice(t,1),this.edit.splice(t,0,!1)):(this.edit.splice(t,1),this.edit.splice(t,0,!0)):this.modefyFun(t)},modefyFun:function(e){var a=this,n={};if(a.dataTotal)for(i=0;i<a.dataTotal&&(i==e&&i++,i!=a.dataTotal);i++)if(this.editIp[e].replace(/\.\d{1,3}$/,".")==this.data[i].ip.replace(/\.\d{1,3}$/,"."))return Cstool.Msg({content:this.lang_t("static_route.msg12")}),!1;Cstool.Verify(this.formRules,function(t){t&&(n.mask=a.editMask[e],n.ip=a.editIp[e],n.desc=a.editDesc[e],n.idx=String(e+1),n.addEffect="2",uiPost.setRemoteControlListCfg(n,applyCallback))},a.dataTotal,e)},trashFun:function(t){var e={};this.ruleList;if("all"!=t)e["delRule"+t]=String(t),Cstool.Msg({content:this.lang_t("rule.msg15"),type:"confirm",ok:function(){uiPost.delRemoteControlListCfg(e,applyCallback)}});else{var a,i=0;for(a in this.select)this.select[a]&&(i++,e["delRule"+a]=String(a));if(0==i)return Cstool.Msg({content:this.lang_t("rule.msg14")}),!1;Cstool.Msg({content:i==this.select.length?this.lang_t("rule.msg26"):this.lang_t("rule.msg15"),type:"confirm",ok:function(){uiPost.delRemoteControlListCfg(e,applyCallback)}})}},addRule:function(){var e=this;if(e.disable_addBtn=!0,e.dataTotal){if(16<=e.dataTotal)return Cstool.Msg({content:this.lang_t("rule.msg30",[16])}),e.disable_addBtn=!1;for(i=0;i<e.dataTotal;i++)if(this.ip.replace(/\.\d{1,3}$/,".")==this.data[i].ip.replace(/\.\d{1,3}$/,"."))return Cstool.Msg({content:this.lang_t("static_route.msg12")}),e.disable_addBtn=!1}var a={};Cstool.Verify(this.formRules,function(t){t||(e.disable_addBtn=!1),t&&(a.mask=e.mask,a.ip=e.ip,a.desc=e.desc,a.addEffect="1",uiPost.setRemoteControlListCfg(a,applyCallback))})},handleSubmit:function(){var t=this,e={};e.https_wan_enable=t.https_wan_enable,e.https_lan_enable=t.https_lan_enable,e.ssh_wan_enable=t.ssh_wan_enable,e.ssh_lan_enable=t.ssh_lan_enable,e.telnet_wan_enable=t.telnet_wan_enable,e.telnet_lan_enable=t.telnet_lan_enable,e.icmp_wan_enable=t.icmp_wan_enable,e.icmp_lan_enable=t.icmp_lan_enable,uiPost.setRemoteManagementCfg(e,applyCallback)},submitApply:function(){var t={MCL_enable:"1"};t.icmp_control=this.icmp_control,t.addEffect="0",uiPost.setRemoteControlListCfg(t,applyCallback)},tableInit:function(t){for(var e in t)this.edit[e]=!1,this.select[e]=!1,this.operate[e]="/static/images/edit.png",this.editDesc[e]=t[e].desc,this.editIface[e]=t[e].iface,this.editIp[e]=t[e].ip,this.editMask[e]=t[e].mask,this.editGw[e]=t[e].gw,this.editMetric[e]=t[e].metric}}}</script><script src="/static/js/main.js"></script></body></html>

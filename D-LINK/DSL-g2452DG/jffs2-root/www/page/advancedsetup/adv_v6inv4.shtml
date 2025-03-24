@@ -1,0 +1,67 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script   language="javascript"> 
+function createTable()
+{
+	document.write('<tr class="OddRowB">');
+	document.write('<td colspan="8">'+getStr('LK_NoRule')+'</td></tr>')
+
+}
+function addrule()
+{
+
+	document.location.href = "adv_add64.shtml";
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());         
+
+}
+
+</script> 
+</head>
+
+<body>
+<form method="get" >
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_6in4TunnelConfiguration'))</script>
+<table id="td_table" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Name"></td>
+	<td langkey="LK_WAN"></td>
+	<td langkey="LK_LAN"></td>
+	<td langkey="LK_Dynamic"></td>
+	<td langkey="LK_IPv4MaskLength"></td>
+	<td langkey="LK_6rdPrefix"></td>
+	<td langkey="LK_BorderRelayAddress"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+<script>createTable()</script>
+</table>
+<br>
+<table class="ClassTableNoColor">
+<tr>
+	<td>
+	<script>PrintTriButton("add",getStr("LK_Add"),"addrule()")</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="network_dslitesettingform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_v6inv4.shtml">
+</form>
+</body>
+</html>
+

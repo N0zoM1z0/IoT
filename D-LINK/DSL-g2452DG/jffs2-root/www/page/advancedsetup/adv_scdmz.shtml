@@ -1,0 +1,150 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet"  href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+    this.IPMode = "";
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.X_TRI-DMZ. Enabled Host WanConnection" -->
+var G_Enabled = "<!--#leaf "1" -->";
+var G_Host= "<!--#leaf "2"-->";
+var G_WanConnection = "<!--#leaf "3"-->";
+<!--#endgetobject -->
+
+function init(){
+    var wanConnIndex = '';
+
+	var options = "";
+    for (i = 0; i < Connection.length; i++)
+    {
+		//if (!isBridgedConn(Connection[i].ConnectionType) && Connection[i].ServiceList != 'TR069' && Connection[i].ServiceList != 'VOIP' && Connection[i].IPMode != '2'){
+		if (!isBridgedConn(Connection[i].ConnectionType) && isINTERNETService(Connection[i].ServiceList) && Connection[i].IPMode != '2'){
+			options += "<option value='" + i + "'>" + Connection[i].Name + "</option>";
+        }
+	}
+	jQuery('#SELECT_WanConnection').append(options);
+	jQuery('#SELECT_WanConnection').html(options);
+	jQuery('#SELECT_WanConnection').css("width", "auto");
+    for (i = 0; i < Connection.length; i++)
+    {
+      if (Connection[i].Path == G_WanConnection ){
+           wanConnIndex = i + "";
+           break;
+      }
+    }
+    setValue('SELECT_WanConnection', wanConnIndex);
+    setValue('INPUT_DMZEnable',G_Enabled);
+    setValue('INPUT_DMZHostIP',G_Host);
+}
+
+function uiSubmit() {
+
+    var df = document.dmzdataform; 
+    var object_path="InternetGatewayDevice.X_TRI-DMZ."; 
+	var wanConn = $('SELECT_WanConnection').value;
+
+    if (wanConn == '') {
+        top.AlertMsg(getStr("LK_app_chooseWanConnect"));
+        return false;
+	}
+
+    if (!isCheckIPV4($('INPUT_DMZHostIP'))){            
+        return false;
+	}
+	if(!validateCode())
+		return false;
+
+    AddElements(df, object_path+"WanConnection",Connection[wanConn].Path);
+    if($('INPUT_DMZEnable').checked == true){
+        AddElements(df, object_path+"Enabled",1);
+    }else if($('INPUT_DMZEnable').checked==false){
+        AddElements(df, object_path+"Enabled",0);
+    }
+    AddElements(df, object_path+"Host",getValue('INPUT_DMZHostIP'));
+    df.submit(); 
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_DMZSettings'))</script>
+<form>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td langkey="LK_EnableDMZz"></td>     
+	<td><input type="checkbox" name="INPUT_DMZEnable" id="INPUT_DMZEnable"></td>
+</tr>
+<tr>
+	<td width="150" langkey="LK_WANConnection_Colon"></td>
+	<td><select name="SELECT_WanConnection" id="SELECT_WanConnection">
+                    <option value=''>-</option>
+                  </select></td>
+</tr>
+
+<tr>
+	<td langkey="LK_DMZHostIPAddresss"></td>
+	<td><input type="text" name="INPUT_DMZHostIP" id="INPUT_DMZHostIP"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>    
+  </form>
+     <form method="post" name ="dmzdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_scdmz.shtml">
+ </form>
+  </body>
+</html>

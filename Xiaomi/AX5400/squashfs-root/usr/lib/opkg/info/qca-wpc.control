@@ -1,0 +1,9 @@
+Package: qca-wpc
+Version: miwifi_git-1
+Depends: libc, libpthread, librt
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/qca/net/qca-wpc
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7
+Installed-Size: 16447
+Description:  QCA Wifi Positioning

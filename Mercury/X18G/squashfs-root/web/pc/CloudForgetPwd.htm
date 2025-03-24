@@ -1,0 +1,482 @@
+<script type="text/javascript">
+	(function(){
+		var LOCK_TIME_MAX = 120;
+		var WAITING_CLOUD_RESPONSE_CAPTCHA = 2 * 1000;
+		var accountType;
+
+		function showCloudErr(err)
+		{
+			var errText = "";
+
+			switch(err)
+			{
+			case ENONE:
+				return true;
+			case EINVACCOUNTRESETPWDCAPTCHAERR:
+			case EINVVERICODEFORMAT:
+				veriCode.showNote(errStr.CAPTCHAErrorTip);
+				return false;
+			case EINVACCOUNTNOTEXIST:
+				account.showNote(errStr.invCloudAccountNotExist);
+				return false;
+			case EINVACCOUNTTYPEERR:
+				account.showNote(errStr.invCloudAccountType);
+				return false;
+			case EINVACCOUNTPHONENUMFMT:
+				account.showNote(errStr.invCloudAccountPhoneErr);
+				return false;
+			case EINVCLOUDUSRCOUNTFORMAT:
+			case EINVACCOUNTEMAILFMT:
+				account.showNote(errStr.invCloudAccountEmailErr);
+				return false;
+			case EINVDEVICELOCKED:
+				errText = appendErrCode(errStr.invCloudDeviceLocked, errNo);
+				break;
+			case EINVCLOUDERRORCAPTCHAINVAL:
+				errText = appendErrCode(errStr.invCloudCAPTCHAInval, errNo);
+				break;
+			default:
+				if (false == cloudErrHandle(err).result)
+				{
+					errText = cloudErrHandle(err).tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, err);
+				}
+				break;
+			}
+
+			showErrTip(errText);
+			return false;
+		}
+
+		function showCloudResetCaptErr(err)
+		{
+			var errText = "";
+
+			switch (err)
+			{
+			case ENONE:
+				return true;
+			case EINVERICODEEMPTY:
+				errText = errStr.invVericodeNULL;
+				break;
+			case EINVACCOUNTRESETPWDCAPTCHAERR:
+			case EINVVERICODEFORMAT:
+				errText = appendErrCode(errStr.CAPTCHAErrorTip, errNo);
+				break;
+			case EINVACCOUNTNOTEXIST:
+				errText = appendErrCode(errStr.invCloudAccountNotExist, errNo);
+				break;
+			case EINVACCOUNTTYPEERR:
+				errText = appendErrCode(errStr.invCloudAccountType, errNo);
+				break;
+			case EINVACCOUNTPHONENUMFMT:
+				errText = appendErrCode(errStr.invCloudAccountPhoneErr, errNo);
+				break;
+			case EINVCLOUDUSRCOUNTFORMAT:
+			case EINVACCOUNTEMAILFMT:
+				errText = appendErrCode(errStr.invCloudAccountEmailErr, errNo);
+				break;
+			case EINVDEVICELOCKED:
+				errText = appendErrCode(errStr.invCloudDeviceLocked, errNo);
+				break;
+			case EINVCLOUDERRORCAPTCHAINVAL:
+				errText = appendErrCode(errStr.invCloudCAPTCHAInval, errNo);
+				break;
+			default:
+				cloudErrRel = cloudErrHandle(errNo)
+				if (cloudErrRel.result == false)
+				{
+					errText = cloudErrRel.tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, errNo);
+				}
+				break;
+			}
+
+			showErrTip(errText);
+			return false;
+		}
+
+		function showCloudResetErr(err)
+		{
+			var errText = "";
+
+			switch(err)
+			{
+			case ENONE:
+				cloudHistory.go(-2);
+				showToast(label.resetPwdSuccessAndBind);
+				return true;
+			case EINVACCOUNTRESETPWDCAPTCHAERR:
+			case EINVVERICODEFORMAT:
+				veriCode.showNote(errStr.CAPTCHAErrorTip);
+				return;
+			case EINVACCOUNTNOTEXIST:
+				account.showNote(errStr.invCloudAccountNotExist);
+				return;
+			case EINVMAILFMT:
+			case EINVMAILLEN:
+			case EINVACCOUNTEMAILFMT:
+				account.showNote(errStr.invCloudAccountEmailErr);
+				return;
+			case EINDEVICEALREADYBOUND:
+			case EINVACCOUNTBINDED:
+				errText = errStr.invCloudAccountBindedTips;
+				break;
+			case EINVACCOUNTPHONENUMFMT:
+				errText = appendErrCode(errStr.invCloudAccountPhoneErr, err);
+				break;
+			case EINVCLOUDERRORCAPTCHAINVAL:
+				errText = appendErrCode(errStr.invCloudCAPTCHAInval, err);
+				break;
+			default:
+				if (false == cloudErrHandle(err).result)
+				{
+					errText = cloudErrHandle(err).tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, err);
+				}
+				break;
+			}
+
+			showErrTip(errText);
+			return false;
+		}
+
+		function checkAccount()
+		{
+			if (0 == this.input.value.length)
+			{
+				this.showNote(label.cloudAccountNull);
+				return false;
+			}
+
+			if (true == checkNum(this.input.value))
+			{
+				if (false == checkPhoneNum(this.input.value))
+				{
+					this.showNote(errStr.invCloudAccountFmtErr);
+					return false;
+				}
+				else
+				{
+					accountType = uciCloudConfig.optValue.accountTypePhoneNum;
+					return true;
+				}
+			}
+			else if (false == checkEmail(this.input.value))
+			{
+				this.showNote(errStr.invCloudAccountFmtErr);
+				return false;
+			}
+
+			accountType = uciCloudConfig.optValue.accountTypeEmail;
+			return true;
+		}
+
+		function onVeriCodeBlur()
+		{
+			if (this.input.value.length == 0)
+			{
+				this.showNote(errStr.invVericodeNULL);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdBlur()
+		{
+			if (this.input.value.length == 0)
+			{
+				this.showNote(label.chgPwdnull);
+				return false;
+			}
+			else if (this.input.value.length < 6)
+			{
+				this.showNote(label.chgPwdLess);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdKeyup()
+		{
+			if (this.input.value == "")
+			{
+				return true;
+			}
+
+			if (/\s+/.test(this.input.value))
+			{
+				this.showNote(errStr.inputPwdCharExistBlank);
+				return false;
+			}
+
+			if (!(/^[\x21-\x7e]+$/.test(this.input.value)))
+			{
+				this.showNote(errStr.inputEliegalChar);
+				return false;
+			}
+
+			return true;
+		}
+
+		function showErrTip(errText)
+		{
+			var $cloudErrTip = $("p.cloudErrTip").html('<i class="iconfont icon-error"></i>' + errText);
+			$cloudErrTip.css("display", "table");
+			$cloudErrTip.css("margin-left", -($cloudErrTip[0].offsetWidth/2) + "px")
+		}
+
+		function hideErrTip()
+		{
+			$("p.cloudErrTip").css("display", "none");
+		}
+
+		function countdown(time)
+		{
+			(function(){
+				if (time <= 0)
+				{
+					veriCode.setTips({
+						value:label.cloudIDCaptchaReSend,
+						className:"clickable",
+						onClick:getVerificationCode
+					});
+				}
+				else
+				{
+					veriCode.setTips({
+						value:label.cloudIDCaptchaReSend + "(" + time-- + "s)",
+						className:"unclickable",
+						onClick:function(){}
+					});
+					$.setTimeout(arguments.callee, 1*1000);
+				}
+			})();
+		}
+
+		function getVerificationCode()
+		{
+			if (account.checkAll() != false)
+			{
+				hideErrTip();
+				veriCode.setTips({
+					className:"unclickable",
+					value:label.cloudServerWaitingResp,
+					onClick:function(){}/* 给按钮绑定一个空函数 */
+				});
+
+				captchaHd = $.setTimeout(function(){
+					loadingDialog.show({
+						title: label.cloudForgPwd,
+						content: {primary:label.waittingResponseFormServer}
+					}, undefined, undefined, true, function(){
+						cloudAccountQueryStop();
+					});
+				}, WAITING_CLOUD_RESPONSE_CAPTCHA);
+
+				cloudAccountRstPwdAC(account.getValue(), accountType, function(type, state, result){
+					clearTimeout(captchaHd);
+					loadingDialog.hide(function(){
+						if (type == cloudResultType.FINISH)
+						{
+							if (showCloudResetCaptErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.getResetPwdVerifyCode][cloudClientStatus.optName.errCode])) == true)
+							{
+								countdown(LOCK_TIME_MAX);
+								return;
+							}
+						}
+						else
+						{
+							if (type == cloudResultType.ACTION_ERROR)
+							{
+								showCloudResetCaptErr(parseInt(state.errCode))
+							}
+							else if (state != undefined && state.result == false)
+							{
+								alarmDialog.show(state.errStr);
+							}
+						}
+
+						veriCode.setTips({
+							value:label.cloudIDCaptchaReSend,
+							className:"clickable",
+							onClick:getVerificationCode
+						});
+					});
+				});
+			}
+		}
+
+		function onSave()
+		{
+			loadingDialog.show({
+				title: label.cloudForgPwd,
+				content: {primary:label.resettinfPwd}
+			}, undefined, undefined, true, cloudAccountQueryStop);
+
+			cloudAccountRstPwdCheckCAPTCHA(account.getValue(), veriCode.getValue(), function(type, state, result){
+				if (type == cloudResultType.FINISH)
+				{
+					if (true == showCloudErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.checkResetPwdVerifyCode][cloudClientStatus.optName.errCode])))
+					{
+						cloudAccountRstPwd(account.getValue(), pwd.getValue(), veriCode.getValue(), accountType, function(type, state, result){
+							if (type == cloudResultType.FINISH)
+							{
+								loadingDialog.hide(function(){
+									showCloudResetErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.resetPassword][cloudClientStatus.optName.errCode]));
+								});
+							}
+							else
+							{
+								loadingDialog.hide(function(){
+									if (state != undefined && state.result == false)
+									{
+										showCloudResetErr(parseInt(state.errCode));
+									}
+								});
+							}
+						});
+					}
+					else
+					{
+						loadingDialog.hide();
+					}
+				}
+				else
+				{
+					loadingDialog.hide(function(){
+						if (type == cloudResultType.ACTION_ERROR)
+						{
+							showCloudErr(parseInt(state.errCode));
+						}
+						else if(state != undefined && state.result == false)
+						{
+							alarmDialog.show(state.errStr);
+						}
+					});
+				}
+			});
+		}
+
+		var account = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.cloudMEID, position:Input.LABEL.INNER},
+			targetId:"inputCon",
+			check:{blur:checkAccount},
+			props:{maxlength:'64', type:"text", placeholder:label.cloudIDPlaceHolder}
+		});
+		var veriCode = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.cloudIDRegistCaptcha, position:Input.LABEL.INNER},
+			tips:{value:label.getVerificationCode, className:"clickable", onClick:getVerificationCode},
+			targetId:"inputCon",
+			check:{blur:onVeriCodeBlur},
+			props:{maxlength:'6', type:"text"}
+		});
+		var pwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.cloudForgPwdSetNewPwd, position:Input.LABEL.INNER},
+			strength:{show: true, least:6, critical:12},
+			targetId:"inputCon",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdPlaceHolder}
+		});
+		var pwdConf = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.cloudForgPwdConfNewPwd, position:Input.LABEL.INNER},
+			targetId:"inputCon",
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdConfPlaceHolder}});
+
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:function(){
+				var checkRes = true;
+
+				[account, pwd, veriCode].forEach(function(o){
+					checkRes = o.checkAll() && checkRes;
+				});
+
+				if (!checkRes)
+				{
+					return;
+				}
+
+				if (pwd.getValue() != pwdConf.getValue())
+				{
+					showErrTip(label.chgPwdDif);
+					return;
+				}
+				else
+				{
+					hideErrTip();
+				}
+
+				onSave();
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"save"
+		});
+
+		(function(){
+			var data = {};
+			data[cloudClientStatus.fileName] = {};
+			data[cloudClientStatus.fileName][KEY_NAME] = cloudClientStatus.secName.regVeriCodeTimer;
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					var lockTime =
+						result[cloudClientStatus.fileName][cloudClientStatus.secName.regVeriCodeTimer][cloudClientStatus.optName.regVeriCodeTimer];
+					if (lockTime > 0)
+					{
+						veriCode.setTips({
+							className:"unclickable",
+							onClick:function(){}/* 给按钮绑定一个空函数 */
+						});
+						countdown(lockTime);
+					}
+				}
+			});
+		})();
+	})();
+</script>
+<style type="text/css">
+	li.wzdSubBtn{
+		margin-top:24px;
+	}
+	li.inputLi label{
+		width:104px;
+	}
+	.clickable{
+		font-size:13px;
+		color:#ff3366;
+		display:table-cell;
+		white-space:nowrap;
+		padding:0 12px;
+		cursor:pointer;
+	}
+	.unclickable{
+		font-size:13px;
+		color:#999999;
+		display:table-cell;
+		white-space:nowrap;
+		padding:0 12px;
+		cursor:default;
+	}
+</style>
+<h1 class="cloudTitle">{%label.cloudForgPwd%}</h1>
+<p class="cloudTip">{%label.cloudAccountInputAndGetCaptcha%}</p>
+<p class="cloudErrTip commonErrTip"></p>
+<div id="inputCon"></div>
+<li class="wzdSubBtn"><div id="save"></div></li>

@@ -1,0 +1,75 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function getfilename(url)
+{
+		var tmp;
+		tmp=url.split('\\');
+		url=tmp[tmp.length-1];
+		return url;	
+}
+function show_spanpath()
+{
+	var fakepath=document.getElementById("filename").value;
+	document.getElementById("showpath").innerHTML=getfilename(fakepath);
+}
+function do_check_code()
+{
+    if (!validateCode())
+	    return false;
+	
+    return true;
+}
+</script>
+
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_SettingsUpdateSettings"));</script>
+<form method="post" name="up_loadfile" id="up_loadfile"  ENCTYPE='multipart/form-data' action='/cgi-bin/main.cgi?ops=upload&action=confupdate' onsubmit="return do_check_code()">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td langkey="LK_UpdateBroadbandText"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td>	
+				<span langkey="LK_SettingsFileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+				    <span id="uploadfile" style="font-size:12px;position:absolute;overflow:hidden;">
+				    <input type="file" size="1" id="filename" name="filename"   Onchange="javascript:show_spanpath()" style="margin-left:-170px;margin-top:-10px;font-size:60px; position:absolute;z-index:100;opacity:0;filter:alpha(opacity=0);">
+				    <input type="button" font-size="60px" value="Browse..." >
+				    <span id="showpath">File not found</span>
+				</span>
+			</td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0"> 
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+			<script>PrintTriSubmitButton("submit",getStr("LK_UpdateSettings"));</script>
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+</body>
+</html>

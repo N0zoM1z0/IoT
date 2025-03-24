@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+start() {
+	. /lib/functions.sh
+local board=$(board_name)
+case "$board" in
+*)
+	[ -f /usr/sbin/fw_setenv ] && [ -n "$(cat /proc/cmdline |grep dual_boot)" ] && fw_setenv dual_boot_count 0
+	;;
+esac
+}

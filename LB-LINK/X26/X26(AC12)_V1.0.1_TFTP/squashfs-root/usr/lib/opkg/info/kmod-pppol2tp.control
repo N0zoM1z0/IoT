@@ -1,0 +1,10 @@
+Package: kmod-pppol2tp
+Version: 3.10.108-1
+Depends: kernel (=3.10.108-1-0d4a59d786a0cce4fa81aedaae020f7d), kmod-ppp, kmod-pppox, kmod-l2tp
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: ramips_24kec
+Installed-Size: 11305
+Description:  Kernel modules for PPPoL2TP (PPP over L2TP) support

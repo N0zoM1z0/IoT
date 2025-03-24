@@ -1,0 +1,8 @@
+Package: lighttpd-cgi
+Version: 1
+Depends: libc, libuci, libeasyuci, libcjson, libwificonf, libuart, libblinkapi
+Source: package/B-LINK/lighttpd-cgi
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 9450
+Description:  lighttpd cgi

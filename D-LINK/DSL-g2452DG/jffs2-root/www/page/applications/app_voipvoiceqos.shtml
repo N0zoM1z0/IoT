@@ -1,0 +1,104 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/voipproqos.js"></script>
+<script language="javascript" src="/js/voipqos.js"></script>
+<script language="javascript" src="/js/voipqoscheck.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+var voip8021p = <!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_802-1pMark"-->;
+var voipdscp = <!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.DSCPMark"-->;
+var rtp8021p = <!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.X_CT-COM_802-1pMark"-->;
+var rtpdscp = <!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.DSCPMark"-->;
+
+function pageGetValue()
+{
+    setValue("Frm_VoipDscp", voipdscp); 
+    setValue("Frm_Voip8021P", voip8021p); 
+    setValue("Frm_RtpDscp", rtpdscp); 
+    setValue("Frm_Rtp8021P", rtp8021p); 
+}
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+
+    var df = $('fSubmit');
+    jslDisable("Btn_Submit","Btn_Cancel");
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.X_CT-COM_802-1pMark", getValue("Frm_Voip8021P"));
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.SIP.DSCPMark", getValue("Frm_VoipDscp"));
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.X_CT-COM_802-1pMark", getValue("Frm_Rtp8021P"));
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.DSCPMark", getValue("Frm_RtpDscp"));
+    df.submit();
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_VoiceQoS'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipvoiceqos.shtml">
+</form>
+
+<table class="ContentTableNoColor" id="TestContent" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_SignalDSCPp"></td>
+<td>
+<select name="" size="1" tabindex="1" id="Frm_VoipDscp" onchange="">
+<option value="0">0</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option><option value="60">60</option><option value="61">61</option><option value="62">62</option><option value="63">63</option></select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_Signal8021Pp"></td>
+<td>
+<select name="" size="1" tabindex="1" id="Frm_Voip8021P" onchange="">
+<option value="-1" langkey="LK_NoEdit"></option>
+<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_MediaDSCPp"></td>
+<td>
+<select name="" size="1" tabindex="1" id="Frm_RtpDscp" onchange="">
+<option value="0">0</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option><option value="60">60</option><option value="61">61</option><option value="62">62</option><option value="63">63</option></select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_Media8021Pp"></td>
+<td>
+<select name="" size="1" tabindex="1" id="Frm_Rtp8021P" onchange="">
+<option value="-1" langkey="LK_NoEdit"></option>
+<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select>
+</td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

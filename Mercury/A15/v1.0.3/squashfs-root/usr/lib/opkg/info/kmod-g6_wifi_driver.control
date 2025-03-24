@@ -1,0 +1,8 @@
+Package: kmod-g6_wifi_driver
+Version: 4.4.176+015.20-1
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), kmod-rtl-cfg80211, kmod-ther_ctrl
+Source: tp_package/wlan-driver/rtl/g6_wifi_driver
+Section: kernel
+Architecture: rtl
+Installed-Size: 2976685
+Description:  g6_wifi_driver wifi AP driver

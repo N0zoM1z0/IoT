@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/login.css"><style>#verify-code{width:100px;display:inline-block}.verify{width:80px!important;font-size:14px}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <img src="/static/images/login.png">
+  <form method="post" id="loginfrm" autocomplete="off" @keyup.enter.prevent>
+  <div class="login-box" align="center">
+    <table style="border-collapse:separate;border-spacing:0px 5px;">
+      <tbody>
+        <tr>
+          <td colspan="2" class="inkey">
+            <div>
+              <input type="text" name="username" v-model="username" ref="username" autocomplete="off" v-show="supportUser" :placeholder="lang_t('ipv6.user')">
+            </div>
+            <div style="display:flex;">
+              <input v-model="password" type="password" name="password" ref="password" v-verify="formRules" @keyup.enter="handleSubmit()" data-name="password" data-type="pass" maxlength="32" :placeholder="lang_t('ipv6.pass')">&nbsp;
+              <button type="button" class="btn btn-dis" @click="handleSubmit()" :disabled="!password" style="height:31.2px;" v-if="!globalConfig.loginVerifySupport&&!supportUser&&!limit.errShow">{{ lang_t('login.login_btn') }}</button>
+            </div>
+            <div style="max-width:300px;display:block;word-break: break-all;word-wrap: break-word;" v-show="verify_password">
+              <p style="margin-top:1px;margin-bottom:1px;color:#f00;">
+                <x-icon type="error">{{ lang_t('login.msg1') }}</x-icon>
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tbody v-if="!globalConfig.loginVerifySupport&&!supportUser">
+        <tr>
+          <td colspan="2">
+            <a class="forgot" @click="forgetPwd()">{{ lang_t('login.forgot_pass') }}</a>
+          </td>
+        </tr>
+      </tbody>
+      <tbody v-if="globalConfig.loginVerifySupport">
+        <tr>
+          <td style="width:108px;">
+            <input type="text" class="verify" v-model="verify" @blur="verifyBlur()" :placeholder="lang_t('login.verify')" @keyup.enter="handleSubmit()">
+          </td>
+          <td>
+            <div id="verify-code" :title="lang_t('login.switch')"></div>
+            <x-icon size="0.8" :type="verifyType" v-show="verifyShow"></x-icon>
+          </td>
+        </tr>
+      </tbody>
+      <tbody v-if="globalConfig.loginVerifySupport||supportUser">
+        <tr>
+          <td colspan="2">
+            <button type="button" class="btn btn-dis" @click="handleSubmit()" :disabled="!password" style="height:31.2px;" v-show="!limit.errShow">{{ lang_t('login.login_btn') }}</button>
+            <a class="forgot" @click="forgetPwd()">{{ lang_t('login.forgot_pass') }}</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="color: #fff;" v-if="limit.errShow">
+      <p>{{lang_t('login.limit_err', [limit.count, limit.timeout])}}</p>
+    </div>
+  </div>
+  </form>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/verify.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script src="/static/js/md5.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,password:"",username:globalConfig.cmccSupport||globalConfig.elinkSupport?"":"admin",disabled:!0,verify_password:!1,verify:"",verifyType:"tick",verifyShow:!1,limit:{errShow:!1,timeout:0,count:0},supportUser:globalConfig.cmccSupport||globalConfig.elinkSupport}},computed:{formRules:function(){var i=this;return{password:function(o,t){i.verify_password=0==cs.string(o)}}}},mounted:function(){var i=this;~location.search.indexOf("online=1")?this.$nextTick(function(){Cstool.Msg({content:lang_t("common.login_active"),ok:function(){location.search=""}})}):(uiPost.getLoginCfg(function(o){var t;null!=o.loginUser&&(i.username=o.loginUser),o.errCount&&o.timeout&&(i.limit.count=o.errCount,i.limit.timeout=o.timeout,i.limit.errShow=!0,t=setInterval(function(){i.limit.timeout--,0==i.limit.timeout&&(clearInterval(t),i.limit.errShow=!1)},1e3)),"1"==o.loginFlag?Cstool.Msg({content:i.supportUser?lang_t("login.msg2"):lang_t("login.msg6"),ok:function(){i.focusFun()}}):"4"==o.loginFlag&&Cstool.Msg({content:lang_t("login.msg9"),ok:function(){i.focusFun()}})}),this.focusFun(),globalConfig.loginVerifySupport&&(this.gVerify=new GVerify({id:"verify-code"})))},methods:{focusFun:function(){(this.supportUser?$(this.$refs.username):$(this.$refs.password)).focus()},handleSubmit:function(){var o,t=this;globalConfig.loginVerifySupport&&!this.verifyBlur()||this.password&&!this.limit.errShow&&(this.username?((o={}).username=calcMD5(this.username),o.password=calcMD5(this.password),o.flag="0",uiPost.loginAuth(o,function(o){null!=o.loginFlag&&"1"==o.loginFlag?Cstool.Msg({content:this.lang_t("login.msg6"),ok:function(){t.focusFun()}}):setTimeout(function(){location.href=o.jump_page},500)})):Cstool.Msg({content:lang_t("ipv6.user")+lang_t("rule.msg12"),ok:function(){t.focusFun()}}))},forgetPwd:function(){Cstool.Msg({content:this.lang_t("login.msg5")})},verifyBlur:function(){var o=this.gVerify.validate(this.verify);return this.verifyShow=!0,this.verifyType=o?"tick":"error",o}}}</script><script src="/static/js/main.js"></script></body></html>

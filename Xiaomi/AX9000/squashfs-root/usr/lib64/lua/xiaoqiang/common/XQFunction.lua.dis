@@ -1,0 +1,1320 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.common.XQFunction"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQConfigs"
+L0 = L0(L1)
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6
+  if A0 then
+    L1 = _cmdformat
+    L2 = string
+    L2 = L2.upper
+    L3 = string
+    L3 = L3.gsub
+    L4 = A0
+    L5 = "-"
+    L6 = ":"
+    L3 = L3(L4, L5, L6)
+    L2, L3, L4, L5, L6 = L2(L3)
+    L1 = L1(L2, L3, L4, L5, L6)
+    return L1
+  else
+    L1 = ""
+    return L1
+  end
+end
+macFormat = L1
+function L1(A0)
+  local L1
+  L1 = A0 == nil or A0 == ""
+  return L1
+end
+isStrNil = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = false
+  if A0 then
+    if L2 == "string" then
+      for L5 = L2, L3, L4 do
+        L6 = string
+        L6 = L6.byte
+        L7 = A0
+        L8 = L5
+        L6 = L6(L7, L8)
+        if 127 < L6 then
+          L1 = true
+          break
+        end
+      end
+    end
+  end
+  return L1
+end
+checkChineseChar = L1
+function L1(A0)
+  local L1, L2, L3
+  if not A0 then
+    L1 = false
+    return L1
+  end
+  L2 = A0
+  L1 = A0.match
+  L3 = "^%w[%w%-%.]+%w$"
+  L1 = L1(L2, L3)
+  if L1 then
+    L1 = true
+    return L1
+  end
+  L1 = false
+  return L1
+end
+isDomain = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  if A0 ~= nil then
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\r\n"
+    L4 = "<br>"
+    L1 = L1(L2, L3, L4)
+    A0 = L1
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\r"
+    L4 = "<br>"
+    L1 = L1(L2, L3, L4)
+    A0 = L1
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\n"
+    L4 = "<br>"
+    L1 = L1(L2, L3, L4)
+    A0 = L1
+  end
+  return A0
+end
+parseEnter2br = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "nixio"
+  L1 = L1(L2)
+  L2 = L1.fork
+  L2 = L2()
+  if 0 < L2 then
+    return
+  elseif L2 == 0 then
+    L3 = L1.chdir
+    L4 = "/"
+    L3(L4)
+    L3 = L1.open
+    L4 = "/dev/null"
+    L5 = "w+"
+    L3 = L3(L4, L5)
+    if L3 then
+      L4 = L1.dup
+      L5 = L3
+      L6 = L1.stderr
+      L4(L5, L6)
+      L4 = L1.dup
+      L5 = L3
+      L6 = L1.stdout
+      L4(L5, L6)
+      L4 = L1.dup
+      L5 = L3
+      L6 = L1.stdin
+      L4(L5, L6)
+      L5 = L3
+      L4 = L3.fileno
+      L4 = L4(L5)
+      if 2 < L4 then
+        L5 = L3
+        L4 = L3.close
+        L4(L5)
+      end
+    end
+    L4 = L1.exec
+    L5 = "/bin/sh"
+    L6 = "-c"
+    L7 = A0
+    L4(L5, L6, L7)
+  end
+end
+forkExec = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+  if L1 == "table" then
+    for L4, L5 in L1, L2, L3 do
+      L6 = type
+      L7 = L5
+      L6 = L6(L7)
+      if L6 == "table" then
+        L6 = print
+        L7 = "<"
+        L8 = L4
+        L9 = ": "
+        L7 = L7 .. L8 .. L9
+        L6(L7)
+        L6 = doPrint
+        L7 = L5
+        L6(L7)
+        L6 = print
+        L7 = ">"
+        L6(L7)
+      else
+        L6 = print
+        L7 = "["
+        L8 = L4
+        L9 = " : "
+        L10 = tostring
+        L11 = L5
+        L10 = L10(L11)
+        L11 = "]"
+        L7 = L7 .. L8 .. L9 .. L10 .. L11
+        L6(L7)
+      end
+    end
+  else
+    L1(L2)
+  end
+end
+doPrint = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  if A0 then
+    L1 = forkExec
+    L2 = _UPVALUE0_
+    L2 = L2.FORK_RESTART_WIFI
+    L3 = ";"
+    L4 = A0
+    L2 = L2 .. L3 .. L4
+    L1(L2)
+  else
+    L1 = forkExec
+    L2 = _UPVALUE0_
+    L2 = L2.FORK_RESTART_WIFI
+    L1(L2)
+  end
+end
+forkRestartWifi = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_RESTART_WIFI_NOTIFY_BUT_MIIO
+  L0(L1)
+end
+forkRestartWifiNotify = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_RESTART_WIFI_NOTIFY_BUT_MIIO
+  L0(L1)
+end
+forkRestartWifiNotifyButMiio = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_RESTART_ROUTER
+  L0(L1)
+end
+forkReboot = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_SHUTDOWN_ROUTER
+  L0(L1)
+end
+forkShutdown = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_RESET_ALL
+  L0(L1)
+end
+forkResetAll = L1
+function L1()
+  local L0, L1
+  L0 = forkExec
+  L1 = _UPVALUE0_
+  L1 = L1.FORK_RESTART_DNSMASQ
+  L0(L1)
+end
+forkRestartDnsmasq = L1
+function L1(A0)
+  local L1, L2, L3
+  L1 = forkExec
+  L2 = "flash.sh "
+  L3 = A0
+  L2 = L2 .. L3
+  L1(L2)
+end
+forkFlashRomFile = L1
+function L1(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = tonumber
+  L3 = A0
+  L2 = L2(L3)
+  L3 = tonumber
+  L4 = A1
+  L3 = L3(L4)
+  if L2 and L3 and (L2 ~= 0 or L3 ~= 0) then
+    L4 = nil
+    if 0 < L2 and 0 < L3 then
+      L5 = string
+      L5 = L5.format
+      L6 = "sleep %s ; /usr/sbin/uhbn 2 %s"
+      L7 = tostring
+      L8 = 60 * L2
+      L7 = L7(L8)
+      L8 = tostring
+      L9 = L3
+      L8, L9 = L8(L9)
+      L5 = L5(L6, L7, L8, L9)
+      L4 = L5
+    end
+    if L2 == 0 and 0 < L3 then
+      L5 = string
+      L5 = L5.format
+      L6 = "sleep 4 ; /usr/sbin/uhbn 2 %s"
+      L7 = tostring
+      L8 = L3
+      L7, L8, L9 = L7(L8)
+      L5 = L5(L6, L7, L8, L9)
+      L4 = L5
+    end
+    if 0 < L2 and L3 == 0 then
+      L5 = string
+      L5 = L5.format
+      L6 = "sleep %s ; /usr/sbin/uhbn 3"
+      L7 = tostring
+      L8 = 60 * L2
+      L7, L8, L9 = L7(L8)
+      L5 = L5(L6, L7, L8, L9)
+      L4 = L5
+    end
+    L5 = forkExec
+    L6 = L4
+    L5(L6)
+  end
+end
+forkShutdownAndRebootWithDelay = L1
+function L1()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = _UPVALUE0_
+  L1 = L1.RESTART_MAC_FILTER
+  L0(L1)
+end
+syncRestartMacFilter = L1
+function L1()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "/usr/sbin/sysapi webinitrdr set off"
+  L0(L1)
+end
+closeWebInitRDR = L1
+function L1()
+  local L0, L1, L2
+  L0 = os
+  L0 = L0.date
+  L1 = "%Y-%m-%d--%X"
+  L2 = os
+  L2 = L2.time
+  L2 = L2()
+  return L0(L1, L2)
+end
+getTime = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = {}
+  L5 = "GHz"
+  L6 = "THz"
+  L1[1] = L2
+  L1[2] = L3
+  L1[3] = L4
+  L1[4] = L5
+  L1[5] = L6
+  for L5 = L2, L3, L4 do
+    if 1024 < A0 and L5 < 5 then
+      A0 = A0 / 1024
+    else
+      L6 = string
+      L6 = L6.format
+      L7 = "%.2f %s"
+      L8 = A0
+      L9 = L1[L5]
+      return L6(L7, L8, L9)
+    end
+  end
+end
+hzFormat = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = {}
+  L5 = "GB"
+  L6 = "TB"
+  L1[1] = L2
+  L1[2] = L3
+  L1[3] = L4
+  L1[4] = L5
+  L1[5] = L6
+  for L5 = L2, L3, L4 do
+    if 1024 < A0 and L5 < 5 then
+      A0 = A0 / 1024
+    else
+      L6 = string
+      L6 = L6.format
+      L7 = "%.2f %s"
+      L8 = A0
+      L9 = L1[L5]
+      return L6(L7, L8, L9)
+    end
+  end
+end
+byteFormat = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  L1 = #A0
+  L2 = L1
+  L3 = 0
+  L4 = {}
+  L5 = 0
+  L6 = 192
+  L7 = 224
+  L8 = 240
+  L9 = 248
+  L10 = 252
+  L4[1] = L5
+  L4[2] = L6
+  L4[3] = L7
+  L4[4] = L8
+  L4[5] = L9
+  L4[6] = L10
+  while L2 ~= 0 do
+    L5 = string
+    L5 = L5.byte
+    L6 = A0
+    L7 = #L2
+    L5 = L5(L6, L7)
+    L6 = #L4
+    while true do
+      L7 = L4[L6]
+      if not L7 then
+        break
+      end
+      L7 = L4[L6]
+      if L5 >= L7 then
+        L2 = L2 - L6
+        break
+      end
+      L6 = L6 - 1
+    end
+    L3 = L3 + 1
+  end
+  return L3
+end
+utfstrlen = L1
+function L1(A0)
+  local L1
+  L1 = true
+  return L1
+end
+checkSSID = L1
+function L1()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = _UPVALUE0_
+  L1 = L1.UPGRADE_LOCK
+  return L0(L1)
+end
+sysLock = L1
+function L1()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = _UPVALUE0_
+  L1 = L1.UPGRADE_UNLOCK
+  return L0(L1)
+end
+sysUnlock = L1
+function L1()
+  local L0, L1, L2
+  L0 = require
+  L1 = "luci.fs"
+  L0 = L0(L1)
+  L1 = L0.access
+  L2 = _UPVALUE0_
+  L2 = L2.UPGRADE_LOCK_FILE
+  L1 = L1(L2)
+  if L1 then
+    L2 = 1
+    return L2
+  else
+    L2 = 0
+    return L2
+  end
+end
+sysLockStatus = L1
+function L1(A0)
+  local L1, L2
+  if A0 then
+    L1 = forkExec
+    L2 = _UPVALUE0_
+    L2 = L2.UPDATE_LED_FLASH_ALERT_ENABLE
+    L1(L2)
+  else
+    L1 = os
+    L1 = L1.execute
+    L2 = _UPVALUE0_
+    L2 = L2.UPDATE_LED_FLASH_ALERT_DISABLE
+    L1(L2)
+  end
+end
+ledFlashAlert = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = L1.exec
+  L3 = string
+  L3 = L3.format
+  L4 = _UPVALUE0_
+  L4 = L4.GPIO_VALUE
+  L5 = tostring
+  L6 = A0
+  L5, L6 = L5(L6)
+  L3, L4, L5, L6 = L3(L4, L5, L6)
+  L2 = L2(L3, L4, L5, L6)
+  if L2 then
+    L3 = tonumber
+    L4 = L1.trim
+    L5 = L2
+    L4, L5, L6 = L4(L5)
+    L3 = L3(L4, L5, L6)
+    L3 = L3 or L3
+    return L3
+  end
+  L3 = 0
+  return L3
+end
+getGpioValue = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  else
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\\"
+    L4 = "\\\\"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "`"
+    L4 = "\\`"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "\""
+    L4 = "\\\""
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "%$"
+    L4 = "\\$"
+    L1 = L1(L2, L3, L4)
+    return L1
+  end
+end
+_cmdformat = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  else
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "'"
+    L4 = ""
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "\\"
+    L4 = "\\\\"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "`"
+    L4 = "\\`"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "\""
+    L4 = "\\\""
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "%$"
+    L4 = "\\$"
+    L1 = L1(L2, L3, L4)
+    return L1
+  end
+end
+_strformat = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = ""
+    return L1
+  else
+    L2 = A0
+    L1 = A0.gsub
+    L3 = "\\"
+    L4 = "\\\\"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "`"
+    L4 = "\\`"
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "\""
+    L4 = "\\\""
+    L1 = L1(L2, L3, L4)
+    L2 = L1
+    L1 = L1.gsub
+    L3 = "%$"
+    L4 = "\\$"
+    L1 = L1(L2, L3, L4)
+    return L1
+  end
+end
+paramFormat = L1
+function L1(A0, A1)
+  local L2, L3, L4, L5, L6
+  L2 = isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    return A1
+  end
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = string
+  L3 = L3.format
+  L4 = "bdata get \"%s\""
+  L5 = _cmdformat
+  L6 = A0
+  L5, L6 = L5(L6)
+  L3 = L3(L4, L5, L6)
+  L4 = L2.exec
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L5 = L2.trim
+    L6 = L4
+    L5 = L5(L6)
+    L4 = L5
+    return L4
+  end
+  return A1
+end
+bdataGet = L1
+function L1(A0, A1)
+  local L2, L3, L4, L5, L6
+  L2 = isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    return A1
+  end
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = string
+  L3 = L3.format
+  L4 = "nvram get \"%s\""
+  L5 = _cmdformat
+  L6 = A0
+  L5, L6 = L5(L6)
+  L3 = L3(L4, L5, L6)
+  L4 = L2.exec
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L5 = L2.trim
+    L6 = L4
+    L5 = L5(L6)
+    L4 = L5
+    return L4
+  end
+  return A1
+end
+nvramGet = L1
+function L1(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = isStrNil
+  L3 = A0
+  L2 = L2(L3)
+  if L2 then
+    return
+  end
+  L2 = nil
+  L3 = isStrNil
+  L4 = A1
+  L3 = L3(L4)
+  if L3 then
+    L3 = string
+    L3 = L3.format
+    L4 = "nvram unset \"%s\""
+    L5 = _cmdformat
+    L6 = A0
+    L5, L6, L7 = L5(L6)
+    L3 = L3(L4, L5, L6, L7)
+    L2 = L3
+  else
+    L3 = string
+    L3 = L3.format
+    L4 = "nvram set \"%s\"=\"%s\""
+    L5 = _cmdformat
+    L6 = A0
+    L5 = L5(L6)
+    L6 = _cmdformat
+    L7 = A1
+    L6, L7 = L6(L7)
+    L3 = L3(L4, L5, L6, L7)
+    L2 = L3
+  end
+  L3 = os
+  L3 = L3.execute
+  L4 = L2
+  L3(L4)
+end
+nvramSet = L1
+function L1()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "nvram commit"
+  L0(L1)
+end
+nvramCommit = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "NETMODE"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = nil
+  end
+  return L1
+end
+getNetMode = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "MESH_VERSION"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = 1
+  end
+  return L1
+end
+getMeshVersion = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "CAP_MODE"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L2 = 0
+  if L1 == "ap" then
+    L2 = 1
+  end
+  return L2
+end
+getCAPMode = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "NETMODE"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L3 = L1
+  L2 = L1.match
+  L4 = "^whc_cap"
+  L2 = L2(L3, L4)
+  if L2 then
+    L2 = true
+    return L2
+  else
+    L3 = L1
+    L2 = L1.match
+    L4 = "^lanapmode"
+    L2 = L2(L3, L4)
+    if L2 then
+      L2 = getCAPMode
+      L2 = L2()
+      if L2 == 1 then
+        L2 = true
+        return L2
+      end
+    end
+  end
+  L2 = false
+  return L2
+end
+isMeshCap = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "NETMODE"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L3 = L1
+  L2 = L1.match
+  L4 = "^whc_re"
+  L2 = L2(L3, L4)
+  if L2 then
+    L2 = true
+    return L2
+  end
+  L2 = false
+  return L2
+end
+isMeshRe = L1
+function L1()
+  local L0, L1
+  L0 = isMeshCap
+  L0 = L0()
+  if not L0 then
+    L0 = isMeshRe
+    L0 = L0()
+    if not L0 then
+      goto lbl_11
+    end
+  end
+  L0 = true
+  do return L0 end
+  ::lbl_11::
+  L0 = false
+  return L0
+end
+isMeshMode = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "misc"
+  L4 = "hardware"
+  L5 = "recovery"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = 0
+  end
+  L2 = tonumber
+  L3 = L1
+  return L2(L3)
+end
+miscRecovery = L1
+function L1()
+  local L0, L1, L2
+  L0 = miscRecovery
+  L0 = L0()
+  if L0 == 1 then
+    L1 = 100
+    return L1
+  end
+  L1 = 0
+  L2 = getNetMode
+  L2 = L2()
+  if L2 == "lanapmode" then
+    L1 = 2
+  elseif L2 == "wifiapmode" then
+    L1 = 1
+  elseif L2 == "whc_re" then
+    L1 = 3
+  end
+  return L1
+end
+getNetModeType = L1
+function L1()
+  local L0, L1, L2
+  L0 = miscRecovery
+  L0 = L0()
+  if L0 == 1 then
+    L1 = 100
+    return L1
+  end
+  L1 = 0
+  L2 = getNetMode
+  L2 = L2()
+  if L2 == "lanapmode" then
+    L1 = 2
+  elseif L2 == "wifiapmode" then
+    L1 = 1
+  elseif L2 == "whc_re" then
+    L1 = 3
+  elseif L2 == "whc_cap" then
+    L1 = 4
+  end
+  return L1
+end
+getnetmode = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "xiaoqiang.util.XQSynchrodata"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  if A0 then
+    if A0 == "wifiapmode" then
+      L3 = L1.syncWorkMode
+      L4 = 1
+      L3(L4)
+    elseif A0 == "lanapmode" then
+      L3 = L1.syncWorkMode
+      L4 = 2
+      L3(L4)
+    end
+    L4 = L2
+    L3 = L2.set
+    L5 = "xiaoqiang"
+    L6 = "common"
+    L7 = "NETMODE"
+    L8 = A0
+    L3(L4, L5, L6, L7, L8)
+  else
+    L3 = L1.syncWorkMode
+    L4 = 0
+    L3(L4)
+    L4 = L2
+    L3 = L2.delete
+    L5 = "xiaoqiang"
+    L6 = "common"
+    L7 = "NETMODE"
+    L3(L4, L5, L6, L7)
+  end
+  L4 = L2
+  L3 = L2.commit
+  L5 = "xiaoqiang"
+  L3(L4, L5)
+end
+setNetMode = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = nil
+    return L1
+  end
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = L2.binaryBase64Enc
+  L4 = A0
+  L3 = L3(L4)
+  A0 = L3
+  L3 = L1.trim
+  L4 = L1.exec
+  L5 = _UPVALUE0_
+  L5 = L5.THRIFT_TUNNEL_TO_DATACENTER
+  L5 = L5 % A0
+  L4, L5, L6 = L4(L5)
+  L3 = L3(L4, L5, L6)
+  L4 = isStrNil
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L4 = nil
+    return L4
+  else
+    L4 = require
+    L5 = "cjson"
+    L4 = L4(L5)
+    L5 = L4.decode
+    L6 = L3
+    return L5(L6)
+  end
+end
+thrift_tunnel_to_datacenter = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = nil
+    return L1
+  end
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = L2.binaryBase64Enc
+  L4 = A0
+  L3 = L3(L4)
+  A0 = L3
+  L3 = L1.trim
+  L4 = L1.exec
+  L5 = _UPVALUE0_
+  L5 = L5.THRIFT_TUNNEL_TO_SMARTHOME_CONTROLLER
+  L5 = L5 % A0
+  L4, L5, L6 = L4(L5)
+  L3 = L3(L4, L5, L6)
+  L4 = isStrNil
+  L5 = L3
+  L4 = L4(L5)
+  if L4 then
+    L4 = nil
+    return L4
+  else
+    L4 = require
+    L5 = "cjson"
+    L4 = L4(L5)
+    L5 = L4.decode
+    L6 = L3
+    return L5(L6)
+  end
+end
+thrift_tunnel_to_smarthome_controller = L1
+function L1()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = "matool --method identifyDevice"
+  L2 = L0.trim
+  L3 = L0.exec
+  L4 = L1
+  L3, L4 = L3(L4)
+  L2 = L2(L3, L4)
+  L3 = isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if L3 then
+    L2 = ""
+  end
+  return L2
+end
+mattool_identify_device = L1
+function L1()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.util"
+  L0 = L0(L1)
+  L1 = "matool --method deviceID"
+  L2 = L0.trim
+  L3 = L0.exec
+  L4 = L1
+  L3, L4 = L3(L4)
+  L2 = L2(L3, L4)
+  L3 = isStrNil
+  L4 = L2
+  L3 = L3(L4)
+  if L3 then
+    L2 = ""
+  end
+  return L2
+end
+mattool_get_deviceid = L1
+function L1(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10
+  if A0 == 0 then
+    L2 = 0
+    return L2
+  end
+  L2 = 0
+  for L6 = L3, L4, L5 do
+    L7 = bit
+    L7 = L7.rshift
+    L8 = 128
+    L9 = L6
+    L7 = L7(L8, L9)
+    L8 = bit
+    L8 = L8.band
+    L9 = A0
+    L10 = L7
+    L8 = L8(L9, L10)
+    if L8 == 0 then
+      L9 = A0 - L2
+      if L9 == 0 then
+        if A1 == 0 or A1 == 2 then
+          L9 = -1
+          return L9
+        elseif A1 == 1 then
+          L9 = 2
+          return L9
+        end
+      else
+        L9 = -1
+        return L9
+      end
+    end
+    L2 = L2 + L7
+  end
+  return L3
+end
+_parse = L1
+function L1(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L1 = isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  if A0 == "0.0.0.0" or A0 == "255.255.255.255" then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.util"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "luci.cbi.datatypes"
+  L2 = L2(L3)
+  L3 = L2.ipaddr
+  L4 = A0
+  L3 = L3(L4)
+  if not L3 then
+    L3 = false
+    return L3
+  end
+  L3 = L1.split
+  L4 = A0
+  L3 = L3(L4, L5)
+  L4 = 1
+  for L8, L9 in L5, L6, L7 do
+    L10 = _parse
+    L11 = tonumber
+    L12 = L9
+    L11 = L11(L12)
+    L12 = L4
+    L10 = L10(L11, L12)
+    L4 = L10
+    if L4 == -1 then
+      L10 = false
+      return L10
+    end
+  end
+  return L5
+end
+checkMask = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "&"
+  L4 = "&amp;"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "<"
+  L4 = "&lt;"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = ">"
+  L4 = "&gt;"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "\""
+  L4 = "&quot;"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "'"
+  L4 = "&#039;"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  return A0
+end
+encode4HtmlValue = L1
+function L1(A0)
+  local L1, L2, L3, L4
+  L1 = string
+  L1 = L1.gsub
+  L2 = A0
+  L3 = "\\"
+  L4 = "\\\\"
+  L1 = L1(L2, L3, L4)
+  A0 = L1
+  return A0
+end
+encode4Js = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "xiaoqiang.util.XQSysUtil"
+  L0 = L0(L1)
+  L1 = L0.getRouterName
+  L1 = L1()
+  L2 = L0.getRouterLocale
+  L2 = L2()
+  if L2 ~= "" then
+    L3 = " ("
+    L4 = encode4HtmlValue
+    L5 = L2
+    L4 = L4(L5)
+    L5 = ")"
+    L2 = L3 .. L4 .. L5
+  end
+  L3 = encode4HtmlValue
+  L4 = L1
+  L3 = L3(L4)
+  L4 = L2
+  L1 = L3 .. L4
+  return L1
+end
+getRouterName = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "xiaoqiang"
+  L4 = "common"
+  L5 = "active_apcli"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L1 = nil
+  end
+  return L1
+end
+get_active_apcli = L1
+function L1()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "misc"
+  L4 = "mesh"
+  L5 = "max_node_count"
+  L1 = L1(L2, L3, L4, L5)
+  L2 = isStrNil
+  L3 = L1
+  L2 = L2(L3)
+  if L2 then
+    L2 = 9
+    return L2
+  else
+    L2 = tonumber
+    L3 = L1
+    return L2(L3)
+  end
+end
+getMaxMeshNodeCount = L1

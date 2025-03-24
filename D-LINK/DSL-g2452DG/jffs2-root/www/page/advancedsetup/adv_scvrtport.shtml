@@ -1,0 +1,493 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css"type="text/css">
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var url=window.location.search;
+var i=url.indexOf('?');
+var arr = url.toString();
+var strs = arr.split("&");
+
+/*G_path指向InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.PortMapping.{i}. 
+或者InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.*/
+var G_path = strs[0].split("=")[1];
+var G_isEdit = 0; //是否是修改规则
+
+function PortMappingTuple()
+{
+    this.Path = "";
+    this.PortMappingEnabled = "";
+    this.PortMappingDescription = "";
+    this.RemoteHost = "";
+    this.PortMappingProtocol = "";
+    this.ExternalPort = "";
+    this.ExternalPortEndRange = "";
+    this.InternalPort = "";
+    this.InternalClient = "";
+    this.NatLpbk = "";
+}
+
+/* 获取所有的PortMapping规则，目的是与传递到本页面的path作比较，以确定是新增还是修改 */
+var index = 0;
+var PortMapping = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    	<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection."-->
+    		<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost X_CT-COM_RemoteMask PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+    			PortMapping[index] = new PortMappingTuple();   
+    			PortMapping[index].Path = "<!--#path -->";
+    			PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+    			PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+    			PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+    			PortMapping[index].RemoteMask = "<!--#leaf "4"-->";
+    			PortMapping[index].PortMappingProtocol = "<!--#leaf "5"-->";
+    			PortMapping[index].ExternalPort = "<!--#leaf "6"-->";
+    			PortMapping[index].ExternalPortEndRange = "<!--#leaf "7"-->";
+    			PortMapping[index].InternalPort = "<!--#leaf "8"-->";
+    			PortMapping[index].InternalClient = "<!--#leaf "9"-->";
+    			PortMapping[index].NatLpbk = "<!--#leaf "10"-->";
+    			index++;
+    		<!--#endgetobject -->
+    	<!--#endgetobject -->
+        
+    	<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection."-->
+    		<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost X_CT-COM_RemoteMask PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+    			PortMapping[index] = new PortMappingTuple();   
+    			PortMapping[index].Path = "<!--#path -->";
+    			PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+    			PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+    			PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+    			PortMapping[index].RemoteMask = "<!--#leaf "4"-->";
+    			PortMapping[index].PortMappingProtocol = "<!--#leaf "5"-->";
+    			PortMapping[index].ExternalPort = "<!--#leaf "6"-->";
+    			PortMapping[index].ExternalPortEndRange = "<!--#leaf "7"-->";
+    			PortMapping[index].InternalPort = "<!--#leaf "8"-->";
+    			PortMapping[index].InternalClient = "<!--#leaf "9"-->";
+    			PortMapping[index].NatLpbk = "<!--#leaf "10"-->";
+    			index++;
+    		<!--#endgetobject -->
+    	<!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+
+function Acl()
+{    
+    this.path = "";
+    this.ServiceName = "";
+    this.Enable = "";
+    this.AccessDirection="";
+    this.SrcIpRange = "";
+    this.Action = "";
+    this.IPMode = "";
+    this.Port = "";
+}
+
+var m = 0;
+var G_Acl = new Array();
+<!--#getobject "InternetGatewayDevice.Services.ServiceAccessControl.ServiceCtrlList. ServiceName Enable AccessDirection SrcIpRange Action IPMode Port" -->
+    G_Acl[m] = new Acl();
+    G_Acl[m].path = "<!--#path -->";
+    G_Acl[m].ServiceName = "<!--#leaf "1"-->";
+    G_Acl[m].Enable = "<!--#leaf "2"-->";
+    G_Acl[m].AccessDirection = "<!--#leaf "3"-->";
+    G_Acl[m].SrcIpRange = "<!--#leaf "4"-->";
+    G_Acl[m].Action = "<!--#leaf "5"-->";
+    G_Acl[m].IPMode = "<!--#leaf "6"-->";    
+    G_Acl[m].Port = "<!--#leaf "7"-->";    
+    m++;
+<!--#endgetobject -->
+
+function editPortArray(ServiceName,Port,Path,TotalPorts)
+{    
+    this.ServiceName = ServiceName;
+    this.Port = Port;
+	this.Path = Path;
+	this.TotalPorts = TotalPorts;
+}
+
+var ServiceTelnetPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTelnet.Port"-->";
+var ServiceSSHPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceSSH.Port"-->";
+var ServiceTFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTFTP.Port"-->";
+var ServiceFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceFTP.Port"-->";
+
+var G_editPortList =new Array();
+G_editPortList[0] = new editPortArray("HTTP","80","","");
+G_editPortList[1] = new editPortArray("TELNET","23","InternetGatewayDevice.Services.ServiceTelnet.Port",ServiceTelnetPorts);
+G_editPortList[2] = new editPortArray("FTP","21","InternetGatewayDevice.Services.ServiceFTP.Port",ServiceFTPPorts);
+G_editPortList[3] = new editPortArray("TFTP","69","InternetGatewayDevice.Services.ServiceTFTP.Port",ServiceTFTPPorts);
+G_editPortList[4] = new editPortArray("SSH","22","InternetGatewayDevice.Services.ServiceSSH.Port",ServiceSSHPorts);
+G_editPortList[5] = new editPortArray("TCP","","","");
+G_editPortList[6] = new editPortArray("UDP","","","");
+
+function update_default_port()
+{
+	var i,j;
+	for(i=0;i<G_Acl.length;i++)
+	{
+
+		if(G_Acl[i].Port != "" && G_Acl[i].Port >0)
+			continue;
+
+		for(j=0;j<G_editPortList.length;j++)
+		{
+			if(G_Acl[i].ServiceName == G_editPortList[j].ServiceName)
+			{
+				if(G_editPortList[j].TotalPorts != "")
+					G_Acl[i].Port = G_editPortList[j].TotalPorts;
+				else if(G_editPortList[j].Port != "")
+					G_Acl[i].Port = G_editPortList[j].Port;
+			}
+		}
+	}
+}
+
+//生成内部最大端口号
+function generateInternalPortEndRange(ExternalPort, ExternalPortEndRange, InternalPort){
+    var InternalPortRange;
+
+    /* 当ExternalPort为0或者ExternalPortEndRange为0时 */
+    if(ExternalPort == '0' || ExternalPortEndRange == '0'){
+        return "";
+    }
+
+    return parseInt(ExternalPortEndRange) - parseInt(ExternalPort) + parseInt(InternalPort);
+}
+
+function init()
+{
+	update_default_port();
+
+    for(var i=0;i< PortMapping.length;i++)
+    {
+        if(PortMapping[i].Path == G_path) //如果传递进来的path与某个PortMapping的path相同，表示现在是修改
+        {
+            G_isEdit = 1;
+            setValue("INPUT_Enable", PortMapping[i].PortMappingEnabled || 0);
+            setValue("INPUT_Description", PortMapping[i].PortMappingDescription);
+            setValue("INPUT_RemoteHost", PortMapping[i].RemoteHost);
+            setValue("INPUT_RemoteMask", PortMapping[i].RemoteMask);
+            setValue("SELECT_Protocol", PortMapping[i].PortMappingProtocol || 'TCP');
+            setValue("INPUT_ExternalPort", PortMapping[i].ExternalPort);
+            setValue("INPUT_ExternalPortEndRange", PortMapping[i].ExternalPortEndRange || '');
+            setValue("INPUT_InternalPort", PortMapping[i].InternalPort);
+            /*初始化ID_TEXT_InternalPortEndRange */
+            OnBlurPort();
+            setValue("INPUT_InternalClient", PortMapping[i].InternalClient);
+            setValue("INPUT_NatLpbk", PortMapping[i].NatLpbk);
+        }
+    }
+
+    //处理显示外部公共的端口关系
+    externalPortRelation();
+}
+
+function externalPortRelation(){
+    var _port = $('INPUT_ExternalPort','INPUT_ExternalPortEndRange');
+    //分两种情况：1、外部公共端口为空,或终止端口为零；2、外部公共端口为0;
+    if(_port[0].value == '0'){
+        _port[0].value = '1';
+        _port[1].value = '65535';
+    } else if (_port[0].value == '' || _port[1].value == '0'){
+        _port[1].value = '';
+    }
+}
+
+
+/* 所有端口失去焦点时都要重新计算内部最大端口 */
+function OnBlurPort()
+{
+    var ExternalPort = getValue('INPUT_ExternalPort');
+    var ExternalPortEndRange = getValue('INPUT_ExternalPortEndRange');
+    var InternalPort = getValue('INPUT_InternalPort');
+
+    if(InternalPort == "" || ExternalPort == "" || ExternalPortEndRange == "")
+    {
+        setValue("ID_TEXT_InternalPortEndRange", "");
+        return;
+    }
+
+    if(InternalPort != '0' && parseInt(ExternalPortEndRange)> parseInt(ExternalPort))
+    {
+        setValue("ID_TEXT_InternalPortEndRange",generateInternalPortEndRange(ExternalPort, ExternalPortEndRange, InternalPort));
+    }
+}
+
+function checkPorts() {
+    var nodes = $('INPUT_ExternalPort','INPUT_ExternalPortEndRange','INPUT_InternalPort');
+
+ 	if (!checkRange(getValue('INPUT_InternalPort'),1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_InternalPort");
+		return false;
+	}
+	
+	if (!checkRange(getValue('INPUT_ExternalPort'), 1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_ExternalPort")
+		return false;
+	}
+
+	if ($('INPUT_ExternalPortEndRange').value == "") {
+		return true;
+	}
+
+	if (!checkRange(getValue('INPUT_ExternalPortEndRange'), 1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_ExternalPortEndRange")
+		return false;
+	}
+
+	var min = parseInt($('INPUT_ExternalPort').value);
+	var max = parseInt($('INPUT_ExternalPortEndRange').value);
+
+	if (min > max) {
+ 		top.AlertMsg(getStr("LK_ExternalPort_Exceed"),"INPUT_ExternalPortEndRange");
+		return false;
+	}
+   
+    return true;
+}
+
+function checkOverride(port ,portlist)
+{
+	var id = portlist.indexOf(",")
+
+	if(id == -1)
+	{
+		if(port == portlist)
+			return true;
+	}
+	else
+	{
+		var ports = portlist.split(",");
+		for(var i=0; i<ports.length; i++)
+		{
+			if(port == ports[i])
+				return true;
+		}
+	}
+
+	return false;
+}
+
+function checkRangeOverride(start, stop, portlist)
+{
+	var id = portlist.indexOf(",")
+
+	if(id == -1)
+	{
+		if(checkRange(portlist, 1, start, stop))
+			return true;
+	}
+	else
+	{
+		var ports = portlist.split(",");
+		for(var i=0; i<ports.length; i++)
+		{
+			if(checkRange(ports[i], 1, start, stop))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+// return true for conflict, otherwise return false
+function checkSCPortConflict()
+{
+	var portstart = getValue('INPUT_ExternalPort');
+	var portend = getValue('INPUT_ExternalPortEndRange');
+
+	for(var i=0; i<G_Acl.length; i++)
+	{
+		if(G_Acl[i].IPMode == "2")// ipv6 service won't conflict with VS
+		{
+			continue;
+		}
+
+		if(G_Acl[i].AccessDirection == "LAN")// LAN service won't conflict with VS
+		{
+			continue;
+		}
+
+		if (portend == "") 
+		{
+			if(checkOverride(portstart, G_Acl[i].Port))
+				return true;
+		}
+		else
+		{
+			if (checkRangeOverride(portstart, portend, G_Acl[i].Port))
+				return true;
+		}
+
+	}
+
+	return false;
+}
+
+function check()
+{
+
+	if (getValue('INPUT_RemoteHost') != '')
+	{
+	    if(!isCheckIPV4($('INPUT_RemoteHost'))){            
+		    return false;
+	    }
+	}
+	else
+	{
+	    if (getValue('INPUT_RemoteMask') != ''){
+		    top.AlertMsg(getStr("LK_ipnoemp"),"INPUT_RemoteMask");
+			return false;
+		}
+	}
+
+	if (getValue('INPUT_RemoteMask') != '')
+	{
+	    if(!isCheckIPV4($('INPUT_RemoteMask'))){            
+		    return false;
+	    }
+    }
+
+	if(!isCheckIPV4($('INPUT_InternalClient'))){
+		return false;
+	}
+
+	if(!checkPorts()) {
+        return false;
+    }
+
+	if(checkSCPortConflict())
+	{
+		top.AlertMsg("The input external ports conflicts with service control ports. Please input another one");
+		return false;
+	}
+
+	return true;
+}
+
+function uiBack()
+{
+        document.location.href = "adv_scvrtsrv.shtml"
+}
+
+function uiSubmit()
+{
+    if (!check()) 
+    {
+         return;
+    }
+    if(!validateCode())
+        return false;
+
+    //提交分两种情况：添加和编辑
+    var node_napt = $('INPUT_Description','INPUT_RemoteHost','INPUT_RemoteMask','SELECT_Protocol','INPUT_ExternalPort','INPUT_ExternalPortEndRange','INPUT_InternalPort','INPUT_InternalClient');
+    var df = document.app_scvrtsrvform;
+	
+    if(0 == G_isEdit)
+    {
+        var add_path = G_path+'PortMapping.';
+        AddElements(df, 'add_obj',add_path);
+        AddElements(df, add_path+"{i}.PortMappingEnabled", getValue("INPUT_Enable"));
+        AddElements(df, add_path+"{i}.PortMappingDescription",node_napt[0].value);
+        AddElements(df, add_path+"{i}.RemoteHost", node_napt[1].value);
+        AddElements(df, add_path+"{i}.X_CT-COM_RemoteMask", node_napt[2].value);
+        AddElements(df, add_path+"{i}.PortMappingProtocol", node_napt[3].value);
+        AddElements(df, add_path+"{i}.ExternalPort", node_napt[4].value);
+        AddElements(df, add_path+"{i}.ExternalPortEndRange", node_napt[5].value);
+        AddElements(df, add_path+"{i}.InternalPort",  node_napt[6].value);
+        AddElements(df, add_path+"{i}.InternalClient", node_napt[7].value);
+        AddElements(df, add_path+"{i}.NatLoopbackEnabled", getValue("INPUT_NatLpbk"));
+
+    } 
+    else 
+    {
+        var edit_path = G_path;
+        AddElements(df, edit_path+"PortMappingEnabled", getValue("INPUT_Enable"));
+        AddElements(df, edit_path+"PortMappingDescription",node_napt[0].value);
+        AddElements(df, edit_path+"RemoteHost", node_napt[1].value);
+        AddElements(df, edit_path+"X_CT-COM_RemoteMask", node_napt[2].value);
+        AddElements(df, edit_path+"PortMappingProtocol", node_napt[3].value);
+        AddElements(df, edit_path+"ExternalPort", node_napt[4].value);
+        AddElements(df, edit_path+"ExternalPortEndRange", node_napt[5].value);
+        AddElements(df, edit_path+"InternalPort",  node_napt[6].value);
+        AddElements(df, edit_path+"InternalClient", node_napt[7].value);    
+        AddElements(df, edit_path+"NatLoopbackEnabled", getValue("INPUT_NatLpbk"));
+    }
+    df.submit();
+    
+}
+
+function __init()
+{
+	init();
+	if(IsExistedFunction("project_init") == true)
+	    project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_VirtualServerSettings'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td langkey="LK_Enablee"></td>
+    	<td><input type="checkbox" name="INPUT_Enable" id="INPUT_Enable"></td>
+</tr>
+<tr>
+	<td langkey="LK_Descriptionn"></td>
+	<td><input type="text" name="INPUT_Description" id="INPUT_Description" maxlength="256"></td>
+</tr>
+<tr>
+	<td langkey="LK_RemoteIPAddresss"></td>
+	<td><input type="text" name="INPUT_RemoteHost" id="INPUT_RemoteHost" maxlength="15"></td>
+</tr>
+<tr>
+	<td langkey="LK_NetworkMaskk"></td>
+	<td><input type="text" name="INPUT_RemoteMask" id="INPUT_RemoteMask" maxlength="15"></td>
+</tr>
+<tr>
+	<td langkey="LK_Protocol_Colon"></td>
+	<td><select name="SELECT_Protocol" id="SELECT_Protocol">
+            		<option value='TCP'>TCP</option><option value='UDP'>UDP</option>
+            		<option value='TCP/UDP'>TCP/UDP</option>
+            	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_ExternalPortt"></td>
+	<td><input type="text" name="INPUT_ExternalPort" id="INPUT_ExternalPort" class="Port" maxlength="5" onblur="OnBlurPort()"> - <input type="text" name="INPUT_ExternalPortEndRange" id="INPUT_ExternalPortEndRange" class="Port" maxlength="5" onblur="OnBlurPort()">
+            </td>
+</tr>
+<tr>
+	<td langkey="LK_InternalPortt"></td>
+	<td><input type="text" name="INPUT_InternalPort" id="INPUT_InternalPort" class="Port" maxlength="5" onblur="OnBlurPort()"> - <input type="text" id="ID_TEXT_InternalPortEndRange" readonly="true"> </td>
+</tr>
+<tr>
+	<td langkey="LK_InternalIPAddresss"></td>
+	<td><input type="text" name="INPUT_InternalClient" id="INPUT_InternalClient" maxlength="15" value="" /></td>
+</tr>
+<tr>
+	<td langkey="LK_NatLoopbackk"></td>
+	<td><input type="checkbox" name="INPUT_NatLpbk" id="INPUT_NatLpbk"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>    
+	<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()");</script>
+	</td>        
+</tr>
+</table>
+</form>
+ <form method="post" name ="app_scvrtsrvform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_scvrtsrv.shtml">
+ </form>
+</body>
+</html>

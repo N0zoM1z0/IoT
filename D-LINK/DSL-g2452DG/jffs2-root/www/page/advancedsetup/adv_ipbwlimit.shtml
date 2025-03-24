@@ -1,0 +1,280 @@
+<!-- userlevel=2 -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript"> 
+var userlevel='<!--#getuser "level" -->';
+
+function ConfigIPTuple()
+{
+    this.Path = "";
+    this.Enable  = "";
+    this.IPmin = "";
+    this.IPmax = "";
+    this.IgrRate = "";
+    this.EgrRate = "";
+}
+
+var index = 0;
+var IPBwLimit = new Array();
+<!--#getobject_noop "InternetGatewayDevice.Services.X_TRI_RateLimit.PerIP.  Enable Min Max Igr Egr" -->
+    IPBwLimit[index] = new ConfigIPTuple();
+    IPBwLimit[index].Path = "<!--#path -->";
+    IPBwLimit[index].Enable = "<!--#leaf  "1"-->";
+    IPBwLimit[index].IPmin = "<!--#leaf  "2"-->";
+    IPBwLimit[index].IPmax = "<!--#leaf  "3"-->";
+    IPBwLimit[index].IgrRate = "<!--#leaf "4"-->";
+    IPBwLimit[index].EgrRate = "<!--#leaf "5"-->";
+    index++;
+<!--#endgetobject -->
+
+
+var ipiface = "<!--#getsingle_noop "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.IPInterfaceIPAddress"-->"
+
+function getRangeStr(min, max) {
+
+	if(max== '0')
+		return min;
+	else
+		return min+" - "+max; 
+}
+
+function uiDelete(path){
+	if(!validateCode())
+		return false;
+	top.ConfirmMsg(getStr('LK_net_confirmdelete'),"delete",path);
+}
+   
+function ConfirmMsgResult(type,func,path)
+{
+	if(func == "delete")
+	{
+		if(type == "yes")
+		{
+			var df=document.IPBwLimit;
+			AddElements(df,'del_obj',path);
+			df.submit();
+		}
+		else
+		{
+			window.event.returnValue = false;
+		}
+	}
+} 
+
+function createIPRuleList(){
+    var trs = "";
+    var text = [];
+    var value = [];
+    var conn = 0;
+
+    for(var i=0;i<IPBwLimit.length;i++){
+            var tr = "";
+			if(i%2 == 0)
+				tr += "<tr class='OddRowB'>";
+			else
+				tr += "<tr class='EvenRowB'>";
+
+            tr += "<td>"+(i+1)+"</td>";
+			tr += "<td>"+IPBwLimit[i].Enable+"</td>";
+			tr += "<td>"+ getRangeStr(IPBwLimit[i].IPmin, IPBwLimit[i].IPmax)+"</td>";
+			tr += "<td>"+IPBwLimit[i].IgrRate+"</td>";
+			tr += "<td>"+IPBwLimit[i].EgrRate+"</td>";
+			tr += "<td><img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +IPBwLimit[i].Path+ "\")'></td>";                          
+            tr += "</tr>";
+			trs += tr;            
+     
+    }
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="6">'+getStr('LK_NoRule')+'</td></tr>'
+	jQuery("#IPRuleList").append(trs);
+}
+
+function initIPcfg()
+{
+	setValue("INPUT_Enable", 0);	  
+	setValue("INPUT_IgrRate", 0);	
+	setValue("INPUT_EgrRate", 0);	
+	setValue("INPUT_IPmin", "");	
+	setValue("INPUT_IPmax", "");	
+}
+
+function frmLoad()
+{
+	createIPRuleList();
+	initIPcfg();
+}
+
+function checkipmaskmatch(srcip,matchip)
+{
+	var firName = srcip.split('.');
+	var fir=firName[0]+"."+firName[1]+"."+firName[2];
+	var secName = matchip.split('.');
+	var sec=secName[0]+"."+secName[1]+"."+secName[2];
+	if (fir == sec) {
+		return true;
+	}
+	return false;
+}
+
+function checkIPv4Addr()
+{
+	var ip_min = $('INPUT_IPmin');
+	var ip_max = $('INPUT_IPmax');
+
+	if (ip_min.value == "") {
+		top.AlertMsg("Start IP addr is needed.");
+		return false;
+	}
+	else
+	{
+		if(!isCheckIPV4(ip_min)){            
+			top.AlertMsg("Start IP addr is invalid.");
+			return false;
+		}
+		else
+		{
+			if(!checkipmaskmatch(ip_min.value, ipiface))
+			{
+				top.AlertMsg("Start IP mask is wrong.");
+				return false;
+			}
+
+			if (ip_max.value != "")
+			{
+				if(!isCheckIPV4(ip_max))
+				{
+					top.AlertMsg("End IP addr is invalid.");
+					return false;
+				}
+
+				if(!checkipmaskmatch(ip_max.value, ipiface))
+				{
+					top.AlertMsg("End IP mask is wrong.");
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+function uiSubmit()
+{
+	var df = document.IPBwLimit;
+	var enable = getValue('INPUT_Enable');
+	var igr_rate = getValue('INPUT_IgrRate');
+	var egr_rate = getValue('INPUT_EgrRate');
+	var ipmin = getValue('INPUT_IPmin');
+	var ipmax = getValue('INPUT_IPmax');
+	var iplimit_path="InternetGatewayDevice.Services.X_TRI_RateLimit.PerIP.{i}";    
+
+	if(IPBwLimit.length >= 32)
+	{
+		top.AlertMsg("No more than 32 rules.");
+		return false;
+	}
+
+	if(!validateCode())
+		return false;
+
+	if(isAllNum($('INPUT_IgrRate').value)==0 || isAllNum($('INPUT_EgrRate').value)==0)
+	{
+		top.AlertMsg("Pls input number.");
+		return false;
+	}
+	else if($('INPUT_IgrRate').value > 1000000  || $('INPUT_IgrRate').value <32 || 
+				$('INPUT_EgrRate').value > 1000000  || $('INPUT_EgrRate').value <32)
+	{
+		top.AlertMsg("Limited Rate is invalid: [32kbps, 1Gbps]");	
+		return false;
+	}
+
+	if (!checkIPv4Addr()) {
+		return false;
+	}
+
+	AddElements(df, 'add_obj', iplimit_path);
+	AddElements(df, iplimit_path + ".Enable", enable);
+	AddElements(df, iplimit_path + ".Min", ipmin);
+	AddElements(df, iplimit_path + ".Max", ipmax);
+	AddElements(df, iplimit_path + ".Igr", igr_rate);
+	AddElements(df, iplimit_path + ".Egr", egr_rate);
+
+	df.submit();
+}
+
+
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script> 
+</head>
+<body>
+<script>printBeginContent();</script>
+<form method="get">
+<script>SetContentTitle(getStr("LK_IPBwLimitConf"));</script>
+
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+
+    <tr>
+        <td width="150" langkey="LK_Enablee"></td>
+        <td><input type="checkbox" id="INPUT_Enable" name ="INPUT_Enable"></td>
+    </tr>
+
+    <tr>
+        <td langkey="LK_IPs"></td>
+        <td><input name="text" type="text" id="INPUT_IPmin"/> - <input type="text" id="INPUT_IPmax"></td>
+    </tr>
+
+    <tr>
+        <td width="150" langkey="LK_IgrRate"></td>
+        <td><input type="text" id="INPUT_IgrRate" name="INPUT_IgrRate"> Kbps <font langkey="LK_net_qosbandwidthinput"></font></td>
+    </tr>
+
+    <tr>
+        <td width="150" langkey="LK_EgrRate"></td>
+        <td><input type="text" id="INPUT_EgrRate" name="INPUT_EgrRate"> Kbps</td>
+    </tr>
+
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+    <tr>
+        <td colspan="2">
+        <script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit();");</script>&nbsp;
+        <script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh();");</script>&nbsp;
+        </td>
+    </tr>
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+
+<script>SetContentTitle(getStr("LK_IPBwRules"));</script>
+<table id='IPRuleList' cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_IPrange"></td>
+	<td langkey="LK_IgrBW"></td>
+	<td langkey="LK_EgrBW"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+
+</form>
+<script>printEndContent();</script>
+<form method="post" name="IPBwLimit" id="IPBwLimit" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_ipbwlimit.shtml">
+</form>
+</body>
+</html>

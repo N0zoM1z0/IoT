@@ -1,0 +1,27 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.backupload%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.backupAndConfigDescription%}</p>
+</div>
+<div class="subTitle">
+	<h2>{%label.backupConfig%}</h2>
+</div>
+<span class="backupImportTips">{%label.backupTip%}</span>
+<div id="backupBtn"></div>
+<div class="subTitle">
+	<h2>{%label.importConfig%}</h2>
+</div>
+<span class="backupImportTips">{%label.importTip%}</span>
+<div id="importFile"></div>
+<div id="importBtn"></div>
+<ol>
+	<li class="importNotices">{%label.restoreNotice1%}</li>
+	<li class="importNotices">{%label.restoreNotice2%}</li>
+	<li class="importNotices">{%label.restoreNotice3%}</li>
+</ol><script type="text/javascript">(function(){function d(){$.action({system:{reboot:null}},function(a){a=a.wait_time;a=void 0!=a&&0!=parseInt(a,10)?1E3*parseInt(a,10):REBOOT_SECONDS;loadingDialog.show({title:label.importConfig,content:{primary:label.importing,secondary:label.importingTips}},function(){$.changeDomain(b);lanDetecting(function(){checkIp(window.location.host)==ENONE?window.location.href=window.location.protocol+"//"+b:window.location.reload()})},a)})}var b="";new Button({text:btn.backupConfig,onClick:function(){var a=
+{};a[uciSystem.fileName]={};a[uciSystem.fileName][uciSystem.actionName.downloadConf]=null;$.action(a,function(a){a=$.orgURL(a.url);location.href=a},!0)},type:Button.TYPE.PRIMARY,id:"backupBtn",props:{width:"240px",margin:"12px 0 0 132px"}});var c=new UpFile({targetId:"importFile",upLoadCallback:function(a){a==ENONE?(a={},a[uciNetwork.fileName]={},a[uciNetwork.fileName][KEY_NAME]=[uciNetwork.secName.lan],$.query(a,function(a){a=a||{};a[ERR_CODE]==ENONE&&(b=a[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.ip],
+d())})):a==EFILETOOBIG?alarmDialog.show(errStr.fileSizeErr):alarmDialog.show(errStr.bakNRestoreFail)}});new Button({text:btn.importConfig,onClick:function(){c.checkFile()&&confirmDialog.show({title:label.importConfig,content:label.importConfigConfirm,callback:function(a){!0==a&&(a={},a[uciSystem.fileName]={},a[uciSystem.fileName][uciSystem.actionName.uploadConf]=null,$.action(a,function(a){c.submit($.orgURL(a.url))},!0))}})},type:Button.TYPE.PRIMARY,id:"importBtn",props:{width:"240px",margin:"12px 0 24px 132px"}})})();
+</script><style type="text/css">span.backupImportTips{margin-left:132px;margin-bottom:12px;font-size:13px;height:32px;line-height:32px;display:block;color:#333}#importFile{margin-left:132px}li.importNotices{margin-left:132px;font-size:12px;line-height:20px;display:list-item;list-style-position:inside;color:#999;width:328px}</style>

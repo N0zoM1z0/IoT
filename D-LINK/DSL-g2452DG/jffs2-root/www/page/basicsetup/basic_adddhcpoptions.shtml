@@ -1,0 +1,219 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+function ConnectionTuple(){
+    this.path="";
+    this.Enable="";
+    this.Tag="";
+    this.Value="";
+    this.AddressPool="";
+}
+
+var index = 0;
+var G_DhcpOptionsTab = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPOption. Enable Tag Value" -->
+G_DhcpOptionsTab[index] = new ConnectionTuple();
+G_DhcpOptionsTab[index].path = "<!--#path -->";
+G_DhcpOptionsTab[index].Enable = "<!--#leaf "1"-->";
+G_DhcpOptionsTab[index].Tag = "<!--#leaf "2"-->";
+G_DhcpOptionsTab[index].Value = "<!--#leaf "3"-->";
+G_DhcpOptionsTab[index].AddressPool = "default";
+index++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPConditionalServingPool." -->
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPConditionalServingPool.{i}.DHCPOption. Enable Tag Value" -->
+    G_DhcpOptionsTab[index] = new ConnectionTuple();
+    G_DhcpOptionsTab[index].path = "<!--#path -->";
+    G_DhcpOptionsTab[index].Enable = "<!--#leaf "1"-->";
+    G_DhcpOptionsTab[index].Tag = "<!--#leaf "2"-->";
+    G_DhcpOptionsTab[index].Value = "<!--#leaf "3"-->";
+    index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function VendorIDTuple(){
+    this.path="";
+    this.VendorClassID="";
+}
+var index_id = 0;
+var G_VendorIDTab = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPConditionalServingPool. VendorClassID" -->
+G_VendorIDTab[index_id] = new VendorIDTuple();
+G_VendorIDTab[index_id].path = "<!--#path -->";
+G_VendorIDTab[index_id].VendorClassID = "<!--#leaf "1"-->";
+index_id++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement. MinAddress MaxAddress" -->
+    var G_MinAddress = "<!--#leaf "1"-->";
+    var G_MaxAddress = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+
+function checkValues() {
+	var dhcpOptionsValue = $('INPUT_DhcpOptionsValue');
+	if (!checkRange(getValue('INPUT_DhcpOptionsCode'),1,1,255)) {
+		top.AlertMsg(getStr('LK_CodeRangeText'),"INPUT_DhcpOptionsCode");
+		return false;
+	}
+	if(dhcpOptionsValue.value == "") {
+		top.AlertMsg(getStr('LK_ValueRangeText'),"INPUT_DhcpOptionsValue");
+		return false;
+	}
+	return true;
+}
+
+function uiSubmit(){
+    var df = document.addlandataform;
+    var nodes = $('Enable','INPUT_DhcpOptionsCode','INPUT_DhcpOptionsValue','SELECT_DhcpOptionsPool');
+    var dhcpOptionsPool = $('SELECT_DhcpOptionsPool');
+
+    if(!checkValues())
+        return false;
+
+    if(dhcpOptionsPool.value == -1)
+        add_obj_path = "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.DHCPOption.";
+    else
+        add_obj_path = G_VendorIDTab[dhcpOptionsPool.value].path + "DHCPOption.";
+
+    AddElements(df, 'add_obj',add_obj_path);
+    AddElements(df, add_obj_path + '{i}.Enable', getValue("Enable"));
+    AddElements(df, add_obj_path + '{i}.Tag', nodes[1].value);
+    AddElements(df, add_obj_path + '{i}.Value', nodes[2].value);
+
+    df.submit();
+}
+
+function uiDelete(path){
+    if(!validateCode(2))
+        return false;
+    var df = document.addlandataform;
+    AddElements(df, 'del_obj',path);
+    df.submit();
+}
+
+function uiReturnPage(){
+    document.location.href='/page/basicsetup/basic_lanipv4config.shtml';	
+}
+
+function updateOptionsTab()
+{
+	for(var i = 0; i < G_VendorIDTab.length; i++){
+		for(var j = 0; j < G_DhcpOptionsTab.length; j++){
+			if(G_DhcpOptionsTab[j].path.indexOf(G_VendorIDTab[i].path) > -1 )
+				G_DhcpOptionsTab[j].AddressPool = G_VendorIDTab[i].VendorClassID;
+		}
+	}
+}
+
+function createAppOptions()
+{
+	var _text = [],_value = [];
+	_text.push("default");
+	_value.push(-1);
+
+	for(var i = 0; i < G_VendorIDTab.length; i++){
+		_text.push(G_VendorIDTab[i].VendorClassID);
+		_value.push(i);
+	}
+	createOptions('SELECT_DhcpOptionsPool',_text,_value);
+}
+
+function createTable(){
+    var trs = "";
+    if(G_DhcpOptionsTab.length == 0)
+        trs = "<tr class='OddRow'><td colspan='6'>"+getStr('LK_NoRule')+"</td></tr>";
+    for(i=0;i<G_DhcpOptionsTab.length;i++){
+        var tr = "";
+        if(i%2 ==0)
+            tr += '<tr class="OddRowB">';
+        else
+            tr += '<tr class="EvenRowB">';
+        tr += "<td>"+(i+1)+"</td>";
+        tr += "<td>"+G_DhcpOptionsTab[i].Enable+"</td>";
+        tr += "<td>"+G_DhcpOptionsTab[i].Tag+"</td>";
+        tr += "<td>"+G_DhcpOptionsTab[i].Value+"</td>";
+        tr += "<td>"+G_DhcpOptionsTab[i].AddressPool+"</td>";
+        tr += "<td><img src='../../skin/trash.gif' onclick='uiDelete(\"" + G_DhcpOptionsTab[i].path+ "\")'></td>"; 				
+        tr += "</tr>";
+        trs += tr; 			
+    }
+    jQuery("#tb_devippool").append(trs);
+}	
+
+function __init(){
+    updateOptionsTab();
+    createTable();
+    createAppOptions();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_DhcpOptionsSettings'))</script>
+<form>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor" width="600">
+
+<tr>
+	<td width="110" langkey="LK_DhcpOptionsState"></td>
+	<td><input type='checkbox' id='Enable' checked></td>
+</tr>
+<tr>
+	<td langkey="LK_DhcpOptionsCode"></td>
+	<td><input type="text" maxlength="3" id="INPUT_DhcpOptionsCode">(1-254)</td>
+</tr>
+<tr>
+	<td langkey="LK_DhcpOptionsValue"></td>
+	<td><input type="text" maxlength="255" id="INPUT_DhcpOptionsValue">(max length:255)</td>
+</tr>
+<tr>
+	<td langkey="LK_DhcpOptionsPool"></td>
+	<td>
+		<select name="SELECT_DhcpOptionsPool" id="SELECT_DhcpOptionsPool">
+		</select>
+	</td>
+</tr>
+
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+		<script>PrintTriButton("Return",getStr("LK_Back"),"uiReturnPage()");</script>&nbsp;
+		<script>PrintTriButton("add",getStr('LK_Add'),"uiSubmit()");</script>&nbsp;	
+		<script>PrintTriButton("refresh",getStr("LK_uirefresh"),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<br>
+<script>SetContentTitle(getStr('LK_DhcpOptionsList'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor" width="600">
+<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table width="600" id="tb_devippool" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td id="number" langkey="LK_seque"></td>
+	<td id="DhcpOptionsState" langkey="LK_DhcpOptionsState"></td>
+	<td id="DhcpOptionsCode" langkey="LK_DhcpOptionsCode"></td>
+	<td id="DhcpOptionsValue" langkey="LK_DhcpOptionsValue"></td>
+	<td id="DhcpOptionsPool" langkey="LK_DhcpOptionsPool"></td>
+	<td id="delete" langkey="LK_action"></td>
+</tr>
+</table> 
+</form>	
+<form method="post" name ="addlandataform" action="/cgi-bin/setup.cgi?page/basicsetup/basic_adddhcpoptions.shtml">
+</form>
+</body>
+</html>

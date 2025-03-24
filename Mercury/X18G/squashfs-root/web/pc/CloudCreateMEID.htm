@@ -1,0 +1,512 @@
+<style type="text/css">
+	h1.cloudTitle{
+		margin-bottom: 16px !important;
+	}
+	ul.tabCPMT{
+		text-align:center;
+	}
+	.clickable{
+		font-size:13px;
+		color:#ff3366;
+		display:table-cell;
+		white-space:nowrap;
+		padding:0 12px;
+		cursor:pointer;
+	}
+	.unclickable{
+		font-size:13px;
+		color:#999999;
+		display:table-cell;
+		white-space:nowrap;
+		padding:0 12px;
+		cursor:default;
+	}
+	label.checkbox{
+		color:#333;
+	}
+	li.wzdSubBtn{
+		margin-top:28px;
+	}
+	p.textBtn{
+		margin-top:16px;
+		line-height:20px;
+	}
+	p.textBtn span{
+		font-size:13px;
+		color:#ff4d79;
+		cursor:pointer;
+	}
+	#inputCon{
+		margin-top: 56px;
+	}
+	li.wizardBody #cloudErrTip{
+		margin:0px auto;
+		top: 102px;
+	}
+	div.cloudPageCon #cloudErrTip{
+		margin:0px auto;
+		top: 128px;
+	}
+	#agree{
+		display: inline-table;
+		vertical-align: middle;
+	}
+	a.agreeDoc{
+		display: inline-block;
+		margin-left: 100px;
+		height: 14px;
+		line-height: 14px;
+		vertical-align: middle;
+		font-size: 13px;
+		color:#333;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var ACCOUNT_TYPE_EMAIL = uciCloudConfig.optValue.accountTypeEmail;
+		var ACCOUNT_TYPE_PHONE = uciCloudConfig.optValue.accountTypePhoneNum;
+		var LOCK_TIME_MAX = 120;
+		var WAITING_CLOUD_RESPONSE_CAPTCHA = 2 * 1000;
+		var captchaHd = null;
+
+		function showCloudRegistErr(err)
+		{
+			var errText = "";
+
+			switch (err)
+			{
+			case ENONE:
+				return true;
+			case EINVACCOUNTREGISTED:
+				errText = appendErrCode(label.cloudAcccountRegisted, err);
+				break;
+			case EINVACCOUNTNOTEXIST:
+				errText = appendErrCode(errStr.invCloudAccountNotExist, err);
+				break;
+			case EINVPASSWORDFMT:
+			case EINVACCOUNTPWDFMT:
+				errText = appendErrCode(errStr.pwdInvalid, err);
+				break;
+			case EINVACCOUNTPWDERR:
+				errText = appendErrCode(errStr.passwdErr, err);
+				break;
+			case EINVACCOUNTPHONENUMFMT:
+				errText = appendErrCode(errStr.invCloudAccountPhoneErr, err);
+				break;
+			case EINVCLOUDUSRCOUNTFORMAT:
+			case EINVACCOUNTEMAILFMT:
+				errText = appendErrCode(errStr.invCloudAccountEmailErr, err);
+				break;
+			case EINVACCOUNTRESETPWDCAPTCHAERR:
+			case EINVVERICODEFORMAT:
+				errText = appendErrCode(errStr.CAPTCHAErrorTip, err);
+				break;
+			case EINVCLOUDERRORCAPTCHAINVAL:
+				errText = appendErrCode(errStr.invCloudCAPTCHAInval, err);
+				break;
+			default:
+				if (false == cloudErrHandle(err).result)
+				{
+					errText = cloudErrHandle(err).tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, err);
+				}
+				break;
+			}
+
+			showErrTip(errText);
+			return false;
+		}
+
+		function showCloudBindErr(err)
+		{
+			switch(err)
+			{
+			case ENONE:
+				cloudHistory.setState({
+					bind: true,
+					account: account.getValue()
+				});
+
+				if (cloudHistory.isFormWizard == true)
+				{
+					loadingDialog.hide(function(){
+						loadPage("WizardEnd.htm", "wizardCon");
+					});
+				}
+				else
+				{
+					cloudPageDialog.hide(function(){
+						refreshNavBarCloudStatus();
+					});
+				}
+
+				return;
+			default:
+				break;
+			}
+
+			cloudHistory.setState({bind: false, createSuccessAndLoginFail: true, account: account.getValue()});
+			cloudHistory.go(-1);
+			showToast(label.createSuccessAndBind);
+		}
+
+		function checkAccount()
+		{
+			/* 输入为电话号码 */
+			if (0 == tab.getCurrentIndex())
+			{
+				if (0 == this.input.value.length)
+				{
+					this.showNote(label.cloudAccountPhoneMumNull);
+					return false;
+				}
+				else if (false == checkPhoneNum(this.input.value))
+				{
+					this.showNote(label.cloudAccountPhoneNumFmtErr);
+					return false;
+				}
+			}
+			/* 输入为邮箱地址 */
+			else
+			{
+				if (0 == this.input.value.length)
+				{
+					this.showNote(label.cloudAccountEmailNull);
+					return false;
+				}
+				else if (false == checkEmail(this.input.value))
+				{
+					this.showNote(label.cloudAccountEmailFmtErr);
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		function countdown(time)
+		{
+			(function(){
+				if (time <= 0)
+				{
+					veriCode.setTips({
+						value:label.cloudIDCaptchaReSend,
+						className:"clickable",
+						onClick:getVerificationCode
+					});
+				}
+				else
+				{
+					veriCode.setTips({
+						value:label.cloudIDCaptchaReSend + "(" + time-- + "s)",
+						className:"unclickable",
+						onClick:function(){}
+					});
+					$.setTimeout(arguments.callee, 1*1000);
+				}
+			})();
+		}
+
+		function getVerificationCode()
+		{
+			if (account.checkAll() != false)
+			{
+				hideErrTip();
+				veriCode.setTips({
+					className:"unclickable",
+					value:label.cloudServerWaitingResp,
+					onClick:function(){}/* 给按钮绑定一个空函数 */
+				});
+
+				var accountType = (0 == tab.getCurrentIndex()) ? ACCOUNT_TYPE_PHONE: ACCOUNT_TYPE_EMAIL;
+
+				captchaHd = $.setTimeout(function(){
+					loadingDialog.show({
+						title: label.createMercuryId,
+						content: {primary:label.waittingResponseFormServer}
+					}, undefined, undefined, true, function(){
+						cloudAccountQueryStop();
+					});
+				}, WAITING_CLOUD_RESPONSE_CAPTCHA);
+
+				cloudAccountGetRegistAC(account.getValue(), accountType, function(type, state, result){
+					clearTimeout(captchaHd);
+					loadingDialog.hide(function(){
+						if (type == cloudResultType.FINISH)
+						{
+							if (showCloudRegistErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.getRegVerifyCode][cloudClientStatus.optName.errCode])) == true)
+							{
+								countdown(LOCK_TIME_MAX);
+								return;
+							}
+						}
+						else
+						{
+							if (type == cloudResultType.ACTION_ERROR)
+							{
+								showCloudRegistErr(parseInt(state.errCode))
+							}
+							else if (state != undefined && state.result == false)
+							{
+								alarmDialog.show(state.errStr);
+							}
+						}
+
+						veriCode.setTips({
+							value:label.cloudIDCaptchaReSend,
+							className:"clickable",
+							onClick:getVerificationCode
+						});
+					});
+				});
+			}
+		}
+
+		function onPwdBlur()
+		{
+			if (this.input.value.length == 0)
+			{
+				this.showNote(label.chgPwdnull);
+				return false;
+			}
+			else if (this.input.value.length < 6)
+			{
+				this.showNote(label.chgPwdLess);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onPwdKeyup()
+		{
+			if (this.input.value == "")
+			{
+				return true;
+			}
+
+			if (/\s+/.test(this.input.value))
+			{
+				this.showNote(errStr.inputPwdCharExistBlank);
+				return false;
+			}
+
+			if (!(/^[\x21-\x7e]+$/.test(this.input.value)))
+			{
+				this.showNote(errStr.inputEliegalChar);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onVeriCodeBlur()
+		{
+			if (this.input.value.length == 0)
+			{
+				this.showNote(errStr.invVericodeNULL);
+				return false;
+			}
+
+			return true;
+		}
+
+		function showErrTip(errText)
+		{
+			var $cloudErrTip = $("p.cloudErrTip").html('<i class="iconfont icon-error"></i>' + errText);
+			$cloudErrTip.css("display", "table");
+			$cloudErrTip.css("margin-left", -($cloudErrTip[0].offsetWidth/2) + "px");
+		}
+
+		function hideErrTip()
+		{
+			$("p.cloudErrTip").css("display", "none");
+		}
+
+		function onCreate()
+		{
+			var accountType = (0 == tab.getCurrentIndex()) ? ACCOUNT_TYPE_PHONE: ACCOUNT_TYPE_EMAIL;
+
+			loadingDialog.show({
+				title: label.createMercuryId,
+				content: {primary:label.creating, secondary: label.creatingTips}
+			}, undefined, undefined, true, cloudAccountQueryStop);
+
+			/* 创建MECURY ID */
+			cloudAccountRegist(account.getValue(), accountType, pwd.getValue(), veriCode.getValue(), function(type, state, result){
+				if (type == cloudResultType.FINISH)
+				{
+					if (showCloudRegistErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.register][cloudClientStatus.optName.errCode])))
+					{
+						/* 创建成功，继续绑定 */
+						cloudAccountBind(account.getValue(), pwd.getValue(), function(type, state, result){
+							loadingDialog.hide(function(){
+								if (type == cloudResultType.FINISH)
+								{
+									showCloudBindErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.bind][cloudClientStatus.optName.errCode]));
+								}
+								else
+								{
+									if (type == cloudResultType.CLOSE)
+									{
+										showCloudBindErr(-1);
+									}
+									else
+									{
+										showCloudBindErr(parseInt(state.errCode));
+									}
+								}
+							});
+						});
+					}
+					else
+					{
+						loadingDialog.hide();
+					}
+				}
+				else
+				{
+					loadingDialog.hide(function(){
+						if (type == cloudResultType.ACTION_ERROR)
+						{
+							showCloudRegistErr(parseInt(state.errCode));
+						}
+						else if (state != undefined && state.result == false)
+						{
+							alarmDialog.show(state.errStr);
+						}
+					});
+				}
+			});
+		}
+
+		var account = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.cloudIDPhoneNum, position:Input.LABEL.INNER},
+			targetId:"inputCon",
+			check:{blur:checkAccount},
+			props:{maxlength:'64', type:"text", placeholder:label.cloudIDPlaceHolder}
+		});
+		var veriCode = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.cloudIDRegistCaptcha, position:Input.LABEL.INNER},
+			tips:{value:label.getVerificationCode, className:"clickable", onClick:getVerificationCode},
+			targetId:"inputCon",
+			check:{blur:onVeriCodeBlur},
+			props:{maxlength:'6', type:"text"}
+		});
+		var pwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginSetPwd, position:Input.LABEL.INNER},
+			strength:{show: true, least:6, critical:12},
+			targetId:"inputCon",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdPlaceHolder}
+		});
+		var pwdConf = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.loginPwdConf, position:Input.LABEL.INNER},
+			targetId:"inputCon",
+			props:{maxlength:'32', type:"password", placeholder:label.cloudPwdConfPlaceHolder}});
+
+		var tab = new Tab({
+			list: [{
+				name: label.cloudIDRegistPhone,
+				onClick: function(){
+					account.setLabel(label.cloudIDPhoneNum);
+					account.closeNote();
+				}
+			},{
+				name: label.cloudIDRegistMail,
+				onClick: function(){
+					account.setLabel(label.cloudIDMail);
+					account.closeNote();
+				}
+			}],
+			targetId: "tabCon"
+		});
+
+		var agreeProtocol = new CheckBox({
+			targetId:"agree",
+			label:label.cloudIDRegistReadAndAgree,
+			checked: true
+		});
+		var createBtn = new Button({
+			text:btn.create,
+			onClick:function(){
+				var checkRes = true;
+				if (!agreeProtocol.checkbox.checked)
+				{
+					showErrTip(errStr.agreeAndReadTip);
+					return;
+				}
+				else
+				{
+					hideErrTip();
+				}
+
+				[account, pwd, veriCode].forEach(function(o){
+					checkRes = o.checkAll() && checkRes;
+				});
+
+				if (!checkRes)
+				{
+					return;
+				}
+
+				if (pwd.getValue() != pwdConf.getValue())
+				{
+					showErrTip(label.chgPwdDif);
+					return;
+				}
+				else
+				{
+					hideErrTip();
+				}
+
+				onCreate();
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"create"
+		});
+
+		id("alreadyHave").onclick = function(){
+			cloudHistory.go(-1);
+		};
+
+		(function(){
+			var data = {};
+			data[cloudClientStatus.fileName] = {};
+			data[cloudClientStatus.fileName][KEY_NAME] = cloudClientStatus.secName.regVeriCodeTimer;
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					var lockTime =
+						result[cloudClientStatus.fileName][cloudClientStatus.secName.regVeriCodeTimer][cloudClientStatus.optName.regVeriCodeTimer];
+					if (lockTime > 0)
+					{
+						veriCode.setTips({
+							className:"unclickable",
+							onClick:function(){}/* 给按钮绑定一个空函数 */
+						});
+						countdown(lockTime);
+					}
+				}
+			});
+		})();
+	})();
+</script>
+<h1 class="cloudTitle">{%label.cloudIDRegist%}</h1>
+<div id="tabCon"></div>
+<p id="cloudErrTip" class="cloudErrTip commonErrTip"></p>
+<div id="inputCon"></div>
+<ul id="agree" class="inputCMPT"></ul>
+<a class="agreeDoc" href="http://static.mercuryclouds.com.cn/agreement.html" target="_blank">{%label.cloudIDRegistProtocol%}</a>
+<li class="wzdSubBtn">
+	<div id="create"></div>
+	<p class="textBtn"><span id="alreadyHave">{%btn.bindExistingAccount%}</span></p>
+</li>

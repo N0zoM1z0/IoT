@@ -1,0 +1,13 @@
+Package: dms
+Version: 1
+Depends: libc, libjson, libpthread, libsecurity, libcyassl2, zlib, libnl-tiny, tdmp-resource
+Provides: 
+Source: tp_package/u_packages/tdmp
+Section: utils
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 2756629
+Description:  Data Module Service

@@ -1,0 +1,10 @@
+Package: crpc
+Version: 1
+Depends: libc, libpthread, libcommon, libcjson, librt
+Source: package/carystudio/crpc
+SourceName: crpc
+Section: CaryStudio Properties
+SourceDateEpoch: 1673268649
+Architecture: aarch64_cortex-a53
+Installed-Size: 17962
+Description:  This program is used to manage our router.

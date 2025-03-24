@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><title></title><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"><style>input[type=password],input[type=text]{width:155px}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <!--子菜单-->
+  <adv-child-menu childType="wifi"></adv-child-menu>
+  <div class="advance-box">
+  	<x-help :text="lang_t('wifi.help_guest')"></x-help>
+	<br><br>
+	<div class="fun-box">
+		<table class="table" v-show="wifiDualband != '0'">
+			<tr>
+				<td class="btn-tab-m">
+					<a @click="wifiChange('0')" :class="['btn-tab',wifiActive == '0' ? 'btn-tab-active' : '']">2.4GHz</a>
+					<a v-show="wifiDualband == '1'" @click="wifiChange('1')" :class="['btn-tab',wifiActive == '1' ? 'btn-tab-active' : '']">5GHz</a>
+					<a v-show="wifiDualband == '2'" @click="wifiChange('1')" :class="['btn-tab',wifiActive == '1' ? 'btn-tab-active' : '']">5GHz(1)</a>
+					<a v-show="wifiDualband == '2'" @click="wifiChange('2')" :class="['btn-tab',wifiActive == '2' ? 'btn-tab-active' : '']">5GHz(2)</a>
+				</td>
+			</tr>       
+		</table>
+		<br v-show="wifiDualband != '0'">
+		<table class="t_table3 table-bordered table-striped" style="width:auto;">
+			<thead>
+				<th></th>
+				<th>{{ lang_t('wifi.state') }}</th>
+				<th>{{ lang_t('wifi.ssid') }}</th>
+				<th>{{ lang_t('wifi.hide_ssid') }}</th>
+				<th>{{ lang_t('wifi.pass_state') }}</th>
+				<th>{{ lang_t('wifi.pass') }}</th>
+				<th v-if="globalConfig.ssidQosSupport">{{ lang_t('index.upload') }}(Mbps)</th>
+				<th v-if="globalConfig.ssidQosSupport">{{ lang_t('index.donwload') }}(Mbps)</th>
+				<th>{{ lang_t('wifi.allow_local') }}</th>
+			</thead>
+			<tbody>
+				<tr v-for="(data,index) in mulAp" :key="data">
+					<td>AP {{data}}</td>
+					<td>
+						<x-checkbox v-model="wifiOff[index]" :disabled="stateDis"></x-checkbox>
+					</td>
+					<td>
+						<input type="text" class="desc" v-model="ssid[index]" maxlength="32" v-verify="fromRule" :data-name="'ssid'+index" :disabled="!wifiOff[index]" style="width: 210px"/>
+					</td>
+					<td>
+						<x-checkbox v-model="hssid[index]" :disabled="!wifiOff[index]"></x-checkbox>
+					</td>
+					<td>
+						<x-checkbox v-model="ispass[index]" :disabled="!wifiOff[index]"></x-checkbox>
+					</td>
+					<td>
+						<input type="password" class="desc" v-model="key[index]" maxlength="63" v-pass v-verify="fromRule" :data-name="'key'+index" :disabled="!wifiOff[index] || !ispass[index]" style="width: 130px">
+					</td>
+					<td v-if="globalConfig.ssidQosSupport">
+						<input type="text" class="desc" v-model="txRate[index]" maxlength="4" v-verify="fromRule" :data-name="'trate'+index" :disabled="!wifiOff[index]" style="width: 55px"/>
+					</td>
+					<td v-if="globalConfig.ssidQosSupport">
+						<input type="text" class="desc" v-model="rxRate[index]" maxlength="4" v-verify="fromRule" :data-name="'rate'+index" :disabled="!wifiOff[index]" style="width: 55px"/>
+					</td>
+					<td>
+						<x-checkbox v-model="accessAllow[index]" :disabled="!wifiOff[index]||globalConfig.opmode=='rpt'||globalConfig.opmode=='br'"></x-checkbox>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="table" style="text-align:right;">
+			<tbody>
+				<tr>
+					<td colspan="12">
+						<button type="button" class="btn" @click="applyFun">{{ lang_t('common.apply') }}</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery-3.2.1.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,wifiActive:"0",wifiOff:[!1],hssid:[!1],wifiDualband:"0",ssid:[""],key:[""],hssidclass:!1,disable_allow:!1,accessAllow:[!1],disablePower:!1,ispass:[!1],stateDis:!1,mulAp:1,txRate:[],rxRate:[]}},computed:{fromRule:function(){var a=this;return{ssid:function(i,s,t){if(a.wifiOff[t]){var f=cs.ssid(i);0==f?s(a.lang_t("wifi.msg1")):4==f?s(a.lang_t("wifi.msg18")):1==f?s(a.lang_t("wifi.msg2")):2==f?s(a.lang_t("wifi.msg3")):s()}else s()},key:function(i,s,t){if(a.ispass[t]&&a.wifiOff[t]){var f=cs.string(i);""==i&&s(a.lang_t("wifi.pass")+a.lang_t("wifi.msg6")),1==f?s(a.lang_t("wifi.msg5")):i.length<8||63<i.length?s(a.lang_t("wifi.msg4")):s()}else s()},trate:function(i,s,t){a.wifiOff[t]&&99!=cs.num(i)?s(lang_t("rule.msg5")):s()},rate:function(i,s,t){a.wifiOff[t]&&99!=cs.num(i)?s(lang_t("rule.msg5")):s()}}}},created:function(){this.wifiActive=cs.local(this.wifiActive),this.wifiInit(this.wifiActive)},methods:{wifiChange:function(i){this.wifiActive=i,this.wifiInit(i)},wifiInit:function(i){var t=this;this.wifiOff=[],this.hssid=[],this.ssid=[],this.key=[],this.txRate=[],this.rxRate=[],this.ispass=[],this.accessAllow=[],uiPost.getWiFiGuestCfg({wifiIdx:i},function(i){if(t.wifiSchEnabled=i.wifiSchEnabled,t.wifiDualband=i.wifiDualband,t.mainWifiOff=i.mainWifiOff,i.mulAp){t.mulAp=i.mulAp.length;for(var s=0;s<t.mulAp;s++)t.initData(i.mulAp[s],s+1)}else t.mulAp=1,t.initData(i,1);"1"==i.mainWifiOff&&t.$nextTick(function(){$("input,button").attr("disabled",!0)})})},initData:function(i,s){var t="1"!=i.wifiOff;this.wifiOff.push(t),this.hssid.push("1"==i.hssid),this.ssid.push(i.ssid),this.key.push(i.key),this.txRate.push(i.txRate),this.rxRate.push(i.rxRate),this.stateDis="1"==this.mainWifiOff,this.ispass.push(""!=i.key),this.accessAllow.push("1"==i.accessEnabled),"1"!=this.mainWifiOff&&(this.stateDis="1"==this.wifiSchEnabled)},applyFun:function(){for(var t=this,i={},s=!1,f=0;f<this.mulAp;f++){if(Cstool.Verify(this.fromRule,function(i){s=i},this.mulAp,f),!s)return;i["ap"+(f+1)]={ssid:this.ssid[f],key:this.ispass[f]?this.key[f]:"",wifiOff:this.wifiOff[f]?"0":"1",hssid:this.hssid[f]?"1":"0",txRate:this.txRate[f],rxRate:this.rxRate[f],accessEnabled:this.accessAllow[f]?"1":"0"}}i.wifiIdx=t.wifiActive,uiPost.setWiFiGuestCfg(i,function(i){var s=30;i.wtime&&"0"!=i.wtime?(s=i.wtime,Cstool.Count(s,"js",function(){cs.local(t.wifiActive,"href")})):cs.local(t.wifiActive,"href")})}}}</script><script src="/static/js/main.js"></script></body></html>

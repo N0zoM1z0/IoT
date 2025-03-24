@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"><style>.modal-fixed{position:fixed;top:0;bottom:0;left:0;right:0}.modal-scrren{background-color:#000;opacity:.7;z-index:1006}.modal-dail{z-index:1007;top:-1500px;-moz-transition:top .3s ease;-webkit-transition:top .3s ease;transition:top .3s ease}.modal-dail.open-in{top:0}.modal-dail .modal{width:100%;height:100%}.modal-dail .modal-box{background-color:#fff;width:96%;margin:5% 1%;border-radius:15px;border:3px #4db0db solid;position:relative}.modal-dail .modal-close{position:absolute;top:-13px;right:-7px;width:30px;height:30px;background-color:#fff;border:2px #4db0db solid;color:#4db0db;border-radius:50%;text-align:center;line-height:30px;font-size:26px;font-weight:900;cursor:pointer}.modal-dail .modal-header{padding:20px;border-bottom:1px #4db0db solid}.modal-dail .modal-header-box{display:flex;align-items:center}.modal-dail .info-icon{margin-right:20px}.modal-dail .info div{margin:2px 0}.modal-dail .info label{display:inline-block;width:120px}.modal-body{padding:10px 5px;height:470px;overflow-y:auto}.modal-body table{width:100%;border-collapse:separate;border-spacing:0 10px}.modal-body table td,.modal-body table th{text-align:center}.modal-body table tbody td{border-top:1px solid #ddd;padding:10px 0 0 0}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="toper">
+  	<phone-back :title="lang_t('menu.easymesh_state')" url="/phone/home.html"></phone-back>
+  </div>
+  <div align="center" v-show="!meshShow">
+    <img src="/static/images/map/mesh_off.png"><p v-html="linkStatusHtml"></p>
+  </div>
+  <div v-show="meshShow" style="">
+    <div id="container" style="height: 550px;background-color:#fff;border-radius: 10px;overflow:hidden;"></div>
+    <div v-show="detailInfo">
+	  <div class="modal-fixed modal-scrren"></div>
+	  <div class="modal-fixed modal-dail" ref="modalBox">
+		<div class="modal">
+		  <div class="modal-box">
+			<div class="modal-close" @click="detailInfo=false">&times;</div>
+			<div class="modal-header">
+			  <div class="modal-header-box">
+				<div class="info-icon">
+				  <img :src="deviceInfo.type">
+				</div>
+				<div class="info">
+				  <div>
+					<label>{{lang_t('rule.device_name')}}:</label>
+					<input type="text" maxlength="32" v-model="newDevName" style="width:80px;color:#000;height:1.6em;" v-if="isEdit"/>
+					<b v-else>{{deviceInfo.devName||'--'}}</b>
+					<img :src="newDevName!=deviceInfo.devName?'/static/images/edited.png':'/static/images/edit.png'" @click="modifyDevInfo()">
+				  </div>
+				  <div><label>{{lang_t('rule.ip')}}:</label>{{deviceInfo.ip || '--'}}</div>
+				  <div><label>{{lang_t('rule.mac')}}:</label>{{deviceInfo.mac}}</div>
+				  <div v-show="deviceInfo.rssi"><label>{{lang_t('opmode.signal')}}:</label>{{deviceInfo.rssi}}dbm</div>
+			    </div>
+			  </div>
+			</div>
+			<div class="modal-body">
+			  <table>
+				<thead>
+				  <tr>
+					<th style="width: 20%;" v-if="globalConfig.meshMode!='agent'">{{lang_t('easymesh.sta')}}</th>
+					<th v-if="globalConfig.meshMode!='agent'">{{lang_t('rule.ip')}}</th>
+					<th>{{lang_t('rule.mac')}}</th>
+					<!-- <th>{{lang_t('rule.link_type')}}</th> -->
+					<th v-if="globalConfig.cmccSupport">{{lang_t('opmode.signal')}}</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr v-for="(data,index) in staLists">
+					<td v-if="globalConfig.meshMode!='agent'">{{data.devName || '--'}}</td>
+					<td v-if="globalConfig.meshMode!='agent'">{{data.ip || '--'}}</td>
+					<td>{{data.mac}}</td>
+					<!-- <td>{{data.medium == 'Ethernet' ? lang_t('wan.wired') : data.medium}}</td> -->
+					<td v-if="globalConfig.cmccSupport">{{data.medium == 'Ethernet' ? '--' : (data.rssi+'dbm')}}</td>
+				  </tr>
+				</tbody>
+			  </table>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+  </div>
+  <div class="footer">
+    <div>
+      <button class="btn2" @click="startFun">{{ lang_t('menu.easymesh_set') }}</button>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script type="text/javascript" src="/plugin/echarts.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,linkStatus:"",meshShow:!1,staLists:[],deviceInfo:{devName:"",ip:"",mac:"",rssi:""},detailInfo:!1,isEdit:!1,newDevName:""}},watch:{detailInfo:function(e){var t=e?"addClass":"removeClass";setTimeout(function(){$(this.$refs.modalBox)[t]("open-in")}.bind(this),100)}},computed:{linkStatusHtml:function(){var e="",t="";return"0"==this.linkStatus&&(e=lang_t("easymesh.not_network"),t="#ff6600"),'<span style="font-size:16px; color:'+t+';">'+e+"</span>"}},created:function(){this.meshCfg={master:{color:"#de6b3a",img:"/static/images/map/master.png"},slave:{color:"#2ea8dc",img:"/static/images/map/mesh_on.png"},sta:{color:"#333333",img:"/static/images/map/user.png"}}},mounted:function(){var t=this;uiPost.getEasyMeshCfg(function(e){t.linkStatus=e.enabled,"1"==e.enabled?(t.meshDraw(),t.meshShow=!0,t.chartInit()):t.meshShow=!1})},methods:{backFun:function(){location.href="/phone/home.html"+get_token_from_url()},startFun:function(){location.href="/phone/easymesh.html"+get_token_from_url()},meshDraw:function(){},chartInit:function(){var e=document.getElementById("container"),t=.8*window.innerHeight;e.style.width=window.innerWidth-16+"px",e.style.height=t+"px",$(".modal-body").css("height",.85*t+"px"),this.cw=window.innerWidth,this.ch=t,this.myChart=echarts.init(e),this.myChart.showLoading(),this.graphForceData={nodes:[],links:[]},this.refresh(1),setInterval(function(){this.refresh()}.bind(this),15e3),this.myChart.on("click",function(e){this.tempSelctValue=e.value,this.dealSelctValue()}.bind(this))},refresh:function(t){var n=this;this.graphForceData.nodes=[],this.graphForceData.links=[],this.agentInfo=[],this.networkInfo=[],this.slaveIndex=0,uiPost.getEasyMeshList(function(e){n.meshAgentInfo=e.meshAgentInfo,e["topology information"]&&(t&&n.myChart.hideLoading(),e["networkmap information"]&&(n.networkInfo=e["networkmap information"]),e["topology information"].forEach(n.addNodes),n.start(),n.detailInfo)&&n.dealSelctValue()})},addNodes:function(e){var t=parseInt(e["Device role"]);0!==t&&(1===t?(this.controllerInfo=e,this.masterProcess(e)):(this.agentInfo.push(e),this.slaveProcess(e,this.slaveIndex++)))},getNode:function(e,t,n,i,a,o){e={name:e,symbol:t,value:n,label:compatibleEcharts("label",{formatter:i,color:a})};return o&&$.extend(e,o),this.graphForceData.nodes.push(e),e},getLink:function(e,t,n){e={id:this.graphForceData.links.length,name:null,source:e,target:t,lineStyle:{normal:{color:n||this.meshCfg.slave.color,width:2}}};return this.graphForceData.links.push(e),e},masterProcess:function(e){var t,n={fixed:!0,symbolSize:55,x:this.cw/2,y:this.ch/2-27},i="master",a={},o=this.matchAgentInfo(e["AL MAC"]),o=(o?(t=o.lanMac,a.ip=o.ip,a.devName=o.hostName):a=this.checkDeviceInfo(e["AL MAC"]),e.devName=a.devName||lang_t("easymesh.controller"),this.getNode(e["AL MAC"],"image://"+this.meshCfg[i].img,[0,0],this.getText([e.devName,a.ip,t||e["AL MAC"]]),this.meshCfg[i].color,n)),a=this.getStaClients(e);0<a.length&&this.staProcess(a,o.name,[0,0])},slaveProcess:function(e,t){var n,i=this.checkDeviceInfo(e["AL MAC"]),a=[],o=this.matchAgentInfo(e["AL MAC"]),s=(e["BH Info"]&&0<e["BH Info"].length&&(s=e["BH Info"][0],o||i.ip||!s["connected iface addr"]||(i=this.checkDeviceInfo(s["connected iface addr"])),a.push("Medium - "+s["Backhaul Medium Type"]),"Ethernet"!=s["Backhaul Medium Type"])&&a.push("RSSI - "+s.RSSI+"dbm"),o?(e.devName=o.hostName,n=o.lanMac,i.ip=o.ip):e.devName=i.devName||lang_t("easymesh.agent"),this.getNode(e["AL MAC"],"image://"+this.meshCfg.slave.img,[1,t],this.getText([e.devName,i.ip,n||e["AL MAC"]].concat(a)),this.meshCfg.slave.color,{})),o=(this.getLink(s.name,e["Upstream 1905 device"]),this.getStaClients(e));0<o.length&&this.staProcess(o,s.name,[1,t])},staProcess:function(e,t,n){var i=0,a=this;if("br"==globalConfig.opmode){if((e||[]).forEach(function(e){a.checkDeviceInfo(e.mac).ip&&i++}),0==i)return}else i=e.length;e="{b|"+lang_t("easymesh.sta")+"}",globalConfig.meshPairSupport||(e+="{a|("+i+")}"),e={label:compatibleEcharts("label",{formatter:[e].join(""),rich:{a:{fontWeight:200,color:"#de6b3a",fontSize:12,align:"center"},b:{align:"center",color:this.meshCfg.sta.color}}})},n=this.getNode(t+"-sta","image://"+this.meshCfg.sta.img,[2,n[0],n[1]],"",this.meshCfg.sta.color,e);this.getLink(n.name,t,this.meshCfg.sta.color)},getStaClients:function(e){var t,n=[];return"agent"!=globalConfig.meshMode&&(t=function(e){e.forEach(function(e){"Yes"!=e["BH STA"]&&n.push({mac:e["Client Address"]||e["STA MAC address"],medium:e.Medium,rssi:e["uplink rssi"]||0})})},e["Radio Info"]&&e["Radio Info"].forEach(function(e){e.BSSINFO&&e.BSSINFO.forEach(function(e){e["connected sta info"]&&t(e["connected sta info"])})}),e["Other Clients Info"])&&t(e["Other Clients Info"]),n},checkDeviceInfo:function(e){e=e.toLowerCase();for(var t=this.networkInfo,n=0;n<t.length;n++)if(e==t[n].mac.toLowerCase())return t[n];return{devName:"",ip:""}},getText:function(e){for(var t=0,n="",i=0,a=e.length;i<a;i++)e[i]&&"string"==typeof e[i]&&(n+=e[i],i!=++a-1&&(n+="\n"),e[i].length>t)&&(t=e[i].length);return n},start:function(){var e={tooltip:{padding:10,formatter:function(e){return""}},animation:!1,backgroundColor:"#fff",series:[{cursor:"pointer",type:"graph",edgeSymbol:["none","arrow"],symbol:"roundRect",symbolSize:50,layout:"force",data:this.graphForceData.nodes,links:this.graphForceData.links,roam:!0,draggable:!0,label:compatibleEcharts("label",{show:!0,position:"bottom",color:"#000"}),force:{repulsion:[60,90],gravity:.02,edgeLength:[60,90],friction:.3,layoutAnimation:!0}}]};this.myChart.setOption(e,!0)},dealSelctValue:function(){var e=this.tempSelctValue;e&&(2===e[0]?0===e[1]?this.modalDataPrase(this.controllerInfo,"master"):this.modalDataPrase(this.agentInfo[e[2]],"slave"):1===e[0]?this.modalDataPrase(this.agentInfo[e[1]],"slave"):0==e[0]&&this.modalDataPrase(this.controllerInfo,"master"))},matchAgentInfo:function(e){if(this.meshAgentInfo){e=e.toUpperCase();for(var t=0;t<this.meshAgentInfo.length;t++){var n=this.meshAgentInfo[t];if(n.meshMac2G.toUpperCase()==e||n.meshMac5G.toUpperCase()==e||n.mac2G.toUpperCase()==e||n.mac5G.toUpperCase()==e)return n}}return null},modalDataPrase:function(e,t){var n,i=this,a=[];for(n in this.getStaClients(e).forEach(function(e){var t=i.checkDeviceInfo(e.mac);e.devName=t.devName,e.ip=t.ip,"br"==globalConfig.opmode&&!e.ip||a.push(e)}),this.staLists=a,this.deviceInfo)this.deviceInfo[n]="";var o=this.matchAgentInfo(e["AL MAC"]);o?(this.deviceInfo.devName=o.hostName,this.deviceInfo.ip=o.ip,this.deviceInfo.mac=o.lanMac):(this.deviceInfo.mac=e["AL MAC"],o=this.checkDeviceInfo(e["AL MAC"]),this.deviceInfo.devName=o.devName,this.deviceInfo.ip=o.ip),e["BH Info"]&&0<e["BH Info"].length&&"Ethernet"!=(o=e["BH Info"][0])["Backhaul Medium Type"]&&(this.deviceInfo.rssi=o.RSSI),this.deviceInfo.type=this.meshCfg[t].img,this.detailInfo||(this.newDevName=this.deviceInfo.devName),this.detailInfo=!0},modifyDevInfo:function(){var e,t;if(this.isEdit&&this.newDevName!=this.deviceInfo.devName)return t="",0==(e=cs.hostname(this.newDevName))&&(t=lang_t("wan.msg1")),0==e?void Cstool.Mark({content:lang_t("rule.device_name")+t,l_text:lang_t("common.back")}):void uiPost.setEasyMeshAgentCfg({mac:this.deviceInfo.mac,agentName:this.newDevName},postCallback);this.isEdit=!this.isEdit}}}</script><script src="/static/js/main.js"></script></body></html>

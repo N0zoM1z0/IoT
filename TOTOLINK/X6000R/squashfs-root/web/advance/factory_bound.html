@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"><link rel="stylesheet" href="/static/css/loading.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="mesh_set"></adv-child-menu>
+  <div class="advance-box">
+    <x-help :text="lang_t('mesh.help_factory')"></x-help><br><br>
+	<div class="fun-box">
+	  <table class="table" style="width:1000px;border-collapse:separate; border-spacing:0px 10px;">
+		<tr>
+		  <td><p>{{lang_t('mesh.help_factory')}}</p></td>
+		</tr>
+        <tr>
+          <td>
+            <button type="button" class="btn" @click="handleSubmit" :disabled="pairMode == '0' ">{{ lang_t('mesh.lift_bound_main') }}</button>
+          </td>
+        </tr>
+	  </table>
+      <div v-if="pairMode == '2'"><br>
+		<table class="table" style="width:1000px;">
+		  <tbody>
+		  <tr>
+			<td><b>{{ lang_t('mesh.bound_list') }}</b></td>
+		  </tr>
+		  </tbody>
+		</table>
+        <table class="t_table3 table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>{{ lang_t('mesh.id') }}</th>
+              <th>{{ lang_t('rule.mac') }}</th>
+              <th>{{lang_t('mesh.lift_bound')}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(list,index) in devices">
+              <td>{{index+1}}</td>
+              <td>{{list.mac}}</td>
+              <td>
+                <button type="button" class="btn btn-delete" @click="handleSubmit('slave',list.ip,list.mac)" >{{lang_t('mesh.lift')}}</button>
+                <!-- <span v-else>{{ lang_t('mesh.no_device') }}</span> -->
+              </td>
+            </tr>
+            <tr v-show="len==0">
+              <td align="center" colspan="12">{{ lang_t('common.no_data') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,devices:[],mac:"",len:0,pairMode:"0"}},computed:{},created:function(){var a=this;uiPost.getPairCfg(function(e){if(a.mac=e.def_pair_mac,a.pairMode=e.def_pair_mode,e.slave_list){var t=[];a.len=e.slave_list.length;for(var i=0;i<a.len;i++)0!=e.slave_list[i].def_pair_mode&&t.push(e.slave_list[i]);a.devices=t}})},methods:{handleSubmit:function(t,e,i){var a=null,l={},n=this.lang_t("mesh.lift_main_msg");if(t&&e&&i)n=this.lang_t("mesh.lift_msg"),l.ip=e,l.mac=i,l.type=t;else if(a=60,"2"==this.pairMode){for(var o=[],s=0;s<this.devices.length;s++)o.push(this.devices[s].mac);l.mac=o.join(","),l.type="all"}else l.type="slave";Cstool.Msg({content:n,type:"confirm",ok:function(){return uiPost.clearPairCfg(l,function(e){null==(a=e.wtime&&"0"!=e.wtime?e.wtime:a)?location.href=location.href:Cstool.Count(a,"js",function(){location.href="slave"==t?location.href:"/login.html"})}),!1}})}}}</script><script src="/static/js/main.js"></script></body></html>

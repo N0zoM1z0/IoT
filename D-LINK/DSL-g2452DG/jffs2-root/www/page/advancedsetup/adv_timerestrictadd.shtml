@@ -1,0 +1,295 @@
+<html>
+<head>
+ <meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<link rel="stylesheet" href='/css/content.css' type='text/css'>
+<script language='javascript' src='/js/jquery.js'></script>
+<script language='javascript' src='/js/check.js'></script>
+<script language='javascript' src='/js/t_utils.js'></script>
+<script language='javascript' src='/js/init.js'></script>
+<script language='javascript' src='/js/tri.js'></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+
+<!-- hide
+var op = ""
+var idx = 0
+function TimeRestrictTuple()
+{
+    this.Path = ""
+    this.allowinternet = ""
+    this.username = ""
+    this.macaddr = ""
+    this.weekdays = ""
+    this.timefrom = ""
+    this.timeto = ""
+}
+
+var rulesNum = 0;
+var restRules = new Array();
+<!--#getobject "InternetGatewayDevice.TimeRestriction.RestRules. InternetAllowed Username MACAddr WeekDays TimeFrom TimeTo" -->
+    restRules[rulesNum] = new TimeRestrictTuple();
+    restRules[rulesNum].Path = "<!--#path -->";
+    restRules[rulesNum].allowinternet = "<!--#leaf  "1"-->";
+    restRules[rulesNum].username = "<!--#leaf  "2"-->";
+    restRules[rulesNum].macaddr = "<!--#leaf  "3"-->";
+    restRules[rulesNum].weekdays = "<!--#leaf  "4"-->";
+	restRules[rulesNum].timefrom = "<!--#leaf  "5"-->";
+	restRules[rulesNum].timeto = "<!--#leaf  "6"-->";
+	rulesNum++;
+<!--#endgetobject -->
+
+function valueCheck() {
+	with ( document.forms[0] ) {
+		if ( username.value == '' ) {
+			top.AlertMsg(getStr("LK_UsrNameEmpty"));
+			return false;
+		}
+		if ( !ischeckMAC($("cusMac")) ) {
+			return false;
+		}
+		var node = $("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday");
+		var days = 0;
+		for (var i = 0; i < node.length; i++) {
+			if( node[i].checked == true ) {
+				days ++;
+				break;
+			}
+		}
+		if (days == 0) {
+			top.AlertMsg(getStr("LK_SelectOneDay"));
+			return false;
+		}
+		if( startTime.value.length ) {
+			vals = startTime.value.split( ':' );
+			if ( vals.length == 2 ) {
+				hour = vals[0];
+				min = vals[1];
+				if( hour < 0 || hour > 23 || !isAllNum(hour) ) {
+					top.AlertMsg(getStr("LK_InvalidHour"), "startTime");
+					return false;
+				}
+				if( min < 0 || min > 59 || !isAllNum(min)) {
+					top.AlertMsg(getStr("LK_InvalidMin"), "startTime");
+					return false;
+				}
+				st_time = hour * 60 + min;
+			} else {
+				top.AlertMsg(getStr("LK_InvalidTimeFmt"), "startTime");
+				return false;
+			}
+		} else {
+			st_time = 0; //00:00
+			setValue("startTime", "00:00");
+		}
+		if(endTime.value.length ) {
+			vals = endTime.value.split( ':' );
+			if ( vals.length == 2 ) {
+				hour = vals[0];
+				min = vals[1];
+				if( hour < 0 || hour > 23 || !isAllNum(hour)) {
+					top.AlertMsg(getStr("LK_InvalidHour"), "endTime");
+					return false;
+				}
+				if( min < 0 || min > 59 || !isAllNum(min)) {
+					top.AlertMsg(getStr("LK_InvalidMin"), "endTime");
+					return false;
+				}
+				en_time = hour* 60 + min;
+			} else {
+				top.AlertMsg(getStr("LK_InvalidTimeFmt"), "endTime");
+				return false;
+			}
+		} else {
+			en_time = 1439;// 23:59
+			setValue("endTime", "23:59");
+		}
+		if( parseInt(en_time) < parseInt(st_time)) {
+			top.AlertMsg(getStr("LK_TimeOrder"));
+			return false;
+		}
+	}
+	return true;
+}
+
+function uiBack()
+{
+	document.location.href = "adv_timerestrict.shtml";
+}
+
+function uiAdd()
+{
+	var rulePath = "InternetGatewayDevice.TimeRestriction.RestRules.";
+	var df = document.timerestrictadd;
+	AddElements(df, "add_obj", rulePath);
+	AddElements(df, rulePath + "{i}.Username", getValue("username"));
+	AddElements(df, rulePath + "{i}.MACAddr", getValue("cusMac"));
+	var weekdays = createWeekdays();
+	AddElements(df, rulePath + "{i}.WeekDays", weekdays);
+	AddElements(df, rulePath + "{i}.TimeFrom", getValue("startTime"));
+	AddElements(df, rulePath + "{i}.TimeTo", getValue("endTime"));
+	AddElements(df, rulePath + "{i}.InternetAllowed", $("accessInternet").checked == true ? 1 : 0);
+	df.submit();
+}
+
+function uiEdit()
+{
+	var df = document.timerestrictadd;
+	if(restRules[idx].username != getValue("username"))
+		AddElements(df, restRules[idx].Path + "Username", getValue("username"));
+	if(restRules[idx].macaddr != getValue("cusMac"))
+		AddElements(df, restRules[idx].Path + "MACAddr", getValue("cusMac"));
+
+	var weekdays = createWeekdays();
+	if(restRules[idx].weekdays != weekdays)
+		AddElements(df, restRules[idx].Path + "WeekDays", weekdays);
+	if(restRules[idx].timefrom != getValue("startTime"))
+		AddElements(df, restRules[idx].Path + "TimeFrom", getValue("startTime"));
+	if(restRules[idx].timeto != getValue("endTime"))
+		AddElements(df, restRules[idx].Path + "TimeTo", getValue("endTime"));
+	var allowinter = $("accessInternet").checked == true ? 1 : 0;
+	if(restRules[idx].allowinternet != allowinter)
+		AddElements(df, restRules[idx].Path + "InternetAllowed", allowinter);
+	df.submit();
+}
+
+var weekEnum = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+function createWeekdays()
+{
+	var weekdays = "";
+	var flag = 0;
+	var node = $("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday");
+	for (var i = 0; i < node.length; i++)
+	{
+		if(node[i].checked == true)
+		{
+			if (flag == 1)
+				weekdays += "," + weekEnum[i];
+			else
+				weekdays += weekEnum[i];
+			flag = 1;
+		}
+	}
+	return weekdays;
+}
+
+function parseWeekdays(week)
+{
+	var weekarray = "[";
+	var daysofweek = weekEnum.length;
+	for (var i = 0; i < daysofweek; i++)
+	{
+		if (week.indexOf(weekEnum[i]) != -1)
+			weekarray += "1";
+		else
+			weekarray += "0";
+		if (i < daysofweek - 1)
+			weekarray += ",";
+	}
+	weekarray += "]";
+	return weekarray;
+}
+
+function uiSubmit(op)
+{
+	if(!valueCheck())
+		return;
+	if(!validateCode())
+		return false;
+	if(op == "add")
+		uiAdd();
+	else if(op == "edit")
+		uiEdit();
+}
+
+function __init()
+{
+    var url = window.location.search;
+    var arr = url.toString();
+    var strs = arr.split("&");
+    op = strs[0].split("=")[1];
+    if(op == "edit")
+    {
+        idx = strs[1].split("=")[1];
+        var weekarr = parseWeekdays(restRules[idx].weekdays);
+        week = eval(weekarr);
+        setValue("username", restRules[idx].username);
+        setValue("cusMac", restRules[idx].macaddr);
+        setValue("sunday", week[0]);
+        setValue("monday", week[1]);
+        setValue("tuesday", week[2]);
+        setValue("wednesday", week[3]);
+        setValue("thursday", week[4]);
+        setValue("friday", week[5]);
+        setValue("saturday", week[6]);
+        setValue("startTime", restRules[idx].timefrom);
+        setValue("endTime", restRules[idx].timeto);
+        setValue("accessInternet", restRules[idx].allowinternet);
+	}
+}
+// done hiding -->
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_TimeRestTitleAdd'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr><td colspan="2" langkey="LK_TimeRestCfgRemind"></td></tr>
+	<tr class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+	<tr>
+		<td width='150' langkey="LK_UserNamee"></td>
+		<td><input type='text' id='username' size='18'></td>
+	</tr>
+	<!--
+	<tr>
+		<td width='150'>
+			<input type="radio" name="radioMac" onclick='radioClick()'>&nbsp;&nbsp;<span id='todBrowserMacAddr'>Browser's MAC Address</span>&nbsp;
+		</td>
+		<td><input type='text' size="18" name="pcMac"></td>
+	</tr>
+	-->
+	<tr>
+		<td width='150'>
+		<span langkey="LK_MACAddresss"></span>&nbsp;</td>
+		<td><input type='text' size="18" id="cusMac"> &nbsp;&nbsp;(xx:xx:xx:xx:xx:xx)</td>
+	</tr>
+	<tr>
+		<td colspan="1">&nbsp;</td>
+	</tr>
+	<tr>
+		<td width='150' langkey="LK_DaysOfTheWeek"></td>
+		<td>
+			<input type='checkbox' id='sunday'><span langkey="LK_Sunday"></span>&nbsp;
+			<input type='checkbox' id='monday'><span langkey="LK_Monday"></span>&nbsp;
+			<input type='checkbox' id='tuesday'><span langkey="LK_Tuesday"></span>&nbsp;
+			<input type='checkbox' id='wednesday'><span langkey="LK_Wedesday"></span>&nbsp;
+			<input type='checkbox' id='thursday'><span langkey="LK_Thuesday"></span>&nbsp;
+			<input type='checkbox' id='friday'><span langkey="LK_Friday"></span>&nbsp;
+			<input type='checkbox' id='saturday'><span langkey="LK_Saturday"></span>&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td width='150' langkey="LK_StartBlkTime"></td>
+		<td><input type='text' size='5' id='startTime'>&nbsp;-&nbsp;<input type='text' size='5' id='endTime'>&nbsp;&nbsp;(hh:mm)</td>
+	</tr>
+	<tr>
+		<td width='150' langkey="LK_AccessInternet"></td>
+		<td><input type='checkbox' id='accessInternet'></td>
+	</tr>
+</table>
+<br>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	<tr>
+		<td colspan="2">
+			<script>PrintTriButton("cancel",getStr("LK_Back"),onClick="uiBack();");</script>&nbsp;&nbsp;
+			<script>PrintTriButton("submit",getStr("LK_Apply"),onClick="uiSubmit(op);");</script>&nbsp;&nbsp;
+		</td>
+	</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="timerestrictadd" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_timerestrict.shtml">
+</form>
+</body>
+</html>

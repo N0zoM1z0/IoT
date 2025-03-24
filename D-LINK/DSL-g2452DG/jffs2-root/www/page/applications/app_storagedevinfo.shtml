@@ -1,0 +1,176 @@
+<html>
+<head>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function USBInfoTuple()
+{
+	this.Path = "";
+	this.Vendor = "";
+	this.Model = "";
+	this.DiskSizeMB = "";
+}
+var index = 0;
+var USBInfo = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage. Vendor Model DiskSizeMB" -->
+	USBInfo[index] = new USBInfoTuple();   
+	USBInfo[index].Path = "<!--#path -->";
+	USBInfo[index].Vendor = "<!--#leaf "1"-->";
+	USBInfo[index].Model = "<!--#leaf "2"-->";
+	USBInfo[index].DiskSizeMB = "<!--#leaf "3"-->";
+	index++;
+<!--#endgetobject -->
+function subUSBInfoTuple()
+{
+	this.Path = "";
+	this.FileSystem = "";
+	this.PartSizeMB = "";
+	this.PercentUsed = "";
+	this.MountPoint = "";
+	this.Mounted = "";
+}
+var n = 0;
+var subUSBInfo = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage." -->
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage.{i}.Partitions. FileSystem SizeMB UsedPercent MountPoint Mounted" -->
+	subUSBInfo[n] = new subUSBInfoTuple();   
+	subUSBInfo[n].Path = "<!--#path -->";
+	subUSBInfo[n].FileSystem = "<!--#leaf "1"-->";
+	subUSBInfo[n].SizeMB = "<!--#leaf "2"-->";
+	subUSBInfo[n].UsedPercent = "<!--#leaf "3"-->";
+	subUSBInfo[n].MountPoint = "<!--#leaf "4"-->";
+	subUSBInfo[n].Mounted = "<!--#leaf "5"-->";
+	n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var storagePath = "InternetGatewayDevice.X_CT-COM_USBDevice.Storage.";
+
+function createTable(){
+	var trs = "";
+	var len = USBInfo.length;
+	for(var i=0; i<len; ++i){
+		var tr = "";
+		if(i%2 == 0)
+			tr += "<tr class='OddRowB' id='" + (i+1) + "'> ";
+		else
+			tr += "<tr class='EvenRowB' id='" + (i+1) + "'> ";
+		tr += "<td scope='col'>"+(i+1)+"</td>";
+		tr += "<td scope='col'>"+USBInfo[i].Vendor+"</td>";
+		tr += "<td scope='col'>"+USBInfo[i].Model+"</td>";
+		tr += "<td scope='col'>"+USBInfo[i].DiskSizeMB+"</td>";
+		tr += "</tr>";
+		trs += tr;
+	}
+	if(len == 0)
+		document.writeln('<tr id="norule" class="OddRowB"><td colspan="4">' + getStr("LK_NoRule") + '</td></tr>');
+	else
+		document.writeln(trs);
+	tableAction();
+}
+
+function tableAction(){
+	var Tb = $('tb_usbInfo');
+	var Tr = Tb.getElementsByTagName("tr");
+	
+	if(Tr.length == 0) return false;
+	for(var i = 1; i < Tr.length; i++){
+		if(Tr[i].id == "norule")
+			continue;
+		Tr[i].onclick = getValue;
+		Tr[i].style.cursor = "pointer";
+	}
+}
+
+function getValue(){
+	var Node = this;
+	
+	var usbDevInstNum = 0;
+	for(var i=0;i<index;i++){
+		var usb = USBInfo[i];
+		if((i+1) == parseInt(Node.id))
+			usbDevInstNum=parseInt(usb.Path.substring(storagePath.length));
+	}
+	
+	createSubTable(usbDevInstNum);
+	
+	var list = parseInt(Node.id) - 1;
+	$('USB_subInfo').innerHTML = '[' + Node.id + ']' + USBInfo[list].Vendor + '-' + USBInfo[list].Model + ':';
+	$('tb_usbInfo_sub').style.display = '';
+	$('USB_subInfo').style.display = '';
+}
+
+function createSubTable(usbDevInstNum){
+	var len = subUSBInfo.length;
+	var trs = "";
+	var instNum = 1;
+	for (var i=0; i < len; ++i) {
+		var part = subUSBInfo[i];
+		if (part.Path.indexOf(storagePath + usbDevInstNum + ".Partitions.") != -1){
+			if (part.FileSystem == "Empty"){
+				continue;
+			}
+			if(i%2 == 0)
+				trs += "<tr class=\"OddRowB\"> ";
+			else
+				trs += "<tr class=\"EvenRowB\"> ";
+            		trs += "<td>" + instNum + "</td>";
+            		trs += "<td>" + part.FileSystem + "</td>";
+            		trs += "<td>" + part.SizeMB + "</td>";
+            		trs += "<td>" + part.UsedPercent + "%</td>";
+			trs += "<td>" + part.MountPoint + "</td>";
+            		trs += "</tr>";
+			instNum++;
+		}
+	}
+	jQuery("#USB_parts").html(trs);
+}
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+    {
+        project_init(GetCurrentFileName());
+    }
+}
+
+</script>
+</head>
+<body >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_StorageDevInfo"));</script>
+	<table id="tb_usbInfo" class="ContentBorder" cellspacing="0" cellpadding="0">
+		<tr class="TitleRow">
+			<td langkey="LK_Number"></td>
+			<td langkey="LK_Provider"></td>
+			<td langkey="LK_prodType"></td>
+			<td langkey="LK_Capacity"></td>					
+		</tr>
+	        <script language='javascript'>
+		<!--hide
+			createTable();
+		//-->
+		</script>
+	</table>
+			<br>
+	<label id="USB_subInfo" style="display:none;margin:0 0 8px 50px"></label>
+	<table id="tb_usbInfo_sub" style="display:none" class="ContentBorder" cellspacing="0" cellpadding="0">
+		<tr class="TitleRow">
+			<td langkey="LK_Number"></td>
+			<td langkey="LK_FileSys"></td>
+			<td langkey="LK_Capacity"></td>
+			<td langkey="LK_PercentOfUsed"></td>
+			<td langkey="LK_Mount"></td>
+		</tr>
+		<tbody id='USB_parts'>
+		</tbody>
+	</table>
+<script>printEndContent();</script>
+  </body>
+</html>

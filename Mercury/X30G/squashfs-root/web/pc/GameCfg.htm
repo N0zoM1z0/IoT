@@ -1,0 +1,199 @@
+<script type="text/javascript">
+	(function () {
+		var routerOptions = [];
+		var dev_info;
+		var routerIdx = 0, capRouterIdx;
+		var port;
+
+		//取消按钮
+		var gameBtnCancel = new Button({
+			text: btn.cancel,
+			onClick: function() {
+				loadPage("GamePort.htm","menuLoader");
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"gameBtnCancel",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+		//完成按钮
+		var gameBtnFinish = new Button({
+			text:btn.finish,
+			onClick: gameCfgComplate,
+			type:Button.TYPE.PRIMARY,
+			id:"gameBtnFinish",
+			props:{width:"120px", "margin-top":"48px"}
+		});
+
+		function gameCfgComplate() {
+			if (port.getActivePortList().length < 1) {
+				showToast(label.selectOnePort);
+			}
+			else {
+				loadingDialog.show({
+					title: label.gamePort,
+					content:{
+						primary:label.wanSettingWait
+					}
+				});
+
+				//先请求dev_info获取cap的idx，因为cap上的端口dev要置为全F
+				var data = {};
+				data[uciPortConfig.fileName] = {};
+				data[uciPortConfig.fileName][KEY_TABLE] = [uciPortConfig.secType.devInfo];
+
+				$.query(data, function(result){
+					var err_code = result[ERR_CODE];
+
+					if (err_code == ENONE)
+					{
+						var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+						var portChoosed = port.getActivePortList()[0];
+
+						//portCfg用来修改port_manage中的game
+						var portCfg = {},gameList = [{}];
+						gameList[0][uciPortConfig.optName.gamePhy] = portChoosed["index"].toString();
+						gameList[0][uciPortConfig.optName.gameDev] = (routerIdx == capRouterIdx? "FF-FF-FF-FF-FF-FF" : routerList[routerIdx][uciPortConfig.dynOptName.mac]);
+
+						portCfg[uciPortConfig.fileName] = {};
+						portCfg[uciPortConfig.fileName][uciPortConfig.secType.game] = {};
+						portCfg[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+						portCfg[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList] = gameList;
+
+						$.modify(portCfg,function(res) {
+							var err_code = res[ERR_CODE];
+							if (err_code == ENONE) {
+								loadingDialog.hide(function(){
+									showToast(label.gameOpened);
+									loadPage("GameCfgEnd.htm","gameContent"); //显示配置完成页面
+								});
+							}
+							else { //修改失败则刷新页面
+								loadingDialog.hide(function(){
+									alarmDialog.show(errStr.setFailedErr);
+								});
+							}
+						});
+					}
+					else
+					{
+						loadingDialog.hide(function() {
+							errHandle(err_code);
+						});
+					}
+				});
+			}
+
+		}
+
+		//改变路由下拉框选项，端口数据改为选中路由的
+		function routerSelectChange(value) {
+			routerIdx = value;
+			port.refreshDevInfo(JSON.parse(JSON.stringify(dev_info[value])));
+		}
+
+		//选择游戏专用口回调函数
+		function portClickHandle(portInfo) {
+			if (portInfo.state == "disable") {
+				return;
+			}
+			var phy_info = dev_info[routerIdx][uciPortConfig.dynOptName.phyInfo];
+
+			for (var i = 0;i < portInfo.num;i++) {
+				if (port.getPort(i).state == "disable") {
+					continue;
+				}
+				if (i != portInfo.index || portInfo.state == "normal") {
+					port.setPort(i,{
+						name: "LAN",
+						state: port.getPort(i).state == "active"? "normal":undefined,
+						role: phy_info[i][uciPortConfig.dynOptName.role]
+					});
+				}
+				else {
+					port.setPort(i,{name: "游戏专用口",role: "game"});
+				}
+			}
+		}
+
+		function init() {
+			var data = {};
+
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE) {
+					dev_info = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					for (var i = 0; i < dev_info.length; i++) {
+						if (dev_info[i][uciPortConfig.dynOptName.cap] == "1") {
+							capRouterIdx = i;
+							routerOptions[i] = {
+								"str": '[主路由]' + dev_info[i][uciPortConfig.dynOptName.name],
+								"value": i
+							};
+						}else{
+							routerOptions[i] = {
+								"str": dev_info[i][uciPortConfig.dynOptName.name],
+								"value": i
+							};
+						}
+
+						if (dev_info[i][uciPortConfig.dynOptName.subFunc].indexOf("game") == -1) {
+							routerOptions[i]["disable"] = true;
+							routerOptions[i]["str"] += "（不支持）"
+							//如果选中的路由恰好不支持gamePort，则选中下一个路由
+							if (routerIdx == i) {
+								routerIdx++;
+							}
+						}
+						//把之前设置的game端口清除，把有其他角色的端口disable
+						dev_info[i][uciPortConfig.dynOptName.phyInfo].forEach(function(port,idx) {
+							if (port[uciPortConfig.dynOptName.role] == "game") {
+								port[uciPortConfig.dynOptName.role] = "lan";
+							}
+							if (port[uciPortConfig.dynOptName.role] != "lan") {
+								port["state"] = "disable";
+							}
+						});
+					}
+				}
+			},false);
+
+			selectInit("routerSel", routerOptions, routerIdx, routerSelectChange);
+			port = new PortConfig().initDevInfo("routerPort",JSON.parse(JSON.stringify(dev_info[routerIdx])),1,portClickHandle,1);
+		}
+
+		init();
+	})()
+</script>
+<style type="text/css">
+	.chooseGamePortGuide{
+		color: #333333;
+		font-weight: bold;
+		margin-bottom: 16px;
+	}
+	ul.selOptsUl li.option{
+		height: 32px;
+		line-height: 32px;
+		font-size: 13px;
+	}
+</style>
+<div class="chooseGamePortGuide">
+	<h2>{%label.gamePortChoose%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="routerSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="routerPort"></div>
+<div id="gameBtnCancel"></div>
+<div id="gameBtnFinish"></div>

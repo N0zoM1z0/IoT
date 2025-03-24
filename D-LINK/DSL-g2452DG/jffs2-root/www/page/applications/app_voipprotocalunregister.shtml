@@ -1,0 +1,203 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+
+function ChangeSelect()
+{
+    if(getValue("Frm_LineNumber")=="255")
+        jslEnable("Frm_Logstate3");
+    else 
+    {
+        if(Frm_Logstate3.checked)
+	{
+	    Frm_Logstate1.checked=true;
+	    Frm_Logstate3.checked=false;
+	}
+        jslDisable("Frm_Logstate3");
+    }
+}
+
+function pageGetSelect()
+{
+    var statevalue;
+    var state=document.getElementsByName("Frm_Logstate");
+    for(var i=0;i<state.length;i++)
+    {
+        if(state[i].checked==true)
+	{
+	    statevalue=state[i].value;
+	}
+    }
+    return statevalue;
+}
+
+function pageCheckValue()
+{
+    var state=document.getElementsByName("Frm_Logstate");
+    var msg,statevalue;
+    for(var i=0;i<state.length;i++)
+    {
+        if(state[i].checked==true)
+	{
+	    statevalue=state[i].value;
+	}
+    }
+    if(statevalue!=0&&statevalue!=1&&statevalue!=2)
+    {
+        msg=getmsg(1006);
+	top.AlertMsg(msg);
+	return false;
+    }
+	if(!validateCode())
+		return false;
+    return true;
+}
+
+
+	function LineDescription(){
+			this.Description = "";
+		}
+	var num = 0;
+ var LineInfo = new Array();
+ <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+     <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Description" -->
+	   LineInfo[num] = new LineDescription();
+     LineInfo[num].Description = "<!--#leaf "1"-->";
+     num++;
+     <!--#endgetobject -->
+ <!--#endgetobject -->
+ 
+function GetLineNumByDescription(Description){
+		for(var i = 0;i < 2;i++)
+		{
+				if(LineInfo[i].Description == Description)
+				return i;
+		}
+		if(Description == "LINE1")
+		    return 0;
+		if(Description == "LINE2")
+		    return 1;
+		return false;
+	}
+
+function uiSubmit()
+{
+    var df = $('fSubmit');
+    if(pageCheckValue()==true)
+    {
+        jslDisable("Btn_Submit","Btn_Cancel");
+
+	      var line = parseInt(getValue("Frm_LineNumber"));
+	      
+	     var selectedRadio = pageGetSelect();
+	     if(line != 255){
+		    var lineVal = GetLineNumByDescription("LINE"+(line+1))+1;
+		    switch(selectedRadio){
+			case '0':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Register", 1);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Unregister", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Reboot", 0);
+				break;
+			case '1':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Register", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Unregister", 1);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Reboot", 0);
+				break;
+			case '2':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Register", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Unregister", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + lineVal + ".Reboot", 1);
+				break;
+			default:
+				break;
+		}
+	}
+	else if(line == 255){ //全设备
+		for(var i=0;i<2;i++){
+		    switch(selectedRadio){
+			case '0':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Register", 1);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Unregister", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Reboot", 0);
+				break;
+			case '1':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Register", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Unregister", 1);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Reboot", 0);
+				break;
+			case '2':
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Register", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Unregister", 0);
+				AddElements(df,"InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-ACTION." + (i+1) + ".Reboot", 1);
+				break;
+			default:
+				break;
+		    }
+		}
+	}
+
+	df.submit();
+    }
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Line1"), getStr("LK_Line2"), getStr("LK_All")];
+  value = ['0', '1', '255'];
+	createOptions('Frm_LineNumber', text, value);
+}
+
+function __init()
+{
+    createsel();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_ProtocolUnregister'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipprotocalunregister.shtml">
+</form>
+<table class="ContentTableNoColor" id="Operation" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_Targett"></td>
+<td>
+<select size="1" id="Frm_LineNumber" onchange="ChangeSelect();">
+</select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_Opertionn"></td>
+<td>
+<input type="radio" name="Frm_Logstate" id="Frm_Logstate1" value="0"> <span langkey="LK_Register"></span>
+<input type="radio" name="Frm_Logstate" id="Frm_Logstate2" value="1"> <span langkey="LK_Unregister"></span>
+<input type="radio" name="Frm_Logstate" id="Frm_Logstate3" value="2" disabled="false"> <span langkey="LK_Restart"></span>
+</td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

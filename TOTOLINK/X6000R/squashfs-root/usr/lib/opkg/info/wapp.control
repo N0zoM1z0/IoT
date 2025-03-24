@@ -1,0 +1,10 @@
+Package: wapp
+Version: 1
+Depends: libc, libkvcutil, libopenssl1.1, libnl-tiny1
+Source: package/mtk/applications/wappd
+SourceName: wapp
+Section: MTK Properties
+SourceDateEpoch: 1673845074
+Architecture: aarch64_cortex-a53
+Installed-Size: 546446
+Description:  wifi app daemon

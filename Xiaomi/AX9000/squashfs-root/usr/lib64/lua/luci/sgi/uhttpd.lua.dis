@@ -1,0 +1,169 @@
+local L0, L1
+L0 = require
+L1 = "nixio.util"
+L0(L1)
+L0 = require
+L1 = "luci.http"
+L0(L1)
+L0 = require
+L1 = "luci.sys"
+L0(L1)
+L0 = require
+L1 = "luci.dispatcher"
+L0(L1)
+L0 = require
+L1 = "luci.ltn12"
+L0(L1)
+function L0(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23
+  L1 = os
+  L1 = L1.clock
+  L1 = L1()
+  exectime = L1
+  L1 = {}
+  L2 = A0.CONTENT_LENGTH
+  L1.CONTENT_LENGTH = L2
+  L2 = A0.CONTENT_TYPE
+  L1.CONTENT_TYPE = L2
+  L2 = A0.REQUEST_METHOD
+  L1.REQUEST_METHOD = L2
+  L2 = A0.REQUEST_URI
+  L1.REQUEST_URI = L2
+  L2 = A0.PATH_INFO
+  L1.PATH_INFO = L2
+  L2 = A0.SCRIPT_NAME
+  L3 = L2
+  L2 = L2.gsub
+  L2 = L2(L3, L4, L5)
+  L1.SCRIPT_NAME = L2
+  L2 = A0.SCRIPT_NAME
+  L1.SCRIPT_FILENAME = L2
+  L2 = A0.SERVER_PROTOCOL
+  L1.SERVER_PROTOCOL = L2
+  L2 = A0.QUERY_STRING
+  L1.QUERY_STRING = L2
+  L2, L3 = nil, nil
+  for L7, L8 in L4, L5, L6 do
+    L10 = L7
+    L9 = L7.upper
+    L9 = L9(L10)
+    L10 = L9
+    L9 = L9.gsub
+    L11 = "%-"
+    L12 = "_"
+    L9 = L9(L10, L11, L12)
+    L7 = L9
+    L9 = "HTTP_"
+    L10 = L7
+    L9 = L9 .. L10
+    L1[L9] = L8
+  end
+  function L7(...)
+    local L1, L2
+    L1 = _UPVALUE0_
+    L1 = L1.HTTP_VERSION
+    if 1 < L1 then
+      L1 = uhttpd
+      L1 = L1.sendc
+      L2 = ...
+      return L1(L2)
+    else
+      L1 = uhttpd
+      L1 = L1.send
+      L2 = ...
+      return L1(L2)
+    end
+  end
+  L8 = luci
+  L8 = L8.http
+  L8 = L8.Request
+  L9 = L1
+  L10 = L5
+  L11 = luci
+  L11 = L11.ltn12
+  L11 = L11.sink
+  L11 = L11.file
+  L12 = io
+  L12 = L12.stderr
+  L11, L12, L13, L14, L15, L19, L20, L21, L22, L23 = L11(L12)
+  L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23)
+  L9 = coroutine
+  L9 = L9.create
+  L10 = luci
+  L10 = L10.dispatcher
+  L10 = L10.httpdispatch
+  L9 = L9(L10)
+  L10 = {}
+  L11 = true
+  L12 = A0.HTTP_VERSION
+  if 1 < L12 then
+    L10["Transfer-Encoding"] = "chunked"
+  end
+  while true do
+    L12 = coroutine
+    L12 = L12.status
+    L13 = L9
+    L12 = L12(L13)
+    if L12 == "dead" then
+      break
+    end
+    L12 = coroutine
+    L12 = L12.resume
+    L13 = L9
+    L14 = L8
+    L12, L13, L14, L15 = L12(L13, L14)
+    if not L12 then
+      L16(L17)
+      L16(L17)
+      L16(L17)
+      L19, L20, L21, L22, L23 = L17(L18)
+      L16(L17, L18, L19, L20, L21, L22, L23)
+      break
+    end
+    if L11 then
+      if L13 == 1 then
+        L16(L17)
+        L16(L17)
+        L19, L20, L21, L22, L23 = L17(L18)
+        L16(L17, L18, L19, L20, L21, L22, L23)
+        L16(L17)
+        L19, L20, L21, L22, L23 = L17(L18)
+        L16(L17, L18, L19, L20, L21, L22, L23)
+        L16(L17)
+      elseif L13 == 2 then
+        L10[L14] = L15
+      elseif L13 == 3 then
+        for L19, L20 in L16, L17, L18 do
+          L21 = L6
+          L22 = tostring
+          L23 = L19
+          L22, L23 = L22(L23)
+          L21(L22, L23)
+          L21 = L6
+          L22 = ": "
+          L21(L22)
+          L21 = L6
+          L22 = tostring
+          L23 = L20
+          L22, L23 = L22(L23)
+          L21(L22, L23)
+          L21 = L6
+          L22 = "\r\n"
+          L21(L22)
+        end
+        L16(L17)
+      elseif L13 == 4 then
+        if not L14 then
+        end
+        L19, L20, L21, L22, L23 = L17(L18)
+        L16(L17, L18, L19, L20, L21, L22, L23)
+      elseif L13 == 5 then
+        L11 = false
+      elseif L13 == 6 then
+        L19 = L15
+        L16(L17, L18, L19)
+      end
+    end
+  end
+end
+handle_request = L0

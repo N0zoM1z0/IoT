@@ -1,0 +1,359 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="../../css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<base target="_self">
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+function ConnectionTuple()
+{    /* common */
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ExternalIPAddress="";
+    this.DNSOverrideAllowed="";            
+    this.DNSServers="";
+    this.UsrDNSServers="";
+    this.ConnectionStatus="";
+    this.LastConnectionError="";    
+    this.BridgeConnectionStatus="";
+    this.ConnectionType="";
+    this.IPMode="";    
+    /* IP */
+    this.AddressingType = "";
+    this.SubnetMask="";    
+    this.DefaultGateway="";
+    /* PPP */
+    this.RemoteIPAddress="";
+   /* ipv6*/
+    this.IPv6IPAddress = "";
+    this.DefaultIPv6Gateway = "";
+    this.IPv6DNSServers = "";
+    this.IPv6AddressPrefixLen = "";
+    this.IPv6ConnectionStatus = ""; 
+    this.ConnectionTrigger="";
+}
+var index = 0;
+var G_wanConnction = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name AddressingType ExternalIPAddress SubnetMask DNSOverrideAllowed DNSServers X_CT-COM_UsrDNSServers ConnectionStatus LastConnectionError DefaultGateway X_CT-COM_BridgeConnectionStatus ConnectionType X_CT-COM_IPMode X_CT-COM_IPv6IPAddress X_CT-COM_DefaultIPv6Gateway X_CT-COM_IPv6DNSServers X_CT-COM_IPv6AddressPrefixLen X_CT-COM_IPv6ConnStatus" -->
+	G_wanConnction[index] = new ConnectionTuple();
+	G_wanConnction[index].Type = "IP";
+	G_wanConnction[index].Path = "<!--#path -->";
+	G_wanConnction[index].Name = "<!--#leaf "1"-->";
+	G_wanConnction[index].AddressingType = "<!--#leaf "2"-->";
+	G_wanConnction[index].ExternalIPAddress = "<!--#leaf "3"-->";
+	G_wanConnction[index].SubnetMask = "<!--#leaf "4"-->";
+	G_wanConnction[index].DNSOverrideAllowed = "<!--#leaf "5"-->";
+	G_wanConnction[index].DNSServers = "<!--#leaf "6"-->";
+	G_wanConnction[index].UsrDNSServers = "<!--#leaf "7"-->";
+	G_wanConnction[index].ConnectionStatus = "<!--#leaf "8"-->";
+	G_wanConnction[index].LastConnectionError = "<!--#leaf "9"-->";
+	G_wanConnction[index].DefaultGateway = "<!--#leaf "10"-->";
+	G_wanConnction[index].BridgeConnectionStatus = "<!--#leaf "11"-->";
+	G_wanConnction[index].ConnectionType = "<!--#leaf "12"-->";
+	G_wanConnction[index].IPMode = "<!--#leaf "13"-->";
+	G_wanConnction[index].IPv6IPAddress = "<!--#leaf "14"-->";
+	G_wanConnction[index].DefaultIPv6Gateway = "<!--#leaf "15"-->";
+	G_wanConnction[index].IPv6DNSServers = "<!--#leaf "16"-->";
+	G_wanConnction[index].IPv6AddressPrefixLen = "<!--#leaf "17"-->";
+	G_wanConnction[index].IPv6ConnectionStatus = "<!--#leaf "18"-->";
+	
+	index++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name ExternalIPAddress DNSOverrideAllowed DNSServers X_CT-COM_UsrDNSServers ConnectionStatus LastConnectionError RemoteIPAddress X_CT-COM_BridgeConnectionStatus ConnectionType X_CT-COM_IPMode X_CT-COM_IPv6IPAddress X_CT-COM_DefaultIPv6Gateway X_CT-COM_IPv6DNSServers X_CT-COM_IPv6AddressPrefixLen X_CT-COM_IPv6ConnStatus ConnectionTrigger" -->
+	G_wanConnction[index] = new ConnectionTuple();
+	G_wanConnction[index].Type = "PPP";
+	G_wanConnction[index].Path = "<!--#path -->";
+	G_wanConnction[index].Name = "<!--#leaf "1"-->";
+	G_wanConnction[index].AddressingType = "PPP";
+	G_wanConnction[index].ExternalIPAddress = "<!--#leaf "2"-->";
+	G_wanConnction[index].DNSOverrideAllowed = "<!--#leaf "3"-->";
+	G_wanConnction[index].DNSServers = "<!--#leaf "4"-->";
+	G_wanConnction[index].UsrDNSServers = "<!--#leaf "5"-->";
+	G_wanConnction[index].ConnectionStatus = "<!--#leaf "6"-->";
+	G_wanConnction[index].LastConnectionError = "<!--#leaf "7"-->";
+	G_wanConnction[index].RemoteIPAddress = "<!--#leaf "8"-->";
+	G_wanConnction[index].BridgeConnectionStatus = "<!--#leaf "9"-->";
+	G_wanConnction[index].ConnectionType = "<!--#leaf "10"-->";
+	G_wanConnction[index].IPMode = "<!--#leaf "11"-->";
+	G_wanConnction[index].IPv6IPAddress = "<!--#leaf "12"-->";
+	G_wanConnction[index].DefaultIPv6Gateway = "<!--#leaf "13"-->";
+	G_wanConnction[index].IPv6DNSServers = "<!--#leaf "14"-->";
+	G_wanConnction[index].IPv6AddressPrefixLen = "<!--#leaf "15"-->";
+	G_wanConnction[index].IPv6ConnectionStatus = "<!--#leaf "16"-->";
+	G_wanConnction[index].SubnetMask = "255.255.255.255";
+	G_wanConnction[index].ConnectionTrigger = "<!--#leaf "17"-->";
+	index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+function getWanConnGateway(conn)
+{
+	if (conn.Type == "IP") {
+		return conn.DefaultGateway;
+	} else if (conn.Type == "PPP") {
+		return conn.RemoteIPAddress;
+	}	
+	return "&nbsp;";
+}
+var index = 0;
+var ConnectionS = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANIPConnection. Name X_TRI_Dslite_Status X_CT-COM_AftrMode X_CT-COM_Aftr    X_CT-COM_IPMode ConnectionType" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].DsliteStatus = "<!--#leaf "2"-->";
+    ConnectionS[index].AftrMode = "<!--#leaf "3"-->";
+    ConnectionS[index].AftrAddr = "<!--#leaf "4"-->";
+    ConnectionS[index].IPMode = "<!--#leaf "5"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "6"-->";
+    index++;
+    <!--#endgetobject -->
+
+    <!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANPPPConnection. Name X_TRI_Dslite_Status X_CT-COM_AftrMode X_CT-COM_Aftr  X_CT-COM_IPMode ConnectionType" -->
+    ConnectionS[index] = new ConnectionTuple();
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].DsliteStatus = "<!--#leaf "2"-->";
+    ConnectionS[index].AftrMode = "<!--#leaf "3"-->";
+    ConnectionS[index].AftrAddr = "<!--#leaf "4"-->";
+    ConnectionS[index].IPMode = "<!--#leaf "5"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "6"-->";
+    index++;
+    <!--#endgetobject -->
+<!--#endgetobject --> 
+
+function createDSLTable(){  
+	var trs = "";
+	var j=0;
+	for(var i=0;i<ConnectionS.length;i++){
+		if (ConnectionS[i].ConnectionType.indexOf("Bridged") > -1)
+		{
+			continue;
+		}
+		if(ConnectionS[i].IPMode != '1'){	
+			var tr = ""; 
+			if(j%2 == 0)
+				tr += "<tr class='OddRowB'> ";
+			else
+				tr += "<tr class='EvenRowB'>";
+			j++;	
+
+			if(ConnectionS[i].AftrMode ==0){
+				ConnectionS[i].AftrMode =getStr("LK_Auto");
+			}else if(ConnectionS[i].AftrMode ==1){
+				ConnectionS[i].AftrMode =getStr("LK_Manual");
+			}
+			if(G_wanConnction[i].IPv6ConnectionStatus =="Connected" && ConnectionS[i].DsliteStatus =="up"){
+				ConnectionS[i].DsliteStatus ="Connected";
+			}else{
+				ConnectionS[i].DsliteStatus ="Disconnected";
+			}
+			tr += "<td>"+G_wanConnction[i].Name+"</td>";
+			if(G_wanConnction[i].AddressingType == 'PPP' && G_wanConnction[i].ConnectionType == 'PPPoE_Bridged')
+			{
+				G_wanConnction[i].AddressingType='Bridged';
+				tr += "<td>"+G_wanConnction[i].AddressingType+"</td>";
+			}else{
+				tr += "<td>"+G_wanConnction[i].AddressingType+"</td>"; 
+			}      
+			tr += "<td>"+ConnectionS[i].AftrMode+"</td>";
+			tr += "<td>"+ConnectionS[i].AftrAddr+"</td>";
+			tr += "<td>"+ConnectionS[i].DsliteStatus+"</td>";              
+			tr += "</tr>";
+			trs += tr;             
+		}
+	}
+
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="8">'+getStr('LK_NoRule')+'</td></tr>';
+
+	jQuery("#dslite_table").append(trs);
+}
+
+function createWANTable(){    
+	var trs = "";
+	var j=0;
+	for (var i=0; i < G_wanConnction.length; i++) {
+		if (G_wanConnction[i].IPMode != '1') {
+			var DNSs = G_wanConnction[i].IPv6DNSServers.split(',');
+			var dns1 = isDefined(DNSs[0]) ? DNSs[0] : "&nbsp;";
+			var dns2 = isDefined(DNSs[1]) ? DNSs[1] : "&nbsp;";
+				var tr = "";
+			if(j%2 == 0)
+				tr += "<tr class='OddRowB'> ";
+			else
+				tr += "<tr class='EvenRowB'>";
+			j++;	
+			tr += "<td>" + G_wanConnction[i].Name + "</td>";
+			if (G_wanConnction[i].ConnectionType == "IP_Bridged")
+				tr += "<td>" + "IP_Bridged" + "</td>";
+			else
+				tr += "<td>" + G_wanConnction[i].AddressingType + "</td>";
+			tr += "<td>" + G_wanConnction[i].IPv6IPAddress + "</td>";
+			tr += "<td>" + G_wanConnction[i].DefaultIPv6Gateway + "</td>";
+			tr += "<td>" + dns1 + "</td>";
+			tr += "<td>" + dns2 + "</td>";
+			tr += "<td>" + G_wanConnction[i].IPv6AddressPrefixLen + "</td>";
+			tr += "<td>";
+			if(G_wanConnction[i].ConnectionTrigger == "Manual"){
+				  if(G_wanConnction[i].IPv6ConnectionStatus == "Connected"){
+						tr += '<input type="submit" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');" class="Tributton" id="" name="" onClick="uiPppManualDisconnect(+' + i + ')"  value="'+getStr('LK_PppManualDisconnect')+'" >';
+					} else{
+						tr += '<input type="submit" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');" class="Tributton" id="" name="" onClick="uiPppManualConnect(+' + i + ')"  value="'+getStr('LK_PppManualConnect')+'" >';
+					}
+			}
+			else{
+				tr += G_wanConnction[i].IPv6ConnectionStatus;
+			}
+			tr += "</td>";
+			tr += "</tr>";
+			trs += tr;             
+		}
+	}	
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="8">'+getStr('LK_NoRule')+'</td></tr>';
+
+			
+	jQuery("#6_table").append(trs);
+}
+
+
+function createTable(){
+	var trs = "";
+	var j=0;
+	for (var i=0; i<G_wanConnction.length; i++) {
+		if (G_wanConnction[i].IPMode != '2') {
+			var DNSs = G_wanConnction[i].DNSServers.split(',');
+			var dns1 = isDefined(DNSs[0]) ? DNSs[0] : "&nbsp;";
+			var dns2 = isDefined(DNSs[1]) ? DNSs[1] : "&nbsp;";
+			var tr = "";
+			if(j%2 == 0)
+				tr += "<tr class='OddRowB'> ";
+			else
+				tr += "<tr class='EvenRowB'>";
+			j++;
+			tr += "<td>"+ G_wanConnction[i].Name +"</td>";
+			if (G_wanConnction[i].ConnectionType == "IP_Bridged")
+				tr += "<td>" + "IP_Bridged" + "</td>";
+			else
+				tr += "<td>"+ G_wanConnction[i].AddressingType +"</td>";
+			if(G_wanConnction[i].AddressingType == "PPP" && G_wanConnction[i].ConnectionStatus == "Disconnected")
+				tr += "<td>"+ G_wanConnction[i].ExternalIPAddress +"/"+ "" +"</td>";
+			else
+				tr += "<td>"+ G_wanConnction[i].ExternalIPAddress +"/"+G_wanConnction[i].SubnetMask+"</td>";
+			tr += "<td>"+ getWanConnGateway(G_wanConnction[i]) +"</td>";
+			tr += "<td>"+ dns1 +"</td>";
+			tr += "<td>"+ dns2 +"</td>";
+			tr += "<td>";
+			if(G_wanConnction[i].ConnectionTrigger == "Manual"){
+				  if(G_wanConnction[i].ConnectionStatus == "Connected"){
+						tr += '<input type="submit" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');" class="Tributton" id="" name="" onClick="uiPppManualDisconnect(+' + i + ')"  value="'+getStr('LK_PppManualDisconnect')+'" >';
+					} else{
+						tr += '<input type="submit" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');" class="Tributton" id="" name="" onClick="uiPppManualConnect(+' + i + ')"  value="'+getStr('LK_PppManualConnect')+'" >';
+					}	
+			}
+			else{
+				tr +=  G_wanConnction[i].ConnectionStatus;
+			}
+			tr += "</td>";
+			tr += "</tr>";
+			trs += tr;             
+		}
+	}
+
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="7">'+getStr('LK_NoRule') +'</td></tr>';
+
+	jQuery("#4_table").append(trs);
+}
+
+function uiPppManualConnect(wanIdx)
+{
+  var df = document.status_wannetwork_form;
+  var doaction = 1;
+
+   AddElements(df, G_wanConnction[wanIdx].Path+"X_TRI_ManualConnect",doaction);
+   df.submit();
+}
+function uiPppManualDisconnect(wanIdx)
+{
+  var df = document.status_wannetwork_form;
+  var doaction = 2;
+   AddElements(df, G_wanConnction[wanIdx].Path+"X_TRI_ManualConnect",doaction);
+   df.submit();
+}
+
+function __init()
+{
+	createTable();	
+	createWANTable();
+	createDSLTable();
+	if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_IPv4WANConnectionStatus'));</script>
+<table id="4_table" cellpadding="0" cellspacing="0" width="800" class="ContentBorder">
+<tr class="TitleRow">
+<td langkey="LK_ConnectionName"></td>
+<td langkey="LK_Type"></td>
+<td langkey="LK_IPAddressMask"></td>
+<td langkey="LK_DefaultGateway"></td>
+<td langkey="LK_PrimaryDNS"></td>
+<td langkey="LK_SecondaryDNS"></td>
+<td langkey="LK_Status"></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_IPv6WANConnectionStatus'));</script>
+<table id="6_table" cellpadding="0" cellspacing="0" width="800" class="ContentBorder">
+<tr class="TitleRow">
+<td langkey="LK_ConnectionName"></td>
+<td langkey="LK_Type"></td>
+<td langkey="LK_IPAddress"></td>
+<td langkey="LK_DefaultGateway"></td>
+<td langkey="LK_PrimaryDNS"></td>
+<td langkey="LK_SecondaryDNS"></td>
+<td langkey="LK_Prefix"></td>
+<td langkey="LK_Status"></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_net_dslitetunnelsetup'));</script>
+<table id="dslite_table" cellpadding="0" cellspacing="0" width="500" class="ContentBorder">
+<tr class="TitleRow">
+<td langkey="LK_ConnectionName"></td>
+<td langkey="LK_Type"></td>
+<td langkey="LK_Mode"></td>
+<td langkey="LK_net_aftraddr"></td>
+<td langkey="LK_Status"></td>	    
+</tr>		
+</table>
+<table>
+	<tr><td></td></tr>
+	<tr><td></td></tr>
+	<tr><td></td></tr>
+	<tr><td></td></tr>
+</table>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();")</script>
+</td></tr></table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="status_wannetwork_form" action="/cgi-bin/setup.cgi?page/status/status_wannetwork.shtml"></form>
+</body>
+</html>

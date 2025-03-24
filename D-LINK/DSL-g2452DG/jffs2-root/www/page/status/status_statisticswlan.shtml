@@ -1,0 +1,138 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+function G_WlanIntfTuple()
+{
+	this.Enable = "";
+	this.SSID  = "";
+	this.ChannelsInUse = "";
+	this.PowerValue = "";
+	this.BeaconType = "";
+	this.BasicEncryptionModes = "";
+}
+var index = 0;
+var G_WlanIntf = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. Enable SSID ChannelsInUse TransmitPower BeaconType BasicEncryptionModes" -->
+	G_WlanIntf[index] = new G_WlanIntfTuple();
+	G_WlanIntf[index].Enable = "<!--#leaf  "1"-->";
+	G_WlanIntf[index].SSID = "<!--#leaf  "2"-->";
+	G_WlanIntf[index].ChannelsInUse = "<!--#leaf  "3"-->";
+	G_WlanIntf[index].PowerValue = "<!--#leaf "4"-->";
+	G_WlanIntf[index].BeaconType = "<!--#leaf  "5"-->";
+	G_WlanIntf[index].BasicEncryptionModes = "<!--#leaf  "6"-->";
+	index++;
+<!--#endgetobject -->
+function G_WlanStatTuple()
+{
+	this.TotalBytesReceived = "";
+	this.TotalPacketsReceived  = "";
+	this.ErrorsReceived = "";
+	this.DiscardPacketsReceived = "";
+	this.TotalBytesSent = "";
+	this.TotalPacketsSent = "";
+	this.ErrorsSent = "";
+	this.DiscardPacketsSent = "";
+}
+var n = 0;
+var G_WlanStat = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. TotalBytesReceived TotalPacketsReceived Stats.ErrorsReceived Stats.DiscardPacketsReceived TotalBytesSent TotalPacketsSent Stats.ErrorsSent Stats.DiscardPacketsSent" -->
+	G_WlanStat[n] = new G_WlanStatTuple();
+	G_WlanStat[n].TotalBytesReceived = "<!--#leaf  "1"-->";
+	G_WlanStat[n].TotalPacketsReceived = "<!--#leaf  "2"-->";
+	G_WlanStat[n].ErrorsReceived = "<!--#leaf "3"-->";
+	G_WlanStat[n].DiscardPacketsReceived = "<!--#leaf  "4"-->";
+	G_WlanStat[n].TotalBytesSent = "<!--#leaf  "5"-->";
+	G_WlanStat[n].TotalPacketsSent = "<!--#leaf  "6"-->";
+	G_WlanStat[n].ErrorsSent = "<!--#leaf  "7"-->";
+	G_WlanStat[n].DiscardPacketsSent = "<!--#leaf  "8"-->";
+	n++;
+<!--#endgetobject -->
+
+function G_WlanConnectTuple()
+{
+	this.Ip = "";
+	this.Mac = "";
+}
+var m = 0;
+var G_WlanConnect = new Array();
+var vanguard = '<!--#getsingle "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.AssociatedDevice.X_TRI-vanguard" -->';
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration." -->
+	<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{i}.AssociatedDevice. AssociatedDeviceIPAddress AssociatedDeviceMACAddress" -->
+		G_WlanConnect[m] = new G_WlanConnectTuple();
+		G_WlanConnect[m].Ip = "<!--#leaf  "1"-->";
+		G_WlanConnect[m].Mac = "<!--#leaf  "2"-->";
+		m++;
+	<!--#endgetobject -->
+<!--#endgetobject -->
+
+function createTable(){
+	var trs = "";
+	for(var i = 0;i<G_WlanStat.length;i++) {
+		var tr = "";
+		if(i%2 ==0)
+			tr += '<tr class="OddRowB">'
+		else
+        		tr += "<tr class='EvenRowB'>";
+		tr += "<td>SSID-"+(i+1)+"</td>";
+		tr += "<td>"+G_WlanStat[i].TotalBytesReceived+"</td>";
+		tr += "<td>"+G_WlanStat[i].TotalPacketsReceived+"</td>";
+		tr += "<td>"+G_WlanStat[i].ErrorsReceived+"</td>";
+		tr += "<td>"+G_WlanStat[i].DiscardPacketsReceived+"</td>";
+		tr += "<td>"+G_WlanStat[i].TotalBytesSent+"</td>";
+		tr += "<td>"+G_WlanStat[i].TotalPacketsSent+"</td>";
+		tr += "<td>"+G_WlanStat[i].ErrorsSent+"</td>";
+		tr += "<td>"+G_WlanStat[i].DiscardPacketsSent+"</td>";
+		tr += "</tr>";
+		trs += tr;  
+	}
+	jQuery("#td_table").append(trs);
+}
+
+
+function __init()
+{				  
+	createTable();
+	if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+</script>        
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StatisticsWLAN'))</script>
+<form method="get"> 
+<table class="ContentBorder" id="td_table" cellpadding="0" cellspacing="0" width="600">
+<tr class="TitleRow">
+	<td rowspan="2" langkey="LK_Port"></td>
+	<td align="center" colspan="4" langkey="LK_Received"></td>
+	<td align="center" colspan="4" langkey="LK_Transmitted"></td>
+</tr>
+<tr class="TitleRow">
+	<td langkey="LK_Bytes"></td>
+	<td langkey="LK_Packets"></td>
+	<td langkey="LK_Error"></td>
+	<td langkey="LK_Discard"></td>
+	<td langkey="LK_Bytes"></td>
+	<td langkey="LK_Packets"></td>
+	<td langkey="LK_Error"></td>
+	<td langkey="LK_Discard"></td>
+
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+</td></tr></table>
+<script>printEndContent();</script>
+</form>
+</body>
+</html>

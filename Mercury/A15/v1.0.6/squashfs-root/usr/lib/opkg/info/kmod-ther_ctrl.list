@@ -1,0 +1,3 @@
+/usr/sbin/ther_control
+/lib/modules/4.4.176/ther_ctrl.ko
+/etc/conf/ther.conf

@@ -1,0 +1,922 @@
+<style type="text/css">
+	ul.inputCMPT li.input span.desc{
+		font-size: 13px;
+		line-height: 32px;
+		color: #333333;
+	}
+	ul.inputCMPT li.input span.desc.upNew{
+		color: #24B353;
+	}
+	ul.cloudUpgrade label.outerLbl{
+		vertical-align: top;
+	}
+	span.localUpgradeTitle{
+		line-height: 20px;
+		font-size: 13px;
+		color: #333333;
+	}
+	#importFile{
+		margin-top: 16px;
+	}
+	span.upgradeDesc{
+		display: block;
+		margin-bottom: 8px;
+		color: #666666;
+		height: 20px;
+		line-height: 20px;
+		font-size: 13px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var isCheckUpgradeVerLoading = true;
+		var checkUpgradeHd = null;
+		var checkTime, t1, t2;
+		var upgradeOnlineTable, upgradeLocalTable;
+		var extWaitTime = 195000;
+
+		function errHandle(errNo){
+			var showStr = "";
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EFWEXCEPTION:
+				showStr = errStr.fwException;
+				break;
+			case EFWRSAFAIL:
+				showStr = errStr.fwRSAError;
+				break;
+			case EFWHWIDNOTMATCH:
+				showStr = errStr.fwHwIdNotMatch;
+				break;
+			case EFWZONECODENOTMATCH:
+				showStr = errStr.fwZoneCodeNotMatch;
+				break;
+			case EFWVENDORIDNOTMATCH:
+				showStr = errStr.fwVendorIdNotMatch;
+				break;
+			case EFWNOTINFLANDBL:
+				showStr = errStr.fwNotInFLAndBL;
+				break;
+			case EFWNEWEST:
+				showStr = errStr.fwNewest;
+				break;
+			case EFWNOTSUPPORTED:
+				showStr = errStr.fwNotSupported;
+				break;
+			case ECHIPID:
+				showStr = errStr.fwChipIdNotSupport;
+				break;
+			case EFLASHID:
+				showStr = errStr.fwFlashIdNotSupported;
+				break;
+			case EMD5:
+				showStr = errStr.fwMD5Err;
+				break;
+			case EINVFMT:
+				showStr = errStr.fwFmtErr;
+				break;
+			case EPRODID:
+				showStr = errStr.fwProdIdNotSupported;
+				break;
+			case ESUBVER:
+				showStr = errStr.fwSubVerNotSupported;
+				break;
+			case ECOUNTRYID:
+				showStr = errStr.fwCountryNotSupported;
+				break;
+			case EOEMID:
+				showStr = errStr.fwOEmIdNotSupported;
+				break;
+			case ELANGID:
+				showStr = errStr.fwLangNotSupported;
+				break;
+			case EFILETOOBIG:
+				showStr = errStr.fileSizeErr;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function errHandleCheckUpgradeInfo(errNo){
+			var showStr = "";
+			var cloudErrRel;
+
+			switch (parseInt(errNo))
+			{
+			case ENONE:
+				return true;
+			case EINVSENDREQMSGFAILED:
+				showStr = errStr.invSendReqMsgFailed;
+				break;
+			case ESYSBUSY:
+			case EINVLASTOPTIONISNOTFINISHED:
+				showStr = errStr.invLastOptionIsNotFinished;
+				break;
+			case ESYSTEM:
+				showStr = errStr.invRequestFail;
+				break;
+			case ENOMEMORY:
+				showStr = errStr.invMemoryOut;
+				break;
+			case EINVGETDATAFAILED:
+				showStr = errStr.invGetDataFailed;
+				break;
+			case EINVPARAMETER:
+				showStr = errStr.invParameter;
+				break;
+			case EINVMEMORYOUT:
+			case EINVDOWNLOADFWFAILED:
+			case EINVCONNECTTINGCLOUDSERVER:
+				showStr = errStr.fwDownLoadFailed;
+				break;
+			case EINVUPGRADEFWFAILED:
+				showStr = errStr.fwUpgradeFailed;
+				break;
+			case EINVREQUESTTIMEOUT:
+				showStr = appendErrCode(errStr.invRequestFailTrylater, errNo);
+				break;
+			case EINVDEVICEIDNOTEXIST:
+			case EINVERRORDEVICEIDFORMATERROR:
+			case EINVILLEGALDEVICE:
+				showStr = appendErrCode(errStr.cloudDeviceInfoExpt, errNo);
+				break;
+			default:
+				cloudErrRel = cloudErrHandle(errNo);
+				if (cloudErrRel.result == false)
+				{
+					showStr = cloudErrRel.tip;
+				}
+				else
+				{
+					showStr = errStr.invRequestFail;
+				}
+				break;
+			}
+
+			alarmDialog.show(showStr);
+
+			return false;
+		}
+
+		window.addEventListener('message',function(event) {
+			var responseText = event.data;
+			var j, ret;
+			var errorno = ENONE;
+			if (/(<pre>)?(.+)(<\/pre>)+/.test(responseText) ||
+				/(<pre>)?(.+)/.test(responseText))
+			{
+				j = RegExp["$2"];
+			}
+
+			ret = JSON.parse(j);
+			errorno = ret[ERR_CODE];
+
+			/* 错误。直接退出 */
+			if (errorno != ENONE)
+			{
+				loadingDialog.hide();
+			}
+
+			loadingDialog.hide(function(){
+				upLoadExtCallBack(errorno, ret);
+			});
+		}, false);
+
+		function upgradeTimeout(){
+			upgradeTimeoutTag = true;
+
+			clearTimeout(upgradeTimeoutHd);
+
+			loadingDialog.hide(function(){
+				localUpgradeDialog.hide(function(){
+					$(localUpgradeDialog.iframe).off("load");
+					alarmDialog.show(errStr.upGradeFail);
+				});
+			});
+		}
+
+		function upLoadCallBack(code, dataObj){
+			if (true == upgradeTimeoutTag)
+			{
+				return;
+			}
+
+			clearTimeout(upgradeTimeoutHd);
+			upgradeTimeoutHd = null;
+
+			if (code == ENONE)
+			{
+				var waitTime = dataObj["wait_time"]
+							 ? parseInt(dataObj["wait_time"])*1000
+							 : SYSUPGRADE_SECONDS;
+
+				localUpgradeDialog.hide(function(){
+					loadingDialog.show({
+						title: label.upgradeLocal,
+						content:{
+							primary: label.upgrading,
+							secondary: label.upgradingTips
+						}
+					}, function(){
+						lanDetecting(function(){window.location.reload();});
+					}, waitTime, false, undefined);
+				});
+			}
+			else
+			{
+				errHandle(code);
+			}
+		}
+
+		function upLoadExtCallBack(code, dataObj){
+			if (true == upgradeTimeoutTag)
+			{
+				return;
+			}
+
+			clearTimeout(upgradeTimeoutHd);
+			upgradeTimeoutHd = null;
+
+			if (code == ENONE)
+			{
+				var waitTime = dataObj["wait_time"]
+							 ? parseInt(dataObj["wait_time"])*1000
+							 : SYSUPGRADE_SECONDS;
+
+				localUpgradeDialog.hide(function(){
+					loadingDialog.show({
+						title: label.upgradeLocal,
+						content:{
+							primary: label.upgrading,
+							secondary: label.upgradingExtTips
+						}
+					}, function(){
+						loadingDialog.hide(function(){
+							refreshShowData();
+						});
+					}, waitTime, false, undefined);
+				});
+			}
+			else
+			{
+				errHandle(code);
+			}
+		}
+
+		function getUpgradeStatus(){
+			var isDownloadUpgradeLoadingShow = false;
+			var isDownloadNow = false;
+			var isUpgradeNow = false;
+			var getStatusHd = null;
+			var timeout = 195000;
+			var pollTime = 1000;
+
+			function timeoutHandler(){
+				refreshShowData();
+				isDownloadUpgradeLoadingShow = false;
+				loadingDialog.hide();
+			}
+
+			function eventHandler(status){
+				switch(status)
+				{
+				case uciPlc.optValue.extOlStatus.readyDownload:
+				case uciPlc.optValue.extOlStatus.downloading:
+					if (isDownloadNow == false)
+					{
+						isDownloadNow = true;
+						loadingDialog.show({
+							title: label.upgradeOnline,
+							content:{primary: label.upgrading}
+						}, undefined, undefined, false, undefined);
+					}
+					getStatusHd = $.setTimeout(getData, pollTime);
+					break;
+				case uciPlc.optValue.extOlStatus.readyUpg:
+				case uciPlc.optValue.extOlStatus.upgrading:
+					if (isDownloadNow && !isUpgradeNow)
+					{
+						isUpgradeNow = true;
+						$.setTimeout(timeoutHandler, timeout);
+					}
+					else if (!isUpgradeNow)
+					{
+						isUpgradeNow = true;
+						loadingDialog.show({
+							title: label.upgradeOnline,
+							content:{primary: label.upgrading}
+						}, timeoutHandler, timeout, false, undefined);
+					}
+
+					getStatusHd = $.setTimeout(getData, pollTime);
+					break;
+				case uciPlc.optValue.extOlStatus.upgSuccess:
+					if (isUpgradeNow)
+					{
+						refreshShowData();
+						if (loadingDialog.status == "showed")
+						{
+							loadingDialog.hide();
+						}
+					}
+					break;
+				case uciPlc.optValue.extOlStatus.timeout:
+					refreshShowData();
+					if (loadingDialog.status == "showed")
+					{
+						loadingDialog.hide();
+					}
+					break;
+				case uciPlc.optValue.extOlStatus.fail:
+					if (isDownloadNow || isUpgradeNow)
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show(errStr.fwUpgradeFailed);
+						});
+					}
+
+					break;
+				default:
+					break;
+				}
+			}
+
+			function getData()
+			{
+				var reqData = {"hyfi":{"name":"upgrade_ext_status"}};
+
+				$.query(reqData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						var status = result.hyfi.upgrade_ext_status.status;
+						eventHandler(status);
+					}
+				});
+			}
+
+			getData();
+		}
+
+		function capOnlineUpgrade(){
+			isCheckUpgradeVerLoading = true;
+
+			loadingDialog.show({
+				title: label.upgradeOnline,
+				content: {primary:label.gettingUpgradeInfo}
+			}, undefined, undefined, true, function(){
+				isCheckUpgradeVerLoading = false;
+			});
+
+			onlineUpgrade(function(){
+					if (true == isCheckUpgradeVerLoading)
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show(gOnlineUpgradeNote);
+							gOnlineUpgradeNote = "";
+						});
+					}
+				},function(callback){
+					/* 检查成功，将Loading关掉，准备下载 */
+					if (true == isCheckUpgradeVerLoading)
+					{
+						loadingDialog.hide(function(){
+							callback();
+						});
+					}
+				}
+			);
+		}
+
+		function capOnlineCheckVer(){
+			isCheckUpgradeVerLoading = true;
+
+			loadingDialog.show({
+				title: label.upgradeOnline,
+				content: {primary:label.checkingUpgradeVer}
+			}, undefined, undefined, true, function(){
+				isCheckUpgradeVerLoading = false;
+				clearTimeout(checkUpgradeHd);
+			});
+
+			checkTime = new Date();
+			t1 = checkTime.getTime();
+			onlineUpgradeCheck(errHandleCheckUpgradeInfo, function(errCode){
+				if (true == isCheckUpgradeVerLoading)
+				{
+					checkTime = new Date();
+					t2 = checkTime.getTime();
+
+					if (t2 - t1 < 2000)
+					{
+						checkUpgradeHd = $.setTimeout(function(){
+							loadingDialog.hide(function(){
+								errHandleCheckUpgradeInfo(errCode);
+							});
+						}, 200 - (t2 - t1));
+					}
+					else
+					{
+						loadingDialog.hide(function(){
+							errHandleCheckUpgradeInfo(errCode);
+						});
+					}
+				}
+			}, function(){
+				if (true == isCheckUpgradeVerLoading)
+				{
+					checkTime = new Date();
+					t2 = checkTime.getTime();
+					refreshShowData();
+
+					if (t2 - t1 < 2000)
+					{
+						checkUpgradeHd = $.setTimeout(function(){
+							loadingDialog.hide();
+						}, 2000 - (t2 - t1));
+					}
+					else
+					{
+						loadingDialog.hide();
+					}
+				}
+			});
+		}
+
+		function reOnlineUpgrade(reData){
+			loadingDialog.show({
+				title: label.upgradeOnline,
+				content: {primary:label.gettingUpgradeInfo}
+			}, undefined, undefined, false, undefined);
+
+			function extUpgrade(){
+				var reqData = {}, argData = {};
+
+				reqData[uciPlc.fileName] = {};
+				reqData[uciPlc.fileName][uciPlc.actionName.upgExt] = argData;
+				argData[uciPlc.optName.mac] = reData.mac;
+
+				$.action(reqData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						extWaitTime = result["wait_time"] ? parseInt(result["wait_time"])*1000 : extWaitTime;
+
+						$.setTimeout(function(){
+							loadingDialog.hide(function(){
+								getUpgradeStatus();
+							});
+						}, 500);
+					}
+					else
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show(errStr.invSendReqMsgFailed);
+						});
+					}
+				});
+			}
+
+			function checkVerStatus(){
+				var reqData = {};
+				reqData[uciPlc.fileName] = {};
+				reqData[uciPlc.fileName][KEY_NAME] = uciPlc.secName.startGetExtFwVerStat;
+
+				$.query(reqData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						var status = result[uciPlc.fileName][uciPlc.secName.startGetExtFwVerStat][uciPlc.optName.status];
+
+						/*
+						*  0 - STILL GETTING STATUS
+						*  1 - GET-DATA SUCCESS
+						*  2 - GET-STATUS FAIL
+						*/
+
+						if ("0" == status)
+						{
+							$.setTimeout(checkVerStatus, 500);
+						}
+						else if ("1" == status)
+						{
+							extUpgrade();
+						}
+						else
+						{
+							refreshShowData();
+							loadingDialog.hide();
+						}
+					}
+					else
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show(errStr.invSendReqMsgFailed);
+						});
+					}
+				});
+			}
+
+			function extCheckVer(){
+				var reqData = {}, argData = {};
+
+				reqData[uciPlc.fileName] = {};
+				reqData[uciPlc.fileName][uciPlc.actionName.startGetExtFwVer] = argData;
+				argData[uciPlc.optName.mac] = reData.mac;
+
+				$.action(reqData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						checkVerStatus();
+					}
+					else
+					{
+						loadingDialog.hide(function(){
+							alarmDialog.show(errStr.invSendReqMsgFailed);
+						});
+					}
+				});
+			}
+
+			extCheckVer();
+		}
+
+		function reOnlineCheckVer(reData){
+			var reqData = {}, argData = {};
+
+			reqData[uciPlc.fileName] = {};
+			reqData[uciPlc.fileName][uciPlc.actionName.startGetExtFwVer] = argData;
+			argData[uciPlc.optName.mac] = reData.mac;
+
+			function checkVerStatus(){
+				var reqData = {};
+				reqData[uciPlc.fileName] = {};
+				reqData[uciPlc.fileName][KEY_NAME] = uciPlc.secName.startGetExtFwVerStat;
+
+				$.query(reqData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						var status = result[uciPlc.fileName][uciPlc.secName.startGetExtFwVerStat][uciPlc.optName.status];
+
+						/*
+						*  0 - STILL GETTING STATUS
+						*  1 - GET-DATA SUCCESS
+						*  2 - GET-STATUS FAIL
+						*/
+
+						if ("0" == status)
+						{
+							$.setTimeout(checkVerStatus, 500);
+						}
+						else if ("2" == status)
+						{
+							loadingDialog.hide(function(){
+								alarmDialog.show(errStr.invSendReqMsgFailed);
+							});
+						}
+						else
+						{
+							refreshShowData();
+							loadingDialog.hide();
+						}
+					}
+				});
+			}
+
+			$.action(reqData, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					loadingDialog.show({
+						title: label.upgradeOnline,
+						content: {primary:label.checkingUpgradeVer}
+					}, undefined, undefined, false, undefined);
+
+					checkVerStatus();
+				}
+				else
+				{
+					alarmDialog.show(errStr.invSendReqMsgFailed);
+				}
+			});
+		}
+
+		function routerOnlineUpgradeHandle(indexData, indexTable){
+			var routerData = upgradeOnlineTable.data[indexData];
+
+			if (routerData.is_cap)
+			{
+				/* CAP */
+				if (routerData.has_new_fw)
+				{
+					capOnlineUpgrade();
+				}
+				else
+				{
+					capOnlineCheckVer();
+				}
+			}
+			else
+			{
+				/* RE */
+				if (routerData.has_new_fw)
+				{
+					reOnlineUpgrade(routerData);
+				}
+				else
+				{
+					reOnlineCheckVer(routerData)
+				}
+			}
+		}
+
+		function refreshShowData(){
+			var data = {};
+			data[uciCloudConfig.fileName] = {};
+			data[uciCloudConfig.fileName][KEY_NAME] = [uciCloudConfig.secName.newFirmware, uciCloudConfig.secName.upgradeInfo];
+			data[uciDeviceInfo.fileName] = {};
+			data[uciDeviceInfo.fileName][KEY_NAME] = uciDeviceInfo.secName.info;
+			data[uciProto.fileName] = {};
+			data[uciProto.fileName][KEY_NAME] = uciProto.secName.dhcp;
+			data[uciPlc.fileName] = {};
+			data[uciPlc.fileName][KEY_TABLE]= uciPlc.secType.connectedExt;
+
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					tableRefresh(result);
+				}
+			});
+		}
+
+		function tableRefresh(data){
+			var info = data[uciDeviceInfo.fileName][uciDeviceInfo.secName.info];
+			var name = data[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName] == undefined ? label.canNotDetect : data[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName];
+			var fwVersion = info[uciDeviceInfo.optName.swVer] == undefined ? label.canNotDetect : info[uciDeviceInfo.optName.swVer];
+
+			var cloudDeviceInfo = data[uciCloudConfig.fileName][uciCloudConfig.secName.newFirmware];
+			var fwNewNofify = cloudDeviceInfo[uciCloudConfig.optName.fwNewNotify];
+			fwNewNofify = checkNum(fwNewNofify) && parseInt(fwNewNofify) || uciCloudConfig.optValue.fwNewFalse;
+			var upgradeInfo = data[uciCloudConfig.fileName][uciCloudConfig.secName.upgradeInfo];
+
+			var router = {};
+			router.name = name;
+			router.cur_fw_version_full = fwVersion;
+			router.cur_fw_version = fwVersion.split(" ")[0];
+			router.has_new_fw = (fwNewNofify == uciCloudConfig.optValue.fwNewTrue) && (upgradeInfo[uciCloudConfig.optName.version] != undefined);
+			router.hw_version = info[uciDeviceInfo.optName.hwVer];
+
+			router.newest_fw_version = router.has_new_fw ? (upgradeInfo[uciCloudConfig.optName.version]).split(" ")[0] : fwVersion.split(" ")[0];
+			router.is_cap = true;
+
+			var cldList = formatTableData(data[uciPlc.fileName][uciPlc.secType.connectedExt]);
+
+			for (var i = 0, j = cldList.length; i < j; i++)
+			{
+				var cld = cldList[i];
+
+				if (cld[uciPlc.optName.supportOlUp] != uciPlc.optValue.supportOlUp.yes)
+				{
+					cld.name = cld.name || label.oldVersion;
+					cld.cur_fw_version = label.canNotDetect;
+					cld.newest_fw_version = label.canNotDetect;
+					cld.cur_fw_version_full = label.canNotDetect;
+					cld.has_new_fw = null;
+				}
+				else
+				{
+					cld.name = cld.name == undefined ? label.canNotDetect : cld.name;
+					cld.cur_fw_version = cld.cur_fw_version == undefined ? label.canNotDetect : cld.cur_fw_version;
+					cld.newest_fw_version = cld.newest_fw_version == undefined ? cld.cur_fw_version : cld.newest_fw_version;
+					cld.cur_fw_version_full = cld.cur_fw_version == "" ? label.canNotDetect : cld.cur_fw_version;
+					cld.cur_fw_version = cld.cur_fw_version.split(" ")[0] == "" ? label.canNotDetect : cld.cur_fw_version.split(" ")[0];
+					cld.newest_fw_version = cld.newest_fw_version.split(" ")[0] || cld.cur_fw_version;
+					if (cld.cur_fw_version == label.canNotDetect || cld.newest_fw_version == label.canNotDetect)
+					{
+						cld.has_new_fw = false;
+					}
+					else if (cld.newest_fw_version != cld.cur_fw_version)
+					{
+						cld.has_new_fw = true;
+					}
+					else
+					{
+						cld.has_new_fw = false;
+					}
+				}
+			}
+
+			var tblData = [router];
+			tblData = cldList.concat(tblData);
+
+			upgradeOnlineTable.setDataSource(tblData);
+			upgradeOnlineTable.loadData();
+
+			upgradeLocalTable.setDataSource(tblData);
+			upgradeLocalTable.loadData();
+		}
+
+		upgradeOnlineTable = new Table({
+			targetId:'upgradeOnlineTable',
+			head:[
+				{field:label.deviceName, width:"0.34"},
+				{field:label.upCurrSoft, width:"0.33"},
+				{field:label.upNewstSoft, width:"0.33"}
+			],
+			column:[
+				{name:uciPlc.optName.name, type: "str"},
+				{name:"cur_fw_version", type:"str"},
+				{name:"newest_fw_version", type:"str"}
+			],
+			itemOption:[
+				{
+					icon: "icon-onlineupdate",
+					type: "onlineUpdate",
+					str: btn.upgradeOnline,
+					func: routerOnlineUpgradeHandle
+				}
+			],
+			deletable:false,
+			editable:false,
+			addable:false,
+			hasCheckBox: false
+		});
+
+		upgradeLocalTable = new Table({
+			targetId:'upgradeLocalTable',
+			head:[
+				{field:label.deviceName, width:"0.5"},
+				{field:label.upCurrSoft, width:"0.5"}
+			],
+			column:[
+				{name:uciPlc.optName.name, type: "str"},
+				{name:"cur_fw_version", type:"str"}
+			],
+			itemOption:[
+				{
+					icon: "icon-localupdate",
+					type: "localUpdate",
+					str: btn.upgradeLocal,
+					func: function(indexData, indexTable){
+						localUpgradeDialog.show(upgradeLocalTable.data[indexData]);
+					}
+				}
+			],
+			deletable:false,
+			editable:false,
+			addable:false,
+			hasCheckBox: false
+		});
+
+		var localUpgradeDialog = new Dialog({
+			title: label.upgradeLocal,
+			content: '<span class="localUpgradeTitle">' + label.plzSelectSoftWareAndUpgrade + '</span>' +
+					 '<div id="importFile"></div>',
+			size: Dialog.SIZE.SMALL,
+			hasCloseIcon: true,
+			type: Dialog.TYPE.CUSTOM,
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text:btn.cancelTip,
+					id:'localUpgradeCancel',
+					onClick:function(){
+						localUpgradeDialog.hide();
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.upgrade,
+					id:'localUpgradeSubmit',
+					onClick:function(){
+						var reqData = {};
+
+						if (localUpgradeDialog.importFile.checkFile())
+						{
+							upgradeTimeoutHd = $.setTimeout(upgradeTimeout, 40000);
+
+							if (localUpgradeDialog.currentRouter.isCap)
+							{
+								reqData[uciSystem.fileName] = {};
+								reqData[uciSystem.fileName][uciSystem.actionName.firmUpgrade] = {"type": "0"};
+
+								$.action(reqData, function(result){
+									if (ENONE == result[ERR_CODE])
+									{
+										localUpgradeDialog.importFile.submit($.orgURL(result["url"]));
+										upgradeTimeoutTag = false;
+									}
+									else
+									{
+										upgradeTimeout();
+									}
+								});
+							}
+							else
+							{
+								var extIP = "http://" + localUpgradeDialog.currentRouter.ip;
+								if (slp.usernameSupport)
+								{
+									var data = {"method":"do","login":{"username":$.usr,"password":$.pwd}};
+								}
+								else
+								{
+									var data = {"method":"do","login":{"password":$.pwd}};
+								}
+
+								var url,stok;
+								$.ajax({'url': extIP,
+									'data': data,
+									'type':"POST",
+									'async':true,
+									'postDataType':'json',
+									"dataType":"json",
+									'utf8Encode':true,
+									'success': function(result) {
+										if (result[ERR_CODE] == ENONE) {
+											stok = result.stok;
+											url = extIP + "/stok=" + stok + "/ds";
+											data = {};
+											data[uciSystem.fileName] = {};
+											data[uciSystem.fileName][uciSystem.actionName.firmUpgrade] = {"type": "0"};
+											data["method"] = "do";
+
+											$.ajax({'url': url,
+												'data': data,
+												'type':"POST",
+												'async':true,
+												'postDataType':'json',
+												"dataType":"json",
+												'utf8Encode':true,
+												'success': function(result) {
+													if (result[ERR_CODE] == ENONE) {
+														localUpgradeDialog.importFile.submit(extIP + "/stok=" + stok + result["url"], true);
+														upgradeTimeoutTag = false;
+													} else {
+														upgradeTimeout();
+													}
+												},
+												'error': function() {
+													loadingDialog.hide(function(){
+														alarmDialog.show(errStr.invSendReqMsgFailed);
+														clearTimeout(upgradeTimeoutHd);
+													});
+												}
+											});
+										} else {
+											upgradeTimeout();
+										}
+									},
+									'error': function() {
+										loadingDialog.hide(function(){
+											alarmDialog.show(errStr.invSendReqMsgFailed);
+											clearTimeout(upgradeTimeoutHd);
+										});
+									}
+								});
+							}
+						}
+					}
+				}
+			],
+			renderCallBack:function(){
+				this.importFile = new UpFile({
+					targetId:"importFile",
+					upLoadCallback: upLoadCallBack,
+					loadStr: {
+						title: label.upgradeLocal,
+						content: label.fwUploadTip
+					}
+				});
+			}
+		});
+		localUpgradeDialog.currentRouter = {
+			isCap: false,
+			ip: ""
+		};
+		localUpgradeDialog.show = function(routerData){
+			this.currentRouter.isCap = routerData.is_cap ? true : false;
+			this.currentRouter.ip = routerData.ip ? routerData.ip : "";
+			Dialog.prototype.show.call(this);
+		}
+
+		refreshShowData();
+		getUpgradeStatus();
+	})();
+</script>
+<div class="head">
+	<div class="title"><h1>{%menuStr.upgrade%}</h1><i class="helpBtn iconfont icon-help" helpStr="sysUpgradeHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.upgradeDescription%}</p>
+</div>
+<div class="subTitle">
+	<h2>{%label.upgradeOnline%}</h2>
+</div>
+<span class="upgradeDesc">{%label.upgradeOnlineDesc%}</span>
+<div id="upgradeOnlineTable">
+</div>
+<div class="subTitle">
+	<h2>{%label.upgradeLocal%}</h2>
+</div>
+<span class="upgradeDesc">{%label.upgradeLocalDesc%}</span>
+<div id="upgradeLocalTable">
+</div>

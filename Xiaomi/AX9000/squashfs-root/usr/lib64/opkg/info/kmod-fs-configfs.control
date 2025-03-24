@@ -1,0 +1,10 @@
+Package: kmod-fs-configfs
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-5b3fa9982a4f1df1c75c17aa771f37d7)
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: aarch64_cortex-a53
+Installed-Size: 191
+Description:  Kernel module for configfs support

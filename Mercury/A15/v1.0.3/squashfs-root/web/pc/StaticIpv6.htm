@@ -1,0 +1,39 @@
+
+
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="basicArguments"></div>
+<div id="connect"></div>
+<div class="subTitle">
+	<h2>{%label.wanAdvancedArguments%}</h2>
+</div>
+<div id="staticHighsetArguments"></div>
+<div id="save"></div><script type="text/javascript">(function(){function l(b){var a="";switch(b){case ENONE:return!0;case EIPV6INVIP:a=errStr.ipAddrErr;break;case EIPV6INVIPFMT:a=errStr.ipv6AddrFmtErr;break;case EIPV6INVGROUPIP:a=errStr.ipAddrGroupErr;break;case EIPV6LOOP:a=errStr.ipAddrLoopErr;break;case EIPV6INVGTW:a=errStr.gatewayErr;break;case EINVMTU:a=errStr.stcMtuErr;break;case EIPV6INVFDNSVR:a=errStr.primDnsErr;break;case EIPV6INVSDNSVR:a=errStr.seDnsErr;break;case EIPV6LINKLOCAL:a=errStr.ipv6LinkLoaclErr;break;case ECONFLICTGATEWAY:return e.showNote(errStr.wzdStcIpLanConflict),
+!1;case ECONFLICTFDNS:return g.showNote(errStr.wzdStcIpLanConflict),!1;case ECONFLICTSDNS:return h.showNote(errStr.wzdStcIpLanConflict),!1;default:a=errStr.unknown+b}alarmDialog.show(a);return!1}function n(b,a){var f=b[uciNetwork.fileName]["undefined"!=typeof a&&2==a?uciNetwork.dynData.wanv6Status2:uciNetwork.dynData.wanv6Status],c=f[uciNetwork.optName.code],e=f[uciNetwork.optName.wanStatus];if(f.proto!=uciNetwork.optValue.proto.staticIpv6)clearTimeout(updateWanStatusTimer),updateWanStatusTimer=null,
+m.disable(!1);else switch(parseInt(e)){case LINK_DOWN:LINK_CODE_MANUAL!=c&&LINK_CODE_NORMAL!=c&&LINK_CODE_INET_ERR!=c?LINK_CODE_IP_CONFLICT==c?setLinkState(!1,linkCode[c]):setLinkState(!1,linkStatus[LINK_DOWN]+label.lBrackets+linkCode[c]+label.rBrackets):setLinkState(!1,linkStatus[LINK_DOWN]);break;case LINK_UP:setLinkState(!0,linkStatus[LINK_UP])}}wanStatusRefresh=function(b){var a={};a[uciNetwork.fileName]={};a[uciNetwork.fileName][KEY_NAME]="undefined"!=typeof b&&2==b?uciNetwork.dynData.wanv6Status2:
+uciNetwork.dynData.wanv6Status;null!=updateWanStatusTimer&&(clearTimeout(updateWanStatusTimer),updateWanStatusTimer=null);$.query(a,function(a){n(a,b);updateWanStatusTimer=$.setTimeout(function(){wanStatusRefresh(b)},2E3)},void 0,!0)};var k=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.ipv6Addr},targetId:"basicArguments",check:{blur:checkIPv6Input},props:{maxlength:"39",type:"text",placeholder:"0:0:0:0:0:0:0:0"}});(new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.ipv6PrefixLen},
+targetId:"basicArguments",props:{maxlength:"2",value:"64",type:"text"}})).disable(!0);var e=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.gateway},targetId:"basicArguments",check:{blur:checkGatewatV6},props:{maxlength:"39",type:"text",placeholder:"0:0:0:0:0:0:0:0"}}),g=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.preferredDnsServer},targetId:"basicArguments",check:{blur:checkPriDnsV6},props:{maxlength:"39",type:"text",placeholder:"0:0:0:0:0:0:0:0"}}),h=new Input({type:Input.TYPE.PLAIN_TEXT,
+label:{value:label.alternativeDnsServer},targetId:"basicArguments",check:{blur:checkSndDnsV6},hint:{value:label.allowEmpty},props:{maxlength:"39",type:"text",placeholder:"0:0:0:0:0:0:0:0"}}),m=new Button({text:btn.save,onClick:function(){var b,a;"undefined"!=typeof WAN_IPV6_INDEX&&2==WAN_IPV6_INDEX?(b=uciProto.secName.wanv62,a=uciProto.optValue.proto.staticIpv62):(b=uciProto.secName.wanv6,a=uciProto.optValue.proto.staticIpv6);var f={},c={},d=!0;f[b]={};f[b][uciProto.optName.type]=a;f[a]=c;[k,e,g,
+h].forEach(function(a){d=a.checkAll()&&d});d&&(k.setValue(k.getValue().replace(/：/g,":")),c[uciProto.optName.ipv6]=k.getValue(),e.setValue(e.getValue().replace(/：/g,":")),c[uciProto.optName.gatewayv6]=e.getValue(),g.setValue(g.getValue().replace(/：/g,":")),c[uciProto.optName.priDns]=g.getValue(),h.setValue(h.getValue().replace(/：/g,":")),c[uciProto.optName.sndDns]=h.getValue(),slp.protocol.setData({data:f,success:function(){showToast(label.saveSuccess);curWanv6Type=uciProto.optValue.proto.staticIpv6;
+!0==preDelgOnFlag&&(localLanPrefix.setValue("::"),localLanPrefix.toggleStatic(!1),preDelgOnFlag=!1)},fail:function(a){l(a[ERR_CODE])}},WAN_IPV6_INDEX),updateWanStatusTimer=$.setTimeout(function(){wanStatusRefresh(WAN_IPV6_INDEX)},2E3))},type:Button.TYPE.PRIMARY,id:"connect",props:{width:"240px",margin:"12px 0 0 132px"}}),d=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.mtu},targetId:"staticHighsetArguments",tips:{value:label.unitByte,className:"unit"},hint:{value:label.mtuComment},check:{blur:checkMtuInput},
+props:{maxlength:"4",type:"text"}}),p=new Button({text:btn.save,onClick:function(){var b={},a={};b["undefined"!=typeof WAN_IPV6_INDEX&&2==WAN_IPV6_INDEX?uciProto.optValue.proto.staticIpv62:uciProto.optValue.proto.staticIpv6]=a;d.checkAll()&&(d.setValue(hideLeadingZeros(d.getValue())),a[uciProto.optName.mtu]=d.getValue(),null!=updateWanStatusTimer&&(clearTimeout(updateWanStatusTimer),updateWanStatusTimer=null),disableAllBtn(!0),slp.protocol.setData({data:b,success:function(){disableAllBtn(!1);showToast(label.saveSuccess);
+updateWanStatusTimer=$.setTimeout(function(){wanStatusRefresh(WAN_IPV6_INDEX)},0)},fail:function(a){disableAllBtn(!1);l(a[ERR_CODE]);updateWanStatusTimer=$.setTimeout(function(){wanStatusRefresh(WAN_IPV6_INDEX)},0)}}))},type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",margin:"12px 0 0 132px"}});selectInit("wanSel",wanv6Options,LINK_TYPE_STATIC_IP,loadPageByIndex);btnSet=[];btnSet.push({btn:m,autoEnable:!0});btnSet.push({btn:p,autoEnable:!0});btnSet.push({btn:lanSave,autoEnable:!0});(function(){slp.protocol.getData({type:"IPv6",
+success:function(b){b=b[uciProto.fileName]["undefined"!=typeof WAN_IPV6_INDEX&&2==WAN_IPV6_INDEX?uciProto.secName.stav62:uciProto.secName.stav6];k.setValue(b[uciProto.optName.ipv6]);e.setValue(b[uciProto.optName.gatewayv6]);g.setValue(b[uciProto.optName.priDns]);h.setValue(b[uciProto.optName.sndDns]&&"::"!=b[uciProto.optName.sndDns]?b[uciProto.optName.sndDns]:"");d.setValue(b[uciProto.optName.mtu]);curWanv6Type==uciProto.optValue.proto.staticIpv6&&!0==preDelgOnFlag&&(localLanPrefix.toggleStatic(!1),
+preDelgOnFlag=!1)}},WAN_IPV6_INDEX)})();wanStatusRefresh(WAN_IPV6_INDEX);lanStatusRefresh(WAN_IPV6_INDEX)})();
+</script><style type="text/css"></style>

@@ -1,0 +1,11 @@
+Package: kmod-usb-phy-ipq807x
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-5b3fa9982a4f1df1c75c17aa771f37d7), kmod-usb-core
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: aarch64_cortex-a53
+Installed-Size: 12829
+Description:  This driver provides support for the USB PHY drivers
+ within the IPQ807x SoCs.

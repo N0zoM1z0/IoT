@@ -1,0 +1,12 @@
+#
+# inittab       This file describes how the INIT process should set up
+#               the system during the initial booting process.
+
+# Ssystem initialization starts here
+
+console::sysinit:-/etc/rc.d/rcS
+ttyAMA0::respawn:-/bin/sh
+
+::shutdown:/etc/rc.d/rc.shutdown
+::ctrlaltdel:/bin/false
+

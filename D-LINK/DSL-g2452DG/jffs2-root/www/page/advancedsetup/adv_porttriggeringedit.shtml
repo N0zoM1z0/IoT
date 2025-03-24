@@ -1,0 +1,315 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css"type="text/css">
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var url=window.location.search;
+var i=url.indexOf('?');
+var arr = url.toString();
+var strs = arr.split("&");
+
+/* g_path指向InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.
+ 或者InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.X_TRI_PortTriggering.1.*/
+var g_path= strs[0].split("=")[1];
+
+/* g_action是add或者edit */
+var g_action = strs[1].split("=")[1];
+
+
+function PortTriggerTuple()
+{
+    this.Path = "";
+    this.PortTriggerEnabled = "";
+    this.PortTriggerDescription = "";
+    this.PortTriggerProtocol = "";
+    this.TriggerStartPort = "";
+    this.TriggerEndPort = "";
+    this.OpenStartPort = "";
+    this.OpenEndPort = "";
+}
+
+var index = 0;
+var n = 0;
+var PortTrigger = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+	<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+		<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection." -->
+		        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection.{i}.X_TRI_PortTriggering. Enable Description Protocol Port PortEnd OpenPort OpenPortEnd" -->
+				PortTrigger[index] = new PortTriggerTuple();   
+				PortTrigger[index].Path = "<!--#path -->";
+				PortTrigger[index].PortTriggerEnabled = "<!--#leaf "1"-->";
+				PortTrigger[index].PortTriggerDescription = "<!--#leaf "2"-->";
+				PortTrigger[index].PortTriggerProtocol = "<!--#leaf "3"-->";
+				PortTrigger[index].TriggerStartPort = "<!--#leaf "4"-->";
+				PortTrigger[index].TriggerEndPort = "<!--#leaf "5"-->";
+				PortTrigger[index].OpenStartPort = "<!--#leaf "6"-->";
+				PortTrigger[index].OpenEndPort = "<!--#leaf "7"-->";
+			            index++;
+		        <!--#endgetobject -->
+		<!--#endgetobject -->
+    
+		<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection."-->
+			<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.X_TRI_PortTriggering. Enable Description Protocol Port PortEnd OpenPort OpenPortEnd" -->
+				PortTrigger[index] = new PortTriggerTuple();   
+				PortTrigger[index].Path = "<!--#path -->";
+				PortTrigger[index].PortTriggerEnabled = "<!--#leaf "1"-->";
+				PortTrigger[index].PortTriggerDescription = "<!--#leaf "2"-->";
+				PortTrigger[index].PortTriggerProtocol = "<!--#leaf "3"-->";
+				PortTrigger[index].TriggerStartPort = "<!--#leaf "4"-->";
+				PortTrigger[index].TriggerEndPort = "<!--#leaf "5"-->";
+				PortTrigger[index].OpenStartPort = "<!--#leaf "6"-->";
+				PortTrigger[index].OpenEndPort = "<!--#leaf "7"-->";
+				index++;
+			<!--#endgetobject -->
+		<!--#endgetobject -->
+	<!--#endgetobject -->
+<!--#endgetobject -->
+
+function Template(name, proto, pstart, pend, ostart, oend)
+{
+	this.name = name;
+	this.proto = proto;
+	this.pstart = pstart;
+	this.pend = pend;
+	this.ostart = ostart;
+	this.oend = oend;
+}
+
+var type = new Array(
+	new Template("Aim Talk", "TCP", "4099", "4099", "5191", "5191"),
+	new Template("Asheron's Call", "UDP", "9000", "9013", "9000", "9013"),
+	new Template("Calista IP Phone", "TCP/UDP", "5190", "5190", "3000", "3000"),
+	new Template("Net2Phone", "UDP", "6801", "6801", "6801", "6801"),
+	new Template("Rainbow Six/Rogue Spea", "TCP/UDP", "2346", "2346", "2436", "2436")
+);
+
+function onRadioChoose()
+{
+	var value = getValue("TriggerType");
+	switch(value)
+	{
+		case '1':
+			$('SELECT_TriggerType').disabled = true;
+			break;
+		case '2':
+			$('SELECT_TriggerType').disabled = false;
+			break;
+		default:
+			break;
+	}
+}
+	
+function createAppOptions()
+{
+	var _text = [],_value = [];
+	_text.push("Choose...");
+	_value.push(-1);
+	for(var i = 0; i < type.length; i++){
+		_text.push(type[i].name);
+		_value.push(i);
+	}
+	createOptions('SELECT_TriggerType',_text,_value);
+}
+
+function onTypeChange(value)
+{
+	if(value == "-1")
+	{
+		setValue("INPUT_Description", "");
+		setValue("SELECT_Protocol", "");
+		setValue("INPUT_TriggerStartPort", "");
+		setValue("INPUT_TriggerEndPort", "");
+		setValue("INPUT_OpenStartPort", "");
+		setValue("INPUT_OpenEndPort", "");
+		return;
+	}
+	setValue("INPUT_Description", type[value].name);
+	setValue("SELECT_Protocol", type[value].proto);
+	setValue("INPUT_TriggerStartPort", type[value].pstart);
+	setValue("INPUT_TriggerEndPort", type[value].pend);
+	setValue("INPUT_OpenStartPort", type[value].ostart);
+	setValue("INPUT_OpenEndPort", type[value].oend);
+}
+
+function init()
+{
+	if(g_action=="edit")
+	{
+	    for(var i=0;i< PortTrigger.length;i++)
+	    {
+		    if(PortTrigger[i].Path == g_path)
+		    {
+		    	setValue("INPUT_Enable", PortTrigger[i].PortTriggerEnabled);
+		        setValue("INPUT_Description", PortTrigger[i].PortTriggerDescription);
+		        setValue("SELECT_Protocol", PortTrigger[i].PortTriggerProtocol);
+		        setValue("INPUT_TriggerStartPort", PortTrigger[i].TriggerStartPort);
+		        setValue("INPUT_TriggerEndPort", PortTrigger[i].TriggerEndPort);
+		        setValue("INPUT_OpenStartPort", PortTrigger[i].OpenStartPort);
+		        setValue("INPUT_OpenEndPort", PortTrigger[i].OpenEndPort);
+		    }
+	    }
+    }
+
+	setValue("TriggerType", 1);
+	onRadioChoose();
+}
+
+function checkPorts() {
+    var nodes = $('INPUT_ExternalPort','INPUT_ExternalPortEndRange','INPUT_InternalPort');
+
+ 	if (!checkRange(getValue('INPUT_TriggerStartPort'),1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_TriggerStartPort");
+		return false;
+	}
+	
+	if (!checkRange(getValue('INPUT_TriggerEndPort'), 1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_TriggerEndPort")
+		return false;
+	}
+
+	if (!checkRange(getValue('INPUT_OpenStartPort'), 1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_OpenStartPort")
+		return false;
+	}
+
+	if (!checkRange(getValue('INPUT_OpenEndPort'), 1,1,65535)) {
+		top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_OpenEndPort")
+		return false;
+	}
+
+    return true;
+}
+
+function check()
+{
+	if(!checkPorts())
+	        return false;
+
+	return true;
+}
+
+function uiBack()
+{
+        document.location.href = "adv_porttriggering.shtml"
+}
+
+function uiSubmit(){
+	if (!check()) {
+		return;
+	}
+	if(!validateCode())
+		return false;
+
+    var node_napt = $('INPUT_Description','SELECT_Protocol','INPUT_TriggerStartPort','INPUT_TriggerEndPort','INPUT_OpenStartPort','INPUT_OpenEndPort');
+    var df = document.app_porttriggerform;
+
+    //提交分两种情况：添加和编辑
+    if(g_action == "add")
+    {
+        var add_path = g_path+'X_TRI_PortTriggering.';
+        AddElements(df, 'add_obj',add_path);
+        AddElements(df, add_path+"{i}.Enable", getValue("INPUT_Enable"));
+        AddElements(df, add_path+"{i}.Description",node_napt[0].value);
+        AddElements(df, add_path+"{i}.Protocol", node_napt[1].value);
+        AddElements(df, add_path+"{i}.OpenProtocol", node_napt[1].value);
+        AddElements(df, add_path+"{i}.Port", node_napt[2].value);
+        AddElements(df, add_path+"{i}.PortEnd", node_napt[3].value);
+        AddElements(df, add_path+"{i}.OpenPort",  node_napt[4].value);
+        AddElements(df, add_path+"{i}.OpenPortEnd", node_napt[5].value);
+    } 
+    else 
+    {        
+        AddElements(df, g_path+"Enable", getValue("INPUT_Enable"));
+        AddElements(df, g_path+"Description",node_napt[0].value);
+        AddElements(df, g_path+"Protocol", node_napt[1].value);
+        AddElements(df, g_path+"OpenProtocol", node_napt[1].value);
+        AddElements(df, g_path+"Port", node_napt[2].value);
+        AddElements(df, g_path+"PortEnd", node_napt[3].value);
+        AddElements(df, g_path+"OpenPort",  node_napt[4].value);
+        AddElements(df, g_path+"OpenPortEnd", node_napt[5].value);    
+    }
+    df.submit();
+}
+
+function __init()
+{
+    init();
+    createAppOptions();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_PortTriggeringSetting'));</script>
+<table cellpadding="0" cellspacing="0" width="800" class="ContentTableNoColor">
+<tr>
+	<td langkey="LK_Enablee"></td>
+    	<td><input type="checkbox" name="INPUT_Enable" id="INPUT_Enable"></td>
+</tr>
+<tr>
+	<td langkey="LK_TriggeringType"></td>
+	<td>
+		<input type="radio" name="TriggerType" id="INPUT_Trigger_custom" value="1" onClick="onRadioChoose()">
+		<span >Customization</span>&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="radio" name="TriggerType" id="INPUT_Trigger_app" value="2" onClick="onRadioChoose()">
+		<span >Application</span>
+		<select name="SELECT_TriggerType" id="SELECT_TriggerType" onchange="onTypeChange(this.value)"></select>
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_Protocol_Colon"></td>
+	<td>
+		<select name="SELECT_Protocol" id="SELECT_Protocol">
+            		<option value='TCP'>TCP</option>
+			<option value='UDP'>UDP</option>
+            		<option value='TCP/UDP'>TCP/UDP</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_Name_Colon"></td>
+	<td><input type="text" name="INPUT_Description" id="INPUT_Description" maxlength="256"/></td>
+</tr>
+<tr>
+	<td langkey="LK_TriggeringStartPort_Colon"></td>
+	<td><input type="text" name="INPUT_TriggerStartPort" id="INPUT_TriggerStartPort" maxlength="5"></td>
+</tr>
+<tr>
+	<td langkey="LK_TriggeringEndPort_Colon"></td>
+	<td><input type="text" name="INPUT_TriggerEndPort" id="INPUT_TriggerEndPort" maxlength="5"></td>
+</tr>
+<tr>
+	<td langkey="LK_TriggeringOpenStartPort_Colon"></td>
+	<td>
+		<input type="text" name="INPUT_OpenStartPort" id="INPUT_OpenStartPort" class="Port" maxlength="5">
+        </td>
+</tr>
+<tr>
+	<td langkey="LK_TriggeringOpenEndPort_Colon"></td>
+	<td><input type="text" name="INPUT_OpenEndPort" id="INPUT_OpenEndPort" class="Port" maxlength="5"/></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>    
+	<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()");</script>
+	</td>        
+</tr>
+</table>
+</form>
+<form method="post" name ="app_porttriggerform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_porttriggering.shtml">
+</form>
+</body>
+</html>

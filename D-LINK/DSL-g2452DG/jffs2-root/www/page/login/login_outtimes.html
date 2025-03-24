@@ -1,0 +1,20 @@
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript">
+function OutTimes() {
+	//alert("Error: Sorry, you have tried more than 3 times, please try again after one minute.");
+	top.location.href = "login.html?error=outtimes";
+}
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body onLoad='OutTimes()'>
+</body>
+</html>

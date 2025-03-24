@@ -1,0 +1,25 @@
+
+
+<!--<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>-->
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="bridgev6Container"></div>
+<div id="save"></div><script type="text/javascript">(function(){wanStatusRefresh=function(){var a={};a[uciNetwork.fileName]={};a[uciNetwork.fileName][KEY_NAME]=uciNetwork.dynData.wanv6Status;null!=updateWanStatusTimer&&(clearTimeout(updateWanStatusTimer),updateWanStatusTimer=null);$.query(a,function(a){a[uciNetwork.fileName][uciNetwork.dynData.wanv6Status].proto!=uciNetwork.optValue.proto.bridgeIpv6?(clearTimeout(updateWanStatusTimer),updateWanStatusTimer=null):c.setValue(curLanv6LocalAddr);updateWanStatusTimer=$.setTimeout(wanStatusRefresh,2E3)},
+void 0,!0)};var c=new Input({type:Input.TYPE.STATIC_TEXT,label:{value:label.ipv6LanLocalAddr},targetId:"bridgev6Container",className:"bigLen",props:{maxlength:"39",type:"text"}});new Button({text:btn.save,onClick:function(){function a(){slp.protocol.setData({data:b,success:function(){curWanv6Type=uciProto.optValue.proto.bridgev6;showToast(label.saveSuccess)},fail:function(a){a:{a=a[ERR_CODE];var b="";switch(a){case ENONE:break a;default:b=errStr.unknown+a}alarmDialog.show(b)}}})}var b={};b[uciProto.secName.wanv6]=
+{};b[uciProto.secName.wanv6][uciProto.optName.type]=uciProto.optValue.proto.bridgev6;curWanv6Type!=uciProto.optValue.proto.bridgev6?confirmDialog.show({content:label.ipv6BridgeChgTip,callback:function(b){b&&a()}}):a()},type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",margin:"12px 0 0 132px"}});selectInit("wanSel",wanv6Options,LINK_TYPE_BRIDGE,loadPageByIndex);wanStatusRefresh();lanStatusRefresh()})();
+</script><style type="text/css"></style>

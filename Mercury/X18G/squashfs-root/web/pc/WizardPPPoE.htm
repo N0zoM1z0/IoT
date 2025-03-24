@@ -1,0 +1,380 @@
+<script type="text/javascript">
+	function init()
+	{
+		var pppoeSyncDialog, pppoeSyncAlarmDialog,
+			dotChangeHandle = null,
+			syncTimeoutHandle = null,
+			syncPollingHandle = null,
+			syncTimeoutTime = 120 * 1000;
+
+		var SYNC_SUCCESS = 10000,
+			SYNC_GETTING = 10001,
+			SYNC_ADV = 10002,
+			SYNC_SYSTEM_ERROR = -10000,
+			SYNC_TIMEOUT = -10001,
+			SYNC_TOPO_ERROR = -10002;
+
+		var OPERATE_IDEL = 0,
+			OPERATE_WORKING = 1,
+			OPERATE_UNLINK = 2,
+			OPERATE_FAIL = 3;
+
+		function fillData()
+		{
+			var dataObj = gWizardData.networkConf[uciProto.secName.pppoe];
+
+			pppoeAccount.setValue(dataObj[uciProto.optName.pppoeUsr]);
+			pppoePassword.setValue(dataObj[uciProto.optName.pppoePwd]);
+		}
+
+		var pppoeAccount = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netAccount, position:Input.LABEL.INNER},
+			targetId:"pppoeInput",
+			props:{maxlength: '118', type: "text"}});
+		var pppoePassword = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netPwd, position:Input.LABEL.INNER},
+			targetId:"pppoeInput",
+			props:{maxlength: '118', type: "text"}});
+
+		var autoDetect = new Button({
+			text: btn.autoDetect,
+			onClick: wzdWanDetect,
+			type: Button.TYPE.SECONDARY,
+			props:{width: "84px", marginLeft: "16px", display: "inline-table"},
+			id:"autoDetect"
+		});
+		var nextBtn = new Button({
+			text:btn.nextStep,
+			onClick:next,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		function sendData()
+		{
+			var data = {};
+			data[uciProto.secName.wan] = {};
+			data[uciProto.secName.wan][uciProto.optName.type] = uciProto.optValue.proto.pppoe;
+			data[uciProto.secName.pppoe] = {};
+			data[uciProto.secName.pppoe][uciProto.optName.pppoeUsr] = pppoeAccount.getValue();
+			data[uciProto.secName.pppoe][uciProto.optName.pppoePwd] = pppoePassword.getValue();
+
+			slp.protocol.setData({
+				data: data,
+				success: function(res){
+					/* 备份数据 */
+					Object.keys(data).forEach(function(k){
+						gWizardData.networkConf[k] = data[k];
+					});
+
+					$.action({
+						"network":{
+							"change_wan_status":{
+								"proto":"pppoe",
+								"operate":"connect"
+							}
+						}
+					}, function(resp){
+						loadPage("WizardWireless.htm", "wizardCon");
+					});
+				},
+				fail: function(){
+					/* TODO: show Error */
+				}
+			});
+		}
+
+		function next(){
+			var account = pppoeAccount.getValue();
+			var pwd = pppoePassword.getValue();
+
+			/* 检查合法性 */
+			if (0 == account.length || 0 == pwd.length)
+			{
+				confirmDialog.show({
+					content: label.pppoeAccPwdNullTip,
+					button:{cancelStr:btn.backAndWrite},
+					callback: function(choose){
+						if (choose)
+						{
+							sendData();
+						}
+					}
+				});
+				return;
+			}
+
+			sendData();
+		}
+
+		if (slp.moduleSpec["pppoe_account_sync"] == "1")
+		{
+			pppoeSyncDialog = new Dialog({
+				title:label.syncPppoeCfgFromOld,
+				size: Dialog.SIZE.MEDIUM,
+				type: Dialog.TYPE.CUSTOM,
+				className: "pppoeSync",
+				content: '<span class="pppoeSyncStepDesc">' + label.syncPppoeCfgDescOne + '</span>'	+
+						 '<span class="pppoeSyncStepDesc">' + label.syncPppoeCfgDescTwo + '</span>'	+
+						 '<i class="pppoeSyncStepPic"></i>',
+				bottom: [
+					{
+						type:component.Button.TYPE.SECONDARY,
+						text:btn.cancel,
+						id:"pppoeSyncCancel",
+						onClick:function(){
+							pppoeSyncDialog.hide();
+						}
+					},
+					{
+						type:component.Button.TYPE.PRIMARY,
+						text:btn.beginSync,
+						id:"pppoeSyncDo",
+						onClick:function(){
+							pppoeSyncDialog.doSync();
+						}
+					}
+				]
+			});
+			pppoeSyncDialog.doSync = function(){
+				var self = this;
+				this.setState(OPERATE_WORKING);
+
+				syncTimeoutHandle = $.setTimeout(function(){
+					clearTimeout(syncPollingHandle);
+					self.setState(OPERATE_FAIL);
+				}, syncTimeoutTime);
+
+				var data = {cfgsync:{start_get_pppoe_info:null}};
+
+				$.action(data, function(result){
+					if (ENONE != result[ERR_CODE])
+					{
+						clearTimeout(syncTimeoutHandle);
+						self.setState(OPERATE_UNLINK);	/* TODO */
+					}
+					else
+					{
+						syncPollingHandle = $.setTimeout(function(){
+							self.doQuery.call(self);
+						}, 1000);
+					}
+				});
+			};
+			pppoeSyncDialog.doQuery = function(){
+				var data = {cfgsync:{get_pppoe_info:null}}, self = this;
+
+				$.action(data, function(result){
+					if (ENONE != result[ERR_CODE])
+					{
+						syncPollingHandle = $.setTimeout(function(){
+							self.doQuery.call(self);
+						}, 1000);
+					}
+					else
+					{
+						switch(parseInt(result["code"]))
+						{
+						case SYNC_SUCCESS:
+							/* TODO */
+							var syncAccount = result.pppoe.username;
+							var syncPassword = result.pppoe.password;
+
+							$("p.wizardTip").text((syncAccount.length == 0 || syncPassword.length == 0) ? label.syncBlank : label.syncSuccess);
+							pppoeAccount.setValue(syncAccount);
+							pppoePassword.setValue(syncPassword);
+
+							self.hide();
+							clearTimeout(syncTimeoutHandle);
+							break;
+						case SYNC_GETTING:
+							syncPollingHandle = $.setTimeout(function(){
+								self.doQuery.call(self);
+							}, 1000);
+							break;
+						case SYNC_TOPO_ERROR:
+							clearTimeout(syncTimeoutHandle);
+							self.setState(OPERATE_UNLINK);
+							break;
+						default:
+							clearTimeout(syncTimeoutHandle);
+							self.setState(OPERATE_FAIL);
+							break;
+						}
+					}
+				});
+			}
+			pppoeSyncDialog.setState = function(state){
+				var dialogBottomCon = $(this.container).find("div.dialogBottom");
+				var dialogSyncWorking = dialogBottomCon.find("span.syncWorking");
+				var dialogCloseCon = $(this.container).find("i.dlgCloseBtn");
+				var self = this, dotObj = $("#dot");
+
+				if (dialogSyncWorking.length == 0)
+				{
+					dialogSyncWorking = $('<span class="syncWorking"></span>').html(label.syncing + '<span id="dot"></span>');
+					dialogBottomCon.append(dialogSyncWorking);
+				}
+
+				if (state == OPERATE_IDEL)
+				{
+					dialogBottomCon.css("visibility", "visible");
+					dialogCloseCon.css("display", "block");
+					dialogSyncWorking.css("visibility", "hidden");
+					clearTimeout(dotChangeHandle);
+					dotChangeHandle = null;
+				}
+				else if (state == OPERATE_WORKING)
+				{
+					dialogBottomCon.css("visibility", "hidden");
+					dialogCloseCon.css("display", "none");
+					dialogSyncWorking.css("visibility", "visible");
+
+					dotObj.text("");
+
+					dotChangeHandle = $.setTimeout(function(){
+						var dotTextLen = dotObj.text().length;
+
+						if (dotTextLen == 3)
+						{
+							dotObj.text("");
+						}
+						else
+						{
+							dotObj.text(dotObj.text() + ".");
+						}
+
+						dialogSyncWorking.css("left", (parseInt(dialogBottomCon.actual("width")) / 2) -
+													  (parseInt(dialogSyncWorking.actual("width")) / 2));
+
+						dotChangeHandle = $.setTimeout(arguments.callee, 1*1000);
+					}, 0);
+				}
+				else if (state == OPERATE_UNLINK)
+				{
+					clearTimeout(dotChangeHandle);
+					dotChangeHandle = null;
+
+					this.hide(function(){
+						pppoeSyncAlarmDialog.show(label.syncErrorUnlink);
+					});
+				}
+				else if (state == OPERATE_FAIL)
+				{
+					clearTimeout(dotChangeHandle);
+					dotChangeHandle = null;
+
+					this.hide(function(){
+						pppoeSyncAlarmDialog.show(label.syncErrorFail);
+					});
+				}
+			}
+
+			$("li.wzdSubBtn").after($('<span class="pppoeSyncBtn"></span>').html(label.syncPppoeCfgFromOld + " >").click(function(){
+				pppoeSyncDialog.setState(OPERATE_IDEL);
+				pppoeSyncDialog.show();
+			}));
+
+			pppoeSyncAlarmDialog = new Dialog({
+				title: label.confirmTitle,
+				content: "",
+				size: Dialog.SIZE.SMALL,
+				hasCloseIcon: true,
+				isConstant: true,
+				type: Dialog.TYPE.ALARM,
+				bottom: [
+					{
+						type: component.Button.TYPE.SECONDARY,
+						text: btn.cancel,
+						id:'pppoeSyncAlarmCancel',
+						onClick: function(){
+							$(pppoeSyncAlarmDialog.container).find(".dlgCloseBtn")[0].click();
+						}
+					},
+					{
+						type: component.Button.TYPE.PRIMARY,
+						text: btn.retry,
+						id:'pppoeSyncAlarmSubmit',
+						onClick: function(){
+							pppoeSyncAlarmDialog.hide(function(){
+								pppoeSyncDialog.doSync();
+								pppoeSyncDialog.show();
+							});
+						}
+					}
+				]
+			});
+			pppoeSyncAlarmDialog.show = function(content){
+				this._resetContent(content);
+
+				Dialog.prototype.show.call(this);
+			}
+		}
+
+		selectInit("netModeSel", gWizardData.wanSelectOptions, LINK_TYPE_PPPOE, wzdNetWorkModeChange);
+		fillData();
+	}
+	init();
+</script>
+<style type="text/css">
+	span.pppoeSyncBtn{
+		margin-top:16px;
+		cursor:pointer;
+		color:#FF4D79;
+		text-align:center;
+		display:block;
+		line-height:20px;
+		height:20px;
+		font-size:13px;
+	}
+	span.pppoeSyncStepDesc{
+		line-height:20px;
+		height:20px;
+		display:block;
+		font-size:13px;
+		color:#333333;
+	}
+	i.pppoeSyncStepPic{
+		height:104px;
+		width:480px;
+		display:block;
+		margin:24px auto 0px;
+		background:url(../web-static/images/basic.png) -0px -508px no-repeat scroll;
+	}
+	div.dialogBox.pppoeSync div.dialogBottom{
+		position: relative;
+	}
+	span.syncWorking{
+		position:absolute;
+		left:0px;
+		top:24px;
+		height:32px;
+		line-height:32px;
+		color:#FF3366;
+		display:block;
+	}
+</style>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="pppoeInput">
+		<h1>{%label.netSet%}</h1>
+		<p class="wizardTip">{%label.netSetPwdTip%}</p>
+		<ul class="inputCMPT medium innerLbl">
+			<li class="inputLi" style="display:inline-table">
+				<label>{%label.netMode%}</label>
+				<span class="selectWrap">
+					<span id="netModeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+			<div id="autoDetect"></div>
+		</ul>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="sub"></div>
+	</li>
+</ul>

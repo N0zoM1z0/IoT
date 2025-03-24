@@ -1,0 +1,8 @@
+Package: lag
+Version: 1-1.0
+Depends: libc
+Source: package/miwifi/lag
+Section: util
+Architecture: arm_cortex-a7
+Installed-Size: 2212
+Description:  miwifi wan lan aggregation utils

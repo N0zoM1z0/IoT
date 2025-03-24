@@ -1,0 +1,3066 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<link rel="stylesheet" rev="stylesheet" href="/css/main.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript"> 
+var G_IPProtocolVersion = "<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.X_CT-COM_IPProtocolVersion.mode"-->";
+var password_changed=0;
+var G_HAS_VOIP = "<!--#getsingle_noop "InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable"-->";
+
+function CreateLan()
+{    
+    this.path = "";
+    this.description = "";
+}
+var gLanIndex = 0;
+var gLanArray = new Array();
+<!--#getobject_noop "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig. X_CT-COM_Description" -->
+    gLanArray[gLanIndex] = new CreateLan();
+    gLanArray[gLanIndex].path = "<!--#path -->";
+    gLanArray[gLanIndex].description = "<!--#leaf "1"-->";
+    gLanIndex++;
+<!--#endgetobject -->
+
+
+/*****************获取wand的path(InternetGatewayDevice.WANDevice.{i}.)*****************/
+var gPathDslWand = "";
+var gPathEthWand = "";
+var gPathDongleWand = "";
+function CreateWand()
+{    
+    this.path = "";
+    this.WANAccessType = "";
+    this.DslEnable = "";
+    this.EthEnable="";
+    this.DongleEnable="";
+}
+var gWandIndex = 0;
+var gWandArray = new Array();
+<!--#getobject_noop "InternetGatewayDevice.WANDevice. WANCommonInterfaceConfig.WANAccessType WANDSLInterfaceConfig.Enable WANEthernetInterfaceConfig.Enable WANDongleInterfaceConfig.Enable" -->
+    gWandArray[gWandIndex] = new CreateWand();
+    gWandArray[gWandIndex].path = "<!--#path -->";
+    gWandArray[gWandIndex].WANAccessType = "<!--#leaf "1"-->";
+    gWandArray[gWandIndex].DslEnable = "<!--#leaf "2"-->";
+    gWandArray[gWandIndex].EthEnable = "<!--#leaf "3"-->";
+    gWandArray[gWandIndex].DongleEnable = "<!--#leaf "4"-->";
+    gWandIndex++;
+<!--#endgetobject -->
+
+for(var i=0; i<gWandArray.length; i++)
+{
+    if(gWandArray[i].WANAccessType=="DSL" && gWandArray[i].DslEnable==1)
+    {
+        gPathDslWand = gWandArray[i].path;
+    }
+    else if (gWandArray[i].WANAccessType=="Ethernet" && gWandArray[i].EthEnable==1)
+    {
+        gPathEthWand = gWandArray[i].path;
+    }
+        else if (gWandArray[i].WANAccessType=="Dongle" && gWandArray[i].DongleEnable==1)
+    {
+        gPathDongleWand = gWandArray[i].path;
+    }
+}
+/*****************end*****************/
+
+
+function LinkConfigTuple()
+{
+    this.Path = "";
+    this.DslEnable = ""; /* WANDSLLinkConfig.Enable */
+    this.DslLinkType = "";
+    this.DestinationAddress = "";
+    this.DslATMEncapsulation = "";
+    this.DslATMQoS = ""
+    this.ptmEnable = ""; /* PTM or ATM */
+    this.DslATMPeakCellRate = "";
+    this.DslATMMaximumBurstSize = "";
+    this.DslATMSustainableCellRate = "";
+    this.DslATMMinimumCellRate = "";
+    this.IPEntries = "";
+    this.PPPEntries = "";
+}
+
+function ConnectionTuple()
+{
+    /* common */
+    this.Type = "";
+    this.Path = "";
+    this.Enable = "";
+    this.ConnectionType = "";
+    this.Name = "";
+    this.NATEnabled = "";
+    this.PPPoEPassThrough = "";
+    this.IPMode = ""
+    this.ServiceList = "";
+    this.LanInterface = "";
+    this.AddressingType = "";
+    this.MaxMTUSize = "";
+    this.MulticastVlan = "";
+    this.VLANID = "";
+    this.VLANPriority = "";
+    this.VLANPass = "";
+	this.VLANTaggingIf = "";
+    this.MACAddress = "";
+    this.MACAddressOverride = "";
+    this.OP60Setting = "";
+    this.OP60SettingEnable = "";
+    this.OP66SettingEnable = "";
+    this.OP120SettingEnable = "";
+    /* IPConnection */
+    this.ExternalIPAddress = "";
+    this.SubnetMask = "";
+    this.DefaultGateway = "";
+    this.DNSServers = "";
+    this.DNSOverrideAllowed="";
+    /* PPPConnection */
+    this.ServiceName = "";
+    this.Username = "";
+    this.ConnectionTrigger = "";
+    this.ProxyEnable = "";
+    this.PPPoEPassThrough = "";
+    this.IdleDisconnectTime = "";
+    this.X_TRI_PPPAuthenticationProtocol = "";
+    this.PPPLCPEcho = "";
+    this.PPPLCPEchoRetry = "";
+    this.X_TRI_LimitRetryTime = "";
+    this.X_TRI_RetryTimes = "";
+    this.X_TRI_APN = "";
+    this.X_TRI_PIN = "";
+    this.X_TRI_DIALNumber = "";
+    /* dsl address info */
+    /* IPv6 */
+    this.IPv6IPAddress  = "";
+    this.IPv6AddressPrefixLen = "";
+    this.DefaultIPv6Gateway  = "";
+    this.IPv6DNSServers = "";
+    this.IPv6PrefixDelegationEnabled = "";
+    this.IPv6IPAddressOrigin = "";
+    this.IPv6PrefixOrigin  = "";
+    this.IPv6Prefix = "";
+    this.MAXUser = "";
+    this.IPv6DNSType="";
+    this.X_TRI_DisableEdit="";
+}
+
+
+var lc_index = 0;
+var index = 0;
+var wan_name=new Array();
+var nameNu=0;
+var WanConnDevs = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice. WANDSLLinkConfig.Enable WANDSLLinkConfig.LinkType WANDSLLinkConfig.DestinationAddress WANDSLLinkConfig.ATMEncapsulation WANDSLLinkConfig.ATMQoS WANPTMLinkConfig.Enable WANDSLLinkConfig.ATMMaximumBurstSize WANDSLLinkConfig.ATMSustainableCellRate WANDSLLinkConfig.X_CT-COM_ATMMinimumCellRate WANIPConnectionNumberOfEntries WANPPPConnectionNumberOfEntries WANDSLLinkConfig.ATMPeakCellRate" -->
+    WanConnDevs[lc_index] = new LinkConfigTuple();
+    WanConnDevs[lc_index].Path = "<!--#path -->";
+    WanConnDevs[lc_index].DslEnable = "<!--#leaf "1"-->";
+    WanConnDevs[lc_index].DslinkType = "<!--#leaf "2"-->";
+    WanConnDevs[lc_index].DestinationAddress = "<!--#leaf "3"-->";
+    WanConnDevs[lc_index].DslATMEncapsulation = "<!--#leaf "4"-->";
+    WanConnDevs[lc_index].DslATMQoS = "<!--#leaf "5"-->"
+    WanConnDevs[lc_index].ptmEnable = "<!--#leaf "6"-->";
+    WanConnDevs[lc_index].DslATMMaximumBurstSize = "<!--#leaf "7"-->";
+    WanConnDevs[lc_index].DslATMSustainableCellRate = "<!--#leaf "8"-->";
+    WanConnDevs[lc_index].DslATMMinimumCellRate = "<!--#leaf "9"-->";
+    WanConnDevs[lc_index].IPEntries = "<!--#leaf "10"-->";
+    WanConnDevs[lc_index].PPPEntries = "<!--#leaf "11"-->";
+    WanConnDevs[lc_index].DslATMPeakCellRate = "<!--#leaf "12"-->";
+    WanConnDevs[lc_index]._conns = new Array();
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Enable ConnectionType Name NATEnabled X_CT-COM_IPMode X_CT-COM_ServiceList X_CT-COM_LanInterface AddressingType ExternalIPAddress SubnetMask DefaultGateway DNSServers X_CT-COM_IPv6IPAddress X_CT-COM_IPv6AddressPrefixLen X_CT-COM_DefaultIPv6Gateway X_CT-COM_IPv6DNSServers X_CT-COM_IPv6PrefixDelegationEnabled X_CT-COM_IPv6IPAddressOrigin X_CT-COM_IPv6PrefixOrigin X_CT-COM_IPv6Prefix X_CT-COM_IPv6DNSAddressSource MaxMTUSize X_CT-COM_MulticastVlan MACAddress MACAddressOverride X_TRI_VlanID X_TRI_VlanPriority X_TRI_DhcpTransparent X_TRI_OP60Setting X_TRI_OP60SettingEnable X_TRI_OP120SettingEnable DNSOverrideAllowed X_TRI_OP66SettingEnable X_TRI_APN X_TRI_DialNumber X_TRI_PIN X_TRI_VlanPassKeepTag X_TRI_DisableEdit X_TRI_VlanTaggingIf" -->
+    WanConnDevs[lc_index]._conns[index] = new ConnectionTuple();
+    WanConnDevs[lc_index]._conns[index].Type = "IP";
+    WanConnDevs[lc_index]._conns[index].Path = "<!--#path -->";
+    WanConnDevs[lc_index]._conns[index].Enable = "<!--#leaf "1"-->";
+    WanConnDevs[lc_index]._conns[index].ConnectionType = "<!--#leaf "2"-->";
+    wan_name[nameNu]=WanConnDevs[lc_index]._conns[index].Name = "<!--#leaf "3"-->";
+    WanConnDevs[lc_index]._conns[index].NATEnabled = "<!--#leaf "4"-->";
+    WanConnDevs[lc_index]._conns[index].IPMode = "<!--#leaf "5"-->";
+    WanConnDevs[lc_index]._conns[index].ServiceList = "<!--#leaf "6"-->";
+    WanConnDevs[lc_index]._conns[index].LanInterface = "<!--#leaf "7"-->";
+    WanConnDevs[lc_index]._conns[index].AddressingType = "<!--#leaf "8"-->"; 
+
+    WanConnDevs[lc_index]._conns[index].ExternalIPAddress = "<!--#leaf "9"-->";
+    WanConnDevs[lc_index]._conns[index].SubnetMask = "<!--#leaf "10"-->";
+    WanConnDevs[lc_index]._conns[index].DefaultGateway = "<!--#leaf "11"-->";
+    WanConnDevs[lc_index]._conns[index].DNSServers = "<!--#leaf "12"-->";
+
+    WanConnDevs[lc_index]._conns[index].IPv6IPAddress = "<!--#leaf "13"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6AddressPrefixLen = "<!--#leaf "14"-->";
+    WanConnDevs[lc_index]._conns[index].DefaultIPv6Gateway = "<!--#leaf "15"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6DNSServers = "<!--#leaf "16"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6PrefixDelegationEnabled = "<!--#leaf "17"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6IPAddressOrigin = "<!--#leaf "18"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6PrefixOrigin = "<!--#leaf "19"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6Prefix = "<!--#leaf "20"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6DNSType = "<!--#leaf "21"-->";
+    WanConnDevs[lc_index]._conns[index].MaxMTUSize = "<!--#leaf "22"-->";
+    WanConnDevs[lc_index]._conns[index].MulticastVlan = "<!--#leaf "23"-->";
+    WanConnDevs[lc_index]._conns[index].MACAddress = "<!--#leaf "24"-->";
+    WanConnDevs[lc_index]._conns[index].MACAddressOverride = "<!--#leaf "25"-->";
+    WanConnDevs[lc_index]._conns[index].VLANID = "<!--#leaf "26"-->";
+    WanConnDevs[lc_index]._conns[index].VLANPriority = "<!--#leaf "27"-->";
+    WanConnDevs[lc_index]._conns[index].DhcpTransparent = "<!--#leaf "28"-->";
+    WanConnDevs[lc_index]._conns[index].OP60Setting = "<!--#leaf "29"-->";
+    WanConnDevs[lc_index]._conns[index].OP60SettingEnable = "<!--#leaf "30"-->";
+    WanConnDevs[lc_index]._conns[index].OP120SettingEnable = "<!--#leaf "31"-->";
+    WanConnDevs[lc_index]._conns[index].DNSOverrideAllowed = "<!--#leaf "32"-->";
+    WanConnDevs[lc_index]._conns[index].OP66SettingEnable = "<!--#leaf "33"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_APN = "<!--#leaf "34"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_DialNumber = "<!--#leaf "35"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_PIN = "<!--#leaf "36"-->";
+    WanConnDevs[lc_index]._conns[index].VLANPass = "<!--#leaf "37"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_DisableEdit = "<!--#leaf "38"-->";
+	WanConnDevs[lc_index]._conns[index].VLANTaggingIf = "<!--#leaf "39"-->";
+    index++;
+	nameNu++;
+    <!--#endgetobject -->
+    
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Enable ConnectionType Name NATEnabled X_CT-COM_IPMode X_CT-COM_ServiceList X_CT-COM_LanInterface Username ConnectionTrigger X_CT-COM_ProxyEnable IdleDisconnectTime X_CT-COM_IPv6IPAddress X_CT-COM_IPv6AddressPrefixLen X_CT-COM_DefaultIPv6Gateway X_CT-COM_IPv6DNSServers X_CT-COM_IPv6PrefixDelegationEnabled X_CT-COM_IPv6IPAddressOrigin X_CT-COM_IPv6PrefixOrigin X_CT-COM_IPv6Prefix X_CT-COM_MAXUser X_CT-COM_IPv6DNSAddressSource X_TRI_PPPAuthenticationProtocol MaxMTUSize X_CT-COM_MulticastVlan MACAddress MACAddressOverride PPPLCPEcho PPPLCPEchoRetry X_TRI_LimitRetryTime X_TRI_RetryTimes X_TRI_VlanID X_TRI_VlanPriority X_TRI_APN X_TRI_DialNumber X_TRI_OP60Setting X_TRI_OP60SettingEnable DNSOverrideAllowed DNSServers X_TRI_OP66SettingEnable PPPoEServiceName X_TRI_PIN X_TRI_VlanPassKeepTag X_TRI_DisableEdit X_TRI_PPPoEPassThrough X_TRI_VlanTaggingIf X_TRI_UnnumberEn X_TRI_UnnumberLanPath" -->
+    WanConnDevs[lc_index]._conns[index] = new ConnectionTuple();
+    WanConnDevs[lc_index]._conns[index].Type = "PPP";
+    WanConnDevs[lc_index]._conns[index].Path = "<!--#path -->";
+    WanConnDevs[lc_index]._conns[index].Enable = "<!--#leaf "1"-->";
+    WanConnDevs[lc_index]._conns[index].ConnectionType = "<!--#leaf "2"-->";
+    wan_name[nameNu]=WanConnDevs[lc_index]._conns[index].Name = "<!--#leaf "3"-->";
+    WanConnDevs[lc_index]._conns[index].NATEnabled = "<!--#leaf "4"-->";
+    WanConnDevs[lc_index]._conns[index].IPMode = "<!--#leaf "5"-->";
+    WanConnDevs[lc_index]._conns[index].ServiceList = "<!--#leaf "6"-->";
+    WanConnDevs[lc_index]._conns[index].LanInterface = "<!--#leaf "7"-->";
+    WanConnDevs[lc_index]._conns[index].AddressingType = "PPPoE";
+
+    WanConnDevs[lc_index]._conns[index].Username = "<!--#leaf "8"-->"; 
+    WanConnDevs[lc_index]._conns[index].ConnectionTrigger = "<!--#leaf "9"-->";
+    WanConnDevs[lc_index]._conns[index].ProxyEnable = "<!--#leaf "10"-->";
+    WanConnDevs[lc_index]._conns[index].IdleDisconnectionTime = "<!--#leaf "11"-->";
+
+    WanConnDevs[lc_index]._conns[index].IPv6IPAddress = "<!--#leaf "12"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6AddressPrefixLen = "<!--#leaf "13"-->";
+    WanConnDevs[lc_index]._conns[index].DefaultIPv6Gateway = "<!--#leaf "14"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6DNSServers = "<!--#leaf "15"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6PrefixDelegationEnabled = "<!--#leaf "16"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6IPAddressOrigin = "<!--#leaf "17"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6PrefixOrigin = "<!--#leaf "18"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6Prefix = "<!--#leaf "19"-->";
+    WanConnDevs[lc_index]._conns[index].MAXUser = "<!--#leaf "20"-->";
+    WanConnDevs[lc_index]._conns[index].IPv6DNSType = "<!--#leaf "21"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_PPPAuthenticationProtocol = "<!--#leaf "22"-->";
+    WanConnDevs[lc_index]._conns[index].MaxMTUSize = "<!--#leaf "23"-->";
+    WanConnDevs[lc_index]._conns[index].MulticastVlan = "<!--#leaf "24"-->";
+    WanConnDevs[lc_index]._conns[index].MACAddress = "<!--#leaf "25"-->";
+    WanConnDevs[lc_index]._conns[index].MACAddressOverride = "<!--#leaf "26"-->";
+    WanConnDevs[lc_index]._conns[index].PPPLCPEcho = "<!--#leaf "27"-->";
+    WanConnDevs[lc_index]._conns[index].PPPLCPEchoRetry = "<!--#leaf "28"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_LimitRetryTime = "<!--#leaf "29"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_RetryTimes = "<!--#leaf "30"-->";
+    WanConnDevs[lc_index]._conns[index].VLANID = "<!--#leaf "31"-->";
+    WanConnDevs[lc_index]._conns[index].VLANPriority = "<!--#leaf "32"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_APN = "<!--#leaf "33"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_DialNumber = "<!--#leaf "34"-->";
+    WanConnDevs[lc_index]._conns[index].OP60Setting = "<!--#leaf "35"-->";
+    WanConnDevs[lc_index]._conns[index].OP60SettingEnable = "<!--#leaf "36"-->";
+    WanConnDevs[lc_index]._conns[index].DNSOverrideAllowed = "<!--#leaf "37"-->";
+    WanConnDevs[lc_index]._conns[index].DNSServers = "<!--#leaf "38"-->";
+    WanConnDevs[lc_index]._conns[index].OP66SettingEnable = "<!--#leaf "39"-->";
+    WanConnDevs[lc_index]._conns[index].ServiceName = "<!--#leaf "40"-->";    
+    WanConnDevs[lc_index]._conns[index].X_TRI_PIN = "<!--#leaf "41"-->";    
+    WanConnDevs[lc_index]._conns[index].VLANPass = "<!--#leaf "42"-->";
+    WanConnDevs[lc_index]._conns[index].X_TRI_DisableEdit = "<!--#leaf "43"-->";
+    WanConnDevs[lc_index]._conns[index].PPPoEPassThrough = "<!--#leaf "44"-->";
+    WanConnDevs[lc_index]._conns[index].VLANTaggingIf = "<!--#leaf "45"-->";
+    WanConnDevs[lc_index]._conns[index].unnum_en= "<!--#leaf "46"-->";
+    WanConnDevs[lc_index]._conns[index].unnum_path= "<!--#leaf "47"-->";
+     nameNu++;
+    index++;
+    <!--#endgetobject -->
+    lc_index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var NumOfWLAN = "<!--#getsingle_noop "InternetGatewayDevice.LANDevice.1.LANWLANConfigurationNumberOfEntries"-->"
+var ArrayWANCD = new Array(); //WANCD数组
+var ConnectionS = new Array(); //WANC数组
+for (var i in WanConnDevs) {
+    
+    var wcd = WanConnDevs[i];
+    ArrayWANCD[ArrayWANCD.length] = wcd;
+
+    for (var j in wcd._conns) {
+        var conn = wcd._conns[j];
+        ConnectionS[ConnectionS.length] = conn;
+    }
+}
+
+function DualLanCfgTuple()
+{
+    this.Path = "";
+    this.Enable = "";
+    this.AddrMode = "";
+    this.IpAddr = "";
+    this.IpUnnumberedAddr = "";
+    this.IpUnnumberedMask = "";
+    this.LanStartIp = "";
+    this.LanEndIp = "";
+    this.PrimaryDns = "";
+    this.SecondaryDns = "";
+    this.LanPort = "";
+    this.WanConnPath = "";
+}
+
+
+var cfg_idx = 0;
+var DualLanCfgList = new Array();
+<!--#getobject_noop "InternetGatewayDevice.Layer2Bridging.Bridge. X_TRI_DualLanCfg.Enable X_TRI_DualLanCfg.AddrMode X_TRI_DualLanCfg.IpAddr X_TRI_DualLanCfg.IpUnnumberedAddr X_TRI_DualLanCfg.IpUnnumberedMask X_TRI_DualLanCfg.LanStartIp X_TRI_DualLanCfg.LanEndIp X_TRI_DualLanCfg.PrimaryDns X_TRI_DualLanCfg.SecondaryDns X_TRI_DualLanCfg.LanPort X_TRI_DualLanCfg.WanConnPath" --> 
+DualLanCfgList[cfg_idx] = new DualLanCfgTuple();
+DualLanCfgList[cfg_idx].Path = "<!--#path -->";
+DualLanCfgList[cfg_idx].Enable = "<!--#leaf "1"-->";
+DualLanCfgList[cfg_idx].AddrMode = "<!--#leaf "2"-->";
+DualLanCfgList[cfg_idx].IpAddr = "<!--#leaf "3"-->";
+DualLanCfgList[cfg_idx].IpUnnumberedAddr = "<!--#leaf "4"-->";
+DualLanCfgList[cfg_idx].IpUnnumberedMask = "<!--#leaf "5"-->";
+DualLanCfgList[cfg_idx].LanStartIp = "<!--#leaf "6"-->";
+DualLanCfgList[cfg_idx].LanEndIp = "<!--#leaf "7"-->";
+DualLanCfgList[cfg_idx].PrimaryDns = "<!--#leaf "8"-->";
+DualLanCfgList[cfg_idx].SecondaryDns = "<!--#leaf "9"-->";
+DualLanCfgList[cfg_idx].LanPort = "<!--#leaf "10"-->";
+DualLanCfgList[cfg_idx].WanConnPath = "<!--#leaf "11"-->";
+cfg_idx++;
+<!--#endgetobject -->
+
+
+macUsed = "<!--#getmac -->";
+function MACAddressOverrideEnable()
+{
+    var OverrideEnable = getValue('INPUT_MACAddressOverrideEnable');
+    setDisplay('DIV_MACAddress', OverrideEnable);
+}
+function cloneMac()
+{
+    setValue('INPUT_MACAddress', macUsed);
+}
+
+function OP60SettingEnable()
+{
+    var OP60Enable = getValue('INPUT_OP60SettingEnable');
+    setDisplay('DIV_OP60', OP60Enable);
+}
+function clearID()
+{
+    setValue('INPUT_OP60Setting', "");
+}
+
+var cur_windex = -1; /* 当前选中的wan连接的index，-1表示新增一条wan连接 */
+var cur_lcindex = 0;
+function init()
+{
+       var selObj=document.getElementById("SELECT_ConnName");
+	createLanInterface();
+	createVLanTaggingIf();
+    /* init wan connection name */
+    createConnNameOptions();
+    cur_windex = $('SELECT_ConnName').value;
+	if(selObj.options[selObj.selectedIndex].text=="New connection"){
+		document.getElementById("SELECT_INPUT").value="";
+	}else{
+		document.getElementById("SELECT_INPUT").value=selObj.options[selObj.selectedIndex].text;
+	}
+    disableEditWan(1);
+    /* init ConnectionType */
+    initConnModeAddrType();
+    createsel();
+    createDslMode();
+    /* crete service type */
+    createServiceType();
+    getConnValue();
+    ConnModeDisplay();
+    RouteProtocolSwitch();
+    ATMQoSSwitch();
+    VLANEnable();
+    checkLanPort();
+    PPPoETypeSwitch();
+    PPPoEConnTriggerSwitch();
+    LimitRetryTimeEnable();
+    ServiceTypeSwitch();
+    DualLanEnable();
+	
+    RouteWanConnSwitch();
+    DslModeSwitch();
+    ipv6AddrSwitch();
+    ipv6DNSAddrSwitch();
+    ipv6PDSwitch();
+    IPVersionDisaply();
+    disableEditWan(0);
+}
+function createVLanTaggingIf()
+{
+	var i;
+	var trs = '<tr><td width="150">' + getStr("LK_VlanTagging") + '</td>';
+	trs += "<td>";
+	for(i=0;i < gLanArray.length;i++)
+	{
+		var LanNum=getIndexByDescription("LAN"+(i+1));
+		if(gLanArray[i].description != "")
+			trs += '<input type="checkbox" id="INPUT_VlanTagPort' + i + '"><span>' + gLanArray[LanNum].description + '</span>&nbsp;&nbsp;';
+  }
+	trs += "</td>";
+	trs += "</tr>";
+	jQuery("#CHECK_VlanTagging").html(trs);
+}
+
+function getIndexByDescription(Description)
+{
+    var i;
+
+    for(i=0;i<gLanArray.length;i++)
+    {
+        if(gLanArray[i].description == Description)
+           return i;
+    }
+}
+function createLanInterface()
+{
+	var i;
+	var trs = '<tr><td width="150">' + getStr("LK_BoundPortss") + '</td>';
+	trs += "<td>";
+    for(i=1;i<=gLanArray.length;i++)
+    {
+    	var num = getIndexByDescription("LAN"+i);
+        if(gLanArray[num].description != "")
+        {
+            if(gLanArray[num].description == "LAN1") trs += '<input type="checkbox" id="INPUT_LanPort1"> <span id="lang_lanPort1">LAN1</span>'; 
+            if(gLanArray[num].description == "LAN2") trs += '<input type="checkbox" id="INPUT_LanPort2"> <span id="lang_lanPort2">LAN2</span>'; 
+            if(gLanArray[num].description == "LAN3") trs += '<input type="checkbox" id="INPUT_LanPort3"> <span id="lang_lanPort3">LAN3</span>'; 
+            if(gLanArray[num].description == "LAN4") trs += '<input type="checkbox" id="INPUT_LanPort4"> <span id="lang_lanPort4">LAN4</span>';  
+        }	
+    }
+    trs += "</td>";
+    trs +="</tr>";
+    jQuery("#CHECK_Lan").html(trs);
+}
+function createConnNameOptions()
+{
+    var text = [];
+    var value = [];
+    var conn = 0;
+
+    for (i = 0; i < ConnectionS.length; i++)
+    {
+        text[conn] = ConnectionS[i].Name;
+        value[conn] = i;
+        conn++;
+    }
+    text.push(getStr("LK_net_newconn"));
+    value.push('-1');
+    createOptions('SELECT_ConnName', text, value);
+    $('SELECT_ConnName').selectedIndex = 0;
+}
+
+function initConnModeAddrType()
+{
+    var conntype = ConnectionS[cur_windex] ? ConnectionS[cur_windex].ConnectionType : "";
+    switch (conntype)
+    {
+        case 'Bridged_Routed':
+            setValue('SELECT_Mode', 'Route');
+            setValue('SELECT_PPPoeType', 'Bridged_Routed');
+            setRadio('WanConn', 'PPPoE');
+            break;
+        case 'IP_Routed':
+            setValue('SELECT_Mode', 'Route');
+            var addrtype = ConnectionS[cur_windex] ? ConnectionS[cur_windex].AddressingType : "";
+            var linktype = ArrayWANCD[cur_windex] ? ArrayWANCD[cur_windex].DslinkType : "";
+            if (linktype == 'PPPoA' || linktype == 'IPoA'){
+                setRadio('WanConn', linktype);
+                return;
+            }
+            switch (addrtype)
+            {
+                case 'Static':
+                    setRadio('WanConn', 'Static');
+                    break;
+                case 'DHCP':
+                    setRadio('WanConn', 'DHCP');
+                    break;
+                case 'PPPoE':
+                    setRadio('WanConn', 'PPPoE');
+                    if (ConnectionS[cur_windex].ProxyEnable == '0')
+                        setValue('SELECT_PPPoeType', 'IP_Routed');
+                    else if (ConnectionS[cur_windex].ProxyEnable == '1')
+                        setValue('SELECT_PPPoeType', 'PPPoE_Proxy');
+                     break;
+            }
+            break;
+		case 'Con_Bridged':
+            setValue('SELECT_Mode', 'Con-Bridge');
+			break;
+        default:
+            setValue('SELECT_Mode', 'Bridge');
+            setRadio('WanConn', 'DHCP');
+            break;
+    }
+}
+function createDslMode()  
+{
+    var text = [];
+    var value = [];
+    var i;
+	if(gPathDslWand != "")
+	{
+		text.push(getStr("LK_ATM") , getStr("LK_PTM"));
+		value.push('0' , '1');
+	}
+	if(gPathEthWand != "")
+	{
+     text.push(getStr("LK_ETH"));
+     value.push('2');
+  }
+  if(gPathDongleWand != "")
+	{
+     text.push(getStr("LK_DONGLE"));
+     value.push('3');
+  }
+  createOptions('SELECT_DslMode', text, value);
+}
+
+function createServiceType()
+{
+    var dslmode = getValue('SELECT_DslMode'); /* PTM or ATM */
+    var text = [];
+    var value = [];
+
+	if(dslmode == 3) {
+        text = ['INTERNET', 'Other'];
+        value = ['INTERNET', 'OTHER'];
+	}
+    else if ($('SELECT_Mode').value == 'Route')
+    {
+        if(G_HAS_VOIP == '1')
+        {
+            text = ['INTERNET' , 'TR069', 'TR069_INTERNET','VOIP','INTERNET_VOIP','TR069_VOIP','TR069_INTERNET_VOIP','Other'];
+            value = ['INTERNET', 'TR069', 'TR069,INTERNET','VOIP','INTERNET,VOIP','TR069,VOIP','TR069,INTERNET,VOIP','OTHER'];
+        }
+        else
+        {
+            text = ['INTERNET', 'TR069', 'TR069_INTERNET', 'Other'];
+            value = ['INTERNET', 'TR069', 'TR069,INTERNET', 'OTHER'];
+        }
+    }
+	else if(G_HAS_VOIP == '1' && $('SELECT_Mode').value == 'Con-Bridge')
+    {
+        text  =	['TR069', 'VOIP'];
+        value = ['TR069', 'VOIP'];
+    }
+    else
+    {
+        text = ['INTERNET', 'Other'];
+        value = ['INTERNET', 'OTHER'];
+    }
+	createOptions('SELECT_ServiceType', text, value);
+	if(cur_windex > -1)
+		setValue('SELECT_ServiceType', ConnectionS[cur_windex].ServiceList);
+    ServiceTypeSwitch();
+}
+
+function getLinkConfig(windex)
+{
+    for (i = 0; i < ArrayWANCD.length; i++)
+    {
+        if (ConnectionS[windex].Path.indexOf(ArrayWANCD[i].Path) > -1)
+            return i;
+    }
+    return 0;
+}
+
+function getConnValue()
+{
+	var dslmode;
+    cur_windex = $('SELECT_ConnName').value;
+
+    if (cur_windex == "")
+    {
+        cur_windex = -1;
+        $('SELECT_ConnName').value = -1;
+    }
+    if (cur_windex != -1)
+    {
+        disableCtrl('SELECT_DslMode', true);
+        //setValue('INPUT_Password', '########');
+    }
+    else
+    {
+        disableCtrl('SELECT_DslMode', false);
+        setValue('INPUT_Passwork', '');
+        setValue('INPUT_MaxMTUSize', '');
+        setRadio('ipv6AddrRadio', 'DHCPv6');
+        setRadio('ipv6PrixRadio', 'PrefixDelegation');
+    }
+
+    if (cur_windex != -1)
+    {
+        cur_lcindex = getLinkConfig(cur_windex);
+        /* set atm parameter */
+        setValue('INPUT_DestinationAddress', ArrayWANCD[cur_lcindex].DestinationAddress.replace('PVC:','')),
+        setValue('SELECT_ATMEncapsulation', ArrayWANCD[cur_lcindex].DslATMEncapsulation);
+        setValue('SELECT_ATMQoS', ArrayWANCD[cur_lcindex].DslATMQoS);
+
+	if (gPathDongleWand != "" && ArrayWANCD[cur_lcindex].Path.indexOf(gPathDongleWand) != -1)
+        setValue('SELECT_DslMode', 3); /* Dongle */
+    else if (gPathDslWand != "" && ArrayWANCD[cur_lcindex].Path.indexOf(gPathDslWand) != -1)
+    {
+        if(ArrayWANCD[cur_lcindex].ptmEnable==0)
+            setValue('SELECT_DslMode', 0); /*  ATM */
+        else
+            setValue('SELECT_DslMode', 1); /*  PTM */
+    }
+	else
+        setValue('SELECT_DslMode', 2); /* ETH */
+
+        setValue('INPUT_ATMPeakCellRate', ArrayWANCD[cur_lcindex].DslATMPeakCellRate);
+        setValue('INPUT_ATMMaximumBurstSize', ArrayWANCD[cur_lcindex].DslATMMaximumBurstSize);
+        setValue('INPUT_ATMSustainableCellRate', ArrayWANCD[cur_lcindex].DslATMSustainableCellRate);
+        setValue('INPUT_ATMMinimumCellRate', ArrayWANCD[cur_lcindex].DslATMMinimumCellRate);
+
+        setValue('INPUT_VlanEnable', ConnectionS[cur_windex].VLANID != '-1' ? 1 : 0);
+        setValue('INPUT_VlanId', ConnectionS[cur_windex].VLANID != '-1' ? ConnectionS[cur_windex].VLANID : '');
+        setValue('SELECT_802.1p', ConnectionS[cur_windex].VLANPriority);
+        setValue('INPUT_VlanPassKeepTagEnable', ConnectionS[cur_windex].VLANPass);
+		setVlanTagging();
+        /* set wan connection parameter */
+        setValue('INPUT_Enable', ConnectionS[cur_windex].Enable);
+        setValue('INPUT_Nat', ConnectionS[cur_windex].NATEnabled);
+        setValue('INPUT_Static_IPv4_DNS_Enable', ConnectionS[cur_windex].DNSOverrideAllowed);
+        setValue('SELECT_ServiceType', ConnectionS[cur_windex].ServiceList);
+        setValue('INPUT_MaxMTUSize', ConnectionS[cur_windex].MaxMTUSize);
+        setValue('INPUT_MACAddressOverrideEnable', ConnectionS[cur_windex].MACAddressOverride);
+        setValue('INPUT_MACAddress', ConnectionS[cur_windex].MACAddress);
+        setValue('INPUT_OP60SettingEnable', ConnectionS[cur_windex].OP60SettingEnable);
+        setValue('INPUT_OP60Setting', ConnectionS[cur_windex].OP60Setting);
+        setValue('INPUT_OP66SettingEnable', ConnectionS[cur_windex].OP66SettingEnable);
+        if(getValue('WanConn')=='DHCP')
+        setValue('INPUT_OP120SettingEnable', ConnectionS[cur_windex].OP120SettingEnable);
+        /* port binding */
+        setValue('INPUT_LanPort1', ConnectionS[cur_windex].LanInterface.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN1")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort2', ConnectionS[cur_windex].LanInterface.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN2")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort3', ConnectionS[cur_windex].LanInterface.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN3")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort4', ConnectionS[cur_windex].LanInterface.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN4")+1)) > -1 ? 1 : 0);
+
+        setValue('INPUT_WlanSsid1', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.1') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid2', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.2') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid3', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.3') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid4', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.4') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid5', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.5') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid6', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.6') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid7', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.7') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid8', ConnectionS[cur_windex].LanInterface.indexOf('WLANConfiguration.8') > -1 ? 1 : 0);
+
+        setValue('INPUT_IPv6_Prefix', ConnectionS[cur_windex].IPv6Prefix);
+
+        setValue('SELECT_Protocol_R', ConnectionS[cur_windex].IPMode);
+        
+        DNSServer = ConnectionS[cur_windex].DNSServers.split(',');
+        setValue('INPUT_Dns1', DNSServer[0]);
+        setValue('INPUT_Dns2', DNSServer[1] == undefined ? '' : DNSServer[1]);
+
+        dslmode = getValue('SELECT_DslMode');
+        if(dslmode == 3) {
+           setValue('INPUT_APN', ConnectionS[cur_windex].X_TRI_APN);
+           setValue('INPUT_PIN', ConnectionS[cur_windex].X_TRI_PIN);
+           setValue('INPUT_DN', ConnectionS[cur_windex].X_TRI_DialNumber);
+		}      
+		
+       if (ConnectionS[cur_windex].ConnectionType == 'IP_Routed' && ConnectionS[cur_windex].AddressingType != 'PPPoE')
+        {
+            //Route: IP
+            setValue('SELECT_Mode', 'Route');
+            if (ConnectionS[cur_windex].IPMode != '2') //IPv4
+            {
+                setValue('INPUT_IpAddress', ConnectionS[cur_windex].ExternalIPAddress);
+                setValue('INPUT_Mark', ConnectionS[cur_windex].SubnetMask);
+                setValue('INPUT_DefGateway', ConnectionS[cur_windex].DefaultGateway);
+             }
+            if (ConnectionS[cur_windex].IPMode != '1') //IPv6
+            {
+                setValue('INPUT_IPv6_IpAddress', ConnectionS[cur_windex].IPv6IPAddress + "/" + ConnectionS[cur_windex].IPv6AddressPrefixLen);
+                setValue('INPUT_IPv6_DefGateway', ConnectionS[cur_windex].DefaultIPv6Gateway);
+                IPv6DNSServer = ConnectionS[cur_windex].IPv6DNSServers.split(',');
+                setValue('INPUT_IPv6_Dns1', IPv6DNSServer[0]);
+                setValue('INPUT_IPv6_Dns2', IPv6DNSServer[1] == undefined ? '' : IPv6DNSServer[1]);
+                setValue('ipv6AddrRadio', ConnectionS[cur_windex].IPv6IPAddressOrigin);
+                if(ConnectionS[cur_windex].IPv6PrefixDelegationEnabled == "1")
+                    setValue('ipv6PrixRadio', "PrefixDelegation");
+                else
+                    setValue('ipv6PrixRadio', "None");
+                setValue('ipv6DNSAddrRadio', ConnectionS[cur_windex].IPv6DNSType);
+            }
+        }
+        else if (ConnectionS[cur_windex].ConnectionType != 'IP_Bridged' && ConnectionS[cur_windex].ConnectionType != 'PPPoE_Bridged' && ConnectionS[cur_windex].ConnectionType != 'Con_Bridged')
+        {
+            //Route: PPP.  PPP normal, PPP proxy, Bridged_Routed(PPPoE Routed and Bridged)
+
+            setValue('SELECT_Mode', 'Route');
+            setValue('INPUT_PPPoEPassThrough', ConnectionS[cur_windex].PPPoEPassThrough);
+            setValue('INPUT_ServiceName', ConnectionS[cur_windex].ServiceName);
+            setValue('INPUT_UserName', ConnectionS[cur_windex].Username);
+            setValue('SELECT_AuthType', ConnectionS[cur_windex].X_TRI_PPPAuthenticationProtocol);
+            setValue('SELECT_ConnTrigger', ConnectionS[cur_windex].ConnectionTrigger);
+            setValue('INPUT_MAXUser', ConnectionS[cur_windex].MAXUser);
+            setValue('INPUT_IdleDisconnectTime', ConnectionS[cur_windex].IdleDisconnectionTime);
+            setValue('INPUT_KeepAliveTime', ConnectionS[cur_windex].PPPLCPEcho);
+            setValue('INPUT_KeepAliveMaxFail', ConnectionS[cur_windex].PPPLCPEchoRetry);
+            setValue('INPUT_LimitRetryTimeEnable', ConnectionS[cur_windex].X_TRI_LimitRetryTime);
+            setValue('INPUT_RetryTime', ConnectionS[cur_windex].X_TRI_RetryTimes);
+
+            if (ConnectionS[cur_windex].IPMode != '1') //IPv6
+            {
+                setValue('INPUT_IPv6_IpAddress', ConnectionS[cur_windex].IPv6IPAddress + "/" + ConnectionS[cur_windex].IPv6AddressPrefixLen);
+                setValue('INPUT_IPv6_DefGateway', ConnectionS[cur_windex].DefaultIPv6Gateway);
+                IPv6DNSServer = ConnectionS[cur_windex].IPv6DNSServers.split(',');
+                setValue('INPUT_IPv6_Dns1', IPv6DNSServer[0]);
+                setValue('INPUT_IPv6_Dns2', IPv6DNSServer[1] == undefined ? '' : IPv6DNSServer[1]);
+                setValue('ipv6AddrRadio', ConnectionS[cur_windex].IPv6IPAddressOrigin);
+                if(ConnectionS[cur_windex].IPv6PrefixDelegationEnabled == "1")
+                    setValue('ipv6PrixRadio', "PrefixDelegation");
+                else
+                    setValue('ipv6PrixRadio', "None");
+                setValue('ipv6DNSAddrRadio', ConnectionS[cur_windex].IPv6DNSType);
+            }
+        }
+        else if (ConnectionS[cur_windex].ConnectionType == 'Con_Bridged')
+        {
+            setValue('SELECT_Mode', 'Con-Bridge');
+            //setValue('SELECT_Protocol_B', ConnectionS[cur_windex].IPMode);
+            setValue('INPUT_DHCPTransparent', 0);
+        }
+        else if (ConnectionS[cur_windex].ConnectionType == 'IP_Bridged')
+        {
+            setValue('SELECT_Mode', 'Bridge');
+            setValue('SELECT_Protocol_B', ConnectionS[cur_windex].IPMode);
+            setValue('INPUT_DHCPTransparent', ConnectionS[cur_windex].DhcpTransparent == '1' ? 1 : 0);
+        }
+    }
+}
+
+function ConnModeDisplay()
+{
+    var wanconn = getValue('WanConn');
+    var connType = getValue('SELECT_Mode');
+    var ip_version = $('SELECT_ConnName').value == -1 ? G_IPProtocolVersion : ConnectionS[cur_windex].IPMode;
+    var dslmode = getValue('SELECT_DslMode');
+
+    setDisplay('DIV_Route', connType == 'Route' ? 1 : 0);
+    setDisplay('DIV_MTU', connType == 'Route' ? 1 : 0);
+    if (connType == 'Route')
+        setDisplay('DIV_Route_ATM', dslmode == '0' ? 1 : 0); // PPPoA/IPoA just for ATM Mode
+    setDisplay('DIV_Bridge', connType == 'Bridge' ? 1 : 0);
+    setDisplay('DIV_IPv6_address', ip_version != '1' ? 1 : 0);
+    setDisplay('DIV_IPv6_prefix', ip_version != '1' ? 1 : 0);
+    setDisplay('DIV_DNS_address', ip_version != '1' ? 1 : 0);
+
+    setDisplay('DIV_PPPoE', (wanconn == 'PPPoE' || wanconn == 'PPPoA') ? 1 : 0);
+    setDisplay('DIV_Static', (wanconn == 'Static' || wanconn == 'IPoA') ? 1 : 0);
+
+    setDisplay('DIV_VLANPASS', connType == 'Route' ? 0 : 1);
+
+    if (wanconn == 'PPPoE' || wanconn == 'PPPoA')
+    {
+        setDisplay('DIV_Static', 0);
+    }
+}
+function staticIPv4DNSSwitch() 
+{
+	var en=getValue('INPUT_Static_IPv4_DNS_Enable');
+	var display=getDisplay('DIV_Static_IPv4_DNS_Enable');
+	if(display == '1' && en == '1'){
+		setDisplay('DIV_Static_IPv4_DNS',1);
+	}
+	else{
+		setDisplay('DIV_Static_IPv4_DNS',0);
+	}
+	
+}
+function PPPoETypeSwitch()
+{
+    var pppoe_type = getValue('SELECT_PPPoeType');
+    var sh = pppoe_type == 'PPPoE_Proxy' ? 1 : 0;
+    setDisplay('DIV_PPPoE_Proxy', sh);
+    setDisplay('SELECT_ConnTrigger_Proxy', sh);
+    setDisplay('SELECT_ConnTrigger',!sh);
+    if(sh){
+	setDisplay('DIV_PPPoE_AlwaysOn', sh);
+	setDisplay('DIV_PPPoE_OnDemand', !sh);
+    }
+    if(!sh)
+ 	PPPoEConnTriggerSwitch();
+}
+
+function Password_changed()
+{
+    password_changed=1;
+    return true;
+}
+
+function PPPoEConnTriggerSwitch()
+{
+    var trigger_type = getValue('SELECT_ConnTrigger');
+
+    setDisplay('DIV_PPPoE_OnDemand', trigger_type == 'OnDemand' ? 1 : 0);
+    setDisplay('DIV_PPPoE_AlwaysOn', trigger_type == 'AlwaysOn' ? 1 : 0);
+}
+
+function LimitRetryTimeEnable()
+{
+    var LimitEnable = getValue('INPUT_LimitRetryTimeEnable');
+    setDisplay('DIV_RetryTime', LimitEnable)
+}
+
+function RouteProtocolSwitch()
+{
+    var wanconn = getValue('WanConn');
+    var connType = getValue('SELECT_Mode');
+    var ip_version = $(connType == 'Route' ? 'SELECT_Protocol_R' : 'SELECT_Protocol_B').value;
+    
+    if (wanconn  == 'Static' || wanconn == 'IPoA')
+    {
+        setDisplay('DIV_Static', ip_version == '2' ? 0 : 1);
+        setDisplay('DIV_IPv6_address', ip_version == '1' ? 0 : 1);
+        setDisplay('DIV_DNS_address', ip_version != '1' ? 1 : 0);
+    }
+
+    setDisplay('DIV_Nat', ip_version == '2' ? 0 : 1);
+    setDisplay('DIV_Static_IPv4_DNS_Enable', ip_version == '2' ? 0 : 1); 
+    if (ip_version == '1' || connType == 'Bridge')
+    {
+        setDisplay('DIV_IPv6_address', 0);
+        setDisplay('DIV_IPv6_prefix', 0);
+        setDisplay('DIV_DNS_address', 0);
+    }
+    else if (ip_version != '1')
+    {
+        setDisplay('DIV_IPv6_address', 1);
+        setDisplay('DIV_IPv6_prefix', 1);
+        setDisplay('DIV_DNS_address', 1);
+    }
+    if ((connType == 'Route') && (wanconn == 'Static' || wanconn == 'DHCP' || wanconn == 'PPPoE'))
+    {
+        var OverrideEnable = getValue('INPUT_MACAddressOverrideEnable');
+        setDisplay('DIV_MAC_Setting', 1);
+        setDisplay('DIV_MACAddress', OverrideEnable)
+    }
+    else
+        setDisplay('DIV_MAC_Setting', 0);
+    if ((connType == 'Route') && (wanconn == 'DHCP'))
+    {
+        var OP60Enable = getValue('INPUT_OP60SettingEnable');
+        setDisplay('DIV_OP60_Setting', 1);
+        setDisplay('DIV_OP60', OP60Enable)
+        setDisplay('DIV_OP66_Setting', 1);
+        setDisplay('DIV_OP120_Setting', 1);
+    }
+	else
+	{
+        setDisplay('DIV_OP60_Setting', 0);
+        setDisplay('DIV_OP66_Setting', 0);
+        setDisplay('DIV_OP120_Setting', 0);
+	}
+
+    if(getDisplay('DIV_Static') == '1'){
+    	disableCtrl('INPUT_Static_IPv4_DNS_Enable', true);
+    	setValue('INPUT_Static_IPv4_DNS_Enable', '1');
+    }
+    else{
+     	disableCtrl('INPUT_Static_IPv4_DNS_Enable', false);
+     	//setValue('INPUT_Static_IPv4_DNS_Enable', '0');
+    }
+    staticIPv4DNSSwitch();
+}
+
+function ATMQoSSwitch()
+{
+    var atmqos = getValue('SELECT_ATMQoS');
+
+    setDisplay('DIV_CBR', 0);
+    setDisplay('DIV_UBR', 0);
+    setDisplay('DIV_N_UBR', 0);
+    if (atmqos == 'CBR')
+        setDisplay('DIV_CBR', 1);
+    else if (atmqos == 'UBR+')
+        setDisplay('DIV_UBR', 1);
+    else if (atmqos == 'VBR-rt')
+        setDisplay('DIV_N_UBR', 1);
+    else if (atmqos == 'VBR-nrt')
+    {
+        setDisplay('DIV_UBR', 1);
+        setDisplay('DIV_N_UBR', 1);
+    }
+}
+
+function VLANEnable()
+{
+    var VLANEnable = getValue('INPUT_VlanEnable');
+    setDisplay('DIV_VLAN', VLANEnable);
+}
+function setVlanTagging()
+{
+	/*
+	var wanNum = $("SELECT_ConnName").options.length - 1;
+	for(var i = 0; i < wanNum; i++)
+	{
+		// 如果其他wan下面已经绑定vlan接口， 就disable掉，
+		if (i == cur_windex) continue;
+		for(var j = 0; j < gLanIndex; j++ ){
+			if(ConnectionS[i].VLANTaggingIf.indexOf('LANEthernetInterfaceConfig.' + (j+1)) > -1){
+				setValue('INPUT_VlanTagPort' + j, '0');
+				$('INPUT_VlanTagPort' + j).disabled = true;
+			}
+		}
+	}
+	*/
+	// Firstly, set all the checkbox to non-checked,
+	for(var i = 0; i < gLanIndex; i++)
+	
+		setValue('INPUT_VlanTagPort' + i, '0');
+	if(cur_windex == -1) return;
+
+	for(var i = 0; i < gLanIndex; i++)
+	{
+	var VlanNum = getIndexByDescription("LAN"+(i+1));
+		setValue('INPUT_VlanTagPort' + i, ConnectionS[cur_windex].VLANTaggingIf.indexOf('LANEthernetInterfaceConfig.' + (VlanNum+1)) > -1 ? 1 : 0);
+  }
+}
+function checkLanPort()
+{
+    var node_lanports = ['INPUT_LanPort1','INPUT_LanPort2', 'INPUT_LanPort3','INPUT_LanPort4',
+    'INPUT_WlanSsid1','INPUT_WlanSsid2','INPUT_WlanSsid3','INPUT_WlanSsid4',
+    'INPUT_WlanSsid5','INPUT_WlanSsid6','INPUT_WlanSsid7','INPUT_WlanSsid8'];
+    
+    var used_lanport;
+    var used_node = [];
+    var curr_node = [];
+    var n = 0;
+    var is_used = 0;
+
+    if(NumOfWLAN > 4)
+        setDisplay('DIV_WLAN_EXT', 1);
+    else
+        setDisplay('DIV_WLAN_EXT', 0);
+
+    //把被使用的LAN端口保存到数组中，自身的除外
+    for(var i = 0, _len = ConnectionS.length; i < _len; i++){
+        if(i != cur_windex){
+            used_lanport = ConnectionS[i].LanInterface.split(',');
+            //disabled
+            for(var j = 0; j < used_lanport.length; j++)
+            {
+                used_node[n] = [];            
+                if(used_lanport[j].indexOf('LANEthernetInterfaceConfig') > 0)
+                {
+                	
+                	  var PortNum = getIndexByDescription("LAN"+ used_lanport[j].substr(used_lanport[j].length - 1, 1))+1; 
+                    used_node[n][0] = 'INPUT_LanPort' + PortNum;
+                } 
+                else if(used_lanport[j].indexOf('WLANConfiguration') > 0)
+                {
+                    used_node[n][0] = 'INPUT_WlanSsid' + used_lanport[j].substr(used_lanport[j].length - 1, 1);                     
+                }
+                used_node[n][1] = ConnectionS[i].IPv6IPAddressOrigin;
+                used_node[n][2] = ConnectionS[i].IPMode;
+                used_node[n][3] = ConnectionS[i].ConnectionType; 
+                ++n;           
+            }
+        }
+    }
+
+    for(var k = 0; k < node_lanports.length; k++)
+    {
+    	//check if checkbox of lan bingding exist
+    	if(! $(node_lanports[k])){
+			continue;
+    	}
+        $(node_lanports[k]).disabled = false;
+    
+        for (var i = 0; i < used_node.length; i++)
+        {
+            if (node_lanports[k] == used_node[i][0])
+            {
+                var _mode = $('SELECT_Mode').value;
+                var prototype = (_mode == 'Route' ? $('SELECT_Protocol_R').value : $('SELECT_Protocol_B').value)
+                                
+                if ((used_node[i][1] == "PVC:"+$('INPUT_DestinationAddress').value)
+                    && (used_node[i][2] != prototype) )
+                {
+                    $(node_lanports[k]).disabled = false;
+                    
+                    if (prototype == '3' ){
+                        is_used = 1;
+                        $(node_lanports[k]).disabled = true;
+                        $(node_lanports[k]).checked  = false;
+                        break;
+                    }
+                    
+                    if ( used_node[i][2] == '3' ){
+                        is_used = 1;
+                        $(node_lanports[k]).disabled = true;
+                        $(node_lanports[k]).checked  = false;
+                        break;
+                    }                
+                }
+                else
+                {
+                    is_used = 1;
+                    $(node_lanports[k]).disabled = true;
+                    $(node_lanports[k]).checked  = false;
+                    break;
+                }
+            }
+            else
+            {
+                if (is_used == 0)
+                {
+                    $(node_lanports[k]).disabled = false;
+                }
+            }
+        }
+
+    }
+}
+
+function ServiceTypeSwitch()
+{
+	var service_type = getValue('SELECT_ServiceType');
+	var connType = getValue('SELECT_Mode');
+
+	var sh = 1;
+
+    /* 如果是TR069或者VOIP，则需要隐藏端口绑定 */
+	if((service_type == 'TR069' && connType != 'Con-Bridge') || (service_type == 'VOIP' && connType != 'Con-Bridge') ||(service_type == 'TR069,VOIP') )
+	//if((service_type == 'VOIP') )   //for lucien.liu
+	{
+		sh = 0; 
+	}
+	setDisplay('DIV_PortBinding', sh);
+
+	if((service_type == 'INTERNET') && (connType == 'Bridge'))
+		setDisplay('DIV_DHCPTransparent', 1);
+	else
+		setDisplay('DIV_DHCPTransparent', 0);  
+
+	disableCtrl('INPUT_Nat', sh ? false : true);
+}
+
+function DslModeSwitch()
+{
+    var dslmode = getValue('SELECT_DslMode');
+    var linkmode = getValue('SELECT_Mode');
+	var wanconn = getValue('WanConn');
+	var ip_version = $(linkmode == 'Route' ? 'SELECT_Protocol_R' : 'SELECT_Protocol_B').value;
+    var sh = dslmode == '0' ? 1 : 0;
+	var service_type=getValue("SELECT_ServiceType");
+    setDisplay('DIV_ATM_Setting', sh);
+    //setDisplay('DIV_Route_Dongle', 0);
+	setDisplay('DIV_MODE', 1);
+	setDisplay('DIV_Protocol_R', 1);
+	
+	setDisplay('DIV_OP120_Setting', 1);
+	setDisplay('DIV_VLAN_E', 1);
+	setDisplay('pppoe_type', 1);
+	setDisplay('APN', 0);
+	setDisplay('PIN', 0);
+	setDisplay('Dial_Number', 0);
+	setDisplay('DIV_Route_ATM', 1);
+	setDisplay('DIV_Route_PE', 1);
+	setDisplay('DIV_Nat', ip_version == '2' ? 0 : 1);
+	setDisplay('DIV_Static_IPv4_DNS_Enable', ip_version == '2' ? 0 : 1); 
+	if ((linkmode == 'Route') && (wanconn == 'Static' || wanconn == 'DHCP' || wanconn == 'PPPoE')){
+		setDisplay('DIV_MAC_Setting', 1);
+	}else{
+		setDisplay('DIV_MAC_Setting', 0);
+	}
+	if(wanconn=="DHCP"){
+		setDisplay('DIV_OP60_Setting', 1);
+		setDisplay('DIV_OP66_Setting', 1);
+	}else{
+		setDisplay('DIV_OP60_Setting', 0);
+		setDisplay('DIV_OP66_Setting', 0);
+	}
+	if(linkmode != 'Route') {
+		setDisplay('DIV_Route', 0);	
+		setDisplay('DIV_VLANPASS', 1);
+	}
+
+	setDisplay('DIV_DONGLE_Setting',(3 == dslmode) ? 1 : 0);
+	
+	if(/*(linkmode == 'Route') && */(dslmode == 3)) {
+		var wanconn1 = getValue('WanConn');
+
+		setDisplay('DIV_Route_ATM', 0);
+		setDisplay('DIV_Route_PE', 1);
+		//setDisplay('DIV_Route_Dongle', 1);
+		//setDisplay('DIV_MODE', 0);
+		if("INTERNET"==service_type)
+			setDisplay('DIV_Nat', 1);
+		else
+			setDisplay('DIV_Nat', 0);
+		//setDisplay('DIV_Static_IPv4_DNS_Enable', 0);
+		//setDisplay('DIV_Protocol_R', 0);
+		setDisplay('DIV_MAC_Setting', 0);
+		setDisplay('DIV_OP60_Setting', 0);
+		setDisplay('DIV_OP66_Setting', 0);
+		setDisplay('DIV_OP120_Setting', 0);
+		setDisplay('DIV_VLAN_E', 0);
+		setDisplay('DIV_VLANPASS', 0);
+		setDisplay('DIV_PPPoE', (wanconn1 == 'PPPoE' || wanconn1 == 'PPPoA') ? 1 : 0);
+		//setDisplay('pppoe_type', 0);
+		setDisplay('APN', 1);
+		setDisplay('PIN', 1);
+		setDisplay('Dial_Number', 1);
+		if(linkmode != 'Route') {
+			setDisplay('DIV_Route', 1);
+		}
+	}
+    else if (linkmode == 'Route') {
+
+		var wanconn = getValue('WanConn');
+
+		setDisplay('DIV_Route_ATM', dslmode == '0' ? 1 : 0); // PPPoA/IPoA just for ATM Mode
+		setDisplay('DIV_Route_PE', 1);
+		setDisplay('DIV_VLANPASS', 0);
+
+		if(wanconn != 'PPPoE' && wanconn != 'PPPoA')
+			setDisplay('DIV_PPPoE', 0);
+	}
+	if(dslmode != '3')
+		ConnModeSwitch(); //调整页面显示， 不至于太乱, 暂时忽略dongle wan, 2016/07/19
+}
+
+function ipv6AddrSwitch()
+{
+    var addrtype = getValue('ipv6AddrRadio');
+    var sh = addrtype == 'Static' ? 1 : 0;
+    setDisplay('DIV_IPv6_Static', sh);
+
+    if (addrtype == "Static"){
+      setValue('ipv6DNSAddrRadio', 'Static');
+      disableCtrl('ipv6DNSDHCPv6AddrRadio', true);
+      disableCtrl('ipv6DNSAutoAddrRadio', true);  
+    }
+    else{
+      disableCtrl('ipv6DNSDHCPv6AddrRadio', false);
+      disableCtrl('ipv6DNSAutoAddrRadio', false);
+    }
+    ipv6DNSAddrSwitch();
+}
+
+
+
+function ipv6DNSAddrSwitch()
+{
+    var addrtype = getValue('ipv6DNSAddrRadio');
+    var sh = addrtype == 'Static' ? 1 : 0;
+    setDisplay('DIV_IPv6_DNS_Static', sh);
+}
+
+function ipv6PDSwitch()
+{
+    var pdtype = getValue('ipv6PrixRadio');
+    var sh = pdtype == 'Static' ? 1 : 0;
+    setDisplay('DIV_IPv6_prefixinfo', sh);
+}
+
+function IPVersionDisaply()
+{
+    var sh = G_IPProtocolVersion == '1' ? 0 : 1;
+    setDisplay('DIV_Protocol_R', sh);
+    setDisplay('DIV_Protocol_B', sh);
+}
+function disableEditWan(isShow) 
+{
+	var disableEdit = true;
+	var disableEditValue = 0;
+	if(cur_windex == "" || cur_windex == -1){
+		disableEdit = false;
+	}
+	else{
+		cur_windex = getValue('SELECT_ConnName');
+		disableEditValue = ConnectionS[cur_windex].X_TRI_DisableEdit;
+		if(disableEditValue == 1)
+			disableEdit = true;
+		else
+			disableEdit = false;
+	}
+	if(isShow == 1 && disableEdit == true)
+		return;
+	else if(isShow == 0 && disableEdit == false)
+		return;
+//	top.AlertMsg("disableEditWan= "+disableEdit);
+	//disable edit wan
+	var inputElement = document.getElementsByTagName("input");
+	for(i = 0 ;i < inputElement.length;i++){
+		inputElement[i].disabled = disableEdit;
+	}
+	inputElement =document.getElementsByTagName("select");
+	for(i = 0 ;i < inputElement.length;i++){
+		inputElement[i].disabled = disableEdit;
+	}
+	disableCtrl('SELECT_ConnName',false);
+	if(disableEditValue == 2){
+        disableCtrl('INPUT_Static_IPv4_DNS_Enable',true);
+        disableCtrl('INPUT_Dns1',true);
+        disableCtrl('INPUT_Dns2',true);
+	}
+	
+}
+function ConnNameSwitch(selObj)
+{
+	if(selObj.options[selObj.selectedIndex].text=="New connection"){
+		document.getElementById("SELECT_INPUT").value="";
+	}else{
+		document.getElementById("SELECT_INPUT").value=selObj.options[selObj.selectedIndex].text;
+	}
+    cur_windex = getValue('SELECT_ConnName');
+    disableEditWan(1);
+    initConnModeAddrType();
+    createServiceType();
+    getConnValue();
+    ConnModeDisplay();
+    RouteProtocolSwitch();
+    ATMQoSSwitch();
+    VLANEnable();
+	setVlanTagging();
+    checkLanPort();
+    PPPoETypeSwitch();
+    PPPoEConnTriggerSwitch();
+    LimitRetryTimeEnable();
+    ServiceTypeSwitch();
+    DslModeSwitch();
+    ipv6AddrSwitch();
+    ipv6PDSwitch();
+    ipv6DNSAddrSwitch();
+    IPVersionDisaply();
+    DualLanCfgSwitch();
+    disableEditWan(0);
+}
+
+function uiPvcRefresh()
+{
+    checkLanPort();
+}
+
+function ConnModeSwitch()
+{
+    var dslmode;
+
+    ConnModeDisplay();
+    RouteProtocolSwitch();
+    createServiceType();
+    PPPoETypeSwitch();
+    
+   // dslmode = getValue('SELECT_DslMode');
+   // setDisplay('DIV_DONGLE_Setting',(3 == dslmode) ? 1 : 0);
+}
+
+function DualLanCfgSwitch()
+{
+    var wanconn = getValue('WanConn');
+    if(wanconn != 'PPPoE')
+    {
+        setDisplay('DIV_DualLanEn', 0);
+        setValue('INPUT_DualLanEn', '0');
+        setDisplay('DIV_DualLanCfg', 0);
+    }
+    else
+    {
+        setValue('INPUT_DualLanEn', ConnectionS[cur_windex].unnum_en);
+        setDisplay('DIV_DualLanCfg', ConnectionS[cur_windex].unnum_en);
+        if( ConnectionS[cur_windex].unnum_en == 1)
+            InitDualLanCfg()
+    }
+}
+
+function DualLanEnable()
+{
+    var en= getValue('INPUT_DualLanEn');
+    setDisplay("DIV_DualLanCfg", en);
+}
+
+function getduallanidx(path)
+{
+    for (i = 0; i < DualLanCfgList.length; i++)
+    {
+      if (DualLanCfgList[i].Path == path){
+          return i;
+      }
+    }
+    return -1;
+}
+
+
+function InitDualLanCfg()
+{
+    var br_path=ConnectionS[cur_windex].unnum_path;
+    var lan_idx=getduallanidx(br_path);
+
+    if(lan_idx != -1)
+    {
+        setValue("selectaddrmode", DualLanCfgList[lan_idx].AddrMode);
+        setValue("INPUT_PPPoEIP", DualLanCfgList[lan_idx].IpAddr);
+        setValue("INPUT_UnnumLanIP", DualLanCfgList[lan_idx].IpUnnumberedAddr);
+        setValue("INPUT_UnnumLanMask", DualLanCfgList[lan_idx].IpUnnumberedMask);
+        setValue("INPUT_LanStartIP", DualLanCfgList[lan_idx].LanStartIp);
+        setValue("INPUT_LanEndIP", DualLanCfgList[lan_idx].LanEndIp);
+        setValue("INPUT_LanPriDns", DualLanCfgList[lan_idx].PrimaryDns );
+        setValue("INPUT_LanSecDns", DualLanCfgList[lan_idx].SecondaryDns );
+
+        setValue('INPUT_LanPort1_UN',  DualLanCfgList[lan_idx].LanPort.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN1")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort2_UN',  DualLanCfgList[lan_idx].LanPort.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN2")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort3_UN',  DualLanCfgList[lan_idx].LanPort.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN3")+1)) > -1 ? 1 : 0);
+        setValue('INPUT_LanPort4_UN',  DualLanCfgList[lan_idx].LanPort.indexOf('LANEthernetInterfaceConfig.'+(getIndexByDescription("LAN4")+1)) > -1 ? 1 : 0);
+
+        setValue('INPUT_WlanSsid1_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.1') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid2_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.2') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid3_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.3') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid4_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.4') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid5_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.5') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid6_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.6') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid7_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.7') > -1 ? 1 : 0);
+        setValue('INPUT_WlanSsid8_UN', DualLanCfgList[lan_idx].LanPort.indexOf('WLANConfiguration.8') > -1 ? 1 : 0);
+    
+        if(NumOfWLAN > 4)
+            setDisplay('DIV_WLAN_EXT_UN', 1);
+        else
+            setDisplay('DIV_WLAN_EXT_UN', 0);
+
+    }
+
+}
+
+function RouteWanConnSwitch()
+{
+    var wanconn = getValue('WanConn');
+    var ip_version = getValue('SELECT_Protocol_R');
+    setDisplay('DIV_Static', (wanconn == 'Static' || wanconn == 'IPoA') && ip_version == '1' ? 1 : 0);
+    setDisplay('DIV_PPPoE', (wanconn == 'PPPoE' || wanconn == 'PPPoA') ? 1 : 0);
+
+    if(wanconn == 'PPPoE')
+    {
+        setDisplay('DIV_DualLanEn', 1);
+        if(cur_windex==-1)
+        {
+            setValue('INPUT_DualLanEn', '0');
+            setDisplay('DIV_DualLanCfg', 0);
+        }else{
+            setValue('INPUT_DualLanEn', ConnectionS[cur_windex].unnum_en);
+            setDisplay('DIV_DualLanCfg', ConnectionS[cur_windex].unnum_en);
+            if( ConnectionS[cur_windex].unnum_en == 1)
+                InitDualLanCfg()
+        }
+    }
+
+    PPPoETypeSwitch();
+    RouteProtocolSwitch();
+}
+
+function ConfirmMsgResult(type,func,a)
+{
+	if(func=='delete')
+	{
+		if(type=='yes')
+		{
+		        /* delete wanipconnection or wanpppconnecton */
+		        var df = document.dataform;    
+  		       	AddElements(df, "del_obj", ConnectionS[cur_windex].Path);
+                        if (getValue('SELECT_DslMode') != '2' && getValue('SELECT_DslMode') != '3')
+                        {
+ 		            /*delete wanconnectiondevice */
+ 		            cur_lcindex = getLinkConfig(cur_windex);
+ 		            AddElements(df, "del_obj", ArrayWANCD[cur_lcindex].Path);
+                        }
+  		        df.submit();
+	
+		}
+		else
+		{
+			return;			
+		}
+	}
+
+}
+function uiDelete()
+{
+    if (cur_windex == -1)
+    {
+        /* no connection was choiced */
+        return false;
+    }
+    else
+    {
+        if(!validateCode())
+            return false;
+
+        top.ConfirmMsg(getStr('LK_net_confirmdelwan'),"delete");	
+        return;
+    }
+}
+
+function getBindingports()
+{
+    /* the selected lan port and ssid */
+    var binding_ports = '';
+    var service_type = getValue('SELECT_ServiceType');
+	var connType = getValue('SELECT_Mode');
+
+    /* 如果是TR069或者VOIP，则不需要端口绑定，返回空 */
+	/* Con-Bridge Voip 需要端口绑定, 2016/07/21 */
+    if((service_type == 'TR069' && connType != 'Con-Bridge') || (service_type == 'VOIP' && connType != 'Con-Bridge') ||(service_type == 'TR069,VOIP') )
+    {
+        return "";
+    }
+
+    //LAN
+    for (var i = 1; i < 5; i++){
+    	
+        var LanNum=getIndexByDescription("LAN"+i) + 1;
+        if ($('INPUT_LanPort' + i) && getValue('INPUT_LanPort' + i) == 1)
+        {
+            binding_ports += 'InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.' + LanNum + ',';
+        }
+    }
+
+    //SSID
+    for (var i = 1; i < 9; i++)
+    {
+        if ($('INPUT_WlanSsid' + i) && getValue('INPUT_WlanSsid' + i) == 1)
+        {
+            binding_ports += 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.' + i + ',';
+        }
+    }
+    /* delete the first and last comma */
+    binding_ports = binding_ports.replace(/(^,*)|(,*$)/g,'');
+    return binding_ports;
+}
+
+function ipv6_process(df, conn_type, conn_instance_path)
+{
+    ipv6AddrType = getValue('ipv6AddrRadio');
+    ipv6DNSAddrType = getValue('ipv6DNSAddrRadio');
+    
+    /* DHCPv6, Static, RA(SLAAC) */
+    AddElements(df, conn_instance_path + 'X_CT-COM_IPv6IPAddressOrigin', ipv6AddrType);
+    if (ipv6AddrType == 'Static')
+    {
+        var ipv6Addr_Prefix = getValue('INPUT_IPv6_IpAddress');
+        var addrPrefix = ipv6Addr_Prefix.split('/');    
+        var service_type = getValue('SELECT_ServiceType');
+        
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6IPAddress', addrPrefix[0]);
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6AddressPrefixLen', addrPrefix.length == 2 ? addrPrefix[1] : '128');
+        AddElements(df, conn_instance_path + 'X_CT-COM_DefaultIPv6Gateway', getValue('INPUT_IPv6_DefGateway'));
+    }
+    if (ipv6DNSAddrType == 'Static')
+    {
+        var ipv6Dns = getValue('INPUT_IPv6_Dns1') + ',' + getValue('INPUT_IPv6_Dns2');
+        ipv6Dns = ipv6Dns.replace(/(^,*)|(,*$)/g,'');
+         /* delete the first and last comma */
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6DNSServers', ipv6Dns);
+      
+    }    
+    /* set pd to disable when tr069 */
+    var prix_type = getValue('ipv6PrixRadio');
+    AddElements(df, conn_instance_path + 'X_CT-COM_IPv6PrefixOrigin', prix_type);
+        
+    if (service_type == 'TR069' || service_type == 'OTHER')
+    {
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6PrefixDelegationEnabled', '0');
+    }
+    else
+    {
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6PrefixDelegationEnabled', prix_type=='PrefixDelegation'? '1':'0');
+    }
+            
+    if (prix_type == 'Static')
+    {
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6Prefix', getValue('INPUT_IPv6_Prefix'));
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6PrefixPltime', '7200');
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPv6PrefixVltime', '172800');
+    }
+}
+
+//var unsafestr="#^&()<>;:\n\r\t\'\"\\/";
+var unsafestr="\\\"\'";
+function isValidStr(str)
+{
+    var i = 0;
+
+    for (i = 0; i < str.length; i++)
+    {
+        if(unsafestr.indexOf(str.charAt(i)) != -1)
+            return false;
+    }
+    return true;
+}
+
+function getDualLanPort()
+{
+    // check unnum port, MUST be subset of bound ports
+    var wanbindport=getBindingports();
+    var dport;
+    var bport;
+
+    /* the selected lan port and ssid */
+    var dual_ports = '';
+
+    //LAN
+    for (var i = 1; i < 5; i++)
+    {
+    	var LanNum = getIndexByDescription("LAN"+i) + 1;
+        dport = 'INPUT_LanPort' + i + '_UN';
+        bport = 'LANEthernetInterfaceConfig.' + LanNum;
+
+        if (dport && getValue(dport) == 1)
+        {
+            if( wanbindport.indexOf(bport) > -1 )
+                dual_ports += 'InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.' + LanNum + ',';
+            else
+                top.AlertMsg("Unnumbered Lan port " + bport + " doesn't bind to this Wan connection");
+        }
+    }
+
+    //SSID
+    for (var i = 1; i < 9; i++)
+    {
+        dport = 'INPUT_WlanSsid' + i + '_UN';
+        bport = 'WLANConfiguration.' + i;
+
+        if (dport && getValue(dport) == 1)
+        {
+            if( wanbindport.indexOf(bport) > -1 )
+                dual_ports += 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.' + i + ',';
+            else
+                top.AlertMsg("Unnumbered SSID " + bport + " doesn't bind to this Wan connection");
+        }
+    }
+
+    /* delete the first and last comma */
+    dual_ports = dual_ports.replace(/(^,*)|(,*$)/g,'');
+    return dual_ports;
+}
+
+function DualLanCfgSubmit(df, wanpath)
+{
+    var en= getValue('INPUT_DualLanEn');
+    var duallist_path;
+    var br_idx;
+    var brnameid=DualLanCfgList.length+1;
+    var brname = "bripunnum"+brnameid;
+
+    AddElements(df, wanpath + 'X_TRI_UnnumberEn', en);
+    if(en==1)
+    {
+
+        if(!isCheckIPV4($('INPUT_PPPoEIP'))
+		    || !isCheckIPV4($('INPUT_UnnumLanIP'))
+    		|| !isIPMaskValid(getValue('INPUT_UnnumLanMask'))
+	    	|| !isCheckIPV4($('INPUT_LanStartIP'))
+		    || !isCheckIPV4($('INPUT_LanEndIP')))
+        {   
+            top.AlertMsg("Wrong ip and mask.");
+            return false;
+        }
+    
+    	if(getValue('selectaddrmode') == "2")
+        {
+            top.AlertMsg("DHCP NOT supported now.");
+            return false;
+        }
+
+        if(cur_windex==-1)
+        {
+            AddElements(df, wanpath + 'X_TRI_UnnumberLanPath', "InternetGatewayDevice.Layer2Bridging.Bridge."+brnameid+".");
+        }
+        else
+        {
+            if(ConnectionS[cur_windex].unnum_path == "")
+            {
+                AddElements(df, wanpath + 'X_TRI_UnnumberLanPath', "InternetGatewayDevice.Layer2Bridging.Bridge."+brnameid +".");
+            }
+        }
+
+        // new
+        if(cur_windex==-1)
+        {
+            duallist_path="InternetGatewayDevice.Layer2Bridging.Bridge.{i}"; 
+            AddElements(df, 'add_obj',duallist_path);
+            AddElements(df, duallist_path+".BridgeName", brname);
+        }
+        else
+        {
+            if(ConnectionS[cur_windex].unnum_path == "")
+            {
+                duallist_path="InternetGatewayDevice.Layer2Bridging.Bridge.{i}"; 
+                AddElements(df, 'add_obj',duallist_path);
+                AddElements(df, duallist_path+".BridgeName", brname);
+            }
+            else
+            {
+                duallist_path=ConnectionS[cur_windex].unnum_path;
+                // remove the tailing '.'
+                duallist_path=duallist_path.replace(/(.$)/g,'');
+            }
+        }
+
+        // update
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.Enable", '1');
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.AddrMode", getValue('selectaddrmode'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.IpAddr", getValue('INPUT_PPPoEIP'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.IpUnnumberedAddr", getValue('INPUT_UnnumLanIP'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.IpUnnumberedMask", getValue('INPUT_UnnumLanMask'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.LanStartIp", getValue('INPUT_LanStartIP'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.LanEndIp", getValue('INPUT_LanEndIP'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.PrimaryDns", getValue('INPUT_LanPriDns'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.SecondaryDns", getValue('INPUT_LanSecDns'));
+        AddElements(df, duallist_path+".X_TRI_DualLanCfg.LanPort", getDualLanPort());
+        //AddElements(df, duallist_path+".X_TRI_DualLanCfg.WanConnPath", wanpath);
+
+
+    }
+
+}
+
+function pppconnection_process(df, conn_type, conn_instance_path)
+{    
+    if (conn_type == 'PPPoE_Bridged')
+    {
+        /* Bridge: PPP */
+	/* not support */
+        //AddElements(df, conn_instance_path + 'X_CT-COM_IPMode', getValue('SELECT_Protocol_B'));
+        //AddElements(df, conn_instance_path + 'ConnectionType', 'PPPoE_Bridged');
+    }
+    else
+    {
+        username = getValue('INPUT_UserName');
+        if (isValidStr(username) != true)
+        {
+            top.AlertMsg(getStr("LK_namenoinc")+unsafestr+"!");
+            return false;
+        }
+        /* Route */
+        var ip_version = getValue('SELECT_Protocol_R');
+        /* 协议类型 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPMode', ip_version);
+        if (conn_type == 'IP_Routed')
+        {
+            /* normal pppoe */
+            AddElements(df, conn_instance_path + 'ConnectionType', 'IP_Routed');
+            AddElements(df, conn_instance_path + 'X_CT-COM_ProxyEnable', 0);
+            AddElements(df, conn_instance_path + 'ConnectionTrigger', getValue('SELECT_ConnTrigger'));
+        }
+        else if (conn_type == 'PPPoE_Proxy')
+        {
+            AddElements(df, conn_instance_path + 'ConnectionType', 'IP_Routed');
+            AddElements(df, conn_instance_path + 'X_CT-COM_ProxyEnable', 1);
+            /* max proxy user numbers */
+            if(checkRange(getValue('INPUT_MAXUser'),1, 1, 5) && !isNaN(getValue('INPUT_MAXUser')))
+                AddElements(df, conn_instance_path + 'X_CT-COM_MAXUser', getValue('INPUT_MAXUser'));
+            else
+            {
+                top.AlertMsg(getStr("LK_pppoemaxuser"),'INPUT_MAXUser');
+                return false;
+            }
+            AddElements(df, conn_instance_path + 'ConnectionTrigger', getValue('SELECT_ConnTrigger_Proxy'));
+        }
+        else if (conn_type == 'Bridged_Routed')
+        {
+            AddElements(df, conn_instance_path + 'ConnectionType', 'Bridged_Routed');
+            AddElements(df, conn_instance_path + 'X_CT-COM_ProxyEnable', 0);
+            AddElements(df, conn_instance_path + 'ConnectionTrigger', getValue('SELECT_ConnTrigger'));
+        }
+        AddElements(df, conn_instance_path + 'PPPoEServiceName', getValue('INPUT_ServiceName'));    
+        AddElements(df, conn_instance_path + 'X_TRI_PPPoEPassThrough', getValue('INPUT_PPPoEPassThrough'));		
+        AddElements(df, conn_instance_path + 'Username', getValue('INPUT_UserName'));
+        if(password_changed == 1)
+        {
+            password = getValue('INPUT_Password');
+            if (isValidStr(password) != true)
+            {
+                top.AlertMsg(getStr("LK_Password")+unsafestr);
+                return false;
+            }
+            AddElements(df, conn_instance_path + 'Password', getValue('INPUT_Password'));
+        }
+        AddElements(df, conn_instance_path + 'X_TRI_PPPAuthenticationProtocol', getValue('SELECT_AuthType'));
+        
+        if (getValue('SELECT_ConnTrigger') == 'OnDemand')
+        {
+            AddElements(df, conn_instance_path + 'IdleDisconnectTime', getValue('INPUT_IdleDisconnectTime'));
+        }
+        else if (getValue('SELECT_ConnTrigger') == 'AlwaysOn')
+        {
+            AddElements(df, conn_instance_path + 'PPPLCPEcho', getValue('INPUT_KeepAliveTime'));
+            AddElements(df, conn_instance_path + 'PPPLCPEchoRetry', getValue('INPUT_KeepAliveMaxFail'));
+        }
+        // reset manual action when submit
+        AddElements(df, conn_instance_path + 'X_TRI_ManualConnect', 0);
+
+        AddElements(df, conn_instance_path + 'X_TRI_LimitRetryTime', getValue('INPUT_LimitRetryTimeEnable'));
+        if (getValue('INPUT_LimitRetryTimeEnable') == '1')
+            AddElements(df, conn_instance_path + 'X_TRI_RetryTimes', getValue('INPUT_RetryTime'));
+
+    	var dslmode = getValue('SELECT_DslMode');
+		if(dslmode == 3) {
+            AddElements(df, conn_instance_path + 'X_TRI_APN', getValue('INPUT_APN'));
+            AddElements(df, conn_instance_path + 'X_TRI_PIN', getValue('INPUT_PIN'));
+            AddElements(df, conn_instance_path + 'X_TRI_DialNumber', getValue('INPUT_DN'));
+		}
+        //ipv4 or ipv4/6
+        if(ip_version != '2'){
+	        var static_dns_enable = getValue('INPUT_Static_IPv4_DNS_Enable');
+	        var dns = getValue('INPUT_Dns1') + ',' + getValue('INPUT_Dns2');
+	        dns = dns.replace(/(^,*)|(,*$)/g,'');
+	        if(static_dns_enable == '1'){
+		        if(!isCheckIPV4($('INPUT_Dns1'))){            
+		              return false;
+		        }
+		        if(getValue('INPUT_Dns2') !=""){
+		            if(!isCheckIPV4($('INPUT_Dns2'))){            
+		                  return false;
+		            }
+		        }
+		        AddElements(df, conn_instance_path + 'DNSServers', dns);
+	        }
+	        AddElements(df, conn_instance_path + 'DNSOverrideAllowed', static_dns_enable);
+   		}
+	
+        /* IPv6, IPv4&6 */
+        if (ip_version != '1')
+        {
+            ipv6_process(df, conn_type, conn_instance_path);
+        }    
+
+    }
+    return true;
+}
+
+function chgRouteToBridge(df, conn_instance_path)
+{
+	/* 如果不是新增，而是修改为桥连接，判断是否需要将ip/gateway/dns等清空，否则wan连接状态页面还有显示
+    这段代码的理念是页面配置的值由页面去还原，非页面配置的值页面直接忽略 */
+    if(cur_windex != -1)
+    {
+        /* ipv4通过页面修改的值 */
+        if(ConnectionS[cur_windex].ConnectionType=='IP_Routed' && ConnectionS[cur_windex].AddressingType=='Static')
+        {                
+            if(ConnectionS[cur_windex].ExternalIPAddress!='')
+            {
+                AddElements(df, conn_instance_path + 'ExternalIPAddress', '');
+            }
+            if(ConnectionS[cur_windex].SubnetMask!='')
+            {
+                AddElements(df, conn_instance_path + 'SubnetMask', '');
+            }
+            if(ConnectionS[cur_windex].DefaultGateway!='')
+            {
+                AddElements(df, conn_instance_path + 'DefaultGateway', '');
+            }
+            if(ConnectionS[cur_windex].DNSServers!='')
+            {                    
+                AddElements(df, conn_instance_path + 'DNSServers', '');
+            }
+        }
+
+        /* ipv6通过页面修改的值，对于ipv6类型来说，是否配置静态地址与ConnectionType无关，只与IPv6IPAddressOrigin相关。
+        其实这里IPv6IPAddressOrigin和ConnectionType的含义冲突了，应该使用其中一个即可。 */
+        if(ConnectionS[cur_windex].IPv6IPAddressOrigin=='Static')
+        {
+            if(ConnectionS[cur_windex].IPv6IPAddress!='')
+            {                   
+                AddElements(df, conn_instance_path + 'X_CT-COM_IPv6IPAddress', '');
+            }
+            if(ConnectionS[cur_windex].DefaultIPv6Gateway!='')
+            {
+                AddElements(df, conn_instance_path + 'X_CT-COM_DefaultIPv6Gateway', '');
+            }
+            if(ConnectionS[cur_windex].IPv6DNSServers!='')
+            {
+                AddElements(df, conn_instance_path + 'X_CT-COM_IPv6DNSServers', '');
+            }
+            if(ConnectionS[cur_windex].IPv6AddressPrefixLen!='')
+            {
+                AddElements(df, conn_instance_path + 'X_CT-COM_IPv6AddressPrefixLen', '');
+            }
+        }
+    }
+}
+
+/*-----------------------------------------------
+* 名称: ipconnection_process
+* 描述: 当创建或者修改ip类型wan连接时在表单中增加元素
+* 入参: df - 表单
+*       conn_type - 桥或者路由
+*       conn_instance_path - wanc的path，比如InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.
+* 出参: df - 表单
+* 返回: false - 失败
+*       true - 成功
+------------------------------------------------*/
+function ipconnection_process(df, conn_type, conn_instance_path)
+{
+    /*桥连接 */
+    if(conn_type == 'IP_Bridged')
+    {
+        /* Bridge: IP */
+        var service_type = getValue('SELECT_ServiceType');
+
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPMode', getValue('SELECT_Protocol_B'));
+        AddElements(df, conn_instance_path + 'ConnectionType', 'IP_Bridged');
+
+        if(service_type == 'INTERNET')
+        {
+            if($('INPUT_DHCPTransparent').checked==true)
+                AddElements(df, conn_instance_path+"X_TRI_DhcpTransparent", 1);
+            else
+                AddElements(df, conn_instance_path+"X_TRI_DhcpTransparent", 0);
+        }
+
+		chgRouteToBridge(df, conn_instance_path);
+    } 
+	else if(conn_type == 'Con_Bridged')
+	{
+		/* Bridge: IP */
+        var service_type = getValue('SELECT_ServiceType');
+
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPMode', '1'); // ipv4
+        AddElements(df, conn_instance_path + 'ConnectionType', 'Con_Bridged');
+		
+        AddElements(df, conn_instance_path+"X_TRI_DhcpTransparent", 1);
+
+		chgRouteToBridge(df, conn_instance_path);
+	}
+    else
+    {
+        /* IP_Routed, Route：Static/DHCP */
+        var wanconn = getValue('WanConn');
+        var ip_version = getValue('SELECT_Protocol_R');
+      
+        AddElements(df, conn_instance_path + 'ConnectionType', 'IP_Routed');
+        /* 协议类型 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_IPMode', ip_version);
+      
+        if (wanconn == 'Static' || wanconn == 'IPoA')
+        {
+            AddElements(df, conn_instance_path + 'AddressingType', 'Static');
+            if (ip_version != '2')
+            {
+                if(!isCheckIPV4($('INPUT_IpAddress'))){            
+                      return false;
+                }
+                if(!isCheckIPV4($('INPUT_Mark'),0,255)){            
+                      return false;
+                }
+                if(!isCheckIPV4($('INPUT_DefGateway'))){            
+                      return false;
+                }
+
+                if(getValue('INPUT_IpAddress') == getValue('INPUT_DefGateway')){
+                    top.AlertMsg(getStr("LK_sameipwarning"));
+                    return false;
+                }
+                AddElements(df, conn_instance_path + 'ExternalIPAddress', getValue('INPUT_IpAddress'));
+                AddElements(df, conn_instance_path + 'SubnetMask', getValue('INPUT_Mark'));
+                AddElements(df, conn_instance_path + 'DefaultGateway', getValue('INPUT_DefGateway'));
+            }
+        } 
+        else
+        {
+            AddElements(df, conn_instance_path + 'AddressingType', 'DHCP');
+        }
+    	var dslmode = getValue('SELECT_DslMode');
+    	if(dslmode == 3) {
+            AddElements(df, conn_instance_path + 'X_TRI_APN', getValue('INPUT_APN'));
+            AddElements(df, conn_instance_path + 'X_TRI_PIN', getValue('INPUT_PIN'));
+            AddElements(df, conn_instance_path + 'X_TRI_DialNumber', getValue('INPUT_DN'));
+    	}        
+        //ipv4 or ipv4/6
+        if(ip_version != '2'){
+	        var static_dns_enable = getValue('INPUT_Static_IPv4_DNS_Enable');
+	        var dns = getValue('INPUT_Dns1') + ',' + getValue('INPUT_Dns2');
+	        dns = dns.replace(/(^,*)|(,*$)/g,'');
+	        if(static_dns_enable == '1'){
+		        if(!isCheckIPV4($('INPUT_Dns1'))){            
+		              return false;
+		        }
+		        if(getValue('INPUT_Dns2') !=""){
+		            if(!isCheckIPV4($('INPUT_Dns2'))){            
+		                  return false;
+		            }
+		        }
+		        AddElements(df, conn_instance_path + 'DNSServers', dns);
+	        }
+	        AddElements(df, conn_instance_path + 'DNSOverrideAllowed', static_dns_enable);
+   		}
+        /* IPv6 */
+        if(ip_version != '1')
+        {
+            ipv6_process(df, conn_type, conn_instance_path);
+        }
+    }
+    return true;
+}
+
+function LinkConfig_process(df, link_instance_path)
+{
+    var dslmode = getValue('SELECT_DslMode'); /* PTM or ATM */
+
+    var wandev_inst_path = link_instance_path.match(/(\w+\.){3}/)[0];
+
+    if ( dslmode == '0') /* ATM */
+    {        
+        var qosMode = $('SELECT_ATMQoS').value;
+        AddElements(df, link_instance_path + 'WANDSLLinkConfig.Enable', '1');
+        var connType = getValue('WanConn');
+        if(connType == 'PPPoA' || connType == 'IPoA')
+            AddElements(df, link_instance_path + 'WANDSLLinkConfig.LinkType', connType);
+        else
+            AddElements(df, link_instance_path + 'WANDSLLinkConfig.LinkType', 'EoA');
+        
+        AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMEncapsulation', getValue('SELECT_ATMEncapsulation'));
+        AddElements(df, link_instance_path + 'WANDSLLinkConfig.DestinationAddress', "PVC:" + getValue('INPUT_DestinationAddress'));
+        AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMQoS', getValue('SELECT_ATMQoS'));
+        switch (qosMode)
+        {
+            case 'UBR': 
+            {
+                break;
+            }
+            case 'CBR':
+            {
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMPeakCellRate', getValue('INPUT_ATMPeakCellRate'));
+                break;
+            }
+            case 'VBR-nrt':
+            {
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.X_CT-COM_ATMMinimumCellRate', getValue('INPUT_ATMMinimumCellRate'));
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMSustainableCellRate', getValue('INPUT_ATMSustainableCellRate'));
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMMaximumBurstSize', getValue('INPUT_ATMMaximumBurstSize'));
+                break;
+            }
+            case 'VBR-rt':
+            {
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMSustainableCellRate', getValue('INPUT_ATMSustainableCellRate'));
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.ATMMaximumBurstSize', getValue('INPUT_ATMMaximumBurstSize'));
+                break;
+            }
+            case 'UBR+':
+            {
+                AddElements(df, link_instance_path + 'WANDSLLinkConfig.X_CT-COM_ATMMinimumCellRate', getValue('INPUT_ATMMinimumCellRate'));
+                break;
+            }
+        }
+    }
+    else if (dslmode == '1') /* PTM */
+    {       
+        AddElements(df, link_instance_path + 'WANPTMLinkConfig.Enable', '1');       
+    }
+}
+
+function checkVLAN()
+{
+    var targetVlan = $('INPUT_VlanId').value;
+
+    if (getValue('INPUT_VlanEnable') == 0) {
+        $('INPUT_VlanId').value = '-1';
+        targetVlan = -1;
+    }
+    else
+    {
+	if(targetVlan == "")
+	{
+		top.AlertMsg(getStr('LK_InputVlanID'),"INPUT_VlanId");
+		return false;
+	}
+	else if(isAllNum(targetVlan)==0)
+	{
+		top.AlertMsg(getStr('LK_InputNum'),"INPUT_VlanId");
+		return false;
+	}
+        else
+        {
+            if(targetVlan < 1 || targetVlan > 4094)
+            {
+                top.AlertMsg(getStr("LK_vlaniderror"),"INPUT_VlanId");
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+function vlan_process(df, wanc_instance_path, multicastvlan)
+{
+    if (getValue('INPUT_VlanEnable') == 0)
+        $('INPUT_VlanId').value = '-1';
+    
+    vlan_id = getValue('INPUT_VlanId');        
+    AddElements(df, wanc_instance_path + 'X_TRI_VlanID', vlan_id);
+
+    vlan_keeptag = getValue('INPUT_VlanPassKeepTagEnable');
+    AddElements(df, wanc_instance_path + 'X_TRI_VlanPassKeepTag', vlan_keeptag);
+    if (multicastvlan != -1 && vlan_id == multicastvlan)
+    {
+        top.AlertMsg("Public Multicast VLAN ID is " + multicastvlan + ",wan connection VLAN ID must not be the same value.");
+        return false;
+    }
+
+    if (vlan_id != '-1')
+    {
+        AddElements(df, wanc_instance_path + 'X_TRI_VlanPriority', getValue('SELECT_802.1p'));
+
+		//vlan tagging
+		var vlanTaggingIf = "";
+		for(var i = 0; i < gLanIndex; i++)
+			if('1' == getValue('INPUT_VlanTagPort' + i))
+			{
+			   var VlanNum = getIndexByDescription("LAN"+(i+1));
+			   vlanTaggingIf +=  gLanArray[VlanNum].path + ",";
+		         }
+		AddElements(df, wanc_instance_path + 'X_TRI_VlanTaggingIf', vlanTaggingIf.replace(/(^,*)|(,*$)/g,''));
+    } else
+        AddElements(df, wanc_instance_path + 'X_TRI_VlanTaggingIf', '');
+
+    return true;
+}
+
+function checkMTU(mode, wanconn)
+{
+    var MTU = $('INPUT_MaxMTUSize').value;
+	if(mode == 'Bridge' || mode == 'Con-Bridge'){
+           setValue('INPUT_MaxMTUSize', '1492');
+           return true;
+	}
+		
+    if (mode == 'Bridge' || (wanconn != 'PPPoE' && wanconn != 'PPPoA'))
+    {
+        /* bridge or ip connection */
+        if (MTU < 576 || MTU > 1500)
+        {
+            top.AlertMsg(getStr("LK_TheRange1500"),"INPUT_MaxMTUSize");
+            return false;
+        }
+    }
+    else
+    {
+        /* pppoe connection */
+        if (MTU < 576 || MTU > 1492)
+        {
+            top.AlertMsg(getStr("LK_TheRange1492"),"INPUT_MaxMTUSize");
+            return false;
+        }
+    }
+    return true;
+}
+
+
+/* PVC合法性检查 */
+function checkPVC()
+{
+    var name = getValue('INPUT_DestinationAddress').indexOf("/");
+    var num=$('INPUT_DestinationAddress').value.split("/");
+    var pvc="";
+    var curWancdIndex = -1;
+
+    if (name == -1 || num.length>2)
+    {
+        top.AlertMsg(getStr("LK_LKVPIVCI"),"INPUT_DestinationAddress");
+        return false;
+    }
+    else 
+    {
+         var vpivci=getValue('INPUT_DestinationAddress').split("/");
+         var vpi=vpivci[0];
+         var vci=vpivci[1];
+         var patrn=/^([0-9]\d*)$/;
+         if (!patrn.exec(vpi) || !patrn.exec(vci))
+         {
+             top.AlertMsg(getStr("LK_naturalNum"));
+             return false;
+         }
+         else
+         {
+             if (vpi<0 || vpi >255 ) 
+             {
+                 top.AlertMsg(getStr("LK_VPI"),"INPUT_DestinationAddress");
+                 return false;
+             }
+             if (vci<32 || vci >65535)
+             {
+                 top.AlertMsg(getStr("LK_VCI"),"INPUT_DestinationAddress");
+                 return false;
+             }
+        }
+    }
+
+
+    /* 检查是否有重复的pvc */
+    if(cur_windex != -1)
+    {
+        curWancdIndex = getLinkConfig(cur_windex);        
+    }
+    for(i=0; i<ArrayWANCD.length; i++)
+    {
+        if(ArrayWANCD[i].Path.indexOf(gPathDslWand) == -1)
+            continue;
+
+        pvc = ArrayWANCD[i].DestinationAddress.substring(("PVC:").length);
+        if(getValue('INPUT_DestinationAddress')==pvc && curWancdIndex!=i) //pvc相同并且不是当前wan连接则报错退出
+        {
+            top.AlertMsg(getStr("LK_net_pvcUsed"));
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function checkStaticIPv6() {
+    var ipv6DNSAddrRadio = getValue('ipv6DNSAddrRadio');
+    var name=getValue('INPUT_IPv6_IpAddress').indexOf("/");
+    if (name == -1) {
+        if(!isIPv6Valid($('INPUT_IPv6_IpAddress'))){            
+            return false;
+        }
+    }else{
+         var ipv6Addr=getValue('INPUT_IPv6_IpAddress').split("/");
+        if(!isIPv6AddrValid(ipv6Addr[0])){            
+            return false;
+        }
+        if (ipv6Addr[1] < 0 || ipv6Addr[1] > 128 || isAllNum(ipv6Addr[1]) == 0 ) {
+           top.AlertMsg(getStr("LK_ip6prefix"),"INPUT_IPv6_IpAddress");
+           return false;
+       }
+    }
+    if(!isIPv6Valid($('INPUT_IPv6_DefGateway'))){            
+        return false;
+    }
+    if(ipv6DNSAddrRadio == 'Static'){
+        if(!isIPv6Valid($('INPUT_IPv6_Dns1'))){            
+            return false;
+        }
+        if(getValue('INPUT_IPv6_Dns2') !=""){
+            if(!isIPv6Valid($('INPUT_IPv6_Dns2'))){            
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function checkPortBinding(conn_type)
+{
+	var service_type = getValue('SELECT_ServiceType');
+
+	if(((service_type == 'INTERNET') && (conn_type == 'IP_Bridged') && ($('INPUT_DHCPTransparent').checked==true))
+		&& ((getBindingports() == '')))
+	{
+		top.AlertMsg("Please select bonding port.");
+		return false; 
+	}
+    return true;
+}
+function checkWanName(Name,WANNameid){
+	var ret=true;
+	var lk_str="OK";
+	var ConNaObj=document.getElementById("SELECT_ConnName");
+	
+	if(""==Name){
+		lk_str = 'LK_null';
+	}else{
+		for(var i=0;i<nameNu;i++)
+			if(Name == wan_name[i]){
+				if(ConNaObj.options[ConNaObj.selectedIndex].text != Name)
+					lk_str = "LK_repeat";
+			}
+		
+	}
+	
+	if("OK" != lk_str){
+		top.AlertMsg(getStr(lk_str),WANNameid);
+		ret=false;
+	}
+	return ret;
+}
+
+function uiSubmit()
+{
+    var df = document.dataform;
+	var wanName=getValue('SELECT_INPUT');
+    var nodes = $('SELECT_Mode','SELECT_BridgeType','SELECT_PPPoeType');
+    var wanconn = getValue('WanConn'); /* Static, DHCP, PPPoE */
+    var ip_version = getValue('SELECT_Protocol_R'); /* IPv4/IPv6/IPv4&6 */
+    var dslmode = getValue('SELECT_DslMode'); /* PTM or ATM */
+    var ipv6AddrType = getValue('ipv6AddrRadio');
+    var ipv6DNSAddrRadio = getValue('ipv6DNSAddrRadio');
+    var type; /* PPP Connection or IP Connection */
+    var conn_type;
+    if(!checkWanName(wanName,'SELECT_INPUT')){
+		return false;
+	}
+    RemoveAllChild("dataform"); 
+    if (!checkMTU(nodes[0].value, wanconn))
+    {
+        return false
+    }
+    if (ipv6AddrType == 'Static') {
+        if (!checkStaticIPv6()) {
+            return false;
+        }
+    }
+    if(ipv6DNSAddrRadio == 'Static'){
+        if(!isIPv6Valid($('INPUT_IPv6_Dns1'))){            
+            return false;
+        }
+        if(getValue('INPUT_IPv6_Dns2') !=""){
+            if(!isIPv6Valid($('INPUT_IPv6_Dns2'))){            
+                return false;
+            }
+        }
+    }
+    if ( dslmode == '0')
+    {
+        if (!checkPVC()) {
+            return false;
+        }
+    }
+	if(dslmode == '3') {
+	    if (wanconn != 'PPPoE' && wanconn != 'PPPoA')
+		    type = 'IP';
+        else
+        type = 'PPP';
+        conn_type = 'IP_Routed';
+	}
+    else if (nodes[0].value == 'Bridge')
+    {
+        type = 'IP';
+        conn_type = 'IP_Bridged';
+        if (!checkPortBinding(conn_type))
+            return false;
+    }
+    else if (nodes[0].value == 'Con-Bridge')
+    {
+        type = 'IP';
+        conn_type = 'Con_Bridged';
+        //if (!checkPortBinding(conn_type))
+        //   return false;
+    }
+    else
+    {
+        if (wanconn != 'PPPoE' && wanconn != 'PPPoA')
+        {
+            type = 'IP';
+            conn_type = 'IP_Routed';
+        }
+        else
+        {
+            type = 'PPP';
+            if (nodes[2] && nodes[2].value == 'IP_Routed')
+                conn_type = 'IP_Routed';
+            else if (nodes[2] && nodes[2].value == 'PPPoE_Proxy')
+                conn_type = 'PPPoE_Proxy';
+            else if (nodes[2] && nodes[2].value == 'Bridged_Routed')
+                conn_type = 'Bridged_Routed';
+        }
+    }
+
+    if (checkVLAN() == false)
+    {
+        return false;
+    }
+    
+    if (cur_windex == -1 && ConnectionS.length >= 8) {
+        top.AlertMsg(getStr("LK_net_vpivcionly8"));
+        return false;
+    }
+
+    if(!validateCode())
+        return false;
+
+    if (cur_windex > -1)
+    {
+        link_instance_path = ArrayWANCD[getLinkConfig(cur_windex)].Path;
+        conn_instance_path = ConnectionS[cur_windex].Path;
+        /* set, change the old wan connection */
+        if (ConnectionS[cur_windex].Type != type)
+        {
+            /* Connection Type changed from ppp to ip, or ip to ppp, we need to delete the old ip/ppp connection */
+          AddElements(df, "del_obj", ConnectionS[cur_windex].Path);
+
+            if (type == 'IP')
+            {
+                conn_path = link_instance_path + 'WANIPConnection.'
+            }
+            else
+            {
+                conn_path = link_instance_path + 'WANPPPConnection.'
+            }
+            conn_instance_path = conn_path + '{i}.';
+            /* add new ppp/ip connection */
+            AddElements(df, 'add_obj', conn_path);
+        }
+        /*******************************************data set*****************************************/
+        /* 启用 */
+        AddElements(df, conn_instance_path + 'Enable', getValue('INPUT_Enable'));
+        AddElements(df, conn_instance_path + 'MaxMTUSize', getValue('INPUT_MaxMTUSize'));
+        /* no nat while ipv6 only selected */
+        if((ip_version != '2') && (conn_type != 'IP_Bridged'))
+        {
+            AddElements(df, conn_instance_path + 'NATEnabled', getValue('INPUT_Nat'));
+        }
+
+        if(type == 'PPP')
+        { 
+            /* PPP */
+            if(pppconnection_process(df, conn_type, conn_instance_path) == false)
+                return false;
+        } 
+        else 
+        { 
+            /* IP */
+            if(ipconnection_process(df, conn_type, conn_instance_path) == false)
+                return false;
+        }
+        if((wanconn == 'Static' || wanconn == 'DHCP' || wanconn == 'PPPoE') && (conn_type != 'IP_Bridged'))
+        {
+            AddElements(df, conn_instance_path + 'MACAddressOverride', getValue('INPUT_MACAddressOverrideEnable'));
+            AddElements(df, conn_instance_path + 'MACAddress', getValue('INPUT_MACAddress'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP60SettingEnable', getValue('INPUT_OP60SettingEnable'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP60Setting', getValue('INPUT_OP60Setting'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP66SettingEnable', getValue('INPUT_OP66SettingEnable'));
+        }
+        if (wanconn == 'DHCP')
+            AddElements(df, conn_instance_path + 'X_TRI_OP120SettingEnable', getValue('INPUT_OP120SettingEnable'));
+        /* 服务模式 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_ServiceList', getValue('SELECT_ServiceType'));
+        /* 端口绑定 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_LanInterface', getBindingports());
+        /* ATM/PTM */
+       	LinkConfig_process(df, link_instance_path);
+        /* VLAN */
+        if (false == vlan_process(df, conn_instance_path, ConnectionS[cur_windex].MulticastVlan))
+        {
+            return false;
+        }
+    }
+    else
+    { 
+        /* add, add a new wan connection */
+	if (getValue('SELECT_DslMode') == '3') {
+		    if (wanconn == 'PPPoE')
+            conn_path = 'InternetGatewayDevice.WANDevice.3.WANConnectionDevice.1.WANPPPConnection.';
+			else
+                conn_path = 'InternetGatewayDevice.WANDevice.3.WANConnectionDevice.1.WANIPConnection.';				
+            link_instance_path = 'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.';
+	}
+	else if (getValue('SELECT_DslMode') == '2')
+        {
+            /* ethernet wan */
+            if (type == 'IP')
+            {
+                conn_path = 'InternetGatewayDevice.WANDevice.2.WANConnectionDevice.1.WANIPConnection.';
+            }
+            else
+            {
+                conn_path = 'InternetGatewayDevice.WANDevice.2.WANConnectionDevice.1.WANPPPConnection.';
+            }
+            link_instance_path = 'InternetGatewayDevice.WANDevice.2.WANConnectionDevice.1.';
+        }
+        else
+        {
+            if (type == 'IP')
+            {
+                conn_path = 'InternetGatewayDevice.WANDevice.1' + '.WANConnectionDevice.{i}.WANIPConnection.';
+            }
+            else
+            {
+                conn_path = 'InternetGatewayDevice.WANDevice.1' + '.WANConnectionDevice.{i}.WANPPPConnection.';
+            }
+            link_instance_path = 'InternetGatewayDevice.WANDevice.1' + '.WANConnectionDevice.{i}.';
+        }
+        conn_instance_path = conn_path + '{i}.';
+        
+        /* 新建连接 */
+        AddElements(df, 'add_obj', conn_path);
+        /*******************************************data set*****************************************/
+        /* 启用 */
+        AddElements(df, conn_instance_path + 'Enable', getValue('INPUT_Enable'));
+        AddElements(df, conn_instance_path + 'MaxMTUSize', getValue('INPUT_MaxMTUSize'));
+        /* no nat while ipv6 only selected */
+        if((ip_version != '2') && (conn_type != 'IP_Bridged'))
+        {
+            AddElements(df, conn_instance_path + 'NATEnabled', getValue('INPUT_Nat'));
+        }
+
+        if(type == 'PPP')
+        { 
+            /* PPP */
+            if(pppconnection_process(df, conn_type, conn_instance_path) == false)
+                return false;
+        } 
+        else 
+        { 
+            /* IP */
+            if(ipconnection_process(df, conn_type, conn_instance_path) == false)
+                return false;
+        }
+        if((wanconn == 'Static' || wanconn == 'DHCP' || wanconn == 'PPPoE') && (conn_type != 'IP_Bridged'))
+        {
+            AddElements(df, conn_instance_path + 'MACAddressOverride', getValue('INPUT_MACAddressOverrideEnable'));
+            AddElements(df, conn_instance_path + 'MACAddress', getValue('INPUT_MACAddress'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP60SettingEnable', getValue('INPUT_OP60SettingEnable'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP60Setting', getValue('INPUT_OP60Setting'));
+            AddElements(df, conn_instance_path + 'X_TRI_OP66SettingEnable', getValue('INPUT_OP66SettingEnable'));
+        }
+        if (wanconn == 'DHCP')
+            AddElements(df, conn_instance_path + 'X_TRI_OP120SettingEnable', getValue('INPUT_OP120SettingEnable'));
+        /* 服务模式 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_ServiceList', getValue('SELECT_ServiceType'));
+        /* 端口绑定 */
+        AddElements(df, conn_instance_path + 'X_CT-COM_LanInterface', getBindingports());
+        /* ATM/PTM */
+        LinkConfig_process(df, link_instance_path);
+        /* VLAN */
+        if (false == vlan_process(df, conn_instance_path, -1))
+        {
+            return false;
+        }
+    }
+
+    AddElements(df, conn_instance_path + 'X_CT-COM_IPv6DNSAddressSource', getValue('ipv6DNSAddrRadio'));
+	AddElements(df, conn_instance_path + 'Name', wanName);
+
+    /* Dual Lan path -- MUST be the last step */
+    if(false == DualLanCfgSubmit(df, conn_instance_path))
+        return false;
+
+    df.submit();
+    disableCtrl('submit', true);
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Route"), getStr("LK_Bridge"), getStr("LK_ConBridge")];
+  value = ['Route', 'Bridge', 'Con-Bridge'];
+	createOptions('SELECT_Mode', text, value);
+	text = [];value = [];
+	text = [getStr("LK_NormalPPPoE"), getStr("LK_PPPoEProxy")];
+  value = ['IP_Routed', 'PPPoE_Proxy'];
+	createOptions('SELECT_PPPoeType', text, value);
+	text = [];value = [];
+	text = [getStr("LK_Automatically"), getStr("LK_DialonDemand"), getStr("LK_ManualConnect")];
+  value = ['AlwaysOn', 'OnDemand', 'Manual'];
+	createOptions('SELECT_ConnTrigger', text, value);
+	
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_WANService'))</script>
+<form method="get" >
+<table class="ContentTableNoColor" width="600" cellspacing="0" cellpadding="0">
+<tr>
+	<td width="150" langkey="LK_ConnectionNamee"></td>
+		<td align="left">
+			<select class="selectBox" id="SELECT_ConnName" onChange="ConnNameSwitch(this)">
+				<option></option>
+            </select>
+			<input class="selectBoxInput" id='SELECT_INPUT' maxlength='25' ></input>
+		</td>
+</tr>
+<tr id="DslMode_config">
+	<td width="150" langkey="LK_DSLModee"></td>
+	<td>
+		<select id="SELECT_DslMode" onChange="DslModeSwitch()"></select>
+    </td>
+</tr>
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>    
+    <td><input type="checkbox" id="INPUT_Enable"></td>
+</tr>
+<tr id="DIV_MODE">
+    <td width="150" langkey="LK_Modee"></td>
+	<td><select id="SELECT_Mode" onChange="ConnModeSwitch()"></select></td>
+</tr>
+
+
+<tr id="DIV_MTU"> 
+       	<td width="150" langkey="LK_MTUu"></td>     
+	<td><input type="text" value="" id="INPUT_MaxMTUSize"></td>
+</tr>
+</table>
+<table id="DIV_Route" cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr id ="DIV_Route_PE"><td colspan="2">
+	<table class="TabTable" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="150">DHCP:</td>
+		<td><input type="radio" name="WanConn" value="DHCP" onClick="RouteWanConnSwitch()"> <span langkey="LK_DHCPText"></span></td>
+	</tr>
+	<tr>
+		<td width="150">Static:</td>
+		<td><input type="radio" name="WanConn" value="Static" onClick="RouteWanConnSwitch()"> <span langkey="LK_StaticText"></span></td>
+	</tr>
+	<tr>
+		<td width="150">PPPoE:</td>
+		<td><input type="radio" name="WanConn" value="PPPoE" onClick="RouteWanConnSwitch()"> <span langkey="LK_PPPoEText"></span></td>
+	</tr>
+	</table>
+</td></tr>
+<tr id="DIV_Route_ATM"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150">PPPoA:</td>
+		<td><input type="radio" name="WanConn" value="PPPoA" onClick="RouteWanConnSwitch()"> <span langkey="LK_PPPoAText"></span></td>
+	</tr>
+	<tr>
+		<td width="150">IPoA:</td>
+		<td><input type="radio" name="WanConn" value="IPoA" onClick="RouteWanConnSwitch()"> <span langkey="LK_IPoAText"></span></td>
+	</tr>
+	</table>
+</td></tr>
+
+<!--tr id="DIV_Route_Dongle"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150">PPP:</td>
+		<td><input type="radio" name="WanConn" value="PPP" onClick="RouteWanConnSwitch()"> <span langkey="LK_PPPText"></span></td>
+	</tr>
+	</table>
+</td></tr-->
+
+<tr id="DIV_Protocol_R"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_IPProtocolTypee"></td>
+		<td><select id="SELECT_Protocol_R" onChange="RouteProtocolSwitch()">
+                                <option value="1">IPv4</option>
+                                <option value="2">IPv6</option>
+                                <option value="3">IPv4&6</option>
+                        </select>
+		</td>
+	</tr>
+	</table>
+</td></tr>
+<tr id="DIV_Nat"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150">NAT:</td>
+		<td><input type="checkbox" id="INPUT_Nat" checked></td>
+	</tr>
+	</table>
+</td></tr>
+
+<tr id="DIV_Static"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_IPAddresss"></td>
+		<td><input type="text" id="INPUT_IpAddress" maxlength="15"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_SubnetMaskk"></td>
+		<td><input type="text" id="INPUT_Mark" maxlength="15"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_DefaultGatewayy"></td>
+		<td><input type="text" id="INPUT_DefGateway" maxlength="15"></td>
+	</tr>
+	</table>
+</td></tr>
+
+<tr id="DIV_Static_IPv4_DNS_Enable"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150"  langkey="LK_IPv4StaticDNS"></td>
+		<td><input type="checkbox" id="INPUT_Static_IPv4_DNS_Enable" onClick="staticIPv4DNSSwitch()" ></td>
+	</tr>
+	</table>
+</td></tr>
+
+<tr id="DIV_Static_IPv4_DNS"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+        <td  width="150" langkey="LK_PrimaryDNSServer"></td>
+		<td><input type="text" id="INPUT_Dns1" maxlength="15"></td>
+        </tr>
+	<tr>    
+		<td langkey="LK_SecondaryDNSServer"></td>
+		<td><input type="text" id="INPUT_Dns2" maxlength="15"></td>
+	</tr>
+	</table>
+</td></tr>
+
+<tr id="DIV_IPv6_address"><td colspan="2">
+	<table class="TabTable" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="150" langkey="LK_GetIPv6Addresss"></td>
+		<td>&nbsp;<input type="radio"  name="ipv6AddrRadio" value="DHCPv6" onClick="ipv6AddrSwitch()">DHCPv6
+                    &nbsp;<input type="radio"  name="ipv6AddrRadio" value="Static" onClick="ipv6AddrSwitch()">Static
+                    &nbsp;<input type="radio"  name="ipv6AddrRadio" value="AutoConfigured" onClick="ipv6AddrSwitch()"><span langkey="LK_RANotification"></span>
+                    &nbsp;<input type="radio"  name="ipv6AddrRadio" value="None" onClick="ipv6AddrSwitch()">Disabled
+                 </td>
+	</tr>
+	<tr id="DIV_IPv6_Static"><td colspan="2">
+		<table class="TabTable" cellpadding="0" cellspacing="0">
+		<tr>
+			<td width="150" langkey="LK_IPv6Addresss"></td>
+			<td><input type="text" id="INPUT_IPv6_IpAddress"  maxlength="80"></td>
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_GatewayIPv6Addresss"></td>
+			<td><input type="text" id="INPUT_IPv6_DefGateway"  maxlength="80"></td>
+		</tr>
+		</table>
+	</td></tr>
+	</table>
+</td></tr>
+<tr id="DIV_IPv6_prefix"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_GetIPv6Prefixx"></td>
+		<td>
+		&nbsp;<input type="radio"  name="ipv6PrixRadio" value="PrefixDelegation" onClick="ipv6PDSwitch()">PD
+                &nbsp;<input type="radio"  name="ipv6PrixRadio" value="None" onClick="ipv6PDSwitch()">Disabled
+                </td>
+	</tr>
+	<tr style="display:none;" id="DIV_IPv6_prefixinfo">
+		<td langkey="LK_PrefixInfoo"></td>
+		<td><input type="text" id="INPUT_IPv6_Prefix"  maxlength="80"></td>
+	</tr>
+	</table>
+</td></tr>
+<tr id="DIV_DNS_address"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="150" langkey="LK_GetDNSs"></td>
+		<td>
+		&nbsp;<input type="radio"  name="ipv6DNSAddrRadio" id="ipv6DNSDHCPv6AddrRadio" value="DHCPv6" onClick="ipv6DNSAddrSwitch()">DHCPv6
+                &nbsp;<input type="radio"  name="ipv6DNSAddrRadio" id="ipv6DNSStaticAddrRadio" value="Static" onClick="ipv6DNSAddrSwitch()"><span id="v6text" langkey="LK_Manual"></span>
+		&nbsp;<input  name="ipv6DNSAddrRadio" type="radio" id="ipv6DNSAutoAddrRadio" onClick="ipv6DNSAddrSwitch()" value="AutoConfigured" checked>
+                        <span langkey="LK_SLAAC"></span>
+                </td>
+	</tr>
+	<tr id="DIV_IPv6_DNS_Static"><td colspan="2">
+		<table class="TabTable" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="150" langkey="LK_F6DNSs"></td>
+			<td><input type="text" id="INPUT_IPv6_Dns1"  maxlength="80"></td>
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_S6DNSs"></td>
+			<td><input type="text" id="INPUT_IPv6_Dns2"  maxlength="80"></td>
+		</tr>
+		</table>
+	</td></tr>
+	</table>
+</td></tr>
+<tr id="DIV_DONGLE_Setting"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr id='PIN'>
+		<td width="150" langkey="LK_PIN"></td>
+		<td><input type="text" id="INPUT_PIN"></td>
+	</tr>
+	<tr id='APN'>
+		<td width="150" langkey="LK_APN"></td>
+		<td><input type="text" id="INPUT_APN"></td>
+	</tr>
+	<tr id='Dial_Number'>
+		<td langkey="LK_DN"></td>
+		<td><input type="text" id="INPUT_DN"></td>
+	</tr>
+	</table>
+</td></tr>
+<tr id="DIV_PPPoE"><td colspan="2">
+	<table class="TabTable" cellspacing="0" cellpadding="0">
+	<tr id="pppoe_type">
+		<td width="150" langkey="LK_PPPoETypee"></td>
+		<td><select id="SELECT_PPPoeType" onChange="PPPoETypeSwitch()">
+                        </select>
+                 </td>
+	</tr>
+	<tr>
+		<td langkey="LK_ServiceName"></td>
+		<td><input type="text" id="INPUT_ServiceName"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_UserNamee"></td>
+		<td><input type="text" id="INPUT_UserName"></td>
+	</tr>
+	<tr>
+		<td langkey="LK_Passwordd"></td>
+		<td><input type="password" id="INPUT_Password" value="123456789ABCDEFG" onChange="Password_changed()"></td>
+	</tr>
+	<tr>
+		<td width="150">PPPoEPassThrough:</td>
+		<td><input type="checkbox" id="INPUT_PPPoEPassThrough" checked></td>
+	</tr>
+	<tr id="DIV_PPPoE_Proxy">
+		<td langkey="LK_MaxProxyNumm"></td>
+		<td><input type="text" id="INPUT_MAXUser">(1~5)</td>
+	</tr>
+	<tr>
+		<td langkey="LK_AuthTypee"></td>
+		<td><select id="SELECT_AuthType">
+                            <option value="Auto" langkey="LK_AUTO"></option>
+                            <option value="PAP">PAP</option>
+                            <option value="CHAP">CHAP</option>
+                            <!--<option value="MS-CHAP" langkey="LK_net_MS_CHAPAuthType"></option>-->
+                        </select>
+		</td>
+	</tr>
+	<tr>
+		<td langkey="LK_DialModee"></td>
+		<td><select id="SELECT_ConnTrigger" onChange="PPPoEConnTriggerSwitch()">
+                        </select>
+
+                        <select id="SELECT_ConnTrigger_Proxy">
+                            <option value="AlwaysOn" langkey="LK_Automatically"></option>
+                        </select>
+        </td>
+	</tr>
+
+	<tr id="DIV_PPPoE_AlwaysOn">
+		<td colspan="2">
+			<table class="TabTable" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="150px" langkey="LK_KeepAliveTimee"></td>
+				<td><input type="text" name="INPUT_KeepAliveTime" id="INPUT_KeepAliveTime" value="30"> (10-30)s</td>
+			</tr>
+			<tr>
+				<td width="150px" langkey="LK_KeepAliveMaxFaile"></td>
+				<td><input type="text" name="INPUT_KeepAliveMaxFail" id="INPUT_KeepAliveMaxFail" value="5"> (1-100)</td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+
+	<tr id="DIV_PPPoE_OnDemand">
+		<td langkey="LK_IdleTimeoutt"></td>
+		<td><input type="text" id="INPUT_IdleDisconnectTime"> (60~65535)s</td>
+	</tr>
+
+	<tr>
+		<td width="150px" langkey="LK_LimitRetryTimee"></td>
+		<td><input type="checkbox" name="INPUT_LimitRetryTimeEnable" id="INPUT_LimitRetryTimeEnable" onClick="LimitRetryTimeEnable()"> <span langkey="LK_LimitRetryTimeText"></td>
+        </tr>
+	<tr id="DIV_RetryTime">
+		<td width="150px" langkey="LK_RetryTimee"></td>
+		<td><input type="text" name="INPUT_RetryTime" id="INPUT_RetryTime" value="3"> (0-100)</td>
+	</tr>
+
+    <tr id="DIV_DualLanEn"><td colspan="2">
+	    <table class="TabTable" cellspacing="0" cellpadding="0">
+	    <tr>
+		    <td width="150">Enable Dual Lan:</td>
+            <td width="150"><input type="checkbox" id="INPUT_DualLanEn" onClick="DualLanEnable()" ></td>
+	    </tr>
+	    </table>
+    </td></tr>
+
+
+    <!-- Start ip unnum cfg -->
+    
+    <tr id="DIV_DualLanCfg"><td colspan="2">
+    <table class="TabTable" cellspacing="0" cellpadding="0">
+
+    <tr>
+	    <td width="150" langkey="LK_AddrMode"></td>
+	    <td>
+		    <select id="selectaddrmode">
+            <option value="1">static</option>
+		    </select>
+	    </td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_PPPoEIP"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_PPPoEIP"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanBridgeIP"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_UnnumLanIP"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanBridgeMask"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_UnnumLanMask"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanStartIP"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_LanStartIP"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanEndIP"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_LanEndIP"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanPriDns"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_LanPriDns"/></td>
+    </tr>
+
+    <tr>
+	    <td langkey="LK_LanSecDns"></td>
+	    <td><input type="text" maxlength=15 id="INPUT_LanSecDns"/></td>
+    </tr>
+
+    <tbody id='CHECK_UnnumLanPort'></tbody> 
+    <tr>
+        <td width="150">Unnum Port:</td>
+        <td>
+        <input type="checkbox" id="INPUT_LanPort1_UN"> <span id="lang_lanPort1">LAN1</span>
+        <input type="checkbox" id="INPUT_LanPort2_UN"> <span id="lang_lanPort2">LAN2</span>
+        <input type="checkbox" id="INPUT_LanPort3_UN"> <span id="lang_lanPort3">LAN3</span>
+        <input type="checkbox" id="INPUT_LanPort4_UN"> <span id="lang_lanPort4">LAN4</span>
+        </td>
+    </tr>    
+
+    <tr>
+        <td></td>
+        <td>
+        <input type="checkbox" id="INPUT_WlanSsid1_UN"> <span id="lang_wlanssid1" langkey="LK_SSID1"></span>
+        <input type="checkbox" id="INPUT_WlanSsid2_UN"> <span id="lang_wlanssid2" langkey="LK_SSID2"></span>
+        <input type="checkbox" id="INPUT_WlanSsid3_UN"> <span id="lang_wlanssid3" langkey="LK_SSID3"></span>
+        <input type="checkbox" id="INPUT_WlanSsid4_UN"> <span id="lang_wlanssid4" langkey="LK_SSID4"></span>
+        </td>
+    </tr>    
+
+    <tr id="DIV_WLAN_EXT_UN">
+        <td></td>
+        <td>
+        <input type="checkbox" id="INPUT_WlanSsid5_UN"> <span id="lang_wlanssid5" langkey="LK_SSID5"></span>
+        <input type="checkbox" id="INPUT_WlanSsid6_UN"> <span id="lang_wlanssid6" langkey="LK_SSID6"></span>
+        <input type="checkbox" id="INPUT_WlanSsid7_UN"> <span id="lang_wlanssid7" langkey="LK_SSID7"></span>
+        <input type="checkbox" id="INPUT_WlanSsid8_UN"> <span id="lang_wlanssid8" langkey="LK_SSID8"></span>
+        </td>
+    </tr>    
+
+    <tr class="FlagText">
+        <td></td><td langkey="LK_UnnumLanPortHelp"></td>
+    </tr>
+
+    </table>
+    </td></tr>
+    
+    <!-- End ip unnum cfg -->
+
+
+	</table>
+</td></tr>
+</table>
+
+<table id="DIV_Bridge" cellpadding="0" cellspacing="0" id="Table_Bridge" class="ContentTableNoColor" width="600">
+<tr id="DIV_Protocol_B">
+	<td width="150" langkey="LK_IPProtocolTypee"></td>
+	<td><select id="SELECT_Protocol_B" onChange="RouteProtocolSwitch()">
+                            <option value="1">IPv4</option>
+                            <option value="2">IPv6</option>
+                            <option value="3">IPv4&6</option>
+             </select>
+	</td>
+</tr>
+</table>
+<table id="DIV_OP60_Setting" cellpadding="0" cellspacing="0" class="COntentTableNoColor" width="600"> 
+<tr>
+	<td width="150px" langkey="LK_EnableOP60Setting"></td>
+	<td>
+		<input type="checkbox" id="INPUT_OP60SettingEnable" onClick="OP60SettingEnable()">
+	</td>
+</tr>
+<tr id="DIV_OP60">
+	<td width="150" langkey="LK_OP60Setting"></td>
+	<td>
+		<input type="text" id="INPUT_OP60Setting">
+		<input type='button' value='' onclick='clearID()' langkey="LK_OP60Clear">
+	</td>
+</tr>
+</table>
+<table id="DIV_OP66_Setting" cellpadding="0" cellspacing="0" class="COntentTableNoColor" width="600"> 
+<tr>
+	<td width="150px" langkey="LK_EnableOP66Setting"></td>
+	<td>
+		<input type="checkbox" id="INPUT_OP66SettingEnable" onClick="OP66SettingEnable()">
+	</td>
+</tr>
+</table>
+<table id="DIV_OP120_Setting" cellpadding="0" cellspacing="0" class="COntentTableNoColor" width="600"> 
+<tr>
+	<td width="150px" langkey="LK_EnableOP120Setting"></td>
+	<td>
+		<input type="checkbox" id="INPUT_OP120SettingEnable">
+	</td>
+</tr>
+</table>
+<table id="DIV_MAC_Setting" cellpadding="0" cellspacing="0" class="COntentTableNoColor" width="600"> 
+<tr>
+	<td width="150px" langkey="LK_EnableMACAddressOverride"></td>
+	<td>
+		<input type="checkbox" id="INPUT_MACAddressOverrideEnable" onClick="MACAddressOverrideEnable()">
+	</td>
+</tr>
+<tr id="DIV_MACAddress">
+	<td width="150" langkey="LK_MACCloneAddress"></td>
+	<td>
+		<input type="text" id="INPUT_MACAddress">
+		<input type='button' value='' onclick='cloneMac()' langkey="LK_MACClone">
+	</td>
+</tr>
+</table>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor" width="600">
+<tr id="DIV_VLANPASS">
+	<td width="150px" langkey="LK_EnableVLANPassTHn"></td>
+	<td><input type="checkbox" id="INPUT_VlanPassKeepTagEnable"></td>
+</tr>
+<tr id="DIV_VLAN_E">
+	<td width="150" langkey="LK_EnableVLANn"></td>
+	<td width="450"><input type="checkbox" id="INPUT_VlanEnable" onClick="VLANEnable()"></td>
+</tr>
+<tr id="DIV_VLAN"><td colspan="2">
+	<table cellpadding="0" cellspacing="0" class="TabTable">
+	<tr>
+        	<td width="150" langkey="LK_VLANIDd">
+		<td><input type="text" id="INPUT_VlanId"></td>
+        </tr>
+	<tr>
+		<td langkey="LK_8021Pp"></td>
+		<td><select id="SELECT_802.1p">
+                        <option value="-1" langkey="LK_Disable"></option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+		</td>
+	</tr>
+	<tbody id='CHECK_VlanTagging'></tbody> 
+	</table>
+</td></tr>
+</table>
+<table id="DIV_ATM_Setting" class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600"> 
+<tr>
+	<td width="150" langkey="LK_Encapsulationn"></td>          
+        <td><select name="SELECT_ATMEncapsulation" id="SELECT_ATMEncapsulation">
+                   	<option value="LLC" langkey="LK_LLC_SNAP">LLC/SNAP</option>
+                   	<option value="VCMUX" langkey="LK_VcMux">VcMux</option>
+                    </select>
+        </td>
+</tr>
+<tr>
+	<td langkey="LK_VPIVCISettings"></td>
+	<td><input type="text" name="INPUT_DestinationAddress" id="INPUT_DestinationAddress" onChange="uiPvcRefresh()"></td>
+</tr>
+<tr>
+	<td langkey="LK_QoSs"></td>
+	<td><select name="SELECT_ATMQoS" id="SELECT_ATMQoS" onChange="ATMQoSSwitch()">
+	<option value="UBR" langkey="LK_UBR">UBR</option>
+	<option value="CBR" langkey="LK_CBR">UBR</option>
+	<option value="VBR-nrt" langkey="LK_VBR_nrt">VBR-nrt</option>
+	<option value="VBR-rt" langkey="LK_VBR_rt">VBR-rt</option>
+	<option value="UBR+" langkey="LK_UBR_PCR">UBR+</option>
+                    </select>
+	</td>
+</tr>            
+<tr id="DIV_CBR">
+	<td langkey="LK_PeakCellRatee"></td>
+	<td><input type="text" name="INPUT_ATMPeakCellRate" id="INPUT_ATMPeakCellRate" value="0"> cells/s</td>
+</tr>
+<tr id="DIV_UBR">
+	<td langkey="LK_MinCellRatee"></td>
+	<td><input type="text" name="INPUT_ATMMinimumCellRate" id="INPUT_ATMMinimumCellRate" value="0"> cells/s</td>
+</tr>
+<tr id="DIV_N_UBR"><td colspan="2">
+	<table class="TabTable" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="150px" langkey="LK_SustainCellRatee"></td>
+		<td><input type="text" name="INPUT_ATMSustainableCellRate" id="INPUT_ATMSustainableCellRate" value="0"> cells/s</td>
+        </tr>
+	<tr>
+		<td width="150px" langkey="LK_BurstSizee"></td>
+		<td><input type="text" name="INPUT_ATMMaximumBurstSize" id="INPUT_ATMMaximumBurstSize" value="0"> cells/s</td>
+	</tr>
+	</table>
+</td></tr>
+</table>
+<table class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600">
+<tr>
+	<td width="150" langkey="LK_ServiceTypee"></td>
+	<td><select id="SELECT_ServiceType" onChange="ServiceTypeSwitch()">
+                    <option> </option>
+                </select>
+        </td>
+</tr>
+</table>
+<table id="DIV_DHCPTransparent" class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600">
+	<tr>
+		<td width="150">DHCP Transparent:</td>
+		<td><input type="checkbox" name="INPUT_DHCPTransparent" id="INPUT_DHCPTransparent"></td>
+	</tr>
+</table>
+<table id="DIV_PortBinding" class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600">
+  <tbody id='CHECK_Lan'>
+	</tbody> 
+<tr>
+	<td></td>
+	<td><input type="checkbox" id="INPUT_WlanSsid1"> <span id="lang_wlanssid1" langkey="LK_SSID1"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid2"> <span id="lang_wlanssid2" langkey="LK_SSID2"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid3"> <span id="lang_wlanssid3" langkey="LK_SSID3"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid4"> <span id="lang_wlanssid4" langkey="LK_SSID4"></span>
+        </td>
+</tr>    
+<tr id="DIV_WLAN_EXT">
+	<td></td>
+	<td><input type="checkbox" id="INPUT_WlanSsid5"> <span id="lang_wlanssid5" langkey="LK_SSID5"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid6"> <span id="lang_wlanssid6" langkey="LK_SSID6"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid7"> <span id="lang_wlanssid7" langkey="LK_SSID7"></span>
+                    <input type="checkbox" id="INPUT_WlanSsid8"> <span id="lang_wlanssid8" langkey="LK_SSID8"></span>
+        </td>
+</tr>    
+<tr class="FlagText">
+	<td></td><td langkey="LK_GreyOutText"></td>
+</tr>
+</table>
+<table class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>       
+	<script>PrintTriButton("del",getStr('LK_Delete'),"uiDelete()"); </script> 
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>   
+	</td>
+</tr>
+</table>
+</form>
+ <form method="post" name ="dataform" id="dataform" action="/cgi-bin/setup.cgi?page/basicsetup/basic_wanservice.shtml">
+  </form>
+</body>
+</html>
+

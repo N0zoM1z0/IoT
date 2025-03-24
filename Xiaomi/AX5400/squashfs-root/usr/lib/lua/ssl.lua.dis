@@ -1,0 +1,374 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11
+L0 = require
+L1 = "ssl.core"
+L0 = L0(L1)
+L1 = require
+L2 = "ssl.context"
+L1 = L1(L2)
+L2 = require
+L3 = "ssl.x509"
+L2 = L2(L3)
+L3 = table
+L3 = L3.unpack
+L3 = L3 or L3
+L4 = setmetatable
+L5 = {}
+L6 = {}
+L6.__mode = "k"
+L4 = L4(L5, L6)
+function L5(A0, A1, A2)
+  local L3, L4, L5, L6
+  if A1 then
+    L3 = type
+    L4 = A1
+    L3 = L3(L4)
+    if L3 == "table" then
+      L3 = A0
+      L4 = A2
+      L5 = _UPVALUE0_
+      L6 = A1
+      L5, L6 = L5(L6)
+      return L3(L4, L5, L6)
+    else
+      L3 = A0
+      L4 = A2
+      L5 = A1
+      return L3(L4, L5)
+    end
+  end
+  L3 = true
+  return L3
+end
+function L6(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L4 = _UPVALUE0_
+  L4 = L4.create
+  L5 = A0.protocol
+  L4, L5 = L4(L5)
+  L2 = L5
+  L3 = L4
+  if not L3 then
+    L4 = nil
+    L5 = L2
+    return L4, L5
+  end
+  L4 = _UPVALUE0_
+  L4 = L4.setmode
+  L5 = L3
+  L6 = A0.mode
+  L4, L5 = L4(L5, L6)
+  L2 = L5
+  L1 = L4
+  if not L1 then
+    L4 = nil
+    L5 = L2
+    return L4, L5
+  end
+  L4 = A0.key
+  if L4 then
+    L4 = A0.password
+    if L4 then
+      L4 = type
+      L5 = A0.password
+      L4 = L4(L5)
+      if L4 ~= "function" then
+        L4 = type
+        L5 = A0.password
+        L4 = L4(L5)
+        if L4 ~= "string" then
+          L4 = nil
+          L5 = "invalid password type"
+          return L4, L5
+        end
+      end
+    end
+    L4 = _UPVALUE0_
+    L4 = L4.loadkey
+    L5 = L3
+    L6 = A0.key
+    L7 = A0.password
+    L4, L5 = L4(L5, L6, L7)
+    L2 = L5
+    L1 = L4
+    if not L1 then
+      L4 = nil
+      L5 = L2
+      return L4, L5
+    end
+  end
+  L4 = A0.certificate
+  if L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.loadcert
+    L5 = L3
+    L6 = A0.certificate
+    L4, L5 = L4(L5, L6)
+    L2 = L5
+    L1 = L4
+    if not L1 then
+      L4 = nil
+      L5 = L2
+      return L4, L5
+    end
+    L4 = A0.key
+    if L4 then
+      L4 = _UPVALUE0_
+      L4 = L4.checkkey
+      if L4 then
+        L4 = _UPVALUE0_
+        L4 = L4.checkkey
+        L5 = L3
+        L4 = L4(L5)
+        L1 = L4
+        if not L1 then
+          L4 = nil
+          L5 = "private key does not match public key"
+          return L4, L5
+        end
+      end
+    end
+  end
+  L4 = A0.cafile
+  if not L4 then
+    L4 = A0.capath
+    if not L4 then
+      goto lbl_107
+    end
+  end
+  L4 = _UPVALUE0_
+  L4 = L4.locations
+  L5 = L3
+  L6 = A0.cafile
+  L7 = A0.capath
+  L4, L5 = L4(L5, L6, L7)
+  L2 = L5
+  L1 = L4
+  if not L1 then
+    L4 = nil
+    L5 = L2
+    return L4, L5
+  end
+  ::lbl_107::
+  L4 = A0.ciphers
+  if L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.setcipher
+    L5 = L3
+    L6 = A0.ciphers
+    L4, L5 = L4(L5, L6)
+    L2 = L5
+    L1 = L4
+    if not L1 then
+      L4 = nil
+      L5 = L2
+      return L4, L5
+    end
+  end
+  L4 = _UPVALUE1_
+  L5 = _UPVALUE0_
+  L5 = L5.setverify
+  L6 = A0.verify
+  L7 = L3
+  L4, L5 = L4(L5, L6, L7)
+  L2 = L5
+  L1 = L4
+  if not L1 then
+    L4 = nil
+    L5 = L2
+    return L4, L5
+  end
+  L4 = _UPVALUE1_
+  L5 = _UPVALUE0_
+  L5 = L5.setoptions
+  L6 = A0.options
+  L7 = L3
+  L4, L5 = L4(L5, L6, L7)
+  L2 = L5
+  L1 = L4
+  if not L1 then
+    L4 = nil
+    L5 = L2
+    return L4, L5
+  end
+  L4 = A0.depth
+  if L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.setdepth
+    L5 = L3
+    L6 = A0.depth
+    L4, L5 = L4(L5, L6)
+    L2 = L5
+    L1 = L4
+    if not L1 then
+      L4 = nil
+      L5 = L2
+      return L4, L5
+    end
+  end
+  L4 = A0.dhparam
+  if L4 then
+    L4 = type
+    L5 = A0.dhparam
+    L4 = L4(L5)
+    if L4 ~= "function" then
+      L4 = nil
+      L5 = "invalid DH parameter type"
+      return L4, L5
+    end
+    L4 = _UPVALUE0_
+    L4 = L4.setdhparam
+    L5 = L3
+    L6 = A0.dhparam
+    L4(L5, L6)
+  end
+  L4 = A0.curve
+  if L4 then
+    L4 = _UPVALUE0_
+    L4 = L4.setcurve
+    L5 = L3
+    L6 = A0.curve
+    L4, L5 = L4(L5, L6)
+    L2 = L5
+    L1 = L4
+    if not L1 then
+      L4 = nil
+      L5 = L2
+      return L4, L5
+    end
+  end
+  L4 = A0.verifyext
+  if L4 then
+    L4 = L3.setverifyext
+    if L4 then
+      L4 = _UPVALUE1_
+      L5 = L3.setverifyext
+      L6 = A0.verifyext
+      L7 = L3
+      L4, L5 = L4(L5, L6, L7)
+      L2 = L5
+      L1 = L4
+      if not L1 then
+        L4 = nil
+        L5 = L2
+        return L4, L5
+      end
+    end
+  end
+  return L3
+end
+function L7(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L4 = type
+  L5 = A1
+  L4 = L4(L5)
+  if L4 == "table" then
+    L4 = _UPVALUE0_
+    L5 = A1
+    L4, L5 = L4(L5)
+    L3 = L5
+    L2 = L4
+    if not L2 then
+      L4 = nil
+      L5 = L3
+      return L4, L5
+    end
+  else
+    L2 = A1
+  end
+  L4 = _UPVALUE1_
+  L4 = L4.create
+  L5 = L2
+  L4, L5 = L4(L5)
+  if L4 then
+    L6 = _UPVALUE1_
+    L6 = L6.setfd
+    L7 = L4
+    L9 = A0
+    L8 = A0.getfd
+    L8, L9 = L8(L9)
+    L6(L7, L8, L9)
+    L7 = A0
+    L6 = A0.setfd
+    L8 = -1
+    L6(L7, L8)
+    L6 = _UPVALUE2_
+    L6[L4] = L2
+    return L4
+  end
+  L6 = nil
+  L7 = L5
+  return L6, L7
+end
+function L8(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L6 = _UPVALUE0_
+  L6 = L6.compression
+  L7 = A0
+  L6, L7 = L6(L7)
+  L4 = L7
+  L3 = L6
+  if L4 then
+    L6 = L3
+    L7 = L4
+    return L6, L7
+  end
+  if A1 == "compression" then
+    return L3
+  end
+  L6 = {}
+  L6.compression = L3
+  L7 = _UPVALUE0_
+  L7 = L7.info
+  L8 = A0
+  L7, L8, L9, L10 = L7(L8)
+  L5 = L10
+  L6.algbits = L9
+  L6.bits = L8
+  L2 = L7
+  if L2 then
+    L7 = string
+    L7 = L7.match
+    L8 = L2
+    L9 = "^(%S+)%s+(%S+)%s+Kx=(%S+)%s+Au=(%S+)%s+Enc=(%S+)%s+Mac=(%S+)"
+    L7, L8, L9, L10, L11, L12 = L7(L8, L9)
+    L6.mac = L12
+    L6.encryption = L11
+    L6.authentication = L10
+    L6.key = L9
+    L6.protocol = L8
+    L6.cipher = L7
+    L7 = string
+    L7 = L7.match
+    L8 = L2
+    L9 = "%sexport%s*$"
+    L7 = L7(L8, L9)
+    L7 = L7 ~= nil
+    L6.export = L7
+  end
+  if L5 then
+    L6.protocol = L5
+  end
+  if A1 then
+    L7 = L6[A1]
+    return L7
+  end
+  L7 = next
+  L8 = L6
+  L7 = L7(L8)
+  L7 = L7 and L7
+  return L7
+end
+L9 = L0.setmethod
+L10 = "info"
+L11 = L8
+L9(L10, L11)
+L9 = {}
+L9._VERSION = "0.6"
+L10 = L0.copyright
+L10 = L10()
+L9._COPYRIGHT = L10
+L10 = L2.load
+L9.loadcertificate = L10
+L9.newcontext = L6
+L9.wrap = L7
+return L9

@@ -1,0 +1,15 @@
+Package: libopenssl-1.1.1g
+Version: 1.1.1g-1
+Depends: libc, libpthread
+Source: package/openssl-1.1.1g
+License: OpenSSL
+LicenseFiles: LICENSE
+Section: libs
+Maintainer: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Architecture: rtl
+Installed-Size: 839949
+Description:  The OpenSSL Project is a collaborative effort to develop a robust,
+ commercial-grade, full-featured, and Open Source toolkit implementing the
+ Transport Layer Security (TLS) protocol as well as a full-strength
+ general-purpose cryptography library.
+ This package contains the OpenSSL shared libraries, needed by other programs.

@@ -1,0 +1,335 @@
+<html>
+<head>
+ <meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<link rel="stylesheet" href='/css/content.css' type='text/css'>
+<script language='javascript' src='/js/jquery.js'></script>
+<script language='javascript' src='/js/check.js'></script>
+<script language='javascript' src='/js/t_utils.js'></script>
+<script language='javascript' src='/js/init.js'></script>
+<script language='javascript' src='/js/tri.js'></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+<!-- hide
+var op = ""
+var idx = 0
+var G_URLFilterEnabled = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_UrlFilter.Enable" -->';
+var G_URLFilterMode = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_UrlFilter.FilterMode" -->';
+function FilterTuple()
+{    
+    this.path = "";
+    this.URL = "";
+    this.weekdays = "";
+    this.timefrom = "";    
+    this.timeto = "";
+    this.description="";
+    this.SrcIP="";
+}
+var rulesNum = 0;
+var restRules;
+var rulePath;
+var m = 0;
+var G_BlackList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UrlFilter.BlackList. URL WeekDays TimeFrom TimeTo Description SrcIP" -->
+    G_BlackList[m] = new FilterTuple();
+    G_BlackList[m].path = "<!--#path -->";
+    G_BlackList[m].URL = "<!--#leaf "1"-->";
+    G_BlackList[m].weekdays = "<!--#leaf "2"-->";
+    G_BlackList[m].timefrom = "<!--#leaf "3"-->";
+    G_BlackList[m].timeto = "<!--#leaf "4"-->";
+    G_BlackList[m].description = "<!--#leaf "5"-->";
+    G_BlackList[m].SrcIP = "<!--#leaf "6"-->";
+    
+    m++;
+<!--#endgetobject -->
+var n = 0;
+var G_WhiteList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UrlFilter.WhiteList.  URL WeekDays TimeFrom TimeTo Description SrcIP" -->
+    G_WhiteList[n] = new FilterTuple();
+    G_WhiteList[n].path = "<!--#path -->";
+    G_WhiteList[n].URL = "<!--#leaf "1"-->";
+    G_WhiteList[n].weekdays = "<!--#leaf "2"-->";
+    G_WhiteList[n].timefrom = "<!--#leaf "3"-->";
+    G_WhiteList[n].timeto = "<!--#leaf "4"-->";
+    G_WhiteList[n].description = "<!--#leaf "5"-->";
+    G_WhiteList[n].SrcIP = "<!--#leaf "6"-->";
+   n++;
+<!--#endgetobject -->
+
+function valueCheck() {
+	with ( document.forms[0] ) {
+		if ( description.value == '' ) {
+			top.AlertMsg(getStr("LK_UsrNameEmpty"));
+			return false;
+		}
+        if($('URL').value == "" && $('INPUT_SrcIPStart').value == "" && $('INPUT_SrcIPEnd').value == ""){
+            top.AlertMsg(getStr("LK_sec_urlnoemp"));
+            return false;
+        }
+        var node = $("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday");
+		var days = 0;
+		for (var i = 0; i < node.length; i++) {
+			if( node[i].checked == true ) {
+				days ++;
+				break;
+			}
+		}
+		if (days == 0) {
+			top.AlertMsg(getStr("LK_SelectOneDay"));
+			return false;
+		}
+		if( startTime.value.length ) {
+			vals = startTime.value.split( ':' );
+			if ( vals.length == 2 ) {
+				hour = vals[0];
+				min = vals[1];
+				if( hour < 0 || hour > 23 || !isAllNum(hour) ) {
+					top.AlertMsg(getStr("LK_InvalidHour"), "startTime");
+					return false;
+				}
+				if( min < 0 || min > 59 || !isAllNum(min)) {
+					top.AlertMsg(getStr("LK_InvalidMin"), "startTime");
+					return false;
+				}
+				st_time = hour * 60 + min;
+			} else {
+				top.AlertMsg(getStr("LK_InvalidTimeFmt"), "startTime");
+				return false;
+			}
+		} else {
+			st_time = 0; //00:00
+			setValue("startTime", "00:00");
+		}
+		if(endTime.value.length ) {
+			vals = endTime.value.split( ':' );
+			if ( vals.length == 2 ) {
+				hour = vals[0];
+				min = vals[1];
+				if( hour < 0 || hour > 23 || !isAllNum(hour)) {
+					top.AlertMsg(getStr("LK_InvalidHour"), "endTime");
+					return false;
+				}
+				if( min < 0 || min > 59 || !isAllNum(min)) {
+					top.AlertMsg(getStr("LK_InvalidMin"), "endTime");
+					return false;
+				}
+				en_time = hour* 60 + min;
+			} else {
+				top.AlertMsg(getStr("LK_InvalidTimeFmt"), "endTime");
+				return false;
+			}
+		} else {
+			en_time = 1439;// 23:59
+			setValue("endTime", "23:59");
+		}
+		if( parseInt(en_time) < parseInt(st_time)) {
+			top.AlertMsg(getStr("LK_TimeOrder"));
+			return false;
+		}
+	}
+	return true;
+}
+
+function uiBack()
+{
+	document.location.href = "adv_urlfilter.shtml";
+}
+
+function uiAdd()
+{
+	var df = document.urlfilteradd;
+
+	AddElements(df, "add_obj", rulePath);
+	AddElements(df, rulePath + "{i}.Description", getValue("description"));
+	AddElements(df, rulePath + "{i}.URL", getValue("URL"));
+	var weekdays = createWeekdays();
+	AddElements(df, rulePath + "{i}.WeekDays", weekdays);
+	AddElements(df, rulePath + "{i}.TimeFrom", getValue("startTime"));
+	AddElements(df, rulePath + "{i}.TimeTo", getValue("endTime"));
+	var sip_start = getValue('INPUT_SrcIPStart');
+	var sip_end = getValue('INPUT_SrcIPEnd');
+	if (sip_start == "") {
+		sip_end = "";
+		AddElements(df, rulePath + "{i}.SrcIP", sip_start);
+	}
+	else if (sip_end == "")
+		AddElements(df, rulePath + "{i}.SrcIP", sip_start);
+	else
+		AddElements(df, rulePath + "{i}.SrcIP", sip_start + "-" + sip_end);
+	df.submit();
+}
+
+function uiEdit()
+{
+	var df = document.urlfilteradd;
+	AddElements(df, restRules[idx].path + "Description", getValue("description"));
+	AddElements(df, restRules[idx].path + "URL", getValue("URL"));
+	var weekdays = createWeekdays();
+	AddElements(df, restRules[idx].path + "WeekDays", weekdays);
+	AddElements(df, restRules[idx].path + "TimeFrom", getValue("startTime"));
+	AddElements(df, restRules[idx].path + "TimeTo", getValue("endTime"));
+	var sip_start = getValue('INPUT_SrcIPStart');
+	var sip_end = getValue('INPUT_SrcIPEnd');
+	if (sip_start == "") {
+		sip_end = "";
+		AddElements(df, restRules[idx].path + "SrcIP", sip_start);
+	}
+	else if (sip_end == "")
+		AddElements(df, restRules[idx].path + "SrcIP", sip_start);
+	else
+		AddElements(df, restRules[idx].path + "SrcIP", sip_start + "-" + sip_end);
+	df.submit();
+}
+
+var weekEnum = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+function createWeekdays()
+{
+	var weekdays = "";
+	var flag = 0;
+	var node = $("sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday");
+	for (var i = 0; i < node.length; i++)
+	{
+		if(node[i].checked == true)
+		{
+			if (flag == 1)
+				weekdays += "," + weekEnum[i];
+			else
+				weekdays += weekEnum[i];
+			flag = 1;
+		}
+	}
+	return weekdays;
+}
+
+function parseWeekdays(week)
+{
+	var weekarray = "[";
+	var daysofweek = weekEnum.length;
+	for (var i = 0; i < daysofweek; i++)
+	{
+		if (week.indexOf(weekEnum[i]) != -1)
+			weekarray += "1";
+		else
+			weekarray += "0";
+		if (i < daysofweek - 1)
+			weekarray += ",";
+	}
+	weekarray += "]";
+	return weekarray;
+}
+
+function uiSubmit(op)
+{
+	if(!valueCheck())
+		return;
+	if(!validateCode())
+		return false;
+	if(op == "add")
+		uiAdd();
+	else if(op == "edit")
+		uiEdit();
+}
+
+function __init()
+{
+	var url = window.location.search;
+	var arr = url.toString();
+	var strs = arr.split("&");
+	op = strs[0].split("=")[1];
+    if(G_URLFilterMode == "Deny"){
+        rulesNum = G_BlackList.length;
+        restRules = G_BlackList;
+        rulePath = "InternetGatewayDevice.X_CT-COM_UrlFilter.BlackList."
+    }else if(G_URLFilterMode == "Allow"){
+        rulesNum = G_WhiteList.length;
+        restRules = G_WhiteList;
+        rulePath = "InternetGatewayDevice.X_CT-COM_UrlFilter.WhiteList.";
+    }
+    if(op == "edit")
+	{
+		idx = strs[1].split("=")[1];
+		var src_ip = restRules[idx].SrcIP;
+		var sip_start = "";
+		var sip_end = "";
+		if (src_ip.indexOf("-") != -1) {
+			sip_start = src_ip.split("-")[0];
+			sip_end = src_ip.split("-")[1];
+		}
+		else {
+			sip_start = src_ip;
+		}
+		var weekarr = parseWeekdays(restRules[idx].weekdays);
+		week = eval(weekarr);
+		setValue("description", restRules[idx].description);
+		setValue("URL", restRules[idx].URL);
+		setValue("sunday", week[0]);
+		setValue("monday", week[1]);
+		setValue("tuesday", week[2]);
+		setValue("wednesday", week[3]);
+		setValue("thursday", week[4]);
+		setValue("friday", week[5]);
+		setValue("saturday", week[6]);
+		setValue("startTime", restRules[idx].timefrom);
+		setValue("endTime", restRules[idx].timeto);
+		setValue("INPUT_SrcIPStart", sip_start);    
+		setValue("INPUT_SrcIPEnd", sip_end);            
+	}
+	if(IsExistedFunction("project_init") == true) 
+            project_init(GetCurrentFileName());
+}
+// done hiding -->
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_TimeRestTitleAdd'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr><td colspan="2" langkey="LK_TimeUrlFilterRemind"></td></tr>
+	<tr class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+	<tr>
+		<td width='150' langkey="LK_Descriptionn"></td>
+		<td><input type='text' id='description' size='18'></td>
+	</tr>
+	<tr>
+	<td width='150'  langkey="LK_SourceIPp"></td>
+	<td><input name="text" type="text" id="INPUT_SrcIPStart" /> - <input type="text" id="INPUT_SrcIPEnd"></td>
+</tr>
+
+	<tr>
+		<td width='150'>
+		<span langkey="LK_URL"></span>&nbsp;</td>
+		<td><input type='text' size="18" id="URL"> &nbsp;&nbsp;</td>
+	</tr>
+	<tr>
+		<td width='150' langkey="LK_DaysOfTheWeek"></td>
+		<td>
+			<input type='checkbox' id='sunday'><span langkey="LK_Sunday"></span>&nbsp;
+			<input type='checkbox' id='monday'><span langkey="LK_Monday"></span>&nbsp;
+			<input type='checkbox' id='tuesday'><span langkey="LK_Tuesday"></span>&nbsp;
+			<input type='checkbox' id='wednesday'><span langkey="LK_Wedesday"></span>&nbsp;
+			<input type='checkbox' id='thursday'><span langkey="LK_Thuesday"></span>&nbsp;
+			<input type='checkbox' id='friday'><span langkey="LK_Friday"></span>&nbsp;
+			<input type='checkbox' id='saturday'><span langkey="LK_Saturday"></span>&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td width='150' langkey="LK_StartBlkTime"></td>
+		<td><input type='text' size='5' id='startTime'>&nbsp;-&nbsp;<input type='text' size='5' id='endTime'>&nbsp;&nbsp;(hh:mm)</td>
+	</tr>
+</table>
+<br>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	<tr>
+		<td colspan="2">
+			<script>PrintTriButton("cancel",getStr("LK_Back"),onClick="uiBack();");</script>&nbsp;&nbsp;
+			<script>PrintTriButton("submit",getStr("LK_Apply"),onClick="uiSubmit(op);");</script>&nbsp;&nbsp;
+		</td>
+	</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="urlfilteradd" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_urlfilter.shtml">
+</form>
+</body>
+</html>

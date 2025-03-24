@@ -1,0 +1,24 @@
+{
+	"/ping_watchdog/ping_watchdog/ping_watchdog": {
+		"enable": {
+			"type": "intStr32",
+			"default": 0
+		},
+		"interval": {
+			"type": "intStr32",
+			"default": 300
+		},
+		"delay": {
+			"type": "intStr32",
+			"default": 300
+		},
+		"fail_count": {
+			"type": "intStr32",
+			"default": 3
+		},
+		"dest_ip": {
+			"type": "string",
+			"length": 46
+		}
+	}
+}

@@ -1,0 +1,10 @@
+Package: kmod-nf-conntrack6
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-a31b8970df4b847fa4f01d88c4d1392a), kmod-ipv6, kmod-nf-conntrack
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: arm_cortex-a7
+Installed-Size: 11978
+Description:  Netfilter IPv6 connection tracking

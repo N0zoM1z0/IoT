@@ -1,0 +1,17 @@
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.upnpSet%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="UpnpCfgHelp"></i>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.upnpConfigDescription%}</p>
+</div>
+<div id="upnpTable"></div><script type="text/javascript">(function(){function l(b){var a={},g={},e={};a[c]=g;g[f]=e;e[h]=b;$.modify(a,function(b){k("normal")})}function k(d){var a={};a[c]={};a[c][KEY_TABLE]=[uciUpnp.dynData.upnpLease];$.query(a,function(a){b=formatTableData(a[c][uciUpnp.dynData.upnpLease])||[];for(a=0;a<b.length;a++)b[a].clientStr=slp.gIpv6HostCtrlSupport?"0.0.0.0"==b[a].client?b[a].clientv6:b[a].client:b[a].client;e.setDataSource(b);e.loadData();"refresh"==d&&showToast(label.refreshSuccess)})}var c=uciUpnp.fileName,f=uciUpnp.secName.upnpCfg,
+h=uciUpnp.optName.upnp,b=[],e=new Table({targetId:"upnpTable",hasCheckBox:!1,editable:!1,deletable:!1,addable:!1,head:[{field:label.appDesc,width:"0.24"},{field:label.extPort,width:"0.13"},{field:label.intPort,width:"0.13"},{field:label.ipAddr,width:"0.17"},{field:label.ptc,width:"0.17"},{field:label.curStatus,width:"0.17"}],column:[{name:"desc"},{name:"ext_port"},{name:"inner_port"},{name:"clientStr",type:slp.gIpv6HostCtrlSupport?"ipv4OrIpv6":"ip"},{name:"proto",type:"strSelect",options:[{str:label.tcp,
+value:6},{str:label.udp,value:17}]},{name:"enable",type:"strSelect",options:[{str:statusStr.notEnabled,value:0},{str:statusStr.isEnabled,value:1}]}],tableOption:[{icon:"icon-refresh",str:btn.refresh,selRelate:!1,type:"refresh",func:function(){k("refresh")}}]});(function(){var d={};d[c]={};d[c][KEY_NAME]=[f];d[c][KEY_TABLE]=[uciUpnp.dynData.upnpLease];$.query(d,function(a){var d=1==parseInt(a[c][f][h]);new Switch("switchCon",d,l,!1);b=formatTableData(a[c][uciUpnp.dynData.upnpLease])||[];for(a=0;a<
+b.length;a++)b[a].clientStr=slp.gIpv6HostCtrlSupport?"0.0.0.0"==b[a].client?b[a].clientv6:b[a].client:b[a].client;e.setDataSource(b);e.loadData()})})()})();
+</script>

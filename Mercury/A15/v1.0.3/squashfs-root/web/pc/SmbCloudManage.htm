@@ -1,0 +1,47 @@
+
+<style>
+div.subTitle label{
+	font-size: 13px;
+	color: #666;
+	letter-spacing: -0.43px;
+	vertical-align: middle;
+	margin-right: 24px;
+}
+span.componentStatus{
+	margin-left: 10px;
+	font-size: 13px;
+	color: #333333;
+	line-height:16px;
+	height:16px;
+	vertical-align:middle;
+}
+div.subTitle p.description{
+	font-size:13px;
+	color:#666;
+	line-height:20px;
+	padding-top:16px;
+}
+div.cloudTypeRow {
+	margin-top: 24px;
+}
+</style>
+<div class="head">
+	<div class="title"><h1>{%menuStr.smbCloudManage%}</h1></div>
+</div>
+<div class="subTitle">
+    <h2>{%menuStr.smbCloudManage%}</h2>
+    <div id="switchCon" class="switchCon">
+        <i class="switchBg"></i>
+        <i class="switchBall"></i>
+    </div>
+    <span id="pbcEnableState" class="componentStatus"></span>
+    <div class="cloudTypeRow disNone">
+        <label>{%label.cloudType%}</label>
+        <span id="cloudType" class="componentStatus">{%label.cloudTypePublic%}</span>
+    </div>
+    <p class="description">{%label.cloudManageAttention%}</p>
+</div>
+<div id="save"></div><script type="text/javascript">function init(){function l(b){d.innerHTML=b==c?e:f;$(".cloudTypeRow").toggle(b==c)}var c=1,e=statusStr.opened,f=statusStr.closed,g=uciCloudConfig.optValue.enable.on,m=uciCloudConfig.optValue.enable.off,h,d=id("pbcEnableState");new Button({text:btn.save,onClick:function(){var b=h.state,a={},k={};a[uciCloudConfig.fileName]={};a[uciCloudConfig.fileName][uciCloudConfig.secName.confMngt]=k;k[uciCloudConfig.optName.mngtSwitch]=b==c?g:m;$.modify(a,function(a){ENONE!=a[ERR_CODE]?showAlert(errorStr.saveFail):
+showToast(label.saveSuccess)})},type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",margin:"12px 0 0 132px"}});(function(){var b={};b[uciNetwork.fileName]={};b[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan;b[uciCloudConfig.fileName]={};b[uciCloudConfig.fileName][KEY_NAME]=[uciCloudConfig.secName.confMngt];$.query(b,function(a){if(ENONE==a[ERR_CODE]){var b=a[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.mac];a=a[uciCloudConfig.fileName][uciCloudConfig.secName.confMngt][uciCloudConfig.optName.mngtSwitch]==
+g?c:0;h=new Switch("switchCon",a,l,!1);$("#lanMac").html(b);$(".cloudTypeRow").toggle(a==c);d.innerHTML=a==c?e:f}})})()}init();
+</script>

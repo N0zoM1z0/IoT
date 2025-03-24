@@ -1,0 +1,8 @@
+Package: libeasyuci
+Version: 1
+Depends: libc, libuci
+Source: package/B-LINK/libeasyuci
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 4789
+Description:  libeasyuci

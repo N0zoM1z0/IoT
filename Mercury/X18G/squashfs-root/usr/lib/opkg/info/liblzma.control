@@ -1,0 +1,13 @@
+Package: liblzma
+Version: 1
+Depends: libc
+Provides: 
+Source: tp_package/lib/liblzma
+Section: libs
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 42676
+Description:  C library for LZMA

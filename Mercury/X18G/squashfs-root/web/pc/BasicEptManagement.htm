@@ -1,0 +1,2428 @@
+<script type="text/javascript">
+	if (typeof advanceAutoFit != "function")
+	{
+		advanceAutoFit = function(){
+			var headHeight = $("#header").height(),
+				footHeight = $("#footer").height(),
+				clientHeight = document.documentElement.clientHeight;
+
+			$(".wrapper").css("min-height", clientHeight);
+
+			var fullHeight = $(".wrapper").height();
+			var dividingHeight = (fullHeight - headHeight - footHeight) + "px";
+			$(".dividingLine").css("height", dividingHeight);
+		}
+	}
+
+	if (typeof resizeWindow != "function")
+	{
+		resizeWindow = function (){
+			window.onresize = function(){
+				(id("advanceWrapper") != null || id("deviceListWrapper") != null) && advanceAutoFit();
+			};
+			$("#deviceListWrapper").resize(advanceAutoFit);
+		}
+		resizeWindow();
+	}
+
+	/*
+	*
+	*	LINK_TYPE:
+	*		WIRED:	0
+	*		HOST:	1
+	*		GUEST:	2
+	*
+	*	WIFI_MODE:
+	*		2.4G BAND:	0
+	*		5G BAND:	1
+	*		5G1 BAND:	2
+	*		5G4 BAND:	3
+	*
+	*	SO, THE SELECT'S VALUE CAN DEFINED BELOW:
+	*
+	*   ALL:		"-1"
+	*	WIRED: 		"0"
+	*	2G: 		"1"
+	*	5G:			"2"
+	*	5G BAND1:	"3"
+	*	5G BAND4:	"4"
+	*
+	*/
+
+	(function(){
+		var isEditing = false;
+		var refreshDataHandle;
+		var isGuestOpen = false;
+		var isHNatOpen = false;
+		var tabInitOptions = {};
+		var currentTabIndex = 0;
+		var deviceList = new Array();
+		var deviceListTab, hostDeviceTable = {}, guestDeviceTable = {}, forbidDeviceTable = {};
+		var deviceLinkTypeSel = id("deviceLinkTypeSel");
+
+		/* Page Type */
+		var PAGE_HOST = 0;
+		var PAGE_GUEST = 1;
+		var PAGE_FORBID = 2;
+
+		/* Mesh */
+		var capName = document.title;
+		var routerSelectCurIdx = -1;							//DEFAULT CHOOSE ALL-DEVICE
+		var routerselOptions = [{str: label.allRouter, value: -1}];
+		var reList;
+
+		/* 黑白名单 */
+		var oldPolicy;
+		var owner;
+		var blArray, wlArray;
+		var addBlackDialog, addWhiteDialog;
+		var checkedOnlineDevList;
+		var wlanAccessEnable;
+
+		var dialogs = [
+			{
+				dialog: null,
+				table: null
+			},
+			{
+				dialog: null,
+				table: null
+			},
+			{
+				dialog: null,
+				table: null
+			}
+		];
+
+		/* 黑/白名单MAC地址过滤策略 */
+		var MAC_FILTER_BLACK_LIST = 0;
+		var MAC_FILTER_WHITE_LIST = 1;
+		var MAC_FILTER_OFF = 2;
+
+		var ADD_ONLINE_DEV_TO_BLACK_LIST = 0;
+		var ADD_ONLINE_DEV_TO_WHITE_LIST = 1;
+		var ADD_BLOCKED_DEV_TO_WHITE_LIST = 2;
+
+		var modeSelOptions = [
+			{
+				str: label.blackList,
+				value: MAC_FILTER_BLACK_LIST
+			},
+			{
+				str: label.whiteList,
+				value: MAC_FILTER_WHITE_LIST
+			},
+			{
+				str: label.off,
+				value: MAC_FILTER_OFF
+			}
+		]
+
+		var menuList = [
+			{
+				tabName: label.deviceHost + "(<span id='hostDeviceNum'>0</span>)",
+				tableId: "hostDeviceTable",
+				deviceFilter: function(item){
+					if ((item.online == uciHostsInfo.optValue.online.yes) &&
+						(item.blocked == uciHostsInfo.optValue.isBlocked.no) &&
+						(item.type == uciHostsInfo.optValue.linkType.wired ||
+						item.type == uciHostsInfo.optValue.linkType.hostWireless))
+					{
+						return deviceLinkTypeFilter(item);
+					}
+
+					return false;
+				},
+				deviceLinkTypeArray: null,
+				pageType: PAGE_HOST
+			},
+			{
+				tabName: label.deviceGuest + "(<span id='guestDeviceNum'>0</span>)",
+				tableId: "guestDeviceTable",
+				deviceFilter: function(item){
+					if ((item.online == uciHostsInfo.optValue.online.yes) &&
+						(item.blocked == uciHostsInfo.optValue.isBlocked.no) &&
+						(item.type == uciHostsInfo.optValue.linkType.guestWireless))
+					{
+						return deviceLinkTypeFilter(item);
+					}
+
+					return false;
+				},
+				deviceLinkTypeArray: null,
+				pageType: PAGE_GUEST
+			},
+			{
+				tabName: label.deviceForbided + "(<span id='forbidDeviceNum'>0</span>)",
+				tableId: "forbidDeviceTable",
+				deviceFilter: function(item){
+					if (item.blocked == uciHostsInfo.optValue.isBlocked.yes)
+					{
+						return deviceLinkTypeFilter(item);
+					}
+
+					return false;
+				},
+				deviceLinkTypeArray: null,
+				pageType: PAGE_FORBID
+			},
+			{
+				tabName: label.blackWhiteList + "(<span id='forbidDeviceNum'>0</span>)",
+				tableId: "forbidDeviceTable",
+				deviceFilter: devicePolicyFilter,
+				deviceLinkTypeArray: null,
+				pageType: PAGE_FORBID
+			}
+		];
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (parseInt(errNo))
+			{
+			case ENONE:
+				return true;
+			case ESYSTEM:
+				showStr = errStr.systemErr;
+				break;
+			case ENOMEMORY:
+				showStr = errStr.invMemoryOut;
+				break;
+			case ENOECHO:
+				showStr = errStr.invRequestTimeout;
+				break;
+			case ESYSBUSY:
+				showStr = errStr.systemBusy;
+				break;
+			case EENTRYEXIST:
+				showStr = errStr.entryExistErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.entryConflicErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case ELACKARG:
+				showStr = errStr.acIncompleteArg;
+				break;
+			case ETIMEPERIODBLANK:
+				showStr = errStr.timePeriodBlank;
+				break;
+			case ETIMEPERIODTOOLONG:
+				showStr = errStr.timePeriodTooLong;
+				break;
+			case EINVTLBEGINTIME:
+				showStr = errStr.invTlBeginTime;
+				break;
+			case EINVTLEENDTIME:
+				showStr = errStr.invTlEndTime;
+				break;
+			case EINVTLBEGINENDTIME:
+				showStr = errStr.invTlBeginEndTime;
+				break;
+			case ETLREPEATBLANK:
+				showStr = errStr.tlRepeatBlank;
+				break;
+			default:
+				showStr = errStr.invRequestFail;
+				break;
+			}
+			closeLoading();
+
+			alarmDialog.show(showStr);
+
+			return false;
+		}
+
+		function deviceLinkTypeFilter(item){
+			if (menuList[currentTabIndex].deviceLinkTypeArray == null)
+			{
+				return true;
+			}
+
+			var type = deviceLinkTypeSel.value;
+
+			if (type != -1)
+			{
+				if (item.type == uciHostsInfo.optValue.linkType.wired)
+				{
+					if (type != 0)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if ((item.wifi_mode == uciHostsInfo.optValue.wifiMode.h2G && type != 1) ||
+						(item.wifi_mode == uciHostsInfo.optValue.wifiMode.h5G && type != 2) ||
+						(item.wifi_mode == uciHostsInfo.optValue.wifiMode.h5G1 && type != 3) ||
+						(item.wifi_mode == uciHostsInfo.optValue.wifiMode.h5G2 && type != 4))
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		function devicePolicyFilter(item){
+			/* 移动定制需求 仅显示owner为web的条目 */
+			if (oldPolicy == MAC_FILTER_BLACK_LIST && item[".name"].indexOf("black") > -1 && item["owner"] == uciCustomNetwork.optValue.owner.web)
+			{
+				return true;
+			}
+			else if (oldPolicy == MAC_FILTER_WHITE_LIST && item[".name"].indexOf("white") > -1 && item["owner"] == uciCustomNetwork.optValue.owner.web)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		function deviceTabClick(tabObj){
+			currentTabIndex = tabObj.getCurrentIndex();
+
+			if (menuList[currentTabIndex].table != null)
+			{
+				menuList[currentTabIndex].table._ops.currentPage = 1;
+			}
+
+			if (menuList[currentTabIndex].deviceLinkTypeArray != null)
+			{
+				$("#deviceLinkTypeSelCon").fadeIn();
+
+				deviceLinkTypeSel.resetOptions(menuList[currentTabIndex].deviceLinkTypeArray, -1);
+			}
+			else
+			{
+				$("#deviceLinkTypeSelCon").fadeOut(50);
+			}
+
+			/* THE FORBID-DEVICE DOESN'T DISTINGUISH ROUTER-TYPE */
+			if (slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				if (menuList[tabObj.getCurrentIndex()].pageType == PAGE_FORBID)
+				{
+					//$("#routerSelCon").css("display", "none");
+					$("#routerSelCon").fadeOut(50);
+				}
+				else
+				{
+					//$("#routerSelCon").css("display", "inline-block");
+					$("#routerSelCon").fadeIn();
+				}
+			}
+
+			if (slp.macFilterSupport && menuList[currentTabIndex].pageType == PAGE_FORBID)
+			{
+				$("#modeSelCon").fadeIn();
+
+				/* 移动定制需求 andlink协议下发白名单时，不允许修改黑白名单模式 */
+				if (owner == uciCustomNetwork.optValue.owner.andlink &&
+					oldPolicy == MAC_FILTER_WHITE_LIST)
+				{
+					id("modeSel").disable(true);
+				}
+			}
+			else
+			{
+				$("#modeSelCon").fadeOut(50);
+			}
+
+			if (slp.macFilterSupport)
+			{
+				if (oldPolicy == MAC_FILTER_OFF)
+				{
+					$("#forbidDeviceTable").hide();
+				}
+				else
+				{
+					initForbidTable();
+				}
+			}
+
+			isEditing = false;
+			deviceListDataGet(tabObj);
+		}
+
+		function deviceListDataGet(tabObj){
+			var data = {}, mac, localDevice, deviceTemp, deviceTempList, filterList = [], hostNum = 0, guestNum = 0, forbidNum = 0;
+
+			tabObj = tabObj || deviceListTab;
+
+			if (refreshDataHandle != null)
+			{
+				clearTimeout(refreshDataHandle);
+				refreshDataHandle = null;
+			}
+
+			if (slp.moduleSpec["wifison_mesh"] == 1 && menuList[tabObj.getCurrentIndex()].pageType != PAGE_FORBID)
+			{
+				data[uciPlc.fileName] = {};
+				data[uciPlc.fileName][KEY_TABLE] = [uciPlc.secType.connectedExt];
+				data[uciHostsInfo.fileName] = {};
+				data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.host_info;
+				data[uciHostsInfo.fileName][KEY_NAME] = uciHostsInfo.dynData.capHostNum;
+
+				if (slp.macFilterSupport)
+				{
+					data[uciCustomNetwork.fileName] = {};
+					data[uciCustomNetwork.fileName][KEY_TABLE] = [uciCustomNetwork.dynData.macFilterBlackEntry, uciCustomNetwork.dynData.macFilterWhiteEntry];
+				}
+
+				$.query(data, function(result){
+					var isCurIdxExist = false, capDispName = "", capInfo;
+					reList = formatTableData(result[uciPlc.fileName][uciPlc.secType.connectedExt]);
+					capInfo = result[uciHostsInfo.fileName][uciHostsInfo.dynData.capHostNum];
+
+					if (slp.macFilterSupport)
+					{
+						blRawData = result[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterBlackEntry];
+						wlRawData = result[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterWhiteEntry];
+						blArray = formatTableData(blRawData);
+						wlArray = formatTableData(wlRawData);
+					}
+
+					routerselOptions = [];
+					routerselOptions.push({str:label.allRouter, value: -1});
+
+					capDispName = capName + label.lBrackets +
+						(menuList[tabObj.getCurrentIndex()].pageType == PAGE_HOST ? capInfo["host_num"] : capInfo["guest_num"]) + label.rBrackets;
+
+					routerselOptions.push({str: getSubString(capDispName), value: 0, title: capDispName});
+
+					for (var i = 0; i < reList.length; i++)
+					{
+						var reName = reList[i].name || label.reRouter;
+						reName += label.lBrackets + (menuList[tabObj.getCurrentIndex()].pageType == PAGE_HOST ? reList[i]["sta_num_host"] : reList[i]["sta_num_guest"]) + label.rBrackets;
+
+						routerselOptions.push({str: getSubString(reName),value: reList[i].mac, title: reName});
+
+						if (String(routerSelectCurIdx).toUpperCase() == reList[i].mac.toUpperCase())
+						{
+							isCurIdxExist = true;
+						}
+					}
+
+					/* RESET THE ROUTER-SELECT-INDEX WHEN RE IS OFFLINE */
+					if (!isCurIdxExist && routerSelectCurIdx != -1 && routerSelectCurIdx != 0)
+					{
+						showToast(label.deviceOffline);
+						routerSelectCurIdx = -1;
+					}
+
+					data = {};
+					data[uciHostsInfo.fileName] = {};
+
+					if (routerSelectCurIdx == -1)
+					{
+						dataParse(result[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);
+						return;
+					}
+					else if (routerSelectCurIdx == 0)
+					{
+						data[uciHostsInfo.fileName]["get_cap_host"] = null;
+					}
+					else
+					{
+						data[uciHostsInfo.fileName]["get_ext_host"] = {};
+						data[uciHostsInfo.fileName]["get_ext_host"]["mac"] = routerSelectCurIdx;
+					}
+
+					$.action(data, function(res){
+						if (routerSelectCurIdx == 0)
+						{
+							dataParse(res[uciHostsInfo.fileName]["get_cap_host"], result[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);
+						}
+						else
+						{
+							dataParse(res[uciHostsInfo.fileName]["get_ext_host"], result[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);
+						}
+					}, true);
+				});
+			}
+			else
+			{
+				data[uciHostsInfo.fileName] = {};
+				data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.host_info;
+
+				if (slp.macFilterSupport)
+				{
+					data[uciCustomNetwork.fileName] = {};
+					data[uciCustomNetwork.fileName][KEY_TABLE] = [uciCustomNetwork.dynData.macFilterBlackEntry, uciCustomNetwork.dynData.macFilterWhiteEntry];
+				}
+
+				$.query(data, function(res){
+					var hostRawData = [], blRawData = [], wlRawData = [];
+					hostRawData = res[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info];
+
+					if (slp.macFilterSupport)
+					{
+						blRawData = res[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterBlackEntry];
+						wlRawData = res[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterWhiteEntry];
+						blArray = formatTableData(blRawData);
+						wlArray = formatTableData(wlRawData);
+					}
+
+					dataParse(hostRawData.concat(blRawData, wlRawData));
+				});
+			}
+
+			function dataParse(res, hostInfoData){
+				refreshDataHandle = $.setTimeout(deviceListDataGet, 1000);
+
+				if (isEditing)
+				{
+					return;
+				}
+
+				deviceList.length = 0;
+
+				deviceTempList = formatTableData(res);
+
+				for (var i = 0; i < deviceTempList.length; i++)
+				{
+					deviceList[i] = {};
+					deviceList[i].type		= deviceTempList[i].type;
+					deviceList[i].blocked 	= deviceTempList[i].blocked;
+					deviceList[i].name 		= deviceTempList[i].hostname == "" ? label.anonymousHost : deviceTempList[i].hostname;
+					deviceList[i].ip 		= deviceTempList[i].ip;
+					deviceList[i].mac 		= deviceTempList[i].mac;
+					deviceList[i].up 		= deviceTempList[i].up_speed;
+					deviceList[i].upLimit 	= deviceTempList[i].up_limit;
+					deviceList[i].down 		= deviceTempList[i].down_speed;
+					deviceList[i].downLimit = deviceTempList[i].down_limit;
+					deviceList[i].online 	= uciHostsInfo.optValue.online.yes;
+					deviceList[i].isCurHost	= deviceTempList[i].is_cur_host;
+					deviceList[i].cfgValid	= deviceTempList[i].cfg_valid;
+					deviceList[i].cfgname	= deviceTempList[i].mac;
+					deviceList[i].wifi_mode	= deviceTempList[i].wifi_mode;
+
+					if (slp.macFilterSupport)
+					{
+						deviceList[i][".name"] 		= deviceTempList[i][".name"];
+						deviceList[i]["owner"] 		= deviceTempList[i]["owner"];
+					}
+
+					/* FOR HNAT OPEN, SPEED-LIMIT DOESN'T SHOW*/
+					if (isHNatOpen)
+					{
+						deviceList[i].upLimit = 0;
+						deviceList[i].downLimit = 0;
+					}
+				}
+
+				/* FILTER DEVICE */
+				for (var index = 0; index < deviceList.length; index ++)
+				{
+					deviceTemp = deviceList[index];
+					mac = deviceTemp.mac;
+
+					if (mac.length == 0 || mac == "00-00-00-00-00-00")
+					{
+						break;
+					}
+
+					/* IF DEVICE LINK AND ONLINE */
+					if (deviceTemp.blocked == uciHostsInfo.optValue.isBlocked.no)
+					{
+						if (deviceTemp.online == uciHostsInfo.optValue.online.yes)
+						{
+							if (deviceTemp.type == uciHostsInfo.optValue.linkType.wired ||
+								deviceTemp.type == uciHostsInfo.optValue.linkType.hostWireless)		/* HOST DEVICE */
+							{
+								hostNum++;
+							}
+							else																	/* GUEST DEVICE */
+							{
+								guestNum++;
+							}
+						}
+					}
+					else
+					{
+						forbidNum++;																/* FORBID DEVICE */
+					}
+
+					if (menuList[currentTabIndex].deviceFilter(deviceTemp))
+					{
+						if (deviceTemp.isCurHost == "1" || mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+						{
+							localDevice = deviceTemp;
+						}
+						else
+						{
+							filterList.push(deviceTemp);
+						}
+					}
+				}
+
+				/* SORT BY IP 
+				 * 黑白名单列表条目没有IP，所以不能进行IP地址排序
+				 */
+				if (!slp.macFilterSupport || menuList[tabObj.getCurrentIndex()].pageType != PAGE_FORBID)
+				{
+					filterList.sort(function(pre, next){
+						var ipPreArr = pre.ip.split(".");
+						var ipNextArr = next.ip.split(".");
+	
+						for (var i = 0; i < 4; i++)
+						{
+							if (parseInt(ipPreArr[i], 10) == parseInt(ipNextArr[i], 10))
+							{
+								continue;
+							}
+	
+							if (parseInt(ipPreArr[i], 10) > parseInt(ipNextArr[i], 10))
+							{
+								return -1;
+							}
+							else
+							{
+								return 1;
+							}
+						}
+	
+						return 0;
+					});
+				}
+
+				if (undefined != localDevice)
+				{
+					/* 白名单下禁止勾选本机，防止本机被删 */
+					if (oldPolicy == MAC_FILTER_WHITE_LIST)
+					{
+						localDevice.checkboxDisabled = true;
+						localDevice.checkboxDisabledChecked = false;
+					}
+					filterList.push(localDevice);
+				}
+
+				if (slp.moduleSpec["wifison_mesh"] == 1 &&
+					routerSelectCurIdx != -1 &&
+					menuList[tabObj.getCurrentIndex()].pageType != PAGE_FORBID)
+				{
+					var dataResult = getDevNum(formatTableData(hostInfoData));
+
+					$("#hostDeviceNum").text(dataResult.hostNum);
+					if (isGuestOpen)
+					{
+						$("#guestDeviceNum").text(dataResult.guestNum);
+					}
+
+					$("#forbidDeviceNum").text(dataResult.forbidNum);
+				}
+				else
+				{
+					$("#hostDeviceNum").text(hostNum);
+					if (isGuestOpen)
+					{
+						$("#guestDeviceNum").text(guestNum);
+					}
+
+					if (slp.macFilterSupport)
+					{
+						if (oldPolicy == MAC_FILTER_BLACK_LIST)
+						{
+							forbidNum = 0;
+							for(var i = 0; i < blArray.length; i++)
+							{
+								if (blArray[i]["owner"] == uciCustomNetwork.optValue.owner.web)
+								{
+									forbidNum++;
+								}
+							}
+						}
+						else if (oldPolicy == MAC_FILTER_WHITE_LIST)
+						{
+							forbidNum = 0;
+							for(var i = 0; i < wlArray.length; i++)
+							{
+								if (wlArray[i]["owner"] == uciCustomNetwork.optValue.owner.web)
+								{
+									forbidNum++;
+								}
+							}
+						}
+						else
+						{
+							forbidNum = 0;
+						}
+						$("#forbidDeviceNum").text(forbidNum);
+					}
+					else
+					{
+						$("#forbidDeviceNum").text(forbidNum);
+					}
+				}
+
+				if (menuList[currentTabIndex].table != undefined)
+				{
+					menuList[currentTabIndex].table.setDataSource(filterList);
+					menuList[currentTabIndex].table.loadData(menuList[currentTabIndex].table.getCurrentPage());
+				}
+
+				$("#deviceTableCon").css("height", $("#" + menuList[currentTabIndex].tableId).css("height"));
+
+				if (slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					if (id("routerSel").state == "idle")
+					{
+						id("routerSel").resetOptions(routerselOptions, routerSelectCurIdx);
+					}
+				}
+			}
+		}
+
+		function getDevNum(data){
+			var hostNum = 0, guestNum = 0, forbidNum = 0;
+
+			for (var i = 0; i < data.length; i++)
+			{
+				if (data[i].blocked == uciHostsInfo.optValue.isBlocked.no)
+				{
+					if (data[i].type == uciHostsInfo.optValue.linkType.wired ||
+						data[i].type == uciHostsInfo.optValue.linkType.hostWireless)		/* HOST DEVICE */
+					{
+						hostNum++;
+					}
+					else																	/* GUEST DEVICE */
+					{
+						guestNum++;
+					}
+				}
+				else
+				{
+					forbidNum++;																/* FORBID DEVICE */
+				}
+
+				if (slp.macFilterSupport)
+				{
+					if (oldPolicy == MAC_FILTER_BLACK_LIST)
+					{
+						forbidNum = blArray.length;
+					}
+					else if (oldPolicy == MAC_FILTER_WHITE_LIST)
+					{
+						forbidNum = wlArray.length;
+					}
+					else
+					{
+						forbidNum = 0;
+					}
+				}
+			}
+
+			return {hostNum: hostNum, guestNum: guestNum, forbidNum: forbidNum};
+		}
+
+		function getSubString(value){
+			var str = "", suffixStr = [], max = 130, subStrMax = 60;
+			var resultStr = "", strTemp, i, count = 0;
+
+			if (calStrLenPixel(value, 13) < max)
+			{
+				return value;
+			}
+
+			str = value.split("");
+
+			for (var i = 0; i < str.length; i++)
+			{
+				count += calStrLenPixel(str[i], 13);
+				if (count > subStrMax)
+				{
+					break;
+				}
+				resultStr += str[i];
+			}
+
+			resultStr += " ... ";
+			count = 0;
+			str = str.reverse();
+
+			for (i = 0; i < str.length; i++)
+			{
+				count += calStrLenPixel(str[i], 13);
+				if (count > subStrMax)
+				{
+					break;
+				}
+				suffixStr.push(str[i]);
+			}
+
+			resultStr += suffixStr.reverse().join("");
+			return resultStr;
+		}
+
+		function saveDeviceNameCfg(dataObj, nameVal){
+			var data;
+
+			if (dataObj.name == nameVal)
+			{
+				return;
+			}
+
+			if ((dataObj.name == uciHostsInfo.optValue.name.defname) && (nameVal.length <= 0))
+			{
+				return;
+			}
+
+			if (getCNStrLen(nameVal) > DEVICE_NAME_LEN_MAX)
+			{
+				alarmDialog.show(errorStr.hostNameLenExceed);
+				return;
+			}
+
+			dataObj.name = nameVal;
+
+			data ={
+				"hosts_info":
+				{
+					"set_name":
+					{
+						"mac":dataObj.mac,
+						"name":dataObj.name,
+						"down_limit":dataObj.downLimit,
+						"up_limit": dataObj.upLimit,
+						"is_blocked":dataObj.blocked
+					}
+				}
+			};
+
+			$.action(data, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					showToast(label.saveSuccess);
+				}
+			});
+		}
+
+		function saveDeviceName(inputObj, dataObj){
+			var nameVal = inputObj.getValue();
+
+			saveDeviceNameCfg(dataObj, nameVal);
+			isEditing = false;
+		}
+
+		function netSpeedTrans(speed){
+			var kSpeed = 1024;
+			var mSpeed = kSpeed * 1024;
+			var gSpeed = mSpeed * 1024;
+
+			speed = parseInt(speed);
+
+			if (speed >= gSpeed)
+			{
+				speed = (speed/gSpeed).toFixed(1) + "GB/s";
+			}
+			else if (speed >= mSpeed)
+			{
+				speed = (speed/mSpeed).toFixed(1) + "MB/s";
+			}
+			else
+			{
+				speed = (speed/kSpeed).toFixed(1) + "KB/s";
+			}
+
+			return speed.toString();
+		}
+
+		function saveDeviceSpeedLimitCfg(upLimitVal, downLimitVal, dataObj){
+			var oldVal, newVal, isUpChange = false, isDownChange = false;
+
+			/* UP_SPEED */
+			oldVal = dataObj.upLimit;
+			newVal = upLimitVal;
+
+			if (newVal.length > 0)
+			{
+				if (oldVal != newVal)
+				{
+					isUpChange = true;
+					dataObj.upLimit = newVal;
+				}
+			}
+			else
+			{
+				if  (oldVal != "0")
+				{
+					isUpChange = true;
+					dataObj.upLimit = "0";
+				}
+			}
+
+			/* DOWN_SPEED */
+			oldVal = dataObj.downLimit;
+			newVal = downLimitVal;
+
+			if (newVal.length > 0)
+			{
+				if (oldVal != newVal)
+				{
+					isDownChange = true;
+					dataObj.downLimit = newVal;
+				}
+			}
+			else
+			{
+				if  (oldVal != "0")
+				{
+					isDownChange = true;
+					dataObj.downLimit = "0";
+				}
+			}
+
+			if (isUpChange == false && isDownChange == false)
+			{
+				return;
+			}
+
+			var data = {
+				"hosts_info":{
+					"set_flux_limit":{
+						"mac": dataObj.mac,
+						"down_limit": dataObj.downLimit,
+						"up_limit": dataObj.upLimit,
+						"name": dataObj.name,
+						"is_blocked": dataObj.blocked
+					}
+				}
+			};
+
+			$.action(data, function(result){
+				if (result[ERR_CODE] == ENONE)
+				{
+					showToast(label.saveSuccess);
+				}
+			});
+		}
+
+		function saveDeviceSpeedLimit(upLimitInput, downLimitInput, dataObj){
+			var speedLimitVal, upLimitVal, downLimitVal;
+
+			/* CHECK FORMAT */
+			speedLimitVal = upLimitInput.getValue();
+
+			if (!$(upLimitInput.dom).find('li.inputLi').hasClass('static'))
+			{
+				if (speedLimitVal.length > 0 && !checkNum(speedLimitVal))
+				{
+					upLimitInput.setValue(dataObj.upLimit);
+				}
+
+				if (speedLimitVal > MAX_WAN_RATE)
+				{
+					upLimitInput.setValue(MAX_WAN_RATE);
+				}
+
+				upLimitVal = upLimitInput.getValue();
+			}
+			else
+			{
+				upLimitVal = (speedLimitVal == label.noSpeedLimit) ? 0 : speedLimitVal.replace(label.unitKBs, "");
+			}
+
+			speedLimitVal = downLimitInput.getValue();
+
+			if (!$(downLimitInput.dom).find('li.inputLi').hasClass('static'))
+			{
+				if (speedLimitVal.length > 0 && !checkNum(speedLimitVal))
+				{
+					downLimitInput.setValue(dataObj.downLimit);
+				}
+
+				if (speedLimitVal > MAX_WAN_RATE)
+				{
+					downLimitInput.setValue(MAX_WAN_RATE);
+				}
+
+				downLimitVal = downLimitInput.getValue();
+			}
+			else
+			{
+				downLimitVal = (speedLimitVal == label.noSpeedLimit) ? 0 : speedLimitVal.replace(label.unitKBs, "");
+			}
+
+			saveDeviceSpeedLimitCfg(upLimitVal, downLimitVal, dataObj);
+			isEditing = false;
+		}
+
+		function releaseDevice(indexStr, delHandle)
+		{
+			if (slp.macFilterSupport)
+			{
+				var index, removeDataItem, item, data, type, successStr;
+				var indexArr = indexStr.split("-");
+				var removeData = [];
+	
+				if (oldPolicy == MAC_FILTER_BLACK_LIST)
+				{
+					type = "black";
+					successStr = label.unforbidSuccess;
+				}
+				else
+				{
+					type = "white";
+					successStr = label.deleteSuccess;
+				}
+	
+				for (var i = 0; i < indexArr.length; i++)
+				{
+					index = indexArr[i];
+					removeDataItem = forbidDeviceTable.data[index];
+					removeData.push({
+						hostname: removeDataItem.name,
+						mac: removeDataItem.mac,
+						enable: "on"
+					});
+				}
+	
+				callback = delHandle;
+				for (var i = 0; i < removeData.length; i++)
+				{
+					item = removeData[i];
+	
+					data = {};
+					data[uciCustomNetwork.fileName] = {};
+					data[uciCustomNetwork.fileName][KEY_NAME] = type + "_" + item.mac.replace(/-/g, "").toLowerCase();
+	
+					if (i == 0)
+					{
+						showLoading();
+					}
+	
+					/* 删除一个成功后再继续删除下一个所以使用同步 */
+					$.del(data, function(resp){
+						if (resp[ERR_CODE] == ENONE)
+						{
+							if (i == removeData.length - 1)
+							{
+								closeLoading();
+								showToast(successStr);
+	
+								typeof callback == "function" && callback();
+	
+								deviceListDataGet();
+							}
+						}
+						else
+						{
+							errHandle(resp[ERR_CODE]);
+						}
+					}, false);
+				}
+			}
+			else
+			{
+				var dataObj = forbidDeviceTable.data[indexStr];
+				dataObj.blocked = uciHostsInfo.optValue.isBlocked.no;
+				
+				var data = {
+					"hosts_info":
+					{
+						"set_block_flag":
+						{
+							"mac":dataObj.mac,
+							"is_blocked":dataObj.blocked,
+							"name":dataObj.name,
+							"down_limit":dataObj.downLimit,
+							"up_limit": dataObj.upLimit
+						}
+					}
+				};
+
+				$.action(data, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						showToast(label.unforbidSuccess);
+						deviceListDataGet();
+					}
+				});
+			}
+		}
+
+		function forbidDevice(index, dataObj){
+			var data;
+
+			if (slp.macFilterSupport)
+			{
+				if (oldPolicy == MAC_FILTER_BLACK_LIST)
+				{
+					data = {};
+					data[uciCustomNetwork.fileName] = {};
+					data[uciCustomNetwork.fileName][KEY_TABLE]= uciCustomNetwork.dynData.macFilterBlackEntry;
+					data[uciCustomNetwork.fileName][KEY_NAME] = "black_" + dataObj.mac.replace(/-/g, "").toLowerCase();
+					data[uciCustomNetwork.fileName][KEY_PARA] = {
+						hostname: dataObj.name,
+						mac: dataObj.mac,
+						enable: "on",
+						owner: uciCustomNetwork.optValue.owner.web
+					};
+
+					showLoading();
+					$.add(data, function(resp){
+						if (resp[ERR_CODE] == ENONE)
+						{
+							closeLoading();
+							showToast(label.forbidSuccess);
+							deviceListDataGet();
+						}
+						else
+						{
+							errHandle(resp[ERR_CODE]);
+						}
+					});
+				}
+				else if (oldPolicy == MAC_FILTER_WHITE_LIST)
+				{
+					data = {};
+					data[uciCustomNetwork.fileName] = {};
+					data[uciCustomNetwork.fileName][KEY_NAME] = "white_" + item.mac.replace(/-/g, "").toLowerCase();
+
+					showLoading();
+					$.del(data, function(resp){
+						if (resp[ERR_CODE] == ENONE)
+						{
+							closeLoading();
+							showToast(label.forbidSuccess);
+							deviceListDataGet();
+						}
+						else
+						{
+							errHandle(resp[ERR_CODE]);
+						}
+					});
+				}
+			}
+			else
+			{
+				dataObj.blocked = uciHostsInfo.optValue.isBlocked.yes;
+	
+				data = {
+					"hosts_info":{
+						"set_block_flag":{
+							"mac":dataObj.mac,
+							"is_blocked":dataObj.blocked,
+							"name":dataObj.name,
+							"down_limit":dataObj.downLimit,
+							"up_limit": dataObj.upLimit
+						}
+					}
+				}
+	
+				$.action(data, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						showToast(label.forbidSuccess);
+					}
+					deviceListDataGet();
+				});
+
+			}
+		}
+
+		/* 判断是否在黑名单列表里 */
+		function isInBl(tmpMac)
+		{
+			if (blArray.length == 0)
+			{
+				return false;
+			}
+
+			for (var i = 0; i < blArray.length; i++)
+			{
+				if (tmpMac.toUpperCase() == blArray[i]["mac"].toUpperCase())
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/* 判断是否在白名单列表里
+		 * isAndlink是否需要判断设备是andlink协议下发的白名单设备
+		 */
+		 function isInWl(tmpMac, isAndlink)
+		{
+			if (wlArray.length == 0)
+			{
+				return false;
+			}
+
+			for (var i = 0; i < wlArray.length; i++)
+			{
+				if (tmpMac.toUpperCase() == wlArray[i]["mac"].toUpperCase())
+				{
+					if (isAndlink)
+					{
+						if (wlArray[i]["owner"] == uciCustomNetwork.optValue.owner.andlink)
+						{
+							return true;
+						}
+					}
+					else
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/* 添加黑名单设备 */
+		function addBl(callback)
+		{
+			var data;
+			for (var i = 0; i < checkedOnlineDevList.length; i++)
+			{
+				item = checkedOnlineDevList[i];
+
+				data = {};
+				data[uciCustomNetwork.fileName] = {};
+				data[uciCustomNetwork.fileName][KEY_TABLE]= uciCustomNetwork.dynData.macFilterBlackEntry;
+				data[uciCustomNetwork.fileName][KEY_NAME] = "black_" + item.mac.replace(/-/g, "").toLowerCase();
+				data[uciCustomNetwork.fileName][KEY_PARA] = {
+					hostname: item.hostname,
+					mac: item.mac,
+					enable: item.enable,
+					owner: uciCustomNetwork.optValue.owner.web
+				};
+
+				if (i == 0)
+				{
+					showLoading();
+				}
+
+				/* 添加一个成功后再继续添加下一个所以使用同步 */
+				$.add(data, function(resp){
+					if (resp[ERR_CODE] == ENONE)
+					{
+						if (i == checkedOnlineDevList.length - 1)
+						{
+							showToast(label.addSuccess);
+
+							deviceListDataGet();
+						}
+					}
+					else
+					{
+						errHandle(resp[ERR_CODE]);
+					}
+
+					closeLoading();
+					typeof callback == "function" && callback();
+				}, false);
+			}
+		}
+		
+		/* 添加白名单设备 */
+		function addWl(callback)
+		{
+			var data;
+
+			if (checkedOnlineDevList.length == 0)
+			{
+				typeof callback == "function" && callback();
+				return;
+			}
+
+			for (var i = 0; i < checkedOnlineDevList.length; i++)
+			{
+				item = checkedOnlineDevList[i];
+
+				data = {};
+				data[uciCustomNetwork.fileName] = {};
+				data[uciCustomNetwork.fileName][KEY_TABLE]= uciCustomNetwork.dynData.macFilterWhiteEntry;
+				data[uciCustomNetwork.fileName][KEY_NAME] = "white_" + item.mac.replace(/-/g, "").toLowerCase();
+				data[uciCustomNetwork.fileName][KEY_PARA] = {
+					hostname: item.hostname,
+					mac: item.mac,
+					enable: item.enable,
+					owner: uciCustomNetwork.optValue.owner.web
+				};
+
+				if (i == 0)
+				{
+					showLoading();
+				}
+
+				/* 添加一个成功后再继续添加下一个所以使用同步 */
+				$.add(data, function(resp){
+					if (resp[ERR_CODE] == ENONE)
+					{
+						if (i == checkedOnlineDevList.length - 1)
+						{
+							showToast(label.addSuccess);
+
+							deviceListDataGet();
+						}
+					}
+					else
+					{
+						errHandle(resp[ERR_CODE]);
+					}
+
+					closeLoading();
+					typeof callback == "function" && callback();
+				}, false);
+			}
+		}
+
+		/* 弹出在线设备列表 */
+		function showOnlineDevList(type, isRefresh)
+		{
+			var data = {};
+			data[uciHostsInfo.fileName] = {};
+			data[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.online_host;
+
+			$.query(data, function(resp){
+				var listData = formatTableData(resp[uciHostsInfo.fileName][uciHostsInfo.dynData.online_host]);
+				var localDevice;
+
+				for(var i = 0; i < listData.length; i++)
+				{
+					/* 主机名为空时改为匿名主机 */
+					listData[i].hostname = listData[i].hostname == "" ? label.anonymousHost : listData[i].hostname;
+					
+					if (listData[i].mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+					{
+						localDevice = listData[i];
+						listData.splice(i, 1);
+					}
+				}
+				
+				/* 将本机置顶并禁止选中 */
+				if (localDevice)
+				{
+					localDevice.checkboxDisabled = true;
+					localDevice.checkboxDisabledChecked = type == ADD_ONLINE_DEV_TO_BLACK_LIST ? false : true;
+					listData.push(localDevice);
+				}
+
+				dialogs[type].table.setDataSource(listData);
+				dialogs[type].table.loadData(1);
+
+				if (!isRefresh)
+				{
+					dialogs[type].dialog.show();
+				}
+			});
+		}
+
+		/* 弹出被阻止连接设备列表 */
+		function showBlockedDevList(isRefresh)
+		{
+			var type = ADD_BLOCKED_DEV_TO_WHITE_LIST;
+
+			var data = {};
+			data[uciCustomNetwork.fileName] = {};
+			data[uciCustomNetwork.fileName][KEY_TABLE] = uciCustomNetwork.dynData.macFilterWhiteBlockList;
+
+			$.query(data, function (resp){
+				if (resp[ERR_CODE] == ENONE){
+					if ((resp[uciCustomNetwork.fileName] == null) ||
+						(resp[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterWhiteBlockList] == null))
+					{
+						return;
+					}
+
+					var listData = formatTableData(resp[uciCustomNetwork.fileName][uciCustomNetwork.dynData.macFilterWhiteBlockList]);
+					listData.forEach(function(item, index){
+						item.hostname = item.ssid;
+					});
+
+					dialogs[type].table.setDataSource(listData);
+					dialogs[type].table.loadData(1);
+
+					if (!isRefresh)
+					{
+						dialogs[type].dialog.show();
+					}
+				}
+				else
+				{
+					errHandle(resp[ERR_CODE]);
+				}
+			});
+		}
+
+		function refreshOnlineDevTable(type)
+		{
+			showOnlineDevList(type, true);
+		}
+
+		function refreshBlockedDevTable()
+		{
+			showBlockedDevList(true);
+		}
+
+		function initDialog(type)
+		{
+			var tableId, titleStr, contentStr;
+
+			if (type == ADD_ONLINE_DEV_TO_BLACK_LIST)
+			{
+				idPrefix = "addOnlineDevToBlackList";
+				tableId = "addOnlineDevToBlackListTable";
+				titleStr = label.addBlackListDev;
+				contentStr = '<div id="' + tableId + '"></div>';
+			}
+			else if (type == ADD_ONLINE_DEV_TO_WHITE_LIST)
+			{
+				idPrefix = "addOnlineDevToWhiteList";
+				tableId = "addOnlineDevToWhiteListTable";
+				titleStr = label.addWhiteListDev;
+				contentStr = '<div class="dialogHeadTips">{%label.addOnlineDevToWhiteListTips%}</div><div id="' + tableId + '"></div>';
+			}
+			else
+			{
+				idPrefix = "addBlockedDevToWhiteList";
+				tableId = "addBlockedDevToWhiteListTable";
+				titleStr = label.addWhiteListDev;
+				contentStr = '<div class="dialogHeadTips">{%label.addBlockedDevToWhiteListTips%}</div><div id="' + tableId + '"></div>';
+			}
+			tableId = idPrefix + "Table";
+			cancelBtnId = idPrefix + "Cancel";
+			confirmBtnId = idPrefix + "Confirm";
+
+			dialogs[type].dialog = new Dialog({
+				title: titleStr,
+				content: contentStr,
+				size: component.Dialog.SIZE.MEDIUM,
+				type: component.Dialog.TYPE.CUSTOM,
+				hasCloseIcon: true,
+				bottom: [
+					{
+						type:component.Button.TYPE.SECONDARY,
+						text:btn.cancelTip,
+						id: cancelBtnId,
+						onClick: function(){
+							if (type == ADD_ONLINE_DEV_TO_WHITE_LIST)
+							{
+								id("modeSel").changeSel(oldPolicy);
+							}
+
+							dialogs[type].dialog.hide();
+						}
+					},
+					{
+						type:component.Button.TYPE.PRIMARY,
+						text:btn.confirmTip,
+						id: confirmBtnId,
+						onClick: function(){
+							var checkedDataIndex = dialogs[type].table._getSelectItem().selArrStr.split("-");
+
+							if (checkedDataIndex.length == 1 && checkedDataIndex[0] == "")
+							{
+								dialogs[type].dialog.hide();
+								return;
+							}
+
+							checkedOnlineDevList = [];
+							for (var i = 0; i < checkedDataIndex.length; i++)
+							{
+								var index = checkedDataIndex[i];
+								var checkedDataItem = dialogs[type].table.data[index];
+								if ((type == ADD_ONLINE_DEV_TO_BLACK_LIST && !isInBl(checkedDataItem.mac)) ||
+									((type == ADD_ONLINE_DEV_TO_WHITE_LIST || type == ADD_BLOCKED_DEV_TO_WHITE_LIST) && !isInWl(checkedDataItem.mac)))
+								{
+									checkedOnlineDevList.push({
+										hostname: checkedDataItem.hostname,
+										mac: checkedDataItem.mac,
+										enable: "on"
+									});
+								}
+							}
+
+							dialogs[type].dialog.hide();
+
+							if (type == ADD_ONLINE_DEV_TO_BLACK_LIST)
+							{
+								addBl();
+							}
+							else if (type == ADD_ONLINE_DEV_TO_WHITE_LIST)
+							{
+								addWl(function(){
+									sendRadioChangeData("on", MAC_FILTER_WHITE_LIST);
+								})
+							}
+							else
+							{
+								addWl();
+							}
+						}
+					}
+				],
+				renderCallBack: function(){
+					dialogs[type].table = new Table({
+						targetId: tableId,
+						head:[
+							{field:label.deviceName, width:"0.55"},
+							{field:label.mac, width:"0.45"}
+						],
+						column:[
+							{
+								name: "hostname",
+								type:"str",
+								onRender: function(data, str){
+									if (g_cur_host_mac != undefined && data.mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+									{
+										return ('<span style="color:#FF3366;margin-right:2px;">[' + label.bHost + ']</span>' + str);
+									}
+									else
+									{
+										return str;
+									}
+								}
+							},
+							{
+								name: "mac",
+								type:"str"
+							}
+						],
+						hasCheckBox: true,
+						editable:false,
+						addable:false,
+						deletable:false,
+						tableOption:[
+							{
+								icon:"icon-refresh",
+								type: "refresh",
+								str: btn.refresh,
+								func:function(){
+									if (type == ADD_ONLINE_DEV_TO_BLACK_LIST || type == ADD_ONLINE_DEV_TO_WHITE_LIST)
+									{
+										refreshOnlineDevTable(type);
+									}
+									else
+									{
+										refreshBlockedDevTable();
+									}
+									
+								},
+								selRelate: false
+							}
+						],
+						numPerPage: 8
+					});
+				}
+			});
+		}
+
+		/* 手动添加黑白名单条目 */
+		function addDevByManual(mode, data, index, saveHandle)
+		{
+			isEditing = false;
+
+			/* 禁止添加本机到黑名单 */
+			if (oldPolicy == MAC_FILTER_BLACK_LIST && data.mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+			{
+				alarmDialog.show({
+					content: label.forbidAddCurHostToBlackList
+				});
+				saveHandle();
+				return;
+			}
+
+			checkedOnlineDevList = [
+				{
+					hostname: data.name,
+					mac: data.mac,
+					enable: "on"
+				}
+			];
+
+			if (oldPolicy == MAC_FILTER_BLACK_LIST)
+			{
+				addBl(saveHandle);
+			}
+			else
+			{
+				addWl(saveHandle);
+			}
+		}
+
+		/* 初始化禁用/黑/白名单列表 */
+		function initForbidTable()
+		{
+			id("forbidDeviceTable").innerHTML = "";
+
+			if (slp.macFilterSupport)
+			{
+				if (oldPolicy == MAC_FILTER_OFF)
+				{
+					return;
+				}
+				else if (oldPolicy == MAC_FILTER_BLACK_LIST)
+				{
+					titleStr = label.blackListTitle;
+					delStr = btn.releaseSel;
+					clickListDelIcon = "icon-liftaban";
+					clickListDelStr = btn.unforbid;
+				}
+				else if (oldPolicy == MAC_FILTER_WHITE_LIST)
+				{
+					titleStr = label.whiteListTitle;
+					delStr = btn.deleteSel;
+					clickListDelIcon = "icon-delete";
+					clickListDelStr = btn.clear;
+				}
+	
+				forbidDeviceTable = new Table({
+					targetId: "forbidDeviceTable",
+					title: titleStr,
+					hasCheckBox: true,
+					editable: false,
+					deletable: true,
+					addable: true,
+					addOption: {
+						icon: "icon-edit",
+						str: btn.manualAdd
+					},
+					deleteOption: {
+						icon: "icon-liftaban",
+						str: delStr
+					},
+					tableOption:[
+						{
+							icon:"icon-add",
+							type: "add",
+							str: btn.addDevice,
+							func: function(){
+								if (oldPolicy == MAC_FILTER_BLACK_LIST)
+								{
+									type = ADD_ONLINE_DEV_TO_BLACK_LIST
+									showOnlineDevList(type);
+								}
+								else
+								{
+									showBlockedDevList();
+								}
+							},
+							selRelate: false,
+							index: 3
+						}
+					],
+					head: [
+						{field: label.deviceName, width: "0.6"},
+						{field: label.mac, width: "0.4"}
+					],
+					column: [
+						{
+							name: "name",
+							type: "str",
+							isAllowBlank: false,
+							isAllowAllSpace: false,
+							onRender: function(data, str){
+								if (g_cur_host_mac != undefined && data.mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+								{
+									return ('<span style="color:#FF3366;margin-right:2px;">[' + label.bHost + ']</span>' + str);
+								}
+								else
+								{
+									return str;
+								}
+							}
+						},
+						{
+							name: "mac",
+							type: "mac"
+						}
+					],
+					clickList: {
+						click_del_item: {
+							icon: clickListDelIcon,
+							str: clickListDelStr,
+							func: function(indexStr, delHandle){
+								if (oldPolicy == MAC_FILTER_BLACK_LIST)
+								{
+									releaseDevice(indexStr, delHandle);
+								}
+								else
+								{
+									var contentStr;
+									var indexArr = indexStr.split("-");
+	
+									if (indexArr.length > 1)
+									{
+										contentStr = label.removeItemsWarn;
+									}
+									else if (indexArr.length == 1 && indexArr[0] != "")
+									{
+										var index = indexArr[0];
+										var name = forbidDeviceTable.data[index].name;
+										contentStr = label.removeItemWarn + '“' + name + '”。';
+									}
+	
+									confirmDialog.show({
+										content: contentStr,
+										callback: function(result){
+											if (result)
+											{
+												releaseDevice(indexStr, delHandle);
+											}
+										}
+									});
+								}
+							},
+							asyn: true,
+							onRender: function(dataObj){
+								if (g_cur_host_mac != undefined && dataObj.mac.toUpperCase() == g_cur_host_mac.toUpperCase())
+								{
+									return false;
+								}
+								else
+								{
+									return true;
+								}
+							}
+						},
+						click_cancel: {
+							func: function(){
+								isEditing = false;
+							}
+						},
+						click_save: {
+							func: addDevByManual,
+							asyn: true
+						},
+						click_add_item: {
+							func: function(addHandle){
+								isEditing = true;
+								addHandle(true);
+							},
+							asyn: true
+						},
+						click_check: {
+							func: function(isSel, isSelAll){
+								isEditing = isSel;
+							}
+						}
+					},
+					/* 添加全选框回调，用于全选时设置编辑状态，防止表格被刷新，勾选状态重置 */
+					allCheckCallback: function(isSel){
+						isEditing = isSel;
+					}
+				});
+			}
+			else
+			{
+				forbidDeviceTable = new Table({
+					targetId: "forbidDeviceTable",
+					hasCheckBox: false,
+					tableOptionShow: false,
+					editable: false,
+					deletable: true,
+					addable: false,
+					head:[
+						{field: label.deviceName, width: "1"}
+					],
+					column:[
+						{
+							name: "basicInfo",
+							type: "deviceBasicInfo",
+							onClick: function(){
+								isEditing = true;
+							},
+							onSave: saveDeviceName
+						}
+					],
+					type: Table.TYPE.DEVICE,
+					clickList: {
+						click_del_item: {
+							icon: "icon-liftaban",
+							str: btn.unforbid,
+							func: releaseDevice,
+							asyn: true
+						}
+					}
+				});
+			}
+
+			menuList[isGuestOpen ? 2 : 1].table = forbidDeviceTable;
+		}
+
+		function sendRadioChangeData(enable, newPolicy)
+		{
+			showLoading(statusStr.waiting, undefined, undefined, false);
+
+			var data = {};
+			var macFilterCfg = {
+				enable: enable,
+				owner: uciCustomNetwork.optValue.owner.web
+			};
+
+			if (enable == "on") {
+				macFilterCfg.policy = newPolicy;
+
+				if (wlanAccessEnable)
+				{
+					data[uciWlanAccess.fileName] = {};
+					data[uciWlanAccess.fileName][uciWlanAccess.optName.config] = {};
+					data[uciWlanAccess.fileName][uciWlanAccess.optName.config][uciWlanAccess.optName.enable] = 0;
+				}
+			}
+
+			data[uciCustomNetwork.fileName] = {};
+			data[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig] = macFilterCfg;
+
+			$.modify(data, function(resp){
+				if (resp.error_code == ENONE) {
+					oldPolicy = newPolicy;
+
+					if (newPolicy == MAC_FILTER_OFF)
+					{
+						/* 移动定制需求，关闭黑白名单时清空黑白名单列表 */
+						var delData = {};
+						delData[uciCustomNetwork.fileName] = {};
+						delData[uciCustomNetwork.fileName][KEY_TABLE] = ["mac_filter_black_entry", "mac_filter_white_entry"];
+
+						$.del(delData, function(delResp){
+							if (delResp.error_code == ENONE)
+							{
+								$("#forbidDeviceTable").hide();
+							}
+						});
+					}
+					else
+					{
+						initForbidTable();
+						deviceListDataGet();
+						$("#forbidDeviceTable").show();
+					}
+
+					closeLoading();
+				}
+			});
+		}
+
+		function handleBeforChangePolicy(enable, newPolicy)
+		{
+			/* 切换为黑名单，则查询本机是否在黑名单中
+			* 切换为白名单，则弹窗选择已连接设备加入白名单
+			* 切换为关闭，则隐藏黑白名单列表
+			*/
+			if (newPolicy == MAC_FILTER_BLACK_LIST)
+			{
+				if (isInBl(g_cur_host_mac.toUpperCase()))
+				{
+					var curHost;
+					for(var i = 0; i < blArray.length; i++)
+					{
+						if (g_cur_host_mac.toUpperCase() == blArray[i].mac.toUpperCase())
+						{
+							curHost = blArray[i];
+							break;
+						}
+					}
+
+					alarmDialog.show({
+						content: label.checkCurHost + curHost.hostname + label.curHostInBlackList,
+						hasCloseIcon: false,
+						callback: function(){
+							var data = {};
+							data[uciCustomNetwork.fileName] = {};
+							data[uciCustomNetwork.fileName][KEY_NAME] = "black_" + g_cur_host_mac.replace(/-/g, "").toLowerCase();
+			
+							showLoading();
+							$.del(data, function(resp){
+								if (resp[ERR_CODE] == ENONE)
+								{
+									closeLoading();
+									sendRadioChangeData(enable, newPolicy);
+								}
+								else
+								{
+									errHandle(resp[ERR_CODE]);
+								}
+							});
+						}
+					})
+				}
+				else
+				{
+					sendRadioChangeData(enable, newPolicy);
+				}
+			}
+			else if (newPolicy == MAC_FILTER_WHITE_LIST)
+			{
+				showOnlineDevList(ADD_ONLINE_DEV_TO_WHITE_LIST);
+			}
+			else
+			{
+				sendRadioChangeData(enable, newPolicy);
+			}
+		}
+
+		/* 切换黑/白名单模式 */
+		function modeSelHandle(value)
+		{
+			var enable;
+			var newPolicy;
+			var confirmStr;
+			var titleStr;
+
+			newPolicy = value;
+			if (value == MAC_FILTER_OFF)
+			{
+				enable = "off";
+			}
+			else
+			{
+				enable = "on";
+			}
+
+			if (newPolicy == oldPolicy) {
+				return;
+			}
+
+			/* 主人网络保护启用下，开启黑白名单需提示主人网络保护关闭 */
+			if (oldPolicy == MAC_FILTER_OFF)
+			{
+				var data = {};
+				data[uciWlanAccess.fileName] = {}
+				data[uciWlanAccess.fileName][KEY_NAME] = uciWlanAccess.optName.config;
+
+				$.query(data, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						wlanAccessEnable = parseInt(result[uciWlanAccess.fileName][uciWlanAccess.optName.config][uciWlanAccess.optName.enable]);
+
+						if (wlanAccessEnable)
+						{
+							if (newPolicy == MAC_FILTER_BLACK_LIST) {
+								confirmStr = label.WACSwitchToBlackList;
+							} else if (newPolicy = MAC_FILTER_WHITE_LIST) {
+								confirmStr = label.WACSwitchToWhiteList;
+							}
+
+							confirmDialog.show({
+								content: confirmStr,
+								callback: function(result){
+									if (result)
+									{
+										handleBeforChangePolicy(enable, newPolicy)
+									}
+									else // 取消则恢复原勾选状态
+									{
+										id("modeSel").changeSel(oldPolicy);
+									}
+								}
+							});
+						}
+						else
+						{
+							handleBeforChangePolicy(enable, newPolicy)
+						}
+					}
+				});
+			}
+			else
+			{
+				handleBeforChangePolicy(enable, newPolicy);
+			}
+		}
+
+		function initPage(){
+			var data = {}, isSupportGuest5G = false, isSupportHNat = false;
+
+			data[uciGuestNet.fileName] = {};
+			data[uciGuestNet.fileName][KEY_NAME] = [uciGuestNet.secName.wireless2G];
+
+			/* IF SUPPORT 5G */
+			if (slp.moduleSpec.guest5g != undefined && 1 == slp.moduleSpec.guest5g)
+			{
+				data[uciGuestNet.fileName][KEY_NAME].push(uciGuestNet.secName.wireless5G);
+				isSupportGuest5G = true;
+			}
+
+			/* IF MESH, GET CAP'S NAME */
+			if (slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				data[uciProto.fileName] = {};
+				data[uciProto.fileName][KEY_NAME] = uciProto.secName.dhcp;
+			}
+
+			/* IF SUPPORT, GET THE STATUS */
+			if (slp.moduleSpec["hnat"] == 1)
+			{
+				data[uciHNat.fileName] = {}
+				data[uciHNat.fileName][KEY_NAME] = uciHNat.secName.main;
+				isSupportHNat = true;
+			}
+
+			/* IF SUPPORT, GET THE STATUS */
+			if (slp.macFilterSupport)
+			{
+				data[uciCustomNetwork.fileName] = {}
+				data[uciCustomNetwork.fileName][KEY_NAME] = uciCustomNetwork.dynData.macFilterConfig;
+			}
+
+			$.query(data, function(res){
+				if (res[ERR_CODE] == ENONE &&(
+					res[uciGuestNet.fileName][uciGuestNet.secName.wireless2G][uciGuestNet.optName.enable] == uciGuestNet.optValue.enable.yes ||
+					(isSupportGuest5G && res[uciGuestNet.fileName][uciGuestNet.secName.wireless5G][uciGuestNet.optName.enable] == uciGuestNet.optValue.enable.yes)))
+				{
+					isGuestOpen = true;
+				}
+
+				if (isSupportHNat && res[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] == uciHNat.optValue.enable.on)
+				{
+					isHNatOpen = true;
+				}
+
+				if (slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					capName = res[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName];
+				}
+
+				/* 支持黑白名单则显示黑白名单Tab，不支持黑白名单则显示禁用设备Tab */
+				if (!slp.macFilterSupport)
+				{
+					menuList.splice(3, 1);
+				}
+				else
+				{
+					menuList.splice(2, 1);
+				}
+
+				/* 是否启用访客网络 */
+				if (!isGuestOpen)
+				{
+					menuList.splice(1, 1);
+				}
+
+				tabInitOptions = {targetId: "deviceListTabCon"};
+				tabInitOptions.list = [];
+
+				for (var i = 0; i < menuList.length; i++)
+				{
+					tabInitOptions.list[i] = {
+						name: menuList[i].tabName,
+						contentId: menuList[i].tableId,
+						onClick: deviceTabClick
+					}
+				}
+
+				var hostDeviceOption = {
+					targetId: "hostDeviceTable",
+					hasCheckBox: false,
+					editable: false,
+					deletable: false,
+					addable: false,
+					head:[
+						{field: label.deviceName, width: "0.48"},
+						{field: label.deviceLinkType, width: "0.28"},
+						{field: label.deviceSpeedLimit, width: "0.14"},
+						{field: label.deviceForbid, width: "0.1"}
+					],
+					column:[
+						{name: "basicInfo", type: "deviceBasicInfo",
+							onClick: function(){
+								isEditing = true;
+							}, onSave: saveDeviceName},
+						{name: "linkType", type: "deviceLinkType"},
+						{name: "netSpeedLimit", type: "deviceSpeedLimit",
+							onClick: function(callback){
+								isEditing = true;
+
+								if (isHNatOpen)
+								{
+									callback(false);
+									confirmDialog.show({
+										content: label.hNatCloseForSpeedLimitConfirm,
+										callback: function(result){
+											if (result)
+											{
+												var reqData = {};
+												reqData[uciHNat.fileName] = {};
+												reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+												reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] =
+													uciHNat.optValue.enable.off;
+
+												$.modify(reqData, function(res){
+													if (res[ERR_CODE] == ENONE)
+													{
+														showToast(label.hNatClosed);
+														isHNatOpen = false;
+
+														clearTimeout(refreshDataHandle);
+														refreshDataHandle = null;
+
+														hostDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+														hostDeviceOption.head[1].width = "0.14";
+														hostDeviceOption.column.splice(2, 0,
+															{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+
+														id("hostDeviceTable").innerHTML = "";
+														hostDeviceTable = new Table(hostDeviceOption);
+														menuList[0].table = hostDeviceTable;
+
+														if (isGuestOpen)
+														{
+															guestDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+															guestDeviceOption.head[1].width = "0.14";
+															guestDeviceOption.column.splice(2, 0,
+																{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+															id("guestDeviceTable").innerHTML = "";
+															guestDeviceTable = new Table(guestDeviceOption);
+															menuList[1].table = guestDeviceTable;
+														}
+													}
+													isEditing = false;
+													deviceListDataGet();
+												});
+											}
+											else
+											{
+												isEditing = false;
+											}
+										}
+									});
+								}
+								else
+								{
+									callback(true);
+								}
+						}, onSave: saveDeviceSpeedLimit},
+						{name: "forbid", type: "button", options:{
+							onRender: function(dataObj){
+								if (slp.macFilterSupport)
+								{
+									/* 移动定制 协议下发的白名单设备不能删除 */
+									if (oldPolicy == MAC_FILTER_WHITE_LIST && isInWl(dataObj.mac, true))
+									{
+										return false;
+									}
+
+									/* 黑白名单关闭时或条目为主人设备，不可禁用 */
+									if (oldPolicy != MAC_FILTER_OFF && dataObj.isCurHost == "0")
+									{
+										return true;
+									}
+								}
+								else
+								{
+									if (dataObj.isCurHost == "0")
+									{
+										return true;
+									}
+								}
+							},
+							icon: "icon-forbidden",
+							type: "forbid",
+							str: btn.disable,
+							onClick: forbidDevice
+						}}
+					],
+					type: Table.TYPE.DEVICE
+				}
+
+				if (!isHNatOpen)
+				{
+					hostDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+					hostDeviceOption.head[1].width = "0.14";
+					hostDeviceOption.column.splice(2, 0,
+						{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+				}
+
+				hostDeviceTable = new Table(hostDeviceOption);
+
+				menuList[0].table = hostDeviceTable;
+				menuList[0].deviceLinkTypeArray = [
+					{str: label.allLinkType, value: -1},
+					{str: label.wirelessNet2G, value: 1}
+				];
+
+				if (slp.bandsProvided == slp.DOUBLE)
+				{
+					menuList[0].deviceLinkTypeArray.push({str: label.wirelessNet5G, value: 2});
+				}
+				else if (slp.bandsProvided == slp.TRIPLE)
+				{
+					menuList[0].deviceLinkTypeArray.push({str: label.wirelessNet5G1, value: 3});
+					menuList[0].deviceLinkTypeArray.push({str: label.wirelessNet5G2, value: 4});
+				}
+
+				menuList[0].deviceLinkTypeArray.push({str: label.inetLink, value: 0});
+
+				if (isGuestOpen){
+					var guestDeviceOption = {
+						targetId: "guestDeviceTable",
+						hasCheckBox: false,
+						editable: false,
+						deletable: false,
+						addable: false,
+						head:[
+							{field: label.deviceName, width: "0.48"},
+							{field: label.deviceLinkType, width: "0.28"},
+							{field: label.deviceSpeedLimit, width: "0.14"},
+							{field: label.deviceForbid, width: "0.1"}
+						],
+						column:[
+							{name: "basicInfo", type: "deviceBasicInfo",
+								onClick: function(){
+									isEditing = true;
+								}, onSave: saveDeviceName},
+							{name: "linkType", type: "deviceLinkType"},
+							{name: "netSpeedLimit", type: "deviceSpeedLimit",
+								onClick: function(callback){
+									isEditing = true;
+
+									if (isHNatOpen)
+									{
+										callback(false);
+										confirmDialog.show({
+											content: label.hNatCloseForSpeedLimitConfirm,
+											callback: function(result){
+												if (result)
+												{
+													var reqData = {};
+													reqData[uciHNat.fileName] = {};
+													reqData[uciHNat.fileName][uciHNat.secName.main] = {};
+													reqData[uciHNat.fileName][uciHNat.secName.main][uciHNat.optName.enable] =
+														uciHNat.optValue.enable.off;
+
+													$.modify(reqData, function(res){
+														if (res[ERR_CODE] == ENONE)
+														{
+															showToast(label.hNatClosed);
+															isHNatOpen = false;
+
+															clearTimeout(refreshDataHandle);
+															refreshDataHandle = null;
+
+															hostDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+															hostDeviceOption.head[1].width = "0.14";
+															hostDeviceOption.column.splice(2, 0,
+																{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+
+															id("hostDeviceTable").innerHTML = "";
+															hostDeviceTable = new Table(hostDeviceOption);
+															menuList[0].table = hostDeviceTable;
+
+															guestDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+															guestDeviceOption.head[1].width = "0.14";
+															guestDeviceOption.column.splice(2, 0,
+																{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+															id("guestDeviceTable").innerHTML = "";
+															guestDeviceTable = new Table(guestDeviceOption);
+															menuList[1].table = guestDeviceTable;
+														}
+
+														isEditing = false;
+														deviceListDataGet();
+													});
+												}
+												else
+												{
+													isEditing = false;
+												}
+											}
+										});
+									}
+									else
+									{
+										callback(true);
+									}
+							}, onSave: saveDeviceSpeedLimit},
+							{name: "forbid", type: "button", options:{
+								onRender: function(dataObj){
+									return dataObj.isCurHost == "0";
+								},
+								icon: "icon-forbidden",
+								type: "forbid",
+								str: btn.disable,
+								onClick: forbidDevice
+							}}
+						],
+						type: Table.TYPE.DEVICE
+					}
+
+					if (!isHNatOpen)
+					{
+						guestDeviceOption.head.splice(2, 0, {field: label.deviceNetSpeed, width: "0.14"});
+						guestDeviceOption.head[1].width = "0.14";
+						guestDeviceOption.column.splice(2, 0,
+							{name: "netSpeed", type: "deviceSpeed", onTrans: netSpeedTrans});
+					}
+
+					guestDeviceTable = new Table(guestDeviceOption);
+					menuList[1].table = guestDeviceTable;
+
+					if (isSupportGuest5G)
+					{
+						menuList[1].deviceLinkTypeArray = [
+							{str: label.allLinkType, value: -1},
+							{str: label.wirelessNet2G, value: 1},
+							{str: label.wirelessNet5G, value: 2}
+						];
+					}
+				}
+
+				if (slp.macFilterSupport)
+				{
+					var titleStr;
+					var policy = res[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig][uciCustomNetwork.optName.policy];
+					var enable = res[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig][uciCustomNetwork.optName.enable];
+					owner = res[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig][uciCustomNetwork.optName.owner];
+
+					if (enable == "on")
+					{
+						oldPolicy = policy;
+					}
+					else
+					{
+						oldPolicy = MAC_FILTER_OFF;
+					}
+				}
+				
+				initForbidTable();
+
+				selectInit("deviceLinkTypeSel", [{str:label.allLinkType, value:-1}], -1, function(){
+					deviceListDataGet();
+				});
+
+				if (slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					var $con = ('<ul class="inputCMPT medium selectUl" id="routerSelCon">' +
+									'<li class="inputLi">'	+
+										'<span class="selectWrap">'	+
+											'<span id="routerSel" class="select">' 	+
+												'<span class="value"></span>'	+
+												'<i class="arrow iconfont icon-folddropdown"></i>'	+
+											'</span>'	+
+										'</span>'	+
+									'</li>'	+
+								'</ul>');
+					$("#deviceLinkTypeSelCon").after($con);
+
+					selectInit("routerSel", routerselOptions, -1, function(idx){
+						routerSelectCurIdx = idx;
+						deviceListDataGet();
+					}, undefined, {unlimitOptionsHigh : true});
+				}
+
+				/* 黑白名单模式切换下拉框 */
+				if (slp.macFilterSupport)
+				{
+					var $con = ('<ul class="inputCMPT medium" id="modeSelCon">' +
+									'<label class="outerLbl">{%label.currentMode%}</label>' +
+									'<li class="inputLi">'	+
+										'<span class="selectWrap">'	+
+											'<span id="modeSel" class="select">' 	+
+												'<span class="value"></span>'	+
+												'<i class="arrow iconfont icon-folddropdown"></i>'	+
+											'</span>'	+
+										'</span>'	+
+									'</li>'	+
+								'</ul>');
+					$(".selectCon").append($con);
+
+					selectInit("modeSel", modeSelOptions, oldPolicy, modeSelHandle);
+
+					initDialog(ADD_ONLINE_DEV_TO_BLACK_LIST);
+					initDialog(ADD_ONLINE_DEV_TO_WHITE_LIST);
+					initDialog(ADD_BLOCKED_DEV_TO_WHITE_LIST);
+				}
+
+				deviceListTab = new Tab(tabInitOptions);
+			});
+		}
+
+		advanceAutoFit();
+		$("#deviceListBack").click(function(){loadPage("Home.htm", "content");});
+		initPage();
+	})();
+</script>
+<style type="text/css">
+	#deviceListWrapper{
+		width: 1000px;
+		margin: 0 auto;
+		position: relative;
+	}
+	div.deviceListWrapperHead{
+		height: 40px;
+	}
+	#deviceListBack{
+		display: block;
+		color: #333333;
+		font-size: 13px;
+		cursor: pointer;
+		line-height: 40px;
+		height: 40px;
+		width: 100px;
+	}
+	div.selectCon{
+		margin-top:8px;
+		margin-bottom:8px;
+		height:32px;
+	}
+	div.selectCon ul.selectUl{
+		margin-left: 8px;
+		display: inline-block;
+		margin-bottom: 0px;
+		float: right;
+	}
+	div.selectCon ul.selectUl li{
+		width: 180px;
+	}
+	div.selectCon ul#modeSelCon label.outerLbl{
+		width: auto;
+	}
+	#deviceListBack i.iconfont{
+		display: inline-block;
+		font-size: 16px;
+		margin-right: 4px;
+		vertical-align: middle;
+	}
+	span.deviceListBackText{
+		vertical-align: middle;
+	}
+	div.head.deviceList{
+		border-bottom-width: 0px;
+		margin-bottom: 16px;
+	}
+	#deviceListTabCon{
+		margin-bottom: 16px;
+	}
+	.dialogHeadTips{
+		line-height: 20px;
+		margin-bottom: 16px;
+		font-size: 13px;
+		color: #333;
+	}
+</style>
+<div id="deviceListWrapper" class="clearfix">
+	<div class="deviceListWrapperHead">
+		<span id="deviceListBack"><i class="iconfont icon-back"></i><span class="deviceListBackText">{%btn.backToHome%}</span></span>
+	</div>
+	<div class="head deviceList">
+		<div class="title"><h1>{%label.deviceList%}</h1></div>
+	</div>
+	<div id="deviceListTabCon"></div>
+	<div class="selectCon">
+		<ul class="inputCMPT medium selectUl" id="deviceLinkTypeSelCon">
+			<li class="inputLi">
+				<span class="selectWrap">
+					<span id="deviceLinkTypeSel" class="select">
+						<span class="value"></span>
+						<i class="arrow iconfont icon-folddropdown"></i>
+					</span>
+				</span>
+			</li>
+		</ul>
+	</div>
+	<div id="deviceTableCon">
+		<div id="hostDeviceTable"></div>
+		<div id="guestDeviceTable"></div>
+		<div id="forbidDeviceTable"></div>
+	</div>
+</div>

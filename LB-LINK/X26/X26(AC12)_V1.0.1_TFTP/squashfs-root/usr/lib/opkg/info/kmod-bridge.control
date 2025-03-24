@@ -1,0 +1,10 @@
+Package: kmod-bridge
+Version: 3.10.108-1
+Depends: kernel (=3.10.108-1-0d4a59d786a0cce4fa81aedaae020f7d), kmod-stp
+Source: package/kernel/linux
+License: GPLv2
+Section: kernel
+Status: unknown hold not-installed
+Architecture: ramips_24kec
+Installed-Size: 188
+Description:  Kernel module for Ethernet bridging.

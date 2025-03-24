@@ -1,0 +1,432 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+function ConfigTuple()
+{
+    this.Path = "";
+    this.Powerlevel = "";
+    this.MaxBitRate = "";
+    this.DTIM = "";
+    this.GuardInterval = "";
+    this.WMMEnable = "";
+    this.UAPSDEnable = "";
+    this.Standard = "";
+    this.RegulatoryDomain = "";
+    this.Channel = "";
+    this.AutoChannelEnable = "";
+    this.ChannelWidth = "";
+    this.PossibleChannels = "";
+    this.ChannelsInUse = "";
+}
+
+function security()
+{
+    this.BeaconType = "";
+    this.WPAEncryptionModes  = "";
+    this.IEEE11iEncryptionModes = "";
+}
+
+var index = 0;
+var ConfigS = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. TransmitPower MaxBitRate DTIM X_CT-COM_GuardInterval WMMEnable UAPSDEnable Standard RegulatoryDomain Channel X_CT-COM_ChannelWidth BeaconInterval RTS_Threshold Fragment_Threshold Maximum_Clients AutoChannelEnable PossibleChannels ChannelsInUse" -->
+    ConfigS[index] = new ConfigTuple();
+    ConfigS[index].Path = "<!--#path -->";
+    ConfigS[index].Powerlevel = "<!--#leaf  "1"-->";
+    ConfigS[index].MaxBitRate = "<!--#leaf  "2"-->";
+    ConfigS[index].DTIM = "<!--#leaf  "3"-->";
+    ConfigS[index].GuardInterval = "<!--#leaf  "4"-->";
+    ConfigS[index].WMMEnable = "<!--#leaf  "5"-->";
+    ConfigS[index].UAPSDEnable = "<!--#leaf  "6"-->";
+    ConfigS[index].Standard = "<!--#leaf  "7"-->";
+    ConfigS[index].RegulatoryDomain = "<!--#leaf  "8"-->";
+    ConfigS[index].Channel = "<!--#leaf  "9"-->";
+    ConfigS[index].ChannelWidth = "<!--#leaf  "10"-->";
+    ConfigS[index].BeaconInterval = "<!--#leaf  "11"-->";
+    ConfigS[index].RThreshold = "<!--#leaf  "12"-->";
+    ConfigS[index].FThreshold = "<!--#leaf  "13"-->";
+    ConfigS[index].MaxClients = "<!--#leaf  "14"-->";
+    ConfigS[index].AutoChannelEnable = "<!--#leaf  "15"-->";
+    ConfigS[index].PossibleChannels = "<!--#leaf  "16"-->";
+    ConfigS[index].ChannelsInUse = "<!--#leaf  "17"-->";
+    index++;
+<!--#endgetobject -->
+
+var G_security = new Array();
+var n = 0;
+//当模式由非N模改变为单独N模时，需将当前的TKIP加密修改为AES加密/WEP加密修改为None加密
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. BeaconType WPAEncryptionModes IEEE11iEncryptionModes" -->
+    G_security[n] = new security();
+    G_security[n].Path = "<!--#path -->";
+    G_security[n].BeaconType = "<!--#leaf  "1"-->";
+    G_security[n].WPAEncryptionModes = "<!--#leaf  "2"-->";
+    G_security[n].IEEE11iEncryptionModes = "<!--#leaf " 3 "-->";
+    n++;
+<!--#endgetobject -->
+
+var SSID_index = 4;
+
+//动态生成下拉框：速率
+function createMaxRateOpt(e)
+{
+	if(e == 'a')
+	{
+		var _text = ['Auto','6 Mbps','9 Mbps','12 Mbps','18 Mbps','24 Mbps','36 Mbps','48 Mbps','54 Mbps'];
+		var _value = ['Auto','6','9','12','18','24','36','48','54'];
+		createOptions('SELECT_Speed',_text,_value);
+	}
+	else if(e=='n')
+       {
+              var _text = ['Auto','MCS0','MCS1','MCS2','MCS3','MCS4','MCS5','MCS6','MCS7','MCS8','MCS9','MCS10','MCS11','MCS12','MCS13','MCS14','MCS15'];
+		var _value = ['Auto','MCS0','MCS1','MCS2','MCS3','MCS4','MCS5','MCS6','MCS7','MCS8','MCS9','MCS10','MCS11','MCS12','MCS13','MCS14','MCS15'];
+		createOptions('SELECT_Speed',_text,_value);
+       }
+	else //11ac , MTK
+	{
+		var _text = ['Auto','MCS0','MCS1','MCS2','MCS3','MCS4','MCS5','MCS6','MCS7','MCS8','MCS9','MCS10','MCS11','MCS12','MCS13','MCS14','MCS15','MCS32'];
+		var _value = ['Auto','MCS0','MCS1','MCS2','MCS3','MCS4','MCS5','MCS6','MCS7','MCS8','MCS9','MCS10','MCS11','MCS12','MCS13','MCS14','MCS15','MCS32'];
+		createOptions('SELECT_Speed',_text,_value);
+	}    
+}
+
+//关联并动态生成下拉框：信道
+function createChannel()
+{
+    var text = [], value = [];
+    var possiblechannels = ConfigS[SSID_index].PossibleChannels;
+    var channrange1 = Array();
+    var i, j;
+
+    text.push('Auto');
+    value.push('0');
+
+    channrange1 = possiblechannels.split(",");
+    for(i = 0; i < channrange1.length; i++)
+    {
+        var channrange2 = Array();
+        channrange2 = channrange1[i].split("-");
+        if(channrange2.length == 2)
+        {
+            for(j = channrange2[0]; j <= channrange2[1]; j++)
+            {
+                text.push(j);
+                value.push(j);
+            }
+        }
+        else
+        {
+            /* AC mode: 20/40, 80M情况下不支持140/165信道配置 */
+            if(($('SELECT_Standard').value.indexOf("ac") == -1
+                    || $('SELECT_Bandwidth').value == "0")
+                    ||(channrange2[0] != 140
+                    && channrange2[0] != 165))
+            {
+                text.push(channrange2[0]);
+                value.push(channrange2[0]);
+            }
+        }
+    }
+
+    createOptions('SELECT_Channel', text, value);
+    if(ConfigS[SSID_index].AutoChannelEnable == "1")
+    {
+        $('SELECT_Channel').value = 0;
+        $('CUR_Channel').value = ConfigS[SSID_index].ChannelsInUse;
+        setDisplay('td_CUR_Channel',1);
+        setDisplay('CUR_Channel',1);
+    } 
+    else
+    {
+        $('SELECT_Channel').value = ConfigS[SSID_index].Channel;
+        setDisplay('td_CUR_Channel',0);
+        setDisplay('CUR_Channel',0);
+    }
+}
+
+function createBandWidthOpt(e,b){
+    var _text = [], _value = [];
+    
+    if(e.indexOf('n') < 0){
+        if(e.indexOf('c') < 0){
+            _text  = ['20/40'];
+            _value = ['2'];
+            $('bandwidth').style.display = 'none';
+        }
+        else
+        {
+             _text  = ['80','20/40', '20'];
+             _value = ['3','2','0'];
+             $('bandwidth').style.display = 'block';
+        }
+    }
+    else if (e.indexOf('n') == 0){
+         _text  = ['20/40', '20'];
+        _value = ['2','0'];
+        $('bandwidth').style.display = 'block';
+    }
+    else {
+        _text  = ['80','20/40', '20'];
+        _value = ['3','2','0'];
+        $('bandwidth').style.display = 'block';
+    }
+    
+    createOptions('SELECT_Bandwidth', _text, _value);
+    
+    if(b){
+        $('SELECT_Bandwidth').value = ConfigS[SSID_index].ChannelWidth;
+    }
+}
+
+function frmLoad()
+{
+    var i = SSID_index;
+    //模式必须先赋值
+    $('SELECT_Standard').value = ConfigS[i].Standard;
+    watchModel(true);
+    //统一赋值
+    setValue("SELECT_Power", ConfigS[i].Powerlevel);
+    setValue("SELECT_Speed", ConfigS[i].MaxBitRate);
+    setValue("INPUT_DTIM", ConfigS[i].DTIM);                                     
+    setValue("INPUT_GIEnabled", ConfigS[i].GuardInterval);                 
+    setValue("INPUT_WMMEnabled", ConfigS[i].WMMEnable);
+    setValue("INPUT_UAPSDEnable", ConfigS[i].UAPSDEnable);                                
+    setValue("INPUT_Isolation", ConfigS[i].Isolation);                                
+    setValue("INPUT_MaxClients", ConfigS[i].MaxClients);                                
+    setValue("INPUT_BeaconInterval", ConfigS[i].BeaconInterval);                                
+    setValue("INPUT_RThreshold", ConfigS[i].RThreshold);                                
+    setValue("INPUT_FThreshold", ConfigS[i].FThreshold);                                
+}
+
+function watchModel(b)
+{
+    //管理模式与速率的关系
+    var Standard  = $('SELECT_Standard').value;
+    
+    createBandWidthOpt(Standard,b);      
+    createMaxRateOpt(Standard);
+    createChannel();
+}
+                                                                                                                                                                 
+function uiSubmit()
+{
+    var patrn=/^([0-9]*)$/;
+    var df = document.network_wladvcfgform;
+
+    RemoveAllChild("network_wladvcfgform");
+
+    if(!isAllNum(getValue('INPUT_DTIM')))
+    { 
+        ErrFocus($('INPUT_DTIM'));
+        return false;
+    }
+    else if (getValue('INPUT_DTIM')<1 || getValue('INPUT_DTIM')>255 )
+    {
+        top.AlertMsg(getStr("LK_DTIMIntervalRange"));
+        ErrFocus($('INPUT_DTIM'));
+        return false;
+    }
+
+    if(!isAllNum(getValue('INPUT_BeaconInterval')))
+    {
+        ErrFocus($('INPUT_BeaconInterval'));
+        return false;
+    } 
+    else if (getValue('INPUT_BeaconInterval')<40 || getValue('INPUT_BeaconInterval')>1000)
+    {
+        top.AlertMsg(getStr("LK_BeaconIntervalRange"));
+        ErrFocus($('INPUT_BeaconInterval'));
+        return false;
+    }
+
+    rtsh = getValue('INPUT_RThreshold');
+    if (rtsh.length <= 0 || !patrn.exec(rtsh))
+    {
+        top.AlertMsg(getStr("LK_RTSThresholdRange"));
+        ErrFocus($('INPUT_RThreshold'));
+        return false;
+    }
+    else if (getValue('INPUT_RThreshold')<0 || getValue('INPUT_RThreshold')>2347)
+    {
+        top.AlertMsg(getStr("LK_RTSThresholdRange"));
+        ErrFocus($('INPUT_RThreshold'));
+        return false;
+    }
+
+    if(!isAllNum(getValue('INPUT_FThreshold'))){
+        ErrFocus($('INPUT_FThreshold'));
+        return false;
+    }
+    else if (getValue('INPUT_FThreshold')<256 || getValue('INPUT_FThreshold')>2346)
+    {
+        top.AlertMsg(getStr("LK_FrgThresholdRange"));
+        ErrFocus($('INPUT_FThreshold'));
+        return false;
+    
+    }
+
+    if(!isAllNum(getValue('INPUT_MaxClients'))){
+        ErrFocus($('INPUT_MaxClients'));
+        return false;
+    }
+    else if (getValue('INPUT_MaxClients')<1 || getValue('INPUT_MaxClients')>32)
+    {
+        top.AlertMsg(getStr("LK_MaxCliRange"));
+        ErrFocus($('INPUT_MaxClients'));
+        return false;
+    }
+
+	if(!validateCode())
+		return false;
+
+    AddElements(df, ConfigS[SSID_index].Path + "Standard", getValue('SELECT_Standard'));
+    AddElements(df, ConfigS[SSID_index].Path + "MaxBitRate", getValue('SELECT_Speed'));
+    AddElements(df, ConfigS[SSID_index].Path + "TransmitPower", getValue('SELECT_Power'));
+    if(getValue('SELECT_Channel') == 0)
+        AddElements(df, ConfigS[SSID_index].Path + "AutoChannelEnable", 1);
+    else
+    {
+        AddElements(df, ConfigS[SSID_index].Path + "AutoChannelEnable", 0);
+        AddElements(df, ConfigS[SSID_index].Path + "Channel", getValue('SELECT_Channel'));
+    }
+    AddElements(df, ConfigS[SSID_index].Path + "X_CT-COM_ChannelWidth", $('SELECT_Bandwidth').value|| '0');
+    AddElements(df, ConfigS[SSID_index].Path + "WMMEnable", getValue('INPUT_WMMEnabled'));
+    AddElements(df, ConfigS[SSID_index].Path + "UAPSDEnable", getValue('INPUT_UAPSDEnable'));
+    AddElements(df, ConfigS[SSID_index].Path + "DTIM", getValue('INPUT_DTIM'));
+    AddElements(df, ConfigS[SSID_index].Path + "X_CT-COM_GuardInterval", getValue('INPUT_GIEnabled'));
+    AddElements(df, ConfigS[SSID_index].Path + "Maximum_Clients", getValue('INPUT_MaxClients'));
+    AddElements(df, ConfigS[SSID_index].Path + "Fragment_Threshold", getValue('INPUT_FThreshold'));
+    AddElements(df, ConfigS[SSID_index].Path + "RTS_Threshold", getValue('INPUT_RThreshold'));
+    AddElements(df, ConfigS[SSID_index].Path + "BeaconInterval", getValue('INPUT_BeaconInterval'));
+
+    df.submit();
+}
+
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());         
+
+}
+</script> 
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_WLAdvConf5g"));</script>
+<form method="get">
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+    <tr style="display:block">
+        <td langkey="LK_Modee" width="150px"></td>
+        <td>
+            <select id="SELECT_Standard" name="SELECT_Standard" onChange="watchModel(true);">
+                <option value="a,n,ac">802.11a/n/ac</option>
+                <option value="ac">802.11ac</option>
+                <option value="n">802.11n</option>
+                <option value="a">802.11a</option> 
+            </select></td>
+     </tr>
+        
+     <tr id="bandwidth"  style="display:block">
+            <td langkey="LK_BandWidth" width="150px"></td>
+            <td>
+                <select id="SELECT_Bandwidth" onChange="createMaxRateOpt($('SELECT_Standard').value);createChannel()">
+                   <!-- <option value="0">0</option> 
+                   <option value="20">20</option>
+                   <option value="40">40</option>-->
+                </select> MHz</td>
+     </tr>
+
+     <tr id="rates" style="display:block">
+        <td langkey="LK_WlRate" width="150px"></td>
+        <td>
+            <select id="SELECT_Speed" name="SELECT_Speed">
+                <option></option>
+            </select>
+        </td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_PowerTX" width="150px"></td>
+        <td>
+            <select id="SELECT_Power" name="SELECT_Power">
+                <option value="100" selected>100%</option>
+                <option value="80">80%</option>
+                <option value="50">50%</option>
+                <option value="30">30%</option>
+                <option value="10">10%</option>
+            </select></td>
+     </tr>
+        
+     <tr style="display:block">
+        <td langkey="LK_Channell" width="150px"></td>
+        <td><select id="SELECT_Channel"><option> </option></select></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_CurChannell" width="150px" id="td_CUR_Channel"></td>
+        <td><output id="CUR_Channel" name="CUR_Channel"></output></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_BeaconInterval" width="150px"></td>
+        <td><input type="text" id="INPUT_BeaconInterval" name="INPUT_BeaconInterval"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_RTSThreshold" width="150px"></td>
+        <td><input type="text" id="INPUT_RThreshold" name="INPUT_RThreshold"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_FrgThreshold" width="150px"></td>
+        <td><input type="text" id="INPUT_FThreshold" name="INPUT_FThreshold"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_MaxCli" width="150px"></td>
+        <td><input type="text" id="INPUT_MaxClients" name="INPUT_MaxClients"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_DTIMInterval" width="150px"></td>
+        <td><input type="text" id="INPUT_DTIM" maxlength="10" name="INPUT_DTIM">&nbsp;</td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_GIInterval" width="150px"></td>
+        <td><input type="checkbox" id="INPUT_GIEnabled" name="INPUT_GIEnabled"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td langkey="LK_WMM" width="150px"></td>
+        <td><input type="checkbox" id="INPUT_WMMEnabled" name="INPUT_WMMEnabled"></td>
+     </tr>
+
+     <tr style="display:block">
+        <td width="150px" langkey="LK_WMMAPSD"></td>
+        <td><input type="checkbox" id="INPUT_UAPSDEnable" name="INPUT_UAPSDEnable"></td>
+     </tr>
+</table>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+    <tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+    <tr>
+        <td colspan="2">
+        <script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit();" );</script>
+        <script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh();" );</script>
+        </td>
+    </tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name="network_wladvcfgform" id="network_wladvcfgform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_wladvcfg_5g.shtml">
+</form>
+</body>
+</html>

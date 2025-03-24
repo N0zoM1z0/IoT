@@ -1,0 +1,13 @@
+Package: kmod-ipv6-pass-through
+Version: 3.10.14+1.0-1
+Depends: kernel (=3.10.14-1-a74cf375559f80d758a3e54a15723d6b)
+Provides: 
+Source: tp_package/k_packages/ipv6-pass-through
+Section: ipv6
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: Yang Taoliu <yangtaoliu@tp-link.net>
+Architecture: mtk
+Installed-Size: 5211
+Description:  Ipv6 Dial Mode of Pass Through.

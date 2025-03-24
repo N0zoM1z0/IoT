@@ -1,0 +1,90 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<base target="_self">
+<script language="javascript">
+function onLoadArpTable()
+{
+	var _url = "/cgi-bin/getarp.cgi";
+	ajax = Ajax.getInstance(_url, "", 0 ,createTable);
+	ajax.get();
+}
+
+function clearArpTable()
+{
+	var _url = "/cgi-bin/cleararp.cgi";
+	ajax = Ajax.getInstance(_url, "", 0 ,uiPageRefresh);
+	ajax.get();
+}
+
+function createTable(_text){
+	var line=_text.split('[+]');
+	var trs = "";
+	if(line.length > 0 )
+	{
+    		for(var i = 0; i < line.length - 1; i++){
+		var LanHosts = line[i].split('[-]');
+		var tr = "";
+		if(i%2 == 0)
+			tr += '<tr class="OddRowB">';
+		else
+        		tr += '<tr class="EvenRowB">';
+		tr += "<td>"+LanHosts[0]+"</td>";
+		tr += "<td>"+getStr('LK_Complete')+"</td>";
+		tr += "<td>"+LanHosts[1]+"</td>";
+		tr += "<td>"+LanHosts[2]+"</td>";
+       		tr += "</tr>";
+		trs += tr;    
+    		}
+	}
+	else
+		trs = '<tr class="OddRowB"><td colspan="5">'+ getStr('LK_NoRule')+'</td></tr>';
+
+	jQuery("#td_table").append(trs);
+}
+
+function __init()
+{
+    onLoadArpTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_ARP'))</script>
+<form>
+</div>
+    <table width="600" cellpadding="0" cellspacing="0" class="ContentBorder" id="td_table">
+        <tr class="TitleRow">
+        	<td langkey="LK_IPAddress"></td>
+        	<td langkey="LK_Flags"></td>
+	    	<td langkey="LK_HWAddress"></td>
+		<td langkey="LK_Device"></td>
+        </tr>
+    </table>
+		<br>
+		<table class="ContentTableNoColor"><tr><td>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+				<script>PrintTriButton("clear",getStr('LK_ClearCDRFile'),"clearArpTable()");</script>
+				&nbsp;&nbsp;
+				<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+			</td>
+		</tr>
+		</table>
+</form>
+<script>printEndContent();</script>
+</body>
+</html>

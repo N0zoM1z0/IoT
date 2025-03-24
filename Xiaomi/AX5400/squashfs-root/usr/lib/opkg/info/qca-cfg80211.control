@@ -1,0 +1,9 @@
+Package: qca-cfg80211
+Version: miwifi_git-1
+Depends: libc, libnl, libpthread, iw
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/qca-cfg80211
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7
+Installed-Size: 6523
+Description:  QCA cfg80211 utils

@@ -1,0 +1,13 @@
+Package: kmod-arp_filter
+Version: 3.10.14+1.0
+Depends: kernel (=3.10.14-1-a74cf375559f80d758a3e54a15723d6b)
+Provides: 
+Source: tp_package/k_packages/arp_filter
+Section: ko util
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 5955
+Description:  tp-link arp filter module

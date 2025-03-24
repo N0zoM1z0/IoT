@@ -1,0 +1,244 @@
+<style type="text/css">
+	li.inputLi label{
+		width:104px;
+	}
+	p.forgetPwd{
+		width:280px;
+		text-align:right;
+		margin:-4px auto 24px;
+	}
+	p.forgetPwd span{
+		cursor:pointer;
+		font-size:13px;
+		color:#999;
+		line-height:20px;
+	}
+	#bindMEID , #createMEID{
+		display:block;
+		width:280px;
+		margin:0 auto 16px;
+	}
+	ul.suggestionSummaryList{
+		width:265px;
+		font-size:12px;
+		color:#666;
+		line-height:20px;
+		text-align:justify;
+		letter-spacing:-0.2px;
+		list-style-type:disc;
+		margin:0 auto;
+		padding-left:15px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		function checkID()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(label.cloudAccountNull);
+				return false;
+			}
+
+			if (checkNum(this.input.value))
+			{
+				if (!checkPhoneNum(this.input.value))
+				{
+					this.showNote(errStr.invCloudAccountFmtErr);
+					return false;
+				}
+			}
+			else if (!checkEmail(this.input.value))
+			{
+				this.showNote(errStr.invCloudAccountFmtErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function checkPwd()
+		{
+			if (this.input.value.length < 6)
+			{
+				this.showNote(errStr.pwdLenErrTip);
+				return false;
+			}
+
+			if (!/^[\x21-\x7e]+$/.test(this.input.value))
+			{
+				this.showNote(errStr.pwdCharValid);
+				return false;
+			}
+
+			return true;
+		}
+
+		function showErrTip(errText)
+		{
+			var $cloudErrTip = $("p.cloudErrTip").html('<i class="iconfont icon-error"></i>' + errText);
+			$cloudErrTip.css("display", "table");
+			$cloudErrTip.css("margin-left", -($cloudErrTip[0].offsetWidth/2) + "px");
+		}
+
+		function hideErrTip()
+		{
+			$("p.cloudErrTip").css("display", "none");
+		}
+
+		function showCloudErr(err)
+		{
+			var errText = "";
+
+			switch(err)
+			{
+			case ENONE:
+				cloudHistory.setState({
+					bind: true,
+					account: account.getValue()
+				});
+
+				if (cloudHistory.isFormWizard == true)
+				{
+					/* 进入向导结束页 */
+					loadPage("WizardEnd.htm", "wizardCon");
+				}
+				else
+				{
+					refreshNavBarCloudStatus();
+					cloudPageDialog.hide();
+				}
+
+				return true;
+			case EINDEVICEALREADYBOUND:
+			case EINVACCOUNTBINDED:
+				errText = label.cloudAccountBindedTips;
+				break;
+			case EINVDEVICEIDNOTEXIST:
+			case EINVERRORDEVICEIDFORMATERROR:
+				errText = appendErrCode(errStr.cloudDeviceInfoExpt, err);
+				break;
+			case EINVACCOUNTNOTEXIST:
+				errText = appendErrCode(errStr.invCloudAccountNotExist, err);
+				break;
+			case EINVPASSWORDFMT:
+			case EINVACCOUNTPWDFMT:
+				errText = appendErrCode(errStr.pwdInvalid, err);
+				break;
+			case EINVACCOUNTPWDERR:
+				errText = appendErrCode(errStr.passwdErr, err);
+				break;
+			case EINVACCOUNTPHONENUMFMT:
+			case EINVMAILFMT:
+			case EINVMAILLEN:
+			case EINVACCOUNTEMAILFMT:
+			case EINVCLOUDUSRCOUNTFORMAT:
+				errText = appendErrCode(errStr.invCloudAccountFmtErr, err);
+				break;
+			case EINVACCOUNTLOCKED:
+				errText = appendErrCode(errStr.invCloudAccountLocked, err);
+				break;
+			default:
+				if (false == cloudErrHandle(err).result)
+				{
+					errText = cloudErrHandle(err).tip;
+				}
+				else
+				{
+					errText = appendErrCode(errStr.invRequestFail, err);
+				}
+				break;
+			}
+
+			cloudHistory.setState({bind: false});
+			showErrTip(errText);
+			return false;
+		}
+
+		function bindAccount()
+		{
+			if (!account.checkAll() || !pwd.checkAll())
+			{
+				return;
+			}
+
+			hideErrTip();
+			loadingDialog.show({
+				title: label.bindCloudId,
+				content: {primary:label.bindingAndWait}
+			}, undefined, undefined, true, cloudAccountQueryStop);
+
+			cloudAccountBind(account.getValue(), pwd.getValue(), function(type, state, result){
+				loadingDialog.hide(function(){
+					if (type == cloudResultType.FINISH)
+					{
+						showCloudErr(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.bind][cloudClientStatus.optName.errCode]));
+					}
+					else
+					{
+						if (type == cloudResultType.ACTION_ERROR)
+						{
+							showCloudErr(parseInt(state.errCode));
+						}
+						else if (state != undefined && state.result == false)
+						{
+							alarmDialog.show(state.errStr);
+						}
+					}
+				});
+			});
+		}
+
+		var account = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.cloudMEID, position:Input.LABEL.INNER},
+			targetId:"inputAccount",
+			check:{blur:checkID},
+			props:{maxlength: '64', type: "text", placeholder: label.phoneNumOrEmail}
+		});
+		var pwd = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.password, position:Input.LABEL.INNER},
+			targetId:"inputAccount",
+			check:{blur:checkPwd},
+			props:{maxlength: '32', type: "password"}
+		});
+		var createBtn = new Button({
+			text:btn.bindID,
+			onClick:bindAccount,
+			type:Button.TYPE.PRIMARY,
+			id:"bindMEID"
+		});
+		new Button({
+			text:btn.createFreeAccount,
+			onClick:function(){
+				cloudHistory.go(1);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"createMEID"
+		});
+
+		id("iForget").onclick = function(){
+			cloudHistory.go(2);
+		};
+
+		if (cloudHistory.getState("createSuccessAndLoginFail") == true)
+		{
+			account.setValue(cloudHistory.getState("account"));
+			cloudHistory.setState({createSuccessAndLoginFail: false});
+		}
+	})();
+</script>
+<h1 class="cloudTitle">{%label.cloudMEID%}</h1>
+<p class="cloudTip">{%label.cloudIDNoteTitle%}</p>
+<p class="cloudErrTip commonErrTip"></p>
+<div id="inputAccount"></div>
+<p class="forgetPwd"><span id="iForget">{%label.loginPwdLost%}</span></p>
+<div id="bindMEID"></div>
+<div id="createMEID"></div>
+<p class="suggestionSummaryHeader">{%label.cloudIDNoteS%}</p>
+<ul class="suggestionSummaryList">
+	<li>{%label.cloudIDNoteT%}</li>
+	<li>{%label.cloudIDNoteFo%}</li>
+	<li>{%label.cloudIDNoteFi%}</li>
+</ul>

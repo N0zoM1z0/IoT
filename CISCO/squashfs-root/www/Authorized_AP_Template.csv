@@ -1,0 +1,9 @@
+BSSID,SSID,Security,Encryption,Authentication,Wireless Network Mode,Channel
+00:00:00:00:00:01,ciscosb1,4,2,2,3,1
+00:00:00:00:00:02,ciscosb2,0,0,0,5,7
+,,,,,,
+"# Security: 0(Open), 1(WEP), 2(WPA-Personal), 3(WPA-Enterprise), 4(WPA2-Personal), 5(WPA2-Enterprise)",,,,,,
+"# Encryption: 2(TKIP), 4(CCMP)",,,,,,
+"# Authication: 2(PSK), 1(RADIUS)",,,,,,
+"# Network Mode: 0(B-only), 1(G-only), 2(N Only), 3(BG-Mixed), 4(GN-Mixed), 5(BGN-Mixed)",,,,,,
+"# Channel: 0(Auto), 1(2.412), 2(2.417), 3(2.422), 4(2.427), 5(2.432), 6(2.437), 7(2.442), 8(2.447), 9(2.452), 10(2.457), 11(2.462)",,,,,,

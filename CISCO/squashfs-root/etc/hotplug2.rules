@@ -1,0 +1,3 @@
+DEVPATH is set {
+	makedev /dev/%DEVICENAME% 0644
+}

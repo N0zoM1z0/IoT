@@ -1,0 +1,3780 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="icon" type="image/x-icon" href="../img/router.png" />
+		<link rel="stylesheet" href="../css/elementUi.css">
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../css/common.css">
+		<link rel="stylesheet" href="../css/index.css">
+		<script src="../js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/qs.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/verify.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/port.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="container" v-cloak>
+			<div class="topBar flex justify-content_flex-justify align-items_center"
+			:style="softwareType=='neutral'?{visibility:'hidden'}:''">
+				<div class="topBar-left">
+					<img src="../img/logo.png" width="230" height="35">
+				</div>
+				<div class="topBar-right">
+					<a href="http://www.b-link.net.cn/" target="_blank">
+						<img src="../img/web.png" width="25" height="25">
+						<span v-text="$t('official_website')"></span>
+					</a>
+				</div>
+			</div>
+			<div class="content">
+				<ul class="menu">
+					<li style="border-top: 1px solid #fff;" @click="tabClick('main')">
+						<i class="menu-img1"
+							:style="tabType=='main' ? {backgroundPosition:'5px 0'} : {backgroundPosition:'-48px 0'}"></i>
+						<span :class="{active:tabType=='main'}">{{$t('main')}}</span>
+					</li>
+					<li @click="tabClick('more')">
+						<i class="menu-img2"
+							:style="tabType=='more' ? {backgroundPosition:'5px -140px'} : {backgroundPosition:'-48px -140px'}"></i>
+						<span :class="{active:tabType=='more'}">{{$t('advanced')}}</span>
+					</li>
+					<li @click="tabClick('setup')">
+						<i class="menu-img3"
+							:style="tabType=='setup' ? {backgroundPosition:'5px -70px'} : {backgroundPosition:'-48px -70px'}"></i>
+						<span :class="{active:tabType=='setup'}">{{$t('quickSetup')}}</span>
+					</li>
+					<li v-if="terminalShow" @click="tabClick('terminal')">
+						<div style="height: 45px;">
+							<img :src="tabType=='terminal' ? '../img/term.png' : '../img/term1.png' " width="45"
+								class="block" style="margin: 0 auto 6px;">
+						</div>
+						<span :class="{active:tabType=='terminal'}">{{$t('terminalList')}}</span>
+					</li>
+					<li @click="tabClick('upgrade')">
+						<i class="menu-img5"
+							:style="tabType=='upgrade' ? {backgroundPosition:'5px -210px'} : {backgroundPosition:'-46px -210px'}"></i>
+						<span :class="{active:tabType=='upgrade'}">{{$t('firmwareUpgrade')}}</span>
+					</li>
+				</ul>
+				<div class="content-right">
+					<!-- main -->
+					<div v-show="tabType=='main'">
+						<div class="dev_link flex justify-content_flex-center align-items_center" v-if="terminalShow" @click="tabClick('terminal')">
+							<img src="../img/devicon.png" width="22" height="22">
+							<div>
+								<p>{{$t('wired_device')}}:</p>
+								<span>{{deviceNum.cable}}{{$t('station')}}</span>
+							</div>
+							<div class="line">|</div>
+							<div>
+								<p>{{$t('two_device')}}:</p>
+								<span>{{deviceNum._2g}}{{$t('station')}}</span>
+							</div>
+							<div class="line">|</div>
+							<div>
+								<p>{{$t('five_device')}}:</p>
+								<span>{{deviceNum._5g}}{{$t('station')}}</span>
+							</div>
+						</div>
+						<!-- 路由模式 -->
+						<div class="internet-set ac"
+							v-show="routerMsg.operationmode!='wisp'&&routerMsg.operationmode!='repeater'" >
+							<img src="../img/internet.png" class="cur-point"
+								@click="outNetDialog=true;getWanSet();clearLoginTimer();" width="95" height="95"
+								:alt="$t('outNetSet')" :title="$t('outNetSet')"
+								:class="{notClick:routerMsg.operationmode!='router'}">
+						</div>
+						<div class="linkLine"
+							v-show="routerMsg.operationmode!='wisp'&&routerMsg.operationmode!='repeater'" >
+							<img :src="routerMsg.netlink==1 ? '../img/linkOn.png' : '../img/linkOff.png'" width="414"
+								height="320">
+						</div>
+						<div class="lineStus"
+							v-show="routerMsg.operationmode!='wisp'&&routerMsg.operationmode!='repeater'" >
+							<img :src="routerMsg.netlink==1 ? '../img/wanOK.png' : '../img/wanOff.png'" width="40"
+								height="40">
+						</div>
+						<div class="netDiagnosis" @click="get_diagnosis_info();diagnosisDialog=true;clearLoginTimer();"
+							v-show="routerMsg.netlink!=1&&routerMsg.operationmode=='router'">
+							{{$t('netDiagnosis')}}
+						</div>
+						<div class="wifi-setting" @click="wifiSetDialog=true;getWifiMsg();clearLoginTimer();">
+							<img src="../img/wifion_main.png" class="cur-point" width="95" height="95"
+								:title="$t('wifiSet')">
+						</div>
+						<div class="QRCode" :style="softwareType=='neutral'?{visibility:'hidden'}:''">
+							<img src="../img/webzhcn.png" width="120" height="120">
+						</div>
+						<div class="router-img">
+							<img src="../img/router_img_main.png" alt="" width="430" height="110">
+						</div>
+						<!-- 路由模式wan口 -->
+						<div class="wanOn" id="routerwanOn" @mouseover="getWanMsg" style="width: 62px;height: 50px;">
+							<img src="../img/wan_on.png" class="cur-point" width="100%" height="100%"
+								v-show="routerMsg.wan==1">
+						</div>
+						<div class="lanOn1" @click="getLanDialog" style="width:62px;height: 50px;"
+							:class="{notClick:routerMsg.operationmode=='AP'}">
+							<img src="../img/wan_on.png" class="cur-point" width="100%" height="100%"
+								v-show="routerMsg.lan1==1" :title="$t('lanSet')">
+						</div>
+						<div class="lanOn2" @click="getLanDialog" style="width:62px;height: 50px;"
+							:class="{notClick:routerMsg.operationmode=='AP'}">
+							<img src="../img/wan_on.png" class="cur-point" width="100%" height="100%"
+								v-show="routerMsg.lan2==1" :title="$t('lanSet')">
+						</div>
+						<div class="lanOn3" @click="getLanDialog" style="width:62px;height: 50px;"
+							:class="{notClick:routerMsg.operationmode=='AP'}">
+							<img src="../img/wan_on.png" class="cur-point" width="100%" height="100%"
+								v-show="routerMsg.lan3==1" :title="$t('lanSet')">
+						</div>
+						<div class="lanOn4" @click="getLanDialog" style="width:62px;height: 50px;" 
+						:class="{notClick:routerMsg.operationmode=='AP'}">
+							<img src="../img/wan_on.png" class="cur-point" width="100%" height="100%"
+								v-show="routerMsg.lan4==1" :title="$t('lanSet')">
+						</div>
+						<div class="wanInfo">
+							<ul>
+								<li>
+									<label v-text="$t('mac')"></label>
+									<span>{{wanMsg.wan_mac}}</span>
+								</li>
+								<li>
+									<label v-text="$t('linkType')"></label>
+									<span v-if="wanMsg.connetype.toLowerCase()=='dhcp'" v-text="$t('wandhcp')"></span>
+									<span v-if="wanMsg.connetype.toLowerCase()=='static'"
+										v-text="$t('wanstatic')"></span>
+									<span v-if="wanMsg.connetype.toLowerCase()=='pppoe'" v-text="$t('wanpppoe')"></span>
+									<span v-if="wanMsg.connetype.toLowerCase()=='pptp'">PPTP</span>
+									<span v-if="wanMsg.connetype.toLowerCase()=='l2tp'">L2TP</span>
+								</li>
+								<li>
+									<label v-text="$t('ipAddress')"></label>
+									<span>{{wanMsg.ip}}</span>
+								</li>
+								<li>
+									<label v-text="$t('mask')"></label>
+									<span>{{wanMsg.wanmsk}}</span>
+								</li>
+								<li>
+									<label v-text="$t('gateway')"></label>
+									<span>{{wanMsg.gateway}}</span>
+								</li>
+								<li>
+									<label>DNS</label>
+									<span>{{wanMsg.dns1}}</span>
+								</li>
+							</ul>
+						</div>
+						<div class="reset">
+							<img src="../img/reset.png" class="cur-point" @click="resetDialog=true;clearLoginTimer();"
+								width="16" height="16" :title="$t('routerReboot')">
+						</div>
+						<div class="link-status">
+							<div style="position: relative;">
+								<img src="../img/bg-3.png" width="250" height="270">
+								<ul class="full-width full-height">
+									<div class="flex flex-align">
+										<li>
+											<p v-text="$t('curLinkStatus')"></p>
+											<span v-if="routerMsg.netlink==1" v-text="$t('linked')"></span>
+											<span v-else v-text="$t('unlink')"></span>
+										</li>
+										<li>
+											<p v-text="$t('linkType')"></p>
+											<span>{{routerMsg.operationmode}}</span>
+										</li>
+									</div>
+									<div class="flex flex-align">
+										<li>
+											<p v-text="$t('remian')"></p>
+											<span>{{routerMsg.ramtotal}}</span>
+										</li>
+										<li>
+											<p v-text="$t('curmian')"></p>
+											<span>{{routerMsg.ramfree}}</span>
+										</li>
+									</div>
+									<div class="flex flex-align">
+										<li>
+											<p v-text="$t('curCPU')"></p>
+											<span>{{routerMsg.cpu}}</span>
+										</li>
+										<li>
+											<p v-text="$t('worktime')"></p>
+											<span>{{routerMsg.uptime}}</span>
+										</li>
+									</div>
+									<div class="flex flex-align">
+										<li>
+											<p v-text="$t('upload')"></p>
+											<span>{{netSpeedChange(routerMsg.upspeed)}}</span>
+										</li>
+										<li>
+											<p v-text="$t('download')"></p>
+											<span>{{netSpeedChange(routerMsg.downspeed)}}</span>
+										</li>
+									</div>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- more -->
+					<div v-show="tabType=='more'">
+						<div v-show="featureIndex==0">
+							<el-tabs v-model="activeName" @tab-click="advancedChange" class="color-fff">
+								<el-tab-pane :label="$t('network')" name="first">
+									<ul class="tab_container overflow-hidden">
+										<li @click="featureIndex='more_internet';getWanSet();" id="more_internet">
+											<i></i>
+											<p>{{$t('outNetSet')}}</p>
+										</li>
+										<li @click="featureIndex='more_lan';getLanMsg();" id="more_lan">
+											<i></i>
+											<p>{{$t('lanSet')}}</p>
+										</li>
+										<li @click="featureIndex='more_QOS';getQosMsg();" id="more_QOS">
+											<i></i>
+											<p>QOS</p>
+										</li>
+										<li @click="featureIndex='more_5g';getApnMsg();" id="more_5g">
+											<i></i>
+											<p>{{$t('netSet_5g')}}</p>
+										</li>
+										<li @click="featureIndex='more_assistant';getFlowMsg();" id="more_assistant">
+											<i></i>
+											<p>{{$t('flowControl')}}</p>
+										</li>
+										<li @click="featureIndex='more_pppoe';get_pppoeserver();get_pppoeclient();"
+											id="more_pppoe">
+											<i></i>
+											<p>{{$t('pppoe_ser')}}</p>
+										</li>
+										<li @click="featureIndex='macClone';getMacClone();" id="macClone">
+											<i></i>
+											<p>{{$t('macClone')}}</p>
+										</li>
+										<li @click="featureIndex='advancedDNS';getDNSMsg();" id="advancedDNS">
+											<i></i>
+											<p>{{$t('dnsSet')}}</p>
+										</li>
+										<li @click="featureIndex='iptv';getIptvMsg();" id="iptv">
+											<i></i>
+											<p>IPTV</p>
+										</li>
+										<li @click="featureIndex='ipv6';getIPv6Msg();" id="ipv6">
+											<i></i>
+											<p>IPv6</p>
+										</li>
+										<!-- upnp -->
+										<li @click="featureIndex='upnp';getUpnpMsg();" id="upnp">
+											<i></i>
+											<p>UPNP</p>
+										</li>
+										<!-- tr069设置 -->
+										<li @click="featureIndex='tr069';getCwmpMsg();" id="tr069">
+											<i></i>
+											<p>{{$t('tr069Set')}}</p>
+										</li>
+									</ul>
+								</el-tab-pane>
+								<el-tab-pane :label="$t('wireless')" name="second">
+									<ul class="tab_container overflow-hidden">
+										<li @click="featureIndex='more_wifi';getWifiMsg();" id="more_wifi">
+											<i class="network_set"></i>
+											<p>{{$t('wifiSet')}}</p>
+										</li>
+										<li @click="featureIndex='channelSet';getChannelMsg();" id="channelSet">
+											<i></i>
+											<p>{{$t('channelSet')}}</p>
+										</li>
+										<li @click="featureIndex='visitorNet';getVisNetMsg();" id="visitorNet">
+											<i class="network_set"></i>
+											<p>{{$t('visitorNet')}}</p>
+										</li>
+										<li @click="featureIndex='wifiMode';getWifiMode();" id="wifiMode">
+											<i class="network_set"></i>
+											<p>{{$t('wirelessModeSet')}}</p>
+										</li>
+										<!-- wifi定时关闭 -->
+										<li @click="featureIndex='wifiTiming';getWifiSchedule();wifiTimerIndex=0;"
+											id="wifiTiming">
+											<i class="network_set"></i>
+											<p>{{$t('wifiTiming_off')}}</p>
+										</li>
+										<li @click="featureIndex='twoChannelOptimize';onform_postchannel();getchannelqualityMsg();"
+											id="twoChannelOptimize">
+											<i class="network_set"></i>
+											<p>{{$t('twoChannelOptimiza')}}</p>
+										</li>
+									</ul>
+								</el-tab-pane>
+								<el-tab-pane :label="$t('systemSet')" name="third">
+									<ul class="tab_container overflow-hidden">
+										<!-- 绑定列表 -->
+										<li @click="featureIndex='StaticList';getBindList();" id="StaticList">
+											<i class="network_set"></i>
+											<p>{{$t('staticList')}}</p>
+										</li>
+										<li @click="featureIndex='more_terminallist';getParControl();parentIndex=0;getTerminalList();"
+											id="more_terminallist">
+											<i class="network_set"></i>
+											<p>{{$t('protection')}}</p>
+										</li>
+										<li @click="featureIndex='adminPass';getLoginPwd();" id="adminPass">
+											<i></i>
+											<p>{{$t('mgpassSet')}}</p>
+										</li>
+										<!-- 定时重启 -->
+										<li @click="featureIndex='scheduleRestart';getRestartSchedule();restartTimerIndex=0;"
+											id="scheduleRestart">
+											<i class="network_set"></i>
+											<p>{{$t('scheduleRestart')}}</p>
+										</li>
+										<!-- 面板灯开关 -->
+										<li @click="featureIndex='LED';getledswitchMsg();" id="LED">
+											<i></i>
+											<p>{{$t('led_name')}}</p>
+										</li>
+										<!-- 世界时间 -->
+										<li @click="featureIndex='worldTime';get_timeZone_info();" id="worldTime">
+											<i></i>
+											<p>{{$t('worldTime_name')}}</p>
+										</li>
+										<li @click="featureIndex='restore'" id="restore">
+											<i></i>
+											<p>{{$t('restore')}}</p>
+										</li>
+										<li @click="featureIndex='ReBoot'" id="ReBoot">
+											<i></i>
+											<p>{{$t('reboot')}}</p>
+										</li>
+										<li @click="featureIndex='hardware';getHardwareSwitch();" id="hardware">
+											<i></i>
+											<p>{{$t('hardware_NAT')}}</p>
+										</li>
+									</ul>
+								</el-tab-pane>
+								<el-tab-pane :label="$t('more')" name="fourth">
+									<ul class="tab_container overflow-hidden">
+										<li @click="featureIndex='Wlanspeed';" id="Wlanspeed">
+											<i></i>
+											<p>{{$t('inspeed')}}</p>
+										</li>
+										<li @click="featureIndex='ftp';getUsbEnable('ftp');" id="ftp">
+											<i></i>
+											<p>FTP</p>
+										</li>
+										<li @click="featureIndex='samba';getUsbEnable('samba');" id="samba">
+											<i></i>
+											<p>SAMBA</p>
+										</li>
+										<li @click="featureIndex='vpnSet';getVpnMsg('getpptpinfo');" id="pptp_vpnSet">
+											<i></i>
+											<p>{{$t('pptpSet')}}</p>
+										</li>
+										<li @click="featureIndex='vpnSet';getVpnMsg('getl2tpinfo');" id="vpnSet">
+											<i class="network_set"></i>
+											<p>{{$t('L2TPSet')}}</p>
+										</li>
+										<li @click="featureIndex='dmz';getDMZMsg();" id="dmz">
+											<i class="network_set"></i>
+											<p>DMZ</p>
+										</li>
+										<li @click="featureIndex='webadmin';getwebadminMsg();" id="webadmin">
+											<i class="network_set"></i>
+											<p>{{$t('webadmin')}}</p>
+										</li>
+										<li @click="featureIndex='forwarding';getPortForward();getTerminalList();portIndex=0;"
+											id="forwarding">
+											<i class="network_set"></i>
+											<p>{{$t('forWarding')}}</p>
+										</li>
+										<li @click="featureIndex='vserver';getPortForward();" id="vserver">
+											<i class="network_set"></i>
+											<p>{{$t('VserverSet')}}</p>
+										</li>
+										<li @click="featureIndex='plugin';getpluginMsg();" id="plugin">
+											<i class="network_set"></i>
+											<p>{{$t('Plugin')}}</p>
+										</li>
+										<li @click="featureIndex='shared';getShareMsg();" id="shared">
+											<i class="network_set"></i>
+											<p>{{$t('sharedWifi')}}</p>
+										</li>
+									</ul>
+								</el-tab-pane>
+							</el-tabs>
+						</div>
+						<!-- 外网设置 -->
+						<div v-show="featureIndex=='more_internet'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('outNetSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content wanset">
+								<ul class="featureList ac">
+									<li :class="{active:wanType=='pppoe'}" @click="wanType='pppoe';">
+										{{$t('wanpppoe')}}
+									</li>
+									<li :class="{active:wanType=='dhcp'}" @click="wanType='dhcp';">
+										{{$t('wandhcp')}}
+									</li>
+									<li :class="{active:wanType=='static'}" @click="wanType='static';">
+										{{$t('wanstatic')}}
+									</li>
+								</ul>
+								<div class="outNetItem" v-if="wanType=='pppoe'">
+									<el-form label-width="40%">
+										<el-form-item :label="$t('account')">
+											<el-input v-model="pppoeForm.pppoename" :placeholder="$t('pppoeName')"
+												@blur="pppoeForm.pppoename=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('password')">
+											<el-input v-model="pppoeForm.pppoepsw" :placeholder="$t('pppoePwd')"
+												@blur="pppoeForm.pppoepsw=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item label="">
+											<span @click="pppoeShow=!pppoeShow" class="cur-point">{{$t('moreSet')}}
+												<i :class="pppoeShow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+											</span>
+										</el-form-item>
+										<div v-if="pppoeShow">
+											<el-form-item :label="$t('serverName')">
+												<el-input v-model="pppoeForm.server_name"
+													:placeholder="$t('placeholderTip')"></el-input>{{$t('optional')}}
+											</el-form-item>
+											<el-form-item label="MTU">
+												<el-input v-model="pppoeForm.mtu" :placeholder="$t('placeholderTip')">
+												</el-input>
+											</el-form-item>
+										</div>
+									</el-form>
+								</div>
+								<div class="outNetItem" v-if="wanType=='static'">
+									<el-form label-width="40%">
+										<el-form-item :label="$t('ipAddress')">
+											<el-input v-model="staticForm.wanip" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('mask')">
+											<el-input v-model="staticForm.wanmsk" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('gateway')">
+											<el-input v-model="staticForm.wangw" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item label="DNS1">
+											<el-input v-model="staticForm.dns1" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item label="DNS2">
+											<el-input v-model="staticForm.dns2" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+									</el-form>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setWanSet">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 局域网设置 -->
+						<div v-show="featureIndex=='more_lan'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('lanSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%">
+									<el-form-item label="DHCP">
+										<template>
+											<el-radio-group v-model="lanMsg.landhcp">
+												<el-radio label="on">{{$t('open')}}</el-radio>
+												<el-radio label="off">{{$t('close')}}</el-radio>
+											</el-radio-group>
+										</template>
+									</el-form-item>
+									<el-form-item label="LAN IP">
+										<el-input v-model="lanMsg.lanip" @focus="lanFlag=1"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('mask')">
+										<el-input v-model="lanMsg.lanmsk"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('startip')">
+										<el-input v-model="lanMsg.startip" @focus="getLanIpFocus"
+											:disabled="lanMsg.landhcp=='off' "></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('endip')">
+										<el-input v-model="lanMsg.endip" @focus="getLanIpFocus"
+											:disabled="lanMsg.landhcp=='off' "></el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setLanMsg();">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- QOS设置 -->
+						<div v-show="featureIndex=='more_QOS'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > QOS</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%">
+									<el-form-item :label="$t('Switch')">
+										<template>
+											<el-radio-group v-model="qosMsg.status">
+												<el-radio :label="1">{{$t('open')}}</el-radio>
+												<el-radio :label="0">{{$t('close')}}</el-radio>
+											</el-radio-group>
+										</template>
+									</el-form-item>
+									<el-form-item :label="$t('QOS_mode')">
+										<el-select v-model="qosMsg.qtype" :disabled="qosMsg.status==0">
+											<el-option value="0" :label="$t('qos_down')"></el-option>
+											<el-option value="1" :label="$t('qos_page')"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('upspeed_qos')">
+										<el-input v-model="qosMsg.uload" :disabled="qosMsg.qtype=='0'" maxlength="21">
+										</el-input>Mbps
+									</el-form-item>
+									<el-form-item :label="$t('downspeed_qos')">
+										<el-input v-model="qosMsg.dload" :disabled="qosMsg.qtype=='0'" maxlength="21">
+										</el-input>Mbps
+									</el-form-item>
+									<p class="ac" style="color: #3d8af5;cursor: pointer;padding:15px 0;"
+										@click="checkSpeed">{{$t('qos_start')}}</p>
+									<p class="tips ac" style="padding:20px 0">{{$t('QOS_tips')}}</p>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setLanMsg();">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 5g上网设置 -->
+						<div v-show="featureIndex=='more_5g'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('netSet_5g')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%">
+									<el-form-item :label="$t('simInsertSatus')">
+										<span v-if="apnMsg.simcardstatus=='0'">{{$t('not_inserted')}}</span>
+										<span v-if="apnMsg.simcardstatus=='1'">{{$t('inserted')}}</span>
+									</el-form-item>
+									<el-form-item :label="$t('SIM_operator')">
+										<span v-if="apnMsg.serviceinfo=='CMCC'">{{$t('chinaMobile')}}</span>
+										<span v-else-if="apnMsg.serviceinfo=='CTNET'">{{$t('chinaTelecom')}}</span>
+										<span v-else-if="apnMsg.serviceinfo=='UNICOM'">{{$t('chinaUnicom')}}</span>
+										<span v-else>{{$t('unknow')}}</span>
+									</el-form-item>
+									<el-form-item :label="$t('modlever')">
+										<span>{{apnMsg.modlever}}</span>
+									</el-form-item>
+									<el-form-item :label="$t('netSelect')">
+										<el-select v-model="apnMsg.nettype" :placeholder="$t('choose')">
+											<el-option :key="0" value="0" :label="$t('auto')"></el-option>
+											<el-option :key="1" value="1" :label="$t('only_5g')"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('apnSet')">
+										<el-switch v-model="apnMsg.enable" active-color="#13ce66"  inactive-color="#ff4949">
+										</el-switch>
+									</el-form-item>
+									<div v-if="apnMsg.enable">
+										<el-form-item :label="$t('remarkName')">
+											<el-input v-model="apnMsg.profileName"
+												@blur="apnMsg.profileName=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('apnServe')">
+											<el-input v-model="apnMsg.apn"
+												@blur="apnMsg.apn=$event.target.value.trim()">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('authType')">
+											<el-select v-model="apnMsg.authtype" :placeholder="$t('choose')">
+												<el-option :key="0" value="0" label="NONE"></el-option>
+												<el-option :key="1" value="1" label="PAP"></el-option>
+												<el-option :key="2" value="2" label="CHAP"></el-option>
+												<el-option :key="3" value="3" label="PAP/CHAP"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item :label="$t('account')">
+											<el-input v-model="apnMsg.username" :disabled="apnMsg.authtype=='0'"
+												@blur="apnMsg.username=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('password')">
+											<el-input v-model="apnMsg.passwd" :disabled="apnMsg.authtype=='0'"
+												@blur="apnMsg.passwd=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('IP_type')">
+											<el-select v-model="apnMsg.iptype" :placeholder="$t('choose')">
+												<el-option :key="0" value="IP" label="IPv4"></el-option>
+												<el-option :key="1" value="IPV6" label="IPv6"></el-option>
+												<el-option :key="2" value="IPV4V6" label="IPv4v6"></el-option>
+											</el-select>
+										</el-form-item>
+									</div>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setApnMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 流量控制 -->
+						<div v-show="featureIndex=='more_assistant'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('flowControl')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content" style="padding: 15px 20px 25px;">
+								<h2 style="font-size: 18px;">{{$t('flowControl')}}</h2>
+								<div style="padding-left: 10px;">
+									<p class="flowTip">{{$t('flowTip1')}}</p>
+									<div class="flow-progress">
+										<template>
+											<el-progress :text-inside="false" :stroke-width="20"
+												:percentage="flowPercent" style="width: 80%;padding:12px 0;">
+											</el-progress>
+										</template>
+										<p>{{flowTransition(Number(flowMsg.MonUp)+Number(flowMsg.MonDown))}} /
+											{{MonthlyPackage}}GB
+										</p>
+									</div>
+									<ul class="flow">
+										<li class="flow-item">
+											<label>{{$t('month_used')}}:</label>
+											<span>
+												<label>{{$t('upload')}}</label>
+												<span>{{flowTransition(flowMsg.MonUp)}}</span>
+												<label>{{$t('download')}}</label>
+												<label>{{flowTransition(flowMsg.MonDown)}}</label>
+											</span>
+										</li>
+										<li class="flow-item">
+											<label>{{$t('month_limite')}}:</label>
+											<input type="number" v-model="flowMsg.MonthlyPackage"
+												:disabled="!flowMsg.Switch" style="width: 80px;height: 24px;"></input>GB
+										</li>
+										<li class="flow-item">
+											<label>{{$t('flow_switch')}}</label>
+											<el-switch active-color="#13ce66"  inactive-color="#ff4949" v-model="flowMsg.Switch"></el-switch>
+										</li>
+									</ul>
+									<p>{{$t('flowTip2')}}</p>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setFlowMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- pppoe服务器 -->
+						<div v-show="featureIndex=='more_pppoe'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('pppoe_ser')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<ul class="featureList ac">
+									<li :class="{active:pppoeserverType==0}" @click="pppoeserverType=0;"
+										style="width: 25%;">{{$t('pppoe_ser')}}</li>
+									<li :class="{active:pppoeserverType==1}" @click="pppoeserverType=1;"
+										style="width: 25%;">{{$t('pppoe_acc')}}</li>
+									<li :class="{active:pppoeserverType==2}"
+										@click="pppoeserverType=2;getpppoeuserList();" style="width: 25%;">
+										{{$t('userList')}}
+									</li>
+									<li :class="{active:pppoeserverType==3}" @click="pppoeserverType=3;"
+										style="width: 25%;">{{$t('dial_terminal')}}</li>
+								</ul>
+								<div class="outNetItem" v-show="pppoeserverType==0">
+									<el-form label-width="40%">
+										<el-form-item :label="$t('Switch')">
+											<el-radio label="1" v-model="pppoeserverMsg.pswitch">{{$t('open')}}
+											</el-radio>
+											<el-radio label="0" v-model="pppoeserverMsg.pswitch">{{$t('close')}}
+											</el-radio>
+										</el-form-item>
+										<el-form-item :label="$t('server_address')">
+											<el-input v-model="pppoeserverMsg.saddr"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('serverName')">
+											<el-input v-model="pppoeserverMsg.sname"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>（{{$t('optional')}}）
+										</el-form-item>
+										<el-form-item :label="$t('start_address')">
+											<el-input v-model="pppoeserverMsg.startip"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('end_address')">
+											<el-input v-model="pppoeserverMsg.endip"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('pppoe_sauth')">
+											<el-select v-model="pppoeserverMsg.sauth"
+												:disabled="pppoeserverMsg.pswitch==0">
+												<el-option value="0" :label="$t('auto')"></el-option>
+												<el-option value="1" :label="$t('manual')"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item label="" v-show="pppoeserverMsg.sauth=='1'">
+											<template>
+												<el-checkbox v-model="pppoeserverMsg.spap">PAP</el-checkbox>
+												<el-checkbox v-model="pppoeserverMsg.schap">CHAP</el-checkbox>
+												<el-checkbox v-model="pppoeserverMsg.sms_chap">MS-CHAP</el-checkbox>
+												<el-checkbox v-model="pppoeserverMsg.sms_chapv2">MS-CHAP-V2
+												</el-checkbox>
+											</template>
+										</el-form-item>
+										<el-form-item :label="$t('ldpcktime')">
+											<el-input type="number" v-model="pppoeserverMsg.ldpcktime"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('ldpcount')">
+											<el-input type="number" v-model="pppoeserverMsg.ldpcount"
+												:disabled="pppoeserverMsg.pswitch==0"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+									</el-form>
+								</div>
+								<div class="outNetItem" v-show="pppoeserverType==1">
+									<el-form label-width="40%">
+										<el-form-item :label="$t('account_user')">
+											<el-input v-model="pppoeUserAdd.userAddres"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('password')">
+											<el-input v-model="pppoeUserAdd.serverpwd"
+												:placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<p class="tips ac" style="padding:20px 0">{{$t('user_tips')}}</p>
+									</el-form>
+								</div>
+								<div class="outNetItem" v-show="pppoeserverType==2">
+									<template>
+										<el-table :data="pppoeuserList" border height="300" style="width: 100%;"
+											:key="1">
+											<el-table-column prop="" label="NO" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<span>{{scope.$index}}</span>
+												</template>
+											</el-table-column>
+											<el-table-column prop="user" :label="$t('account_user')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="password" :label="$t('password')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-edit cur-point" @click=""
+														style="font-size: 24px;margin:0 10px;"></i>
+													<i class="el-icon-delete cur-point" @click=""
+														style="font-size: 24px;margin:0 10px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+								</div>
+								<div class="outNetItem" v-show="pppoeserverType==3">
+									<template>
+										<el-table :data="parentControl.list" border height="300" style="width: 100%;"
+											:key="1">
+											<el-table-column prop="" label="NO" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<span>{{scope.$index}}</span>
+												</template>
+											</el-table-column>
+											<el-table-column prop="user" :label="$t('account_user')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="" :label="$t('p_flow')" align="center"
+												:resizable="false">
+												<template slot-scope="scope">
+													<p>{{$t('upload')}}：{{scope.row.clientup}}</p>
+													<p>{{$t('download')}}：{{scope.row.clientdown}}</p>
+												</template>
+											</el-table-column>
+											<el-table-column prop="" label="IP/MAC" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<p>IP：{{scope.row.ip}}</p>
+													<p>MAC：{{scope.row.mac}}</p>
+												</template>
+											</el-table-column>
+											<el-table-column prop="endtime" :label="$t('p_Expire')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="online" :label="$t('status')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-edit cur-point" @click=""
+														style="font-size: 24px;margin:0 10px;"></i>
+													<i class="el-icon-delete cur-point" @click=""
+														style="font-size: 24px;margin:0 10px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+									<p class="tips ac" style="padding:20px 0">{{$t('dial_tips')}}</p>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color"
+										@click="pppoeserverType==0 ? 'setpppoeServer()' : 'setadduser()'"
+										v-if="pppoeserverType==0||pppoeserverType==1">{{$t('apply')}}</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- mac克隆 -->
+						<div v-show="featureIndex=='macClone'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('macClone')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:50px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('inputType')">
+										<el-select v-model="macIndex" :placeholder="$t('choose')">
+											<el-option :key="0" :value="0" :label="$t('Manual_input')"></el-option>
+											<el-option v-for="(item,index) in cloneMacMsg.list" :key="index"
+												:value="index+1" :label="item.mac"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('macClone')" style="position: relative;"
+										v-show="macIndex==0">
+										<el-input v-model="cloneMacMsg.clonemac"></el-input>
+										<el-button type="primary" size="small" class="button-color"
+											@click="cloneMacMsg.self ? cloneMacMsg.clonemac=cloneMacMsg.self:''">
+											{{$t('restoreMac')}}
+										</el-button>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:175px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setMacClone">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 高级DNS -->
+						<div v-show="featureIndex=='advancedDNS'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > {{$t('dnsSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:50px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Switch')">
+										<template>
+											<el-radio-group v-model="dnsMsg.status">
+												<el-radio label="1">{{$t('open')}}</el-radio>
+												<el-radio label="0">{{$t('close')}}</el-radio>
+											</el-radio-group>
+										</template>
+									</el-form-item>
+									<el-form-item label="DNS1">
+										<el-input v-model="dnsMsg.dns1" :disabled="dnsMsg.status=='0'">
+										</el-input>
+									</el-form-item>
+									<el-form-item label="DNS2">
+										<el-input v-model="dnsMsg.dns2" :disabled="dnsMsg.status=='0'">
+										</el-input>
+									</el-form-item>
+								</el-form>
+								<p class="tips ac" style="padding:20px 0">{{$t('dnsTip')}}</p>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setDNSMsg();">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- iptv -->
+						<div v-show="featureIndex=='iptv'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > IPTV</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:50px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('iptvSwitch')">
+										<el-switch v-model="iptvMsg.enable" :active-value="1" :inactive-value="0"
+											active-color="#13ce66"  inactive-color="#ff4949">
+										</el-switch>
+									</el-form-item>
+									<el-form-item :label="$t('port')">
+										<el-checkbox-group v-model="iptvCheckList" size="medium"
+											:disabled="iptvMsg.enable==0">
+											<el-checkbox-button label="lan4" key="lan4">LAN4</el-checkbox-button>
+											<el-checkbox-button label="lan3" key="lan3">LAN3</el-checkbox-button>
+											<el-checkbox-button label="lan2" key="lan2">LAN2</el-checkbox-button>
+											<el-checkbox-button label="lan1" key="lan1">LAN1</el-checkbox-button>
+										</el-checkbox-group>
+									</el-form-item>
+									<el-form-item label="VLAN ID">
+										<el-input type="number" v-model="iptvMsg.tag"	:placeholder="$t('iptvVLANID_verify')"
+										 :disabled="iptvMsg.enable==0" style="width: 307px;">
+										</el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setIptvMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- ipv6 -->
+						<div v-show="featureIndex=='ipv6'" style="margin-top: 25px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > IPv6</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:50px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('ipv6lanmflag')">
+										<el-radio-group v-model="ipv6Msg.lantype">
+											<el-radio label="2">{{$t('stateful')}}</el-radio>
+											<el-radio label="0">{{$t('stateless')}}</el-radio>
+											<el-radio label="1">{{$t('auto')}}</el-radio>
+										</el-radio-group>
+									</el-form-item>
+									<el-form-item :label="$t('ipv6_passthrough')">
+										<el-radio-group v-model="ipv6Msg.ipv6_passthrough">
+											<el-radio label="1">{{$t('open')}}</el-radio>
+											<el-radio label="0">{{$t('close')}}</el-radio>
+										</el-radio-group>
+									</el-form-item>
+									<el-form-item :label="$t('ipv6globalTit')" v-show="ipv6Msg.ipv6_passthrough!='1'">
+										<span>{{ipv6Msg.globaladdr}}</span>
+									</el-form-item>
+									<el-form-item :label="$t('ipv6localTit')">
+										<span>{{ipv6Msg.localaddr}}</span>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setIPv6Msg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- upnp -->
+						<div v-show="featureIndex=='upnp'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('network')}} > UPNP</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%">
+									<el-form-item :label="$t('Switch')">
+										<el-radio v-model="upnpMsg.enable" :label="1">
+											{{$t('open')}}
+										</el-radio>
+										<el-radio v-model="upnpMsg.enable" :label="0">
+											{{$t('close')}}
+										</el-radio>
+									</el-form-item>
+								</el-form>
+								<!-- <div v-show="upnpMsg.enable==1" style="display: none;">
+									<el-table :data="upnpMsg.list" border height="40vh" style="width: 100%;" :key="1">
+										<el-table-column prop="ip" label="IP" align="center" :resizable="false">
+										</el-table-column>
+										<el-table-column prop="externalPort" :label="$t('External_port')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column prop="internalPort" :label="$t('Internal_port')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column prop="protocol" :label="$t('protocol')" align="center"
+											:resizable="false">
+										</el-table-column>
+									</el-table>
+								</div> -->
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setUpnpMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 无线设置-->
+						<!-- wifi设置 -->
+						<div v-show="featureIndex=='more_wifi'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wireless')}} > {{$t('wifiSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('dualSwitch')">
+										<el-switch v-model="dualSwitch" active-color="#13ce66"  inactive-color="#ff4949" @change="dualSwitchChange">
+										</el-switch>
+									</el-form-item>
+									<div>
+										<div>
+											<el-form-item :label="dualSwitch ? $t('Switch') : $t('twoSwitch')">
+												<el-switch v-model="twoWifiMsg.enable" active-color="#13ce66"  inactive-color="#ff4949"
+													@change="dualSwitch ? setWifiSwitch($event,'setAllswitch') : setWifiSwitch($event,'set2gswitch')">
+												</el-switch>
+											</el-form-item>
+											<el-form-item :label="$t('wifiName')">
+												<el-input v-model="twoWifiMsg.wlanssid" :disabled="!twoWifiMsg.enable"
+													@blur="twoWifiMsg.wlanssid=$event.target.value.trim()"
+													style="width: 270px;"></el-input>
+											</el-form-item>
+											<el-form-item label="">
+												<template>
+													<el-checkbox v-model="twoWifiMsg.ssidhide"
+														:disabled="!twoWifiMsg.enable" @change="setSsidHide($event,2)">
+														{{$t('ssidHide')}}
+													</el-checkbox>
+												</template>
+											</el-form-item>
+											<el-form-item :label="$t('encryption')">
+												<el-select v-model="twoWifiMsg.wlanpswmode" :placeholder="$t('choose')"
+													:disabled="!twoWifiMsg.enable" style="width: 270px;">
+													<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+													<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+													<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+													<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK">
+													</el-option>
+													<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK">
+													</el-option>
+													<el-option :key="5" value="wpawpa2-tkipaes"
+														label="WPA-PSK/WPA2-PSK(TKIPAES)"></el-option>
+												</el-select>
+											</el-form-item>
+											<div class="ac" v-show="twoWifiMsg.wlanpswmode=='wpa2wpa3'">
+												<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+												<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+											</div>
+											<el-form-item :label="$t('wifiPwd')"
+												v-show="twoWifiMsg.wlanpswmode!='open'">
+												<el-input v-model="twoWifiMsg.wlanpsw" :disabled="!twoWifiMsg.enable"
+													@blur="twoWifiMsg.wlanpsw=$event.target.value.trim()"
+													style="width: 270px;"></el-input>
+											</el-form-item>
+											<el-form-item :label="$t('signal')">
+												<el-select v-model="twoWifiMsg.power" :placeholder="$t('choose')"
+													:disabled="!twoWifiMsg.enable" style="width: 270px;">
+													<el-option :key="0" :value="0" :label="$t('weak')"></el-option>
+													<el-option :key="1" :value="1" :label="$t('standard')"></el-option>
+													<el-option :key="2" :value="2" :label="$t('wall')"></el-option>
+												</el-select>
+											</el-form-item>
+										</div>
+										<div v-show="!dualSwitch">
+											<el-form-item :label="$t('fiveSwitch')">
+												<el-switch v-model="fiveWifiMsg.enable" active-color="#13ce66"  inactive-color="#ff4949"
+													@change="setWifiSwitch($event,'set5gswitch')">
+												</el-switch>
+											</el-form-item>
+											<el-form-item :label="$t('wifiName')">
+												<el-input v-model="fiveWifiMsg.wlanssid" :disabled="!fiveWifiMsg.enable"
+													@blur="fiveWifiMsg.wlanssid=$event.target.value.trim()"
+													style="width: 270px;"></el-input>
+											</el-form-item>
+											<el-form-item label="">
+												<template>
+													<el-checkbox v-model="fiveWifiMsg.ssidhide"
+														:disabled="!fiveWifiMsg.enable" @change="setSsidHide($event,5)">
+														{{$t('ssidHide')}}
+													</el-checkbox>
+												</template>
+											</el-form-item>
+											<el-form-item :label="$t('encryption')">
+												<el-select v-model="fiveWifiMsg.wlanpswmode" :placeholder="$t('choose')"
+													:disabled="!fiveWifiMsg.enable" style="width: 270px;">
+													<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+													<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+													<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+													<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK">
+													</el-option>
+													<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK">
+													</el-option>
+													<el-option :key="5" value="wpawpa2-tkipaes"
+														label="WPA-PSK/WPA2-PSK(TKIPAES)"></el-option>
+												</el-select>
+											</el-form-item>
+											<div class="ac" v-if="fiveWifiMsg.wlanpswmode=='wpa2wpa3'">
+												<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+												<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+											</div>
+											<el-form-item :label="$t('wifiPwd')"
+												v-show="fiveWifiMsg.wlanpswmode!='open'">
+												<el-input v-model="fiveWifiMsg.wlanpsw" :disabled="!fiveWifiMsg.enable"
+													@blur="fiveWifiMsg.wlanpsw=$event.target.value.trim()"
+													style="width: 270px;"></el-input>
+											</el-form-item>
+											<el-form-item :label="$t('signal')">
+												<el-select v-model="fiveWifiMsg.power" :placeholder="$t('choose')"
+													:disabled="!fiveWifiMsg.enable" style="width: 270px;">
+													<el-option :key="0" :value="0" :label="$t('weak')"></el-option>
+													<el-option :key="1" :value="1" :label="$t('standard')"></el-option>
+													<el-option :key="2" :value="2" :label="$t('wall')"></el-option>
+												</el-select>
+											</el-form-item>
+										</div>
+									</div>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setWifiMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 无线模式设置 -->
+						<div v-show="featureIndex=='wifiMode'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wireless')}} > {{$t('wirelessModeSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('twoWifiMode')">
+										<el-select v-model="wifiModeForm.twoWifiMode">
+											<el-option :key="0" :value="0" label="B/G/GN"></el-option>
+											<el-option :key="1" :value="1" label="AX"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('fiveWifiMode')">
+										<el-select v-model="wifiModeForm.fiveWifiMode">
+											<el-option :key="0" :value="0" label="A/AC/AN mixed"></el-option>
+											<el-option :key="1" :value="1" label="AX"></el-option>
+										</el-select>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setWifiMode">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 访客网络 -->
+						<div v-show="featureIndex=='visitorNet'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wireless')}} > {{$t('visitorNet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="300px" style="padding:10px 0 20px;box-sizing: border-box;">
+									<div>
+										<div class="sp-title">
+											<h3>{{$t('twoVisitorNet')}}</h3>
+										</div>
+										<el-form-item :label="$t('Switch')">
+											<el-switch v-model="twoVisNetMsg.Switch" :active-value="1"
+												:inactive-value="0" active-color="#13ce66"  inactive-color="#ff4949">
+											</el-switch>
+										</el-form-item>
+										<el-form-item :label="$t('wifiName')">
+											<el-input v-model="twoVisNetMsg.ssid" :disabled="twoVisNetMsg.Switch==0"
+												@blur="twoVisNetMsg.ssid=$event.target.value.trim()"
+												style="width: 270px;">
+											</el-input>
+										</el-form-item>
+										<el-form-item label="">
+											<el-checkbox v-model="twoVisNetMsg.ssid_hide"
+												:disabled="twoVisNetMsg.Switch==0">
+												{{$t('ssidHide')}}
+											</el-checkbox>
+										</el-form-item>
+										<el-form-item :label="$t('encryption')">
+											<el-select v-model="twoVisNetMsg.encryption" :placeholder="$t('choose')"
+												:disabled="twoVisNetMsg.Switch==0" style="width: 270px;">
+												<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+												<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+												<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+												<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK">
+												</el-option>
+												<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK">
+												</el-option>
+												<el-option :key="5" value="wpawpa2-tkipaes"
+													label="WPA-PSK/WPA2-PSK(TKIPAES)"></el-option>
+											</el-select>
+										</el-form-item>
+										<div class="ac" v-show="twoVisNetMsg.encryption=='wpa2wpa3'">
+											<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+											<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+										</div>
+										<el-form-item :label="$t('wifiPwd')" v-show="twoVisNetMsg.encryption!='open' ">
+											<el-input v-model="twoVisNetMsg.pwd" :disabled="twoVisNetMsg.Switch==0"
+												@blur="twoVisNetMsg.pwd=$event.target.value.trim()"
+												style="width: 270px;">
+											</el-input>
+										</el-form-item>
+									</div>
+									<div>
+										<div class="sp-title">
+											<h3>{{$t('fiveVisitorNet')}}</h3>
+										</div>
+										<el-form-item :label="$t('Switch')">
+											<el-switch v-model="fiveVisNetMsg.Switch" :active-value="1"
+												:inactive-value="0" active-color="#13ce66"  inactive-color="#ff4949">
+											</el-switch>
+										</el-form-item>
+										<el-form-item :label="$t('wifiName')">
+											<el-input v-model="fiveVisNetMsg.ssid" :disabled="fiveVisNetMsg.Switch==0"
+												@blur="fiveVisNetMsg.ssid=$event.target.value.trim()"
+												style="width: 270px;">
+											</el-input>
+										</el-form-item>
+										<el-form-item label="">
+											<el-checkbox v-model="fiveVisNetMsg.ssid_hide"
+												:disabled="fiveVisNetMsg.Switch==0">
+												{{$t('ssidHide')}}
+											</el-checkbox>
+										</el-form-item>
+										<el-form-item :label="$t('encryption')">
+											<el-select v-model="fiveVisNetMsg.encryption" :placeholder="$t('choose')"
+												:disabled="fiveVisNetMsg.Switch==0" style="width: 270px;">
+												<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+												<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+												<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+												<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK">
+												</el-option>
+												<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK">
+												</el-option>
+												<el-option :key="5" value="wpawpa2-tkipaes"
+													label="WPA-PSK/WPA2-PSK(TKIPAES)"></el-option>
+											</el-select>
+										</el-form-item>
+										<div class="ac" v-if="fiveVisNetMsg.encryption=='wpa2wpa3'">
+											<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+											<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+										</div>
+										<el-form-item :label="$t('wifiPwd')" v-show="fiveVisNetMsg.encryption!='open'">
+											<el-input v-model="fiveVisNetMsg.pwd" :disabled="fiveVisNetMsg.Switch==0"
+												@blur="fiveVisNetMsg.pwd=$event.target.value.trim()"
+												style="width: 270px;">
+											</el-input>
+										</el-form-item>
+									</div>
+								</el-form>
+								<!-- <p class="tips ac" style="padding:20px 0">{{$t('Visitor_tip')}}</p> -->
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setVisNetMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 信道设置 -->
+						<div v-show="featureIndex=='channelSet'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wireless')}} > {{$t('channelSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<!-- 2.4g信道设置 -->
+									<div class="sp-title">
+										<h3>{{$t('twoChannelSet')}}</h3>
+									</div>
+									<el-form-item :label="$t('countryCode')" style="margin-top:15px;">
+										<el-select v-model="twoChannel.countrycode" :placeholder="$t('choose')"
+											:disabled="sessionStorage.getItem('wifiType')=='2.4G'"
+											@change="twoChannel.channel=0;twoChannel.htbw=0;">
+											<el-option :key="0" value="US" :label="$t('united_states')"></el-option>
+											<el-option :key="1" value="JP" :label="$t('japan')"></el-option>
+											<el-option :key="2" value="FR" :label="$t('france')"></el-option>
+											<el-option :key="3" value="TW" :label="$t('TaiWan')"></el-option>
+											<el-option :key="4" value="IE" :label="$t('ireland')"></el-option>
+											<el-option :key="5" value="HK" :label="$t('china')"></el-option>
+											<el-option :key="6" value="NONE" :label="$t('none')"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('channelChoose')">
+										<el-select v-model="twoChannel.channel" :placeholder="$t('choose')"
+											:disabled="sessionStorage.getItem('wifiType')=='2.4G'">
+											<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+											<el-option :key="1" :value="1" label="1"></el-option>
+											<el-option :key="2" :value="2" label="2"></el-option>
+											<el-option :key="3" :value="3" label="3"></el-option>
+											<el-option :key="4" :value="4" label="4"></el-option>
+											<el-option :key="5" :value="5" label="5"></el-option>
+											<el-option :key="6" :value="6" label="6"></el-option>
+											<el-option :key="7" :value="7" label="7"></el-option>
+											<el-option :key="8" :value="8" label="8"></el-option>
+											<el-option :key="9" :value="9" label="9"></el-option>
+											<el-option :key="10" :value="10" label="10"></el-option>
+											<el-option :key="11" :value="11" label="11"></el-option>
+											<el-option :key="12" :value="12" label="12"
+												v-if="twoChannel.countrycode!='US' && twoChannel.countrycode!='TW'">
+											</el-option>
+											<el-option :key="13" :value="13" label="13"
+												v-if="twoChannel.countrycode!='US' && twoChannel.countrycode!='TW'">
+											</el-option>
+											<el-option :key="14" :value="14" label="14"
+												v-if="twoChannel.countrycode=='JP'||twoChannel.countrycode=='NONE'">
+											</el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('bandwidth')">
+										<el-select v-model="twoChannel.htbw" :placeholder="$t('choose')"
+											:disabled="sessionStorage.getItem('wifiType')=='2.4G'">
+											<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+											<el-option :key="1" :value="1" label="20M"></el-option>
+											<el-option :key="2" :value="2" label="40M"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('C_channel')" v-if="twoChannel.channel==0">
+										<span>{{twoChannel.curchannel}}</span>
+									</el-form-item>
+									<div class="tips flex" style="margin-left:30%;">
+										<span>{{$t('tips')}}:</span>
+										<div>
+											<p style="margin-bottom: 6px;">{{$t('bandwidthTip1')}}</p>
+											<p v-show="twoChannel.channel==14">{{$t('channelTip1')}}</p>
+										</div>
+									</div>
+									<!-- 5.8g信道设置 -->
+									<div class="sp-title">
+										<h3>{{$t('fiveChannelSet')}}</h3>
+									</div>
+									<el-form-item :label="$t('countryCode')" style="margin-top:15px;">
+										<el-select v-model="fiveChannel.countrycode" @change="fiveCountrycodeChange" :placeholder="$t('choose')"
+											:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+											<el-option :key="0" value="US" :label="$t('united_states')"></el-option>
+											<el-option :key="1" value="JP" :label="$t('japan')"></el-option>
+											<el-option :key="2" value="FR" :label="$t('france')"></el-option>
+											<el-option :key="3" value="TW" :label="$t('TaiWan')"></el-option>
+											<el-option :key="4" value="IE" :label="$t('ireland')"></el-option>
+											<el-option :key="5" value="HK" :label="$t('china')"></el-option>
+											<el-option :key="6" value="NONE" :label="$t('none')"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('channelChoose')">
+										<!-- 美国/无 -->
+										<template v-if="fiveChannel.countrycode=='US'||fiveChannel.countrycode=='NONE'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange" :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="36" label="36"></el-option>
+												<el-option :key="2" :value="40" label="40"></el-option>
+												<el-option :key="3" :value="44" label="44"></el-option>
+												<el-option :key="4" :value="48" label="48"></el-option>
+												<el-option :key="5" :value="52" label="52"></el-option>
+												<el-option :key="6" :value="56" label="56"></el-option>
+												<el-option :key="7" :value="60" label="60"></el-option>
+												<el-option :key="8" :value="64" label="64"></el-option>
+												<el-option :key="9" :value="100" label="100"></el-option>
+												<el-option :key="10" :value="104" label="104"></el-option>
+												<el-option :key="11" :value="108" label="108"></el-option>
+												<el-option :key="12" :value="112" label="112"></el-option>
+												<el-option :key="13" :value="116" label="116"></el-option>
+												<el-option :key="14" :value="120" label="120"></el-option>
+												<el-option :key="15" :value="124" label="124"></el-option>
+												<el-option :key="16" :value="128" label="128"></el-option>
+												<el-option :key="17" :value="132" label="132"></el-option>
+												<el-option :key="18" :value="136" label="136"></el-option>
+												<el-option :key="19" :value="140" label="140"></el-option>
+												<el-option :key="20" :value="149" label="149"></el-option>
+												<el-option :key="21" :value="153" label="153"></el-option>
+												<el-option :key="22" :value="157" label="157"></el-option>
+												<el-option :key="23" :value="161" label="161"></el-option>
+												<el-option :key="24" :value="165" label="165"></el-option>
+											</el-select>
+										</template>
+										<!-- 日本 -->
+										<template v-if="fiveChannel.countrycode=='JP'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange" :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="36" label="36"></el-option>
+												<el-option :key="2" :value="40" label="40"></el-option>
+												<el-option :key="3" :value="44" label="44"></el-option>
+												<el-option :key="4" :value="48" label="48"></el-option>
+											</el-select>
+										</template>
+										<!-- 法国 -->
+										<template v-if="fiveChannel.countrycode=='FR'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange" :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="36" label="36"></el-option>
+												<el-option :key="2" :value="40" label="40"></el-option>
+												<el-option :key="3" :value="44" label="44"></el-option>
+												<el-option :key="4" :value="48" label="48"></el-option>
+												<el-option :key="5" :value="52" label="52"></el-option>
+												<el-option :key="6" :value="56" label="56"></el-option>
+												<el-option :key="7" :value="60" label="60"></el-option>
+												<el-option :key="8" :value="64" label="64"></el-option>
+											</el-select>
+										</template>
+										<!-- 台湾 -->
+										<template v-if="fiveChannel.countrycode=='TW'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange" :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="52" label="52"></el-option>
+												<el-option :key="2" :value="56" label="56"></el-option>
+												<el-option :key="3" :value="60" label="60"></el-option>
+												<el-option :key="4" :value="64" label="64"></el-option>
+											</el-select>
+										</template>
+										<!-- 爱尔兰 -->
+										<template v-if="fiveChannel.countrycode=='IE'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange" :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="36" label="36"></el-option>
+												<el-option :key="2" :value="40" label="40"></el-option>
+												<el-option :key="3" :value="44" label="44"></el-option>
+												<el-option :key="4" :value="48" label="48"></el-option>
+												<el-option :key="5" :value="52" label="52"></el-option>
+												<el-option :key="6" :value="56" label="56"></el-option>
+												<el-option :key="7" :value="60" label="60"></el-option>
+												<el-option :key="8" :value="64" label="64"></el-option>
+												<el-option :key="9" :value="100" label="100"></el-option>
+												<el-option :key="10" :value="104" label="104"></el-option>
+												<el-option :key="11" :value="108" label="108"></el-option>
+												<el-option :key="12" :value="112" label="112"></el-option>
+												<el-option :key="13" :value="116" label="116"></el-option>
+												<el-option :key="14" :value="120" label="120"></el-option>
+												<el-option :key="15" :value="124" label="124"></el-option>
+												<el-option :key="16" :value="128" label="128"></el-option>
+												<el-option :key="17" :value="132" label="132"></el-option>
+												<el-option :key="18" :value="136" label="136"></el-option>
+												<el-option :key="19" :value="140" label="140"></el-option>
+											</el-select>
+										</template>
+										<!-- 中国 -->
+										<template v-if="fiveChannel.countrycode=='HK'">
+											<el-select v-model="fiveChannel.channel" @change="fiveChannelChange"  :placeholder="$t('choose')"
+												:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+												<el-option :key="0" :value="0" :label="$t('auto')"></el-option>
+												<el-option :key="1" :value="36" label="36"></el-option>
+												<el-option :key="2" :value="40" label="40"></el-option>
+												<el-option :key="3" :value="44" label="44"></el-option>
+												<el-option :key="4" :value="48" label="48"></el-option>
+												<el-option :key="5" :value="52" label="52"></el-option>
+												<el-option :key="6" :value="56" label="56"></el-option>
+												<el-option :key="7" :value="60" label="60"></el-option>
+												<el-option :key="8" :value="64" label="64"></el-option>
+												<el-option :key="9" :value="149" label="149"></el-option>
+												<el-option :key="10" :value="153" label="153"></el-option>
+												<el-option :key="11" :value="157" label="157"></el-option>
+												<el-option :key="12" :value="161" label="161"></el-option>
+												<el-option :key="13" :value="165" label="165"></el-option>
+											</el-select>
+										</template>
+									</el-form-item>
+									<el-form-item :label="$t('bandwidth')">
+										<el-select v-model="fiveChannel.htbw" :placeholder="$t('choose')"
+											:disabled="sessionStorage.getItem('wifiType')=='5.8G'">
+											<el-option :key="item.value" :value="item.value" :label="item.label" 
+												v-for="item in fiveBandwidthList"></el-option>
+										</el-select>
+									</el-form-item>
+									<el-form-item :label="$t('C_channel')" v-if="fiveChannel.channel==0">
+										<span>{{fiveChannel.curchannel}}</span>
+									</el-form-item>
+									<p class="tips ac" v-show="!specialBandwidthShow">{{$t('tips')}}:{{$t('bandwidthTip2')}}</p>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setChannelMsg('pc')">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 2.4g信道优化 -->
+						<div v-show="featureIndex=='twoChannelOptimize'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wireless')}} > {{$t('twoChannelOptimiza')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<ul class="featureList ac" style="margin-bottom: 35px;width: 100%;">
+									<li :class="{active:channelPercent=='25'}">差</li>
+									<li :class="{active:channelPercent=='65'}">不错</li>
+									<li :class="{active:channelPercent=='100'}">很好</li>
+								</ul>
+								<el-progress :text-inside="true" :stroke-width="26" :percentage="channelPercent"
+									status="exception"></el-progress>
+								<div class="ac" style="margin: 30px 0;">
+									<label class="ar" style="width: 30%;margin-right: 15px;">当前信道</label>
+									<span v-text="channelqualityMsg.channel"></span>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setchannelOptimiza">
+										{{$t('channelOptimiza')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 系统设置 -->
+						<!-- 绑定列表 -->
+						<div v-show="featureIndex=='StaticList'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('staticList')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<template>
+									<el-table :data="bindList" border height="300" style="width: 100%;" :key="1">
+										<el-table-column prop="" label="NO" align="center" :resizable="false">
+											<template slot-scope="scope">
+												<span>{{scope.$index}}</span>
+											</template>
+										</el-table-column>
+										<el-table-column prop="sName" :label="$t('deviceName')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column prop="ip" label="IP" align="center" :resizable="false">
+										</el-table-column>
+										<el-table-column prop="mac" :label="$t('mac')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column :label="$t('operation')" align="center" :resizable="false">
+											<template slot-scope="scope">
+												<el-button @click="lostBind(scope.row)">{{$t('Unbind')}}</el-button>
+											</template>
+										</el-table-column>
+									</el-table>
+								</template>
+								<div class="ac" style="margin-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- wifi定时关闭 -->
+						<div v-show="featureIndex=='wifiTiming'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('wirelessSet')}} > {{$t('wifiTiming_off')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<div v-show="wifiTimerIndex==0">
+									<div class="overflow-hidden" style="padding:0 25px 15px;">
+										<el-switch v-model="wifiTimerMsg.Switch" active-value="1" inactive-value="0"
+											active-color="#13ce66"  inactive-color="#ff4949" class="fl" @change="setWifiTimerSwitch">
+										</el-switch>
+										<i class="el-icon-circle-plus fr"
+											:class="{'cur-point':wifiTimerMsg.Switch=='1'}"
+											@click="wifiTimerMsg.Switch=='1'? wifiTimerAdd(): ''"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-table :data="wifiTimerMsg.list" border height="300" style="width: 100%;"
+										:key="1">
+										<el-table-column prop="period" :label="$t('period')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column :label="$t('week')" align="center" :resizable="false">
+											<template slot-scope="scope" v-if="scope.row.week">
+												<span v-for="(item,index) in scope.row.week.split(',')" :key="index">
+													<span v-if="item=='1'">{{$t('Mon')}}</span>
+													<span v-if="item=='2'">{{$t('Tue')}}</span>
+													<span v-if="item=='3'">{{$t('Wed')}}</span>
+													<span v-if="item=='4'">{{$t('Thur')}}</span>
+													<span v-if="item=='5'">{{$t('Fri')}}</span>
+													<span v-if="item=='6'">{{$t('Sat')}}</span>
+													<span v-if="item=='0'">{{$t('Sun')}}</span>
+													<span>&nbsp;</span>
+												</span>
+											</template>
+										</el-table-column>
+										<el-table-column :label="$t('operation')" align="center" :resizable="false">
+											<template slot-scope="scope">
+												<i class="el-icon-delete"
+													:class="{'cur-point':wifiTimerMsg.Switch=='1'}"
+													@click="wifiTimerMsg.Switch=='1' ? setWifiSchedule('delete',scope.row): ''"
+													style="font-size: 24px;"></i>
+											</template>
+										</el-table-column>
+									</el-table>
+								</div>
+								<div v-show="wifiTimerIndex==1">
+									<div class="al" style="padding:0 25px 15px;">
+										<i class="el-icon-back cur-point" @click="wifiTimerIndex=0;"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-form label-width="280px">
+										<el-form-item :label="$t('period')">
+											<el-select v-model="wifiPeriod1"  style="width:80px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 23"></el-option>
+											</el-select>:
+											<el-select v-model="wifiPeriod2"  style="width:80px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 59"></el-option>
+											</el-select> --
+											<el-select v-model="wifiPeriod3"  style="width:80px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 23"></el-option>
+											</el-select>:
+											<el-select v-model="wifiPeriod4"  style="width:80px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 59"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item :label="$t('week')">
+											<div style="width: 75%;">
+												<el-radio-group v-model="dateIndex" @change="dateChange">
+													<el-radio :label="0">{{$t('everyday')}}</el-radio>
+													<el-radio :label="1">{{$t('specify')}}</el-radio>
+												</el-radio-group>
+												<el-checkbox-group v-model="weekList">
+													<el-checkbox :label="1">{{$t('Mon')}}</el-checkbox>
+													<el-checkbox :label="2">{{$t('Tue')}}</el-checkbox>
+													<el-checkbox :label="3">{{$t('Wed')}}</el-checkbox>
+													<el-checkbox :label="4">{{$t('Thur')}}</el-checkbox>
+													<el-checkbox :label="5">{{$t('Fri')}}</el-checkbox>
+													<el-checkbox :label="6">{{$t('Sat')}}</el-checkbox>
+													<el-checkbox :label="0">{{$t('Sun')}}</el-checkbox>
+												</el-checkbox-group>
+											</div>
+										</el-form-item>
+									</el-form>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="setWifiSchedule('add')">
+											{{$t('apply')}}
+										</el-button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 儿童保护 -->
+						<div v-show="featureIndex=='more_terminallist'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('protection')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<div v-if="parentIndex==0">
+									<div class="overflow-hidden" style="padding:0 25px 15px;">
+										<el-switch v-model="parentControl.Switch" active-color="#13ce66"  inactive-color="#ff4949" class="fl"
+											@change="setParentSwitch">
+										</el-switch>
+										<i class="el-icon-circle-plus fr" :class="{'cur-point':parentControl.Switch}"
+											@click="parentControl.Switch ? parentAdd():''" style="font-size: 30px;"></i>
+									</div>
+									<template>
+										<el-table :data="parentControl.list" border height="300" style="width: 100%;"
+											:key="1">
+											<el-table-column prop="alias" :label="$t('alias')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="mac" label="MAC" align="center" :resizable="false">
+											</el-table-column>
+											<el-table-column prop="accesstime" :label="$t('period')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="day" :label="$t('date')" align="center"
+												:resizable="false" width="250">
+												<template slot-scope="scope" v-if="scope.row.day">
+													<span v-for="(item,index) in scope.row.day.split(',')" :key="index">
+														<span v-if="item=='1'">{{$t('Mon')}}</span>
+														<span v-if="item=='2'">{{$t('Tue')}}</span>
+														<span v-if="item=='3'">{{$t('Wed')}}</span>
+														<span v-if="item=='4'">{{$t('Thur')}}</span>
+														<span v-if="item=='5'">{{$t('Fri')}}</span>
+														<span v-if="item=='6'">{{$t('Sat')}}</span>
+														<span v-if="item=='7'">{{$t('Sun')}}</span>
+														<span>&nbsp;</span>
+													</span>
+												</template>
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-edit" :class="{'cur-point':parentControl.Switch}"
+														@click="parentControl.Switch ? parentEdit(scope.row):''"
+														style="font-size: 24px;margin:0 10px;"></i>
+													<i class="el-icon-delete"
+														:class="{'cur-point':parentControl.Switch}"
+														@click="parentControl.Switch ? parentDelete(scope.row):''"
+														style="font-size: 24px;margin:0 10px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="featureIndex=0;"
+											style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									</div>
+								</div>
+								<div v-if="parentIndex==1">
+									<div class="al" style="padding:0 25px 15px;">
+										<i class="el-icon-back cur-point" @click="parentIndex=0;"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-form label-width="280px">
+										<el-form-item :label="$t('alias')+':'">
+											<el-input v-model="parentForm.alias" maxlength="64"
+												@blur="parentForm.alias=$event.target.value.trim()"
+												style="width: 368px;">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('deviceName')+':'">
+											<el-select v-model="clientIndex" :placeholder="$t('choose')"
+												style="width: 368px;">
+												<el-option :key="0" :value="0" :label="$t('Manual_input')"></el-option>
+												<el-option v-for="(item,index) in clientList" :key="index"
+													:value="index+1"
+													:label="'IP:'+item.ip+';'+$t('Hostname')+':'+ item.name">
+												</el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item label="MAC:" v-if="clientIndex==0">
+											<input v-model="macRange1" class="macInput" ref="macVal1"
+												@keyup="macfocus(macRange1,'macVal1','macVal2')" />:
+											<input v-model="macRange2" class="macInput" ref="macVal2"
+												@keyup="macfocus(macRange2,'macVal2','macVal3')" />:
+											<input v-model="macRange3" class="macInput" ref="macVal3"
+												@keyup="macfocus(macRange3,'macVal3','macVal4')" />:
+											<input v-model="macRange4" class="macInput" ref="macVal4"
+												@keyup="macfocus(macRange4,'macVal4','macVal5')" />:
+											<input v-model="macRange5" class="macInput" ref="macVal5"
+												@keyup="macfocus(macRange5,'macVal5','macVal6')" />:
+											<input v-model="macRange6" maxlength="2" class="macInput" ref="macVal6" />
+										</el-form-item>
+										<el-form-item :label="$t('period')+':'">
+											<el-select v-model="accesstime1" placeholder="" style="width:84px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 23"></el-option>
+											</el-select>:
+											<el-select v-model="accesstime2" placeholder="" style="width:84px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 59"></el-option>
+											</el-select> --
+											<el-select v-model="accesstime3" placeholder="" style="width:84px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 23"></el-option>
+											</el-select>:
+											<el-select v-model="accesstime4" placeholder="" style="width:84px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 59"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item :label="$t('date')+':'">
+											<el-checkbox-group v-model="parentForm.dayList" style="width: 384px;">
+												<el-checkbox label="1">{{$t('Mon')}}</el-checkbox>
+												<el-checkbox label="2">{{$t('Tue')}}</el-checkbox>
+												<el-checkbox label="3">{{$t('Wed')}}</el-checkbox>
+												<el-checkbox label="4">{{$t('Thur')}}</el-checkbox>
+												<el-checkbox label="5">{{$t('Fri')}}</el-checkbox>
+												<el-checkbox label="6">{{$t('Sat')}}</el-checkbox>
+												<el-checkbox label="7">{{$t('Sun')}}</el-checkbox>
+											</el-checkbox-group>
+										</el-form-item>
+									</el-form>
+									<p class="tips ac" v-text="$t('parentTip')"></p>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="parAddEdit"
+											style="margin-right:8px;">{{parOperation}}</el-button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 修改登录密码 -->
+						<div v-show="featureIndex=='adminPass'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('mgpassSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('oldmgpass')">
+										<el-input v-model="loginPwd.oldPwd" type="password" maxlength="64" show-password
+											:placeholder="$t('oldmgpass_label')"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('newmgpass')">
+										<el-input v-model="loginPwd.newPwd" type="password" maxlength="64" show-password
+											:placeholder="$t('newmgpass_label')"></el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="setLoginPwd">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 定时重启 -->
+						<div v-show="featureIndex=='scheduleRestart'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('scheduleRestart')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<div v-show="restartTimerIndex==0">
+									<div class="overflow-hidden" style="padding:0 25px 15px;">
+										<el-switch v-model="scheduleRestartMsg.Switch" active-value="1" inactive-value="0"
+											active-color="#13ce66"  inactive-color="#ff4949" class="fl" @change="setRestartTimerSwitch">
+										</el-switch>
+										<i class="el-icon-circle-plus fr"
+											:class="{'cur-point':scheduleRestartMsg.Switch=='1'}"
+											@click="scheduleRestartMsg.Switch=='1'? restartTimerAdd(): ''"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-table :data="scheduleRestartMsg.list" border height="300" style="width: 100%;"
+										:key="1">
+										<el-table-column prop="timing" :label="$t('restartTime')" align="center" width="180"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column :label="$t('week')" :resizable="false">
+											<template slot-scope="scope" v-if="scope.row.week">
+												<span v-for="(item,index) in scope.row.week.split(',')" :key="index">
+													<span v-if="item=='1'">{{$t('Mon')}}</span>
+													<span v-if="item=='2'">{{$t('Tue')}}</span>
+													<span v-if="item=='3'">{{$t('Wed')}}</span>
+													<span v-if="item=='4'">{{$t('Thur')}}</span>
+													<span v-if="item=='5'">{{$t('Fri')}}</span>
+													<span v-if="item=='6'">{{$t('Sat')}}</span>
+													<span v-if="item=='0'">{{$t('Sun')}}</span>
+													<span>&nbsp;</span>
+												</span>
+											</template>
+										</el-table-column>
+										<el-table-column :label="$t('operation')" align="center" width="180" :resizable="false">
+											<template slot-scope="scope">
+												<i class="el-icon-delete"
+													:class="{'cur-point':scheduleRestartMsg.Switch=='1'}"
+													@click="scheduleRestartMsg.Switch=='1' ? setRestartSchedule('delete',scope.row): ''"
+													style="font-size: 24px;"></i>
+											</template>
+										</el-table-column>
+									</el-table>
+								</div>
+								<div v-show="restartTimerIndex==1">
+									<div class="al" style="padding:0 25px 15px;">
+										<i class="el-icon-back cur-point" @click="restartTimerIndex=0;"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-form label-width="280px">
+										<el-form-item :label="$t('restartTime')">
+											<el-select v-model="restartPeriod1"  style="width:160px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 23"></el-option>
+											</el-select> ：
+											<el-select v-model="restartPeriod2"  style="width:160px;">
+												<el-option :key="0" value="00" label="00"></el-option>
+												<el-option :key="item" :value="item<10?'0'+item:item" :label="item<10?'0'+item:item" v-for="item in 59"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item :label="$t('week')">
+											<div style="width: 75%;">
+												<el-radio-group v-model="dateIndex" @change="dateChange">
+													<el-radio :label="0">{{$t('everyday')}}</el-radio>
+													<el-radio :label="1">{{$t('specify')}}</el-radio>
+												</el-radio-group>
+												<el-checkbox-group v-model="weekList">
+													<el-checkbox :label="1">{{$t('Mon')}}</el-checkbox>
+													<el-checkbox :label="2">{{$t('Tue')}}</el-checkbox>
+													<el-checkbox :label="3">{{$t('Wed')}}</el-checkbox>
+													<el-checkbox :label="4">{{$t('Thur')}}</el-checkbox>
+													<el-checkbox :label="5">{{$t('Fri')}}</el-checkbox>
+													<el-checkbox :label="6">{{$t('Sat')}}</el-checkbox>
+													<el-checkbox :label="0">{{$t('Sun')}}</el-checkbox>
+												</el-checkbox-group>
+											</div>
+										</el-form-item>
+									</el-form>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="setRestartSchedule('add')">
+											{{$t('apply')}}
+										</el-button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 面板灯开关 -->
+						<div v-show="featureIndex=='LED'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('led_name')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="300px" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Swtich')">
+										<template>
+											<el-radio v-model="ledswitchMsg.status" :label="1">{{$t('open')}}</el-radio>
+											<el-radio v-model="ledswitchMsg.status" :label="0">{{$t('close')}}
+											</el-radio>
+										</template>
+									</el-form-item>
+									<div v-show="ledswitchMsg.status==1">
+										<el-form-item :label="$t('led_mode')">
+											<el-select v-model="ledswitchMsg.ledeasysw">
+												<el-option :value="0" :label="$t('led_open')"></el-option>
+												<el-option :value="1" :label="$t('led_close')"></el-option>
+											</el-select>
+										</el-form-item>
+										<div v-show="ledswitchMsg.ledeasysw==0">
+											<el-form-item :label="$t('Timing')">
+												<el-input v-model="ledswitchMsg.ledsh" style="width: 80px;"></el-input>
+												{{$t('Hour')}}
+												<el-input v-model="ledswitchMsg.ledsm" style="width: 80px;"></el-input>
+												{{$t('Min')}}~
+												<el-input v-model="ledswitchMsg.ledeh" style="width: 80px;"></el-input>
+												{{$t('Hour')}}
+												<el-input v-model="ledswitchMsg.ledem" style="width: 80px;"></el-input>
+												{{$t('Min')}}
+											</el-form-item>
+											<p class="tips ac">{{$t('led_tip')}}</p>
+										</div>
+									</div>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setledswitchMsg">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 世界时间 -->
+						<div v-show="featureIndex=='worldTime'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('worldTime_name')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content" style="padding-top:60px;box-sizing: border-box;">
+								<el-form label-width="40%">
+									<el-form-item :label="$t('cur_timeTitle')">
+										<span>{{timeZoneMsg.systemtime}}</span>
+									</el-form-item>
+									<el-form-item :label="$t('time_server')">
+										<el-input v-model="timeZoneMsg.ntpserver" style="width: 250px;"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('time_zoneTitle')">
+										<el-select v-model="timeZoneMsg.ntptz" style="width: 250px;">
+											<el-option value="UCT_-11" :label="$t('MidIsland')"></el-option>
+											<el-option value="UCT_-10" :label="$t('Hawaii')"></el-option>
+											<el-option value="NAS_-09" :label="$t('Alaska')"></el-option>
+											<el-option value="PST_-08" :label="$t('Pacific')"></el-option>
+											<el-option value="MST_-07" :label="$t('Mountain')"></el-option>
+											<el-option value="MST_-07" :label="$t('Arizona')"></el-option>
+											<el-option value="CST_-06" :label="$t('Central')"></el-option>
+											<el-option value="UCT_-06" :label="$t('MidUS')"></el-option>
+											<el-option value="UCT_-05" :label="$t('IndianaEast')"></el-option>
+											<el-option value="EST_-05" :label="$t('Eastern')"></el-option>
+											<el-option value="AST_-04" :label="$t('Atlantic')"></el-option>
+											<el-option value="UCT_-04" :label="$t('Bolivia')"></el-option>
+											<el-option value="UCT_-03" :label="$t('Guyana')"></el-option>
+											<el-option value="EBS_-03" :label="$t('BrazilEast')"></el-option>
+											<el-option value="NOR_-02" :label="$t('MidAtlantic')"></el-option>
+											<el-option value="EUT_-01" :label="$t('AzoresIslands')"></el-option>
+											<el-option value="UCT_000" :label="$t('Gambia')"></el-option>
+											<el-option value="GMT_000" :label="$t('England')"></el-option>
+											<el-option value="MET_001" :label="$t('CzechRepublic')"></el-option>
+											<el-option value="MEZ_001" :label="$t('Germany')"></el-option>
+											<el-option value="UCT_001" :label="$t('Tunisia')">{</el-option>
+											<el-option value="EET_002" :label="$t('Greece')"></el-option>
+											<el-option value="SAS_002" :label="$t('SouthAfrica')"></el-option>
+											<el-option value="IST_003" :label="$t('Iraq')"></el-option>
+											<el-option value="MSK_003" :label="$t('MoscowWinter')"></el-option>
+											<el-option value="UCT_004" :label="$t('Armenia')"></el-option>
+											<el-option value="UCT_005" :label="$t('Pakistan')"></el-option>
+											<el-option value="UCT_006" :label="$t('Bangladesh')"></el-option>
+											<el-option value="UCT_007" :label="$t('Thailand')"></el-option>
+											<el-option value="CST_008" :label="$t('ChinaCoast')"></el-option>
+											<el-option value="CCT_008" :label="$t('Taipei')"></el-option>
+											<el-option value="SST_008" :label="$t('Singapore')"></el-option>
+											<el-option value="AWS_008" :label="$t('AustraliaWA')"></el-option>
+											<el-option value="JST_009" :label="$t('Japan')"></el-option>
+											<el-option value="KST_009" :label="$t('Korean')"></el-option>
+											<el-option value="UCT_010" :label="$t('Guam')"></el-option>
+											<el-option value="AES_010" :label="$t('AustraliaQLD')"></el-option>
+											<el-option value="UCT_011" :label="$t('SolomonIslands')"></el-option>
+											<el-option value="UCT_012" :label="$t('Fiji')"></el-option>
+											<el-option value="NZS_012" :label="$t('NewZealand')"></el-option>
+											<el-option value="NUKU_013" :label="$t('Nuku')"></el-option>
+										</el-select>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="set_timeZone_info">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 恢复出厂设置 -->
+						<div v-show="featureIndex=='restore'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('restore')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content" style="padding-top:60px;box-sizing: border-box;">
+								<p class="tips ac">{{$t('resetTip')}}</p>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="toReset">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 重启路由器 -->
+						<div v-show="featureIndex=='ReBoot'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('reboot')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content" style="padding-top:60px;box-sizing: border-box;">
+								<p class="tips ac">{{$t('rebootTip')}}</p>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="toReboot">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 硬件加速 -->
+						<div v-show="featureIndex=='hardware'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('hardware_NAT')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Switch')">
+										<template>
+											<el-radio v-model="hardware_status" label="1">
+												{{$t('open')}}
+											</el-radio>
+											<el-radio v-model="hardware_status" label="0">
+												{{$t('close')}}
+											</el-radio>
+										</template>
+									</el-form-item>
+									<p class="tips" style="width: 70%;margin: 0 auto;">1、{{$t('hwTip1')}}</p>
+									<p class="tips" style="width: 70%;margin: 10px auto 0;">2、{{$t('hwTip2')}}</p>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="toHardwareSpeed">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- FTP/SAMBA -->
+						<div v-show="featureIndex=='ftp'||featureIndex=='samba'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{featureIndex=='ftp' ? 'FTP' : 'SAMBA'}}</p>
+								<div class="fr">
+									<el-button type="primary" size="small" class="button-color" @click="usbUninstall"
+										v-if="usbenable=='enable'">
+										{{$t('uninstall')}}
+									</el-button>
+									<el-button type="primary" size="small" class="button-color"
+										@click="featureIndex=0;">
+										{{$t('back')}}
+									</el-button>
+								</div>
+							</div>
+							<div class="feature-content">
+								<div v-if="usbenable=='enable'">
+									<div v-show="usbIndex==0">
+										<div class="overflow-hidden" style="padding:0 25px 15px;">
+											<el-switch v-model="usbMsg.Switch" active-value="on" inactive-value="off"
+												active-color="#13ce66"  inactive-color="#ff4949" class="fl" @change="setUsbSwitch">
+											</el-switch>
+											<i class="el-icon-circle-plus fr cur-point" @click="usbSharedAdd"
+												style="font-size: 30px;" v-show="usbMsg.Switch=='on'"></i>
+											<i class="el-icon-circle-plus fr" style="font-size: 30px;"
+												v-show="usbMsg.Switch!='on'"></i>
+										</div>
+										<div class="tips ac" style="margin-bottom: 15px;">{{$t('usbTip')}}</div>
+										<div class="flex align-items_center"
+											style="justify-content: space-around;margin-bottom: 20px;">
+											<el-form label-width="40%">
+												<el-form-item :label="$t('username')">
+													<el-input v-model="usbMsg.username"
+														:disabled="usbMsg.Switch=='off'">
+													</el-input>
+												</el-form-item>
+												<el-form-item :label="$t('password')">
+													<el-input v-model="usbMsg.password"
+														:disabled="usbMsg.Switch=='off'">
+													</el-input>
+												</el-form-item>
+											</el-form>
+											<div>
+												<el-button type="primary" class="button-color" @click="setUsbMsg"
+													:disabled="usbMsg.Switch=='off'">{{$t('apply')}}</el-button>
+											</div>
+										</div>
+										<div style="width: 80%;margin: 0 auto;">
+											<el-table :data="usbSharedList" border style="width: 100%;" :key="0">
+												<el-table-column prop="" label="NO" align="center" width="60"
+													:resizable="false">
+													<template slot-scope="scope">
+														<span>{{scope.$index+1}}</span>
+													</template>
+												</el-table-column>
+												<el-table-column prop="path" :label="$t('shared_directory')"
+													align="center" :resizable="false">
+												</el-table-column>
+												<el-table-column :label="$t('operation')" align="center"
+													:resizable="false">
+													<template slot-scope="scope">
+														<i class="el-icon-delete"
+															:class="{'cur-point':usbMsg.Switch=='on'}"
+															@click="usbMsg.Switch=='on' ? usbSharedDel(scope.row):''"
+															style="font-size: 24px;"></i>
+													</template>
+												</el-table-column>
+											</el-table>
+										</div>
+									</div>
+									<div v-if="usbIndex==1">
+										<div class="ar" style="padding:0 25px 15px;">
+											<i class="el-icon-back cur-point" @click="usbIndex=0;"
+												style="font-size: 30px;"></i>
+										</div>
+										<div class="tips ac" style="margin-bottom: 15px;" v-if="diskList.length">
+											{{$t('diskPathTip')}}
+										</div>
+										<template>
+											<el-table :data="diskList" border height="350" style="width: 100%;"
+												:key="1">
+												<el-table-column prop="" label="NO" align="center" width="60"
+													:resizable="false">
+													<template slot-scope="scope">
+														<span>{{scope.$index+1}}</span>
+													</template>
+												</el-table-column>
+												<el-table-column prop="usbpath" :label="$t('diskPath')" align="center"
+													:resizable="false">
+												</el-table-column>
+												<el-table-column :label="$t('select')" align="center"
+													:resizable="false">
+													<template slot-scope="scope">
+														<div v-if="featureIndex=='ftp'">
+															<input type="radio" name="usbRadio"
+																:checked="scope.row.checked"
+																@click="usbCheckRow=scope.row;scope.row.checked=true;" />
+														</div>
+														<div v-else>
+															<input type="checkbox" name="usbCheckbox"
+																:checked="scope.row.checked"
+																@click="scope.row.checked=!scope.row.checked" />
+														</div>
+													</template>
+												</el-table-column>
+											</el-table>
+										</template>
+										<div class="ac" style="margin-top:20px;" v-if="diskList.length">
+											<el-button type="primary" class="button-color" @click="setUsbPath">
+												{{$t('save')}}</el-button>
+										</div>
+									</div>
+								</div>
+								<div class="noData" v-else>{{$t('usbDeviceNull')}}</div>
+							</div>
+						</div>
+						<!-- vpn -->
+						<div v-show="featureIndex=='vpnSet'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('more')}} > {{vpnType=='pptp' ? $t('pptpSet') : $t('L2TPSet') }}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Switch')">
+										<el-switch v-model="vpnMsg.Switch" active-color="#13ce66"  inactive-color="#ff4949">
+										</el-switch>
+									</el-form-item>
+									<el-form-item :label="$t('Domain')">
+										<el-input v-model="vpnMsg.domain" :disabled="!vpnMsg.Switch"
+											:placeholder="$t('placeholderTip')"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('account')">
+										<el-input v-model="vpnMsg.username" :disabled="!vpnMsg.Switch"
+											@blur="vpnMsg.username=$event.target.value.trim()">
+										</el-input>
+									</el-form-item>
+									<el-form-item :label="$t('password')">
+										<el-input v-model="vpnMsg.password" :disabled="!vpnMsg.Switch"
+											@blur="vpnMsg.password=$event.target.value.trim()">
+										</el-input>
+									</el-form-item>
+									<el-form-item :label="$t('netProtocol')">
+										<el-select v-model="vpnMsg.netmode" :disabled="!vpnMsg.Switch"
+											placeholder="Please choose">
+											<el-option :key="0" value="Static" label="Static"></el-option>
+											<el-option :key="1" value="DHCP" label="DHCP"></el-option>
+										</el-select>
+									</el-form-item>
+									<div v-if="vpnMsg.netmode=='Static'">
+										<el-form-item :label="$t('ipAddress')">
+											<el-input v-model="vpnMsg.staticip" :disabled="!vpnMsg.Switch"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('mask')">
+											<el-input v-model="vpnMsg.staticmask" :disabled="!vpnMsg.Switch"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('gateway')">
+											<el-input v-model="vpnMsg.staticgateway" :disabled="!vpnMsg.Switch">
+											</el-input>
+										</el-form-item>
+									</div>
+									<el-form-item label="MTU">
+										<el-input v-model="vpnMsg.MTU" :disabled="!vpnMsg.Switch">
+										</el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setVpnMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- dmz -->
+						<div v-show="featureIndex=='dmz'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > DMZ</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Switch')">
+										<template>
+											<el-radio v-model="dmzMsg.enable" label="1">{{$t('open')}}</el-radio>
+											<el-radio v-model="dmzMsg.enable" label="0">{{$t('close')}}</el-radio>
+										</template>
+									</el-form-item>
+									<el-form-item :label="$t('ipAddress')">
+										<el-input v-model="dmzMsg.ip" :disabled="dmzMsg.enable=='0'"
+											:placeholder="$t('placeholderTip')"></el-input>
+									</el-form-item>
+									<p class="tips ac" style="width: 70%;margin: 0 auto;">{{$t('dmzTip')}}</p>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setDMZMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 远程web管理 -->
+						<div v-show="featureIndex=='webadmin'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('more')}} > {{$t('webadmin')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('Switch')">
+										<el-switch v-model="webadminMsg.Switch" active-value="1" inactive-value="0"
+											active-color="#13ce66"  inactive-color="#ff4949" @change="setWebadminSwitch">
+										</el-switch>
+									</el-form-item>
+									<el-form-item :label="$t('port')">
+										<el-input v-model="webadminMsg.remote_manage_port" :disabled="webadminMsg.Switch!='1'" :placeholder="$t('port_notNull')">
+										</el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setwebadminMsg" :disabled="webadminMsg.Switch!='1'">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 端口转发 -->
+						<div v-show="featureIndex=='forwarding'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('forWarding')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<div v-if="portIndex==0">
+									<div class="ac" style="margin-bottom: 15px;">
+										<el-button type="primary" size="small" class="button-color" @click="portAdd">
+											{{$t('manualAdd')}}
+										</el-button>
+										<el-button type="primary" size="small" class="button-color"
+											@click="portIndex=2;clientIndex=0;">{{$t('autoAdd')}}</el-button>
+									</div>
+									<template>
+										<el-table :data="portForward.list" border height="40vh" style="width: 100%;"
+											:key="1">
+											<el-table-column prop="name" :label="$t('alias')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="ip" label="IP" align="center" :resizable="false">
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-edit cur-point" @click="portEdit(scope.$index)"
+														style="font-size: 24px;margin:0 10px;"></i>
+													<i class="el-icon-delete cur-point" @click="portDelete(scope.row)"
+														style="font-size: 24px;margin:0 10px;"></i>
+													<i class="el-icon-message cur-point" @click="portDetail(scope.row)"
+														style="font-size: 24px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="featureIndex=0;"
+											style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									</div>
+								</div>
+								<!-- 手动添加编辑 -->
+								<div v-show="portIndex==1">
+									<div class="ar" style="padding:0 25px 15px;">
+										<i class="el-icon-back cur-point" @click="portIndex=0;"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-form label-width="40%">
+										<el-form-item :label="$t('alias')">
+											<el-input v-model="portForm.name" maxlength="64" style="width: 270px;"
+												@blur="portForm.name=$event.target.value.trim()">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('deviceName')">
+											<el-select v-model="clientIndex" :placeholder="$t('choose')"
+												style="width: 270px;">
+												<el-option v-for="(item,index) in clientList" :key="index"
+													:value="index" :label="'IP:' + item.ip+ ' ;Hostname:' + item.name">
+												</el-option>
+												<el-option :key="clientList.length" :value="clientList.length"
+													:label="$t('Manual_input')"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item label="IP" v-if="clientIndex==clientList.length">
+											<el-input v-model="portForm.ip" style="width: 270px;"></el-input>
+										</el-form-item>
+										<div v-if="portOperaType==0">
+											<el-form-item :label="$t('wanPort')">
+												<label for="">{{$t('startPort')}}</label>
+												<input v-model="wanPort1" class="macInput" />
+												<label for="">{{$t('endPort')}}</label>
+												<input v-model="wanPort2" class="macInput" />
+											</el-form-item>
+											<el-form-item :label="$t('lanPort')">
+												<label for="">{{$t('startPort')}}</label>
+												<input v-model="lanPort1" class="macInput" />
+												<label for="">{{$t('endPort')}}</label>
+												<input v-model="lanPort2" class="macInput" />
+											</el-form-item>
+											<el-form-item :label="$t('netProtocol')">
+												<el-select v-model="portForm.protocol" placeholder=""
+													style="width: 270px;">
+													<el-option :key="0" value="TCP" label="TCP"></el-option>
+													<el-option :key="1" value="UDP" label="UDP"></el-option>
+													<el-option :key="2" value="TCP&UDP" label="TCP&UDP"></el-option>
+												</el-select>
+											</el-form-item>
+										</div>
+									</el-form>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="portAddEdit">
+											{{portOperaType==0 ? $t('add') : $t('save')}}
+										</el-button>
+									</div>
+								</div>
+								<!-- 自动添加-->
+								<div v-show="portIndex==2">
+									<div class="ar" style="padding:0 25px 15px;">
+										<i class="el-icon-back cur-point" @click="portIndex=0;"
+											style="font-size: 30px;"></i>
+									</div>
+									<el-form label-width="40%">
+										<el-form-item :label="$t('game_application')">
+											<el-select v-model="portNameIndex" placeholder="" style="width:270px">
+												<el-option v-for="(item,index) in portNameList" :key="index"
+													:value="index" :label="item.name"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item :label="$t('deviceName')">
+											<el-select v-model="clientIndex" :placeholder="$t('choose')"
+												style="width: 270px;">
+												<el-option v-for="(item,index) in clientList" :key="index"
+													:value="index" :label="'IP:' + item.ip+ ' ;Hostname:' + item.name">
+												</el-option>
+												<el-option :key="clientList.length" :value="clientList.length"
+													:label="$t('Manual_input')"></el-option>
+											</el-select>
+										</el-form-item>
+										<el-form-item label="IP" v-if="clientIndex==clientList.length">
+											<el-input v-model="portForm.ip" style="width: 270px;"></el-input>
+										</el-form-item>
+									</el-form>
+									<p class="tips" style="width: 60%;margin: 12px auto;line-height: 1.5;">
+										{{$t('portAutoAddTip')}}
+									</p>
+									<div class="ac" style="margin-top:20px;">
+										<el-button type="primary" class="button-color" @click="portAutoAdd">
+											{{$t('add')}}
+										</el-button>
+									</div>
+								</div>
+								<!-- 端口信息增删改查 -->
+								<div v-show="portIndex==3">
+									<div class="ar" style="padding:0 25px 15px;">
+										<el-button type="primary" size="small" class="button-color"
+											@click="portSublistSave">{{$t('save')}}</el-button>
+										<i class="el-icon-plus cur-point" @click="portAdd2"
+											style="font-size: 24px;vertical-align: middle;margin: 0 15px;"></i>
+										<i class="el-icon-back cur-point" @click="portIndex=0;"
+											style="font-size: 24px;vertical-align: middle;"></i>
+									</div>
+									<template>
+										<el-table :data="portSubRow.sublist" border height="300" style="width: 100%;"
+											:key="1">
+											<el-table-column prop="wanport" :label="$t('wanPort')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="lanport" :label="$t('lanPort')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="protocol" :label="$t('protocol')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-edit cur-point" @click="portEdit2(scope.$index)"
+														style="font-size: 24px;margin-right: 12px;"></i>
+													<i class="el-icon-delete cur-point"
+														@click="portSubRow.sublist.splice(scope.$index,1)"
+														style="font-size: 24px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+								</div>
+							</div>
+						</div>
+						<!-- 虚拟服务器 -->
+						<div v-show="featureIndex=='vserver'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('VserverSet')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<ul class="featureList ac" style="width: 50%;">
+									<li :class="{active:vserverType==0}" @click="vserverType=0;" style="width: 50%;">
+										{{$t('Add_list')}}
+									</li>
+									<li :class="{active:vserverType==1}" @click="vserverType=1;getvserverMsg();"
+										style="width: 50%;">{{$t('Vserver_list')}}</li>
+								</ul>
+								<div v-show="vserverType==0">
+									<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+										<el-form-item :label="$t('Server_IP')">
+											<el-input v-model="vserverForm.ip" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('External_port')">
+											<el-input v-model="vserverForm.pu_port" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('Internal_port')">
+											<el-input v-model="vserverForm.pr_port" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+										<el-form-item :label="$t('netProtocol')">
+											<el-select v-model="vserverForm.protocol">
+												<el-option value="TCP" label="TCP"></el-option>
+												<el-option value="UDP" label="UDP"></el-option>
+												<el-option value="TCP&UDP" label="TCP&UDP"></el-option>
+											</el-select>
+										</el-form-item>
+									</el-form>
+								</div>
+								<div v-show="vserverType==1">
+									<template>
+										<el-table :data="vserverList" border height="300" style="width: 100%;" :key="1">
+											<el-table-column prop="" label="NO" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<span>{{scope.$index}}</span>
+												</template>
+											</el-table-column>
+											<el-table-column prop="ip" label="IP" align="center" :resizable="false">
+											</el-table-column>
+											<el-table-column prop="pu_port" :label="$t('External_port')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column prop="pr_port" :label="$t('Internal_port')" align="center"
+												:resizable="false">
+											</el-table-column>
+											<el-table-column :label="$t('operation')" align="center" :resizable="false">
+												<template slot-scope="scope">
+													<i class="el-icon-delete cur-point"
+														@click="vserverDelete(scope.row)"
+														style="font-size: 24px;margin:0 10px;"></i>
+												</template>
+											</el-table-column>
+										</el-table>
+									</template>
+								</div>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setvserverMsg"
+										v-show="vserverType==0">{{$t('apply')}}</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 第三方插件 -->
+						<div v-show="featureIndex=='plugin'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('Plugin')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('feichangyun')">
+										<template>
+											<el-radio v-model="pluginRadio" label="1" @change="setpluginMsg">
+												{{$t('open')}}
+											</el-radio>
+											<el-radio v-model="pluginRadio" label="0" @change="setpluginMsg">
+												{{$t('close')}}
+											</el-radio>
+										</template>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- 共享WiFi -->
+						<div v-show="featureIndex=='shared'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('sharedWifi')}}</p>
+								<el-button type="primary" size="small" class="fr button-color" @click="featureIndex=0;">
+									{{$t('back')}}
+								</el-button>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="40%" style="padding:10px 0 20px;box-sizing: border-box;">
+									<el-form-item :label="$t('sharedOff')">
+										<template>
+											<el-radio v-model="shareMsg.status" label="1" @change="setpluginMsg">
+												{{$t('open')}}
+											</el-radio>
+											<el-radio v-model="shareMsg.status" label="0" @change="setpluginMsg">
+												{{$t('close')}}
+											</el-radio>
+										</template>
+									</el-form-item>
+									<el-form-item :label="$t('sharedSsid')">
+										<span>{{shareMsg.sharewifissid}}</span>
+									</el-form-item>
+									<p class="tips ac">{{$t('sharedTips')}}</p>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;">
+										{{$t('cancel')}}
+									</el-button>
+									<el-button type="primary" class="button-color" @click="setShareMsg">{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+						<!-- tr069 -->
+						<div v-show="featureIndex=='tr069'" style="margin-top: 15px;">
+							<div class="feature-header overflow-hidden">
+								<p class="fl">{{$t('systemSet')}} > {{$t('tr069Set')}}</p>
+							</div>
+							<div class="feature-content">
+								<el-form label-width="300px" style="padding:10px 0 20px;box-sizing: border-box;">
+									<div class="sp-title">
+										<h3>{{$t('acsConfigure')}}</h3>
+									</div>
+									<el-form-item :label="$t('Switch')">
+										<el-switch v-model="cwmpMsg.enable" active-value="1"
+											inactive-value="0" active-color="#13ce66"  inactive-color="#ff4949">
+										</el-switch>
+									</el-form-item>
+									<el-form-item :label="$t('url')">
+										<el-input v-model="cwmpMsg.url" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.url=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('username')">
+										<el-input v-model="cwmpMsg.username" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.username=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('password')">
+										<el-input v-model="cwmpMsg.password" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.password=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<div class="sp-title">
+										<h3>{{$t('deviceInfo')}}</h3>
+									</div>
+									<el-form-item :label="$t('manufacturer')">
+										<el-input v-model="cwmpMsg.manufacturer" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.manufacturer=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item label="oui">
+										<el-input v-model="cwmpMsg.oui" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.oui=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('serialNumber')">
+										<el-input v-model="cwmpMsg.serial" :disabled="cwmpMsg.enable!='1'"
+										@blur="cwmpMsg.serial=$event.target.value.trim()"></el-input>
+									</el-form-item>
+								</el-form>
+								<div class="ac" style="padding-top:20px;">
+									<el-button type="primary" class="button-color" @click="featureIndex=0;"
+										style="margin-right:8px;">{{$t('cancel')}}</el-button>
+									<el-button type="primary" class="button-color" @click="setCwmpMsg">
+										{{$t('apply')}}
+									</el-button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- setup -->
+					<div v-show="tabType=='setup'">
+						<div class="graph">
+							<img src="../img/network.png" width="72">
+							<img src="../img/lineOn.png" v-if="routerStatusMsg.netstatus == 'link'"
+								style="padding:0 25px;">
+							<img src="../img/lineOFF.png" v-else style="padding:0 25px;">
+							<img src="../img/host.png">
+						</div>
+						<div class="showbox" v-show="setupPage=='modePage'" style="border-radius: 0;">
+							<div class="showbox-title overflow-hidden">
+								<div class="showbox-title-left fl" v-if="routerStatusMsg.jumpflag != '1'">
+									<i class="el-icon-s-home fs-18"></i>
+									<span>{{$t('quickSetup')}}</span>
+								</div>
+								<div class="showbox-title-right fr cur-point" @click="helpDialog=true;">
+									<i class="el-icon-question fs-18"></i>
+									<span>{{$t('help')}}</span>
+								</div>
+							</div>
+							<ul class="loginSet" v-show="routerStatusMsg.jumpflag == '1' && setupPage=='adminPage'">
+								<li class="loginSet-item">
+									<label>{{$t('Manage_pwd')}}</label>
+									<input type="text" v-model="loginSetForm.password"
+										:placeholder="$t('Manage_pwd')" />
+								</li>
+								<p style="margin-bottom: 12px;">{{$t('managePwdTip')}}</p>
+								<li class="loginSet-item">
+									<span>
+										<el-checkbox v-model="loginSetForm.userProtocol">{{$t('userAgreement')}}
+										</el-checkbox>
+									</span>
+								</li>
+								<li>
+									<el-button type="primary" size="small" class="button-color"
+										@click="nextStep('adminPage')">{{$t('nextStep')}}</el-button>
+								</li>
+							</ul>
+							<ul class="modeList" v-show="setupPage=='modePage'">
+								<!-- 路由模式 -->
+								<li @click.prevent="getPreviousWanMode();modeType='router';">
+									<el-radio v-model="modeType" label="router">{{$t('RouteMode')}} <span
+											class="modeListTips">（{{$t('wanModeTips')}}）</span>
+									</el-radio>
+								</li>
+								<!-- repeater -->
+								<li
+									@click.prevent="getCurWispWifi();getwispWifiList();setupPage='wispPage';modeType='repeater';">
+									<el-radio v-model="modeType" label="repeater">{{$t('repeater')}}<span
+											class="modeListTips"></span></el-radio>
+								</li>
+								<!-- wisp -->
+								<li
+									@click.prevent="getCurWispWifi();getwispWifiList();setupPage='wispPage';modeType='wisp';">
+									<el-radio v-model="modeType" label="wisp">{{$t('wispMode')}}<span
+											class="modeListTips"></span></el-radio>
+								</li>
+								<!-- AP模式 -->
+								<li @click.prevent="getWifiMsg();setupPage='wifiPage';modeType='AP';">
+									<el-radio v-model="modeType" label="AP">{{$t('apMode')}}<span
+											class="modeListTips"></span></el-radio>
+								</li>
+							</ul>
+						</div>
+						<!--wan设置 -->
+						<div class="showbox wanset" v-show="setupPage=='wanPage'">
+							<div class="showbox-title">
+								<div class="showbox-title-left">
+									<i class="el-icon-s-home fs-18"></i>
+									<span v-show="modeType == 'router'">{{$t('RouteMode')}} / {{$t('outNetSet')}}</span>
+								</div>
+							</div>
+							<div class="wanPageInfo">
+								<div class="wanPageInfo-item">
+									<label>{{$t('recommendWanModeTip')}}:</label>
+									<span v-show="previousMsg.wanmode=='dhcp'">{{$t('wandhcp')}}</span>
+									<span v-show="previousMsg.wanmode=='static'">{{$t('wanstatic')}}</span>
+									<span v-show="previousMsg.wanmode=='pppoe'">{{$t('wanpppoe')}}</span>
+								</div>
+								<div class="wanPageInfo-item" style="height: 19px;line-height: 19px;" v-cloak>
+									<div v-if="previousMsg.netlink=='online'">
+										<label style="color: rgb(55, 170, 55);">{{$t('hasNetTip')}}</label>
+									</div>
+									<div v-else-if="previousMsg.netlink=='offline'">
+										<label style="color: red;">{{previousMsg.wanmode=='unlink'?$t('noWanTip'):$t('noNetTip')}}</label>
+									</div>
+								</div>
+							</div>
+							<el-form label-width="40%">
+								<div v-if="wanType=='pppoe'">
+									<el-form-item :label="$t('account')">
+										<el-input v-model="pppoeForm.pppoename" :placeholder="$t('pppoeName')"
+											@blur="pppoeForm.pppoename=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('password')">
+										<el-input v-model="pppoeForm.pppoepsw" :placeholder="$t('pppoePwd')"
+											@blur="pppoeForm.pppoepsw=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item label="">
+										<span @click="pppoeShow=!pppoeShow" class="cur-point">{{$t('moreSet')}}
+											<i :class="pppoeShow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+										</span>
+									</el-form-item>
+									<div v-show="pppoeShow">
+										<el-form-item :label="$t('serverName')">
+											<el-input v-model="pppoeForm.server_name"
+												:placeholder="$t('placeholderTip')"
+												@blur="pppoeForm.server_name=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item label="MTU">
+											<el-input v-model="pppoeForm.mtu" :placeholder="$t('placeholderTip')">
+											</el-input>
+										</el-form-item>
+									</div>
+								</div>
+								<div v-if="wanType=='static'"> 
+									<el-form-item :label="$t('ipAddress')">
+										<el-input v-model="staticForm.wanip" :placeholder="$t('placeholderTip')">
+										</el-input>
+									</el-form-item>
+									<el-form-item :label="$t('mask')">
+										<el-input v-model="staticForm.wanmsk" :placeholder="$t('placeholderTip')">
+										</el-input>
+									</el-form-item>
+									<el-form-item :label="$t('gateway')">
+										<el-input v-model="staticForm.wangw" :placeholder="$t('placeholderTip')">
+										</el-input>
+									</el-form-item>
+									<el-form-item label="DNS">
+										<el-input v-model="staticForm.dns1" :placeholder="$t('placeholderTip')">
+										</el-input>
+									</el-form-item>
+								</div>
+							</el-form>
+							<div class="ac" style="margin: 20px 0;">
+								<el-button type="primary" size="small" class="button-color"
+									@click="backStep('wanPage');" style="margin-right:8px;">{{$t('previous')}}
+								</el-button>
+								<el-button type="primary" size="small" class="button-color"
+									@click="nextStep('wanPage')">{{$t('nextStep')}}</el-button>
+							</div>
+							<div class="divider">
+								<span></span>
+								<label>{{$t('or')}}</label>
+								<span></span>
+							</div>
+							<ul class="setting-mode flex justify-content_flex-justify align-items_center">
+								<li :class="{active:wanType=='pppoe'}" @click="wanType='pppoe';">
+									{{$t('wanpppoe')}} >
+								</li>
+								<li :class="{active:wanType=='dhcp'}" @click="wanType='dhcp';">{{$t('wandhcp')}} >
+								</li>
+								<li :class="{active:wanType=='static'}" @click="wanType='static';">
+									{{$t('wanstatic')}} >
+								</li>
+							</ul>
+						</div>
+						<!-- wisp页面 -->
+						<div class="showbox" v-show="setupPage=='wispPage'" style="overflow: auto;">
+							<div class="showbox-title">
+								<div class="showbox-title-left">
+									<i class="el-icon-s-home fs-18"></i>
+									<span v-show="modeType == 'wisp'">{{$t('wispSetup')}} /
+										{{$t('wifiList')}}</span>
+									<span v-show="modeType == 'repeater'">{{$t('repeaterSetup')}}
+										/ {{$t('wifiList')}}</span>
+								</div>
+							</div>
+							<div class="full-width" style="padding:0 15px;box-sizing: border-box;">
+								<template>
+									<el-table :data="curPagewispData" v-loading="wispLoading" height="421"
+										style="width: 100%;" :key="1" :row-style="{cursor:'pointer'}"
+										@row-click="wispRowClick($event,0)">
+										<el-table-column prop="channel" :label="$t('channel')" align="center"
+											:resizable="false">
+											<template slot-scope="scope">
+												<i class="el-icon-check" v-if="curWispWifiMsg.mac&&scope.row.checked"
+													style="font-size: 22px;"></i>
+												<span v-else>{{scope.row.channel}}</span>
+											</template>
+										</el-table-column>
+										<el-table-column prop="ssid" :label="$t('wifiName')" align="center"
+											:resizable="false">
+										</el-table-column>
+										<el-table-column :label="$t('signalPower')" align="center" :resizable="false">
+											<template slot-scope="scope">
+												<div v-if="scope.row.security.toUpperCase().indexOf('NONE')==-1">
+													<img src="../img/key1.png" alt="" width="40"
+														v-if="Number(scope.row.signal)<23">
+													<img src="../img/key2.png" alt="" width="40"
+														v-else-if="Number(scope.row.signal)>=23&&Number(scope.row.signal)<52">
+													<img src="../img/key3.png" alt="" width="40"
+														v-else-if="Number(scope.row.signal)>=52&&Number(scope.row.signal)<89">
+													<img src="../img/key4.png" alt="" width="40" v-else>
+												</div>
+												<div v-else>
+													<img src="../img/signal1.png" alt="" width="40"
+														v-if="Number(scope.row.signal)<23">
+													<img src="../img/signal2.png" alt="" width="40"
+														v-else-if="Number(scope.row.signal)>=23&&Number(scope.row.signal)<52">
+													<img src="../img/signal3.png" alt="" width="40"
+														v-else-if="Number(scope.row.signal)>=52&&Number(scope.row.signal)<89">
+													<img src="../img/signal4.png" alt="" width="40" v-else>
+												</div>
+											</template>
+										</el-table-column>
+									</el-table>
+								</template>
+							</div>
+							<el-pagination background :current-page.sync="wispCurPage" @current-change="wispPageChange"
+								:page-size="6" layout="prev, pager, next,total" :total="wispList.length"
+								style="text-align:center;margin: 15px 0;">
+							</el-pagination>
+							<div class="ac" style="padding-top:20px;">
+								<el-button type="primary" size="small" class="button-color"
+									@click="setupPage='modePage';" style="margin-right:8px;">{{$t('back')}}</el-button>
+								<el-button type="primary" size="small" class="button-color" @click="getwispWifiList();getCurWispWifi();"
+									v-show="!wispLoading">
+									{{$t('Rescan')}}
+								</el-button>
+							</div>
+						</div>
+						<!-- wifi设置 -->
+						<div class="showbox" v-show="setupPage=='wifiPage'" style="overflow: auto;">
+							<div class="showbox-title">
+								<div class="showbox-title-left">
+									<i class="el-icon-s-home fs-18"></i>
+									<span v-if="modeType == 'router'">/ {{$t('RouteMode')}} / {{$t('wifiSet')}}</span>
+									<span v-if="modeType == 'wisp'">/ {{$t('wispSetup')}} / WiFi</span>
+									<span v-if="modeType == 'AP'">/ {{$t('wanModeTips')}},{{$t('apMode')}} / WiFi</span>
+								</div>
+							</div>
+							<div class="outNetItem">
+								<el-form label-width="40%">
+									<div class="wifi_classify">2.4G WiFi</div>
+									<el-form-item :label="$t('wifiName')">
+										<el-input v-model="twoWifiMsg.wlanssid" :placeholder="$t('placeholderTip')"
+											@blur="twoWifiMsg.wlanssid=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<el-form-item :label="$t('wifiPwd')">
+										<el-input v-model="twoWifiMsg.wlanpsw" :placeholder="$t('placeholderTip')"
+											@blur="twoWifiMsg.wlanpsw=$event.target.value.trim()"></el-input>
+									</el-form-item>
+									<div v-if="isDouble">
+										<div class="wifi_classify">5.8G WiFi</div>
+										<el-form-item :label="$t('wifiName')">
+											<el-input v-model="fiveWifiMsg.wlanssid" :placeholder="$t('placeholderTip')"
+												@blur="fiveWifiMsg.wlanssid=$event.target.value.trim()"></el-input>
+										</el-form-item>
+										<el-form-item :label="$t('wifiPwd')">
+											<el-input v-model="fiveWifiMsg.wlanpsw" :placeholder="$t('placeholderTip')"
+												@blur="fiveWifiMsg.wlanpsw=$event.target.value.trim()"></el-input>
+										</el-form-item>
+									</div>
+								</el-form>
+							</div>
+							<div class="ac" style="padding-top:20px;">
+								<el-button type="primary" size="small" class="button-color"
+									@click="backStep('wifiPage')" style="margin-right:8px;">{{$t('previous')}}
+								</el-button>
+								<el-button type="primary" size="small" class="button-color" @click="setRouter">
+									{{$t('apply')}}
+								</el-button>
+							</div>
+						</div>
+						<!-- 设置页 -->
+						<div class="showbox" v-show="setupPage=='settingPage'" style="overflow: auto;">
+							<div class="showbox-title">
+								<div class="showbox-title-left">
+									<i class="el-icon-s-home fs-18"></i>
+									<span v-if="modeType == 'router'">/ {{$t('RouteMode')}} / {{$t('setFinish')}}</span>
+									<span v-if="modeType == 'wisp'">/ {{$t('wispSetup')}} / {{$t('setFinish')}}</span>
+									<span v-if="modeType == 'AP'">/ {{$t('wanModeTips')}},{{$t('apMode')}} / {{$t('setFinish')}}</span>
+								</div>
+							</div>
+							<div class="setting">
+								<i class="el-icon-success" style="color: #00FF00;font-size: 60px;"></i>
+								<div class="setting-tips">
+									<p>
+										{{$t('pleaseWait')}}
+										<span>{{countdown}}</span>
+										{{$t('second')}}{{$t('reconnectionWifi')}}
+									</p>
+								</div>
+								<ul>
+									<h3>2.4G</h3>
+									<li>
+										<label>Wi-Fi{{$t('name')}}:</label>
+										<span>{{twoWifiMsg.wlanssid}}</span>
+									</li>
+									<li>
+										<label>Wi-Fi{{$t('password')}}:</label>
+										<span>{{twoWifiMsg.wlanpsw}}</span>
+									</li>
+									<div v-if="isDouble">
+										<h3>5.8G</h3>
+										<li>
+											<label>Wi-Fi{{$t('name')}}:</label>
+											<span>{{fiveWifiMsg.wlanssid}}</span>
+										</li>
+										<li>
+											<label>Wi-Fi{{$t('password')}}:</label>
+											<span>{{fiveWifiMsg.wlanpsw}}</span>
+										</li>
+									</div>
+								</ul>
+							</div>
+							<!-- <div class="setting">
+								<i class="el-icon-error" style="color: #ff0800;font-size: 60px;"></i>
+								<p>{{$t('routerSetFail')}}</p>
+								<div class="setting-tips">
+									<p>{{$t('routerSetFailTip')}}</p>
+								</div>
+							</div> -->
+						</div>
+					</div>
+					<!-- terminal-->
+					<div v-show="tabType=='terminal'">
+						<div class="showbox">
+							<div class="terList overflow-hidden">
+								<div class="terList-item fl cur-point" :class="{active:terListType==0}"
+									@click="terTab(0)">{{$t('deviceList')}}</div>
+								<div class="terList-item fl cur-point" :class="{active:terListType==1}"
+									@click="terTab(1)">{{$t('blacklist')}}</div>
+							</div>
+							<div style="height: 68vh;overflow: auto;">
+								<div class="terBody" v-show="terListType==0">
+									<div v-if="wiredTerlist.length||twoTerlist.length||fiveTerlist.length">
+										<div v-show="wiredTerlist.length">
+											<h3>{{$t('wired_device')}}</h3>
+											<div class="device overflow-hidden" v-for="(item,index) in wiredTerlist"
+												:key="index">
+												<div class="device-item fl">
+													<p class="full-width ellipsis">{{$t('name')}}：{{item.name}}</p>
+													<span>{{$t('online_Time')}}:{{item.link_time}}</span>
+												</div>
+												<div class="device-item fl">
+													<p>IP：{{item.ip}}</p>
+													<span>MAC: {{item.mac}}</span>
+												</div>
+												<div class="device-item fl" style="margin-left:20px;">
+													<p class="dev-item-speed">
+														<i style="background-position: 0px -11px;"></i>
+														<span>{{netSpeedChange(item.upspeed)}}</span>
+													</p>
+													<p class="dev-item-speed">
+														<i style="background-position: 0px 6px;"></i>
+														<span>{{netSpeedChange(item.downspeed)}}</span>
+													</p>
+												</div>
+												<div class="device-item fr cur-point fs-16" @click="terManage(item)"
+													style="color:#4c92fb;line-height: 48px;width: 15%;">
+													{{$t('manage')}}<i class="el-icon-arrow-right"></i>
+												</div>
+											</div>
+										</div>
+										<!-- 2.4g设备 -->
+										<div v-show="twoTerlist.length">
+											<h3>{{$t('two_device')}}</h3>
+											<div class="device overflow-hidden" v-for="(item,index) in twoTerlist"
+												:key="index">
+												<div class="device-item fl">
+													<p class="full-width ellipsis">{{$t('name')}}：{{item.name}}</p>
+													<span>{{$t('online_Time')}}:{{item.link_time}}</span>
+												</div>
+												<div class="device-item fl">
+													<p>IP：{{item.ip}}</p>
+													<span>MAC: {{item.mac}}</span>
+												</div>
+												<div class="device-item fl" style="margin-left:20px;">
+													<p class="dev-item-speed">
+														<i style="background-position: 0px -11px;"></i>
+														<span>{{netSpeedChange(item.upspeed)}}</span>
+													</p>
+													<p class="dev-item-speed">
+														<i style="background-position: 0px 6px;"></i>
+														<span>{{netSpeedChange(item.downspeed)}}</span>
+													</p>
+												</div>
+												<div class="device-item fr cur-point fs-16" @click="terManage(item)"
+													style="color:#4c92fb;line-height: 48px;width: 15%;">
+													{{$t('manage')}}<i class="el-icon-arrow-right"></i>
+												</div>
+											</div>
+										</div>
+										<!-- 5g设备 -->
+										<div v-show="fiveTerlist.length">
+											<h3>{{$t('five_device')}}</h3>
+											<div class="device overflow-hidden" v-for="(item,index) in fiveTerlist"
+												:key="index">
+												<div class="device-item fl">
+													<p class="full-width ellipsis">{{$t('name')}}：{{item.name}}</p>
+													<span>{{$t('online_Time')}}:{{item.link_time}}</span>
+												</div>
+												<div class="device-item fl">
+													<p>IP：{{item.ip}}</p>
+													<span>MAC: {{item.mac}}</span>
+												</div>
+												<div class="device-item fl" style="margin-left:20px;">
+													<p class="dev-item-speed">
+														<i style="background-position: 0px -11px;"></i>
+														<span>{{netSpeedChange(item.upspeed)}}</span>
+													</p>
+													<p class="dev-item-speed">
+														<i style="background-position: 0px 6px;"></i>
+														<span>{{netSpeedChange(item.downspeed)}}</span>
+													</p>
+												</div>
+												<div class="device-item fr cur-point fs-16" @click="terManage(item)"
+													style="color:#4c92fb;line-height: 48px;width: 15%;">
+													{{$t('manage')}}<i class="el-icon-arrow-right"></i>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="noData" v-else>
+										{{$t('noData')}}
+									</div>
+								</div>
+								<div class="terBody" v-show="terListType==1">
+									<div class="blackHead" style="border-top: 1px solid #eee;padding-top:15px;">
+										<div class="blackHead-item" style="width: 20%;">NO</div>
+										<div class="blackHead-item" style="width: 30%;">{{$t('deviceName')}}</div>
+										<div class="blackHead-item">{{$t('mac')}}</div>
+										<div class="blackHead-item">{{$t('manage')}}</div>
+									</div>
+									<div v-if="blackList.length">
+										<ul class="blackHead" v-for="(item,index) in blackList" :key="index"
+											style="padding-top: 10px;">
+											<li class="blackHead-item" style="width: 20%;">{{index+1}}</li>
+											<li class="blackHead-item" style="width: 30%;">{{item.name}}</li>
+											<li class="blackHead-item">{{item.mac}}</li>
+											<li class="blackHead-item cur-point" @click="lostBlack(item)"
+												style="color: red;">{{$t('dismiss')}}</li>
+										</ul>
+									</div>
+									<div class="noData" v-else>
+										{{$t('noData')}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- upgrade -->
+					<div v-show="tabType=='upgrade'">
+						<div class="showbox upgrade">
+							<div class="terList overflow-hidden" style="padding-bottom: 0;">
+								<div class="terList-item fl cur-point" :class="{active:upgradeType==0}"
+									@click="upgradeTypeTab(0)">{{$t('upgrade')}}</div>
+								<div class="terList-item fl cur-point" :class="{active:upgradeType==1}"
+									@click="upgradeTypeTab(1)">{{$t('backup_recover')}}</div>
+							</div>
+							<!-- 升级 -->
+							<div v-show="upgradeType==0">
+								<div class="showbox-item">
+									<div class="showbox-title">{{$t('upgrade_local')}}</div>
+									<el-upload class="ac" action='/cgi-bin/upload.cgi' class="upload-demo"
+										ref="upgrade" :on-change="uploadChange" 
+										:on-success="function (response, file, fileList) { return submitSuccess(response, file, fileList, 'upgrade') }" 
+										:file-list="fileList" name="UploadFirmware"
+										:auto-upload="false">
+										<el-button slot="trigger" type="primary" size="small" class="button-color"
+											style="margin: 20px 0;">{{$t('file_selection')}}</el-button>
+										<el-button size="small" type="primary" @click="fileSubmit">{{$t('upgrade')}}
+										</el-button>
+									</el-upload>
+								</div>
+								<div class="showbox-item">
+									<div class="showbox-title">{{$t('upgrade_online')}}</div>
+									<div class="showbox-item-box" style="margin-bottom: 15px;">
+										<p>{{$t('curVision')}}:</p>
+										<span>{{versionMsg.curver}}</span>
+									</div>
+									<div class="showbox-item-box" style="margin-bottom: 15px;">
+										<p>{{$t('lastVision')}}:</p>
+										<span>{{versionMsg.lastver}}</span>
+									</div>
+									<div class="ac">
+										<el-button size="small" type="primary" @click="upgradeOnline"
+											:disabled="onlineDisable">{{$t('upgrade')}}</el-button>
+									</div>
+								</div>
+							</div>
+							<!-- 备份/恢复 -->
+							<div v-show="upgradeType==1">
+								<div class="showbox-item">
+									<div class="showbox-title">{{$t('backup')}}</div>
+									<div class="ac">
+										<el-button size="small" type="primary" @click="backup">{{$t('backup')}}</el-button>
+									</div>
+								</div>
+								<div class="showbox-item">
+									<div class="showbox-title">{{$t('recover')}}</div>
+									<el-upload class="ac" action='/cgi-bin/recover.cgi' class="upload-demo"
+										ref="recover" :on-change="uploadChange" 
+										:on-success="function (response, file, fileList) { return submitSuccess(response, file, fileList, 'recover') }" 
+										:before-upload="beforeUpload" :file-list="fileList" name="UploadFirmware"
+										:auto-upload="false">
+										<el-button slot="trigger" type="primary" size="small" class="button-color"
+											style="margin: 20px 0;">{{$t('file_selection')}}</el-button>
+										<el-button size="small" type="primary" @click="fileSubmit">{{$t('recover')}}
+										</el-button>
+									</el-upload>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer ac" v-show="tabType=='main'">
+				<label v-if="softwareType!='neutral'">{{$t('reservedTip')}}</label>
+				<label v-text="$t('version')"></label>
+				<span>{{routerMsg.ver}}</span>
+				<label v-text="$t('mac')"></label>
+				<span>{{routerMsg.lanmac}}</span>
+				<label v-text="$t('service')" v-if="softwareType!='neutral'"></label>
+			</div>
+			<div class="layer" v-show="layerShow"></div>
+			<div class="bulletFrame" v-show="frameShow">
+				<div class="bulletFrame-border">
+					<img src="../img/loading.gif" v-show="isCount==2">
+					<p class="bulletFrame-time" v-show="isCount==2">{{countdown}} {{$t('second')}}</p>
+					<span>{{tips}}</span>
+					<div style="margin-top:35px;" v-show="isCount==0">
+						<button @click="layerShow=false;frameShow=false;" v-text="$t('Confirm')"></button>
+					</div>
+				</div>
+			</div>
+			<!-- loading效果 -->
+			<div v-show="loading" class="frameLoading" style="display: none;">
+				<img src="../img/hd-loading.gif" width="50">
+			</div>
+			<!-- 外网设置弹框 -->
+			<el-dialog :title="$t('outNetSet')" :visible.sync="outNetDialog" width="500px" top="10vh"
+				:close-on-click-modal="false" @close="setLoginTimer">
+				<ul class="featureList ac">
+					<li :class="{active:wanType=='pppoe'}" @click="wanType='pppoe';">{{$t('wanpppoe')}}</li>
+					<li :class="{active:wanType=='dhcp'}" @click="wanType='dhcp';">{{$t('wandhcp')}}</li>
+					<li :class="{active:wanType=='static'}" @click="wanType='static';">{{$t('wanstatic')}}
+					</li>
+				</ul>
+				<div class="outNetItem wanset" v-show="wanType=='pppoe'">
+					<el-form label-width="40%">
+						<el-form-item :label="$t('account')">
+							<el-input v-model="pppoeForm.pppoename" :placeholder="$t('pppoeName')"
+								@blur="pppoeForm.pppoename=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('password')">
+							<el-input v-model="pppoeForm.pppoepsw" :placeholder="$t('pppoePwd')"
+								@blur="pppoeForm.pppoepsw=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item label="">
+							<span @click="pppoeShow=!pppoeShow" class="cur-point">{{$t('moreSet')}}
+								<i :class="pppoeShow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+							</span>
+						</el-form-item>
+						<div v-show="pppoeShow">
+							<el-form-item :label="$t('serverName')">
+								<el-input v-model="pppoeForm.server_name" :placeholder="$t('placeholderTip')">
+								</el-input>
+							</el-form-item>
+							<el-form-item label="MTU">
+								<el-input v-model="pppoeForm.mtu" :placeholder="$t('placeholderTip')"></el-input>
+							</el-form-item>
+						</div>
+					</el-form>
+				</div>
+				<div class="outNetItem" v-show="wanType=='static'">
+					<el-form label-width="40%">
+						<el-form-item :label="$t('ipAddress')">
+							<el-input v-model="staticForm.wanip" :placeholder="$t('placeholderTip')"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('mask')">
+							<el-input v-model="staticForm.wanmsk" :placeholder="$t('placeholderTip')"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('gateway')">
+							<el-input v-model="staticForm.wangw" :placeholder="$t('placeholderTip')"></el-input>
+						</el-form-item>
+						<el-form-item label="DNS1">
+							<el-input v-model="staticForm.dns1" :placeholder="$t('placeholderTip')"></el-input>
+						</el-form-item>
+						<el-form-item label="DNS2">
+							<el-input v-model="staticForm.dns2" :placeholder="$t('placeholderTip')"></el-input>
+						</el-form-item>
+					</el-form>
+				</div>
+				<div class="ac" style="margin-top: 20px;">
+					<span slot="footer" class="dialog-footer">
+						<el-button @click="outNetDialog = false;">{{$t('cancel')}}</el-button>
+						<el-button type="primary" @click="setWanSet">{{$t('apply')}}</el-button>
+					</span>
+				</div>
+			</el-dialog>
+			<!-- apn设置弹框 -->
+			<el-dialog :title="$t('apnSet')" :visible.sync="apnSetDialog" width="670px" top="10vh"
+				:close-on-click-modal="false" @close="setLoginTimer">
+				<el-form label-width="260px">
+					<el-form-item :label="$t('apnSet')">
+						<el-switch v-model="apnMsg.enable" active-color="#13ce66"  inactive-color="#ff4949">
+						</el-switch>
+					</el-form-item>
+					<div v-show="apnMsg.enable">
+						<el-form-item :label="$t('remarkName')">
+							<el-input v-model="apnMsg.profileName"
+								@blur="apnMsg.profileName=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('apnServe')">
+							<el-input v-model="apnMsg.apn" @blur="apnMsg.apn=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('authType')">
+							<el-select v-model="apnMsg.authtype" :placeholder="$t('choose')">
+								<el-option :key="0" value="0" label="NONE"></el-option>
+								<el-option :key="1" value="1" label="PAP"></el-option>
+								<el-option :key="2" value="2" label="CHAP"></el-option>
+								<el-option :key="3" value="3" label="PAP/CHAP"></el-option>
+							</el-select>
+						</el-form-item>
+						<el-form-item :label="$t('account')">
+							<el-input v-model="apnMsg.username" :disabled="apnMsg.authtype=='0'"
+								@blur="apnMsg.username=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('password')">
+							<el-input v-model="apnMsg.passwd" :disabled="apnMsg.authtype=='0'"
+								@blur="apnMsg.passwd=$event.target.value.trim()"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('IP_type')">
+							<el-select v-model="apnMsg.iptype" :placeholder="$t('choose')">
+								<el-option :key="0" value="IP" label="IPv4"></el-option>
+								<el-option :key="1" value="IPV6" label="IPv6"></el-option>
+								<el-option :key="2" value="IPV4V6" label="IPv4v6"></el-option>
+							</el-select>
+						</el-form-item>
+					</div>
+				</el-form>
+				<div class="ac" style="margin-top:35px;">
+					<span slot="footer" class="dialog-footer">
+						<el-button @click="apnSetDialog = false;">{{$t('cancel')}}</el-button>
+						<el-button type="primary" @click="setApnMsg">{{$t('apply')}}</el-button>
+					</span>
+				</div>
+			</el-dialog>
+			<!-- wifi设置弹框 -->
+			<el-dialog :title="$t('wifiSet')" :visible.sync="wifiSetDialog" width="670px" top="10vh"
+				:close-on-click-modal="false" @close="setLoginTimer">
+				<el-form label-width="210px">
+					<el-form-item :label="$t('dualSwitch')">
+						<el-switch v-model="dualSwitch" active-color="#13ce66"  inactive-color="#ff4949" @change="dualSwitchChange">
+						</el-switch>
+					</el-form-item>
+					<div>
+						<div>
+							<el-form-item :label="dualSwitch ? $t('Switch') :  $t('twoSwitch') ">
+								<el-switch v-model="twoWifiMsg.enable" active-color="#13ce66"  inactive-color="#ff4949"
+									@change="dualSwitch ? setWifiSwitch($event,'setAllswitch') : setWifiSwitch($event,'set2gswitch')">
+								</el-switch>
+							</el-form-item>
+							<el-form-item :label="$t('wifiName')">
+								<el-input v-model="twoWifiMsg.wlanssid" :disabled="!twoWifiMsg.enable"
+									@blur="twoWifiMsg.wlanssid=$event.target.value.trim()" style="width: 270px;">
+								</el-input>
+							</el-form-item>
+							<el-form-item label="">
+								<template>
+									<el-checkbox v-model="twoWifiMsg.ssidhide" :disabled="!twoWifiMsg.enable"
+										@change="setSsidHide($event,2)">{{$t('ssidHide')}}</el-checkbox>
+								</template>
+							</el-form-item>
+							<el-form-item :label="$t('encryption')">
+								<el-select v-model="twoWifiMsg.wlanpswmode" :placeholder="$t('choose')"
+									:disabled="!twoWifiMsg.enable" style="width: 270px;">
+									<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+									<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+									<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+									<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK"></el-option>
+									<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK"></el-option>
+									<el-option :key="5" value="wpawpa2-tkipaes" label="WPA-PSK/WPA2-PSK(TKIPAES)">
+									</el-option>
+								</el-select>
+							</el-form-item>
+							<div class="ac" v-show="twoWifiMsg.wlanpswmode=='wpa2wpa3'">
+								<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+								<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+							</div>
+							<el-form-item :label="$t('wifiPwd')" v-show="twoWifiMsg.wlanpswmode!='open'">
+								<el-input v-model="twoWifiMsg.wlanpsw" :disabled="!twoWifiMsg.enable"
+									@blur="twoWifiMsg.wlanpsw=$event.target.value.trim()" style="width: 270px;">
+								</el-input>
+							</el-form-item>
+							<el-form-item :label="$t('signal')">
+								<el-select v-model="twoWifiMsg.power" :placeholder="$t('choose')"
+									:disabled="!twoWifiMsg.enable" style="width: 270px;">
+									<el-option :key="0" :value="0" :label="$t('weak')"></el-option>
+									<el-option :key="1" :value="1" :label="$t('standard')"></el-option>
+									<el-option :key="2" :value="2" :label="$t('wall')"></el-option>
+								</el-select>
+							</el-form-item>
+						</div>
+						<div v-if="!dualSwitch">
+							<el-form-item :label="$t('fiveSwitch')">
+								<el-switch v-model="fiveWifiMsg.enable" active-color="#13ce66"  inactive-color="#ff4949"
+									@change="setWifiSwitch($event,'set5gswitch')">
+								</el-switch>
+							</el-form-item>
+							<el-form-item :label="$t('wifiName')">
+								<el-input v-model="fiveWifiMsg.wlanssid" :disabled="!fiveWifiMsg.enable"
+									@blur="fiveWifiMsg.wlanssid=$event.target.value.trim()" style="width: 270px;">
+								</el-input>
+							</el-form-item>
+							<el-form-item label="">
+								<template>
+									<el-checkbox v-model="fiveWifiMsg.ssidhide" :disabled="!fiveWifiMsg.enable"
+										@change="setSsidHide($event,5)">{{$t('ssidHide')}}</el-checkbox>
+								</template>
+							</el-form-item>
+							<el-form-item :label="$t('encryption')">
+								<el-select v-model="fiveWifiMsg.wlanpswmode" :placeholder="$t('choose')"
+									:disabled="!fiveWifiMsg.enable" style="width: 270px;">
+									<el-option :key="0" value="open" :label="$t('OPEN')"></el-option>
+									<el-option :key="1" value="wpa2" label="WPA2-PSK"></el-option>
+									<el-option :key="2" value="wpa3" label="WPA3-PSK"></el-option>
+									<el-option :key="3" value="wpawpa2" label="WPA-PSK/WPA2-PSK"></el-option>
+									<el-option :key="4" value="wpa2wpa3" label="WPA2-PSK/WPA3-PSK"></el-option>
+									<el-option :key="5" value="wpawpa2-tkipaes" label="WPA-PSK/WPA2-PSK(TKIPAES)">
+									</el-option>
+								</el-select>
+							</el-form-item>
+							<div class="ac" v-show="fiveWifiMsg.wlanpswmode=='wpa2wpa3'">
+								<i class="el-icon-info" style="color: red;font-size: 18px;"></i>
+								<span style="color: #666;">{{$t('wlanModeTip')}}</span>
+							</div>
+							<el-form-item :label="$t('wifiPwd')" v-if="fiveWifiMsg.wlanpswmode!='open' ">
+								<el-input v-model="fiveWifiMsg.wlanpsw" :disabled="!fiveWifiMsg.enable"
+									@blur="fiveWifiMsg.wlanpsw=$event.target.value.trim()" style="width: 270px;">
+								</el-input>
+							</el-form-item>
+							<el-form-item :label="$t('signal')">
+								<el-select v-model="fiveWifiMsg.power" :placeholder="$t('choose')"
+									:disabled="!fiveWifiMsg.enable" style="width: 270px;">
+									<el-option :key="0" :value="0" :label="$t('weak')"></el-option>
+									<el-option :key="1" :value="1" :label="$t('standard')"></el-option>
+									<el-option :key="2" :value="2" :label="$t('wall')"></el-option>
+								</el-select>
+							</el-form-item>
+						</div>
+					</div>
+				</el-form>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="wifiSetDialog = false;">{{$t('cancel')}}</el-button>
+					<el-button type="primary" @click="setWifiMsg">{{$t('apply')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 局域网设置弹框 -->
+			<el-dialog :title="$t('lanSet')" :visible.sync="localNetDialog" width="670px" top="10vh"
+				:close-on-click-modal="false" @close="setLoginTimer">
+				<div class="feature-content">
+					<el-form label-width="40%">
+						<el-form-item label="DHCP">
+							<template>
+								<el-radio-group v-model="lanMsg.landhcp">
+									<el-radio label="on">{{$t('open')}}</el-radio>
+									<el-radio label="off">{{$t('close')}}</el-radio>
+								</el-radio-group>
+							</template>
+						</el-form-item>
+						<el-form-item label="LAN IP">
+							<el-input v-model="lanMsg.lanip" @focus="lanFlag=1"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('mask')">
+							<el-input v-model="lanMsg.lanmsk"></el-input>
+						</el-form-item>
+						<el-form-item :label="$t('startip')">
+							<el-input v-model="lanMsg.startip" :disabled="lanMsg.landhcp=='off'" @focus="getLanIpFocus">
+							</el-input>
+						</el-form-item>
+						<el-form-item :label="$t('endip')">
+							<el-input v-model="lanMsg.endip" :disabled="lanMsg.landhcp=='off'" @focus="getLanIpFocus">
+							</el-input>
+						</el-form-item>
+					</el-form>
+					<div class="ac" style="padding-top:20px;">
+						<el-button type="primary" class="button-color" @click="localNetDialog=false;"
+							style="margin-right:8px;">{{$t('cancel')}}</el-button>
+						<el-button type="primary" class="button-color" @click="setLanMsg">{{$t('apply')}}
+						</el-button>
+					</div>
+				</div>
+			</el-dialog>
+			<!-- 路由复位 -->
+			<el-dialog :title="$t('routerReboot')" :visible.sync="resetDialog" width="408px" top="22vh"
+				:close-on-click-modal="false">
+				<div class="ac" style="color: rgb(206, 68, 58);font-size: 15px;">
+					{{$t('resetTip')}}
+				</div>
+				<div class="ac" style="padding-top:20px;">
+					<el-button type="primary" class="button-color" @click="resetDialog=false;setLoginTimer();"
+						style="margin-right:8px;">{{$t('cancel')}}</el-button>
+					<el-button type="primary" class="button-color" @click="toReset">{{$t('apply')}}</el-button>
+				</div>
+			</el-dialog>
+			<!-- 网络诊断 -->
+			<el-dialog :title="$t('netDiagnosis')" :visible.sync="diagnosisDialog" width="580px" top="10vh"
+				:close-on-click-modal="false" @close="setLoginTimer">
+				<div class="feature-content">
+					<div class="ac">
+						<img src="../img/hd-checking.png">
+					</div>
+					<ul class="diagnosis">
+						<!-- 检测外网连接状态 -->
+						<li>
+							<label>{{$t('Checkwanport')}}</label>
+							<i class="el-icon-loading" v-if="netstatusLoading"></i>
+							<i :class="dianosisForm.netstatus=='1'?'el-icon-success':'el-icon-error'" v-else></i>
+						</li>
+						<!-- 检测wan口网线连接状态 -->
+						<li>
+							<label>{{$t('CheckwanLink')}}</label>
+							<i class="el-icon-loading" v-if="wanstatusLoading"></i>
+							<i :class="dianosisForm.wanstatus=='1'?'el-icon-success':'el-icon-error'" v-else></i>
+						</li>
+						<!-- 检测上网方式是否正确 -->
+						<li>
+							<label>{{$t('Checkwanmode')}}</label>
+							<i class="el-icon-loading" v-if="wanmodeequalLoading"></i>
+							<i :class="dianosisForm.wanmodeequal =='1'?'el-icon-success':'el-icon-error'" v-else></i>
+						</li>
+						<!-- 检测外网是否获取到IP地址 -->
+						<li>
+							<label>{{$t('Checkwanip')}}</label>
+							<i class="el-icon-loading" v-if="ipstatusLoading"></i>
+							<i :class="dianosisForm.ipstatus=='1'?'el-icon-success':'el-icon-error'" v-else></i>
+						</li>
+						<!-- 检测DNS服务器状态 -->
+						<li>
+							<label>{{$t('Checkwandns')}}</label>
+							<i class="el-icon-loading" v-if="dnstatusLoading"></i>
+							<i :class="dianosisForm.dnstatus=='1'?'el-icon-success':'el-icon-error'" v-else></i>
+						</li>
+					</ul>
+					<div class="net-diagnosis-tip" v-show="isDiagnosisEnd">
+						<p 
+						  :style="dianosisForm.netstatus=='1'&&dianosisForm.wanstatus=='1'&&dianosisForm.wanmodeequal=='1'
+						  	&&dianosisForm.ipstatus&&dianosisForm. dnstatus=='1'?{color:'#00FF00'}:''">{{netDiagnosisMsg}}
+						</p>
+					</div>
+					<div class="ac" style="padding-top:20px;">
+						<el-button type="primary" class="button-color" @click="diagnosisDialog=false;"
+							style="margin-right:8px;">{{$t('cancel')}}</el-button>
+						<el-button type="primary" class="button-color" @click="rediagnostics" v-show="isDiagnosisEnd">
+							{{$t('rootedcheck')}}
+						</el-button>
+					</div>
+				</div>
+			</el-dialog>
+			<!-- 帮助弹框 -->
+			<el-dialog :title="$t('help')" :visible.sync="helpDialog" :model="terminaForm" width="40%" top="10vh"
+				:close-on-click-modal="false">
+				<ul class="modeHelpTip">
+					<li v-text="$t('routeModeTip')"></li>
+					<li v-text="$t('repeatModeTip')"></li>
+					<li v-text="$t('wispModeTip')"></li>
+					<li v-text="$t('apModeTip')"></li>
+				</ul>
+				<div class="ac">
+					<span slot="footer" class="dialog-footer">
+						<el-button type="primary" @click="helpDialog=false;" v-text="$t('confirm')"></el-button>
+					</span>
+				</div>
+			</el-dialog>
+			<!-- wisp密码设置弹框 -->
+			<el-dialog :title="$t('wispSetup')" :visible.sync="wispPwdDialog" :model="wispForm" width="530px" top="20vh"
+				:close-on-click-modal="false">
+				<el-form label-width="180px" @submit.native.prevent>
+					<el-form-item :label="$t('wifiName')">
+						<el-input type="text" v-model="wispForm.ssid" readonly
+							@blur="wispForm.ssid=$event.target.value.trim()"></el-input>
+					</el-form-item>
+					<el-form-item :label="$t('wifiPwd')" v-if="wispWifiRow.security.toUpperCase().indexOf('NONE')==-1" >
+						<el-input type="text" v-model="wispForm.password"
+							@blur="wispForm.password=$event.target.value.trim()"></el-input>
+					</el-form-item>
+				</el-form>
+				<div class="ac">
+					<span slot="footer" class="dialog-footer">
+						<el-button type="primary" @click="wispPwdSet" v-text="$t('apply')"></el-button>
+					</span>
+				</div>
+			</el-dialog>
+			<!-- 设备列表管理弹框 -->
+			<el-dialog title="" :visible.sync="terManDialog" width="600px" top="30vh" :close-on-click-modal="false"
+				@close="getTerminalList">
+				<div class="dev-content">
+					<div class="dev-item" style="padding-top:0;">
+						<span class="inline-block ac ellipsis" style="width: 90%;vertical-align: middle;"
+							v-if="!ternameEdit">{{terminaForm.name}}</span>
+						<input type="text" v-model.trim="terminaForm.name" v-if="ternameEdit" @blur="ternameQueryEdit"
+							style="width: 90%;text-indent: 18%;" />
+						<i class="el-icon-edit cur-point" style="font-size: 20px;vertical-align: middle;"
+							@click="ternameEdit = true;"></i>
+					</div>
+					<div class="dev-item">
+						<p class="fl">MAC:</p>
+						<span class="fr">{{terminaForm.mac}}</span>
+					</div>
+					<div class="dev-item">
+						<p class="fl">IP:</p>
+						<span class="fr">{{terminaForm.ip}}</span>
+					</div>
+					<div class="dev-item">
+						<p class="fl" style="margin-right: 30px;">{{$t('total_traffic')}}</p>
+						<div class="dev-item-speed fl">
+							<i style="background-position: 0 -11px;"></i>
+							<span>{{flowTransition(terminaForm.totalup)}}</span>
+						</div>
+						<div class="dev-item-speed fl">
+							<i style="background-position: 0 7px;"></i>
+							<span>{{flowTransition(terminaForm.totaldl)}}</span>
+						</div>
+					</div>
+					<div class="dev-item flex justify-content_flex-justify align-items_center">
+						<p>Qos</p>
+						<div class="dev-item-speedLimit">
+							<p v-if="!isSpeedLimit">{{$t('no_speed_limit')}}</p>
+							<div v-else>
+								<div class="dev-item-speed" style="margin-bottom: 8px;">
+									<i style="background-position: 0 -11px;"></i>
+									<!-- <input type="number" v-model="qosMsg.Up_Speed" @input="numberInput" 
+									style="width: 70px;" /> KB/s -->
+									<input @keyup="qosMsg.Up_Speed=qosMsg.Up_Speed.replace(/\D/g,'')"
+										:value="qosMsg.Up_Speed" @input="qosMsg.Up_Speed=$event.target.value"  
+										maxlength="21"	style="width: 70px;" /> KB/s
+								</div>
+								<div class="dev-item-speed">
+									<i style="background-position: 0 7px;"></i>
+									<input @keyup="qosMsg.Dl_Speed=qosMsg.Dl_Speed.replace(/\D/g,'')"
+										:value="qosMsg.Dl_Speed" @input="qosMsg.Dl_Speed=$event.target.value"
+										maxlength="21"	style="width: 70px;" /> KB/s
+								</div>
+							</div>
+						</div>
+						<div>
+							<el-button type="primary" size="small" class="button-color" @click="isSpeedLimit=true;"
+								v-if="!isSpeedLimit">{{$t('speed_limit')}}</el-button>
+							<div v-else>
+								<el-button type="primary" size="small" class="button-color" @click="setQosMsg">
+									{{$t('confirm')}}
+								</el-button>
+								<el-button type="primary" size="small" class="button-color"
+									@click="setQosMsg('unlimitedSpeed')">{{$t('unlimited')}}</el-button>
+							</div>
+						</div>
+					</div>
+					<div class="dev-item">
+						<p class="fl">{{$t('forbidden')}}</p>
+						<el-button type="primary" size="small" class="button-color fr" @click="setBlack">
+							{{$t('lostblack')}}
+						</el-button>
+					</div>
+				</div>
+				<span slot="footer" class="dialog-footer" style="text-align: center;">
+					<el-button class="button-color" @click="terManDialog = false;">{{$t('cancel')}}</el-button>
+				</span>
+			</el-dialog>
+			<!-- 端口新增编辑弹框 -->
+			<el-dialog :title="portOperaType==0 ? $t('add') : $t('edit')" :visible.sync="portAddEditDialog"
+				width="670px" top="10vh" :close-on-click-modal="false" v-cloak>
+				<div class="bg-fff feature-content">
+					<el-form label-width="40%">
+						<el-form-item :label="$t('wanPort')">
+							<label for="">{{$t('startPort')}}</label>
+							<input v-model="wanPort1" class="macInput" />
+							<label for="">{{$t('endPort')}}</label>
+							<input v-model="wanPort2" class="macInput" />
+						</el-form-item>
+						<el-form-item :label="$t('lanPort')">
+							<label for="">{{$t('startPort')}}</label>
+							<input v-model="lanPort1" class="macInput" />
+							<label for="">{{$t('endPort')}}</label>
+							<input v-model="lanPort2" class="macInput" />
+						</el-form-item>
+						<el-form-item :label="$t('netProtocol')">
+							<el-select v-model="portForm.protocol" placeholder="" style="width: 240px;">
+								<el-option :key="0" value="TCP" label="TCP"></el-option>
+								<el-option :key="1" value="UDP" label="UDP"></el-option>
+								<el-option :key="2" value="TCP&UDP" label="TCP&UDP"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-form>
+					<div class="ac" style="padding-top:20px;">
+						<el-button type="primary" class="button-color" @click="portAddEditDialog=false;"
+							style="margin-right:8px;">{{$t('cancel')}}</el-button>
+						<el-button type="primary" class="button-color" @click="portQueryAddEdit">
+							{{portOperaType==0 ? $t('add') : $t('save')}}
+						</el-button>
+					</div>
+				</div>
+			</el-dialog>
+		</div>
+		<script src="../js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var that = vm;
+			that.setLoginTimer();
+			var first_login = window.sessionStorage.getItem('first_login');
+			if (first_login==0) {
+				that.tabClick('setup');
+			} else {
+				that.tabClick('main');
+			}
+		</script>
+	</body>
+</html>

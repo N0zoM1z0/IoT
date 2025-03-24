@@ -1,0 +1,14 @@
+Package: strongswan-ipsec
+Version: 5.9.2-1
+Depends: libc, strongswan
+Source: feeds/packages/net/strongswan
+SourceName: strongswan-ipsec
+License: GPL-2.0-or-later
+Section: net
+SourceDateEpoch: 1660894911
+CPE-ID: cpe:/a:strongswan:strongswan
+Maintainer: Philip Prindeville <philipp@redfish-solutions.com>, Noel Kuntze <noel.kuntze@thermi.consulting>
+Architecture: aarch64_cortex-a53
+Installed-Size: 5931
+Description:  StrongSwan is an OpenSource IPsec implementation for the Linux operating system.
+ This package contains the ipsec utility.

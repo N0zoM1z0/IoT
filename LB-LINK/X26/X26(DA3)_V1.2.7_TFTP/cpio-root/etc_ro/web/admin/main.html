@@ -1,0 +1,658 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="Keywords" content="" />
+        <meta name="Description" content="" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="renderer" content="webkit"  />
+        <meta http-equiv="Pragma" contect="no-cache" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta http-equiv="expires" content="0" />
+        <title>B-LINK路由设置</title>
+        <link rel="stylesheet" href="css/base.css" />
+        <link rel="stylesheet" href="css/router.css" />
+		<link href="css/bootstrap.min.css" rel="stylesheet" />
+		<link href="css/form.css" rel="stylesheet" />
+        <link rel="stylesheet" href="css/jquery.mCustomScrollbar.css" />
+        <!--[if IE 6]>
+            <script type="text/javascript" src="js/DD_belatedPNG.min.js"></script>
+            <script type="text/javascript">
+            DD_belatedPNG.fix("img,.png_ie");
+            </script>
+        <![endif]-->
+        <!--[if IE 7]>
+			<script src="js/Respond.min.js"></script>
+        <![endif]-->
+        <!--[if IE 8]>
+            <script src="js/Respond.min.js"></script>
+        <![endif]-->
+		<style>
+			.menu .i-5{background:url("images/term.png") no-repeat 3px 3px;}
+			.clearMargin{margin:0;}
+			.layui-layer-msg{top:280px !important;}
+			input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{-webkit-box-shadow: 0 0 0 1000px white inset;-webkit-text-fill-color:#838383;}
+			.more_set{text-align:center;margin:10px auto 15px;width:80%;color:#777;}
+			.more_set span{cursor:pointer}
+			.wanPppoe{display:none;}
+			.netDiagnosis{display:none;position: absolute;left: 312px;top: 488px;width:100px;text-align:center;}
+			#netDiagnosis{display:inline-block;padding: 5px 10px;color: #fff;background: #F44336;cursor:pointer;border-radius: 5px;font-size:15px;}
+			.nd-p,.nd-result{width: 85%;margin: 8px auto 0;color:#777777;}
+			.nd-result{display: none;text-align: left;color:rgb(206, 68, 58);margin-top: 25px;}
+			.nd-load{background: url("./images/hd-loading.gif") no-repeat center center;display: inline-block;width: 21px;height: 21px;}
+			.nd-err{background: url("./images/error.png") no-repeat center center;display: inline-block;width: 21px;height: 21px;}
+			.nd-suc{background: url("./images/hd-suc.png") no-repeat center center;display: inline-block;width: 21px;height: 21px;}
+			.nd-left{float: left;}
+			.nd-right{float: right;}
+			/*background-color:#0bb7f5*/
+			#getWanInfo{
+				display:none;
+				width:290px;
+				position:absolute;
+				left: 200px;
+				top:269px;
+				z-index:10;
+			}
+			#getWanInfo span{
+				height:35px;
+				line-height:35px;
+			}
+			#getrouterInfo{
+				position:absolute;
+				left: 837px;
+				top:220px;
+				line-height: 24px;
+				font-size:14px;
+				color:#fff;
+				text-align:center;
+				border-radius:5px;
+				z-index:10;
+			}
+			#dev_link i{margin:0 12px;}
+			#dev_link a:hover{text-decoration:none;}
+			#dev_link:hover{border-bottom:1px solid #fff;}
+			.device_num{font-size: 18px;margin-left: 9px;}
+			.rou-right{display:block;font-weight:bolder;}
+			.rou-left{display:block;}
+			.rou-div{width: 110px;height:50px;display: inline-block;margin: 16px 5px 0 0;vertical-align:top;}
+		</style>
+    </head>
+    <body style="background: #557cb7;">
+        <div class="top">
+            <a class="logo-box"><img id='hostLogo' width="166" /></a>
+            <a target="_blank" class="user" id="websit_info">
+				<img src="images/web.png" style="width:30px;padding-right:5px;" />
+				<span></span>
+			</a>
+        </div>
+        
+        <div class="wrap userWrap">
+			<div class="menu">
+				<a href="main.html" class="selected"><i class="png_ie i-1"></i><span id="hostPage"></span></a>
+				<a href="more.html"><i class="png_ie i-3"></i><span id="MoreFunction"></span></a>
+				<a href="setup.html"><i class="png_ie i-2"></i><span id="ChangeMode"></span></a>
+				<a href="terminal.html"><i class="png_ie i-5"></i><span id="term"></span></a>
+				<a href="upload_firmware.html"><i class="png_ie i-4"></i><span id="getNew"></span></a>
+			</div>
+				<img src="images/internet.png" id="internet" />
+				<img src="images/wifiOn.gif" id="wifi" />
+				<img src="images/linkOn.png" id="linkStus" />
+				<img src="images/router-img.png" id="wifi_img"/>
+				<img src="images/wanOK2.png" id="lineStus" />
+				<img src="images/wan-img.png" id="wanImg"/>
+				<img src="images/wan-img.png" id="lan1" class="lancon"/>
+				<img src="images/wan-img.png" id="lan2" class="lancon"/>
+				<img src="images/wan-img.png" id="lan3" class="lancon"/>
+				<img src="images/wan-img.png" id="lan4" class="lancon"/>
+				<img src="images/reset.png" id="reset" />
+				<div class="netDiagnosis"><span id="netDiagnosis"></span></div>
+				<div id="dev_link">
+					<a href="terminal.html" style="color:#fff;">
+						<span><img src="images/devicon.png" width="22px"/></span>
+						<span><span id="device_pc"></span>:<span id="device_pc_num" class="device_num"></span><i>|</i></span>
+						<span><span id="device_2g"></span>:<span id="device_2g_num" class="device_num"></span><i>|</i></span>
+						<span><span id="device_5g"></span>:<span id="device_5g_num" class="device_num"></span></span>
+					</a>
+				</div>
+				<div id="erweima">
+					<div id="divQRCode"><img id="QRCode" src="images/router.png" width="120"/></div>
+					<div id="QR_app">
+                        <p><span id="scanfimg" class="fl"></span></p>
+                    </div>
+                    <div id="QR_official" style="display:none;">
+                        <p><span id="Official" class="fl"></span></p>
+                    </div>
+				</div>
+				<!-- WANinfo -->
+				<div id="getWanInfo">
+					<div class="arrow-right" style="position:absolute;left: 288px;top:117px;z-index:10;"></div>
+					<div class="modal-content">
+						<div class="modal-body" id="dialogwaninfo" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+							<div>
+								<ul class="listform">
+									<li style="margin:0">
+										<span id="wan_mac1_td" class="sp-l"></span>
+										<span id="wan_mac1" class="sp-r"></span>
+									</li>
+									<li style="margin:0">
+										<span class="sp-l" id="connettype1_td"></span>
+										<span class="sp-r" id="wan_connettype1"></span>
+									</li>
+									<li style="margin:0">
+										<span id="wan_ip1_td" class="sp-l"></span>
+										<span id="wan_ip1" class="sp-r"></span>
+									</li>
+									<li style="margin:0">
+										<span class="sp-l" id="wan_mask1_td"></span>
+										<span class="sp-r" id="wan_mask1"></span>
+									</li>
+									<li style="margin:0">
+										<span id="gateway1_td" class="sp-l"></span>
+										<span id="wan_gateway1" class="sp-r"></span>
+									</li>
+									<li style="margin:0">
+										<span class="sp-l" id="wan_dns1_td"></span>
+										<span class="sp-r" id="wan_dns1"></span>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- WANinfo end-->
+				<!-- routerinfo -->
+				<div id="getrouterInfo">
+					<div>
+						<img src="./images/bg-3.png" width="250" height="280"/>
+							<div style="position:absolute;top:2px;">
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="netStatus" class="rou-right"></span>
+								</div>
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="linkType" class="rou-right"></span>
+								</div>
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="remainMemory" class="rou-right"></span>
+								</div>
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="totalMemory" class="rou-right"></span>
+								</div>
+								<div class="rou-div">	
+									<span class="rou-left"></span>
+									<span id="cpu" class="rou-right"></span>
+								</div>	
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="playTime" class="rou-right"></span>
+								</div>
+								<div class="rou-div">
+									<span class="rou-left"></span>
+									<span id="upSpeed" class="rou-right"></span>
+								</div>
+								<div class="rou-div">	
+									<span class="rou-left"></span>
+									<span id="downSpeed" class="rou-right"></span>
+								</div>
+							</div>
+					</div>
+				</div>
+				<!-- routerInfo end-->
+        </div>
+			<div id="footer" style="position:absolute;bottom:0px;width:100%;">
+				<p align="center" style="color:#fff;">©2018 B-link Corporation. All rights reserved.&nbsp;&nbsp;&nbsp;<em></em><span id="version_num"></span>&nbsp;&nbsp;&nbsp;<span><span></span>:&nbsp;<span id="Mac"></span></span>&nbsp;&nbsp;&nbsp;<span id="phone"></span></p>
+			</div>
+        <!-- 设置WIFI -->
+		<div id="setwlan" style="display:none;">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+			  <h4 class="modal-title" id="wlanTitle"></h4>
+			</div>
+			<div class="modal-body" id="dialoglan" style="text-align:center;font-size:15px;">
+				<div id="wifi_tab" style="height:38px;line-height:38px;display:none;font-weight:700;cursor: pointer;">
+					<div id="wifi_2G" style="height:38px;" class="wan_Item tab_item on col-md-6 col-sm-6 text-center"></div>
+					<div id="wifi_5G" style="height:38px;"   class="wan_Item tab_item col-md-6 col-sm-6 text-center"></div>
+				</div>
+				<div class="wlan_body">
+					<div id="2gwlan">
+						<div id="dialogwifiSet">
+							<form id="WIFI_key">
+								<input type="hidden" name="radioon" value="1" id="slidOne"/>
+								<ul class="listform">
+									<li style="border:none;height:45px;margin:0px">
+										<span class="sp-l workMode" style="border:0px"></span>
+										<span class="sp-r">
+											<div id="wifiSwtich" class="swtichOFF">
+												<img id="switchOff" src="images/switchoff.png" style="margin-left:50px;width:40px;cursor:pointer;display:none;" />
+												<img id="switchOn" src="images/switchon.png" style="margin-left:50px;width:40px;cursor:pointer;" />
+											</div>
+										</span>
+									</li>
+								</ul>
+							</form>
+							<form id="form2" role="form">
+							<input type="hidden" name="mode" value="wifi"/>
+							<input type="hidden" name="wlanpswencry" value="" id="wifiTkip" />
+							<ul class="listform">
+								<li>
+									<span class="sp-l" id="2gSsid"></span>
+									<span class="sp-r">
+										<label for="wifi_ssid" id="2gSsid_label"></label>
+										<input  class="inpt" id="wifi_ssid" name="wlanssid" type="text" maxlength="32" />
+									</span>
+								</li>
+								<li>
+									<span class="sp-l" id="2gSsidStatus"></span>
+									<span class="sp-r">
+										<input id="wifi_2gssidStatus" style="float:left;vertical-align:middle;margin:16px 0;outline-style:none;"  type="checkbox" />
+										<p style="text-align:left;float:left;line-height:45px;padding-left:5px;"></p>
+									</span>
+								</li>
+								<li>
+									<span class="sp-l" id="2gMODE"></span>
+									<span class="sp-r">
+										<select id="soft_mode" name="wlanpswmode" class="selection">
+											<option  value="wpawpa2" id="wifi_wpawpa2" style="background-color:transparent;color:#000"></option>
+											<option  id="wifi_open" value="open" style="background-color:transparent;color:#000"></option>
+										</select>
+									</span>
+								</li>
+								<li id="WifiKeyLabel">
+									<span class="sp-l" id="2gPass"></span>
+									<span class="sp-r">
+										<label for="wifi_pass1" id="2gPass_label"></label>
+										<input class="inpt" id="wifi_pass1" style="ime-mode:disabled" type="text" maxlength="64" name="wlanpsw"  />
+									</span>
+								</li>
+							</ul>
+							</form>
+						</div>
+						<div class="buttonbox">
+							<a type="button" class="cannel btn list-btn WCancel" id="2gCannel"></a>
+							<a type="button" class="btn list-btn WApply" id="wlan_buuton"></a>
+						</div>
+					</div>
+					<div id="5gwlan" style="display:none">
+						<div id="dialog5gwifiSet">
+							<form id="5gWIFI_key">
+								<input type="hidden" name="radioon" value="1" id="5gslidOne"/>
+								<ul class="listform">
+									<li style="border:none;height:45px;margin:0px">
+										<span class="sp-l workMode" style="border:0px"></span>
+										<span class="sp-r">
+											<div id="wifiSwtich" class="swtichOFF">
+												<img id="5gswitchOff" src="images/switchoff.png" style="margin-left:50px;width:40px;cursor:pointer;display:none;" />
+												<img id="5gswitchOn" src="images/switchon.png" style="margin-left:50px;width:40px;cursor:pointer;" />
+											</div>
+										</span>
+									</li>
+								</ul>
+							</form>
+							<form id="5gform2" role="form">
+							<input type="hidden" name="mode" value="wifi"/>
+							<input type="hidden" name="wlanpswencry" value="" id="5gwifiTkip" />
+							<ul class="listform">
+								<li>
+									<span class="sp-l" id="5gSsid"></span>
+									<span class="sp-r">
+										<label for="5gwifi_ssid" id="5gSsid_label"></label>
+										<input  class="inpt" id="5gwifi_ssid" name="wlanssid" type="text" maxlength="32" />
+									</span>
+								</li>
+								<li>
+									<span class="sp-l" id="5gSsidStatus"></span>
+									<span class="sp-r">
+										<input id="wifi_5gssidStatus" style="float:left;vertical-align:middle;margin:16px 0;outline-style:none;"  type="checkbox" />
+										<p style="text-align:left;float:left;line-height:45px;padding-left:5px;"></p>
+									</span>
+								</li>
+								<li>
+									<span class="sp-l" id="5gMODE"></span>
+									<span class="sp-r">
+										<select id="5gsoft_mode" name="wlanpswmode" class="selection">
+											<option  value="wpawpa2" id="5gwifi_wpawpa2" style="background-color:transparent;color:#000"></option>
+											<option  id="5gwifi_open" value="open" style="background-color:transparent;color:#000"></option>
+										</select>
+									</span>
+								</li>
+								<li id="5gWifiKeyLabel">
+									<span class="sp-l" id="5gPass"></span>
+									<span class="sp-r">
+										<label for="5gwifi_pass1" id="5gPass_label"></label>
+										<input class="inpt" id="5gwifi_pass1" type="text" maxlength="64" style="ime-mode:disabled" name="wlanpsw" />
+									</span>
+								</li>
+							</ul>
+							</form>
+						</div>
+						<div class="buttonbox">
+							<a type="button" class="cannel btn list-btn WCancel" id="5gCannel"></a>
+							<a type="button" class="btn list-btn WApply" id="5gwlan_button"></a>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <!-- 设置WIFI end-->
+		<!-- 复位设置 -->
+		<div id="setRestore" style="display:none;width:auto;">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+			  <h4 class="modal-title" id="RestoreTitle"></h4>
+			</div>
+			<div class="modal-body" id="dialogwaninfo" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+				<div>
+					<h4 id="rebootTitle"></h4>
+				</div>
+			</div>
+			<div class="buttonbox">
+				<a id="rebootcancel" class="cannel btn list-btn WCancel"></a>
+				<a id="restore_button" class="btn list-btn WApply"></a>
+			</div>
+		  </div>
+		</div>
+        <!-- 复位设置 end-->
+		<!--网络诊断-->
+		<div id="getNetDiagnosis" style="display:none;width:auto;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="diagonsis_title"></h4>
+				</div>
+				<div class="modal-body" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+					<div>
+						<p><img src="images/hd-checking.png"></p>
+						<p class="clearfix nd-p"><span class="nd-left"></span><span class="nd-right"></span></p>
+						<p class="clearfix nd-p"><span class="nd-left"></span><span class="nd-right"></span></p>
+						<p class="clearfix nd-p"><span class="nd-left"></span><span class="nd-right"></span></p>
+						<p class="clearfix nd-p"><span class="nd-left"></span><span class="nd-right"></span></p>
+						<p class="clearfix nd-p"><span class="nd-left"></span><span class="nd-right"></span></p>
+						<p class="nd-result"><span id="nd_wan"></span></p>
+						<p class="nd-result"><span id="nd_pppoe"></span></p>
+						<p class="nd-result"><span id="nd_static"></span></p>
+						<p class="nd-result"><span id="nd_dhcp"></span></p>
+						<p class="nd-result"><span id="nd_wanIP"></span></p>
+						<p class="nd-result"><span id="nd_dns"></span></p>
+						<p class="nd-result"><span id="nd_wanhost"></span></p>
+					</div>
+				</div>
+				<div class="buttonbox">
+					<a id="nd_cancel" class="cannel btn list-btn WCancel"></a>
+					<a id="nd_apply" class="btn list-btn" style="display: none;"></a>
+				</div>
+			</div>
+		</div>
+		<!--网络诊断 end-->
+		
+		<!-- wan设置 -->
+		<div id="setwan" style="display:none;">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+			  <h4 class="modal-title" id="wanTitle"></h4>
+			</div>
+			<div class="modal-body" id="dialoglan" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+				<div class="tab_area">
+					<div id="pppoe_title" data-id="1" class="wan_Item tab_item on col-md-4 col-sm-4 text-center">PPPOE</div>
+					<div id="dhcp_title" data-id="2" class="wan_Item tab_item col-md-4 col-sm-4 text-center"></div>
+					<div id="internet_type" data-id="3" class="wan_Item tab_item col-md-4 col-sm-4 text-center"></div>
+				</div>
+				<div class="wan_body">
+					<div id="div1">
+						<form id="form1" role="form">
+						<input type="hidden" name="mode" value="pppoe"/>
+						<ul class="listform">
+							<li>
+								<span class="sp-l" id="pppoename_span"></span>
+								<span class="sp-r" >
+									<label for="login_admin" id="pppoename_label"></label>
+									<input class="inpt inputLabel" id="login_admin" type="text" style="ime-mode:disabled"  name="pppoename" />
+								</span>
+							</li>
+							<li>
+								<span class="sp-l"  id="pppoepass_span"></span>
+								<span class="sp-r" >
+									<label for="login_pass" id="pppoepass_label"></label>
+									<input class="inpt inputLabel" style="ime-mode:disabled" type="text" id="login_pass" name="pppoepsw" />
+								</span>
+							</li>
+							<li class="wanPppoe">
+								<span id="server_name" class="sp-l"></span>
+								<span class="sp-r">
+									<input class="inpt inpt-mini" maxlength="128" id="login_server" name="pppoeserver" style="width: 90%"/>
+								</span>
+							</li>
+						</ul>
+						<div class="server_name wanPppoe">
+								<span id="server_optional"></span>
+						</div>
+						<ul class="listform wanPppoe">
+							<li>
+									<span class="sp-l" id="vpn_mtu_span">MTU</span>
+									<span class="sp-r">
+										<input class="inpt" id="pppoe_mtu" name="pppoeMTU" maxlength="4"/>
+									</span>
+							</li>
+						</ul>
+						<p class="more_set" id="wanPppoe_set"><span></span> <span class="glyphicon glyphicon-menu-down"></span> <span class="glyphicon glyphicon-menu-up" style="display:none;"></span></p>
+						</form>
+						<div class="buttonbox">
+							<a href="#" id="pppoecancel" class="cannel btn list-btn timeflag WCancel"></a>
+							<a href="#" class="btn list-btn WApply" id="wan_pppoe_button"></a>
+						</div>
+					</div>
+					<div id="div2" style="display:none">
+						<form id="form3" role="form">
+						<input type="hidden" name="mode" value="dhcp"/>
+						</form>
+						<div class="buttonbox">
+							<a href="#" id="dhcpcancel" class="cannel WCancel btn list-btn timeflag"></a>
+							<a href="#" class="btn list-btn WApply" id="wan_dhcp_button"></a>
+						</div>
+					</div>
+					<div id="div3" style="display:none">
+					<form id="form4" role="form">
+					<input type="hidden" name="mode" value="static"/>
+					<ul class="listform">
+						<li>
+							<span class="sp-l" id="ip3_span"></span>
+							<span class="sp-r">
+								<label for="login_ip" id="login_ip_label"></label>
+								<input class="inpt inputLabel" id="login_ip" name="wanip" type="text" maxlength="15" />
+							</span>
+						</li>
+						<li>
+							<span class="sp-l" id="msk_span"></span>
+							<span class="sp-r">
+								<label for="login_msk" id="msk_label"></label>
+								<input class="inpt inputLabel" id="login_msk" name="wanmsk" type="text" maxlength="15" />
+							</span>
+						</li>
+						<li>
+							<span class="sp-l" id="gw_span"></span>
+							<span class="sp-r">
+								<label for="login_gateway" id="gw_label"></label>
+								<input class="inpt inputLabel" id="login_gateway" name="wangw" type="text" maxlength="15" />
+							</span>
+						</li>
+						<li>
+							<span class="sp-l" id="dns1_span"></span>
+							<span class="sp-r">
+								<label for="login_dns1" id="dns1_label"></label>
+								<input class="inpt inputLabel" id="login_dns1" name="dns1" type="text" maxlength="15" />
+							</span>
+						</li>
+						<li>
+							<span class="sp-l" id="dns2_span"></span>
+							<span class="sp-r">
+								<label for="login_dns2" id="dns2_label"></label>
+								<input class="inpt inputLabel" id="login_dns2" name="dns2" type="text" maxlength="15" />
+							</span>
+						</li>
+					</ul>
+					</form>
+					<div class="buttonbox">
+						<a href="#" class="cannel btn list-btn timeflag WCancel" id="staticcancel"></a>
+						<a href="#" class="btn list-btn WApply" id="wan_static_button"></a>
+					</div>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+        <!-- wan设置 end-->
+		<!-- lan设置 -->
+		<div id="setlan" style="display:none;width:auto;">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+			  <h4 class="modal-title" id="lantitle"></h4>
+			</div>
+			<div class="modal-body" id="dialoglan" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+				<div>
+					<form id="form5" role="form">
+						<input type="hidden" name="mode" value="LANInfo"/>
+						<ul class="listform">
+							<li>
+								<span class="sp-l">DHCP</span>
+									<span class="sp-r">
+									<input type="radio" name="landhcp" value="on" id="radio1" style="margin-left:10px"checked="checked" />
+									<a class="visitor_on" for="radio1" style="color:#777;"></a>
+									<input   type="radio" name="landhcp" value="off" style="margin-left:5px" id="radio2" />
+									<a class="visitor_off" for="radio2" style="color:#777;"></a>
+								</span>
+							</li>
+							<li>
+								<span class="sp-l" id="lanip_span"></span>
+								<span class="sp-r">
+									<label for="lanip" id="lanIP_label"></label>
+									<input class="inpt"  id="lanip" name="lanip" maxlength="15"/>
+								</span>
+							</li>
+							<li>
+								<span class="sp-l" id="lanmsk_span"></span>
+								<span class="sp-r">
+									<label for="lanmsk" id="lanmsk_label"></label>
+									<input class="inpt"  id="lanmsk" name="lanmsk" maxlength="15"/>
+								</span>
+							</li>
+							<li>
+								<span class="sp-l" id="startip_span"></span>
+								<span class="sp-r">
+									<label for="startip" id="startip_label"></label>
+									<input class="inpt" id="startip" name="startip" maxlength="15"/>
+								</span>
+							</li>
+							<li>
+								<span class="sp-l" id="endip_span"></span>
+								<span class="sp-r">
+									<label for="endip" id="endip_label"></label>
+									<input class="inpt" id="endip" name="endip" maxlength="15"/>
+								</span>
+							</li>
+						</ul>
+					</form>
+				</div>
+			</div>
+			<div class="buttonbox">
+				<a id="flagcancel" class="cannel btn list-btn timeflag WCancel"></a>
+				<a id="lan_button" class="btn list-btn WApply"></a>
+			</div>
+		  </div>
+		</div>
+        <!-- lan设置 end-->
+		<!-- 固件升级设置 -->
+		<div id="setupgrade" style="display:none;width:500px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="upgradeTitle"></h4>
+				</div>
+				<div class="modal-body" id="ChangeInfoBody" style="text-align:center;color:rgb(206, 68, 58);font-size:15px;">
+					<div id="dialogupgrade">
+						<form id="form14" role="form">
+							<ul class="listform">
+								<li>
+									<span id="nowvsion" style="min-width:160px" class="sp-l"></span>
+									<span id="curver" style="min-width:120px;width:120px;" class="sp-r"></span>
+								</li>
+								<li>
+									<span class="sp-l" style="min-width:160px" id="newvsion"></span>
+									<span class="sp-r" style="min-width:120px;width:120px;" id="newver"></span>
+								</li>
+							</ul>
+						</form>
+						<div id="version_tips" style="text-align: left;padding-left: 65px;"></div>
+					</div>
+				</div>
+				<div class="buttonbox">
+					<a id="upgrade_close" class="cannel btn list-btn WCancel"></a>
+					<a id="upgrade_button" class="btn list-btn"></a>
+				</div>
+			</div>
+		</div>
+		<!-- 固件升级设置 end-->
+    </body>
+</html>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/lang_public.js"></script>
+<script type="text/javascript" src="js/lang_main.js"></script>
+<script type="text/javascript" src="js/share.js"></script>
+<script type="text/javascript" src="js/layer/layer.js"></script>
+<script type="text/javascript" src="js/getinfo.js"></script>
+<script type="text/javascript" src="js/user.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+<script type="text/javascript">
+var TimeFlag=true;
+var FloatWifi=true;
+var DoubleWifi=true;
+var loginFlag=function(){
+	if($.cookie("Isfist")){
+		$.cookie("Isfist",false);
+	}else{
+		$.cookie("Isfist",true);
+		window.Isfirst=true;
+		getData_version_info();
+	}
+}
+var mobile = getMobile();
+if (mobile == 1) {
+   window.location = 'mobile/index.html';
+   }
+  getPage();
+  getPages();
+  if(getLang()=='zhcn'){var curlang=lang.zhcn;}else{var curlang=lang.en;}
+  if(getLang()=='zhcn'){var curlangs=langs.zhcn;}else{var curlangs=langs.en;}
+routerInfo();
+var thatTime=setInterval(startget,15000);
+function timeControl(num){
+	if(num){
+		TimeFlag=true;
+	}else{
+		TimeFlag=false;
+	}
+}
+$(".cannel").click(function() {
+    layer.closeAll();
+    timeControl(1);
+})
+$(".close").click(function() {
+    layer.closeAll();
+    timeControl(1);
+})
+function startget(){
+		if(TimeFlag){
+			setTimeout(routerInfo,500);
+		}
+}
+$("#client_list").mCustomScrollbar();
+// setInterval(getLoginStatus,8000);
+</script>

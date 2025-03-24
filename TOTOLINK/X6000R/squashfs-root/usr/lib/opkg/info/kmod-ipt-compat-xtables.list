@@ -1,0 +1,2 @@
+/etc/modules.d/ipt-compat-xtables
+/lib/modules/5.4.194/compat_xtables.ko

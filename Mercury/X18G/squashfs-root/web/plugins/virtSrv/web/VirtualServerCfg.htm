@@ -1,0 +1,354 @@
+<script type="text/javascript">
+	(function(){
+		var virServer = [];
+		var portArray = new Array(
+			{str: label.pSelect,	value: -1,		protocol:	0},
+			{str: "DNS",			value: 53,		protocol:	0},
+			{str: "Gopher",			value: 70,		protocol:	1},
+			{str: "HTTP",			value: 80,		protocol:	1},
+			{str: "NNTP",			value: 119,		protocol:	1},
+			{str: "POP3",			value: 110,		protocol:	1},
+			{str: "PPTP",			value: 1723,	protocol:	0},
+			{str: "SMTP",			value: 25,		protocol:	1},
+			{str: "SOCK",			value: 1080,	protocol:	0},
+			{str: "Telnet",			value: 23,		protocol:	1}
+		);
+
+		var protocol = [{str:"ALL"}, {str:"TCP"}, {str:"UDP"}];
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EOVERFLOW:
+			case EINVPORT:
+				showStr = errStr.invPortErr;
+				break;
+			case EINVPTC:
+				showStr = errStr.invProtoErr;
+				break;
+			case EPORTRESERVED:
+				showStr = errStr.portConflicErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EILLEGALPORT:
+				showStr = errStr.portIllegalErr;
+				break;
+			case ENOTLANSUBNET:
+				showStr = errStr.ipNotLanSubnet;
+				break;
+			case ELANIPCONFLIC:
+				showStr = errStr.lanConflictErr;
+				break;
+			case EINVNETID:
+				showStr = errStr.ipAddrNetIdErr;
+				break;
+			case EINVHOSTID:
+				showStr = errStr.ipAddrHostIdErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function virSerChange(value, selectObj)
+		{
+			var value = selectObj.value;
+			var port = virtualServerTable.editTrObj[1].container;
+			var proto = virtualServerTable.editTrObj[4].container;
+
+			port.setValue((value != -1) && (value != -2) ? value : "");
+
+			for (var para in portArray)
+			{
+				if (portArray[para].value == value)
+				{
+					proto.changeSel(portArray[para].protocol);
+				}
+			}
+
+			/* FIX PROBLEM THAT ERROR-NOTE CAN'T HIDE WHEN AUTO-FILL */
+			port.closeNote();
+		}
+
+		function formatVsList(dataBlock)
+		{
+			var array = formatTableData(dataBlock);
+			for (var index in array)
+			{
+				var obj = array[index];
+				obj.vsOpenPortS = obj[uciFirewall.optName.srcDportStart];
+				obj.vsOpenPortE = obj[uciFirewall.optName.srcDportEnd];
+
+				var innerPorts = obj[uciFirewall.optName.destPort];
+				if (innerPorts == 0)
+				{
+					obj.vsLclPortS = obj.vsOpenPortS;
+					obj.vsLclPortE = obj.vsOpenPortE;
+				}
+				else
+				{
+					obj.vsLclPortS = innerPorts;
+					obj.vsLclPortE = innerPorts;
+				}
+
+				obj.vsLclIp = obj[uciFirewall.optName.destIP];
+
+				switch (obj[uciFirewall.optName.proto])
+				{
+				case uciFirewall.optValue.proto.tcp:
+					obj.vsPtc = 1;
+					break;
+				case uciFirewall.optValue.proto.udp:
+					obj.vsPtc = 2;
+					break;
+				default:
+					obj.vsPtc = 0;
+					break;
+				}
+
+				obj.server = portArray[0].value;
+				for (var para in portArray)
+				{
+					if (portArray[para].value == obj.vsOpenPortS &&
+						portArray[para].protocol == obj.vsPtc)
+					{
+						obj.server = obj.vsOpenPortS;
+						break;
+					}
+				}
+			}
+
+			return array;
+		}
+
+		function virSrvCheckPort(resultObj, index)
+		{
+			var cmpObj;
+
+			/* CHECK IF THE OPEN-PORTS ARE CONFLICT */
+			for (var idx in virServer)
+			{
+				cmpObj = virServer[idx];
+
+				/* COMPARE EXCEPT ITSELF */
+				if (idx == index)
+				{
+					continue;
+				}
+
+				if (cmpObj.vsOpenPortS == cmpObj.vsOpenPortE)
+				{
+					/* OVERLAP OF THE PORTS RANGE */
+					if ((parseInt(resultObj.vsOpenPortS) <= parseInt(cmpObj.vsOpenPortS)) &&
+						(parseInt(resultObj.vsOpenPortE) >= parseInt(cmpObj.vsOpenPortS)) &&
+						(0 == cmpObj.vsPtc || 		// THE PROTOCOL IS "all"
+						 0 == resultObj.vsPtc || 	// THE PROTOCOL IS "all"
+						 cmpObj.vsPtc == resultObj.vsPtc))
+					{
+						return EPORTRESERVED;
+					}
+				}
+				else
+				{
+					if (!(parseInt(resultObj.vsOpenPortE) < parseInt(cmpObj.vsOpenPortS) ||
+						parseInt(resultObj.vsOpenPortS) > parseInt(cmpObj.vsOpenPortE)))
+					{
+						if (0 == cmpObj.vsPtc ||
+							0 == resultObj.vsPtc ||
+							cmpObj.vsPtc == resultObj.vsPtc)
+						{
+							return EPORTRESERVED;
+						}
+					}
+				}
+			}
+
+			/* IF LOCAL-PORTS IS ZERO, THAT'S STILL LEGAL */
+			if (resultObj.vsLclPortS == 0 && resultObj.vsLclPortE == 0)
+			{
+				return ENONE;
+			}
+
+			/* CHECK IF THE LOCAL-PORTS IS LEGAL */
+			if (0 != resultObj.vsLclPortS.length)
+			{
+				if ((resultObj.vsLclPortS != resultObj.vsLclPortE) && !(resultObj.vsLclPortS == resultObj.vsOpenPortS && resultObj.vsLclPortE == resultObj.vsOpenPortE))
+				{
+					return EINVPORT;
+				}
+			}
+
+			return ENONE;
+		}
+
+		function virSerSave(mode, resultObj, index, asynFunc)
+		{
+			/* CHECK IF PORTS ARE LEGAL OR NOT */
+			if (false == errHandle(virSrvCheckPort(resultObj, index)))
+			{
+				return asynFunc(false);
+			}
+
+			var innerPort = 0;
+
+			if (0 == resultObj.vsLclPortS.length || (resultObj.vsLclPortS == 0 && resultObj.vsLclPortE == 0))
+			{
+				resultObj.vsLclPortS = resultObj.vsOpenPortS;
+				resultObj.vsLclPortE = resultObj.vsOpenPortE;
+			}
+			else if (resultObj.vsLclPortS == resultObj.vsLclPortE)
+			{
+				innerPort = resultObj.vsLclPortS;
+			}
+
+			var data = {}, module = {}, para = {};
+			data[uciFirewall.fileName] = module;
+
+			if ("add" == mode)
+			{
+				var sindex = calcNextIndex(virServer);
+				module[KEY_TABLE] = uciFirewall.secType.fwRedirect;
+				module[KEY_NAME] = module[KEY_TABLE] + "_" + sindex;
+				module[KEY_PARA] = para;
+			}
+			else
+			{
+				module[resultObj[SEC_NAME]] = para;
+			}
+
+			var proto = [uciFirewall.optValue.proto.all, uciFirewall.optValue.proto.tcp, uciFirewall.optValue.proto.udp];
+
+			para[uciFirewall.optName.proto] = proto[resultObj.vsPtc];
+			para[uciFirewall.optName.srcDportStart] = resultObj.vsOpenPortS;
+			para[uciFirewall.optName.srcDportEnd] = resultObj.vsOpenPortE;
+			para[uciFirewall.optName.destIP] = hideLeadingZeros(resultObj.vsLclIp);
+			para[uciFirewall.optName.destPort] = innerPort;
+
+
+			("add" == mode) ? $.add(data, callback) : $.modify(data, callback);
+
+			function callback(result)
+			{
+				if (errHandle(result[ERR_CODE]))
+				{
+					asynFunc(true);
+					showToast(label.saveSuccess);
+
+					/* IF OPERATION SUCCESS, RELOAD DATA */
+					requestData();
+				}
+				else
+				{
+					asynFunc(false);
+				}
+			}
+		}
+
+		function virSerDelSel(index, asynFunc)
+		{
+			var data = {}, module = {}, name = [];
+			data[uciFirewall.fileName] = module;
+			module[KEY_NAME] = name;
+
+			var indexArr = index.split("-");
+			for (var idx in indexArr)
+			{
+				var secName = virServer[indexArr[idx]][SEC_NAME];
+				name[name.length] = secName;
+			}
+
+			$.del(data, callback);
+
+			function callback(result)
+			{
+				var res = errHandle(result[ERR_CODE]);
+				asynFunc(res);
+
+				if (res)
+				{
+					showToast(label.deleteSuccess);
+
+					/* IF OPERATE SUCCESS, RELOAD DATA */
+					requestData();
+				}
+			}
+		}
+
+		function requestData(){
+			var data = {}, module = {};
+			data[uciFirewall.fileName] = module;
+			module[KEY_TABLE] = uciFirewall.secType.fwRedirect;
+
+			$.query(data, fillData);
+		}
+
+		function fillData(data){
+			var dataBlock = data[uciFirewall.fileName][uciFirewall.secType.fwRedirect];
+			virServer = formatVsList(dataBlock);
+
+			virtualServerTable.setDataSource(virServer);
+			virtualServerTable.loadData();
+		}
+
+		var virtualServerTable = new Table({
+			targetId:'virtualServerTable',
+			head:[
+				{field:label.commonServer, width:"0.21"},
+				{field:label.extPort, width:"0.18"},
+				{field:label.intPort, width:"0.18"},
+				{field:label.ipAddr, width:"0.24"},
+				{field:label.ptc, width:"0.19"}
+			],
+			column:[
+				{name:"server", type:"select", options:portArray, func:virSerChange, maxLength:8, defaultValue:-1, blankStr:label.pSelect},
+				{name:"vsOpenPortS vsOpenPortE", type:"ports", maxLength:11, isAllowBlank: false},
+				{name:"vsLclPortS vsLclPortE", type:"ports", maxLength:11},
+				{name:"vsLclIp", type:"ip", isAllowBlank: false},
+				{name:"vsPtc", type:"select", options:protocol, maxSelSize:6}
+			],
+			clickList:{
+				"click_save": {func:virSerSave, asyn: true},
+				"click_del_item": {func:virSerDelSel, asyn: true}
+			},
+			max:VIRTUAL_SERVER_RULE_MAX
+		});
+
+		requestData();
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.virtualS%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="virtualServerCfgHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.virtualServerDescription%}</p>
+</div>
+<div id="virtualServerTable"></div>

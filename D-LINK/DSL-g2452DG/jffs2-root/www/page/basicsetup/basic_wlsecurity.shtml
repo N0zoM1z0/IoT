@@ -1,0 +1,665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script   language="javascript"> 
+function G_wirelessTuple()
+{
+    this.Path = "";
+    this.Enable  = "";
+    this.BeaconType = "";
+    this.WEPEncryptionLevel = "";
+    this.WEPKeyIndex = "";
+    this.BasicAuthenticationMode = "";
+    this.BasicEncryptionModes = "";
+    this.WPAAuthenticationMode = "";
+    this.WPAEncryptionModes = "";
+    this.IEEE11iAuthenticationMode = "";
+    this.IEEE11iEncryptionModes = "";
+    this.PSKExpression = "";
+    this.KeyPassphrase = "";
+    this.PreSharedKey = "";
+    this.Standard = "";
+    this.RadiusServer = "";
+    this.RadiusPort = "";
+    this.RadiusKey = "";
+}
+
+var index = 0;
+var G_wireless = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. Enable BeaconType WEPEncryptionLevel WEPKeyIndex BasicAuthenticationMode BasicEncryptionModes WPAAuthenticationMode WPAEncryptionModes IEEE11iAuthenticationMode IEEE11iEncryptionModes X_CT-COM_PSKExpression PreSharedKey.1.KeyPassphrase Standard PreSharedKey.1.PreSharedKey X_CT-COM_RadiusServer.1.X_CT-COM_IPAddress X_CT-COM_RadiusServer.1.X_CT-COM_Port X_CT-COM_RadiusServer.1.X_CT-COM_ShareKey" -->
+    G_wireless[index] = new G_wirelessTuple();
+    G_wireless[index].Path = "<!--#path -->";
+    G_wireless[index].Enable = "<!--#leaf  "1"-->";
+    G_wireless[index].BeaconType = "<!--#leaf  "2"-->";
+    G_wireless[index].WEPEncryptionLevel = "<!--#leaf " 3 "-->";
+    G_wireless[index].WEPKeyIndex = "<!--#leaf  " 4 "-->";
+    G_wireless[index].BasicAuthenticationMode = "<!--#leaf  " 5 "-->";
+    G_wireless[index].BasicEncryptionModes = "<!--#leaf  " 6 "-->";
+    G_wireless[index].WPAAuthenticationMode = "<!--#leaf  " 7 "-->";
+    G_wireless[index].WPAEncryptionModes = "<!--#leaf  " 8 "-->";
+    G_wireless[index].IEEE11iAuthenticationMode = "<!--#leaf  " 9 "-->";
+    G_wireless[index].IEEE11iEncryptionModes = "<!--#leaf  " 10 "-->";
+    G_wireless[index].PSKExpression = "<!--#leaf  " 11 "-->";
+    G_wireless[index].KeyPassphrase = "<!--#leaf  " 12 "-->";
+    G_wireless[index].Standard = "<!--#leaf  " 13 "-->";
+    G_wireless[index].PreSharedKey = "<!--#leaf  " 14 "-->";
+    
+    G_wireless[index].RadiusServer = "<!--#leaf  " 15 "-->";
+    G_wireless[index].RadiusPort = "<!--#leaf  " 16 "-->";
+    G_wireless[index].RadiusKey = "<!--#leaf  " 17 "-->";
+    index++;
+<!--#endgetobject -->
+
+var wepkey_changed = [];
+wepkey_changed[0] = 0;
+wepkey_changed[1] = 0;
+wepkey_changed[2] = 0;
+wepkey_changed[3] = 0;
+function WepKey_changed(n_cnt)
+{
+    wepkey_changed[n_cnt]=1;
+    return true;
+}
+
+var SSID_index = 0;
+function createWirelessMode(){
+    var _text = [],_value = [];
+    
+    //当无线模式为n时,WEP不存在
+	if((G_wireless[0].Standard == 'n' && SSID_index < 4)
+        || (G_wireless[4].Standard == 'n' && SSID_index >= 4)){
+        _text  = ["None","WPA-PSK","WPA2-PSK","WPA-PSK/WPA2-PSK MIXED","8021X"];
+        _value = ["None","WPA","11i","WPAand11i","8021X"];
+    } else {
+        _text  = ["None","WEP","WPA-PSK","WPA2-PSK","WPA-PSK/WPA2-PSK MIXED","8021X"];
+        _value = ["None","Basic","WPA","11i","WPAand11i","8021X"];
+    }    
+    createOptions('SELECT_Security',_text, _value);
+}
+
+function createWirelessSsid(){
+    var _text = [],_value = [];
+    
+    //index小于4时，5G不存在
+    if(index<5){
+        _value  = ["0","1","2","3"];
+        _text = ["SSID1","SSID2","SSID3","SSID4"];
+    } else {
+        _value  = ["0","1","2","3","4","5","6","7"];
+        _text = ["SSID1","SSID2","SSID3","SSID4","SSID5","SSID6","SSID7","SSID8"];
+    }    
+    createOptions('SELECT_SSID',_text, _value);
+}
+var password_changed=0;
+function Password_changed()
+{
+    password_changed=1;
+    return true;
+}
+
+function uiOnload()
+{
+    //createSsidSelect(); 
+    //SSID_index = $('SELECT_SSID').value;
+
+    //动态创建无线模式
+    createWirelessSsid();
+   	$('SELECT_SSID').value = SSID_index ;
+    createWirelessMode();
+    if ("Basic" == G_wireless[SSID_index].BeaconType && "None" == G_wireless[SSID_index].BasicEncryptionModes)
+        $('SELECT_Security').value = "None";
+    else
+        $('SELECT_Security').value = G_wireless[SSID_index].BeaconType; 
+
+    //管理网络认证,包括赋值
+    ctrlBeaconType();
+}
+
+function createSsidSelect()
+{
+    var text = [], value = [];
+    text.push('SSID-1');
+    value.push('0');
+    if (index > 1)
+    {
+        text.push('SSID-2');
+        value.push('1');
+    }
+    createOptions('SELECT_SSID', text, value);
+    $('SELECT_SSID').value = SSID_index;
+}
+
+function selectssid()
+{
+    SSID_index = $('SELECT_SSID').value;
+    uiOnload();
+}
+
+function createEncryptionOpt(){
+    var _text = [], _value = [];
+    
+    //当无线模式为n时,TKIP/TKIP+AES加密也不存在
+	if((G_wireless[0].Standard == 'n' && SSID_index < 4)
+        || (G_wireless[4].Standard == 'n' && SSID_index >= 4)){
+        _text  = ["AES"];
+        _value = ["AESEncryption"];
+    } else {
+        _text  = ["AES","TKIP","TKIP+AES"];
+        _value = ["AESEncryption","TKIPEncryption","TKIPandAESEncryption"];
+    }
+    createOptions('SELECT_EncryptionModes', _text, _value);
+}
+function displaySwitch(encryMode, isshow)
+{
+    jQuery("tr[id]").each(function(){
+       var id = jQuery(this).attr("id");
+       if(id.indexOf(encryMode) > -1)
+       {
+           if(isshow)
+               jQuery(this).attr("style","display:block");
+           else
+               jQuery(this).attr("style","display:none");
+       }
+    });
+}
+
+function ctrlBeaconType()
+{   
+    var i = SSID_index;
+    var Type = $('SELECT_Security').value; //认证类型
+    var nodes = $('toWEP','toWPA','toRADIUS');
+    //动态创建WPA加密选项
+    createEncryptionOpt();
+    
+	jQuery("#SPAN_SecurityTip").attr("style", "display:none");
+	
+    switch(Type){
+        case 'None' : {
+            displaySwitch("toWPA", false)
+            displaySwitch("toWEP", false)
+            setDisplay('DIV_toRADIUS', 0)
+            break;
+        }
+        case 'Basic' : {
+            displaySwitch("toWPA", false)
+            displaySwitch("toWEP", true)
+            setDisplay('DIV_toRADIUS', 0)
+			jQuery("#SPAN_SecurityTip").attr("style", "display:block");
+            //赋值                
+            setValue('SELECT_BeaconType' , G_wireless[i].BasicAuthenticationMode);
+            setValue('SELECT_WEPIndex'   , G_wireless[i].WEPEncryptionLevel);
+            setValue('SELECT_WEPKey'     , G_wireless[i].WEPKeyIndex);
+            break;
+        }
+        case 'WPA' : {
+            displaySwitch("toWEP", false)
+            displaySwitch("toWPA", true)
+            setDisplay('DIV_toRADIUS', 0)
+            //赋值
+            setValue('SELECT_EncryptionModes' , G_wireless[i].WPAEncryptionModes);
+            
+            break;
+        }
+        case '11i' : {
+            displaySwitch("toWEP", false)
+            displaySwitch("toWPA", true)
+            setDisplay('DIV_toRADIUS', 0)
+            setValue('SELECT_EncryptionModes' , G_wireless[i].IEEE11iEncryptionModes);                
+            
+            break;
+        }
+        case 'WPAand11i' : {
+            displaySwitch("toWEP", false)
+            displaySwitch("toWPA", true)
+            setDisplay('DIV_toRADIUS', 0)   
+            setValue('SELECT_EncryptionModes' , G_wireless[i].IEEE11iEncryptionModes);                    
+            
+            break;
+        }
+        
+        case '8021X' : {
+            displaySwitch("toWEP", false)
+            displaySwitch("toWPA", false)
+            setDisplay('DIV_toRADIUS', 1)
+            setValue('INPUT_RADIUS_SERVER'    , G_wireless[i].RadiusServer);    
+            setValue('INPUT_RADIUS_PORT'    , G_wireless[i].RadiusPort);                     
+            setValue('INPUT_RADIUS_KEY'    , G_wireless[i].RadiusKey); 
+            
+            break;
+        }
+    }
+    //当standard等于n时,
+    if(G_wireless[0].Standard == 'n' && SSID_index < 4){
+        $('SELECT_EncryptionModes').value = 'AESEncryption';
+    }
+    
+}
+
+function uiReturn(){
+    document.location.href = '/page/network/network_wlcfg.shtml';
+}
+
+function uiSubmit(){
+        var df = document.wireless_securityform;
+        var Type = $('SELECT_Security').value;
+        var path = '';
+        var psk = "";
+        var wep_k = "";
+        path = G_wireless[SSID_index].Path;
+
+		if(!validateCode())
+				return false;
+
+        switch(Type){
+            case 'None' : {
+                AddElements(df, path + "BeaconType", 'Basic');
+                AddElements(df, path + "BasicEncryptionModes", 'None');
+                AddElements(df, path + "BasicAuthenticationMode", 'None');
+                break;
+            }
+            case 'Basic' : {
+                if( false == avoidEmptyWepKey() ) {
+                    break;
+                }
+                if( false == checkWEP() ) {
+                    break;
+                }
+                AddElements(df, path + "BeaconType", 'Basic');
+                AddElements(df, path + "BasicEncryptionModes", 'WEPEncryption');
+                AddElements(df, path + "BasicAuthenticationMode", getValue('SELECT_BeaconType'));
+                AddElements(df, path + "WEPEncryptionLevel", getValue('SELECT_WEPIndex'));
+                AddElements(df, path + "WEPKeyIndex", getValue('SELECT_WEPKey'));
+                if(wepkey_changed[0]==1)
+                {
+                    wep_k = getValue('INPUT_WEPKey1');
+                    if(wep_k.indexOf('\\') > -1 || wep_k.indexOf('/') > -1 || wep_k.indexOf('"') > -1 || wep_k.indexOf(' ') > -1)
+                    {
+                        top.AlertMsg(getStr("LK_ssidspecialchar"));
+                        ErrFocus($('INPUT_WEPKey1'));
+                        return false;    
+                    }
+                    AddElements(df, path + "WEPKey.1.WEPKey", getValue('INPUT_WEPKey1'));
+                }
+                if(wepkey_changed[1]==1)
+                {
+                    wep_k = getValue('INPUT_WEPKey2');
+                    if(wep_k.indexOf('\\') > -1 || wep_k.indexOf('/') > -1 || wep_k.indexOf('"') > -1 || wep_k.indexOf(' ') > -1)
+                    {
+                        top.AlertMsg(getStr("LK_ssidspecialchar"));
+                        ErrFocus($('INPUT_WEPKey2'));
+                        return false;    
+                    }
+                    AddElements(df, path + "WEPKey.2.WEPKey", getValue('INPUT_WEPKey2'));
+                }
+                if(wepkey_changed[2]==1)
+                {
+                    wep_k = getValue('INPUT_WEPKey3');
+                    if(wep_k.indexOf('\\') > -1 || wep_k.indexOf('/') > -1 || wep_k.indexOf('"') > -1 || wep_k.indexOf(' ') > -1)
+                    {
+                        top.AlertMsg(getStr("LK_ssidspecialchar"));
+                        ErrFocus($('INPUT_WEPKey3'));
+                        return false;    
+                    }
+                    AddElements(df, path + "WEPKey.3.WEPKey", getValue('INPUT_WEPKey3'));
+                }
+                if(wepkey_changed[3]==1)
+                {
+                    wep_k = getValue('INPUT_WEPKey4');
+                    if(wep_k.indexOf('\\') > -1 || wep_k.indexOf('/') > -1 || wep_k.indexOf('"') > -1 || wep_k.indexOf(' ') > -1)
+                    {
+                        top.AlertMsg(getStr("LK_ssidspecialchar"));
+                        ErrFocus($('INPUT_WEPKey4'));
+                        return false;    
+                    }
+                    AddElements(df, path + "WEPKey.4.WEPKey", getValue('INPUT_WEPKey4'));
+                }
+                break;
+            }
+            case 'WPA' : {
+                var psk = $('INPUT_Phrase').value;
+                if(psk.length >= 8 && psk.length <= 63){
+                    if(psk.indexOf(" ") > -1 || psk.indexOf('"') > -1 || psk.indexOf("\\") > -1){
+                        top.AlertMsg(getStr("LK_ssidhavespace"));
+                        ErrFocus($('INPUT_Phrase'));
+                        return false;
+                    }
+                    AddElements(df, path + "BeaconType", 'WPA');
+                    AddElements(df, path + "WPAEncryptionModes", getValue('SELECT_EncryptionModes'));
+                    AddElements(df, path + "WPAAuthenticationMode", 'PSKAuthentication');
+                    AddElements(df, path + "PreSharedKey.1.KeyPassphrase", 'undefined');
+                    if(password_changed == 1) {
+                      AddElements(df, path + "PreSharedKey.1.PreSharedKey", change_to_hex(psk));
+                    }
+                    AddElements(df, path + "X_CT-COM_PSKExpression", 'PreSharedKey');
+                } else {
+                    top.AlertMsg(getStr("LK_wpaleast8"));
+                    ErrFocus($('INPUT_Phrase'));
+                    return false;
+                }
+                break;
+            }
+            case '11i' : {
+                var psk = $('INPUT_Phrase').value;
+                if(psk.length >= 8 && psk.length <= 63){
+                    if(psk.indexOf(" ") > -1 || psk.indexOf('"') > -1 || psk.indexOf("\\") > -1){
+                        top.AlertMsg(getStr("LK_ssidhavespace"));
+                        ErrFocus($('INPUT_Phrase'));
+                        return false;
+                    }
+                    AddElements(df, path + "BeaconType", '11i');
+                    AddElements(df, path + "IEEE11iEncryptionModes", getValue('SELECT_EncryptionModes'));
+                    AddElements(df, path + "IEEE11iAuthenticationMode", 'PSKAuthentication');
+                    AddElements(df, path + "PreSharedKey.1.KeyPassphrase", 'undefined');
+                    if(password_changed == 1) {
+                        AddElements(df, path + "PreSharedKey.1.PreSharedKey", change_to_hex(psk));
+                    }
+                    AddElements(df, path + "X_CT-COM_PSKExpression", 'PreSharedKey');
+                } else {
+                    top.AlertMsg(getStr("LK_wpaleast8"));
+                    ErrFocus($('INPUT_Phrase'));
+                    return false;
+                }
+                break;
+            }
+            case 'WPAand11i' : {
+                var psk = $('INPUT_Phrase').value;
+                if(psk.length >= 8 && psk.length <= 63){
+                    if(psk.indexOf(" ") > -1 || psk.indexOf('"') > -1 || psk.indexOf("\\") > -1){
+                        top.AlertMsg(getStr("LK_ssidhavespace"));
+                        ErrFocus($('INPUT_Phrase'));
+                        return false;
+                    }
+                    AddElements(df, path + "BeaconType", 'WPAand11i');
+                    AddElements(df, path + "IEEE11iEncryptionModes", getValue('SELECT_EncryptionModes'));
+                    AddElements(df, path + "IEEE11iAuthenticationMode", 'PSKAuthentication');
+                    AddElements(df, path + "PreSharedKey.1.KeyPassphrase", 'undefined');
+                    if(password_changed == 1) {
+                        AddElements(df, path + "PreSharedKey.1.PreSharedKey", change_to_hex(psk));
+                    }
+                    AddElements(df, path + "X_CT-COM_PSKExpression", 'PreSharedKey');      
+                } else {
+                    top.AlertMsg(getStr("LK_wpaleast8"));
+                    ErrFocus($('INPUT_Phrase'));
+                    return false;
+                }         
+                break;
+            }
+            case '8021X' : {
+            	AddElements(df, path + "BeaconType", '8021X');
+            	AddElements(df, path + "X_CT-COM_RadiusServer.1.X_CT-COM_IPAddress", getValue('INPUT_RADIUS_SERVER'));
+            	AddElements(df, path + "X_CT-COM_RadiusServer.1.X_CT-COM_Port", getValue('INPUT_RADIUS_PORT'));
+            	AddElements(df, path + "X_CT-COM_RadiusServer.1.X_CT-COM_ShareKey", getValue('INPUT_RADIUS_KEY'));
+            	break;
+          }
+        }
+        df.submit();
+        $('submit').disabled = true;
+}
+
+function checkWEP()
+{
+    var index = $('SELECT_WEPKey').value;
+    var WEPEncryptionLevel = $('SELECT_WEPIndex').value;
+    var error = 1;
+
+    if(index == '1'){
+        var len = $('INPUT_WEPKey1').value.length;
+        var val = $('INPUT_WEPKey1').value;
+        if(WEPEncryptionLevel=='40-bit')
+        {
+            if((len == 5) || ((len == 10) && val.match(/^[0-9a-fA-F]{10}$/)))
+            {
+                error = 0;
+            }
+        }
+        else
+        {
+            if((len == 13) || ((len == 26) && val.match(/^[0-9a-fA-F]{26}$/)))
+            {
+
+                error = 0;
+            }
+        }
+    }
+    if(index == '2'){
+        var len = $('INPUT_WEPKey2').value.length;
+        var val = $('INPUT_WEPKey2').value;
+        if(WEPEncryptionLevel=='40-bit')
+        {
+            if((len == 5) || ((len == 10) && val.match(/^[0-9a-fA-F]{10}$/)))
+            {
+                error = 0;
+            }
+        }
+        else
+        {
+            if((len == 13) || ((len == 26) && val.match(/^[0-9a-fA-F]{26}$/)))
+            {
+                error = 0;
+            }
+        }
+    }
+    
+    if(index == '3'){
+        var len = $('INPUT_WEPKey3').value.length;
+        var val = $('INPUT_WEPKey3').value;
+        if(WEPEncryptionLevel=='40-bit')
+        {
+            if((len == 5) || ((len == 10) && val.match(/^[0-9a-fA-F]{10}$/)))
+            {
+                error = 0;
+            }
+        }
+        else
+        {
+            if((len == 13) || ((len == 26) && val.match(/^[0-9a-fA-F]{26}$/)))
+            {
+                error = 0;
+            }
+        }
+    }
+    
+    if( (index == '4')){
+        var len = $('INPUT_WEPKey4').value.length;
+        var val = $('INPUT_WEPKey4').value;
+        if(WEPEncryptionLevel=='40-bit')
+        {
+            if((len == 5) || ((len == 10) && val.match(/^[0-9a-fA-F]{10}$/)))
+            {
+                error = 0;
+            }
+        }
+        else
+        {
+            if((len == 13) || ((len == 26) && val.match(/^[0-9a-fA-F]{26}$/)))
+            {
+                error = 0;
+            }
+        }
+    }
+    
+    if(error == 1)
+    {
+        top.AlertMsg(getStr("LK_keysnomatch"));
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+function avoidEmptyWepKey(){
+    //if( $('INPUT_WEPKey1').value == '' && $('INPUT_WEPKey2').value == '' && $('INPUT_WEPKey3').value == '' && $('INPUT_WEPKey4').value == '' ){
+    //    top.AlertMsg('WEP KEY 不能全为空!');
+    //    return false;
+    //}
+    var index = $('SELECT_WEPKey').value;
+    if( (index == '1') && ($('INPUT_WEPKey1').value == '') ){
+        top.AlertMsg(getStr("LK_keysnoempty"));
+        return false;
+    }
+    
+    if( (index == '2') && ($('INPUT_WEPKey2').value == '') ){
+        top.AlertMsg(getStr("LK_keysnoempty"));
+        return false;
+    }
+    
+    if( (index == '3') && ($('INPUT_WEPKey3').value == '') ){
+        top.AlertMsg(getStr("LK_keysnoempty"));
+        return false;
+    }
+    
+    if( (index == '4') && ($('INPUT_WEPKey4').value == '') ){
+        top.AlertMsg(getStr("LK_keysnoempty"));
+        return false;
+    }    
+    return true;
+}
+
+function tranform(pwd)
+{
+    var i;
+    var dst="";
+    for(i=0;i<pwd.length;i+=2)
+    {
+        var tmp = (parseInt(pwd[i] + pwd[i+1],16)); 
+        dst += String.fromCharCode(tmp);
+    }
+    return dst;
+}
+
+function hidepasswd()
+{   
+    getElementById('INPUT_Phrase').type="password";
+}
+
+function showpasswd()
+{
+    getElementById('INPUT_Phrase').type="text";
+    setValue('INPUT_Phrase',tranform(G_wireless[SSID_index].PreSharedKey));
+}
+
+function __init()
+{
+    uiOnload();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script> 
+</head>  
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_WlSecuritySet"));</script>
+<form method="get">
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+        <tr style="display:block">
+            <td width="150px" langkey="LK_ChooseSSID"></td>
+            <td>
+                <select id="SELECT_SSID" onChange="selectssid();">
+                </select>
+            </td>
+        </tr>
+        <tr style="display:block">
+            <td width="150px" langkey="LK_Authenn"></td>
+            <td><select id="SELECT_Security" onChange="ctrlBeaconType()">
+                </select>
+				<span id="SPAN_SecurityTip" langkey="LK_SecurityTipWEPWPSDisable"></span>
+            </td>
+        </tr>
+            <!-- WEP -->
+        <tr id="toWEP1" style="display:none">
+                <td width="150px" langkey="LK_EncryptionModee"></td>
+                <td><select id="SELECT_BeaconType">
+                       <option value="None">Open</option>
+                       <option value="SharedAuthentication">Share</option>
+                       <option value="Both">Both</option>
+                    </select></td>
+        </tr>
+        <tr id="toWEP2" style="display:none">
+                <td width="150px" langkey="LK_EncryLen"></td>
+                <td><select id="SELECT_WEPIndex">
+                        <option value="40-bit">64 bits(10 hex digits)</option>
+                        <option value="104-bit">128 bits(26 hex digits)</option>
+                    </select></td>
+        </tr>
+        <tr id="toWEP3" style="display:none">
+                <td width="150px" langkey="LK_KeyIdx"></td>
+                <td><select id="SELECT_WEPKey">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </td>
+        </tr>
+        <tr id="toWEP4" style="display:none">
+                <td width="150px" langkey="LK_Key1"></td>
+                <td><input type="password" id="INPUT_WEPKey1" maxlength="26" autocomplete="off" value="135790ACEG" onChange="WepKey_changed(0)"></td>
+        </tr>
+
+        <tr id="toWEP5" style="display:none">
+                <td width="150px" langkey="LK_Key2"></td>
+                <td><input type="password" id="INPUT_WEPKey2" maxlength="26" autocomplete="off" value="135790ACEG" onChange="WepKey_changed(1)"></td>
+        </tr>
+        <tr id="toWEP6" style="display:none">
+                <td width="150px" langkey="LK_Key3"></td>
+                <td><input type="password" id="INPUT_WEPKey3" maxlength="26" autocomplete="off" value="135790ACEG" onChange="WepKey_changed(2)"></td>
+        </tr>
+        <tr id="toWEP7" style="display:none">
+                <td width="150px" langkey="LK_Key4"></td>
+                <td><input type="password" id="INPUT_WEPKey4" maxlength="26" autocomplete="off" value="135790ACEG" onChange="WepKey_changed(3)"></td>
+        </tr>
+        <tr id="toWEP8" style="display:none">
+                <td width="150px"></td><td langkey="LK_WepKeyContent"></td>
+        </tr>
+            <!-- WPA-PSK/WPA2-PSK  -->
+        <tr id="toWPA1" style="display:none">
+                <td width="150px" langkey="LK_WPAPreshareKeyy"></td>
+                <td><span id="td_pw"><input type="password" id="INPUT_Phrase" value="123456789ABCDEFG" onblur="hidepasswd()" onfocus="showpasswd()" onChange="Password_changed()"></span></td>
+        </tr>
+        <tr id="toWPA2" style="display:none">
+                <td width="150px" langkey="LK_EncryptionModee"></td>
+                <td><select id="SELECT_EncryptionModes">
+                        <option value="TKIPEncryption">TKIP</option>
+                        <option value="AESEncryption">AES</option>
+                        <option value="TKIPandAESEncryption">TKIP+AES</option>
+                    </select></td>
+        </tr>
+        <table id="DIV_toRADIUS" cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">	
+                <tr>
+                <td width="150px" langkey="LK_RADIUS_SERVER"></td>
+                <td><input type="text" id="INPUT_RADIUS_SERVER" maxlength="32"></td>
+                </tr>
+                <tr>
+                <td width="150px" langkey="LK_RADIUS_PORT"></td>
+                <td><input type="text" id="INPUT_RADIUS_PORT" maxlength="32"></td>
+                </tr>  
+        	      <tr>
+                <td width="150px" langkey="LK_RADIUS_KEY"></td>
+                <td><input type="text" id="INPUT_RADIUS_KEY" maxlength="32"></td>
+                </tr>     				
+        </table>
+</table>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+        <tr>
+                <td colspan="2">
+                <script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit();" );</script>
+                <script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh();" );</script>
+                </td>
+        </tr>
+</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name ="wireless_securityform" action="/cgi-bin/setup.cgi?page/basicsetup/basic_wlsecurity.shtml">
+</form>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><title>TOTOLINK</title><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/main.css"><link rel="stylesheet" href="/static/css/phone/common.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <phone-back :title="lang_t('menu.time')" url="/phone/tools.html"></phone-back>
+  <div class="row-content">
+    <div class="row-group">
+	  <div class="row-right">
+		<input class="right" v-model="date" readonly>
+	  </div>
+	  <div class="row-left">
+		<p>{{ lang_t('time.current_time') }}:</p>
+	  </div>
+	</div>
+    <div class="row-group">
+		<div class="right" style="margin-right:5%">
+			<a class="link" @click="submitLocaltime">{{ lang_t('time.copy_time') }}</a>
+		</div>
+	  <div class="row-left">
+		<p>&nbsp;</p>
+	  </div>
+	</div>
+	<div class="row-group">
+	  <div class="row-right select_input">
+		<span class="right">
+		  <select v-model="tz" class="long-select">
+			 <option value="UTC+12">(UTC-12:00) {{ lang_t('time.ntp25') }}</option>
+			 <option value="UTC+11">(UTC-11:00) {{ lang_t('time.ntp1') }}</option>
+			 <option value="UTC+10">(UTC-10:00) {{ lang_t('time.ntp2') }}</option>
+			 <option value="UTC+9">(UTC-09:00) {{ lang_t('time.ntp3') }}</option>
+			 <option value="UTC+8">(UTC-08:00) {{ lang_t('time.ntp4') }}</option>
+			 <option value="UTC+7">(UTC-07:00) {{ lang_t('time.ntp5') }}</option>
+			 <option value="UTC+6">(UTC-06:00) {{ lang_t('time.ntp6') }}</option>
+			 <option value="UTC+5">(UTC-05:00) {{ lang_t('time.ntp7') }}</option>
+			 <option value="UTC+4">(UTC-04:00) {{ lang_t('time.ntp8') }}</option>
+			 <option value="UTC+3">(UTC-03:00) {{ lang_t('time.ntp9') }}</option>
+			 <option value="UTC+2">(UTC-02:00) {{ lang_t('time.ntp10') }}</option> 
+			 <option value="UTC+1">(UTC-01:00) {{ lang_t('time.ntp11') }}</option>
+			 <option value="UTC+0">(UTC-00:00) {{ lang_t('time.ntp12') }}</option>
+			 <option value="UTC-1">(UTC+01:00) {{ lang_t('time.ntp13') }}</option>
+			 <option value="UTC-2">(UTC+02:00) {{ lang_t('time.ntp14') }}</option>
+			 <option value="UTC-3">(UTC+03:00) {{ lang_t('time.ntp15') }}</option>
+			 <option value="UTC-4">(UTC+04:00) {{ lang_t('time.ntp16') }}</option>
+			 <option value="UTC-5">(UTC+05:00) {{ lang_t('time.ntp17') }}</option>
+			 <option value="UTC-6">(UTC+06:00) {{ lang_t('time.ntp18') }}</option>
+			 <option value="UTC-7">(UTC+07:00) {{ lang_t('time.ntp19') + (globalConfig.softwareType == 'Indonesia' ? lang_t('time.ntp_india') : '') }}</option>
+			 <option value="UTC-8">(UTC+08:00) {{ lang_t('time.ntp20') }}</option>
+			 <option value="UTC-9">(UTC+09:00) {{ lang_t('time.ntp21') }}</option>
+			 <option value="UTC-10">(UTC+10:00) {{ lang_t('time.ntp22') }}</option>
+			 <option value="UTC-11">(UTC+11:00) {{ lang_t('time.ntp23') }}</option>
+			 <option value="UTC-12">(UTC+12:00) {{ lang_t('time.ntp24') }}</option>
+		  </select>
+		</span>
+	  </div>
+	  <div class="row-left">
+		<p>{{ lang_t('time.time_zone') }}:</p>
+	  </div>
+	</div>
+	<div class="row-group">
+	  <div class="switch-right">
+		<x-switch v-model="m_enable"></x-switch>
+	  </div>
+	  <div class="row-left">
+		<p style="padding-top:12px;">{{ lang_t('time.sync_time') }}:</p>
+	  </div>
+	</div>
+	<div class="row-group">
+	  <div class="row-right">
+		<input class="right" v-model="server_a" :maxlength="32" data-name="server_a" id="server_a" :readonly="!m_enable">
+	  </div>
+	  <div class="row-left">
+		<p>{{ lang_t('time.server') }} 1:</p>
+	  </div>
+	</div>
+	<div class="row-group">
+	  <div class="row-right">
+		<input class="right" v-model="server_b" :maxlength="32" data-name="server_b" id="server_b" :readonly="!m_enable">
+	  </div>
+	  <div class="row-left">
+		<p>{{ lang_t('time.server') }} 2:</p>
+	  </div>
+	</div>
+	<div class="row-group">
+	  <div class="row-right">
+		<input class="right" v-model="server_c" :maxlength="32" data-name="server_c" id="server_c" :readonly="!m_enable">
+	  </div>
+	  <div class="row-left">
+		<p>{{ lang_t('time.server') }} 3:</p>
+	  </div>
+	</div>
+  </div>
+  <div class="login-bottom">
+	<button class="login-btn" @click="applyFun">{{ lang_t('common.apply') }}</button>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery-3.2.1.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,date:"",tz:"",m_enable:!1,server_a:"",server_b:"",server_c:""}},computed:{},created:function(){var o=this;uiPost.getNtpCfg(function(t){for(var e=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],s=0;s<12;s++)if(t.currentTime.split(" ")[1]==e[s])var n=s+1;var r=t.currentTime.replace(/\s+/g," ");o.date=r.split(" ")[5]+"-"+n+"-"+r.split(" ")[2]+" "+r.split(" ")[3],o.server_a=t.server.split("*")[0],o.server_b=t.server.split("*")[1],o.server_c=t.server.split("*")[2],o.tz=t.tz,o.m_enable="1"==t.enable})},methods:{addZero:function(t){return t<10&&(t="0"+t),t},getDate:function(t){this.date=t},submitLocaltime:function(){var s=this,t=new Date,e=t.getFullYear()+"-"+this.addZero(t.getMonth()+1)+"-"+this.addZero(t.getDate())+" "+this.addZero(t.getHours())+":"+this.addZero(t.getMinutes())+":"+this.addZero(t.getSeconds());this.date=e;var n={};n.host_time=this.date,uiPost.NTPSyncWithHost(n,function(t){var e=0;e=t.wtime&&"0"!=t.wtime?Number(t.wtime):3,Cstool.Mark({type:"load",time:e,content:s.lang_t("common.effective"),success:function(){Cstool.Flag({content:s.lang_t("common.set_success"),btnText:s.lang_t("common.back"),ok:function(){location.href=location.href}})}})})},applyFun:function(){var s=this,t={},e="";return s.server_a?cs.isUrl(s.server_a)?(cs.isIp(s.server_a)&&(s.server_a=cs.descIp(s.server_a)),e=s.server_a,s.server_b?cs.isUrl(s.server_b)?(cs.isIp(s.server_b)&&(s.server_b=cs.descIp(s.server_b)),e+="*"+s.server_b,s.server_c?cs.isUrl(s.server_c)?(cs.isIp(s.server_c)&&(s.server_c=cs.descIp(s.server_c)),e+="*"+s.server_c,t.tz=s.tz,t.enable=s.m_enable?"1":"0",t.server=e,void uiPost.setNtpCfg(t,function(t){var e=0;t&&(e=t.wtime&&"0"!=t.wtime?Number(t.wtime):30,Cstool.Mark({type:"load",time:e,content:s.lang_t("common.effective"),success:function(){Cstool.Flag({content:s.lang_t("common.set_success"),btnText:s.lang_t("common.back"),ok:function(){location.href=location.href}})}}))})):(Cstool.Mark({content:this.lang_t("time.msg4"),l_text:this.lang_t("common.back")}),!1):(Cstool.Mark({content:this.lang_t("time.msg3"),l_text:this.lang_t("common.back")}),!1)):(Cstool.Mark({content:this.lang_t("time.msg4"),l_text:this.lang_t("common.back")}),!1):(Cstool.Mark({content:this.lang_t("time.msg2"),l_text:this.lang_t("common.back")}),!1)):(Cstool.Mark({content:this.lang_t("time.msg4"),l_text:this.lang_t("common.back")}),!1):(Cstool.Mark({content:this.lang_t("time.msg1"),l_text:this.lang_t("common.back")}),!1)}}}</script><script src="/static/js/main.js"></script></body></html>

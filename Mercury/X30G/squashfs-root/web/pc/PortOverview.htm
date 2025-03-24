@@ -1,0 +1,76 @@
+<script type="text/javascript">
+    (function(){
+        function queryDevInfoData(callback) {
+            var req = {};
+            var resDataList = [];
+            req[uciPortConfig.fileName] = {};
+            req[uciPortConfig.fileName][KEY_TABLE] = [];
+            req[uciPortConfig.fileName][KEY_TABLE][0] = uciPortConfig.secType.devInfo;
+            $.query(req, function(res) {
+                if (!errHandle(res[ERR_CODE])) {
+                    return;
+                }
+                resDataList = res[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+                callback(resDataList);
+            });
+        }
+        function errHandle(errNo){
+            var showStr = "";
+            switch (errNo)
+            {
+                case ENONE:
+                    return true;
+                default:
+                    showStr = errStr.unknown + errNo;
+                    break;
+            }
+            alarmDialog.show(showStr);
+            return false;
+        }
+        function showRouterList(resDataList){
+            $("#routerPortArea").html("");
+            for(var i = 0;i < resDataList.length; i++){
+                var $div = $('<div class="routerItem"></div>');
+                if(resDataList[i][uciPortConfig.dynOptName.cap] == uciPortConfig.dynOptValue.cap.cap){
+                    $("#routerPortArea").prepend($div);
+                }else{
+                    $("#routerPortArea").append($div);
+                }
+                var portData = [];
+                new PortConfig().initPortData(resDataList[i][uciPortConfig.dynOptName.phyInfo],'ALL',portData,resDataList[i][uciPortConfig.dynOptName.sfpCapability]),
+                new PortConfig().init({
+                    element: $div[0],
+                    type: 'display',
+                    port: portData,
+                    powerPos: resDataList[i][uciPortConfig.dynOptName.powerPos],
+                    powerIdx: resDataList[i][uciPortConfig.dynOptName.powerIdx],
+                    showRouterName: true,
+                    routerName: resDataList[i][uciPortConfig.dynOptName.name],
+                    showOffLine: resDataList[i][uciPortConfig.dynOptName.online] != uciPortConfig.dynOptValue.online.online
+                })
+            }
+        }
+        function init(){
+            queryDevInfoData(showRouterList);
+        }
+        init();
+    })();
+</script>
+<style type="text/css">
+#routerPortArea{
+    margin-top: 48px;
+}
+#routerPortArea .routerItem{
+    margin-top: 24px;
+}
+div.title h1{
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.portOverview%}</h1>
+	</div>
+</div>
+<div id="routerPortArea"></div>

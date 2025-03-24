@@ -1,0 +1,264 @@
+
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/portName.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+	
+function PortMappingTuple()
+{
+    this.Path = "";
+    this.PortMappingEnabled = "";
+    this.PortMappingDescription = "";
+    this.RemoteHost = "";
+    this.PortMappingProtocol = "";
+    this.ExternalPort = "";
+    this.ExternalPortEndRange = "";
+    this.InternalPort = "";
+    this.InternalClient = "";
+}
+
+function WanConnsTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.ConnectionType = "";
+    this.ServiceList = "";
+}
+
+var index = 0;
+var n = 0;
+var PortMapping = new Array();
+var WanConns = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name ConnectionType X_CT-COM_ServiceList X_CT-COM_IPMode"-->
+        WanConns[n] = new WanConnsTuple();   
+        WanConns[n].Path = "<!--#path -->";
+        WanConns[n].Name = "<!--#leaf "1"-->";
+        WanConns[n].ConnectionType = "<!--#leaf "2"-->";
+        WanConns[n].ServiceList = "<!--#leaf "3"-->";
+        WanConns[n].IPMode = "<!--#leaf "4"-->";
+        n++;
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+            PortMapping[index] = new PortMappingTuple();   
+            PortMapping[index].Path = "<!--#path -->";
+            PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+            PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+            PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+            PortMapping[index].PortMappingProtocol = "<!--#leaf "4"-->";
+            PortMapping[index].ExternalPort = "<!--#leaf "5"-->";
+            PortMapping[index].ExternalPortEndRange = "<!--#leaf "6"-->";
+            PortMapping[index].InternalPort = "<!--#leaf "7"-->";
+            PortMapping[index].InternalClient = "<!--#leaf "8"-->";
+            PortMapping[index].NatLpbk = "<!--#leaf "9"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+    
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name ConnectionType X_CT-COM_ServiceList X_CT-COM_IPMode"-->
+        WanConns[n] = new WanConnsTuple();   
+        WanConns[n].Path = "<!--#path -->";
+        WanConns[n].Name = "<!--#leaf "1"-->";
+        WanConns[n].ConnectionType = "<!--#leaf "2"-->";
+        WanConns[n].ServiceList = "<!--#leaf "3"-->";
+        WanConns[n].IPMode = "<!--#leaf "4"-->";
+        n++;
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+            PortMapping[index] = new PortMappingTuple();   
+            PortMapping[index].Path = "<!--#path -->";
+            PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+            PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+            PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+            PortMapping[index].PortMappingProtocol = "<!--#leaf "4"-->";
+            PortMapping[index].ExternalPort = "<!--#leaf "5"-->";
+            PortMapping[index].ExternalPortEndRange = "<!--#leaf "6"-->";
+            PortMapping[index].InternalPort = "<!--#leaf "7"-->";
+            PortMapping[index].InternalClient = "<!--#leaf "8"-->";
+            PortMapping[index].NatLpbk = "<!--#leaf "9"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+
+function init(){
+    //生成WAN连接下拉框
+    var _text = [],_value = [];
+    for(var i = 0; i < WanConns.length; i++){
+        //if(!isBridgedConn(WanConns[i].ConnectionType) && WanConns[i].ServiceList != 'TR069' && WanConns[i].ServiceList != 'VOIP' && WanConns[i].IPMode != '2'){
+        if(!isBridgedConn(WanConns[i].ConnectionType) && isINTERNETService(WanConns[i].ServiceList) && WanConns[i].IPMode != '2'){
+            _text.push(WanConns[i].Name);
+            _value.push(WanConns[i].Path);
+        }
+	}
+	if (_text.length == 0) {
+		_text[0] = '-';
+		_value[0] = '-';
+	}
+    createOptions('SELECT_WanConns',_text,_value);
+}
+
+
+function createTable() {
+    var wanConns    = $('SELECT_WanConns').value;
+    var array_value = [];
+    var x = 0;	
+    var no_rule = 1;
+    var trs = "";
+    
+   trs += "<tr class='TitleRow'>";
+   trs += "<td>" + getStr('LK_Number') + "</td>";
+   trs += "<td>" + getStr('LK_Enable') + "</td>";
+   trs += "<td>" + getStr('LK_Description') + "</td>";
+   trs += "<td>" + getStr('LK_RemoteIPAddress') + "</td>";
+   trs += "<td>" + getStr('LK_Protocol') + "</td>";
+   trs += "<td>" + getStr('LK_ExternalPort') + "</td>";
+   trs += "<td>" + getStr('LK_InternalPort') + "</td>";
+   trs += "<td>" + getStr('LK_InternalIPAddress') + "</td>";          
+   trs += "<td>" + getStr('LK_NatLoopback') + "</td>";          
+   trs += "<td>" + getStr('LK_Action') + "</td>";         
+   trs += "</tr>";
+
+	for(var k = 0,i = 0; k < PortMapping.length; k++){
+		var rule = PortMapping[k];
+
+        if (rule.Path.indexOf(wanConns) > -1){
+			var tr = "";
+			if(x % 2==0)
+				tr += "<tr class='OddRowB'>"
+			else
+				tr += "<tr class='EvenRowB'>";
+	                tr += "<td>"+(i+1)+"</td>";
+			tr += "<td>"+rule.PortMappingEnabled+"</td>";
+			tr += "<td>"+rule.PortMappingDescription+"</td>";
+			tr += "<td>"+rule.RemoteHost+"</td>";
+			tr += "<td>"+rule.PortMappingProtocol+"</td>";
+			tr += "<td>"+dealWithExternalPort(rule.ExternalPort,rule.ExternalPortEndRange)+"</td>";
+			tr += "<td>"+dealWithInternalPort(rule.ExternalPort,rule.ExternalPortEndRange, rule.InternalPort)+"</td>";
+			tr += "<td>"+rule.InternalClient+"</td>";
+			tr += "<td>"+rule.NatLpbk+"</td>";
+			tr += "<td>"
+				+ "<img style='cursor:pointer' src='../../skin/edit.gif' onclick='uiEdit(\"" + rule.Path + "\", \"" +(i) + "\")'>"
+				+ "<img style='cursor:pointer' src='../../skin/trash.gif' onclick='uiDelete(\"" + rule.Path + "\")'></td>";
+			tr += "</tr>"; 
+			trs += tr;   
+			no_rule = 0;
+            i++;
+        }
+    }
+
+	if(no_rule == 1)
+	{
+	trs += '<tr class="OddRowB"><td colspan="10">'+ getStr('LK_NoRule');+'</td></tr>';
+	}
+	jQuery("#PortMappingList").empty();
+	jQuery("#PortMappingList").append(trs);
+}
+
+//判断外部端口如何在列表中的显示
+function dealWithExternalPort(ExternalPort, ExternalPortEndRange){
+    /* 当ExternalPort为0时，表示匹配所有端口,  忽略ExternalPortEndRange的值 */
+    if(ExternalPort == '0'){
+        return '1-65535';
+    }
+
+    /* 当ExternalPort不为0时，ExternalPortEndRange为0时，表示只匹配ExternalPort这一个端口 */
+    if(ExternalPortEndRange == '0' || ExternalPortEndRange == "")
+    {
+        return ExternalPort;
+    }
+
+    return ExternalPort + '-' + ExternalPortEndRange;
+}
+
+
+//判断内部端口如何在列表中的显示
+function dealWithInternalPort(ExternalPort, ExternalPortEndRange, InternalPort){
+    var InternalPortEndRange;
+
+    /* 当ExternalPort为0或者ExternalPortEndRange为0时，返回内部端口 */
+    if(ExternalPort == '0' || ExternalPortEndRange == '0'){
+        return InternalPort;
+    }
+
+    if(ExternalPortEndRange == '0' || ExternalPortEndRange == ""){
+        return InternalPort;
+    }
+
+    InternalPortEndRange = parseInt(ExternalPortEndRange) - parseInt(ExternalPort) + parseInt(InternalPort);
+
+    return InternalPort + '-' + InternalPortEndRange;
+}
+
+// Path - 指向PortMapping, InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.PortMapping.{i}.
+function uiEdit(Path,id){
+    document.location.href='/page/advancedsetup/adv_scvrtport.shtml?path='+Path;
+}
+
+function uiDelete(path){
+    if(!validateCode())
+        return false;
+    var df = document.app_scvrtsrvform; 
+    AddElements(df, 'del_obj',path);
+    df.submit(); 
+}
+
+function uiAdd(){
+    var wanPath = $('SELECT_WanConns').value; //指向InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.
+
+    document.location.href='/page/advancedsetup/adv_scvrtport.shtml?path='+wanPath;
+}
+
+function __init()
+{
+    init();
+    createTable();
+    if(IsExistedFunction("project_init") == true)
+        project_init(GetCurrentFileName());
+}
+
+</script> 
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_app_scvrt'));</script>
+<table class="ContentTableNoColor" cellpadding="0" cellspacing="0" width="600">
+<tr>
+	<td width="150" langkey="LK_WANConnection_Colon"></td>
+	<td><select name="SELECT_WanConns" id="SELECT_WanConns" onchange="createTable()">
+                    <option> </option>
+                </select>
+		<script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<br>
+<table id="PortMappingList" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_Description"></td>
+	<td langkey="LK_RemoteIPAddress"></td>
+	<td langkey="LK_Protocol"></td>
+	<td langkey="LK_ExternalPort"></td>
+	<td langkey="LK_InternalPort"></td>
+	<td langkey="LK_InternalIPAddress"></td>
+	<td langkey="LK_NatLoopback"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+<script>printEndContent()</script>
+</form>
+ <form method="post" name ="app_scvrtsrvform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_scvrtsrv.shtml">
+ </form>
+</body>
+</html>

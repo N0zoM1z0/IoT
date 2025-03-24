@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"><style>body,html{height:100%;width:100%;background-image:url(/static/images/phone/BG.png);background-repeat:no-repeat;background-size:100% 285px;background-position:50% 0;background-color:#fff;position:relative;padding:0;margin:0}input[type=password]{width:90%;height:34px;background:url(/static/images/key.png) no-repeat left 50%;color:#000;padding:0 0 0 30px;text-align:left;font-size:16px;border:1px solid #43a7ff;border-radius:2px;margin-top:25px}input[type=username]{width:90%;height:34px;background:url(/static/images/user.png) no-repeat left 50%;color:#000;padding:0 0 0 30px;text-align:left;font-size:16px;border:1px solid #43a7ff;border-radius:2px}.language-ar input[type=password]{width:90%;height:34px;background:url(/static/images/key.png) no-repeat right 50%;color:#000;padding:0 30px 0 0;text-align:right;font-size:16px;border:1px solid #43a7ff;border-radius:2px;margin-top:25px}.language-ar input[type=username]{width:90%;height:34px;background:url(/static/images/user.png) no-repeat right 50%;color:#000;padding:0 30px 0 0;text-align:right;font-size:16px;border:1px solid #43a7ff;border-radius:2px}option{color:#23537b}.btn{float:left;width:50%;height:34px;font-size:16px;background:#43a7ff;color:#fff;border:0;border-radius:15px;text-transform:uppercase;margin:0 25% 0 25%}.login-top{margin-top:30px;text-align:center}.login-top span{color:#fff;font-size:18px}.login-middle{margin:20% 10% auto 10%}.login-bottom{position:relative;margin-top:15%;margin-bottom:5%;text-align:center}.login-bottom span{position:absolute;z-index:2;left:45%;top:16px;text-align:center;color:#7cb2df}.login-btn{float:left;width:100%;height:34px;font-size:16px;background:#43a7ff;color:#fff;border:0;border-radius:15px;text-transform:uppercase}#verify-code{display:inline-block}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="select_language">
+		  <select v-model="currentLang" @change="langChange">
+			<option v-for="(_lang,v) in langUl" :value="v">{{ v == 'auto' ? lang_t('common.auto') : _lang }}</option>
+		  </select>
+	</div>
+	<br><br><br><br>
+	<form id="loginfrm">
+		<div class="login-top">
+		<img src="/static/images/phone/administrator.png">
+		<br><br>
+		<span>{{ lang_t('login.admin_login') }}</span>
+		</div>
+		<div class="login-middle">
+			<div v-show="supportUser">
+				<input v-model="username" type="username" name="username" maxlength="32" :placeholder="lang_t('ipv6.user')">
+			</div>
+			<div>
+				<input v-model="password" type="password" v-pass data-type="pass" name="password" id="password" maxlength="32" :placeholder="lang_t('login.msg8')"@keyup.enter="loginFun">
+			</div>
+			
+			<div style="padding-top: 5px;">
+				<div style="display:flex;" v-if="globalConfig.loginVerifySupport">
+					<div style="padding-top: 5px;">
+						<input type="text" class="verify" v-model="verify" @blur="verifyBlur()" :placeholder="lang_t('login.verify')">
+					</div>
+					<div>
+						<div id="verify-code"></div>
+						<x-icon size="0.8" :type="verifyType" v-show="verifyShow"></x-icon>
+					</div>
+				</div>
+				<div style="margin-top:15px;">
+					<a style="color:#000;font-size:14px;" @click="forgetPwd()">{{ lang_t('login.forgot_pass') }}</a>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="login-bottom" style="padding:0 8%;">
+		<button class="login-btn" @click="loginFun" v-show="!limit.errShow">{{ lang_t('login.login_btn') }}</button>
+		<div style="color:#fff;" v-if="limit.errShow">
+			<p>{{lang_t('login.limit_err', [limit.count, limit.timeout])}}</p>
+		</div>
+	</div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/verify.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script src="/static/js/md5.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,languages:languages,lang:$.lang,lang_t:lang_t,currentLang:"cn",langUl:{},password:"",username:globalConfig.cmccSupport?"":"admin",verify:"",verifyType:"tick",verifyShow:!1,limit:{errShow:!1,timeout:0,count:0},supportUser:globalConfig.cmccSupport||globalConfig.elinkSupport}},created:function(){this.langInit()},mounted:function(){var o;globalConfig.meshPairSupport&&"br"==globalConfig.opmode&&"0"==globalConfig.opmodeSupport&&(window.location.href="/login.html"),~location.search.indexOf("online=1")?this.$nextTick(function(){Cstool.Mark({content:lang_t("common.login_active"),l_text:lang_t("common.back"),ok:function(){location.search=""}})}):(o=this,uiPost.getLoginCfg(function(n){var t;null!=n.loginUser&&(o.username=n.loginUser),n.errCount&&n.timeout&&(o.limit.count=n.errCount,o.limit.timeout=n.timeout,o.limit.errShow=!0,t=setInterval(function(){o.limit.timeout--,0==o.limit.timeout&&(clearInterval(t),o.limit.errShow=!1)},1e3)),"1"==n.loginFlag?Cstool.Mark({content:globalConfig.cmccSupport?lang_t("login.msg2"):lang_t("login.msg6"),l_text:lang_t("common.back"),ok:function(){document.getElementById("password").focus()}}):"4"==n.loginFlag&&Cstool.Mark({content:lang_t("login.msg9"),l_text:lang_t("common.back"),ok:function(){document.getElementById("password").focus()}})}),globalConfig.loginVerifySupport&&(this.gVerify=new GVerify({id:"verify-code"})))},methods:{langInit:function(){var n,t={};for(n in console.log(this.languages),this.languages)cs.isInArray(this.globalConfig.showLanguage,n)&&(t[n]=this.languages[n]);this.langUl=t,this.globalConfig.langAutoFlag&&this.globalConfig.showAutoLang?this.currentLang="auto":this.currentLang=this.globalConfig.defaultLang,"vi"!=this.currentLang&&"vn"!=this.currentLang||(cs.isInArray(globalConfig.showLanguage,"vi")?this.currentLang="vi":this.currentLang="vn")},focusFun:function(){(this.supportUser?$(this.$refs.username):$(this.$refs.password)).focus()},loginFun:function(){var n,o=this;if(!globalConfig.loginVerifySupport||this.verifyBlur())return""==this.username?(Cstool.Mark({content:lang_t("ipv6.user")+lang_t("rule.msg12"),l_text:lang_t("common.back")}),!1):""==this.password?(Cstool.Mark({content:this.lang_t("login.msg1"),l_text:this.lang_t("common.back")}),!1):((n={}).username=calcMD5(this.username),n.password=calcMD5(this.password),n.flag="1",void uiPost.loginAuth(n,function(t){null!=t.loginFlag&&"1"==t.loginFlag?Cstool.Mark({content:this.supportUser?o.lang_t("login.msg2"):o.lang_t("login.msg6"),l_text:o.lang_t("common.back"),ok:function(){o.focusFun()}}):setTimeout(function(){var n=location.href;location.href="http://"+n.split("/")[2]+"/"+t.jump_page},500)}))},forgetPwd:function(){return Cstool.Mark({content:this.lang_t("login.msg5"),l_text:this.lang_t("common.back")}),!1},verifyBlur:function(){var n=this.gVerify.validate(this.verify);return this.verifyShow=!0,this.verifyType=n?"tick":"error",n},langChange:function(){var n,t=this.currentLang,o="0",i={};if("auto"==t){for(var a=cs.autoLang(),l=this.globalConfig.showLanguage,g=0,e=0;g<l.length;g++)if(l[g]==a){e=1;break}0==e&&(a="en"),"vn"==(n=a=cs.isInArray(l,a)?a:"1"==data.showAutoLang?l[1]:l[0])&&(n="vi"),language.switch(n),o="1"}else"vn"==(n=t)&&(n="vi"),language.switch(n),o="0",a=t;this.globalConfig.useArStyle="ar"==a?"language-ar":"",localStorage.setItem("lang",a),i.lang=a,i.langAutoFlag=o,uiPost.setLanguageCfg(i,function(){})}}}</script><script src="/static/js/main.js"></script></body></html>

@@ -1,0 +1,8 @@
+Package: kmod-gpio-button-hotplug
+Version: 4.4.60-1
+Depends: kernel (=4.4.60-1-a31b8970df4b847fa4f01d88c4d1392a)
+Source: package/kernel/gpio-button-hotplug
+Section: kernel
+Architecture: arm_cortex-a7
+Installed-Size: 5533
+Description:  Simple GPIO Button Hotplug driver

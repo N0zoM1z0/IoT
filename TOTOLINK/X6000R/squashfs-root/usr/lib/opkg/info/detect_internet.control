@@ -1,0 +1,10 @@
+Package: detect_internet
+Version: 1
+Depends: libc, libpthread, libcjson, libuci20130104, libubox20210516, libcommon
+Source: package/carystudio/detect_internet
+SourceName: detect_internet
+Section: CaryStudio Properties
+SourceDateEpoch: 1660995654
+Architecture: aarch64_cortex-a53
+Installed-Size: 4320
+Description:  detect internet daemon

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+define_default_set_state() {
+	echo "[RESTORE-DEBUG-INFO] Enter define_set_state" > /dev/console
+	. /etc/diag.sh
+}
+
+boot_hook_add preinit_main define_default_set_state

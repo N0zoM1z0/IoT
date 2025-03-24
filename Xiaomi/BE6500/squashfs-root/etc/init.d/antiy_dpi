@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+
+START=51
+
+start() {
+    if [ "$(uci get nfnlq_userland.antiy.version)" != "0" ]; then
+        ubus call uci add '{
+            "config": "nfnlq_userland",
+            "type": "extension",
+            "name": "antiy"
+        }'
+        ubus call uci set '{
+            "config": "nfnlq_userland",
+            "section": "antiy",
+            "values": {
+                "version": "0",
+                "path": "\/usr\/lib\/libdpi_antiy.so",
+                "matches": [
+                    "-m miwifi-connantiy --check-url"
+                ]
+            }
+        }'
+        ubus call uci commit '{"config": "nfnlq_userland"}'
+        echo "flushed antiy nfnlq configurations"
+    fi
+}

@@ -1,0 +1,22 @@
+config acs 'acs'
+	option enable '0'
+	option userid ''
+	option passwd ''
+	option url ''
+	option periodic_inform_enable '0'
+	option periodic_inform_interval ''
+	option inform_periodic_time ''
+
+config cpe 'cpe'
+	option userid 'admin'
+	option passwd 'admin'
+	option port '1008'
+	
+config deviceinfo 'deviceinfo'
+	option manufacturer ''
+	option oui ''
+	option product_class ''
+	option serial_number ''
+	option event_file_name '/tmp/cwmpevent.bin'
+	option provisioning_code ''
+	

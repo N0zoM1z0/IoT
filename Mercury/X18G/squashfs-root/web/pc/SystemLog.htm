@@ -1,0 +1,260 @@
+<style type="text/css">
+</style>
+<script type="text/javascript">
+	(function(){
+		var sysLog = [];
+		var refreshType = "normal";
+
+		if (true == $.local)
+		{
+			var temData = [
+			{
+				"page":1,
+				"total":34,
+				"syslog":[
+					{"syslog_25":"<2>0days, 00:00:21,HTTPD: Http server start!"},
+					{"syslog_26":"<2>0days, 00:00:11,HTTPD: Http server start!"},
+					{"syslog_27":"<2>0days, 00:00:08,HTTPD: Http server start!"},
+					{"syslog_28":"<2>0days, 00:00:06,HTTPD: Http server start!"},
+					{"syslog_29":"<2>0days, 00:00:04,HTTPD: Http server start!"},
+					{"syslog_30":"<2>0days, 00:00:03,HTTPD: Http server start!"},
+					{"syslog_31":"<2>0days, 00:00:01,HTTPD: Http server start!"},
+					{"syslog_32":"<2>0days, 00:00:01,LAN: Set interface mirror0 ip=192.168.1.1 netmask 255.255.255.0."},
+					{"syslog_33":"<2>0days, 00:00:01,WAN: Attach interface eth1."},
+					{"syslog_34":"<2>0days, 00:00:01,LAN: Attach mirror0 to stack."}
+					],
+				"error_code":0
+			},
+			{
+				"page":2,
+				"total":34,
+				"syslog":[
+					{"syslog_15":"<2>0days, 09:00:21,HTTPD: Http server start!"},
+					{"syslog_16":"<2>0days, 08:00:11,HTTPD: Http server start!"},
+					{"syslog_17":"<2>0days, 07:00:08,HTTPD: Http server start!"},
+					{"syslog_18":"<2>0days, 06:00:06,HTTPD: Http server start!"},
+					{"syslog_19":"<2>0days, 05:00:04,HTTPD: Http server start!"},
+					{"syslog_20":"<2>0days, 04:00:03,HTTPD: Http server start!"},
+					{"syslog_21":"<2>0days, 03:00:01,HTTPD: Http server start!"},
+					{"syslog_22":"<2>0days, 02:00:01,LAN: Set interface mirror0 ip=192.168.1.1 netmask 255.255.255.0."},
+					{"syslog_23":"<2>0days, 01:00:01,WAN: Attach interface eth1."},
+					{"syslog_24":"<2>0days, 00:00:01,LAN: Attach mirror0 to stack."}
+				],
+				"error_code":0
+			},
+			{
+				"page":3,
+				"total":34,
+				"syslog":[
+					{"syslog_5":"<2>0days, 09:10:21,HTTPD: Http server start!"},
+					{"syslog_6":"<2>0days, 08:03:11,HTTPD: Http server start!"},
+					{"syslog_7":"<2>0days, 07:54:08,HTTPD: Http server start!"},
+					{"syslog_8":"<2>0days, 06:00:06,HTTPD: Http server start!"},
+					{"syslog_9":"<2>0days, 05:05:04,HTTPD: Http server start!"},
+					{"syslog_10":"<2>0days, 04:30:03,HTTPD: Http server start!"},
+					{"syslog_11":"<2>0days, 03:00:01,HTTPD: Http server start!"},
+					{"syslog_12":"<2>0days, 02:40:01,LAN: Set interface mirror0 ip=192.168.1.1 netmask 255.255.255.0."},
+					{"syslog_13":"<2>0days, 01:30:01,WAN: Attach interface eth1."},
+					{"syslog_14":"<2>0days, 00:10:01,LAN: Attach mirror0 to stack."}
+				],
+				"error_code":0
+			},
+			{
+				"page":4,
+				"total":34,
+				"syslog":[
+					{"syslog_1":"<2>0days, 33:00:01,HTTPD: Http server start!"},
+					{"syslog_2":"<2>0days, 12:40:01,LAN: Set interface mirror0 ip=192.168.1.1 netmask 255.255.255.0."},
+					{"syslog_3":"<2>0days, 11:30:01,WAN: Attach interface eth1."},
+					{"syslog_4":"<2>0days, 20:10:01,LAN: Attach mirror0 to stack."}
+				],
+				"error_code":0
+			}];
+		}
+
+		var prioritys=["ALL", "DEBUG", "INFO", "NOTICE", "WARNING", "ERR", "EMERG", "MAX"];
+
+		/* REGS FOR SDMP */
+		var oneLogRegs = /<(\d+)>(.+)/;
+
+		/* REGS FOR SLP */
+		//var oneLogRegs = /<(\d+)>(.+)\[(.+)\](.+)/;
+
+		/* DELETE LOG ACTION */
+		function logDelete(){
+			var reqData = {"system":{"delete_logs": null}};
+
+			confirmDialog.show({
+				title: label.clearSysLog ,
+				content: label.clearSysLogConfirm,
+				callback:function(result){
+					if (result == true)
+					{
+						$.action(reqData, function(result){
+							if (result[ERR_CODE] == ENONE)
+							{
+								showToast(label.clearSuccess);
+							}
+
+							refreshData();
+						});
+					}
+				}
+			});
+		}
+
+		/* SAVE LOG ACTION */
+		function logSave(){
+			var reqData = {};
+			reqData[uciSystem.fileName] = {};
+			reqData[uciSystem.fileName][uciSystem.actionName.downloadLogs] = null;
+
+			$.action(reqData, function(data){
+				var url = $.orgURL(data["url"]);
+				location.href = url;
+			}, true);
+		}
+
+		function formatSysLogInfo(data, pageInfo, totalNum)
+		{
+			var results;
+			var count = 1;
+			var suGetLog = [];
+			var logOrder = 0;
+			var allPageNum = 0;
+			var tailNum = 0;
+			var numPerPage = sysLogTable.getNumPerPage();
+
+			/* TOTAL PAGE */
+			allPageNum = Math.ceil(totalNum / numPerPage);
+
+			/* THE LOG's COUNT OF LAST_PAGE */
+			tailNum = totalNum % numPerPage;
+
+			/* IF THE CURRENT_PAGE IS NOT THE LAST_PAGE */
+			if (pageInfo != allPageNum)
+			{
+				if (tailNum > 0)
+				{
+					count = numPerPage * (allPageNum - 1 - pageInfo) + tailNum + 1;
+				}
+				else
+				{
+					count = numPerPage * (allPageNum - pageInfo) + 1;
+				}
+			}
+			else
+			{
+				/* CURRENT_PAGE IS LAST_PAGE */
+				count = 1;
+			}
+
+			/* TRANS THE LOG_STR TO TABLE FORMAT */
+			for (var i = 0; i < data.length; i++)
+			{
+				var sys_log = data[i];
+				var key_name = "syslog_" + parseInt(count);		//KEY_WORD OF LOG
+
+				/* USE Reg TO EXTRACT THE INFO : PRIORITY/TIME/MODULE/MESSAGE */
+				results = oneLogRegs.exec(sys_log[key_name]);
+				if (results)
+				{
+					suGetLog[logOrder] = {};
+					suGetLog[logOrder].num = count;
+					suGetLog[logOrder].level = prioritys[parseInt(results[1])];
+
+					/* REGS FOR SDMP */
+					suGetLog[logOrder].msg = results[2];
+
+					/* REGS FOR SLP */
+					//suGetLog[logOrder].msg = results[2] + ", " + results[3] + ": " + results[4];
+
+					count++;
+					logOrder++;
+				}
+			}
+
+			sysLogTable.loadTargetPage(suGetLog, totalNum, pageInfo);
+
+			if (refreshType == "refresh")
+			{
+				showToast(label.refreshSuccess);
+			}
+
+			refreshType = "normal";
+		}
+
+		function refreshData(pageNum){
+			var logPageNum;
+
+			if (undefined == pageNum || checkNum(pageNum) == false)
+			{
+				/* WHEN CALLER WHTHOUT ARGUMENTS, USE THE DEFAULT PAGE_NUM */
+				/*
+				*	此处与产品部沟通后，放弃使用原来的方式，即点击刷新，仍请求当前页数据，不合理
+				*   改为请求最新页（1）数据
+				*/
+
+				logPageNum = 1;
+			}
+			else
+			{
+				logPageNum = pageNum;
+			}
+
+			var logNumPerPage = sysLogTable.getNumPerPage();
+
+			var reqData = {
+				"system": {
+					"read_logs": {
+						"page": logPageNum,
+						"num_per_page": logNumPerPage
+					}
+				}
+			};
+
+			$.action(reqData, function(result){
+				if ($.local == true)
+				{
+					result = temData[logPageNum - 1];
+				}
+
+				formatSysLogInfo(result.syslog, result.page, result.total);
+			});
+		}
+
+		var sysLogTable = new Table({
+			targetId: 'sysLogTable',
+			head:[
+				{field:label.logIndex, width:0.2},
+				{field:label.logType, width:0.2},
+				{field:label.logCont, width:0.6}
+			],
+			column:[
+				{name: "num", type: "number"},
+				{name: "level", type: "str"},
+				{name: "msg", type:"str", maxSize: 200, className: "sysLogTd", igHTMLEscape:true}
+			],
+			tableOption:[
+				{icon: "icon-delete", type: "delete", str: btn.clearSysLog, func: logDelete},
+				{icon: "icon-save", type: "save", str: btn.saveSysLog, func: logSave},
+				{icon: "icon-refresh", type: "refresh", str: btn.refreshSysLog, func: function(){
+					refreshType = "refresh";
+					refreshData();
+				}}
+			],
+			pageNumClickFunc: refreshData,
+			editable: false,
+			deletable: false,
+			addable: false,
+			hasCheckBox: false
+		});
+
+		refreshData();
+	})();
+</script>
+<div class="head">
+	<div class="title"><h1>{%menuStr.syslog%}</h1></div>
+	<p class="description"></p>
+</div>
+<div id="sysLogTable"></div>

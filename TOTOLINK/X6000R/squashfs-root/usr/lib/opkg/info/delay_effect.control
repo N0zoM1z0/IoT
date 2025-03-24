@@ -1,0 +1,10 @@
+Package: delay_effect
+Version: 1
+Depends: libc, libpthread, zlib, libcommon, libjobqueen, liboperations
+Source: package/carystudio/delay_effect
+SourceName: delay_effect
+Section: CaryStudio Properties
+SourceDateEpoch: 1681094538
+Architecture: aarch64_cortex-a53
+Installed-Size: 6931
+Description:  delay taking effect module

@@ -1,0 +1,580 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+function PortMappingTuple()
+{
+    this.Path = "";
+    this.PortMappingEnabled = "";
+    this.PortMappingDescription = "";
+    this.RemoteHost = "";
+    this.PortMappingProtocol = "";
+    this.ExternalPort = "";
+    this.ExternalPortEndRange = "";
+    this.InternalPort = "";
+    this.InternalClient = "";
+}
+
+
+var index = 0;
+var PortMapping = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. "-->
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+            PortMapping[index] = new PortMappingTuple();   
+            PortMapping[index].Path = "<!--#path -->";
+            PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+            PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+            PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+            PortMapping[index].PortMappingProtocol = "<!--#leaf "4"-->";
+            PortMapping[index].ExternalPort = "<!--#leaf "5"-->";
+            PortMapping[index].ExternalPortEndRange = "<!--#leaf "6"-->";
+            PortMapping[index].InternalPort = "<!--#leaf "7"-->";
+            PortMapping[index].InternalClient = "<!--#leaf "8"-->";
+            PortMapping[index].NatLpbk = "<!--#leaf "9"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+    
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. "-->
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection.{i}.PortMapping. PortMappingEnabled PortMappingDescription RemoteHost PortMappingProtocol ExternalPort ExternalPortEndRange InternalPort InternalClient NatLoopbackEnabled" -->
+            PortMapping[index] = new PortMappingTuple();   
+            PortMapping[index].Path = "<!--#path -->";
+            PortMapping[index].PortMappingEnabled = "<!--#leaf "1"-->";
+            PortMapping[index].PortMappingDescription = "<!--#leaf "2"-->";
+            PortMapping[index].RemoteHost = "<!--#leaf "3"-->";
+            PortMapping[index].PortMappingProtocol = "<!--#leaf "4"-->";
+            PortMapping[index].ExternalPort = "<!--#leaf "5"-->";
+            PortMapping[index].ExternalPortEndRange = "<!--#leaf "6"-->";
+            PortMapping[index].InternalPort = "<!--#leaf "7"-->";
+            PortMapping[index].InternalClient = "<!--#leaf "8"-->";
+            PortMapping[index].NatLpbk = "<!--#leaf "9"-->";
+            index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+var ServiceTelnetPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTelnet.Port"-->";
+var ServiceSSHPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceSSH.Port"-->";
+var ServiceTFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTFTP.Port"-->";
+var ServiceFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceFTP.Port"-->";
+
+
+function editPortArray(ServiceName,Port,Path,TotalPorts)
+{    
+    this.ServiceName = ServiceName;
+    this.Port = Port;
+	this.Path = Path;
+	this.TotalPorts = TotalPorts;
+}
+
+var G_editPortList =new Array();
+G_editPortList[0] = new editPortArray("HTTP","80","","");
+G_editPortList[1] = new editPortArray("TELNET","23","InternetGatewayDevice.Services.ServiceTelnet.Port",ServiceTelnetPorts);
+G_editPortList[2] = new editPortArray("FTP","21","InternetGatewayDevice.Services.ServiceFTP.Port",ServiceFTPPorts);
+G_editPortList[3] = new editPortArray("TFTP","69","InternetGatewayDevice.Services.ServiceTFTP.Port",ServiceTFTPPorts);
+G_editPortList[4] = new editPortArray("SSH","22","InternetGatewayDevice.Services.ServiceSSH.Port",ServiceSSHPorts);
+G_editPortList[5] = new editPortArray("TCP","","","");
+G_editPortList[6] = new editPortArray("UDP","","","");
+
+
+function Acl()
+{    
+    this.path = "";
+    this.ServiceName = "";
+    this.Enable = "";
+    this.AccessDirection="";
+    this.SrcIpRange = "";
+    this.Action = "";
+    this.IPMode = "";
+    this.Port = "";
+}
+
+var m = 0;
+var G_Acl = new Array();
+<!--#getobject "InternetGatewayDevice.Services.ServiceAccessControl.ServiceCtrlList. ServiceName Enable AccessDirection SrcIpRange Action IPMode Port" -->
+    G_Acl[m] = new Acl();
+    G_Acl[m].path = "<!--#path -->";
+    G_Acl[m].ServiceName = "<!--#leaf "1"-->";
+    G_Acl[m].Enable = "<!--#leaf "2"-->";
+    G_Acl[m].AccessDirection = "<!--#leaf "3"-->";
+    G_Acl[m].SrcIpRange = "<!--#leaf "4"-->";
+    G_Acl[m].Action = "<!--#leaf "5"-->";
+    G_Acl[m].IPMode = "<!--#leaf "6"-->";    
+    G_Acl[m].Port = "<!--#leaf "7"-->";    
+    m++;
+<!--#endgetobject -->
+var AclEnable = "<!--#getsingle "InternetGatewayDevice.Services.ServiceAccessControl.Enable"-->";
+
+var G_Operation = "Add";
+var G_Aclnum = "";
+var G_AclEditPath="";
+var G_AclAddPath="";
+
+var url=window.location.search;
+var opts = url.split("&");
+G_Operation = opts[0].split("=")[1];
+
+if (G_Operation == 'Add') 
+  {
+		G_AclAddPath = "InternetGatewayDevice.Services.ServiceAccessControl.ServiceCtrlList.{i}.";    
+	} 
+else 
+	{
+	  G_Aclnum = opts[1].split("=")[1];
+	  G_AclEditPath=G_Acl[G_Aclnum].path;	 
+  }
+
+function onProtoChange()
+{
+	var ipmode = $('SELECT_IPMode').value;
+	if(ipmode == 3){
+		$('INPUT_SrcIPStart').disabled = 1;
+		$('INPUT_SrcIPEnd').disabled = 1;
+		$('INPUT_SrcIPStart').value = "";
+		$('INPUT_SrcIPEnd').value = "";
+	}
+	else{
+		$('INPUT_SrcIPStart').disabled = 0;
+		$('INPUT_SrcIPEnd').disabled = 0;
+	}
+}
+function onServiceChange()
+{
+	var service = $('SELECT_Protocol').value;
+	var port = $('INPUT_Port').value;
+	var port_en = 0;
+	var port_val;
+	var i;
+	for(i=0;i<G_editPortList.length;i++){
+		if(G_editPortList[i].ServiceName == service){
+			port_en = 1;
+			port_val = G_editPortList[i].Port;
+			break;
+		}
+	}
+	setDisplay('DIV_srvport',port_en);
+	if(port_en == 1){
+		if (G_Operation == 'Edit' && G_Acl[G_Aclnum].ServiceName == service) {
+			setValue("INPUT_Port", G_Acl[G_Aclnum].Port); 
+		}
+		else{
+			setValue("INPUT_Port",port_val);
+		}
+	}
+}
+
+function getConnection(path)
+{
+	for (var i in Connection) {
+		var conn = Connection[i];
+
+		if (conn.Path == path) {
+			return conn;
+		}
+	}
+	return null;
+}
+
+function getIPTypeFromConfiguredInfo(inst)
+{
+	if (isIPv4Addr(inst.SrcIP) || isIPv4Addr(inst.DestIP)) {
+		return "IPv4";
+	}
+	
+	if (isIPv6Addr(inst.SrcIP) || isIPv6Addr(inst.DestIP)) {
+		return "IPv6";
+	}
+
+	var iptype = "IPv4/IPv6";
+	var conn = getConnection(inst.DevPath);
+	if (conn != null) {
+		switch(conn.IPMode) {
+		case "1":
+			iptype = "IPv4";
+			break;
+		case "2":
+			iptype = "IPv6";
+			break;
+		case "3":
+			break;
+		}
+	}
+
+	return iptype;
+}
+function update_default_port()
+{
+	var i,j;
+	for(i=0;i<G_Acl.length;i++){
+		if(G_Acl[i].Port != "" && G_Acl[i].Port >0)
+			continue;
+		for(j=0;j<G_editPortList.length;j++){
+			if(G_Acl[i].ServiceName == G_editPortList[j].ServiceName){
+				G_Acl[i].Port = G_editPortList[j].Port;
+			}
+		}
+	}
+}
+function init() {
+	update_default_port();
+    if (G_Operation == 'Edit') 
+    {		
+				var src_ip = G_Acl[G_Aclnum].SrcIpRange;
+			
+				var sip_start = "";
+				var sip_end = "";
+			
+				if (src_ip.indexOf("-") != -1) 
+				{
+					sip_start = src_ip.split("-")[0];
+					sip_end = src_ip.split("-")[1];
+				}
+				else 
+				{
+					sip_start = src_ip;
+				}
+				setValue("INPUT_SrcIPStart", sip_start);    
+				setValue("INPUT_SrcIPEnd", sip_end);
+
+			if(G_Acl[G_Aclnum].ServiceName == "HTTP"){
+				if("" == G_Acl[G_Aclnum].Port)
+					G_Acl[G_Aclnum].Port = 80;
+			}
+
+			setValue("INPUT_Enable", G_Acl[G_Aclnum].Enable);  
+			setValue("SELECT_Protocol", G_Acl[G_Aclnum].ServiceName);
+			setValue("SELECT_AccessCtl", G_Acl[G_Aclnum].AccessDirection);
+			setValue("SELECT_Action", G_Acl[G_Aclnum].Action);       
+			setValue("SELECT_IPMode", G_Acl[G_Aclnum].IPMode); 
+			setValue("INPUT_Port", G_Acl[G_Aclnum].Port); 
+			
+		}
+	onProtoChange();
+	//onChangeIPType(false);
+	onServiceChange();
+}
+
+function changeIcmpVal(){
+
+	var iptype = $('SELECT_IPType').value;
+	var opts = $('SELECT_Protocol').options;
+
+	var value = "";
+	if (iptype == "IPv4") {
+		value = "ICMP";
+	} else {
+		value = "ICMPv6";
+	}
+	
+	for (var i = 0; i < opts.length; i++) {
+		var o = opts[i];
+		if (o.text == "ICMP" || o.text == "ICMPv6") {
+			o.text = value;
+			o.value = value;
+			break;
+		}
+	}
+}
+
+// return true for conflict, otherwise return false
+function checkVSPortConflict()
+{
+    var port = getValue('INPUT_Port');  
+    var ver = getValue('SELECT_IPMode');  
+	var direction = getValue('SELECT_AccessCtl');
+
+	if(ver == "2") // ipv6 service won't conflict with VS
+	{
+		return false;
+	}
+
+	if(direction == "LAN") // LAN service won't conflict with VS
+	{
+		return false;
+	}
+
+	for(var i=0; i<PortMapping.length; i++)
+	{
+		if(PortMapping[i].ExternalPort == port)
+		{
+			return true;
+		}
+
+		if(PortMapping[i].ExternalPortEndRange != "")
+		{
+			if (checkRange(port, 1, PortMapping[i].ExternalPort, PortMapping[i].ExternalPortEndRange))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+function checkIPAddr()
+{
+	var sip_start = $('INPUT_SrcIPStart');
+	var sip_end = $('INPUT_SrcIPEnd');
+	var ipmode = getValue('SELECT_IPMode');
+
+	if (sip_start.value != "") {
+		if(ipmode == 1){
+			if(!isCheckIPV4(sip_start)){            
+			  return false;
+			}
+		}
+		else if(ipmode == 2){
+			if(!checkIpv6(sip_start)){            
+			  return false;
+			}
+		}
+	}
+	if (sip_end.value != "") {
+		if(ipmode == 1){
+			if(!isCheckIPV4(sip_end)){            
+			  return false;
+			}
+		}
+		else if(ipmode == 2){
+			if(!checkIpv6(sip_end)){            
+			  return false;
+			}
+		}
+	}
+	return true;
+}
+
+function uiBack()
+{
+	document.location.href = "mngt_srvctl.shtml";
+
+}
+function checkPort()
+{
+	var service = $('SELECT_Protocol').value;
+	var port = $('INPUT_Port').value;
+	if(service == "TCP" || service == "UDP" || service == "HTTP"){
+		if (!checkRange(port, 1,1,65535)) {
+			top.AlertMsg(getStr('LK_PortRangeText'),"INPUT_Port");
+			return false;
+		}
+		
+	}
+
+	return true;
+
+}
+function submit_service_port(df)
+{
+	var i,j,k;
+	var protoList=["FTP","TFTP","TELNET","SSH"];
+	if(AclEnable != 1)
+		return;
+	for(i=0;i<protoList.length;i++)
+	{
+		var ports = new Array();
+		var totalPorts = "";
+		var defaultPort ,path;
+		for(j=0;j<G_editPortList.length;j++){
+			if(G_editPortList[j].ServiceName == protoList[i]){
+				defaultPort = G_editPortList[j].Port;
+				path = G_editPortList[j].Path;
+				totalPorts = G_editPortList[j].TotalPorts;
+				break;
+			}
+		}
+		for(j=0;j<G_Acl.length;j++){
+			if(protoList[i] != G_Acl[j].ServiceName)
+				continue;
+			if(G_Acl[j].Enable != 1 || G_Acl[j].Action != "ACCEPT")
+				continue;
+			for(k=0;k<ports.length;k++)
+				if(ports[k] == G_Acl[j].Port)
+					break;
+			if(k == ports.length)
+				ports.push(G_Acl[j].Port);
+		}
+		if(ports.length == 0)
+			ports.push(defaultPort);
+		var totalPortsArray = totalPorts.split(",");
+		var needSubmit = 0;
+		for(j=0;j<ports.length;j++){
+			for(k=0;k<totalPortsArray.length;k++){
+				if(ports[j] == totalPortsArray[k])
+					break;
+			}
+			if(k == totalPortsArray.length){
+				needSubmit = 1;
+				break;
+			}
+		}
+		if(ports.length != totalPortsArray.length)
+			needSubmit = 1;
+		if(needSubmit == 1){
+			AddElements(df, path, ports.join(","));
+			//alert(path+ports.join(","));//johnma
+		}
+	}
+}
+function uiSubmit(){
+	var object_path = "";
+	var df = document.mnt_accessdataform;
+	var servicePortPath = "";
+	var upg_idx;
+	if (!checkIPAddr()) {
+		return false;
+	}
+	if (!checkPort()) {
+		return false;
+	}
+
+	if (checkVSPortConflict()) {
+		top.AlertMsg("The service port " + getValue('INPUT_Port') + " conflicts with virtual server port. Please input another one");	
+		return false;
+	}
+
+	if(!validateCode())
+		return false;
+	
+	
+	if(G_Operation == 'Add'){
+		object_path = G_AclAddPath;
+		upg_idx = m;
+	    G_Acl[upg_idx] = new Acl();
+		
+    }else if(G_Operation == 'Edit'){
+		object_path = G_AclEditPath;
+		upg_idx = G_Aclnum;
+    }
+
+    G_Acl[upg_idx].ServiceName = getValue('SELECT_Protocol');
+    G_Acl[upg_idx].Enable = getValue('INPUT_Enable');
+    G_Acl[upg_idx].Action = getValue('SELECT_Action');
+    G_Acl[upg_idx].Port = getValue('INPUT_Port');  
+	
+	submit_service_port(df);
+	if(G_Operation == 'Add'){
+        AddElements(df, 'add_obj', object_path);
+	}
+	AddElements(df, object_path+"Enable", getValue('INPUT_Enable'));
+	var sip_start = getValue('INPUT_SrcIPStart');
+	var sip_end = getValue('INPUT_SrcIPEnd');
+	if (sip_start == "") {
+		sip_end = "";
+		AddElements(df, object_path+"SrcIpRange", sip_start);
+	}
+	else if (sip_end == "")
+		AddElements(df, object_path+"SrcIpRange", sip_start);
+	else
+		AddElements(df, object_path+"SrcIpRange", sip_start + "-" + sip_end);
+		
+	AddElements(df, object_path+"Action", getValue('SELECT_Action'));
+	AddElements(df, object_path+"ServiceName", getValue('SELECT_Protocol'));
+	AddElements(df, object_path+"AccessDirection", getValue('SELECT_AccessCtl'));
+	AddElements(df, object_path+"IPMode", getValue('SELECT_IPMode'));
+	var service = $('SELECT_Protocol').value;
+	var i,j,k;
+	for(i=0;i<G_editPortList.length;i++){
+		if(G_editPortList[i].ServiceName == service){
+			AddElements(df, object_path+"Port", getValue('INPUT_Port'));
+			break;
+		}
+	}
+	df.submit(); 
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_SrvCtlIpAddr'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr>
+	<td langkey="LK_Protocol_Colon"></td>
+	<td><select id="SELECT_Protocol"  onChange="onServiceChange()">
+           		<option value="HTTP">HTTP</option>
+            	<option value="TELNET">TELNET</option>
+                <option value="FTP">FTP</option>
+                <option value="SAMBA">SAMBA</option>
+                <option value="ICMP">ICMP</option>
+                <option value="TFTP">TFTP</option>
+                <option value="SNMP">SNMP</option>
+                <option value="SSH">SSH</option>
+                <option value="TCP">TCP</option>
+                <option value="UDP">UDP</option>
+        	</select></td>
+</tr>
+<tr id="DIV_srvport">
+	<td langkey="LK_SrvPort"></td>
+	<td><input name="text" type="text" id="INPUT_Port" /></td>
+</tr>
+<tr>
+	<td langkey="LK_AccessCtl"></td>
+	<td><select id="SELECT_AccessCtl">
+           		<option value="WAN">WAN</option>
+            	<option value="LAN">LAN</option>
+        	</select></td>
+</tr>
+<tr>
+	<td width="150" langkey="LK_IPProtocolTypee"></td>
+	<td><select id="SELECT_IPMode" onChange="onProtoChange()" >
+                            <option value="1">IPv4</option>
+                            <option value="2">IPv6</option>
+                            <option value="3">IPv4&6</option>
+         </select>
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable"></td>
+</tr>
+
+<tr>
+	<td langkey="LK_SourceIPp"></td>
+	<td><input name="text" type="text" id="INPUT_SrcIPStart" /> - <input type="text" id="INPUT_SrcIPEnd"></td>
+</tr>
+<tr>
+	<td langkey="LK_Action"></td>
+	<td><select id="SELECT_Action">
+           		<option value="ACCEPT">ACCEPT</option>
+            	<option value="DROP">DROP</option>
+      </select></td>
+</tr>
+
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>			
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	&nbsp;<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh()")</script>
+	</td>
+</tr> 
+</table>    
+	<script>printEndContent()</script>
+	</form>
+<form method="post" name ="mnt_accessdataform" action="/cgi-bin/setup.cgi?page/management/mngt_srvctl.shtml">
+ </form>
+</body>
+</html>

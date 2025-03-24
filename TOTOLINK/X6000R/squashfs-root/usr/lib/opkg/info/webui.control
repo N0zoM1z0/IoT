@@ -1,0 +1,10 @@
+Package: webui
+Version: 1
+Depends: libc
+Source: package/carystudio/webui
+SourceName: webui
+Section: CaryStudio Properties
+SourceDateEpoch: 1689670735
+Architecture: aarch64_cortex-a53
+Installed-Size: 1046723
+Description:  webui for carystudio.

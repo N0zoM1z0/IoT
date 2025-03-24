@@ -1,0 +1,400 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+function ConnectionTuple(){
+    this.WANIPConnectionNumberOfEntries = "";
+    this.WANPPPConnectionNumberOfEntries = "";
+}
+function IPConnectionTuple(){
+    this.Name = "";
+    this.ConnectionType= "";
+    this.IP_ServiceList= "";
+    this.IP_IPMode= "";
+}
+function PPPConnectionTuple(){
+    this.Name = "";
+    this.ConnectionType= "";
+    this.PPP_ServiceList= "";
+    this.PPP_IPMode= "";
+}
+var index = 0;
+var wanConnection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice. WANIPConnectionNumberOfEntries WANPPPConnectionNumberOfEntries" -->
+ wanConnection[index] = new ConnectionTuple();
+ wanConnection[index].WANIPConnectionNumberOfEntries = "<!--#leaf "1"-->";
+ wanConnection[index].WANPPPConnectionNumberOfEntries = "<!--#leaf "2"-->";
+ index++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice. " -->
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANIPConnection. Name ConnectionType X_CT-COM_ServiceList X_CT-COM_IPMode" -->
+  wanConnection[index] = new IPConnectionTuple();
+  wanConnection[index].Name = "<!--#leaf "1"-->";
+  wanConnection[index].ConnectionType = "<!--#leaf "2"-->";
+  wanConnection[index].IP_ServiceList = "<!--#leaf "3"-->";
+  wanConnection[index].IP__IPMode = "<!--#leaf "4"-->";
+  index++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANPPPConnection. Name ConnectionType X_CT-COM_ServiceList X_CT-COM_IPMode" -->
+  wanConnection[index] = new PPPConnectionTuple();
+  wanConnection[index].Name = "<!--#leaf "1"-->";
+  wanConnection[index].ConnectionType = "<!--#leaf "2"-->";
+  wanConnection[index].PPP_ServiceList = "<!--#leaf "3"-->";
+  wanConnection[index].PPP_IPMode = "<!--#leaf "4"-->";
+  index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement. RadvdConfig.MinRAInterval RadvdConfig.MaxRAInterval RadvdConfig.FlagConfType RadvdConfig.ManagedFlag RadvdConfig.OtherConfFlag RadvdConfig.SLAACEnabled RadvdConfig.UniqueLocalPrefixConfig.Enable RadvdConfig.UniqueLocalPrefixConfig.GlobalID" -->
+  var G_MinRAInterval = "<!--#leaf "1"-->";
+  var G_MaxRAInterval = "<!--#leaf "2"-->";
+  var G_FlagConfType = "<!--#leaf "3"-->";
+  var G_ManagedFlag = "<!--#leaf "4"-->";
+  var G_OtherConfFlag = "<!--#leaf "5"-->";
+  var G_LanAddrDistributeStatic = "<!--#leaf "6"-->";
+  var G_UniqueLocalPrefix = "<!--#leaf "7"-->";
+  var G_UniqueLocalGlobalID = "<!--#leaf "8"-->";      
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.X_CT-COM_DHCPv6Server. Enable" -->
+  var G_DHCPV6 = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.PrefixInformation.1. Mode Prefix" -->
+  var G_IPv6SitePrefix = "<!--#leaf "1"-->";
+  var G_SitePrefix = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config. IPv6DNSConfigType IPv6DNSServers" -->
+  var G_IPv6ConType = "<!--#leaf "1"-->";
+  var G_IPv6DNSServers = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+function initvalue(){      
+    if(G_FlagConfType == "Auto"){
+        $("SELECT_ManagedFlag").disabled = true;
+        $("SELECT_OtherConfFlag").disabled = true;
+        disableCtrl('SELECT_OtherConfFlag',true);
+    }else if(G_FlagConfType == "Manual"){
+        $("SELECT_ManagedFlag").disabled = false;
+        $("SELECT_OtherConfFlag").disabled = false;
+        disableCtrl('SELECT_OtherConfFlag',false);
+    }
+    if(G_DHCPV6=="1"){
+        $('INPUT_Dhcpv6').checked=true;
+    }else if(G_DHCPV6=="0"){
+        $('INPUT_Dhcpv6').checked=false;
+    }
+    
+    if(G_UniqueLocalPrefix=="1"){
+        $('INPUT_UniqueLocalPrefix').checked=true;
+    }else if(G_UniqueLocalPrefix=="0"){
+        $('INPUT_UniqueLocalPrefix').checked=false;
+    }
+    if(G_IPv6SitePrefix =="WANDelegated"){
+        $('WANDelegated').checked = true;
+        $('Staticselect').checked = false;     
+        disableCtrl('INPUT_SitePrefix',true);
+    }else if(G_IPv6SitePrefix == "Static"){
+           $('WANDelegated').checked = false;
+        $('Staticselect').checked = true; 
+        disableCtrl('INPUT_SitePrefix',false);
+    }    
+  
+   if (G_IPv6ConType == "WANConnection"){
+        $('WANConnection').checked = true;
+        $('HGWProxy').checked = false;
+        $('StaticRadio').checked = false;
+        $('INPUT_DNS').disabled = true;    
+    } else if (G_IPv6ConType == "HGWProxy"){        
+        $('WANConnection').checked = false;
+        $('HGWProxy').checked = true;
+        $('StaticRadio').checked = false;
+        $('INPUT_DNS').disabled = true;    
+    } else if (G_IPv6ConType == "Static"){
+        $('HGWProxy').checked = false;
+        $('WANConnection').checked = false;    
+        $('StaticRadio').checked = true;
+        $('INPUT_DNS').disabled = false;    
+    }
+}
+
+function init(){
+    initvalue();
+    setValue("INPUT_MaxRAInterval", G_MaxRAInterval);
+    setValue("INPUT_MinRAInterval", G_MinRAInterval);
+    setValue("SELECT_FlagConfType", G_FlagConfType);
+    setValue("SELECT_ManagedFlag", G_ManagedFlag);
+    setValue("SELECT_OtherConfFlag", G_OtherConfFlag); 
+    setValue("INPUT_Dhcpv6", G_DHCPV6);
+    setValue("INPUT_UniqueLocalPrefix", G_UniqueLocalPrefix);
+    setValue("INPUT_GlobalID", G_UniqueLocalGlobalID);
+    setValue("Enable", G_IPv6SitePrefix); 
+    setValue("INPUT_SitePrefix", G_SitePrefix);
+    setValue("RADIO_LanAddrDistributeType", G_LanAddrDistributeStatic == 1 ? "Static" : "DHCPv6");
+    setValue("Enabledns", G_IPv6ConType); 
+    setValue("INPUT_DNS", G_IPv6DNSServers);
+
+}
+function onchgFlagConfType(){
+    var _type = getValue('SELECT_FlagConfType');
+    if(_type == "Auto"){
+        $("SELECT_ManagedFlag").disabled = true;
+        $("SELECT_OtherConfFlag").disabled = true;
+    }else if(_type == "Manual"){
+        $("SELECT_ManagedFlag").disabled = false;
+        $("SELECT_OtherConfFlag").disabled = false;
+    }
+}
+function uiSubmit(){
+    var df = document.netipv6landataform; 
+    var node = $('INPUT_MaxRAInterval', 'INPUT_MinRAInterval', 'SELECT_FlagConfType','SELECT_ManagedFlag','SELECT_OtherConfFlag','INPUT_Dhcpv6','INPUT_UniqueLocalPrefix','INPUT_GlobalID','Enable','INPUT_SitePrefix','Enabledns','INPUT_DNS');
+	var  MaxRAInterval =getValue('INPUT_MaxRAInterval');
+	var  MinRAInterval =getValue('INPUT_MinRAInterval');
+	var patrn=/^([0-9]\d*)$/;
+	if (!patrn.exec(MaxRAInterval)) {
+		top.AlertMsg(getStr("LK_number"),"INPUT_MaxRAInterval");
+		return false;
+    }else{
+		 if (MaxRAInterval<4 || MaxRAInterval >1800 ) {
+			top.AlertMsg(getStr("LK_MaxRAInterval"),"INPUT_MaxRAInterval");
+			return false;
+		}
+  	}
+	if (!patrn.exec(MinRAInterval)) {
+		top.AlertMsg(getStr("LK_number"),"INPUT_MinRAInterval");
+		return false;
+    }else{
+		var max=parseInt(0.75*MaxRAInterval);
+		if (MinRAInterval<3 || MinRAInterval>max) {
+			top.AlertMsg(getStr("LK_MinRAInterval")+max+getStr("LK_MinRAIntervalCon"),"INPUT_MinRAInterval");
+			return false;
+		}
+  	}
+	if(!validateCode())
+			return false;
+
+	var patrn = /[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}/;
+	var address=getValue('INPUT_GlobalID');
+    var num=$('INPUT_GlobalID').value.split(":");
+	if (address.length <= 0) {
+		top.AlertMsg(getStr("LK_nullnumber"),"INPUT_GlobalID");
+		return false;
+	}else if (!patrn.exec(address) || num.length>5) {
+		top.AlertMsg(getStr("LK_GlobalID"),"INPUT_GlobalID");
+		return false;
+	} 
+	var SitePrefix=getValue('INPUT_SitePrefix');
+	if(getValue('Enable') == "Static"){
+		if(!CheckPrefix(SitePrefix,64)){  
+			top.AlertMsg(getStr("LK_js_ip6fmterr"),"INPUT_SitePrefix");
+	  		return false;
+		}
+    }
+
+ 	AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.MaxRAInterval", node[0].value);
+    AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.MinRAInterval", node[1].value);
+    AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.FlagConfType", node[2].value);
+    var _type = getValue('SELECT_FlagConfType');
+    if(_type == "Auto"){
+        node[2].value=_type;
+    }else if(_type == "Manual"){
+        node[2].value=_type;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.ManagedFlag", node[3].value);
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.OtherConfFlag", node[4].value);
+    }
+    
+    if($('INPUT_Dhcpv6').checked==true){
+        $('INPUT_Dhcpv6').value=1;
+        node[5].value=$('INPUT_Dhcpv6').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_DHCPv6Server.Enable", node[5].value);
+    }else if($('INPUT_Dhcpv6').checked==false){
+        $('INPUT_Dhcpv6').value=0;
+        node[5].value=$('INPUT_Dhcpv6').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_DHCPv6Server.Enable", node[5].value);
+    }        
+    
+    if($('INPUT_UniqueLocalPrefix').checked==true){
+        $('INPUT_UniqueLocalPrefix').value=1;
+        node[6].value=$('INPUT_UniqueLocalPrefix').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.UniqueLocalPrefixConfig.Enable", node[6].value);
+    }else if($('INPUT_UniqueLocalPrefix').checked==false){
+        $('INPUT_UniqueLocalPrefix').value=0;
+        node[6].value=$('INPUT_UniqueLocalPrefix').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.UniqueLocalPrefixConfig.Enable", node[6].value);
+    }        
+    AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.UniqueLocalPrefixConfig.GlobalID", node[7].value);
+    if($('WANDelegated').checked==true){ 
+        node[8].value =$('WANDelegated').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.PrefixInformation.1.Mode",node[8].value);
+    }else if($('Staticselect').checked==true){
+        node[8].value=$('Staticselect').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.PrefixInformation.1.Mode",node[8].value);
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.PrefixInformation.1.Prefix", node[9].value);
+    }
+
+    if($('WANConnection').checked==true){ 
+        node[10].value =$('WANConnection').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.IPv6DNSConfigType",node[10].value);
+    }else if($('HGWProxy').checked==true){ 
+        node[10].value =$('HGWProxy').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.IPv6DNSConfigType",node[10].value);
+    }else if($('StaticRadio').checked==true){
+        node[10].value=$('StaticRadio').value;
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.IPv6DNSConfigType",node[10].value);
+        if(!isIPv6Valid($('INPUT_DNS'))){            
+             return false;
+        }
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6Config.IPv6DNSServers", node[11].value);
+    }    
+    if(getValue('RADIO_LanAddrDistributeType')=="Static"?1:0){
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.SLAACEnabled",1);
+    }else {
+        AddElements(df, "InternetGatewayDevice.LANDevice.1.X_CT-COM_IPv6LANHostConfigManagement.RadvdConfig.SLAACEnabled",0);
+    }
+    df.submit();          
+}
+function setEnable(){         
+    if($('WANDelegated').checked==true){
+        $('WANDelegated').checked = true;
+        $('Staticselect').checked = false; 
+        disableCtrl('INPUT_SitePrefix', true);
+    }else if($('Staticselect').checked==true){
+        $('WANDelegated').checked = false;
+        $('Staticselect').checked = true;
+        disableCtrl('INPUT_SitePrefix', false); 
+    }            
+}
+
+function setDnsEnable(){
+    if($('WANConnection').checked==true){
+        $('INPUT_DNS').disabled = true; 
+    }else if($('HGWProxy').checked==true){
+        $('INPUT_DNS').disabled = true;
+    }else if($('StaticRadio').checked==true){
+        $('INPUT_DNS').disabled = false;
+    }
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_IPv6Configuration'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<form>
+<tr>
+	<th colspan="2" langkey="LK_RAPeriodSettings"></th>
+</tr>
+<tr>
+	<td width="170" langkey="LK_MaxPeriodd"></td>
+	<td><input type="text" id="INPUT_MaxRAInterval"> <span langkey="LK_Seconds"></span></td>
+</tr>
+<tr>            
+	<td langkey="LK_MinPeriodd"></td>
+	<td><input type="text" id="INPUT_MinRAInterval"> <span langkey="LK_Seconds"></span></td>
+</tr>
+<tr>
+	<th colspan="2" langkey="LK_MOFlagSettings"></th>
+</tr>
+<tr>
+	<td langkey="LK_MOFlagModee"></td>
+	<td><select id="SELECT_FlagConfType" onChange="onchgFlagConfType()" style="width:60px">
+            <option value="Auto" langkey="LK_Auto"></option>
+            <option value="Manual" langkey="LK_Manual"></option>
+            </select></td>
+</tr>
+<tr>
+	<td langkey="LK_MFlagg"></td>
+	<td><select id="SELECT_ManagedFlag">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            </select></td>
+</tr>
+<tr>
+	<td langkey="LK_OFlagg"></td>
+	<td><select id="SELECT_OtherConfFlag">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            </select></td>
+</tr>
+<tr>
+	<td langkey="LK_DHCPv6Serverr"></td>
+	<td><input type="checkbox" id="INPUT_Dhcpv6"><span langkey="LK_Enable"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_UniqueLocalPrefixx"></td>
+	<td><input type="checkbox" id="INPUT_UniqueLocalPrefix"><span langkey="LK_Enable"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_UniqueLocalGlobalIDd"></td>
+	<td><input type="text" id="INPUT_GlobalID"></div><div class="div_right"></td>
+</tr>
+<tr class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td></td>
+	<td>
+	<input type="radio" name="Enable"  id="WANDelegated" onClick="setEnable()" value="WANDelegated"/><span id="" langkey="LK_PrefixDelegation"></span>&nbsp;
+        <input type="radio" name="Enable" id ="Staticselect" onClick="setEnable()" value="Static"/><span id="" langkey="LK_Static"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_Prefixx"></td>
+	<td><input name="text" type="text" class="control" id="INPUT_SitePrefix" />
+			&nbsp;/&nbsp;
+        <input type="text" id="INPUT_SitePrefixLength" class="control" value="64" style="width:28px" readonly></td>
+</tr>
+<tr>
+	<td langkey="LK_LANAddressModee"></td>
+	<td><input name="RADIO_LanAddrDistributeType" value="Static" type="radio"><span langkey="LK_SLAAC"></span></td>
+</tr>
+<tr>
+	<td></td>
+	<td>
+	    <input checked="checked" name="RADIO_LanAddrDistributeType" value="DHCPv6" type="radio"><span langkey="LK_DHCPv6"></span>
+        </td>
+</tr>
+<tr>
+	<td langkey="LK_LANDNSModee"></td>
+	<td><input type="radio" name="Enabledns" id="WANConnection" onClick="setDnsEnable()" value="WANConnection"/> 
+            <span id="" langkey="LK_ObtainFromWAN"></span></td>
+</tr>
+<tr>
+	<td></td>
+	<td><input type="radio" name="Enabledns" id ="HGWProxy"  onClick="setDnsEnable()" value="HGWProxy"/><span langkey="LK_DNSProxy"></span></td>
+</tr>
+<tr>
+	<td></td>
+	<td><input type="radio" name="Enabledns" id ="StaticRadio"  onClick="setDnsEnable()" value="Static"/><span id="" langkey="LK_Static"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_DNSs"></td>
+	<td><input type="text" id="INPUT_DNS"></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton("btn",getStr('LK_uisubmit'),"uiSubmit()");</script>
+	<script>PrintTriButton("refresh",getStr('LK_uirefresh'),"uiPageRefresh();")</script>
+	</td>
+</tr>
+</form>
+<form method="post" name ="netipv6landataform" action="/cgi-bin/setup.cgi?page/basicsetup/basic_lanipv6config.shtml">
+</form>
+</body>
+</html>

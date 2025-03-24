@@ -1,0 +1,165 @@
+config mapping AE
+	option region 'SG'
+	option timezone '<+04>-4'
+config mapping AU
+	option region 'SG'
+	option timezone 'AEST-10AEDT,M10.1.0,M4.1.0/3'
+config mapping BE
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping BR
+	option region 'US'
+	option timezone '<-03>3'
+config mapping CH
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping CL
+	option region 'US'
+	option timezone '<-04>4<-03>,M9.1.6/24,M4.1.6/24'
+config mapping DE
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping DK
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping EG
+	option region 'SG'
+	option timezone 'EET-2'
+config mapping ES
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping FI
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping FR
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping ID
+	option region 'SG'
+	option timezone 'WIB-7'
+config mapping IE
+	option region 'EU'
+	option timezone 'IST-1GMT0,M10.5.0,M3.5.0/1'
+config mapping IL
+	option region 'SG'
+	option timezone 'IST-2IDT,M3.4.5,M10.5.0'
+config mapping IT
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping MA
+	option region 'SG'
+	option timezone '<+01>-1'
+config mapping MY
+	option region 'SG'
+	option timezone '<+08>-8'
+config mapping NG
+	option region 'SG'
+	option timezone 'CET-1'
+config mapping NL
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping NO
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping PE
+	option region 'US'
+	option timezone '<-05>5'
+config mapping PL
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping RU
+	option region 'RU'
+	option timezone 'MSK-3'
+config mapping SE
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping SG
+	option region 'SG'
+	option timezone '<+08>-8'
+config mapping TH
+	option region 'SG'
+	option timezone '<+07>-7'
+config mapping TR
+	option region 'SG'
+	option timezone 'EAT-3'
+config mapping UA
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping VN
+	option region 'SG'
+	option timezone '<+07>-7'
+config mapping GB
+	option region 'EU'
+	option timezone 'GMT0BST,M3.5.0/1,M10.5.0'
+config mapping NZ
+	option region 'SG'
+	option timezone 'NZST-12NZDT,M9.5.0,M4.1.0/3'
+config mapping KR
+	option region 'SG'
+	option timezone 'KST-9'
+config mapping PT
+	option region 'EU'
+	option timezone 'WET0WEST,M3.5.0/1,M10.5.0'
+config mapping KE
+	option region 'SG'
+	option timezone 'EAT-3'	
+config mapping CN
+	option region 'CN'
+	option timezone 'CST-8'
+config mapping HK
+	option region 'CN'
+	option timezone 'HKT-8'
+config mapping TW
+	option region 'CN'
+	option timezone 'CST-8'
+config mapping IN
+	option region 'IN'
+	option timezone 'IST-5:30'
+config mapping BG
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping CO
+	option region 'US'
+	option timezone '<-05>5'
+config mapping CZ
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping EE
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping GR
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping HR
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping HU
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping JO
+	option region 'SG'
+	option timezone 'EET-2EEST,M3.5.4/24,M10.5.5/1'
+config mapping KH
+	option region 'SG'
+	option timezone '<+07>-7'
+config mapping LT
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping LV
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping MT
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping MX
+	option region 'US'
+	option timezone 'CST6CDT,M4.1.0,M10.5.0'
+config mapping RO
+	option region 'EU'
+	option timezone 'EET-2EEST,M3.5.0/3,M10.5.0/4'
+config mapping SK
+	option region 'EU'
+	option timezone 'CET-1CEST,M3.5.0,M10.5.0/3'
+config mapping LA
+	option region 'SG'
+	option timezone '<+07>-7'

@@ -1,0 +1,376 @@
+<style type="text/css">
+
+</style>
+<script type="text/javascript">
+	(function(){
+		var timeSwitchArray = [];
+		var tableDataArray = [];
+
+		var UCI_SWITCH = uciTimeSwitch.fileName;
+		var SECTYPE_SWITCH = uciTimeSwitch.secType.timeSwitch;
+		var SECNAME_GENERAL = uciTimeSwitch.secName.general;
+		var SECNAME_CLOCK_SUCCESS = uciTimeSwitch.secName.clockSuccess;
+		var KEY_NAME = uciTimeSwitch.optName.name;
+		var KEY_MON = uciTimeSwitch.optName.mon;
+		var KEY_TUE = uciTimeSwitch.optName.tue;
+		var KEY_WED = uciTimeSwitch.optName.wed;
+		var KEY_THU = uciTimeSwitch.optName.thu;
+		var KEY_FRI = uciTimeSwitch.optName.fri;
+		var KEY_SAT = uciTimeSwitch.optName.sat;
+		var KEY_SUN = uciTimeSwitch.optName.sun;
+		var KEY_ENABLE = uciTimeSwitch.optName.enable;
+		var KEY_STARTTIME = uciTimeSwitch.optName.startTime;
+		var KEY_ENDTIME = uciTimeSwitch.optName.endTime;
+		var ON  = uciTimeSwitch.optValue.enable.on;
+		var OFF = uciTimeSwitch.optValue.enable.off;
+
+		var wlanSwitch = null;
+		var cntNtpStatus = false;
+		var updateTimerHandle = null;
+
+		var weekMap = {
+			"mon": label.one,
+			"tue": label.two,
+			"wed": label.three,
+			"thu": label.four,
+			"fri": label.five,
+			"sat": label.six,
+			"sun": label.day
+		};
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case ETSTIMECONFLICT:
+				showStr = errStr.switchTimeConflict;
+				break;
+			case ETSTIMEPERIODTOOLONG:
+				showStr = errStr.timePeriodTooLong;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function onSave(data){
+			for (var n = 0; n < timeSwitchArray.length; n++)
+			{
+				if ((data.mon == false ? "0" : "1") == timeSwitchArray[n][KEY_MON] &&
+					(data.tue == false ? "0" : "1") == timeSwitchArray[n][KEY_TUE] &&
+					(data.wed == false ? "0" : "1") == timeSwitchArray[n][KEY_WED] &&
+					(data.thu == false ? "0" : "1") == timeSwitchArray[n][KEY_THU] &&
+					(data.fri == false ? "0" : "1") == timeSwitchArray[n][KEY_FRI] &&
+					(data.sat == false ? "0" : "1") == timeSwitchArray[n][KEY_SAT] &&
+					(data.sun == false ? "0" : "1") == timeSwitchArray[n][KEY_SUN] &&
+					(data.startHour + ":" + data.startMin) == timeSwitchArray[n][KEY_STARTTIME] &&
+					(data.endHour + ":" + data.endMin) == timeSwitchArray[n][KEY_ENDTIME])
+				{
+					if (!data.arrayIndex || data.arrayIndex != n)
+					{
+						showToast(label.sameRule);
+						return;
+					}
+				}
+			}
+
+			var KEY_LIST = [KEY_MON, KEY_TUE, KEY_WED, KEY_THU,
+							KEY_FRI, KEY_SAT, KEY_SUN];
+			var postData = {}, module = {}, para = {};
+			postData[UCI_SWITCH] = module;
+
+			if ("add" == data.mode)
+			{
+				module[KEY_TABLE] = SECTYPE_SWITCH;
+				module[KEY_NAME] = module[KEY_TABLE] + "_" + data.index;
+				module[KEY_PARA] = para;
+			}
+			else
+			{
+				module[data.itemName] = para;
+			}
+
+			for (var i = 0; i < KEY_LIST.length; i++)
+			{
+				para[KEY_LIST[i]] = data[KEY_LIST[i]] == true ? "1" : "0";
+			}
+
+			para[KEY_STARTTIME] = data.startHour + ":" + data.startMin;
+			para[KEY_ENDTIME] = data.endHour + ":" + data.endMin;
+
+			para[KEY_NAME] = data[KEY_NAME];
+
+			para[KEY_ENABLE] = ON;
+
+			if ("add" == data.mode)
+			{
+				$.add(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.addSuccess);
+							requestTableData();
+						});
+					}
+				});
+			}
+			else
+			{
+				$.modify(postData, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						timePeriodDialog.hide(function(){
+							showToast(label.saveSuccess);
+							requestTableData();
+						});
+					}
+				});
+			}
+		}
+
+		function onDel(indexStr, callback){
+			var data = {}, module = {}, name = [];
+			data[UCI_SWITCH] = module;
+			module[KEY_NAME] = name;
+
+			var indexArr = indexStr.split("-");
+			for (var idx in indexArr)
+			{
+				if (!indexArr.hasOwnProperty(idx)){
+					continue;
+				}
+				var secName = timeSwitchArray[indexArr[idx]][SEC_NAME];
+				name[name.length] = secName;
+			}
+
+			$.del(data, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.deleteSuccess);
+					requestTableData();
+				}
+			});
+		}
+
+		function refreshNtpStatus(){
+			var data = {};
+			data[UCI_SWITCH] = {};
+			data[UCI_SWITCH][KEY_NAME] = SECNAME_CLOCK_SUCCESS;
+
+			if (updateTimerHandle != null)
+			{
+				clearTimeout(updateTimerHandle);
+				updateTimerHandle = null;
+			}
+
+			if (true == cntNtpStatus)
+			{
+				return;
+			}
+
+			$.query(data, function(result){
+				cntNtpStatus = parseInt(result[UCI_SWITCH][SECNAME_CLOCK_SUCCESS][KEY_ENABLE]);
+
+				if (wlanSwitch == null)
+				{
+					return;
+				}
+
+				if ((ON == wlanSwitch.state) && (false == cntNtpStatus))
+				{
+					addTitleError("cntNtpFail", label.cntNtpFailForWlanSwitch);
+				}
+				else
+				{
+					removeTitleError("cntNtpFail");
+				}
+			});
+
+			updateTimerHandle = $.setTimeout(refreshNtpStatus, 1000);
+		}
+
+		function refreshTable(array, callback){
+			timeSwitchTable.setDataSource(array);
+			timeSwitchTable.loadData();
+
+			typeof callback == "function" && callback();
+		}
+
+		function transTimeSwitchData(){
+			var nextDay = "";
+			tableDataArray = [];
+			for (var i = 0; i < timeSwitchArray.length; i++)
+			{
+				nextDay = "";
+				tableDataArray[i] = {};
+
+				tableDataArray[i][KEY_NAME] = timeSwitchArray[i][KEY_NAME];
+				tableDataArray[i][SEC_NAME] = timeSwitchArray[i][SEC_NAME];
+
+				if (timeSwitchArray[i][KEY_STARTTIME] > timeSwitchArray[i][KEY_ENDTIME])
+				{
+					nextDay = label.lBrackets + label.timePeriodNextDay + label.rBrackets;
+				}
+
+				tableDataArray[i]["timeDesc"] = timeSwitchArray[i][KEY_STARTTIME] + label.timePeriodClose + "/" +
+												nextDay + timeSwitchArray[i][KEY_ENDTIME] + label.timePeriodOpen ;
+
+				tableDataArray[i]["weekDesc"] = ("0" == timeSwitchArray[i][KEY_MON] ? "" : weekMap["mon"])
+												+ ("0" == timeSwitchArray[i][KEY_TUE] ? "" : weekMap["tue"])
+												+ ("0" == timeSwitchArray[i][KEY_WED] ? "" : weekMap["wed"])
+												+ ("0" == timeSwitchArray[i][KEY_THU] ? "" : weekMap["thu"])
+												+ ("0" == timeSwitchArray[i][KEY_FRI] ? "" : weekMap["fri"])
+												+ ("0" == timeSwitchArray[i][KEY_SAT] ? "" : weekMap["sat"])
+												+ ("0" == timeSwitchArray[i][KEY_SUN] ? "" : weekMap["sun"]);
+			}
+		}
+
+		function setTimeSwitchState(state){
+			var data = {}, para = {};
+			data[UCI_SWITCH] = {};
+			data[UCI_SWITCH][SECNAME_GENERAL] = para;
+			para[KEY_ENABLE] = state;
+
+			$.modify(data, function(result){
+				errHandle(result[ERR_CODE]);
+			});
+		}
+
+		function getTimeRuleObjData(obj, index){
+			var data = {}, dataIndex, arrayIndex, startTime, endTime;
+
+			if (obj == undefined)
+			{
+				dataIndex = calcNextIndex(timeSwitchArray);
+
+				data.mode = "add";
+				data.index = dataIndex;
+				data.name = label.timeSection + dataIndex;
+				data.startHour = data.startMin = data.endHour = data.endMin = "00";
+				data.mon = data.tue = data.wed = data.thu = data.fri = data.sat = data.sun = true;
+			}
+			else
+			{
+				dataIndex = obj[SEC_NAME].replace(/.*_(\d)$/, "$1");
+				startTime = obj[KEY_STARTTIME].split(":");
+				endTime = obj[KEY_ENDTIME].split(":");
+
+				data.mode = "edit";
+				data.index = dataIndex;
+				data.arrayIndex = index;
+				data.itemName = obj[SEC_NAME];
+				data.name = obj.name;
+				data.startHour = startTime[0];
+				data.startMin = startTime[1];
+				data.endHour = endTime[0];
+				data.endMin = endTime[1];
+
+				data.mon = obj[KEY_MON] == "0" ? false : true;
+				data.tue = obj[KEY_TUE] == "0" ? false : true;
+				data.wed = obj[KEY_WED] == "0" ? false : true;
+				data.thu = obj[KEY_THU] == "0" ? false : true;
+				data.fri = obj[KEY_FRI] == "0" ? false : true;
+				data.sat = obj[KEY_SAT] == "0" ? false : true;
+				data.sun = obj[KEY_SUN] == "0" ? false : true;
+			}
+
+			return data;
+		}
+
+		function editCallback(indexData, indexTable){
+			var data = timeSwitchArray[indexData];
+
+			var dataObj = getTimeRuleObjData(data, indexData);
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function addCallback(){
+			var dataObj = getTimeRuleObjData();
+
+			timePeriodDialog.show(dataObj);
+		}
+
+		function requestTableData(callback){
+			var data = {};
+			data[SECTYPE_SWITCH] = {};
+			data[SECTYPE_SWITCH][KEY_TABLE] = SECTYPE_SWITCH;
+
+			$.query(data, function(result){
+				timeSwitchArray = formatTableData(result[UCI_SWITCH][SECTYPE_SWITCH]);
+				transTimeSwitchData();
+				refreshTable(tableDataArray, callback);
+			});
+		}
+
+		function fillData(ALL_DATA){
+			var enable = ALL_DATA[UCI_SWITCH][SECNAME_GENERAL][KEY_ENABLE];
+
+			wlanSwitch = new Switch("switchCon", enable, setTimeSwitchState, false);
+
+			refreshNtpStatus();
+
+			timeSwitchArray = formatTableData(ALL_DATA[UCI_SWITCH][SECTYPE_SWITCH]);
+			transTimeSwitchData();
+			refreshTable(tableDataArray);
+		}
+
+		function requestData(){
+			var data = {};
+			data[SECTYPE_SWITCH] = {};
+			data[SECTYPE_SWITCH][KEY_TABLE] = SECTYPE_SWITCH;
+			data[SECTYPE_SWITCH][KEY_NAME] = SECNAME_GENERAL;
+
+			$.query(data, fillData);
+		}
+
+		var timeSwitchTable = new Table({
+			title:label.settingWifiDisable,
+			targetId: 'wirelessSwitchTable',
+			head:[
+				{field:label.periodDesc, width:"0.34"},
+				{field:label.switchTime, width:"0.40"},
+				{field:label.repeatWeek, width:"0.26"}],
+			column:[
+				{name:KEY_NAME, type:"str"},
+				{name:"timeDesc", type:"str"},
+				{name:"weekDesc", type:"str"}],
+			hasCheckBox: true,
+			editable: false,
+			addable: false,
+			max: WLAN_SWITCH_RULE_MAX,
+			itemOption:[
+				{icon:"icon-edit", type: "edit", str: btn.edit, func:editCallback}],
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.add, func:addCallback, selRelate: false}],
+			clickList:{
+				"click_del_item":{func:onDel, asyn:true}
+			}
+		});
+
+		/* RESET TIME_PERIOD DIALOG */
+		timePeriodDialog.resetTpType(timePeriodDialog.tpType.TIME_SWITCH);
+		timePeriodDialog.resetCommit(onSave);
+
+		requestData();
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.wirelessSwitch%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="wlanSwitchHelp"></i>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.wirelessSwitchDescription%}</p>
+</div>
+<div id="wirelessSwitchTable"></div>

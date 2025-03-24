@@ -1,0 +1,8 @@
+Package: libsecurity
+Version: 1
+Depends: libc
+Source: tp_package/lib/libsecurity
+Section: libs
+Architecture: rtl
+Installed-Size: 20787
+Description:  C library for DES && MD5 && RSA

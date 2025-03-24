@@ -1,0 +1,963 @@
+local L0, L1, L2
+L0 = module
+L1 = "luci.controller.web.index"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+function L0()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L0 = node
+  L0 = L0()
+  L1 = L0.target
+  if not L1 then
+    L1 = alias
+    L2 = "web"
+    L1 = L1(L2)
+    L0.target = L1
+    L0.index = true
+  end
+  L1 = node
+  L2 = "web"
+  L1 = L1(L2)
+  L2 = firstchild
+  L2 = L2()
+  L1.target = L2
+  L2 = _
+  L3 = ""
+  L2 = L2(L3)
+  L1.title = L2
+  L1.order = 10
+  L1.sysauth = "admin"
+  L1.mediaurlbase = "/xiaoqiang/web"
+  L1.sysauth_authenticator = "htmlauth"
+  L1.index = true
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.util.XQSysUtil"
+  L3 = L3(L4)
+  L4 = L3.getMiscHardwareInfo
+  L4 = L4()
+  L5 = require
+  L6 = "xiaoqiang.common.XQFunction"
+  L5 = L5(L6)
+  L6 = L5.getNetModeType
+  L6 = L6()
+  L7 = L5.getFeature
+  L8 = "0"
+  L9 = "apps"
+  L10 = "ports_custom"
+  L7 = L7(L8, L9, L10)
+  L8 = L5.getFeature
+  L9 = "0"
+  L10 = "apps"
+  L11 = "storage"
+  L8 = L8(L9, L10, L11)
+  L9 = L5.getFeature
+  L10 = "0"
+  L11 = "apps"
+  L12 = "docker"
+  L9 = L9(L10, L11, L12)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L11[1] = L12
+  L12 = alias
+  L13 = "web"
+  L14 = "home"
+  L12 = L12(L13, L14)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+  L13 = L13(L14)
+  L14 = 10
+  L15 = 8
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "logout"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = call
+  L13 = "action_logout"
+  L12 = L12(L13)
+  L13 = 11
+  L14 = 9
+  L10(L11, L12, L13, L14)
+  L10 = L4.recovery
+  if L10 == 1 then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "home"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = template
+    L13 = "web/recovery"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 12
+    L10(L11, L12, L13, L14)
+  elseif L6 == 0 then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "home"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = template
+    L13 = "web/index"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 12
+    L10(L11, L12, L13, L14)
+  elseif L6 == 1 then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "home"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = template
+    L13 = "web/apindex"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 12
+    L10(L11, L12, L13, L14)
+  elseif L6 == 3 then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "home"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = template
+    L13 = "web/apindex"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 12
+    L10(L11, L12, L13, L14)
+  else
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "home"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = template
+    L13 = "web/apindex"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\232\183\175\231\148\177\229\153\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 12
+    L10(L11, L12, L13, L14)
+  end
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = alias
+  L13 = "web"
+  L14 = "init"
+  L15 = "guidetoapp"
+  L12 = L12(L13, L14, L15)
+  L13 = _
+  L14 = "\229\136\157\229\167\139\229\140\150\229\188\149\229\175\188"
+  L13 = L13(L14)
+  L14 = 13
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "hello"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = call
+  L13 = "action_hello"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\230\172\162\232\191\142\231\149\140\233\157\162"
+  L13 = L13(L14)
+  L14 = 14
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "agreement"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/agreement"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\231\148\168\230\136\183\229\141\143\232\174\174"
+  L13 = L13(L14)
+  L14 = 14
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "privacy"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/privacy"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\231\148\168\230\136\183\228\189\147\233\170\140\230\148\185\232\191\155\232\174\161\229\136\146"
+  L13 = L13(L14)
+  L14 = 14
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "guide"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/guide"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\188\149\229\175\188\230\168\161\229\188\143"
+  L13 = L13(L14)
+  L14 = 15
+  L15 = 8
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "guidetoapp"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/guidetoapp"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\188\149\229\175\188app"
+  L13 = L13(L14)
+  L14 = 15
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "guideuninit"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/guidetoapp_uninit"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\188\149\229\175\188app"
+  L13 = L13(L14)
+  L14 = 15
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "init"
+  L14 = "bind"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/init/bind"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\188\149\229\175\188app"
+  L13 = L13(L14)
+  L14 = 15
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = alias
+  L13 = "web"
+  L14 = "setting"
+  L15 = "upgrade"
+  L12 = L12(L13, L14, L15)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 20
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "upgrade"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/upgrade"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\230\137\139\229\138\168\229\141\135\231\186\167"
+  L13 = L13(L14)
+  L14 = 21
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "wifi"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/wifi"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "Wi-Fi\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 22
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "wan"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/wan"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\164\150\231\189\145\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 23
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "proset"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/proset"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\233\171\152\231\186\167\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 24
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "lannetset"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/lannetset"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\177\128\229\159\159\231\189\145\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 25
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "setting"
+  L14 = "safe"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/safe"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\229\174\137\229\133\168\228\184\173\229\191\131"
+  L13 = L13(L14)
+  L14 = 26
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = alias
+  L13 = "web"
+  L14 = "prosetting"
+  L15 = "qos"
+  L12 = L12(L13, L14, L15)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 40
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "dhcpipmacband"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/dhcp_ip_mac"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "DHCP\233\157\153\230\128\129IP\229\136\134\233\133\141"
+  L13 = L13(L14)
+  L14 = 41
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "dmz"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/dmz"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "DMZ"
+  L13 = L13(L14)
+  L14 = 42
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "nat"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/nat_dmz"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\231\171\175\229\143\163\232\189\172\229\143\145"
+  L13 = L13(L14)
+  L14 = 43
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "upnp"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/upnp"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "upnp"
+  L13 = L13(L14)
+  L14 = 44
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "ddns"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/ddns"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "DDNS"
+  L13 = L13(L14)
+  L14 = 45
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "vpn"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/vpn"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "VPN"
+  L13 = L13(L14)
+  L14 = 46
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "qos"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = call
+  L13 = "action_qos"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\230\153\186\232\131\189\233\153\144\233\128\159QoS"
+  L13 = L13(L14)
+  L14 = 47
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "prosetting"
+  L14 = "iptv"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/setting/iptv"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "iptv"
+  L13 = L13(L14)
+  L14 = 48
+  L10(L11, L12, L13, L14)
+  if L7 == "1" then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "prosetting"
+    L14 = "networkportcustom"
+    L11[1] = L12
+    L11[2] = L13
+    L11[3] = L14
+    L12 = template
+    L13 = "web/setting/network_port_custom"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\231\189\145\229\143\163\232\135\170\229\174\154\228\185\137"
+    L13 = L13(L14)
+    L14 = 49
+    L10(L11, L12, L13, L14)
+  end
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = alias
+  L13 = "web"
+  L14 = "apsetting"
+  L15 = "upgrade"
+  L12 = L12(L13, L14, L15)
+  L13 = _
+  L14 = "\228\184\173\231\187\167\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 60
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "upgrade"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/apsetting/upgrade"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\228\184\173\231\187\167\231\179\187\231\187\159\228\191\161\230\129\175"
+  L13 = L13(L14)
+  L14 = 61
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "wan"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/apsetting/wan"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\228\184\173\231\187\167\230\168\161\229\188\143\229\136\135\230\141\162"
+  L13 = L13(L14)
+  L14 = 62
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "safe"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/apsetting/safe"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\228\184\173\231\187\167\229\175\134\231\160\129\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 63
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "wifi"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = call
+  L13 = "action_apwifi"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\228\184\173\231\187\167Wi-Fi\232\174\190\231\189\174"
+  L13 = L13(L14)
+  L14 = 64
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "roam"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/apsetting/roam"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "roam"
+  L13 = L13(L14)
+  L14 = 65
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "apsetting"
+  L14 = "lannetset"
+  L11[1] = L12
+  L11[2] = L13
+  L11[3] = L14
+  L12 = template
+  L13 = "web/apsetting/lannetset"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "lannetset"
+  L13 = L13(L14)
+  L14 = 65
+  L10(L11, L12, L13, L14)
+  if L8 == "1" then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "store"
+    L11[1] = L12
+    L11[2] = L13
+    L12 = alias
+    L13 = "web"
+    L14 = "store"
+    L15 = "storesetting"
+    L12 = L12(L13, L14, L15)
+    L13 = _
+    L14 = "\229\173\152\229\130\168\231\138\182\230\128\129"
+    L13 = L13(L14)
+    L14 = 90
+    L10(L11, L12, L13, L14)
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "store"
+    L14 = "storesetting"
+    L11[1] = L12
+    L11[2] = L13
+    L11[3] = L14
+    L12 = template
+    L13 = "web/inc/store"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "\229\173\152\229\130\168\232\174\190\231\189\174"
+    L13 = L13(L14)
+    L14 = 90
+    L10(L11, L12, L13, L14)
+  end
+  if L9 == "1" then
+    L10 = entry
+    L11 = {}
+    L12 = "web"
+    L13 = "store"
+    L14 = "docker"
+    L11[1] = L12
+    L11[2] = L13
+    L11[3] = L14
+    L12 = template
+    L13 = "web/inc/docker"
+    L12 = L12(L13)
+    L13 = _
+    L14 = "docker"
+    L13 = L13(L14)
+    L14 = 90
+    L10(L11, L12, L13, L14)
+  end
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "syslock"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = template
+  L13 = "web/syslock"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\229\141\135\231\186\167"
+  L13 = L13(L14)
+  L14 = 100
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "upgrading"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = template
+  L13 = "web/syslock"
+  L12 = L12(L13)
+  L13 = _
+  L14 = "\232\183\175\231\148\177\229\141\135\231\186\167"
+  L13 = L13(L14)
+  L14 = 101
+  L15 = 13
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "webinitrdr"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = call
+  L13 = "action_webinitrdr"
+  L12 = L12(L13)
+  L13 = _
+  L14 = ""
+  L13 = L13(L14)
+  L14 = 110
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "login"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = template
+  L13 = "web/sysauth"
+  L12 = L12(L13)
+  L13 = _
+  L14 = ""
+  L13 = L13(L14)
+  L14 = 111
+  L10(L11, L12, L13, L14)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "ieblock"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = template
+  L13 = "web/ieblock"
+  L12 = L12(L13)
+  L13 = _
+  L14 = ""
+  L13 = L13(L14)
+  L14 = 120
+  L15 = 9
+  L10(L11, L12, L13, L14, L15)
+  L10 = entry
+  L11 = {}
+  L12 = "web"
+  L13 = "topo"
+  L11[1] = L12
+  L11[2] = L13
+  L12 = template
+  L13 = "web/topograph"
+  L12 = L12(L13)
+  L13 = _
+  L14 = ""
+  L13 = L13(L14)
+  L14 = 130
+  L15 = 13
+  L10(L11, L12, L13, L14, L15)
+end
+index = L0
+function L0()
+  local L0, L1, L2, L3, L4, L5, L6
+  L0 = require
+  L1 = "luci.template"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = require
+  L3 = "xiaoqiang.common.XQFunction"
+  L2 = L2(L3)
+  L3 = L2.getNetModeType
+  L3 = L3()
+  if L3 == 1 then
+    L4 = L0.render
+    L5 = "web/apsetting/wifi"
+    L6 = L1
+    L4(L5, L6)
+  else
+    L4 = L0.render
+    L5 = "web/setting/wifi"
+    L6 = L1
+    L4(L5, L6)
+  end
+end
+action_apwifi = L0
+function L0()
+  local L0, L1, L2, L3, L4
+  L0 = require
+  L1 = "luci.template"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.common.XQFunction"
+  L1 = L1(L2)
+  L1 = L1.getFeature
+  L2 = "0"
+  L3 = "apps"
+  L4 = "qos"
+  L1 = L1(L2, L3, L4)
+  if L1 == "1" then
+    L2 = L0.render
+    L3 = "web/setting/qos"
+    L4 = {}
+    L2(L3, L4)
+  else
+    L2 = L0.render
+    L3 = "web/setting/qos_lite"
+    L4 = {}
+    L2(L3, L4)
+  end
+end
+action_qos = L0
+function L0()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "luci.dispatcher"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.sauth"
+  L1 = L1(L2)
+  L2 = L0.context
+  L2 = L2.authsession
+  if L2 then
+    L2 = L1.kill
+    L3 = L0.context
+    L3 = L3.authsession
+    L2(L3)
+    L2 = L0.context
+    L2 = L2.urltoken
+    L2.stok = nil
+  end
+  L2 = luci
+  L2 = L2.http
+  L2 = L2.redirect
+  L3 = luci
+  L3 = L3.dispatcher
+  L3 = L3.build_url
+  L3 = L3()
+  L2(L3)
+end
+action_logout = L0
+function L0()
+  local L0, L1, L2, L3
+  L0 = require
+  L1 = "xiaoqiang.util.XQSysUtil"
+  L0 = L0(L1)
+  L1 = L0.getInitInfo
+  L1 = L1()
+  if L1 then
+    L1 = luci
+    L1 = L1.http
+    L1 = L1.redirect
+    L2 = luci
+    L2 = L2.dispatcher
+    L2 = L2.build_url
+    L2, L3 = L2()
+    L1(L2, L3)
+  else
+    L1 = L0.setSysPasswordDefault
+    L1()
+  end
+  L1 = require
+  L2 = "luci.template"
+  L1 = L1(L2)
+  L2 = L1.render
+  L3 = "web/init/hello"
+  L2(L3)
+end
+action_hello = L0
+function L0()
+  local L0, L1, L2, L3
+  L0 = {}
+  L0.code = 0
+  L1 = {}
+  L2 = _
+  L3 = "\228\189\160\232\191\158\230\142\165\231\154\132\232\183\175\231\148\177\229\153\168\232\191\152\230\156\170\229\136\157\229\167\139\229\140\150"
+  L2 = L2(L3)
+  L1.s1 = L2
+  L2 = _
+  L3 = "\232\175\183\231\168\141\229\128\153\239\188\140\228\188\154\232\135\170\229\138\168\228\184\186\228\189\160\232\183\179\232\189\172\229\136\176\229\188\149\229\175\188\233\161\181\233\157\162..."
+  L2 = L2(L3)
+  L1.s2 = L2
+  L2 = _
+  L3 = "\229\166\130\230\158\156\230\156\170\232\131\189\232\183\179\232\189\172\239\188\140\232\175\183\231\155\180\230\142\165\232\174\191\233\151\174"
+  L2 = L2(L3)
+  L1.s3 = L2
+  L2 = _
+  L3 = "\230\172\162\232\191\142\228\189\191\231\148\168\229\176\143\231\177\179\232\183\175\231\148\177\229\153\168"
+  L2 = L2(L3)
+  L1.s4 = L2
+  L0.data = L1
+  L1 = luci
+  L1 = L1.http
+  L1 = L1.write_json
+  L2 = L0
+  L1(L2)
+end
+action_webinitrdr = L0

@@ -1,0 +1,118 @@
+body{
+	background-color: #557cb7;
+	color: #2b3238;
+	/* Font-family: "微软雅黑", Helvetica, Tahoma, Arial, SimSun,  Heiti, "黑体", sans-serif; */
+	line-height: 1.5;
+}
+
+input,
+select{
+	width: 220px;
+    height: 26px;
+	line-height: 26px;
+    border-radius: 4px;
+    border: 1px solid #DCDFE6;
+    color: #606266;
+    text-indent: 12px;
+	border: none;
+}
+
+.login-container{
+	width: 350px;
+	margin: 280px auto 0;
+}
+
+.logo{
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.login-item{
+	margin-bottom: 15px;
+}
+
+.login-item input:not([type=button]){
+	background-color: #ffffff;
+	width:100%;
+	height: 35px;
+	line-height: 35px;
+}
+
+.login-item label{
+	display: inline-block;
+	color: rgb(236, 13, 13);
+	margin-top: 8px;
+	margin-left: 8px;
+}
+
+#loginPwd_icon{
+	position: absolute;
+	right: 18px;
+	top: 28%;
+	cursor: pointer;
+}
+
+.login-item .login-button{
+	width:100%;
+	text-align: center;
+	height: 35px;
+	line-height: 35px;
+	background-color: #409EFF;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.forgetPwd{
+	color: #fff;
+	cursor: pointer;
+	margin: 10px 0 12px;
+}
+.forgetPwd span{
+	margin-right:6px;
+	vertical-align: middle;
+}
+.forgetPwd i{
+	font-size: 20px;
+	vertical-align: middle;
+}
+.forgetPwdTip{
+	color: #fff;
+}
+.forgetPwdTip p{
+	line-height:22px;
+}
+
+#lock_div{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 99;
+}
+
+#loadingbox{
+	position: fixed;
+	top: 50%;
+	left:50%;
+	transform: translate(-50%,-50%);
+	width: 300px;
+	margin: 0 auto;
+	text-align: center;
+}
+#loadingbox img{
+	width: 90px;
+	height: 90px;
+}
+#loadingbox p{
+	color:#fff;
+	font-size:15px;
+}
+
+/* 手机端样式 */
+@media screen and (max-width: 850px) {
+	.login-container{
+		width: 80%;
+		margin: 200px auto 0;
+	}
+}

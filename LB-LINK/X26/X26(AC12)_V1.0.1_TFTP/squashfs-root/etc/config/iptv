@@ -1,0 +1,5 @@
+config iptv 'config'
+	option ports '0,1,1,0'
+	option tag '3300'
+	option enable '0'
+

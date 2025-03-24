@@ -1,0 +1,47 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.DMZS%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="DMZHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.dmzConfigDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%menuStr.DMZS%}</label>
+	<div id="dmzOn" class="dmzRadio"></div>
+	<div id="dmzOff" class="dmzRadio"></div>
+</ul>
+<div id="dmzIp"></div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl"></label>
+	<a id="chooseEpt">{%label.chooseEpt%}></a>
+</ul>
+<ul class="inputCMPT medium selectUl" id="actOnInterfaceUl" style="display: none;">
+	<label class="outerLbl">{%label.activePort%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="actOnInterface" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="save"></div><script type="text/javascript">(function(){function u(){if(""==this.input.value)return this.showNote(errStr.wzdStcIpEmpty),!1;if(slp.gIpv6HostCtrlSupport){var a=checkIPv6(this.input.value,{allow_localSole:!0});a!=ENONE&&a!=EIPV6INVIP&&a!=ENOTLANSUBNET&&a!=EIPV6LOOP&&a!=EIPV6INVGROUPIP&&a!=EIPV6LINKLOCAL&&(a=checkIp(this.input.value));if(a!=ENONE)return this.showNote(errStr.inputIpv4OrIpv6),!1}else if(ENONE!=checkIp(this.input.value))return this.showNote(errStr.wzdStcIpErr),!1;return!0}function v(a){var b,p;if(null!=a&&null!=a[uciHostsInfo.fileName]&&
+null!=a[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]){p=formatTableData(a[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);var d=c.length=0;for(b in p)a=p[b],a.blocked!=q.unBlock||a.type!=q.inet&&a.type!=q.wirelessH||(c[d]={},0==a.hostname.length&&(a.hostname=label.anonymousHost),c[d].name=a.hostname,c[d].ipv4=a.ip,c[d].ipv6=a.ipv6,c[d].mac="MAC地址："+a.mac,c[d].isCurHost=a.is_cur_host,c[d].type=a.type,c[d].blocked=a.blocked,c[d].up=a.up_speed,c[d].upLimit=a.up_limit,c[d].down=a.down_speed,
+c[d].downLimit=a.down_limit,c[d].ipRadio=slp.gIpv6HostCtrlSupport&&"::"!=a.ipv6?[{name:"ipRadio",label:"IPv4:"+a.ip,value:a.ip,checked:a.ip==f,targetId:a.mac.split("-").join("")+"_4",callback:function(a){f=a._ops.value}},{name:"ipRadio",label:"IPv6:"+a.ipv6,value:a.ipv6,checked:a.ipv6==f,targetId:a.mac.split("-").join("")+"_6",callback:function(a){f=a._ops.value}}]:[{name:"ipRadio",label:"IP:"+a.ip,value:a.ip,checked:a.ip==f,targetId:a.mac.split("-").join("")+"_4",callback:function(a){f=a._ops.value}}],
+d++);for(b=0;b<c.length;b++)if("1"==c[b].isCurHost){b=c.splice(b,1);c.push(b[0]);break}}}function w(a){var b={};b[uciHostsInfo.fileName]={};b[uciHostsInfo.fileName][KEY_TABLE]=uciHostsInfo.dynData.host_info;b[uciNetwork.fileName]={};b[uciNetwork.fileName][KEY_NAME]=uciNetwork.dynData.ifaceMac;$.query(b,function(b){ENONE==b[ERR_CODE]&&(v(b),a(c))})}var g,l,r=0,h=!1,t=[{str:label.auto,value:0},{str:"WAN1",value:1},{str:"WAN2",value:2}],c=[],q={inet:0,wirelessH:1,wirelessG:2,block:1,unBlock:0,unLimit:0,
+offline:0,online:1},f="",k=new Radio({targetId:"dmzOn",label:label.open,name:"dmzEnable"}),m=new Radio({targetId:"dmzOff",label:label.close,name:"dmzEnable"}),e,x=new Button({text:btn.save,onClick:function(){var a={},b={},c;a[uciFirewall.fileName]={};a[uciFirewall.fileName][uciFirewall.secName.dmz]=b;e.checkAll()&&(c=!0==k.getValue()?"1":"0",e.getValue()!=g||c!=l||slp.gMulWanSupport)&&(e.getValue()!=g&&(slp.gIpv6HostCtrlSupport?checkIp(e.getValue())==ENONE?(e.setValue(hideLeadingZeros(e.getValue())),
+b[uciFirewall.optName.destIP]=e.getValue(),b[uciFirewall.optName.destIP6]="::"):checkIPv6Format(e.getValue())==ENONE&&(b[uciFirewall.optName.destIP]="",b[uciFirewall.optName.destIP6]=e.getValue()):b[uciFirewall.optName.destIP]=e.getValue()),c!=l&&(b[uciFirewall.optName.enable]=c),b.wan_port=h?$("#actOnInterface").val():t[0].value,$.modify(a,function(a){a:{a=a[ERR_CODE];var b="";switch(a){case ENONE:a=!0;break a;case EINVNET:b=errStr.ipAddrNetErr;break;case EINVIP:b=errStr.ipAddrErr;break;case EINVIPFMT:b=
+errStr.ipAddrFmtErr;break;case EINVGROUPIP:b=errStr.ipAddrGroupErr;break;case EINVLOOPIP:b=errStr.ipAddrLoopErr;break;case ENOTLANSUBNET:b=errStr.ipNotLanSubnet;break;case ELANIPCONFLIC:b=errStr.lanConflictErr;break;case EINVNETID:b=errStr.ipAddrNetIdErr;break;case EINVHOSTID:b=errStr.ipAddrHostIdErr;break;default:b=errStr.unknown+a}alarmDialog.show(b);a=!1}a?(showToast(label.saveSuccess),l=c,g=e.getValue()):(k.setValue(!k.getValue()),m.setValue(!m.getValue()))}))},type:Button.TYPE.PRIMARY,id:"save",
+props:{width:"240px",margin:"36px 0 0 132px"}}),n,s=new Dialog({title:label.chooseEpt,content:'<div class="selectParentTitleDesc">'+label.chooseDmzHost+'</div><ul id="eptSelectTable"></ul>',size:component.Dialog.SIZE.MEDIUM,type:component.Dialog.TYPE.CUSTOM,hasCloseIcon:!0,bottom:[{type:component.Button.TYPE.SECONDARY,text:btn.cancelTip,id:"eptSelectTableCancel",onClick:function(){s.hide()}},{type:component.Button.TYPE.PRIMARY,text:btn.confirmTip,id:"eptSelectTableSubmit",onClick:function(){""==f?
+showToast(label.chooseDev):(s.hide(),e.setValue(f))}}],renderCallBack:function(){n=new Table({targetId:"eptSelectTable",head:[{field:label.deviceName,width:"0"},{field:label.ipAddr,width:"0"}],column:[{name:"basicInfo",type:"deviceBasicInfo",isEditable:!1,hideIp:!0},{name:"ipRadio",type:"radioGroup"}],hasCheckBox:!1,editable:!1,deletable:!1,addable:!1,numPerPage:5})}});id("chooseEpt").onclick=function(){s.show();w(function(a){n.setDataSource(a);n.loadData(n.getCurrentPage())})};(function(){var a=
+{};a[uciFirewall.fileName]={};a[uciFirewall.fileName][KEY_NAME]=uciFirewall.secName.dmz;slp.gSysModeSupport&&(a.system={name:"sys_mode"});slp.gMulWanSupport&&(a.port_manage={table:"mwan"});$.query(a,function(a){var c=a[uciFirewall.fileName][uciFirewall.secName.dmz];"1"==c[uciFirewall.optName.enable]?k.setValue(!0):m.setValue(!0);l=c[uciFirewall.optName.enable];g=slp.gIpv6HostCtrlSupport&&"::"!=c[uciFirewall.optName.destIP6]?c[uciFirewall.optName.destIP6]:c[uciFirewall.optName.destIP];e=new Input({type:Input.TYPE.PLAIN_TEXT,
+label:{value:label.dmzIp},targetId:"dmzIp",props:{maxlength:slp.gIpv6HostCtrlSupport?"39":"15",type:"text",placeholder:"0.0.0.0"},check:{blur:u}});e.setValue(g);if(slp.gMulWanSupport){var d=formatTableData(a.port_manage.mwan);h=!0;for(var f=0;2>f;f++)if(0==d[f].enable){h=!1;break}h&&(selectInit("actOnInterface",t,c.wan_port?c.wan_port:"0"),$("#actOnInterfaceUl").show())}slp.gSysModeSupport&&(r=a.system.sys_mode.mode,0!=r&&($(".relayErrorTip").show(),k.disable(!0),m.disable(!0),e.disable(!0),x.disable(!0),
+1==r?$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用DMZ主机功能。"):$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用DMZ主机功能。"),h&&id("actOnInterface").disable(!0)))})})()})();
+</script><style type="text/css">div.dmzRadio{display:inline-block;margin-right:16px}table.Table td div.deviceInfoCon{margin-left:7px}table.Table td div.deviceName{width:155px}#eptSelectTable span.deviceIpMac{margin-left:0!important}div.selectParentTitleDesc{margin-bottom:24px}</style>

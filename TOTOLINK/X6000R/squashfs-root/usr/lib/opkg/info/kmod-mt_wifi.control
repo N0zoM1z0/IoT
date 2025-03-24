@@ -1,0 +1,10 @@
+Package: kmod-mt_wifi
+Version: 5.4.194+TEST-1
+Depends: kernel (=5.4.194-1-17bc2b3df327d9db79dfae29df0e4c80), wifi-profile, kmod-conninfra, kmod-mediatek_hnat, kmod-warp
+Source: package/mtk/drivers/mt_wifi
+SourceName: kmod-mt_wifi
+Section: kernel
+SourceDateEpoch: 1685181066
+Architecture: aarch64_cortex-a53
+Installed-Size: 3785857
+Description:  MTK wifi AP driver

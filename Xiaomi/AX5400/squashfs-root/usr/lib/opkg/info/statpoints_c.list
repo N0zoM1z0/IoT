@@ -1,0 +1,4 @@
+/usr/sbin/statpoints
+/usr/sbin/mtd_crash_log
+/usr/sbin/ecos_pair_verify
+/etc/init.d/statpoints

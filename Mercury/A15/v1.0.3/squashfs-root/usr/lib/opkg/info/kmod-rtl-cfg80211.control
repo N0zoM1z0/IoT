@@ -1,0 +1,9 @@
+Package: kmod-rtl-cfg80211
+Version: 4.4.176+5.2.8-1-1
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4), wireless-tools
+Source: tp_package/wlan-driver/rtl/rtl-mac80211
+Section: kernel
+Maintainer: Felix Fietkau <nbd@nbd.name>
+Architecture: rtl
+Installed-Size: 174352
+Description:  cfg80211 is the Linux wireless LAN (802.11) configuration API.

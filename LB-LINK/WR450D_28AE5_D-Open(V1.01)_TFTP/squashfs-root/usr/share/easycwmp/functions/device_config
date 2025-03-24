@@ -1,0 +1,34 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.DeviceConfig."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceConfig"
+
+entry_execute_method_root_DeviceConfig() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.DeviceConfig."*)
+		common_execute_method_obj "$DMROOT.DeviceConfig." "0"
+		common_execute_method_param "$DMROOT.DeviceConfig.PersistentData" "0" "device_config_get_persistentdata" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.DeviceConfig.ConfigFile" "0" "device_config_get_config_file" "" "xsd:String" "0"
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+
+device_config_get_persistentdata() {
+	ls /etc/config
+}
+
+device_config_get_config_file() {
+	uci show
+}

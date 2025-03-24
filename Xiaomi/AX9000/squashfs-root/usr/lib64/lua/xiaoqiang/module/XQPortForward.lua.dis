@@ -1,0 +1,715 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.module.XQPortForward"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    return
+  end
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = A0
+  L2 = A0.gsub
+  L4 = ".%d+$"
+  L5 = ""
+  L2 = L2(L3, L4, L5)
+  L4 = L1
+  L3 = L1.foreach
+  L5 = "firewall"
+  L6 = "redirect"
+  function L7(A0)
+    local L1, L2, L3, L4, L5, L6, L7, L8
+    L1 = tonumber
+    L2 = A0.ftype
+    L1 = L1(L2)
+    if L1 then
+      L2 = A0.dest_ip
+      L3 = _UPVALUE0_
+      L4 = "."
+      L6 = L2
+      L5 = L2.match
+      L7 = ".(%d+)$"
+      L5 = L5(L6, L7)
+      L2 = L3 .. L4 .. L5
+      L3 = _UPVALUE1_
+      L4 = L3
+      L3 = L3.set
+      L5 = "firewall"
+      L6 = A0[".name"]
+      L7 = "dest_ip"
+      L8 = L2
+      L3(L4, L5, L6, L7, L8)
+    end
+  end
+  L3(L4, L5, L6, L7)
+  L4 = L1
+  L3 = L1.commit
+  L5 = "firewall"
+  L3(L4, L5)
+end
+hookLanIPChangeEvent = L2
+function L2(A0)
+  local L1, L2
+  if A0 then
+    L1 = type
+    L2 = A0
+    L1 = L1(L2)
+    if L1 == "number" then
+      if A0 == 1 then
+        L1 = "tcp"
+        return L1
+      elseif A0 == 2 then
+        L1 = "udp"
+        return L1
+      elseif A0 == 3 then
+        L1 = "tcpudp"
+        return L1
+      else
+        L1 = "tcp"
+        return L1
+      end
+    end
+  end
+  if A0 then
+    L1 = type
+    L2 = "proto"
+    L1 = L1(L2)
+    if L1 == "string" then
+      if A0 == "tcp" then
+        L1 = 1
+        return L1
+      elseif A0 == "udp" then
+        L1 = 2
+        return L1
+      elseif A0 == "tcpudp" then
+        L1 = 3
+        return L1
+      else
+        L1 = 1
+        return L1
+      end
+    end
+  end
+  L1 = nil
+  return L1
+end
+_protoHelper = L2
+function L2(A0)
+  local L1, L2
+  if A0 then
+    L1 = type
+    L2 = A0
+    L1 = L1(L2)
+    if L1 == "number" and 0 < A0 then
+      L1 = true
+      return L1
+  end
+  else
+    L1 = false
+    return L1
+  end
+end
+_portCheck = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = require
+  L3 = "luci.util"
+  L2 = L2(L3)
+  if A0 and A1 then
+    L3 = tostring
+    L4 = A0
+    L3 = L3(L4)
+    A0 = L3
+    L3 = tostring
+    L4 = A1
+    L3 = L3(L4)
+    A1 = L3
+    L3 = {}
+    L4 = {}
+    L6 = A0
+    L5 = A0.match
+    L7 = "-"
+    L5 = L5(L6, L7)
+    if L5 then
+      L5 = L2.split
+      L6 = A0
+      L7 = "-"
+      L5 = L5(L6, L7)
+      L6 = tonumber
+      L7 = L5[1]
+      L6 = L6(L7)
+      L3.f = L6
+      L6 = tonumber
+      L7 = L5[2]
+      L6 = L6(L7)
+      L3.t = L6
+    else
+      L5 = tonumber
+      L6 = A0
+      L5 = L5(L6)
+      L3.f = L5
+      L5 = tonumber
+      L6 = A0
+      L5 = L5(L6)
+      L3.t = L5
+    end
+    L6 = A1
+    L5 = A1.match
+    L7 = "-"
+    L5 = L5(L6, L7)
+    if L5 then
+      L5 = L2.split
+      L6 = A1
+      L7 = "-"
+      L5 = L5(L6, L7)
+      L6 = tonumber
+      L7 = L5[1]
+      L6 = L6(L7)
+      L4.f = L6
+      L6 = tonumber
+      L7 = L5[2]
+      L6 = L6(L7)
+      L4.t = L6
+    else
+      L5 = tonumber
+      L6 = A1
+      L5 = L5(L6)
+      L4.f = L5
+      L5 = tonumber
+      L6 = A1
+      L5 = L5(L6)
+      L4.t = L5
+    end
+    L5 = L3.f
+    L6 = L4.f
+    if L5 >= L6 then
+      L5 = L3.f
+      L6 = L4.t
+      if L5 <= L6 then
+        goto lbl_94
+      end
+    end
+    L5 = L3.t
+    L6 = L4.f
+    if L5 >= L6 then
+      L5 = L3.t
+      L6 = L4.t
+      if L5 <= L6 then
+        goto lbl_94
+      end
+    end
+    L5 = L3.t
+    L6 = L4.t
+    if L5 >= L6 then
+      L5 = L3.f
+      L6 = L4.f
+      ::lbl_94::
+      if L5 <= L6 then
+        L5 = true
+        return L5
+      end
+    end
+  end
+  L3 = false
+  return L3
+end
+_portRangeOverlap = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = false
+  L4 = L1
+  L3 = L1.foreach
+  L5 = "firewall"
+  L6 = "redirect"
+  function L7(A0)
+    local L1, L2, L3
+    L1 = _portRangeOverlap
+    L2 = _UPVALUE0_
+    L3 = A0.src_dport
+    L1 = L1(L2, L3)
+    if L1 then
+      L1 = true
+      _UPVALUE1_ = L1
+    end
+  end
+  L3(L4, L5, L6, L7)
+  return L2
+end
+_portConflictCheck = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L3 = false
+  L5 = L2
+  L4 = L2.foreach
+  L6 = "firewall"
+  L7 = "redirect"
+  function L8(A0)
+    local L1, L2, L3
+    L1 = _protoHelper
+    L2 = A0.proto
+    L1 = L1(L2)
+    L2 = _UPVALUE0_
+    if L1 ~= L2 then
+      L1 = _UPVALUE0_
+      if L1 ~= 3 then
+        L1 = _protoHelper
+        L2 = A0.proto
+        L1 = L1(L2)
+        if L1 ~= 3 then
+          goto lbl_23
+        end
+      end
+    end
+    L1 = _portRangeOverlap
+    L2 = _UPVALUE1_
+    L3 = A0.src_dport
+    L1 = L1(L2, L3)
+    if L1 then
+      L1 = true
+      _UPVALUE2_ = L1
+    end
+    ::lbl_23::
+  end
+  L4(L5, L6, L7, L8)
+  return L3
+end
+_portConflictCheckWithProto = L2
+function L2()
+  local L0, L1
+  L0 = portForwards
+  L1 = 0
+  L0 = L0(L1)
+  L0 = #L0
+  L0 = 0 < L0
+  return L0
+end
+moduleOn = L2
+function L2()
+  local L0, L1, L2
+  L0 = require
+  L1 = "xiaoqiang.module.XQDMZModule"
+  L0 = L0(L1)
+  L1 = {}
+  L2 = L0.moduleOn
+  L2 = L2()
+  if L2 then
+    L1.status = 2
+  else
+    L2 = moduleOn
+    L2 = L2()
+    if L2 then
+      L2 = 1
+      if L2 then
+        goto lbl_19
+      end
+    end
+    L2 = 0
+    ::lbl_19::
+    L1.status = L2
+  end
+  return L1
+end
+portForwardInfo = L2
+function L2(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  L3 = tonumber
+  L4 = A0
+  L3 = L3(L4)
+  L3 = L3 or L3
+  L5 = L1
+  L4 = L1.foreach
+  L6 = "firewall"
+  L7 = "redirect"
+  function L8(A0)
+    local L1, L2, L3, L4, L5, L6, L7, L8
+    L1 = tonumber
+    L2 = A0.ftype
+    L1 = L1(L2)
+    if L1 then
+      L2 = _UPVALUE0_
+      if L2 == 0 then
+        goto lbl_12
+      end
+    end
+    L2 = _UPVALUE0_
+    ::lbl_12::
+    if L2 == L1 then
+      L2 = {}
+      L3 = A0.name
+      L2.name = L3
+      L3 = A0.dest_ip
+      L2.destip = L3
+      L3 = _protoHelper
+      L4 = A0.proto
+      L3 = L3(L4)
+      L3 = L3 or L3
+      L2.proto = L3
+      if L1 == 1 then
+        L3 = tonumber
+        L4 = A0.src_dport
+        L3 = L3(L4)
+        L2.srcport = L3
+        L3 = A0.dest_port
+        L2.destport = L3
+        L2.ftype = 1
+      elseif L1 == 2 then
+        L2.ftype = 2
+        L3 = {}
+        L4 = require
+        L5 = "luci.util"
+        L4 = L4(L5)
+        L5 = L4.split
+        L6 = A0.src_dport
+        L7 = "-"
+        L5 = L5(L6, L7)
+        L6 = {}
+        L7 = tonumber
+        L8 = L5[1]
+        L7 = L7(L8)
+        L6.f = L7
+        L7 = tonumber
+        L8 = L5[2]
+        L7 = L7(L8)
+        L6.t = L7
+        L2.srcport = L6
+      end
+      L3 = table
+      L3 = L3.insert
+      L4 = _UPVALUE1_
+      L5 = L2
+      L3(L4, L5)
+    end
+  end
+  L4(L5, L6, L7, L8)
+  return L2
+end
+portForwards = L2
+function L2(A0, A1, A2, A3, A4)
+  local L5, L6, L7, L8, L9, L10, L11, L12, L13
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = A1
+  L5 = L5(L6)
+  if not L5 then
+    L5 = _portCheck
+    L6 = tonumber
+    L7 = A2
+    L6, L7, L8, L9, L10, L11, L12, L13 = L6(L7)
+    L5 = L5(L6, L7, L8, L9, L10, L11, L12, L13)
+    if L5 then
+      L5 = _portCheck
+      L6 = tonumber
+      L7 = A3
+      L6, L7, L8, L9, L10, L11, L12, L13 = L6(L7)
+      L5 = L5(L6, L7, L8, L9, L10, L11, L12, L13)
+      if L5 then
+        L5 = require
+        L6 = "luci.model.uci"
+        L5 = L5(L6)
+        L5 = L5.cursor
+        L5 = L5()
+        L6 = portForwardInfo
+        L6 = L6()
+        L6 = L6.status
+        if L6 == 2 then
+          L6 = 3
+          return L6
+        end
+        L6 = _portConflictCheckWithProto
+        L7 = A2
+        L8 = A4
+        L6 = L6(L7, L8)
+        if L6 then
+          L6 = 2
+          return L6
+        end
+        L6 = string
+        L6 = L6.format
+        L7 = "wan%srdr%s"
+        L8 = tostring
+        L9 = A2
+        L8 = L8(L9)
+        L9 = tostring
+        L10 = A4
+        L9, L10, L11, L12, L13 = L9(L10)
+        L6 = L6(L7, L8, L9, L10, L11, L12, L13)
+        L7 = {}
+        L7.src = "wan"
+        L7.src_dport = A2
+        L8 = _protoHelper
+        L9 = tonumber
+        L10 = A4
+        L9, L10, L11, L12, L13 = L9(L10)
+        L8 = L8(L9, L10, L11, L12, L13)
+        L8 = L8 or L8
+        L7.proto = L8
+        L7.target = "DNAT"
+        L7.dest = "lan"
+        L7.dest_port = A3
+        L7.dest_ip = A1
+        L7.ftype = 1
+        L8 = A0 or L8
+        if not A0 then
+          L8 = ""
+        end
+        L7.name = L8
+        L9 = L5
+        L8 = L5.section
+        L10 = "firewall"
+        L11 = "redirect"
+        L12 = L6
+        L13 = L7
+        L8(L9, L10, L11, L12, L13)
+        L9 = L5
+        L8 = L5.commit
+        L10 = "firewall"
+        L8(L9, L10)
+        L8 = 0
+        return L8
+      end
+    end
+  end
+  L5 = 1
+  return L5
+end
+setPortForward = L2
+function L2(A0, A1, A2, A3, A4)
+  local L5, L6, L7, L8, L9, L10, L11, L12, L13, L14
+  L5 = _UPVALUE0_
+  L5 = L5.isStrNil
+  L6 = A1
+  L5 = L5(L6)
+  if not L5 then
+    L5 = _portCheck
+    L6 = tonumber
+    L7 = A2
+    L6, L7, L8, L9, L10, L11, L12, L13, L14 = L6(L7)
+    L5 = L5(L6, L7, L8, L9, L10, L11, L12, L13, L14)
+    if L5 then
+      L5 = _portCheck
+      L6 = tonumber
+      L7 = A3
+      L6, L7, L8, L9, L10, L11, L12, L13, L14 = L6(L7)
+      L5 = L5(L6, L7, L8, L9, L10, L11, L12, L13, L14)
+      if L5 then
+        L5 = tonumber
+        L6 = A2
+        L5 = L5(L6)
+        L6 = tonumber
+        L7 = A3
+        L6 = L6(L7)
+        if L5 > L6 then
+          L5 = 1
+          return L5
+        end
+        L5 = require
+        L6 = "luci.model.uci"
+        L5 = L5(L6)
+        L5 = L5.cursor
+        L5 = L5()
+        L6 = tostring
+        L7 = A2
+        L6 = L6(L7)
+        L7 = "-"
+        L8 = tostring
+        L9 = A3
+        L8 = L8(L9)
+        L6 = L6 .. L7 .. L8
+        L7 = portForwardInfo
+        L7 = L7()
+        L7 = L7.status
+        if L7 == 2 then
+          L7 = 3
+          return L7
+        end
+        L7 = _portConflictCheckWithProto
+        L8 = L6
+        L9 = A4
+        L7 = L7(L8, L9)
+        if L7 then
+          L7 = 2
+          return L7
+        end
+        L7 = string
+        L7 = L7.format
+        L8 = "wan%srdr%s"
+        L9 = tostring
+        L10 = A2
+        L9 = L9(L10)
+        L10 = tostring
+        L11 = A4
+        L10, L11, L12, L13, L14 = L10(L11)
+        L7 = L7(L8, L9, L10, L11, L12, L13, L14)
+        L8 = {}
+        L8.src = "wan"
+        L8.src_dport = L6
+        L9 = _protoHelper
+        L10 = tonumber
+        L11 = A4
+        L10, L11, L12, L13, L14 = L10(L11)
+        L9 = L9(L10, L11, L12, L13, L14)
+        L9 = L9 or L9
+        L8.proto = L9
+        L8.target = "DNAT"
+        L8.dest = "lan"
+        L8.dest_ip = A1
+        L8.ftype = 2
+        L9 = A0 or L9
+        if not A0 then
+          L9 = ""
+        end
+        L8.name = L9
+        L10 = L5
+        L9 = L5.section
+        L11 = "firewall"
+        L12 = "redirect"
+        L13 = L7
+        L14 = L8
+        L9(L10, L11, L12, L13, L14)
+        L10 = L5
+        L9 = L5.commit
+        L11 = "firewall"
+        L9(L10, L11)
+        L9 = 0
+        return L9
+      end
+    end
+  end
+  L5 = 1
+  return L5
+end
+setRangePortForward = L2
+function L2(A0, A1)
+  local L2, L3, L4, L5, L6, L7
+  L2 = _portCheck
+  L3 = tonumber
+  L4 = A0
+  L3, L4, L5, L6, L7 = L3(L4)
+  L2 = L2(L3, L4, L5, L6, L7)
+  if L2 then
+    L2 = require
+    L3 = "luci.model.uci"
+    L2 = L2(L3)
+    L2 = L2.cursor
+    L2 = L2()
+    L3 = string
+    L3 = L3.format
+    L4 = "wan%srdr%s"
+    L5 = tostring
+    L6 = A0
+    L5 = L5(L6)
+    L6 = tostring
+    L7 = A1
+    L6, L7 = L6(L7)
+    L3 = L3(L4, L5, L6, L7)
+    L5 = L2
+    L4 = L2.delete
+    L6 = "firewall"
+    L7 = L3
+    L4(L5, L6, L7)
+    L5 = L2
+    L4 = L2.commit
+    L6 = "firewall"
+    L4(L5, L6)
+    L4 = true
+    return L4
+  end
+  L2 = false
+  return L2
+end
+deletePortForward = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.delete_all
+  L3 = "firewall"
+  L4 = "redirect"
+  function L5(A0)
+    local L1
+    L1 = A0.ftype
+    if L1 then
+      L1 = true
+      return L1
+    else
+      L1 = false
+      return L1
+    end
+  end
+  L1(L2, L3, L4, L5)
+  L2 = L0
+  L1 = L0.commit
+  L3 = "firewall"
+  L1(L2, L3)
+  L1 = true
+  return L1
+end
+deleteAllPortForward = L2
+function L2()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "luci.model.uci"
+  L0 = L0(L1)
+  L0 = L0.cursor
+  L0 = L0()
+  L2 = L0
+  L1 = L0.get
+  L3 = "upnpd"
+  L4 = "config"
+  L5 = "enable_upnp"
+  L1 = L1(L2, L3, L4, L5)
+  L1 = L1 or L1
+  L2 = os
+  L2 = L2.execute
+  L3 = "/etc/init.d/firewall restart"
+  L2(L3)
+  if L1 then
+    L2 = os
+    L2 = L2.execute
+    L3 = _UPVALUE0_
+    L3 = L3.UPNP_DISABLE
+    L2(L3)
+    L2 = os
+    L2 = L2.execute
+    L3 = _UPVALUE0_
+    L3 = L3.UPNP_ENABLE
+    L2(L3)
+  end
+end
+restart = L2

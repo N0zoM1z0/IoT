@@ -1,0 +1,11 @@
+/etc/hosts
+/etc/group
+/etc/passwd
+/etc/profile
+/etc/shells
+/etc/sysctl.conf
+/etc/rc.local
+/etc/sysupgrade.conf
+/etc/config/
+/etc/dropbear/
+/etc/crontabs/

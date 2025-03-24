@@ -1,0 +1,8 @@
+Package: switch
+Version: 1
+Depends: libc, libnl-tiny
+Source: mtk_sdk/mtk-openwrt-lede-4.2.0.0/applications/switch
+Section: MTK Properties
+Architecture: mipsel_24kc
+Installed-Size: 23750
+Description:  An program to config switch.

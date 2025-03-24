@@ -1,0 +1,555 @@
+<script type="text/javascript">
+	(function(){
+		var dom;
+		var resultSsidList = [];
+		var resultPwdList = [];
+
+		var frontRouterSel = new CheckBox({
+			targetId:"frontCheckBox",
+			label:"同步前端路由Wi_Fi名称和密码",
+			onClick:function(){
+				onclickFrontSel(this.checked);
+			},
+			checked:true
+		});
+		
+		var wdsSsidInput = new Input({
+			type: Input.TYPE.PLAIN_TEXT,
+			label: {value:label.wirelessName},
+			targetId: "wdsSsidCon",
+			check: {blur:checkSsidInput},
+			props: {maxlength: '32', type: "text"}
+		});
+
+		var wdsPwdInput = new Input({
+			type: Input.TYPE.CIPHER_TEXT,
+			label: {value:label.wirelessPwd},
+			targetId: "wdsPwdCon",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength: '63', type: "text"}
+		});
+
+		var twoGSsidInput = new Input({
+			type: Input.TYPE.PLAIN_TEXT,
+			label: {value:label.wirelessName2G},
+			targetId: "twoGSsidCon",
+			check: {blur:checkSsidInput},
+			props: {maxlength: '32', type: "text"}
+		});
+
+		var twoGPwdInput = new Input({
+			type: Input.TYPE.CIPHER_TEXT,
+			label: {value:label.wirelessPwd},
+			targetId: "twoGPwdCon",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength: '63', type: "text"}
+		});
+
+		var fiveGSsidInput = new Input({
+			type: Input.TYPE.PLAIN_TEXT,
+			label: {value:label.wirelessName5G},
+			targetId: "fiveGSsidCon",
+			check: {blur:checkSsidInput},
+			props: {maxlength: '32', type: "text"}
+		});
+
+		var fiveGPwdInput = new Input({
+			type: Input.TYPE.CIPHER_TEXT,
+			label: {value:label.wirelessPwd},
+			targetId: "fiveGPwdCon",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength: '63', type: "text"}
+		});
+
+		refreshFrontRouterWifiSet();
+
+		//多频合一开启
+        //多频合一时，local无线设置默认使用2.4G的前端配置；2.4G桥接不成功，才使用5G或5G1、5G4的
+		function refreshFrontRouterWifiSet(){
+			addRouterDisNone();
+			resultSsidList = [];
+			resultPwdList = [];
+			if (slp.bandSteeringProvided && "1" == gLocalAPInfo[FREQ_BS].bs_enable) {
+				var target;
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected && targetSelFreq[freq].status == uciWireless.dynOptValue.status.connected) {
+						target = gRootAPInfo[freq];
+						break;
+					}
+				}
+				$("#router4Con").removeClass("disNone");
+				wdsSsidInput.setValue(target.ssid);
+				wdsPwdInput.setValue(target.encryption == "0" ? "" : target.key);
+				resultSsidList.push(wdsSsidInput);
+				resultPwdList.push(wdsPwdInput);
+			} else {
+				for (var freq in targetSelFreq) {
+					if (targetSelFreq[freq].selected && targetSelFreq[freq].status == uciWireless.dynOptValue.status.connected) {
+						$("#router" + freq + "Con").removeClass("disNone");
+						switch(parseInt(freq)){
+							case FREQ_2G:
+								twoGSsidInput.setValue(gRootAPInfo[freq].ssid);
+								twoGPwdInput.setValue(gRootAPInfo[freq].encryption == "0"? "": gRootAPInfo[freq].key);
+								resultSsidList.push(twoGSsidInput);
+								resultPwdList.push(twoGPwdInput);
+								break;
+							case FREQ_5G:
+								fiveGSsidInput.setValue(gRootAPInfo[freq].ssid);
+								fiveGPwdInput.setValue(gRootAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+								resultSsidList.push(fiveGSsidInput);
+								resultPwdList.push(fiveGPwdInput);
+								break;
+							case FREQ_5G1:
+								fiveG1SsidInput.setValue(gRootAPInfo[freq].ssid);
+								fiveG1PwdInput.setValue(gRootAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+								resultSsidList.push(fiveG1SsidInput);
+								resultPwdList.push(fiveG1PwdInput);
+								break;
+							case FREQ_5G4:
+								fiveG2SsidInput.setValue(gRootAPInfo[freq].ssid);
+								fiveG2PwdInput.setValue(gRootAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+								resultSsidList.push(fiveG2SsidInput);
+								resultPwdList.push(fiveG2PwdInput);
+								break;
+							case FREQ_BS:
+								wdsSsidInput.setValue(gRootAPInfo[freq].ssid);
+								wdsPwdInput.setValue(gRootAPInfo[freq].encryption == "0" ? "" : gRootApInfo[freq].key);
+								resultSsidList.push(wdsSsidInput);
+								resultPwdList.push(wdsPwdInput);
+								break;
+						}
+					}
+				}
+			}
+		}
+		function onclickFrontSel(checked){
+			if(checked){
+				refreshFrontRouterWifiSet();
+			}else{
+				refreshLocalRouterWifiSet();
+			}
+		}
+		function addRouterDisNone(){
+			for(var freq = FREQ_2G; freq <= FREQ_BS; freq++){
+				$("#router" + freq + "Con").addClass("disNone");
+			}
+		}
+		function refreshLocalRouterWifiSet(){
+			addRouterDisNone();
+			resultSsidList = [];
+			resultPwdList = [];
+			var tempLocalAPInfo = [];
+			tempLocalAPInfo[FREQ_2G] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			tempLocalAPInfo[FREQ_5G ] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			tempLocalAPInfo[FREQ_5G1] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			tempLocalAPInfo[FREQ_5G4] = {"ssid":"", "encryption":"", "key":"", "enable":""};
+			tempLocalAPInfo[FREQ_BS] = {"ssid":"", "encryption":"", "key":"", "wifi_enable":"", "bs_enable":""};
+			var args = {"wireless":{"name":["wlan_host_2g","wlan_host_5g"]}};
+			if (slp.bandSteeringProvided)
+			{
+				args.wireless.name.push("wlan_bs");
+			}
+
+			$.query(args, function(data) {
+				$.each(gKeyNames[slp.bandsProvided - 1].wlan_host, function(bands, keyName){
+					if (null != keyName)
+					{
+						tempLocalAPInfo[bands].enable = data.wireless[keyName].enable;
+						tempLocalAPInfo[bands].ssid = data.wireless[keyName].ssid;
+						tempLocalAPInfo[bands].encryption = data.wireless[keyName].encryption;
+						tempLocalAPInfo[bands].key = data.wireless[keyName].key;
+					}
+				});
+				if (slp.bandSteeringProvided)
+				{
+					tempLocalAPInfo[BAND_STEER].wifi_enable = data.wireless.wlan_bs.wifi_enable;
+					tempLocalAPInfo[BAND_STEER].bs_enable = data.wireless.wlan_bs.bs_enable;
+					tempLocalAPInfo[BAND_STEER].ssid = data.wireless.wlan_bs.ssid;
+					tempLocalAPInfo[BAND_STEER].encryption = data.wireless.wlan_bs.encryption;
+					tempLocalAPInfo[BAND_STEER].key = data.wireless.wlan_bs.key;
+				}
+				if (tempLocalAPInfo[BAND_STEER].bs_enable == "1"){
+					$("#router4Con").removeClass("disNone");
+					wdsSsidInput.setValue(tempLocalAPInfo[BAND_STEER].ssid);
+					wdsPwdInput.setValue(tempLocalAPInfo[BAND_STEER].encryption == "0" ? "" : tempLocalAPInfo[BAND_STEER].key);
+					resultSsidList.push(wdsSsidInput);
+					resultPwdList.push(wdsPwdInput);
+				} else {
+					for(var freq = FREQ_2G; freq < FREQ_BS; freq++){
+						if(tempLocalAPInfo[freq].enable == "1") {
+							$("#router" + freq + "Con").removeClass("disNone");
+							switch(parseInt(freq)){
+								case FREQ_2G:
+									twoGSsidInput.setValue(tempLocalAPInfo[freq].ssid);
+									twoGPwdInput.setValue(tempLocalAPInfo[freq].encryption == "0"? "": gRootAPInfo[freq].key);
+									resultSsidList.push(twoGSsidInput);
+									resultPwdList.push(twoGPwdInput);
+									break;
+								case FREQ_5G:
+									fiveGSsidInput.setValue(tempLocalAPInfo[freq].ssid);
+									fiveGPwdInput.setValue(tempLocalAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+									resultSsidList.push(fiveGSsidInput);
+									resultPwdList.push(fiveGPwdInput);
+									break;
+								case FREQ_5G1:
+									fiveG1SsidInput.setValue(tempLocalAPInfo[freq].ssid);
+									fiveG1PwdInput.setValue(tempLocalAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+									resultSsidList.push(fiveG1SsidInput);
+									resultPwdList.push(fiveG1PwdInput);
+									break;
+								case FREQ_5G4:
+									fiveG2SsidInput.setValue(tempLocalAPInfo[freq].ssid);
+									fiveG2PwdInput.setValue(tempLocalAPInfo[freq].encryption == "0" ? "" : gRootAPInfo[freq].key);
+									resultSsidList.push(fiveG2SsidInput);
+									resultPwdList.push(fiveG2PwdInput);
+									break;
+							}
+						}
+					}
+				}
+			});
+		}
+		function onSub(){
+			var checkResult = true;
+
+			resultSsidList.forEach(function(o){
+				checkResult = o.checkAll() && checkResult;
+			})
+			resultPwdList.forEach(function(o){
+				checkResult = o.checkAll() && checkResult;
+			})
+
+			if (!checkResult)
+			{
+				return;
+			}
+
+			var dhcpsArg = {"udhcpd":{"enable":"0", "auto":"1"}};
+			var lanArg = {"lan":{"ipaddr":gLanIP, "netmask":gLanMask,"ip_mode":"dynamic"}};
+			var hostArg = {};
+
+			var wlanHostArg = {};
+
+			for (var i = 0; i < resultSsidList.length; i++) {
+				var hostArg = {};
+				if (resultPwdList[i].getValue() == ""){
+					hostArg.encryption = "0";
+					hostArg.key = "";
+					hostArg.ssid = resultSsidList[i].getValue();
+				} else {
+					hostArg.encryption = "1";
+					hostArg.key = resultPwdList[i].getValue();
+					hostArg.ssid = resultSsidList[i].getValue();
+				}
+				switch (resultSsidList[i]._ops.targetId) {
+					case 'wdsSsidCon':
+						wlanHostArg["wlan_bs"] = hostArg;
+						gLocalAPInfo[FREQ_BS].key = hostArg.key;
+						gLocalAPInfo[FREQ_BS].encryption = hostArg.encryption;
+						gLocalAPInfo[FREQ_BS].ssid = hostArg.ssid;
+						break;
+					case 'twoGSsidCon':
+						wlanHostArg["wlan_host_2g"] = hostArg;
+						gLocalAPInfo[FREQ_2G].key = hostArg.key;
+						gLocalAPInfo[FREQ_2G].encryption = hostArg.encryption;
+						gLocalAPInfo[FREQ_2G].ssid = hostArg.ssid;
+						break;
+					case 'fiveGSsidCon':
+						wlanHostArg["wlan_host_5g"] = hostArg;
+						gLocalAPInfo[FREQ_5G].key = hostArg.key;
+						gLocalAPInfo[FREQ_5G].encryption = hostArg.encryption;
+						gLocalAPInfo[FREQ_5G].ssid = hostArg.ssid;
+						break;
+					case 'fiveG1SsidCon':
+						wlanHostArg["wlan_host_5g_1"] = hostArg;
+						gLocalAPInfo[FREQ_5G1] = hostArg.key;
+						gLocalAPInfo[FREQ_5G1] = hostArg.encryption;
+						gLocalAPInfo[FREQ_5G1] = hostArg.ssid;
+						break;
+					case 'fiveG2SsidCon':
+						wlanHostArg["wlan_host_5g_4"] = hostArg;
+						gLocalAPInfo[FREQ_5G4] = hostArg.key;
+						gLocalAPInfo[FREQ_5G4] = hostArg.encryption;
+						gLocalAPInfo[FREQ_5G4] = hostArg.ssid;
+						break;
+				}
+			}
+			readyToSend();
+			function readyToSend()
+			{
+				var data = {};
+				data.wireless = wlanHostArg;
+				data.network = lanArg;
+				data.dhcpd = dhcpsArg;
+				data.system = {"sys_mode":{"mode": uciSystem.optValue.sysMode.wdsMode}};
+				var dom;
+				if (true == bWirelessLinked)
+				{
+					$("#wdsWRLocalApSsid").hide();
+					if (gRootAPInfo[i] && gRootAPInfo[i]["bs_enable"] == "1") {
+						dom = initStaticTextObj(label.wirelessName, htmlEscape(gRootAPInfo[i].ssid));
+						dom.title = gRootAPInfo[i].ssid;
+						$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+						dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gRootAPInfo[i].key == "" ? label.wirelessNoSecurity : gRootAPInfo[i].key));
+						dom.title = gRootAPInfo[i].key == "" ? "" : gRootAPInfo[i].key;
+						$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+					} else {
+						for (var i = 0; i <= gRootAPInfo.length; i++){
+							if (gRootAPInfo[i] && gRootAPInfo[i].enable == "1") {
+								switch (i){
+									case FREQ_2G:
+										dom = initStaticTextObj("2.4G Wi-Fi名称", htmlEscape(gRootAPInfo[i].ssid));
+										dom.title = gRootAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										dom = initStaticTextObj("2.4G Wi-Fi密码", htmlEscape(gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key));
+										dom.title = gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										break;
+									case FREQ_5G:
+										dom = initStaticTextObj("5G Wi-Fi名称", htmlEscape(gRootAPInfo[i].ssid));
+										dom.title = gRootAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										dom = initStaticTextObj("5G Wi-Fi密码", htmlEscape(gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key));
+										dom.title = gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										break;
+									case FREQ_5G1:
+										dom = initStaticTextObj("5G1 Wi-Fi名称", htmlEscape(gRootAPInfo[i].ssid));
+										dom.title = gRootAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										dom = initStaticTextObj("5G1 Wi-Fi密码", htmlEscape(gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key));
+										dom.title = gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										break;
+									case FREQ_5G4:
+										dom = initStaticTextObj("5G4 Wi-Fi名称", htmlEscape(gRootAPInfo[i].ssid));
+										dom.title = gRootAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										dom = initStaticTextObj("5G4 Wi-Fi密码", htmlEscape(gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key));
+										dom.title = gRootAPInfo[i].encryption == 0 ? "" : gRootAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+										break;
+								}
+							}
+						}
+					}
+					if (gLocalAPInfo[FREQ_BS] && gLocalAPInfo[FREQ_BS]["bs_enable"] == "1") {
+						dom = initStaticTextObj(label.wirelessName, htmlEscape(gLocalAPInfo[FREQ_BS].ssid));
+						dom.title = gLocalAPInfo[FREQ_BS].ssid;
+						$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+						dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gLocalAPInfo[FREQ_BS].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[FREQ_BS].key));
+						dom.title = gLocalAPInfo[FREQ_BS].key == "" ? "" : gLocalAPInfo[FREQ_BS].key;
+						$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+					} else {
+						for (var i = 0; i <= gLocalAPInfo.length; i++) {
+							if (gLocalAPInfo[i] && gLocalAPInfo[i].enable == "1") {
+								switch (i){
+									case FREQ_2G:
+										dom = initStaticTextObj("2.4G Wi-Fi名称", htmlEscape(gLocalAPInfo[i].ssid));
+										dom.title = gLocalAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										dom = initStaticTextObj("2.4G Wi-Fi密码", htmlEscape(gLocalAPInfo[i].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[i].key));
+										dom.title = gLocalAPInfo[i].key == "" ? "" : gLocalAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										break;
+									case FREQ_5G:
+										dom = initStaticTextObj("5G Wi-Fi名称", htmlEscape(gLocalAPInfo[i].ssid));
+										dom.title = gLocalAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										dom = initStaticTextObj("5G Wi-Fi密码", htmlEscape(gLocalAPInfo[i].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[i].key));
+										dom.title = gLocalAPInfo[i].key == "" ? "" : gLocalAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										break;
+									case FREQ_5G1:
+										dom = initStaticTextObj("5G1 Wi-Fi名称", htmlEscape(gLocalAPInfo[i].ssid));
+										dom.title = gLocalAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										dom = initStaticTextObj("5G1 Wi-Fi密码", htmlEscape(gLocalAPInfo[i].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[i].key));
+										dom.title = gLocalAPInfo[i].key == "" ? "" : gLocalAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										break;
+									case FREQ_5G4:
+										dom = initStaticTextObj("5G4 Wi-Fi名称", htmlEscape(gLocalAPInfo[i].ssid));
+										dom.title = gLocalAPInfo[i].ssid;
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										dom = initStaticTextObj("5G4 Wi-Fi密码", htmlEscape(gLocalAPInfo[i].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[i].key));
+										dom.title = gLocalAPInfo[i].key == "" ? "" : gLocalAPInfo[i].key;
+										$(dom).css("margin-bottom", "0px");
+										$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+										break;
+								}
+							}
+						}
+					}
+					dom = initStaticTextObj(label.lanIPAddr, gLanIP);
+					$(dom).css("margin-bottom", "0px");
+					$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+					$.modify(data, function(result){
+						wirelessLinkTipsDialog.show();
+					});
+				}
+				else
+				{
+					loadingDialog.show({
+						title: label.savingConfig,
+						content:{primary:label.savingAndWait}
+					});
+					$.modify(data, function(result){
+						$.action({"network":{"apply_lan_config":null},"wireless":{"wds_finish":null}}, null, true, true);
+						var jumpPageHd = $.setTimeout(function(){
+							window.location.href = "http://" + gLanIP;
+						}, 60000);
+						if (true == isLanIpChanged){
+							$.changeDomain(gLanIP);
+							$.setTimeout(function(){
+								lanDetecting(function() {
+									window.location.href = "http://" + gLanIP;
+								});
+							}, 4000);
+						}
+						else
+						{
+							$.setTimeout(function() {
+								lanDetecting(function() {
+									clearTimeout(jumpPageHd);
+									loadingDialog.hide(function(){
+										menuLoad("WanLoader.htm");
+									})
+								});
+							}, 4000);
+						}
+					});
+				}
+			}
+		}
+
+		var wdsBtnBack = new Button({
+			text: btn.preStep,
+			onClick: function(){
+				stepPage(firstPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"wdsBtnBack",
+			props:{width:"120px"}
+		});
+
+		var wdsBtnNext = new Button({
+			text:btn.finish,
+			onClick:onSub,
+			type:Button.TYPE.PRIMARY,
+			id:"wdsBtnNext",
+			props:{width:"240px"}
+		});
+
+		var wirelessLinkTipsDialog = new Dialog({
+			hasTitle: false,
+			content: "<div id='wirelessLinkTipsCon'></div>",
+			size: Dialog.SIZE.LARGE,
+			type: Dialog.TYPE.CUSTOM,
+			renderCallBack: function(){
+				var self = this;
+				loadDialogRenderPage(wirelessResultPage, "wirelessLinkTipsCon", function(){
+					$(".wdsWirelessResultText .desc").html("中继成功，请重新连接Wi-Fi：");
+					self.connetcAndRetry = new Button({
+						text:btn.iAmConnectRouter,
+						onClick:function(){
+							$.action({"network":{"apply_lan_config":null}}, null, true, true);
+							if (true == isLanIpChanged){
+								$.changeDomain(gLanIP);
+								window.location.href = "http://" + gLanIP;
+							}
+							else
+							{
+								wirelessLinkTipsDialog.hide(function(){
+									menuLoad("WanLoader.htm");
+								});
+							}
+						},
+						type:Button.TYPE.PRIMARY,
+						id:"connetcAndRetry",
+						props:{width:"280px", display:"block", margin:"24px auto 0px"}
+					});
+
+					var rootApConScroll = new NiceScroll({targetId:"wdsRootAp", zIndex:1006});
+					rootApConScroll.scrollTipOpacity(1);
+					rootApConScroll.init();
+
+					var localApConScroll = new NiceScroll({targetId:"wdsLocalAp", zIndex:1006});
+					localApConScroll.scrollTipOpacity(1);
+					localApConScroll.init();
+				});
+			}
+		});
+
+		isLanIpChanged = (gLanIP != gOldLanIP);
+	})();
+</script>
+<style type="text/css">
+	#wirelessLinkTipsCon{
+		padding: 40px 136px 40px;
+	}
+	#setCurRouterInfo{
+		font-size: 13px;
+		color: #666666;
+		line-height: 20px;
+		font-weight: 400;
+	}
+	#frontCheckBox{
+		margin-top: 26px;
+    	margin-bottom: 18px;
+	}
+	#frontCheckBox span{
+		font-size: 13px;
+		color: #333333;
+		line-height: 15px;
+		font-weight: bold;
+	}
+</style>
+<div class="subTitle">
+	<h2>设置本路由</h2>
+</div>
+<label id="setCurRouterInfo">请设置本路由器的Wi-Fi名称和密码（推荐与前端路由保持一致，实现无缝漫游）</label>
+<div id="frontCheckBox"></div>
+<div id="router4Con" class="disNone">
+	<div id="wdsSsidCon" class="wdsSsidPwdInput"></div>
+	<div id="wdsPwdCon" class="wdsSsidPwdInput passwordCon"></div>
+</div>
+<div id="router0Con" class="disNone">
+	<div class="subTitle">
+		<h2>2.4G Wi-Fi</h2>
+	</div>
+	<div id="twoGSsidCon" class="wdsSsidPwdInput"></div>
+	<div id="twoGPwdCon" class="wdsSsidPwdInput passwordCon"></div>
+</div>
+<div id="router1Con" class="disNone">
+	<div class="subTitle">
+		<h2>5G Wi-Fi</h2>
+	</div>
+	<div id="fiveGSsidCon" class="wdsSsidPwdInput"></div>
+	<div id="fiveGPwdCon" class="wdsSsidPwdInput passwordCon"></div>
+</div>
+<div id="router2Con" class="disNone">
+	<div class="subTitle">
+		<h2>5G1 Wi-Fi</h2>
+	</div>
+	<div id="fiveG1SsidCon" class="wdsSsidPwdInput"></div>
+	<div id="fiveG1PwdCon" class="wdsSsidPwdInput passwordCon"></div>
+</div>
+<div id="router3Con" class="disNone">
+	<div class="subTitle">
+		<h2>5G2 Wi-Fi</h2>
+	</div>
+	<div id="fiveG2SsidCon" class="wdsSsidPwdInput"></div>
+	<div id="fiveG2PwdCon" class="wdsSsidPwdInput passwordCon"></div>
+</div>
+<div class="wdsScanStepBtn">
+	<div id="wdsBtnBack"></div>
+	<div id="wdsBtnNext"></div>
+</div>

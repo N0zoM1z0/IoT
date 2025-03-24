@@ -1,0 +1,313 @@
+<style type="text/css">
+</style>
+<script type="text/javascript">
+	(function(){
+		var staRouteArr = [];
+		var sysRouteArr = [];
+		var refreshSysRouteType = "normal";
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EINVMASK:
+				showStr = errStr.maskErr;
+				break;
+			case EINVIPMASKPAIR:
+				showStr = errStr.stcIpMaskNotMatch;
+				break;
+			case ENETMASKNOTMATCH:
+				showStr = errStr.networkMaskNotMatch;
+				break;
+			case ENETLANSAME:
+				showStr = errStr.networkLanSame;
+				break;
+			case ENETWANSAME:
+				showStr = errStr.networkWanSame;
+				break;
+			case EINVGTW:
+				showStr = errStr.gatewayErr;
+				break;
+			case EGTWUNREACH:
+				showStr = errStr.gatewayUnreachErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EENTRYEXIST:
+				showStr = errStr.entryExistErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.entryConflicErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case EINVINSTRUCT:
+				showStr = errStr.instructErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function staRouteReqCallback(result, asynFunc, taostStr)
+		{
+
+			if (errHandle(result[ERR_CODE]))
+			{
+				showToast(taostStr);
+				asynFunc(true);
+
+				/* REFRESH STATIC ROUTE */
+				refreshStaRoute();
+			}
+
+			/* REFRESH SYSTEM ROUTE*/
+			refreshSysRoute();
+		}
+
+		function routeStaticSave(mode, resultObj, index, asynFunc)
+		{
+			var targetVal = resultObj.target;
+			var netmaskVal = resultObj.netmask;
+			var gatewayVal = resultObj.gateway;
+
+			/* CHECK IF TARGET-IP IS ON THE SAME NETWOWK WITH NETMASK */
+			var errNo = checkNetworkMask(targetVal, netmaskVal);
+			if (!errHandle(errNo))
+			{
+				return asynFunc(false);
+			}
+
+			var reqData = {}
+
+			/* DELETE FIRST AND ADD LATER WHEN EDIT ROUTE-TABLE */
+			if ("add" == mode)
+			{
+				var para = {};
+				reqData[uciNetwork.fileName] = {};
+				reqData[uciNetwork.fileName][KEY_NAME] = uciNetwork.secType.user_route + "_" + calcNextIndex(staRouteArr);
+				reqData[uciNetwork.fileName][KEY_TABLE] = uciNetwork.secType.user_route;
+				reqData[uciNetwork.fileName][KEY_PARA] = para;
+
+				para[uciNetwork.optName.target] = targetVal;
+				para[uciNetwork.optName.netmask] = netmaskVal;
+				para[uciNetwork.optName.gateway] = gatewayVal;
+
+				$.add(reqData, function(result){
+					/* TODO: showToast */
+					staRouteReqCallback(result, asynFunc, label.addSuccess);
+				});
+			}
+			else
+			{
+				var secPara = {};
+				var secname = staRouteArr[index][SEC_NAME];
+
+				reqData[uciNetwork.fileName] = {};
+				reqData[uciNetwork.fileName][secname] = secPara;
+				secPara[uciNetwork.optName.target] = targetVal;
+				secPara[uciNetwork.optName.netmask] = netmaskVal;
+				secPara[uciNetwork.optName.gateway] = gatewayVal;
+
+				$.modify(reqData, function(result){
+					/* TODO: showToast */
+					staRouteReqCallback(result, asynFunc, label.saveSuccess);
+				});
+			}
+
+			return true;
+		}
+
+		function routeStaticDel(index, asynFunc)
+		{
+			var indexList = index.split("-");
+			var delNames = [];
+
+			for (var index in indexList)
+			{
+				if (!indexList.hasOwnProperty(index)){
+					continue;
+				}
+				var key = indexList[index];
+
+				/* DISPOSE THE NULL-OBJECT WHICH CREATED BY DELETE */
+				if (staRouteArr[key] == null)
+				{
+					continue;
+				}
+
+				var secName = staRouteArr[key][SEC_NAME];
+				delNames[index] = secName;
+			}
+
+			var reqData = {};
+			reqData[uciNetwork.fileName] = {};
+			reqData[uciNetwork.fileName][KEY_NAME] = delNames;
+
+			$.del(reqData, function(result){
+				/* TODO: showToast */
+				staRouteReqCallback(result, asynFunc, label.deleteSuccess);
+			});
+
+			return true;
+		}
+
+		/* REFRESH STATIC ROUTE TABLE */
+		function refreshStaRoute()
+		{
+			staRouteArr = getStaticRouteData();
+			staticRouteTab.setDataSource(staRouteArr);
+			staticRouteTab.loadData();
+			$("#staRouteCount").html(staRouteArr.length);
+		}
+
+		/* REQUEST THE STATIC ROUTE DATA */
+		function getStaticRouteData()
+		{
+			function handleResult(data)
+			{
+				if (data[ERR_CODE] == ENONE) {
+					var routeArray = data[uciNetwork.fileName][uciNetwork.secType.user_route];
+					return formatTableData(routeArray);
+				}
+
+				return [];
+			}
+
+			var reqData = {};
+			reqData[uciNetwork.fileName] = {};
+			reqData[uciNetwork.fileName][KEY_TABLE] = uciNetwork.secType.user_route;
+
+			var dataArray = $.query(reqData, handleResult, false);
+			return dataArray;
+		}
+
+		/* REFRESH SYSTEM ROUTE TABLE */
+		function refreshSysRoute()
+		{
+			sysRouteArr = getSystemRouteData();
+			systemRouteTab.setDataSource(sysRouteArr);
+			systemRouteTab.loadData();
+			$("#sysRouteCount").html(sysRouteArr.length);
+
+			if (refreshSysRouteType == "refresh")
+			{
+				showToast(label.refreshSuccess);
+			}
+
+			refreshSysRouteType = "normal";
+		}
+
+		/* REQUEST THE SYSTEM ROUTE DATA */
+		function getSystemRouteData()
+		{
+			function handleResult(data)
+			{
+				if (data[ERR_CODE] == ENONE) {
+					var routeArray = data[uciNetwork.fileName][uciNetwork.secType.sys_route];
+					return formatTableData(routeArray);
+				}
+
+				return [];
+			}
+
+			var reqData = {};
+			reqData[uciNetwork.fileName] = {};
+			reqData[uciNetwork.fileName][KEY_TABLE] = uciNetwork.secType.sys_route;
+
+			var dataArray = $.query(reqData, handleResult, false);
+			return dataArray;
+		}
+
+		var routeTabCon = new Tab({
+			list: [{
+				name: label.routeStcList + label.lBrackets + "<span id='staRouteCount'>0</span>" + label.rBrackets,
+				contentId : "staticRouteTab"
+			},{
+				name: label.routeSysList + label.lBrackets + "<span id='sysRouteCount'>0</span>" + label.rBrackets,
+				contentId : "systemRouteTab"
+			}],
+			targetId: "routeTabCon"
+		});
+
+		var staticRouteTab = new Table({
+			targetId:'staticRouteTab',
+			head:[
+				{field:label.targetAddr, width:"0.33"},
+				{field:label.mask, width:"0.33"},
+				{field:label.nextStepAddr, width:"0.34"}
+			],
+			column:[
+				{name:uciNetwork.optName.target, type:"ip"},
+				{name:uciNetwork.optName.netmask, type:"mask"},
+				{name:uciNetwork.optName.gateway, type:"gateway"}
+			],
+			clickList:{
+				"click_save": {func:routeStaticSave, asyn: true},
+				"click_del_item": {func:routeStaticDel, asyn: true}
+			},
+			max:STATIC_ROUTE_RULE_MAX
+		});
+
+		var systemRouteTab = new Table({
+			targetId:'systemRouteTab',
+			hasCheckBox: false,
+			editable: false,
+			deletable: false,
+			addable: false,
+			head:[
+				{field:label.targetAddr, width:"0.27"},
+				{field:label.mask, width:"0.27"},
+				{field:label.nextStepAddr, width:"0.27"},
+				{field:label.ifName, width:"0.19"}
+			],
+			column:[
+				{name:uciNetwork.optName.target},
+				{name:uciNetwork.optName.netmask},
+				{name:uciNetwork.optName.gateway},
+				{name:uciNetwork.optName.iface}
+			],
+			tableOption:[
+				{icon: "icon-refresh", str: btn.refresh, selRelate: false, type:"refresh", func:function(){
+					refreshSysRouteType = "refresh";
+					refreshSysRoute();
+				}}
+			]
+		});
+
+		refreshStaRoute();
+		refreshSysRoute();
+	})();
+</script>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.router%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="routeTableHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.routeDescription%}</p>
+</div>
+<div id="routeTabCon"></div>
+<div id="staticRouteTab"></div>
+<div id="systemRouteTab"></div>

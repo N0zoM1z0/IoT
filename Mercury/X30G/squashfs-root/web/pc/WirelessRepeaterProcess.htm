@@ -1,0 +1,186 @@
+<script type="text/javascript">
+	var firstPage = "WirelessRepeaterFirst.htm";
+	var secondPage = "WirelessRepeaterSecond.htm";
+
+	function wdsSetLanIp(){
+		var data = {"network":{"lan":{"ipaddr": gLanIP, "netmask": gLanMask, "ip_mode":"dynamic"}}};
+
+		$.modify(data, function(ret){
+			$.action({"network":{"apply_lan_config":null}}, function(result){
+				loadingDialog.hide(function(){
+					loadingDialog.show({
+						title:label.bridgingRootAP,
+						content:{primary:label.linkSuccStr1 + gLanIP + label.linkSuccStr2}
+					});
+
+					$.changeDomain(gLanIP);
+
+					$.setTimeout(function() {
+						window.location.href = "http://" + gLanIP;
+					}, 60000);
+
+					$.setTimeout(function() {
+						lanDetecting(function() {
+							window.location.href = "http://" + gLanIP;
+						});
+					}, 4000);
+				});
+			});
+		});
+	}
+
+	function lanIpModeHandle(callback){
+		if ("manual" == gLanIPMode) {
+			confirmDialog.show({
+				title: menuStr.wifiWDS,
+				content:label.lanIPMode,
+				callback:function(result){
+					if (true == result) {
+						gLanIPMode = "dynamic";
+						$.modify({"network":{"lan":{"ip_mode":"dynamic"}}}, null, true);
+						callback();
+					}
+				}
+			});
+		}
+		else {
+			callback();
+		}
+	}
+
+	function initStaticTextObj(name, value)
+	{
+		var dom = $(
+			'<ul class="inputCMPT medium wdsTextState">'						+
+				'<label class="outerLbl">' + name + '</label>'	+
+				'<li class="input static">'						+
+					'<span>' + value + '</span>'				+
+				'</li>'											+
+			'</ul>'
+		);
+
+		return dom[0];
+	}
+
+	(function(){
+		if (typeof directSecondPage != "undefined" && directSecondPage){
+			stepPage(secondPage);
+		} else {
+			stepPage(firstPage);
+		}
+	})();
+</script>
+<style type="text/css">
+	div.head.wdsStep{
+		border-bottom-width: 0px;
+	}
+	div.head ul.stepTab{
+		display: none;
+	}
+	div.head.wdsStep ul.stepTab{
+		display: block;
+	}
+	ul.stepTab{
+		height:40px;
+		width:auto;
+		border-bottom:2px solid #E6E6E6;
+		box-sizing: border-box;
+		position: relative;
+	}
+	ul.stepTab li.step{
+		display: inline-block;
+		height: 40px;
+		width: 160px;
+		line-height: 40px;
+		vertical-align: middle;
+		/*border-bottom:2px solid #FF4C79;*/
+	}
+	ul.stepTab li.step i.stepNum{
+		display: inline-block;
+		width:16px;
+		height:16px;
+		border-radius: 9px;
+		background-color: #CCCCCC;
+		vertical-align: middle;
+		line-height: 16px;
+		text-align: center;
+		font-style: normal;
+		font-size: 12px;
+		color: #FAFAFA;
+		margin-right:6px;
+	}
+	ul.stepTab li.step span{
+		vertical-align: middle;
+		line-height: 40px;
+		font-size: 14px;
+		color: #666666;
+	}
+	ul.stepTab li.step.active span{
+		color: #000;
+		font-weight: bold;
+	}
+	#WDSCon{
+		position:relative;
+	}
+	div.wdsScanStepBtn{
+		text-align: right;
+		margin-top: 48px;
+	}
+	div.wdsBasicInfo{
+		padding: 23px;
+		border: 1px solid #E0E0E0;
+	}
+	i.wdsBasicInfoPic{
+		width:80px;
+		height:80px;
+		display: inline-block;
+		margin-right: 24px;
+		vertical-align: top;
+	}
+	div.wdsBasicInfoContent{
+		display: inline-block;
+		vertical-align: top;
+	}
+	div.wdsBasicInfoContent ul.medium.wdsTextState, div.wdsBasicInfoContent div.wdsTextState ul{
+		margin-bottom:4px;
+	}
+	div.wdsBasicInfoContent ul label{
+		vertical-align: top !important;
+	}
+	div.wdsBasicInfoContent ul li{
+		vertical-align: top !important;
+	}
+	div.wdsBasicInfoContent ul li span{
+		line-height: 32px;
+		min-height: 32px;
+		color: #666666;
+		font-size: 13px;
+		display: block;
+		width: 470px;
+		word-break: break-all;
+	}
+	i.wdsRootAp{
+		background:url(../web-static/images/wds_bridge.png) no-repeat scroll;
+	}
+	i.wdsLocalAp{
+		background:url(../web-static/images/wds_router.png) no-repeat scroll;
+	}
+	#switchCon{
+		display: none;
+	}
+	p#highsetTitleError{
+		margin: 16px 0;
+	}
+</style>
+<div class="head wdsStep">
+	<div class="title">
+		<h1>{%label.wirelessRepeater%}</h1>
+	</div>
+	<ul class="stepTab">
+		<li class="underline"></li>
+		<li class="step"><i class="stepNum">1</i><span>{%btn.selectFrontRouter%}</span></li>
+		<li class="step"><i class="stepNum">2</i><span>{%label.wdsSettingLocal%}</span></li>
+	</ul>
+</div>
+<div id="WDSCon"></div>
+<div class="tipText contentTips"></div>

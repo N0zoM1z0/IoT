@@ -1,0 +1,10 @@
+Package: iptables-addons
+Version: 1
+Depends: libc, iptables
+Source: package/carystudio/iptables-addons
+SourceName: iptables-addons
+Section: CaryStudio Properties
+SourceDateEpoch: 1657536839
+Architecture: aarch64_cortex-a53
+Installed-Size: 3435
+Description:  extra iptables modules lib

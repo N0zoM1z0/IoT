@@ -1,0 +1,41 @@
+
+
+<div id="head" class="head">
+	<div class="title">
+		<h1>{%menuStr.iptvPort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.iptvDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+	<p class="meshIptvDisable disNone">{%label.meshIptvDisable%}</p>
+	<ul class="stepTab" id="iptvStepTab">
+		<li class="underline"></li>
+		<li class="step"><i class="stepNum">1</i><span>{%label.iptvConnectMode%}</span></li>
+		<li class="step"><i class="stepNum">2</i><span>{%label.iptvPortChoose%}</span></li>
+		<li class="step" id="iptvModeChoose"><i class="stepNum">3</i><span>{%label.iptvModeChoose%}</span></li>
+	</ul>
+</div>
+<div id="subHead">
+	<div class="subTitle">
+		<h2>{%label.iptvPort%}</h2>
+		<div id="subSwitchCon" class="switchCon">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+</div>
+<div id="iptvContent">
+</div><script type="text/javascript">(function(){function h(a){var b={},d=this,e;b[uciPortConfig.fileName]={};b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)]={};b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable]=1==a?uciPortConfig.optValue.enable.on:uciPortConfig.optValue.enable.off;loadingDialog.show({title:label.iptvPort,content:{primary:label.wanSettingWait}});1==a?(e=k())?(e={},e[uciPortConfig.fileName]={},e[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.iptv,$.query(e,function(a){a[ERR_CODE]==ENONE&&
+(a=a[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)],-1!=a[uciPortConfig.optName.downlinkPhy]?(b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)]={},b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.on,b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.uplinkPhy]=a[uciPortConfig.optName.uplinkPhy],b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy]=a[uciPortConfig.optName.downlinkPhy],
+b[uciPortConfig.fileName]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev]=a[uciPortConfig.optName.downlinkDev],$.modify(b,function(a){loadingDialog.hide(function(){var b=a[ERR_CODE];b==ENONE?(showToast(label.iptvOpened),c.css("display","none"),stepPage(iptvEndPage)):b==EINVCLOUDCLIENTDOWNLOADESTABLISHTCP?alarmDialog.show({content:errStr.portOccupiedErr,callback:function(){c.css("display","block");stepPage(iptvFirstPage)}}):errHandle(b);f.css("display","block")})})):loadingDialog.hide(function(){c.css("display",
+"block");stepPage(iptvFirstPage);f.css("display","block")}))})):loadingDialog.hide(function(){d.setState(1-a);alarmDialog.show(errStr.portNumLessErr)}):$.modify(b,function(b){c.css("display","none");f.css("display","none");loadingDialog.hide(function(){showToast(label.iptvClosed)})})}function k(){var a={},b;a[uciPortConfig.fileName]={};a[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo;$.query(a,function(a){var c=a[ERR_CODE];c==ENONE?b=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo].some(function(a){return-1!=
+a[uciPortConfig.dynOptName.subFunc].indexOf("iptv")?a[uciPortConfig.dynOptName.phyInfo].some(function(a){return"lan"==a[uciPortConfig.dynOptName.role]||a[uciPortConfig.dynOptName.role]=="uplink"+(wanIdx+1)||a[uciPortConfig.dynOptName.role]=="downlink"+(wanIdx+1)}):!1}):errHandle(c)},!1);return b}function l(){var a={};a[uciPortConfig.fileName]={};a[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.iptv;$.query(a,function(a){var d;d=a[ERR_CODE];d==ENONE?(d=a[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+
+(wanIdx+1)][uciPortConfig.optName.enable],a=a[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkPhy],d==uciPortConfig.optValue.enable.on?(g.setState(!0),-1!=a?(c.css("display","none"),stepPage(iptvEndPage)):(c.css("display","block"),stepPage(iptvFirstPage))):(g.setState(d),c.css("display","none"),f.css("display","none"))):errHandle(d)})}var g,f=$("#iptvContent"),c;isMultiWan?($("#head").css("display","none"),c=$("#subIptvStepTab"),g=new Switch("subSwitchCon",
+0,h,!1)):($("#subHead").css("display","none"),c=$("#iptvStepTab"),g=new Switch("switchCon",0,h,!1));c.css("display","none");curSysMode!=uciSystem.optValue.sysMode.routerMode||"0"==curDhcpdStatus?($(".relayErrorTip").show(),$("#switchCon").hide(),curSysMode==AP_MODE?$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用IPTV口功能。"):curSysMode==WDS_MODE?$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用IPTV口功能。"):$("#relayTipText").text("DHCP服务器关闭时，无法使用IPTV口功能。")):l()})();
+</script><style type="text/css">ul.stepTab{height:40px;width:auto;border-bottom:2px solid #e6e6e6;box-sizing:border-box;position:relative}ul.stepTab li.step{display:inline-block;height:40px;width:160px;line-height:40px;vertical-align:middle}ul.stepTab li.step i.stepNum{display:inline-block;width:16px;height:16px;border-radius:9px;background-color:#ccc;vertical-align:middle;line-height:16px;text-align:center;font-style:normal;font-size:12px;color:#fafafa;margin-right:6px}ul.stepTab li.step span{vertical-align:middle;line-height:40px;font-size:14px;color:#666}ul.stepTab li.step.active span{color:#000;font-weight:bold}ul.stepTab li.underline{position:absolute;height:2px;bottom:-2px;background:#ff4d79;cursor:default;-webkit-transition:all .3s ease-in-out;-moz-transition:all .3s ease-in-out;-o-transition:all .3s ease-in-out;transition:all .3s ease-in-out}.meshIptvDisable{line-height:20px;padding-top:6px;padding-bottom:16px;font-size:13px;color:#f36}</style>

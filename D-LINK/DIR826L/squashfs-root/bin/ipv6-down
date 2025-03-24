@@ -1,0 +1,6 @@
+#!/bin/sh
+INTERFACE=$1
+DEV=$2
+echo "ip-down"
+app_sync 1045 0 "act=pppv6stop" "iface=$INTERFACE" "REASON=$3" 
+

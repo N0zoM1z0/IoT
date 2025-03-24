@@ -1,0 +1,146 @@
+<script>
+//js for r3g store
+(function(){
+    var url = {
+        //磁盘基本信息,分类信息
+        'datacenter': '<%=luci.dispatcher.build_url("api", "xqdatacenter","request")%>'
+    };
+    // 磁盘空间信息
+    var getDiskData = function(){
+        $.ajax({
+             type: "post",
+             url: url.datacenter,
+             data: {payload:'{"api":26, "needDetail": true}'},
+             datatype: 'json',
+             success: function( rsp ){
+                rsp = $.parseJSON(rsp);
+                if (rsp.code === 0) {
+                    // 不为0表示有外接磁盘
+                    if (rsp.capacity != 0) {
+                        var $el2 = $('.nav-disk-2');
+                        $el2.find('.disk-used').text(byteFormat(parseInt( (rsp.capacity - rsp.available ),10)));
+                        $el2.find('.disk-all').text(byteFormat(parseInt(rsp.capacity, 10)));
+                        $el2.find('.bar-area .b1').css({
+                            width: ( rsp.capacity - rsp.available ) / rsp.capacity * 100 + '%'
+                        });
+
+                        $('.nav-disk-1').hide();
+                        $el2.show().addClass('active');
+                        $('#extDiskUsed').removeClass('isIndexingimg');
+                        $('#extDiskIndexinghdLi').hide();
+                    }
+                }
+             }
+        });
+    };
+
+    var switchbtn = $('#usb3switch');
+    var apiOpt = '<%=luci.dispatcher.build_url("api", "misystem", "usb_u3")%>';
+    var apiOpt1 = '<%=luci.dispatcher.build_url("api", "misystem", "usb_u2")%>';
+    var apiGet = '<%=luci.dispatcher.build_url("api", "misystem", "get_usb_u3")%>';
+    var apiGet1 = '<%=luci.dispatcher.build_url("api", "misystem", "get_usb_u2")%>';
+    var delUsb = $('#delUsb')
+    var request = '<%=luci.dispatcher.build_url("api", "xqdatacenter","request")%>'
+
+    function getInfo(){
+        $.get(apiGet, function(rsp){
+            rsp = $.parseJSON(rsp);
+            if (rsp.code === 0 ) {
+                if (rsp.enable == 1) {
+                    switchbtn[0].className = 'btn-switch btn-switch-on';
+                } else {
+                    switchbtn[0].className = 'btn-switch btn-switch-off';
+                }
+            }
+        });
+    }
+
+    function getInfo1(){
+        $.get(apiGet1, function(rsp){
+            rsp = $.parseJSON(rsp);
+            if (rsp.code === 0 ) {
+                if (rsp.enable == 0) {
+                    switchbtn[0].className = 'btn-switch btn-switch-on';
+                } else {
+                    switchbtn[0].className = 'btn-switch btn-switch-off';
+                }
+            }
+        });
+    }
+
+    // switchbtn.on('click', function(e){
+    //     e.preventDefault();
+    //     var open = 1;
+    //     if($(this).hasClass('btn-switch-on')){
+    //         open = 0;
+    //     }
+    //     // $.pub('loading:start');
+    //     $.post(apiOpt, {enable:open}, function(rsp){
+    //         rsp = $.parseJSON(rsp)
+    //         if (rsp.code === 0) {
+    //             getInfo();
+    //             // $.pub('loading:stop');
+    //         }
+    //     });
+    // });
+
+    switchbtn.on('click', function(e){
+        e.preventDefault();
+        var open = 0;
+        if($(this).hasClass('btn-switch-on')){
+            open = 1;
+        }
+        getDiskData();
+        $.dialog({
+            width: 390,
+            title : "<%:提示%>",
+            content : '<%:此操作需要重启才能生效，是否提交?%>',
+            ok: function(){
+                $.post(apiOpt1, {enable:open}, function(rsp){
+                    rsp = $.parseJSON(rsp)
+                    if (rsp.code === 0) {
+                        getInfo1();
+                    }
+                });
+            },
+            cancel: function () {}
+        }).lock();
+    });
+
+    delUsb.on('click',function(e){
+        e.preventDefault();
+        $.post(request, {payload:'{"api":1}'} , function(rsp){
+            rsp = $.parseJSON(rsp)
+            if (rsp.code === 0) {
+                if(rsp.exist == 1){//已插入硬盘
+                    getDiskData();
+                    $.dialog({
+                        width: 390,
+                        title : "<%:提示%>",
+                        content : '<%:是否确认移除？%>',
+                        ok: function(){
+                            $.post(request, {payload:'{"api":78, "path":"/extdisks/sdb1"}'} , function(rsp){
+                                rsp = $.parseJSON(rsp)
+                                if (rsp.code === 0) {
+                                    $.alert('<%:移除成功%>',function(){window.location.reload()})
+                                }else{
+                                    $.alert('<%:移除失败%>',function(){window.location.reload()})
+                                }
+                            });
+                        },
+                        cancel: function () {}
+                    }).lock();
+                }else{
+                    $.alert('<%:移除失败%>',function(){window.location.reload()})
+                }
+            }else{
+                $.alert('<%:移除失败%>',function(){window.location.reload()})
+            }
+        });
+    })
+
+    //getInfo();
+    getInfo1();
+    getDiskData();
+}());
+</script>

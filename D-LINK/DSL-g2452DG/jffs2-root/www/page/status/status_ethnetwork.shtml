@@ -1,0 +1,138 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+
+function ConnectionTuple()
+{
+	this.Type = "";
+	this.Path = "";
+	this.pktreceived = "";
+	this.bytereceived = "";
+	this.pktsend = "";
+	this.bytesend = "";
+	this.Name = "";
+}
+
+var m=0;
+var G_WanStatus = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice.2.WANEthernetInterfaceConfig. Enable Status X_TRI-BitRate X_TRI-DuplexMode Stats.PacketsReceived Stats.PacketsSent Stats.BytesReceived Stats.BytesSent" -->
+		G_WanStatus[m] = new ConnectionTuple();
+    G_WanStatus[m].Enable = "<!--#leaf "1"-->";
+    G_WanStatus[m].Status = "<!--#leaf "2"-->";
+	  G_WanStatus[m].Speed = "<!--#leaf "3"-->";
+	  G_WanStatus[m].Duplex = "<!--#leaf "4"-->";
+		G_WanStatus[m].PacketsReceived = "<!--#leaf "5"-->";
+		G_WanStatus[m].PacketsSent = "<!--#leaf "6"-->";
+		G_WanStatus[m].BytesReceived = "<!--#leaf "7"-->";
+		G_WanStatus[m].BytesSent = "<!--#leaf "8"-->";
+<!--#endgetobject -->
+
+function strGetStatus(val){
+	switch(val){
+        case "NoLink" : 
+            return getStr("LK_Down");
+        case "Up" : 
+            return getStr("LK_Up");
+    }
+    
+    return getStr("LK_Down");
+}
+
+function strGetSpeed(val){
+    switch(val){
+        case "10" : 
+            return getStr("LK_10MBS");
+        case "100" : 
+            return getStr("LK_100MBS");
+        case "1000" :
+            return getStr("LK_1000MBS");
+    }
+    
+    return getStr("LK_10MBS");
+}
+
+function strGetDuplex(val){
+    switch(val){
+        case "Half" : 
+            return getStr("LK_HalfDuplex");
+        case "Full" : 
+            return getStr("LK_FullDuplex");
+    }
+    
+    return getStr("LK_HalfDuplex");
+}
+
+function onCreatTable()
+{
+  var trs = "";
+	for(i=0;i<G_WanStatus.length;i++){
+	    if (G_WanStatus[i].Enable == 0)
+	    	continue;
+		
+    if(i%2 == 0)
+			trs += '<tr class="OddRowB">';
+		else
+			trs += '<tr class="EvenRowB">';
+		trs += "<td>"+strGetStatus(G_WanStatus[i].Status)+"</td>";    
+		switch(G_WanStatus[i].Status){
+			case "Up":
+				trs += "<td>"+strGetSpeed(G_WanStatus[i].Speed)+"</td>"; 
+				trs += "<td>"+strGetDuplex(G_WanStatus[i].Duplex)+"</td>"; 
+				break;
+			default:
+				trs += "<td>"+"-"+"</td>"; 
+				trs += "<td>"+"-"+"</td>"; 
+				break;
+		}
+		trs += "<td>"+G_WanStatus[i].BytesReceived+"</td>";
+		trs += "<td>"+G_WanStatus[i].PacketsReceived+"</td>";		
+		trs += "<td>"+G_WanStatus[i].BytesSent+"</td>";
+		trs += "<td>"+G_WanStatus[i].PacketsSent+"</td>";            
+	}
+	jQuery("#td_table").append(trs);
+}
+function __init()
+{
+    onCreatTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>        
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StatisticsWan'))</script>
+<form method="get"> 
+<table class="ContentBorder" id="td_table" cellpadding="0" cellspacing="0" width="600">
+<tr class="TitleRow">
+	<td rowspan="2" langkey="LK_StatusM"></td>
+	<td rowspan="2" langkey="LK_Speed"></td>
+	<td rowspan="2" langkey="LK_Duplex"></td>
+	<td align="center" colspan="2" langkey="LK_Received"></td>
+	<td align="center" colspan="2" langkey="LK_Transmitted"></td>
+</tr>
+<tr class="TitleRow">
+	<td langkey="LK_Bytes"></td>
+	<td langkey="LK_Packets"></td>
+	<td langkey="LK_Bytes"></td>
+	<td langkey="LK_Packets"></td>
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();")</script>
+</td></tr></table>
+<script>printEndContent();</script>
+</form>
+</body>
+</html>

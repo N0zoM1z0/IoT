@@ -1,0 +1,117 @@
+#!/bin/sh /etc/rc.common
+#just for start hostapd
+
+# Before dms(30)
+START=29
+
+module_path=/lib/modules/*
+
+slp_check_calculate_data_2G(){
+	CALTAG_FILE_PATH="/tmp/calTag_2g"
+	CALTAG_OFFSET=8177
+	local CAL_TAG=nil
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag file
+	if [ ! -f "${CALTAG_FILE_PATH}" ]; then
+		dd if=/dev/mtdblock2 of=${CALTAG_FILE_PATH} bs=1 count=2 skip=$CALTAG_OFFSET
+	fi
+
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1234)
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+slp_check_calculate_data_5G(){
+	CALTAG_FILE_PATH="/tmp/calTag_5g"
+	CALTAG_OFFSET=8190
+	local CAL_TAG=nil
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag file
+	if [ ! -f "${CALTAG_FILE_PATH}" ]; then
+		dd if=/dev/mtdblock2 of=${CALTAG_FILE_PATH} bs=1 count=2 skip=$CALTAG_OFFSET
+	fi
+
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1234)
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+start() {
+	#重定向
+	#exec 2>&1 > /dev/console
+
+	# 将unix socket的接收队列报文数量修改至1024
+	echo 1024 > /proc/sys/net/unix/max_dgram_qlen
+
+	echo "========> insmod driver ko first"
+	if [ -f $module_path/compat.ko ]; then
+		insmod $module_path/compat.ko
+	fi
+
+	if [ -f $module_path/cfg80211.ko ]; then
+		insmod $module_path/cfg80211.ko
+	fi
+
+	# 加载过温保护机制的内核态模块
+	if [ -f $module_path/ther_ctrl.ko ]; then
+		insmod $module_path/ther_ctrl.ko
+	fi
+
+	if [ -f $module_path/rtl8192cd.ko ]; then
+		insmod $module_path/rtl8192cd.ko
+	fi
+
+	if [ -f $module_path/rtk_wifi6.ko ]; then
+		insmod $module_path/rtk_wifi6.ko \
+                	rtw_phy_file_path=/etc/conf/ \
+                	rtw_ht_enable=2 \
+                	rtw_vht_enable=2 \
+                	rtw_he_enable=2 \
+                	rtw_drv_log_level=0 \
+                	phl_log_level=0
+	fi
+
+	# 启动过温保护用户态进程
+	if [ -f $module_path/ther_ctrl.ko ]; then
+		mkdir -p /tmp/ther/
+		ther_control &
+	fi
+
+	#用户态进程挂起时生成coredump
+	[ -e /proc/sys/kernel/core_pattern ] && {
+		ulimit -c unlimited
+		echo '/tmp/%e.%p.%s.%t.core' > /proc/sys/kernel/core_pattern
+	}
+
+	local caltag_2g=$(slp_check_calculate_data_2G)
+	local caltag_5g=$(slp_check_calculate_data_5G)
+	[ "$caltag_2g" == "false" -o "$caltag_5g" == "false" ] && { \
+		echo "=========> Not calibrated, do not start hostapd" > /dev/console
+	} || {
+		#启动hostapd
+		echo "========> start hostapd_2g"
+		/usr/sbin/hostapd /conf/hostapd_2g.conf -g /var/run/hostapd/global.wlan0 -P /var/run/hapd_wlan0_pid.pid -B
+
+		sleep 1
+		echo "========> start hostapd_5g"
+		/usr/sbin/hostapd /conf/hostapd_5g.conf -g /var/run/hostapd/global.wlan1 -P /var/run/hapd_wlan1_pid.pid -B
+
+		echo "========> Set bhvap addr4 enable"
+		iwpriv wlan0 set_mib a4_enable=1
+		iwpriv wlan1 set_mib a4_enable=1
+
+		iwpriv wlan1-vap0 set_mib txbf=1
+	}
+}

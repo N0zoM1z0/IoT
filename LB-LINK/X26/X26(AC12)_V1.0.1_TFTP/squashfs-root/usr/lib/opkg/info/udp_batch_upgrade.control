@@ -1,0 +1,8 @@
+Package: udp_batch_upgrade
+Version: 1
+Depends: libc, librt, libcjson
+Source: package/B-LINK/udp_batch_upgrade
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 3843
+Description:  udp batch upgrade

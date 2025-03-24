@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"><style>.modal-fixed{position:fixed;top:0;bottom:0;left:0;right:0}.modal-scrren{background:#000;opacity:.7;z-index:1006}.modal-dail{z-index:1007}.modal-dail .modal{width:100%;height:100%}.modal-dail .modal-box{background:#fff;width:42%;margin:5% 29%;border-radius:15px;border:3px #4db0db solid;position:relative}.modal-dail .modal-close{position:absolute;top:-20px;right:-20px;width:40px;height:40px;background:#fff;border:3px #4db0db solid;color:#4db0db;border-radius:50%;text-align:center;line-height:36px;font-size:45px;font-weight:900;cursor:pointer}.modal-dail .modal-header{padding:20px;border-bottom:2px #4db0db solid}.modal-dail .modal-header-box{display:flex;align-items:center}.modal-dail .info-icon{margin-right:20px}.modal-dail .info div{margin:3px 0}.modal-dail .info label{display:inline-block;width:130px}.modal-body{padding:10px 5px;height:470px;overflow-y:auto}.modal-body table{width:100%;border-collapse:separate;border-spacing:0 10px}.modal-body table td,.modal-body table th{text-align:center}.modal-body table tbody td{border-top:1px solid #ddd;padding:10px 0 0 0}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+	<adv-child-menu childType="mesh_set"></adv-child-menu>
+	<div class="advance-box">
+		<x-help :text="lang_t('easymesh.help_status')"></x-help>
+		<div>
+			<div id="container" style="height: 600px;width: 900px;" v-show="isOn"></div>
+			<h2 style="text-align:center;margin-top: 15%;" v-if="!isOn">{{lang_t('easymesh.not_network')}}</h2>
+		</div>
+		<div v-show="detailInfo">
+			<div class="modal-fixed modal-scrren"></div>
+			<div class="modal-fixed modal-dail">
+				<div class="modal">
+					<div class="modal-box">
+						<div class="modal-close" @click="detailInfo=false">&times;</div>
+						<div class="modal-header">
+							<div class="modal-header-box">
+								<div class="info-icon">
+									<img :src="deviceInfo.type">
+								</div>
+								<div class="info">
+									<div>
+										<label>{{lang_t('rule.device_name')}}:</label>
+										<input type="text" v-model="newDevName" maxlength="32" v-if="isEdit"/>
+										<b v-else>{{deviceInfo.devName||'--'}}</b>
+										<img :src="newDevName!=deviceInfo.devName?'/static/images/edited.png':'/static/images/edit.png'" :title="newDevName!=deviceInfo.devName?lang_t('rule.edit'):lang_t('common.edit')" style="cursor: pointer;" @click="modifyDevInfo()">
+									</div>
+									<div><label>{{lang_t('rule.ip')}}:</label>{{deviceInfo.ip||'--'}}</div>
+									<div><label>{{lang_t('rule.mac')}}:</label>{{deviceInfo.mac}}</div>
+									<div v-show="deviceInfo.rssi"><label>{{lang_t('opmode.signal')}}:</label>{{deviceInfo.rssi}}dbm</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-body">
+							<table>
+								<thead>
+									<tr>
+										<th style="width: 20%;" v-if="globalConfig.meshMode!='agent'">{{lang_t('easymesh.sta')}}</th>
+										<th v-if="globalConfig.meshMode!='agent'">{{lang_t('rule.ip')}}</th>
+										<th>{{lang_t('rule.mac')}}</th>
+										<th>{{lang_t('rule.link_type')}}</th>
+										<th v-if="globalConfig.cmccSupport">{{lang_t('opmode.signal')}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="(data,index) in staLists">
+										<td v-if="globalConfig.meshMode!='agent'">{{data.devName||'--'}}</td>
+										<td v-if="globalConfig.meshMode!='agent'">{{data.ip||'--'}}</td>
+										<td>{{data.mac}}</td>
+										<td>{{data.medium == 'Ethernet' ? lang_t('wan.wired') : data.medium}}</td>
+										<td v-if="globalConfig.cmccSupport">{{data.medium == 'Ethernet' ? '--' : (data.rssi+'dbm')}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script type="text/javascript" src="/plugin/echarts.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,staLists:[],deviceInfo:{devName:"",ip:"",mac:"",rssi:""},detailInfo:!1,isOn:!0,isEdit:!1,newDevName:""}},computed:{},created:function(){this.meshCfg={master:{color:"#de6b3a",img:"/static/images/map/master.png"},slave:{color:"#2ea8dc",img:"/static/images/map/mesh_on.png"},sta:{color:"#333333",img:"/static/images/map/user.png"}}},mounted:function(){var e=document.getElementById("container");e.style.width=window.innerWidth-parseInt($(".menu").css("width"))+"px",this.cw=e.offsetWidth,this.ch=e.offsetHeight,this.myChart=echarts.init(e),this.myChart.showLoading(),this.graphForceData={nodes:[],links:[]},this.refresh(1),0==countStart&&(countTimer=setInterval(function(){this.refresh()}.bind(this),15e3)),this.myChart.on("click",function(e){this.tempSelctValue=e.value,this.dealSelctValue()}.bind(this))},methods:{refresh:function(t){var a=this;this.graphForceData.nodes=[],this.graphForceData.links=[],this.agentInfo=[],this.networkInfo=[],this.slaveIndex=0,uiPost.getEasyMeshList(function(e){a.meshAgentInfo=e.meshAgentInfo,t&&a.myChart.hideLoading(),e["topology information"]?(a.isOn=!0,e["networkmap information"]&&(a.networkInfo=e["networkmap information"]),e["topology information"].forEach(a.addNodes),a.start(),a.detailInfo&&a.dealSelctValue()):a.isOn=!1})},addNodes:function(e){var t=parseInt(e["Device role"]);0!==t&&(1===t?(this.controllerInfo=e,this.masterProcess(e)):(this.agentInfo.push(e),this.slaveProcess(e,this.slaveIndex++)))},getNode:function(e,t,a,i,n,s){e={name:e,symbol:t,value:a,label:compatibleEcharts("label",{formatter:i,color:n})};return s&&$.extend(e,s),this.graphForceData.nodes.push(e),e},getLink:function(e,t,a){e={id:this.graphForceData.links.length,name:null,source:e,target:t,lineStyle:{normal:{color:a||this.meshCfg.slave.color,width:2}}};return this.graphForceData.links.push(e),e},masterProcess:function(e){var t,a={fixed:!0,symbolSize:55,x:this.cw/2,y:this.ch/2-27},i="master",n={},s=this.matchAgentInfo(e["AL MAC"]),s=(s?(t=s.lanMac,n.ip=s.ip,n.devName=s.hostName):n=this.checkDeviceInfo(e["AL MAC"]),e.devName=n.devName||lang_t("easymesh.controller"),this.getNode(e["AL MAC"],"image://"+this.meshCfg[i].img,[0,0],this.getText([e.devName,n.ip,t||e["AL MAC"]]),this.meshCfg[i].color,a)),n=this.getStaClients(e);0<n.length&&this.staProcess(n,s.name,[0,0])},slaveProcess:function(e,t){var a,i=this.checkDeviceInfo(e["AL MAC"]),n=[],s=this.matchAgentInfo(e["AL MAC"]),o=(e["BH Info"]&&0<e["BH Info"].length&&(o=e["BH Info"][0],s||i.ip||!o["connected iface addr"]||(i=this.checkDeviceInfo(o["connected iface addr"])),n.push("Medium - "+o["Backhaul Medium Type"]),"Ethernet"!=o["Backhaul Medium Type"])&&n.push("RSSI - "+o.RSSI+"dbm"),s?(e.devName=s.hostName,a=s.lanMac,i.ip=s.ip):e.devName=i.devName||lang_t("easymesh.agent"),this.getNode(e["AL MAC"],"image://"+this.meshCfg.slave.img,[1,t],this.getText([e.devName,i.ip,a||e["AL MAC"]].concat(n)),this.meshCfg.slave.color,{})),s=(this.getLink(o.name,e["Upstream 1905 device"]),this.getStaClients(e));0<s.length&&this.staProcess(s,o.name,[1,t])},staProcess:function(e,t,a){var i=0,n=this;(e||[]).forEach(function(e){n.checkDeviceInfo(e.mac).ip&&i++}),0!=i&&(e="{b|"+lang_t("easymesh.sta")+"}","br"==globalConfig.opmode&&(e+="{a|("+i+")}"),e={label:compatibleEcharts("label",{formatter:[e].join(""),rich:{a:{fontWeight:200,color:"#de6b3a",fontSize:12,align:"center"},b:{align:"center",color:this.meshCfg.sta.color}}})},a=this.getNode(t+"-sta","image://"+this.meshCfg.sta.img,[2,a[0],a[1]],"",this.meshCfg.sta.color,e),this.getLink(a.name,t,this.meshCfg.sta.color))},getStaClients:function(e){var t,a=[];return"agent"!=globalConfig.meshMode&&(t=function(e){e.forEach(function(e){"Yes"!=e["BH STA"]&&a.push({mac:e["Client Address"]||e["STA MAC address"],medium:e.Medium,rssi:e["uplink rssi"]||0})})},e["Radio Info"]&&e["Radio Info"].forEach(function(e){e.BSSINFO&&e.BSSINFO.forEach(function(e){e["connected sta info"]&&t(e["connected sta info"])})}),e["Other Clients Info"])&&t(e["Other Clients Info"]),a},checkDeviceInfo:function(e){e=e.toLowerCase();for(var t=this.networkInfo,a=0;a<t.length;a++)if(e==t[a].mac.toLowerCase())return t[a];return{devName:"",ip:""}},getText:function(e){for(var t=0,a="",i=0,n=e.length;i<n;i++)e[i]&&"string"==typeof e[i]&&(a+=e[i],i!=++n-1&&(a+="\n"),e[i].length>t)&&(t=e[i].length);return a},start:function(){var e={tooltip:{padding:10,formatter:function(e){var t="";return t=e.value&&2===e.value[0]?lang_t("easymesh.check_info"):t}},animation:!1,backgroundColor:"#fff",series:[{cursor:"pointer",type:"graph",edgeSymbol:["none","arrow"],symbol:"roundRect",symbolSize:50,layout:"force",data:this.graphForceData.nodes,links:this.graphForceData.links,roam:!0,draggable:!0,label:compatibleEcharts("label",{show:!0,position:"bottom",color:"#000"}),force:{repulsion:[60,90],gravity:.02,edgeLength:[60,90],friction:.3,layoutAnimation:!0}}]};this.myChart.setOption(e,!0)},dealSelctValue:function(){var e=this.tempSelctValue;e&&(2===e[0]?0===e[1]?this.modalDataPrase(this.controllerInfo,"master"):this.modalDataPrase(this.agentInfo[e[2]],"slave"):1===e[0]?this.modalDataPrase(this.agentInfo[e[1]],"slave"):0==e[0]&&this.modalDataPrase(this.controllerInfo,"master"))},matchAgentInfo:function(e){if(this.meshAgentInfo){e=e.toUpperCase();for(var t=0;t<this.meshAgentInfo.length;t++){var a=this.meshAgentInfo[t];if(a.meshMac2G.toUpperCase()==e||a.meshMac5G.toUpperCase()==e||a.mac2G.toUpperCase()==e||a.mac5G.toUpperCase()==e)return a}}return null},modalDataPrase:function(e,t){var a,i=this,n=[];for(a in this.getStaClients(e).forEach(function(e){var t=i.checkDeviceInfo(e.mac);e.devName=t.devName,e.ip=t.ip,e.ip&&n.push(e)}),this.staLists=n,this.deviceInfo)this.deviceInfo[a]="";var s=this.matchAgentInfo(e["AL MAC"]);s?(this.deviceInfo.devName=s.hostName,this.deviceInfo.ip=s.ip,this.deviceInfo.mac=s.lanMac):(this.deviceInfo.mac=e["AL MAC"],s=this.checkDeviceInfo(e["AL MAC"]),this.deviceInfo.devName=s.devName,this.deviceInfo.ip=s.ip),e["BH Info"]&&0<e["BH Info"].length&&"Ethernet"!=(s=e["BH Info"][0])["Backhaul Medium Type"]&&(this.deviceInfo.rssi=s.RSSI),this.deviceInfo.type=this.meshCfg[t].img,this.detailInfo||(this.newDevName=this.deviceInfo.devName),this.detailInfo=!0},modifyDevInfo:function(){var e,t;if(this.isEdit&&this.newDevName!=this.deviceInfo.devName)return t="",0==(e=cs.hostname(this.newDevName))&&(t=lang_t("wan.msg1")),0==e?void Cstool.Msg({content:lang_t("rule.device_name")+t}):void uiPost.setEasyMeshAgentCfg({mac:this.deviceInfo.mac,agentName:this.newDevName},applyCallback);this.isEdit=!this.isEdit}}}</script><script src="/static/js/main.js"></script></body></html>

@@ -1,0 +1,7 @@
+
+
+<div id="routerPort"></div>
+<div id="gameBtnReset"></div><script type="text/javascript">(function(){var c;new Button({text:btn.reSelPort,onClick:function(){loadPage("GameCfg.htm","gameContent")},type:Button.TYPE.SECONDARY,id:"gameBtnReset",props:{width:"120px","margin-top":"48px","margin-left":"4px"}});(function(){var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo;$.query(b,function(a){var b;a[ERR_CODE]==ENONE&&(c=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],a={},a[uciPortConfig.fileName]={},a[uciPortConfig.fileName][KEY_NAME]=
+uciPortConfig.secType.game,$.query(a,function(a){var d;a[ERR_CODE]==ENONE&&(d=a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev],c.forEach(function(a,c){if(a[uciPortConfig.dynOptName.mac]==d||"FF-FF-FF-FF-FF-FF"==d&&"1"==a[uciPortConfig.dynOptName.cap])b=c,a[uciPortConfig.dynOptName.phyInfo].forEach(function(b,c){"game"==b[uciPortConfig.dynOptName.role]&&(a[uciPortConfig.dynOptName.phyInfo][c].state="active")})}),(new PortConfig).initDevInfo("routerPort",
+JSON.parse(JSON.stringify(c[b]))))}))})})()})();
+</script><style type="text/css"></style>

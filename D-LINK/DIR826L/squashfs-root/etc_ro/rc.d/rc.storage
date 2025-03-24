@@ -1,0 +1,46 @@
+#!/bin/sh
+
+LIBPATH=/lib/modules
+KENLIBPATH=/lib/modules/2.6.30.9/kernel/drivers/usb/storage/
+
+storage_start() {
+	echo "Initialize USB Storage"
+#	cd "${LIBPATH}"
+#	insmod silex/fuse.ko
+
+#	cd "${KENLIBPATH}"
+#	insmod fs/isofs/isofs.ko
+#	insmod fs/udf/udf.ko
+#	insmod fs/ntfs/ntfs.ko
+	insmod -q usb-storage
+#	insmod drivers/mmc/card/mmc_block.ko
+}
+
+storage_stop() {
+#	rmmod fuse
+
+#	rmmod isofs
+#	rmmod udf
+#	rmmod ntfs
+	rmmod usb-storage
+#	rmmod mmc_block
+}
+
+storage_restart() {
+	storage_stop
+	sleep 1
+	storage_start
+}
+
+# Main #
+case "$1" in
+'start')
+	storage_start ;;
+'stop')
+	storage_stop ;;
+'restart')
+	storage_restart ;;
+*)
+	echo "usage $0 start|stop|restart"
+esac
+

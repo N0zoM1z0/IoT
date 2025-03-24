@@ -1,0 +1,6 @@
+DISTRIB_ID="OpenWrt"
+DISTRIB_RELEASE="Bleeding Edge"
+DISTRIB_REVISION="unknown"
+DISTRIB_CODENAME="barrier_breaker"
+DISTRIB_TARGET="VSPM3XX/generic"
+DISTRIB_DESCRIPTION="OpenWrt Barrier Breaker unknown"

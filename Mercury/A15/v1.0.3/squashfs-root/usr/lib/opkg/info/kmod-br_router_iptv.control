@@ -1,0 +1,8 @@
+Package: kmod-br_router_iptv
+Version: 4.4.176+1.0
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Source: tp_package/k_packages/br_router_iptv
+Section: ko util
+Architecture: rtl
+Installed-Size: 7590
+Description:  tp-link router iptv module

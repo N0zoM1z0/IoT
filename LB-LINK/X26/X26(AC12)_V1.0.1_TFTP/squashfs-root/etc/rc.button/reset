@@ -1,0 +1,23 @@
+#!/bin/sh
+
+[ "${ACTION}" = "released" ] || exit 0
+
+. /lib/functions.sh
+
+logger "$BUTTON pressed for $SEEN seconds"
+
+if [ "$SEEN" -lt 1 ]
+then
+	echo "WPS Button Pressed........." > /dev/console
+	echo "WPS Button Pressed........." > /tmp/wps
+	kill -USR1 $(pidof cmd_convert)	
+	killall wifi_wps.sh
+	killall sleep
+	/bin/wifi_wps.sh &
+elif [ "$SEEN" -gt 5 ]
+then
+	echo "FACTORY RESET" > /dev/console
+	jffs2reset -y && reboot &
+fi
+
+return 0

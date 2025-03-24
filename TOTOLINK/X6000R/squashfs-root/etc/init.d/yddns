@@ -1,0 +1,47 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+
+START=99
+
+USE_PROCD=1
+PROG=/usr/bin/yddns
+
+section_enabled() {
+	config_get_bool enable  "$1" 'enable'  0
+	config_get_bool enabled "$1" 'enabled' 0
+	[ $enable -gt 0 ] || [ $enabled -gt 0 ]
+}
+
+section_provider() {
+	config_get provider  "$1" 'provider'
+	echo "$provider" > /dev/console
+	[ "$provider" != "dyndns.org" ] && [ "$provider" != "3322.org" ] && 
+	[ "$provider" != "tzo.org" ] && [ "$provider" != "ddns.crabox-sys.com" ]
+}
+
+start_instance() {
+	local s="$1"
+	
+	section_enabled "$s" || {
+		return 1
+	}
+	section_provider "$s" && {
+		return 1
+	}
+
+	procd_open_instance
+	procd_set_param command "$PROG"
+	procd_close_instance
+	
+}
+
+start_service() {
+	config_load 'ddns'
+	config_foreach start_instance 'service'
+}
+
+stop_service() {
+	killall -SIGQUIT yddns
+}
+

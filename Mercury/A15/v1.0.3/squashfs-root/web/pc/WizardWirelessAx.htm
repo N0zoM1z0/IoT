@@ -1,0 +1,29 @@
+﻿
+
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody">
+		<h1>{%menuStr.ax%}</h1>
+		<div class="topTitle">
+			<p>{%label.axTip%}</p>
+		</div>
+		<ul id="axCheck" class="inputCMPT"></ul>
+		<div class="topTitle">
+			<p style="margin-bottom: 16px">由于部分无线网卡驱动较旧，连接至802.11ax无线路由器时，可能会出现一些兼容性问题。如果您有以上疑虑，请到相关制造商官网下载最新驱动程序。</p>
+			<p>Intel:&nbsp;&nbsp;<a href="https://downloadcenter.intel.com" target="_blank">https://downloadcenter.intel.com</a></p>
+			<p>Mediatek:&nbsp;&nbsp;<a href="https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi" target="_blank">https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi</a></p>
+			<p>Realtek:&nbsp;&nbsp;<a href="https://www.realtek.com/en/downloads" target="_blank">https://www.realtek.com/en/downloads</a></p>
+			<p>*需终端支持802.11ax协议，才能体验到802.11ax带来的高速上网体验。</p>
+		</div>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="pre"></div>
+		<div id="sub"></div>
+	</li>
+</ul><script type="text/javascript">function init(){function n(b){function a(a,d,f){g.push({name:a,title:d,follow:f,ssid:b[a][uciWireless.dynOptName.ssid],key:b[a][uciWireless.dynOptName.key]})}var g=[];switch(slp.bandsProvided){case slp.SINGLE:a(uciWireless.dynData.host_2g);break;case slp.DOUBLE:!0==h?a(uciWireless.secName.wlanBS):(a(uciWireless.dynData.host_2g,label.wirelessNet2G),a(uciWireless.dynData.host_5g,label.wirelessNet5G,gWizardData.followPwd[0]));break;case slp.TRIPLE:!0==h?a(uciWireless.secName.wlanBS):(a(uciWireless.dynData.host_2g,
+label.wirelessNet2G),a(uciWireless.dynData.host_5g1,label.wirelessNet5G1,gWizardData.followPwd[1]),a(uciWireless.dynData.host_5g2,label.wirelessNet5G2,gWizardData.followPwd[2]))}return g}function k(){var b=5;(function g(){if(0==b--)loadingDialog.hide(function(){loadPage("WizardEnd.htm","wizardCon")});else{var c={},d=cloudClientStatus.fileName,f=cloudClientStatus.secName.clientInfo,e=cloudClientStatus.optName.connectStatus;c[d]={};c[d][KEY_NAME]=f;$.query(c,function(b){ENONE==b[ERR_CODE]&&1==b[d][f][e]?
+loadingDialog.hide(function(){loadPage("WizardCloudMEID.htm","wizardCon")}):$.setTimeout(g,1E3)},void 0,!0)}})()}var c=uciWireless.dynData.host_2g,e=uciWireless.dynData.host_5g,l=uciWireless.dynOptName.mode,h=gWizardData.isBandSteeringOpen;new Button({text:btn.preStep,onClick:function(){slp.gSysModeSupport&&gSysMode==uciSystem.optValue.sysMode.apMode?loadPage("WizardWiredWifiCfg.htm","wizardCon"):loadPage("WizardWireless.htm","wizardCon")},type:Button.TYPE.SECONDARY,id:"pre"});new Button({text:btn.finish,
+onClick:function(){p.getValue()||(gWizardData.wifiChanged=!0,gWizardData.gWifiCfgSave[c]=gWizardData.gWifiCfgSave[c]||{},gWizardData.gWifiCfgSave[e]=gWizardData.gWifiCfgSave[e]||{},gWizardData.gWifiCfgSave[c][l]=uciWireless.dynOptValue.mode.m_11bgn,gWizardData.gWifiCfgSave[e][l]=uciWireless.dynOptValue.mode.m_11ac);if(gWizardData.wifiChanged)if(gWizardData.iAmWifiDevice)gWizardData.wifiDisconnect=!0,loadPage("WizardEnd.htm","wizardCon");else{var b={};b[uciWireless.fileName]=gWizardData.gWifiCfgSave;
+loadingDialog.show({content:{primary:label.configging}},void 0,void 0,!1,void 0);wzdDone();$.modify(b,function(a){a[ERR_CODE]==ENONE?(n(gWizardData.wifiConf).forEach(function(a){void 0!=gWizardData.gWifiCfgSave[a.name]&&(void 0!=gWizardData.gWifiCfgSave[a.name].ssid&&(gWizardData.wifiConf[a.name].ssid=gWizardData.gWifiCfgSave[a.name].ssid),void 0!=gWizardData.gWifiCfgSave[a.name].key&&(gWizardData.wifiConf[a.name].key=gWizardData.gWifiCfgSave[a.name].key))}),a.dfs_wait_time&&0!=a.dfs_wait_time?(gWizardData.bShowDFS=
+!0,gWizardData.countdown=a.dfs_wait_time):gWizardData.bShowDFS=!1,k()):loadingDialog.hide(function(){alarmDialog.show(errStr.unknown+a[ERR_CODE])})})}else loadingDialog.show({content:{primary:label.configging}},void 0,void 0,!1,void 0),wzdDone(),k()},type:Button.TYPE.PRIMARY,id:"sub"});var m=new NiceScroll({targetId:"wizardBody",hrzLine:!0});m.scrollTipOpacity(1);m.init();var p=new CheckBox({targetId:"axCheck",label:'<span class="axCheckLabel">'+label.axCheckLabel+"</span>",checked:!0})}init();
+</script><style type="text/css">li.wzdSubBtn div.primary{width:160px!important}div.topTitle{width:280px;margin:24px auto;display:block}div.topTitle label{font-size:16px;color:#333;line-height:24px;font-weight:bold;vertical-align:middle;display:inline-block;width:240px;margin-right:8px}div.topTitle p{font-size:12px;color:#666;text-align:justify;line-height:18px;margin-top:12px}li.wizardBody{min-height:132px}span .axCheckLabel{font-size:16px;color:#333;line-height:24px;font-weight:bold}</style>

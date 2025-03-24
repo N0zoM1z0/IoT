@@ -1,0 +1,4 @@
+IP： 192.168.16.1
+密码: admin123
+
+wifi 密码: lblinkx26

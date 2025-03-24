@@ -1,0 +1,42 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+DMROOT="InternetGatewayDevice"
+entry_method_root="entry_execute_method_root"
+entry_execute_method_list_forcedinform="$entry_method_root $entry_execute_method_list_forcedinform"
+
+get_client_tmp_file="/tmp/etc_ro/dev_info"
+
+entry_execute_method_root() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT."*[^.])
+		common_execute_method_obj "$DMROOT." "0"
+		common_execute_method_param "$DMROOT.DeviceSummary" "0" "InternetGatewayDevice_get_DeviceSummary" "" "xsd:String" "1"
+		common_execute_method_param "$DMROOT.LANDeviceNumberOfEntries" "0" "InternetGatewayDevice_get_LANDeviceNumberOfEntries" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDeviceNumberOfEntries" "0" "InternetGatewayDevice_get_WANDeviceNumberOfEntries" "" "xsd:unsignedInt" "0"
+		return 0;
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+InternetGatewayDevice_get_DeviceSummary() {
+	echo "Dlink Routing equipment"
+}
+
+InternetGatewayDevice_get_LANDeviceNumberOfEntries() {
+	if [ ! -f "$get_client_tmp_file" ];then
+		echo "0"
+	elif [ ! -s "$get_client_tmp_file" ];then
+		echo "0"
+	else
+		head -n 1 $get_client_tmp_file | awk -F ',' '{ print $1 }'
+	fi
+}
+
+InternetGatewayDevice_get_WANDeviceNumberOfEntries() {
+	echo "1"
+}

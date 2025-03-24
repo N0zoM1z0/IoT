@@ -1,0 +1,9 @@
+Package: luci-ssl
+Version: unknown-1
+Depends: libc, luci, libustream-polarssl, px5g
+Source: package/mtk/ui/luci-mtk
+Section: luci
+Maintainer: LuCI Development Team <luci@lists.subsignal.org>
+Architecture: ramips_24kec
+Installed-Size: 104
+Description:  Standard OpenWrt set with HTTPS support

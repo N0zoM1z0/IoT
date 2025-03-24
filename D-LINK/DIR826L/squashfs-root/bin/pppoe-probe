@@ -1,0 +1,5 @@
+#!/bin/sh
+INTERFACE=$1
+RESULT=$2
+#echo "pppoe-probe"
+app_sync 1028 0 "act=probe" "INTERFACE=$INTERFACE" "RESULT=$RESULT"

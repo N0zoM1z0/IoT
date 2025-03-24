@@ -1,0 +1,907 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.Layer3Forwarding."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Layer3Forwarding"
+
+entry_execute_method_root_Layer3Forwarding() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.Layer3Forwarding."*)
+		common_execute_method_obj "$DMROOT.Layer3Forwarding." "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.DefaultConnectionService" "1" "get_default_connection_service" "set_default_connection_service" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.ForwardNumberOfEntries" "0" "get_forward_num_entries" "" "xsd:unsignedInt" "0"
+		common_execute_method_obj "$DMROOT.Layer3Forwarding.Forwarding." "0" "" "" "layer3_forwarding_browse_instances_forwarding $1"
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_layer3_forwarding() {
+	local j="$2"
+	
+	case_param "$1" belongto "$DMROOT.Layer3Forwarding.Forwarding.$j." && {
+		common_execute_method_obj "$DMROOT.Layer3Forwarding.Forwarding.$j." "0" "" ""
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.Enable" "1" "get_forwarding_enable $j" "set_forwarding_enable $j" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.Status" "0" "get_forwarding_status $j" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.Type" "1" "get_forwarding_type $j" "set_forwarding_type $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.DestIPAddress" "0" "get_forwarding_destipaddress $j" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.DestSubnetMask" "1" "get_forwarding_destsubnetmask $j" "set_forwarding_destsubnetmask $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.SourceIPAddress" "1" "get_forwarding_sourceipaddress $j" "set_forwarding_sourceipaddress $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.SourceSubnetMask" "1" "get_forwarding_sourcesubnetmask $j" "set_forwarding_sourcesubnetmask $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.ForwardingPolicy" "1" "get_forwarding_forwardingpolicy $j" "set_forwarding_forwardingpolicy $j" "xsd:int" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.GatewayIPAddress" "1" "get_forwarding_gatewayipaddress $j" "set_forwarding_gatewayipaddress $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.Interface" "1" "get_forwarding_interface $j" "set_forwarding_interface $j" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.ForwardingMetric" "1" "get_forwarding_forwardingmetric $j" "set_forwarding_forwardingmetric $j" "xsd:int" "0"
+		common_execute_method_param "$DMROOT.Layer3Forwarding.Forwarding.$j.MTU" "1" "get_forwarding_mtu $j" "set_forwarding_mtu $j" "xsd:unsignedInt" "0"
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#     Data model browse instances     #
+#######################################
+
+get_forwarding_mtu() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	local ifname
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				ifname=`echo "$line" | awk -F ' ' '{ print $8 }'`
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					ifname=`echo "$line" | awk -F ' ' '{print $6}'`
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi	
+	
+	ifconfig $ifname | grep MTU | awk -F ' ' '{ print $5 }' | awk -F ':' '{ print $2 }'
+}
+
+set_forwarding_mtu() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	local ifname
+	local set_mtu="$2"
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				ifname=`echo "$line" | awk -F ' ' '{ print $8 }'`
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					ifname=`echo "$line" | awk -F ' ' '{print $6}'`
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi	
+	
+	if [ "$ifname" == "eth0.2" ];then
+		uci set network.wan.mtu="$set_mtu"
+	fi
+
+	if [ "$ifname" == "br-lan" ];then
+		uci set network.lan.mtu="$set_mtu"
+	fi
+	
+	uci commit network
+	
+	ifconfig $ifname mtu $set_mtu
+
+	return 0
+}
+
+get_forwarding_forwardingmetric() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				echo "$line" | awk -F ' ' '{ print $5 }'
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					echo "$line" | awk -F ' ' '{print $5}'
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi		
+}
+
+set_forwarding_forwardingmetric() {
+	local k=0
+	local i=$1
+	local set_metric=$2
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local net=`echo "$line" | awk -F ' ' '{print $1}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $2}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $8}'`
+					
+					while read line
+					do
+						if [ ${#line} -gt 0 ];then
+							local get_enable=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_net=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+							local get_gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+							local get_metric=`echo "$line" | awk -F ' ' '{print $5}'`
+							local get_dev=`echo "$line" | awk -F ' ' '{print $6}'`
+							
+							if [ "$net" == "$get_net" -a "$netmask" == "$get_netmask" -a "$gateway" == "$get_gateway" -a "$dev" == "$get_dev" ];then
+								if [ "$set_metric" == "$get_metric" ];then
+									rm -rf /tmp/static_route_list
+									return 0
+								fi
+								
+								echo "$get_enable $get_net $get_netmask $get_gateway $set_metric $get_dev" >> /tmp/static_route_list
+								
+								if [ $get_enable -eq 1 ];then
+									route del -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+									route add -net $get_net netmask $get_netmask gateway $get_gateway metric $set_metric dev $get_dev
+								fi
+							else
+								echo "$line" >> /tmp/static_route_list
+							fi
+						fi
+					done < /etc/static_route_list
+					
+					if [ -f /tmp/static_route_list ];then
+						rm -rf /etc/static_route_list
+						mv /tmp/static_route_list /etc/
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+					local net=`echo "$line" | awk -F ' ' '{print $2}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$enable $net $netmask $gateway $set_metric $dev" >> /tmp/static_route_list
+				else
+					echo "$line" >> /tmp/static_route_list
+				fi
+			fi
+		done < /etc/static_route_list
+		
+		rm -rf /etc/static_route_list
+		mv /tmp/static_route_list /etc/
+	fi
+
+	return 0
+}
+
+get_forwarding_interface() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				echo "$line" | awk -F ' ' '{ print $8 }'
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					echo "$line" | awk -F ' ' '{print $6}'
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi	
+}
+
+set_forwarding_interface() {
+	local k=0
+	local i=$1
+	local set_dev=$2
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local net=`echo "$line" | awk -F ' ' '{print $1}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $2}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $8}'`
+					
+					while read line
+					do
+						if [ ${#line} -gt 0 ];then
+							local get_enable=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_net=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+							local get_gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+							local get_metric=`echo "$line" | awk -F ' ' '{print $5}'`
+							local get_dev=`echo "$line" | awk -F ' ' '{print $6}'`
+							
+							if [ "$net" == "$get_net" -a "$netmask" == "$get_netmask" -a "$gateway" == "$get_gateway" -a "$dev" == "$get_dev" ];then
+								if [ "$set_dev" == "$get_dev" ];then
+									rm -rf /tmp/static_route_list
+									return 0
+								fi
+								
+								echo "$get_enable $get_net $get_netmask $get_gateway $get_metric $set_dev" >> /tmp/static_route_list
+								
+								if [ $get_enable -eq 1 ];then
+									route del -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+									route add -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $set_dev
+								fi
+							else
+								echo "$line" >> /tmp/static_route_list
+							fi
+						fi
+					done < /etc/static_route_list
+					
+					if [ -f /tmp/static_route_list ];then
+						rm -rf /etc/static_route_list
+						mv /tmp/static_route_list /etc/
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+					local net=`echo "$line" | awk -F ' ' '{print $2}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$enable $net $netmask $gateway $metric $set_dev" >> /tmp/static_route_list
+				else
+					echo "$line" >> /tmp/static_route_list
+				fi
+			fi
+		done < /etc/static_route_list
+		
+		rm -rf /etc/static_route_list
+		mv /tmp/static_route_list /etc/
+	fi
+
+	return 0
+}
+
+get_forwarding_gatewayipaddress() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				echo "$line" | awk -F ' ' '{ print $2 }'
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					echo "$line" | awk -F ' ' '{print $4}'
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi
+}
+
+set_forwarding_gatewayipaddress() {
+	local k=0
+	local i=$1
+	local set_gateway=$2
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local net=`echo "$line" | awk -F ' ' '{print $1}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $2}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $8}'`
+					
+					while read line
+					do
+						if [ ${#line} -gt 0 ];then
+							local get_enable=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_net=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+							local get_gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+							local get_metric=`echo "$line" | awk -F ' ' '{print $5}'`
+							local get_dev=`echo "$line" | awk -F ' ' '{print $6}'`
+							
+							if [ "$net" == "$get_net" -a "$netmask" == "$get_netmask" -a "$gateway" == "$get_gateway" -a "$dev" == "$get_dev" ];then
+								if [ "$set_gateway" == "$get_gateway" ];then
+									rm -rf /tmp/static_route_list
+									return 0
+								fi
+								
+								echo "$get_enable $get_net $get_netmask $set_gateway $get_metric $get_dev" >> /tmp/static_route_list
+								
+								if [ $get_enable -eq 1 ];then
+									route del -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+									route add -net $get_net netmask $get_netmask gateway $set_gateway metric $get_metric dev $get_dev
+								fi
+							else
+								echo "$line" >> /tmp/static_route_list
+							fi
+						fi
+					done < /etc/static_route_list
+					
+					if [ -f /tmp/static_route_list ];then
+						rm -rf /etc/static_route_list
+						mv /tmp/static_route_list /etc/
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+					local net=`echo "$line" | awk -F ' ' '{print $2}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$enable $net $netmask $set_gateway $metric $dev" >> /tmp/static_route_list
+				else
+					echo "$line" >> /tmp/static_route_list
+				fi
+			fi
+		done < /etc/static_route_list
+		
+		rm -rf /etc/static_route_list
+		mv /tmp/static_route_list /etc/
+	fi
+
+	return 0
+}
+
+get_forwarding_forwardingpolicy() {
+	echo "-1"
+}
+
+set_forwarding_forwardingpolicy() {
+	return 0
+}
+
+get_forwarding_sourcesubnetmask() {
+	echo "0.0.0.0"
+}
+
+set_forwarding_sourcesubnetmask() {
+	return 0
+}
+
+get_forwarding_sourceipaddress() {
+	echo "0.0.0.0"
+}
+
+set_forwarding_sourceipaddress() {
+	return 0
+}
+
+get_forwarding_destsubnetmask() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				echo "$line" | awk -F ' ' '{ print $3 }'
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					echo "$line" | awk -F ' ' '{print $3}'
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi	
+}
+
+set_forwarding_destsubnetmask() {
+	local k=0
+	local i=$1
+	local set_netmask=$2
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local net=`echo "$line" | awk -F ' ' '{print $1}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $2}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $8}'`
+					
+					while read line
+					do
+						if [ ${#line} -gt 0 ];then
+							local get_enable=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_net=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+							local get_gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+							local get_metric=`echo "$line" | awk -F ' ' '{print $5}'`
+							local get_dev=`echo "$line" | awk -F ' ' '{print $6}'`
+							
+							if [ "$net" == "$get_net" -a "$netmask" == "$get_netmask" -a "$gateway" == "$get_gateway" -a "$dev" == "$get_dev" ];then
+								if [ "$set_netmask" == "$get_netmask" ];then
+									rm -rf /tmp/static_route_list
+									return 0
+								fi
+								
+								echo "$get_enable $get_net $set_netmask $get_gateway $get_metric $get_dev" >> /tmp/static_route_list
+								
+								if [ $get_enable -eq 1 ];then
+									route del -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+									route add -net $get_net netmask $set_netmask gateway $get_gateway metric $get_metric dev $get_dev
+								fi
+							else
+								echo "$line" >> /tmp/static_route_list
+							fi
+						fi
+					done < /etc/static_route_list
+					
+					if [ -f /tmp/static_route_list ];then
+						rm -rf /etc/static_route_list
+						mv /tmp/static_route_list /etc/
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+					local net=`echo "$line" | awk -F ' ' '{print $2}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$enable $net $set_netmask $gateway $metric $dev" >> /tmp/static_route_list
+				else
+					echo "$line" >> /tmp/static_route_list
+				fi
+			fi
+		done < /etc/static_route_list
+		
+		rm -rf /etc/static_route_list
+		mv /tmp/static_route_list /etc/
+	fi
+
+	return 0
+}
+
+get_forwarding_destipaddress() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local destip=`echo "$line" | awk -F ' ' '{ print $1 }'`
+	
+					if [ "$destip" == "default" ];then
+						echo "0.0.0.0"
+					else
+						echo "$destip"	
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable	
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$enable" == "0" ];then
+					let enable_cnt++
+				fi
+				
+				if [ $enable_cnt -eq $i ];then
+					local destip=`echo "$line" | awk -F ' ' '{print $2}'`
+					if [ "$destip" == "default" ];then
+						echo "0.0.0.0"
+					else
+						echo "$destip"	
+					fi
+					break
+				fi
+			fi
+		done < /etc/static_route_list
+	fi
+}
+
+get_forwarding_type() {
+	local k=0
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+				local type=`echo "$line" | awk -F ' ' '{ print $4 }'`
+	
+				if [ "$type" == "UG" ];then
+					echo "Default"
+				elif [ "$type" == "UH" ];then
+					echo "Host"
+				elif [ "$type" == "UGH" ];then
+					echo "Host"	
+				else
+					echo "Network"
+				fi	
+					
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		echo "Host"
+	fi
+}
+
+set_forwarding_type() {
+	return 0
+}
+
+layer3_forwarding_browse_instances_forwarding() {
+	local i=1
+	local enable
+	route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file
+	
+	while read line
+	do
+		sub_entry_layer3_forwarding "$1" "$i"
+		let i++
+	done < /tmp/route_tmp_file
+	rm -rf /tmp/route_tmp_file
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			enable=`echo "$line" | awk -F ' ' '{print $1}'`
+			if [ "$enable" == "0" ];then
+				sub_entry_layer3_forwarding "$1" "$i"
+				let i++
+			fi
+		fi
+	done < /etc/static_route_list
+	
+	return 0
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+
+get_forwarding_status() {
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		echo "Enabled"
+	else
+		echo "Disabled"
+	fi
+}
+
+get_forwarding_enable() {
+	local i=$1
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		echo "1"
+	else
+		echo "0"
+	fi
+}
+
+set_forwarding_enable() {
+	local k=0
+	local i=$1
+	local set_enable=$2
+	local enable_cnt=`route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' | wc -l`
+	
+	if [ $i -le $enable_cnt ];then
+		route | sed 's/*/0.0.0.0/g' | sed '/Kernel IP routing table/d' | sed '/Destination/d' > /tmp/route_tmp_file_enable	
+		
+		while read line
+		do 
+			let k++
+			
+			if [ $k -eq $i ];then
+					local net=`echo "$line" | awk -F ' ' '{print $1}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $2}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $8}'`
+					
+					while read line
+					do
+						if [ ${#line} -gt 0 ];then
+							local get_enable=`echo "$line" | awk -F ' ' '{print $1}'`
+							local get_net=`echo "$line" | awk -F ' ' '{print $2}'`
+							local get_netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+							local get_gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+							local get_metric=`echo "$line" | awk -F ' ' '{print $5}'`
+							local get_dev=`echo "$line" | awk -F ' ' '{print $6}'`
+							
+							if [ "$net" == "$get_net" -a "$netmask" == "$get_netmask" -a "$gateway" == "$get_gateway" -a "$dev" == "$get_dev" ];then
+								if [ "$set_enable" == "$get_enable" ];then
+									rm -rf /tmp/static_route_list
+									return 0
+								fi
+								
+								echo "$set_enable $get_net $get_netmask $get_gateway $get_metric $get_dev" >> /tmp/static_route_list
+								
+								if [ $set_enable -eq 0 ];then
+									route del -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+								else
+									route add -net $get_net netmask $get_netmask gateway $get_gateway metric $get_metric dev $get_dev
+								fi
+							else
+								echo "$line" >> /tmp/static_route_list
+							fi
+						fi
+					done < /etc/static_route_list
+					
+					if [ -f /tmp/static_route_list ];then
+						rm -rf /etc/static_route_list
+						mv /tmp/static_route_list /etc/
+					fi
+				break
+			fi
+		done < /tmp/route_tmp_file_enable
+		rm -rf /tmp/route_tmp_file_enable
+	else
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				let enable_cnt++
+				
+				if [ $enable_cnt -eq $i ];then
+					local enable=`echo "$line" | awk -F ' ' '{print $1}'`
+					local net=`echo "$line" | awk -F ' ' '{print $2}'`
+					local netmask=`echo "$line" | awk -F ' ' '{print $3}'`
+					local gateway=`echo "$line" | awk -F ' ' '{print $4}'`
+					local metric=`echo "$line" | awk -F ' ' '{print $5}'`
+					local dev=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$set_enable $net $netmask $gateway $metric $dev" >> /tmp/static_route_list
+					
+					if [ $set_enable -eq 1 ];then
+						route add -net $net netmask $netmask gateway $gateway metric $metric dev $dev
+					fi
+				else
+					echo "$line" >> /tmp/static_route_list
+				fi
+			fi
+		done < /etc/static_route_list
+		
+		rm -rf /etc/static_route_list
+		mv /tmp/static_route_list /etc/
+	fi
+
+	return 0
+}
+
+get_default_connection_service() {
+	$UCI_GET network.wan.ifname
+}
+
+set_default_connection_service() {
+	local val="$1"
+	$UCI_SET network.wan.ifname="$val"
+	
+	return 0
+}
+
+get_forward_num_entries() {
+	brctl show | grep -v interfaces | wc -l
+}

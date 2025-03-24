@@ -1,0 +1,9 @@
+Package: mitempcontrol
+Version: 1.0-1
+Depends: libc
+Source: package/miwifi/mitempcontrol
+Section: utils
+Maintainer: even
+Architecture: aarch64_cortex-a53
+Installed-Size: 5131
+Description:  a temperature control program

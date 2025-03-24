@@ -1,0 +1,125 @@
+<script type="text/javascript">
+	(function(){
+		$("#wanTabCon").hide();
+		var iptvContent = $("#iptvContent"),
+			iptvStepTab = $("#iptvStepTab");
+		var iptvModeChoose;
+
+		if (isMultiWan) {
+			iptvModeChoose = $("#subIptvModeChoose");
+		}
+		else {
+			iptvModeChoose = $("#iptvModeChoose");
+		}
+
+		//判断可用端口数量
+		function getUseablePortNum() {
+			var data = {}, capNum = 0, meshNum = 0;
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = [uciPortConfig.secType.devInfo];
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE)
+				{
+					var routerList = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+
+					for (var i = 0; i < routerList.length; i++) {
+						var portNum = routerList[i][uciPortConfig.dynOptName.phyInfo].filter(function(port){
+							return port[uciPortConfig.dynOptName.role] == "lan" ||
+									port[uciPortConfig.dynOptName.role] == "uplink" + (wanIdx+1) ||
+									port[uciPortConfig.dynOptName.role] == "downlink" + (wanIdx+1);
+						}).length;
+						if (i == 0) {
+							capNum = portNum;
+						}
+						meshNum += portNum;
+					}
+				}
+				else
+				{
+					alarmDialog.show(err_code);
+				}
+			},false);
+			return {"capNum":capNum, "meshNum":meshNum};
+		}
+
+		var gatherRadio = new Radio({
+			targetId: "gatherRadio",
+			label: label.gatherMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				iptvModeChoose.css("display","inline-block");
+			}
+		});
+		var aloneRadio = new Radio({
+			targetId: "aloneRadio",
+			label: label.aloneMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				iptvModeChoose.css("display","none");
+			}
+		});
+
+		gatherRadio.setValue(true);
+		iptvModeChoose.css("display","inline-block");
+		var portNum = getUseablePortNum();
+		if (portNum.capNum < 1 || portNum.meshNum < 2) {
+			aloneRadio.disable(true);
+		}
+
+		var iptvBtnNext = new Button({
+			text:btn.nextStep,
+			onClick:function(){
+				iptvConnectModeChoosed[wanIdx] = gatherRadio.getValue()?"gather":"alone";
+				stepPage(iptvSecondPage);
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"iptvBtnNext",
+			props:{width:"120px", "margin-top":"48px"}
+		});
+
+		var iptvBtnCancel = new Button({
+			text: btn.cancel,
+			onClick: function () {
+				loadPage("IptvSingleWan.htm",isMultiWan?"tabConent":"iptvPage");
+				if(isMultiWan){
+					$("#wanTabCon").show();
+				}
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"iptvBtnCancel",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+
+	})()
+</script>
+<style type="text/css">
+	.chooseModeGuide{
+		color: #333333;
+		font-weight: bold;
+	}
+	#iptvModeRadioGroup{
+		margin-top: 24px;
+	}
+	#iptvModeRadioGroup>.radioLabel{
+		margin-top: 12px;
+		color: #333333;
+		font-weight: bold;
+	}
+	.aloneModeTips{
+		font-size: 12px;
+		color: #999999;
+		margin-left: 24px;
+	}
+</style>
+<div class="chooseModeGuide">
+	<h2>{%label.iptvConnectMode1%}</h2>
+</div>
+<div id="iptvModeRadioGroup">
+	<div id="gatherRadio" class="radioLabel"></div>
+	<div id="aloneRadio" class="radioLabel"></div><span class="aloneModeTips">{%label.aloneModeTips%}</span>
+</div>
+<div id="iptvBtnCancel"></div>
+<div id="iptvBtnNext"></div>

@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/style.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div class="toper">
+	<phone-back type="custom" :title="lang_t('menu.application')" @on-click="backFun"></phone-back>	
+  </div>
+  <div class="nav">
+	<div style="float:left;width:83%;">{{ lang_t('menu.wifi_schedule') }}</div>
+	<div class="nav-sw" v-show="editState == 'list'">
+	  <x-switch v-model="state" @change="abledFun"></x-switch>
+	</div>
+  </div>
+  <div class="nav" v-show="homepage&&state" style="color: #000;font-weight:normal;" @click="addFun">
+	<img src="/static/images/phone/open.png">&nbsp;&nbsp;{{ lang_t('common.add_rules') }}
+  </div>  
+  <div class="content" style="border-bottom:2px #eee solid" v-if="state && globalConfig.guestWifiSchSupport">
+	<div class="group">		  
+	  <div class="item-l">{{ lang_t('wifi.wifi_select') }}</div>
+	  <div class="item-r">
+		<select class="select" v-model="funIdx" @change="modeChange">
+		  <option value="0">{{ lang_t('wifi.main_wifi') }}</option>
+		  <option value="1">{{ lang_t('menu.guest') }}</option>
+		</select>
+	  </div>
+	</div>
+  </div>
+  <div v-show="state">
+	<div class="content-list" v-if="homepage" :style="{height: listHeight,'overflow-y':'auto'}">
+	  <div class="list" v-for="(data,v) in ruleList" @click="modefyFun(data,v)">
+	    <div class="list-l">
+		  <img src="/static/images/phone/phone.png" v-if="data.deviceType == 'mobile'">
+		  <img src="/static/images/phone/pc.png" v-else>
+		</div>
+		<div class="list-c">
+		  <p>{{ data.desc }}</p>
+		  <p>{{ lang_t('schedule.work_time') }}: {{ timeConver(data) }}</p>
+		  <p>{{ Number(data.sHour)<10?'0'+data.sHour:data.sHour }}:{{ Number(data.sMinute)<10?'0'+data.sMinute:data.sMinute }}-{{ Number(data.eHour)<10?'0'+data.eHour:data.eHour }}:{{ Number(data.eMinute)<10?'0'+data.eMinute:data.eMinute }}</p>
+		</div>
+		<div class="list-r">
+		  <img src="/static/images/phone/sign_right.png">
+		</div>
+	  </div>
+	</div>
+	<div class="content" v-if="!homepage">
+	  <div class="group">
+		<div class="item-l">{{ lang_t('rule.description') }}</div>
+		<div class="item-r">
+		  <input type="text" v-model="desc" maxlength="20">
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('schedule.week') }}</div>
+		<div class="item-r">
+		  <select v-model="week">
+			<option value="0">{{ lang_t('schedule.every') }}</option>
+			<option value="1">{{ lang_t('schedule.mon') }}</option>
+			<option value="2">{{ lang_t('schedule.tue') }}</option>
+			<option value="3">{{ lang_t('schedule.wed') }}</option>
+			<option value="4">{{ lang_t('schedule.thu') }}</option>
+			<option value="5">{{ lang_t('schedule.fri') }}</option>
+			<option value="6">{{ lang_t('schedule.sat') }}</option>
+			<option value="7">{{ lang_t('schedule.sun') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('schedule.start_time') }}</div>
+		<div class="item-r">
+		  <select v-model="sHour" style="width:86px">
+			<option v-for="(v,hour) in 24" :value="hour">{{ hour < 10 ? ('0'+hour) : hour }}{{ lang_t('schedule.times') }}</option>
+		  </select>:
+		  <select v-model="sMin" style="width:86px">
+			<option v-for="(v,min) in 60" :value="min">{{ min < 10 ? ('0'+min) : min }}{{ lang_t('schedule.mins') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="group">
+		<div class="item-l">{{ lang_t('schedule.end_time') }}</div>
+		<div class="item-r">
+		  <select v-model="eHour" style="width:86px">
+			<option v-for="(v,hour) in 24" :value="hour">{{ hour < 10 ? ('0'+hour) : hour }}{{ lang_t('schedule.times') }}</option>
+		  </select>:
+		  <select v-model="eMin" style="width:86px">
+			<option v-for="(v,min) in 60" :value="min">{{ min < 10 ? ('0'+min) : min }}{{ lang_t('schedule.mins') }}</option>
+		  </select>
+		</div>
+	  </div>
+	  <div class="space"></div>
+	  <div class="footer">
+		<button class="btn" @click="applyFun" :disabled="applyAbled">{{ lang_t('common.apply') }}</button><br>&nbsp;<br>
+		<button class="btn btn-red" v-show="this.flag != 'add'" @click="deleteBtn">{{ lang_t('common.delete') }}</button>
+	  </div>
+	  <div class="space"></div>
+	</div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,listHeight:"300px",homepage:!0,tempIdx:0,editState:"list",wifiDualband:"0",wifiActive:"0",data:[],state:!1,week:"0",sHour:"0",sMin:"0",eHour:"0",eMin:"0",dotActive:"0",ruleList:[],modefy:!1,flag:"add",desc:"",applyAbled:!1,funIdx:"0"}},created:function(){this.listHeight=.65*window.innerHeight+"px",this.funIdx=cs.local(this.funIdx),this.wifiInit(this.funIdx)},methods:{backFun:function(){this.homepage?location.href="/phone/application.html"+get_token_from_url():(this.homepage=!0,this.editState="list")},funModeChange:function(t){this.funIdx=t,this.wifiInit(t)},wifiInit:function(t){var e=this;uiPost.getWiFiScheduleCfg({isGuest:t},function(t){e.state="1"==t.enable,t.rule&&(e.ruleList=t.rule,e.dataTotal=e.ruleList.length,e.data=t.rule)})},timeConver:function(t){var e,i="",s=t.week;for(e in s)"1"==s[e]?i+=this.lang_t("rule.mon")+"":"2"==s[e]?i+=this.lang_t("rule.tue")+"":"3"==s[e]?i+=this.lang_t("rule.wed")+"":"4"==s[e]?i+=this.lang_t("rule.thu")+"":"5"==s[e]?i+=this.lang_t("rule.fri")+"":"6"==s[e]?i+=this.lang_t("rule.sat")+"":"7"==s[e]?i+=this.lang_t("rule.sun")+"":"0"==s[e]&&(i+=this.lang_t("rule.every")+"");return i},applyFun:function(){var e=this;if(e.desc){var t=cs.commentstr(e.desc);if(1==t||2==t||3==t)return this.errorData(this.lang_t("rule.msg4")),!1}if(Number(e.sHour)>Number(e.eHour))return this.errorData(this.lang_t("rule.msg28")),!1;if(Number(e.sHour)==Number(e.eHour)&&Number(e.sMin)>=Number(e.eMin))return this.errorData(this.lang_t("rule.msg28")),!1;var i=cs.time_to_sec(e.sHour,e.sMin),s=cs.time_to_sec(e.eHour,e.eMin),n=e.data;if("add"==this.flag){if(10<=this.ruleList.length)return Cstool.Mark({content:this.lang_t("rule.msg30",[10]),l_text:this.lang_t("common.back")}),!1;for(var a in n)if("0"==n[a].week||"0"==e.week||n[a].week==e.week){var u=cs.time_to_sec(n[a].sHour,n[a].sMinute),r=cs.time_to_sec(n[a].eHour,n[a].eMinute);if(!(r<i||s<u))return this.errorData(this.lang_t("rule.msg31")),!1}}else for(var a in n)if(a!=this.flag&&n[a].week==e.week){u=cs.time_to_sec(n[a].sHour,n[a].sMinute),r=cs.time_to_sec(n[a].eHour,n[a].eMinute);if(!(r<i||s<u))return this.errorData(this.lang_t("rule.msg32")),!1}t={};t.enable=this.state?"1":"0","add"==this.flag?t.addEffect="1":(t.idx=String(this.flag+1),t.addEffect="2"),t.isGuest=this.funIdx,t.desc=this.desc,t.week=this.week,t.sHour=String(this.sHour),t.sMinute=String(this.sMin),t.eHour=String(this.eHour),t.eMinute=String(this.eMin),this.applyAbled=!0,uiPost.setWiFiScheduleCfg(t,function(t){e.applyAbled=!1,postCallback(t,function(){cs.local(e.funIdx,"href")})})},deleteBtn:function(){var e=this,t={};t.enable=e.enable,t.isGuest=this.funIdx,t[this.ruleList[this.flag].delRuleName]=String(this.flag),uiPost.delWiFiScheduleCfg(t,function(t){postCallback(t,function(){cs.local(e.funIdx,"href")})})},modefyFun:function(t,e){this.desc=t.desc,this.week=t.week,this.sHour=t.sHour,this.sMin=t.sMinute,this.eHour=t.eHour,this.eMin=t.eMinute,this.flag=e,this.editState="edit",this.homepage=!1},addFun:function(){this.desc="",this.week="0",this.sHour="0",this.sMin="0",this.eHour="0",this.eMin="0",this.flag="add",this.editState="edit",this.homepage=!1},errorData:function(t){Cstool.Mark({content:t,l_text:this.lang_t("common.back")})},abledFun:function(){var t=this,e=("on"==this.state?$("select").attr("disabled",!1):$("select").attr("disabled",!0),{});e.enable=this.state?"1":"0",e.isGuest=this.funIdx,postCallback({success:!0},function(){cs.local(t.funIdx,"href")}),uiPost.setWiFiScheduleCfg(e,function(t){})}}}</script><script src="/static/js/main.js"></script></body></html>

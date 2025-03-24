@@ -1,0 +1,488 @@
+body{
+	background-color: #FFFFFF;
+}
+
+input,
+select{
+	width: 65%;
+}
+
+input[type='radio'],
+input[type='checkbox']{
+	width: auto;
+	height: auto;
+}
+
+.header{
+	width: 100%;
+	z-index: 100;
+	background-color: #557cb7;
+}
+.topBar{
+	width: 100%;
+	height: auto;
+	padding-top: 20px;
+}
+
+.topBar img{
+	width: 151px;
+	padding-left: 10px;
+}
+
+.navBar {
+	padding: 25px 12px 20px;
+	box-sizing: border-box;
+}
+
+.navBar .navBar-item {
+	width: 48%;
+	border: 1px solid #fff;
+	border-radius: 5px 0 0 5px;
+	color: #fff;
+	font-size: 16px;
+	text-align: center;
+	padding: 8px 0;
+}
+
+.navBar-item.navActive {
+	background-color: #e0e7f5;
+	color: #666;
+}
+
+.feature-content{
+	padding: 15px 12px;
+}
+
+.status {
+	background-color: #557cb7;
+	width: 100%;
+	overflow: hidden;
+	padding: 80px 0;
+}
+
+.status-item {
+	float: left;
+	width: 33%;
+	text-align: center;
+}
+
+.status-item p {
+	margin-top: 8px;
+	color: #fff;
+}
+
+.netDiagnosis {
+	width: 80px;
+	height: 26px;
+	text-align: center;
+	line-height: 26px;
+	color: #fff;
+	border-radius: 5px;
+	background-color: #f44336;
+	margin: 0 auto;
+}
+
+/* .link-info {
+	background-color: #fff;
+	height: calc(100vh - 380px);
+} */
+
+.link-info ul {
+	overflow: hidden;
+	padding: 10px 12px;
+	border-bottom: 1px solid #eee;
+}
+
+.link-info ul li {
+	width: 33%;
+	border-right: 1px solid #eee;
+	padding: 40px 0;
+	float: left;
+	text-align: center;
+}
+
+.link-info ul li span {
+	color: rgba(73, 73, 73, 0.6);
+}
+
+.link-info ul li p {
+	margin-top: 20px;
+}
+
+.versionNumber {
+	padding: 20px;
+}
+
+/* 路由设置 */
+.feature {
+	padding-left: 12px;
+	background-color: #fff;
+	overflow: auto;
+}
+
+.feature-item {
+	position: relative;
+	display: none;
+}
+
+.feature i {
+	position: absolute;
+	top: 10px;
+	display: block;
+	width: 30px;
+	height: 30px;
+	background: url(../img/result.png);
+	background-size: 34px 455px;
+}
+
+/* 终端列表 */
+#setup_terminallist i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -352px;
+}
+
+/* 黑名单列表 */
+#baby_BlackList i {
+	background-position: 0px -485px;
+	background-size: 30px;
+}
+
+/* 儿童保护 */
+#pro_term i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -142px;
+}
+
+/* 外网设置 */
+#outNetSet i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -387px;
+}
+
+/* 局域网设置 */
+#lan_set i {
+	background-size: 30px;
+	background-position: 0px -381px;
+}
+
+/* mac克隆 */
+#macClone i {
+	background-size: 30px;
+	background-position: 0px 169px;
+}
+
+/* 高级dns */
+#advancedDNS i {
+    background-size: 30px;
+	background-position: 0px -312px;
+}
+
+/* wifi设置 */
+#wifiSet i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -422px;
+}
+/* wifi定时 */
+#wifiTiming i {
+	background-image: url(../img/wftime.png);
+	background-size: cover;
+}
+
+/* wifi模式 */
+#wifiMode i {
+	background-image: url(../img/wifiMode.png);
+	background-size: cover;
+}
+/* 访客网络 */
+#visitorNet i {
+	background-position: 0 -1140px;
+	background-size: 30px;
+}
+/* 信道设置 */
+#channelSet i {
+	background-size: 30px;
+	background-position: 0px -659px;
+}
+
+/* 模式切换 */
+#ChangerMode i {
+	background-size: 30px;
+	background-image: url(../img/changemode.png);
+}
+
+/* pptp客户端，l2tp客户端 */
+#VPN_pptp_set i,
+#VPN_l2tp_set i {
+	background-size: 30px;
+	background-position: 0px -69px;
+}
+/* dmz */
+#dmz i {
+	background-size: 30px;
+	background-position: 0px -208px;
+}
+/* iptv */
+#iptv i {
+	background-image: url(../img/iptv.png);
+	background-size: cover;
+}
+/* ipv6 */
+#ipv6 i {
+	background-image: url(../img/ipv6.png);
+	background-size: cover;
+}
+/* upnp */
+#upnp i {
+	background-position: 0px -173px;
+	background-size: 30px;
+}
+/* 重启路由器 */
+#misc_reboot i,
+#scheduleRestart i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -317px;
+}
+
+/* 恢复出厂设置 */
+#rally_restore i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -282px;
+}
+
+/* 硬件加速 */
+#hardware i {
+	background-image: url(../img/result1.png);
+	background-position: -2px -282px;
+}
+
+/* 修改管理密码 */
+#password i {
+	background-size: 30px;
+	background-position: 0px -416px;
+}
+/* 端口转发 */
+#forwarding i {
+	background-size: 30px;
+	background-position: 0px -243px;
+}
+/* ftp,samba */
+#ftp i,
+#samba i {
+	background-size: 30px;
+	background-position: 0px -35px;
+}
+
+/* 远程web访问 */
+#webadmin i {
+	background-size: 30px;
+	background-image: url(../img/webadmin.png);
+}
+
+/* 系统升级 */
+#update i {
+	background-size: 30px;
+	background-image: url(../img/update.png);
+}
+
+.feature-item-right {
+	margin-left: 45px;
+	overflow: hidden;
+	padding: 15px 0 20px;
+	border-bottom: 1px solid #cdcdcd;
+}
+
+.feature-item-right p {
+	float: left;
+	font-size: 16px;
+}
+
+.feature-item-right img {
+	float: right;
+	margin-right: 12px;
+}
+
+/* 终端列表 */
+.terBody h3 {
+	padding: 10px 15px;
+	background-color: #f4f4f4;
+	font-size: 15px;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	color: #000;
+}
+
+.device {
+	padding: 5px 12px 6px;
+	border-bottom: 1px solid #ccc;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+
+.device-item:last-child {
+	margin-right: 0;
+}
+
+.device-item p {
+	margin-bottom: 5px;
+}
+
+.dev-item {
+	overflow: hidden;
+	padding: 12px 18px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+
+.dev-item-speed i {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: url(../img/up.png) no-repeat;
+	vertical-align: middle;
+}
+
+/* 黑名单 */
+.blackHead {
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	padding: 10px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.blackHead-item {
+	text-align: center;
+	word-wrap:break-word; 
+	word-break:break-all; 
+	overflow: hidden;
+}
+
+/* 家长控制 */
+.macInput {
+	width: 11vw;
+	height: 30px;
+	border-radius: 5px;
+	border: 1px solid rgb(133, 133, 133);
+	text-indent: 6px;
+	outline: none;
+}
+
+.listform {
+	/* padding: 15px 12px; */
+	font-size: 13px;
+}
+
+.listform .listform-item {
+	margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+}
+.listform-item h3{
+	width: 100%;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #e3e3e3;
+}
+
+.listform .listform-item>label {
+	display: inline-block;
+	width: 25%;
+	text-align: right;
+	margin-right: 12px;
+}
+
+.parentProtect .listform-item>label{
+	width: 18%;
+}
+
+.listform-item input[type='checkbox']{
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+}
+
+.listform-item-right{
+	flex: 1;
+	display:flex;
+	align-items: center;
+}
+
+.listform-item-right .macInput{
+	width: 16%;
+}
+
+.listform-item-right select{
+	width: 25%;
+}
+
+.accesstime .el-input__inner {
+	padding: 0;
+}
+
+/* 管理密码 */
+.loginSet {
+	padding-top: 20px;
+}
+
+.loginSet-item {
+	margin-bottom: 15px;
+}
+
+.loginSet-item>label {
+	display: inline-block;
+	text-align: right;
+	margin-right: 15px;
+}
+
+.tips {
+	color: #ce443a;
+	text-align: center;
+	width: 90%;
+	margin: 0 auto 8px;
+}
+
+.wifi_classify {
+	padding: 10px 0 12px;
+	width: 90%;
+	margin: 0 auto 8px;
+	color: #757575;
+	font-size: 15px;
+}
+
+/* 网络诊断 */
+/* 网络诊断 */
+
+.bulletFrame.diagnosis-frame{
+	position:fixed;
+	top: 50%;
+	transform: translate(0,-50%);
+	padding: 12px;
+	font-weight: normal;
+}
+.bulletFrame.diagnosis-frame img{
+	padding: 0 0 10px;
+}
+.diagnosis-frame .diagnosis li{
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.diagnosis-frame .diagnosis li i{
+	font-size:20px;
+	float: right;
+}
+.diagnosis-frame .diagnosis li i.el-icon-success{
+	color: #00FF00 !important;
+}
+.diagnosis-frame .diagnosis li i.el-icon-error{
+	color: red !important;
+}
+
+.net-diagnosis-tip p{
+	text-align: center;
+	color: red;
+}

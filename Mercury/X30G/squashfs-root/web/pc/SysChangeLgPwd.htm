@@ -1,0 +1,167 @@
+<script type="text/javascript">
+	(function(){
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVLGPWDLEN:
+				showStr = errStr.lgPwdLenInvalid;
+				break;
+			case EINLGVALCHAR:
+				showStr = errStr.pwdInvalid;
+				break;
+			case EINLGVALOLDSAME:
+				showStr = errStr.pswNewOldSameErr;
+				break;
+			case EINVKEY:
+				showStr = errStr.pwdError;
+				break;
+			case EINLGUSRVALOLDSAME:
+				showStr = errStr.usrNewOldSameErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function checkConfirmPwd(){
+			var newPwd = newPassword.getValue();
+			var conPwd = this.input.value;
+
+			if (newPwd != conPwd)
+			{
+				this.showNote(errStr.inputPwdDif);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onSave(){
+			var oldPwd = oriPassword.getValue();
+			var newPwd = newPassword.getValue();
+			var inputArr = [oriPassword, newPassword, conPassword];
+			var checkRes = true;
+
+			if (slp.usernameSupport)
+			{
+				var oldUsr = oriUsername.getValue();
+				var newUsr = newUsername.getValue();
+				inputArr = [oriUsername, newUsername, oriPassword, newPassword, conPassword];
+			}
+
+			inputArr.forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			if (slp.usernameSupport)
+			{
+				$.changeUsrPwd(oldUsr, newUsr, oldPwd, newPwd, function(code){
+					if (true == errHandle(code))
+					{
+						showToast(label.modifySuccess);
+					}
+				});
+			}
+			else
+			{
+				$.changePwd(oldPwd, newPwd, function(code){
+					if (true == errHandle(code))
+					{
+						showToast(label.modifySuccess);
+					}
+				});
+			}
+		}
+
+		if (slp.usernameSupport)
+		{
+			var oriUsername = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.chgOrUsr},
+				targetId:"basicArguments",
+				check:{blur:checkSysUsrBlur, keyup:checkSysUsrKeyup},
+				props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "text", placeholder: label.plzInputOriUsr}
+			});
+		}
+		var oriPassword = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.chgOrPwd},
+			targetId:"basicArguments",
+			check:{blur:checkSysPwdBlur, keyup:checkSysPwdKeyup},
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password", placeholder: label.plzInputOriPwd}
+		});
+		if (slp.usernameSupport)
+		{
+			var newUsername = new Input({
+				type:Input.TYPE.PLAIN_TEXT,
+				label:{value:label.chgNewUsr},
+				targetId:"basicArguments",
+				check:{blur:checkSysUsrBlur, keyup:checkSysUsrKeyup},
+				props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "text", placeholder: label.plzInputNewUsr}
+			});
+		}
+		var newPassword = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.chgNewPwd},
+			strength:{show: !SYS_LOGIN_PWD_COMPLEX_CHECK, least:6, critical:10},
+			complexity: SYS_LOGIN_PWD_COMPLEX_MIN,
+			targetId:"basicArguments",
+			check:{blur:checkSysPwdBlur, keyup:checkSysPwdKeyup},
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password", placeholder: label.plzInputSysLoginNewPwd}
+		});
+		if (SYS_LOGIN_PWD_COMPLEX_CHECK)
+		{
+			$("#basicArguments").append('<div class="pwdStrNote">{%label.chgPwdChar8%}</div>');
+		}
+		var conPassword = new Input({
+			type:Input.TYPE.CIPHER_TEXT,
+			label:{value:label.chgConNewPwd },
+			targetId:"basicArguments",
+			check:{blur:checkConfirmPwd},
+			props:{maxlength: SYS_LOGIN_PWD_LENGTH_MAX, type: "password", placeholder: label.plzInputNewPwdAgain}
+		});
+		var loginBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"32px 0 0 132px"}
+		});
+
+		if (slp.usernameSupport)
+		{
+			$("#titleStr").text(menuStr.changeLgUsrPwd);
+		}
+	})();
+</script>
+<style>
+div.pwdStrNote{
+	/* display: none; */
+    padding-left: 132px;
+    margin: -6px 0 12px 0;
+    line-height: 20px;
+    font-size: 13px;
+    color: #666666;
+}
+</style>
+<div class="head">
+	<div class="title">
+		<h1 id="titleStr">{%menuStr.changeLgPwd%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.sysChangeLoginPwdDescription%}</p>
+</div>
+<div id="basicArguments"></div>
+<div id="save"></div>

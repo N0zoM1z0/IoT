@@ -1,0 +1,68 @@
+
+
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<ul class="dashBoard clearfix">
+	<li class="board">
+		<i class="iconfont icon-upstream"></i>
+		<span id="upSpeed" class="speed">---</span>
+		<p class="speedText"><span id="upUnit">---</span><span>{%label.upSpeed%}</span></p>
+	</li>
+	<li class="board">
+		<i class="iconfont icon-downstream"></i>
+		<span id="downSpeed" class="speed">---</span>
+		<p class="speedText"><span id="downUnit">---</span><span>{%label.downSpeed%}</span></p>
+	</li>
+</ul>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl" id="wanSelUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="basicArguments"></div>
+<div id="advancedArguments">
+	<ul class="inputCMPT medium selectUl">
+		<label class="outerLbl">{%label.wanRateSet%}</label>
+		<li class="inputLi">
+			<span class="selectWrap">
+				<span id="wanRateSel" class="select">
+					<span class="value"></span>
+					<i class="arrow iconfont icon-folddropdown"></i>
+				</span>
+			</span>
+		</li>
+	</ul>
+</div>
+<div id="save"></div><script type="text/javascript">(function(){function v(b){var a="";switch(b){case ENONE:return!0;case EINVNET:a=errStr.ipAddrNetErr;break;case EINVIP:a=errStr.ipAddrErr;break;case EINVIPFMT:a=errStr.ipAddrFmtErr;break;case EINVGROUPIP:a=errStr.ipAddrGroupErr;break;case EINVLOOPIP:a=errStr.ipAddrLoopErr;break;case EINVMASK:a=errStr.maskErr;break;case EINVNETID:a=errStr.ipAddrNetIdErr;break;case EINVHOSTID:a=errStr.ipAddrHostIdErr;break;case EINVIPMASKPAIR:a=errStr.ipAddrMaskNotMatch;break;case ECOMFLICTNET:a=errStr.ipAddrLanWanConflict;
+break;case EINVGTW:a=errStr.gatewayErr;break;case EINVMTU:a=errStr.stcMtuErr;break;case EINVFDNSVR:a=errStr.primDnsErr;break;case EINVSDNSVR:a=errStr.seDnsErr;break;case ECONFLICTGATEWAY:return m.showNote(errStr.wzdStcIpLanConflict),!1;case ECONFLICTFDNS:return n.showNote(errStr.wzdStcIpLanConflict),!1;case ECONFLICTSDNS:return p.showNote(errStr.wzdStcIpLanConflict),!1;default:a=errStr.unknown+b}"idle"==alarmDialog.status&&alarmDialog.show(a);return!1}function w(){if(""!=c.getValue()&&"0.0.0.0"!=
+c.getValue()&&""!=e.getValue()&&"0.0.0.0"!=e.getValue()&&ENONE==checkMask(c.getValue())&&ENONE==checkIp(e.getValue())){if(ENONE!=checkIpMask(e.getValue(),c.getValue()))return c.showNote(errStr.wzdStcIpMaskNotMatch),!1;c.closeNote();var b=ENONE,a=e.getValue(),d=c.getValue(),g=transIp(highSetLanConf[uciNetwork.optName.ip]),z=transIp(highSetLanConf[uciNetwork.optName.netmask]),a=transIp(a),d=transIp(d);if(b!=(0==((g^a)&z&d)?ECOMFLICTNET:ENONE))return e.showNote(errStr.wzdStcIpLanConflict),!1;e.closeNote()}return!0}
+function q(b,a){if(""==this.input.value){if(b)return this.showNote(b),!1}else if(ENONE!=checkIp(this.input.value))return this.showNote(a),!1;return!0}function x(){linkCode[LINK_CODE_PHYDOWN]=slp.moduleSpec.wan_port_detect&&1==slp.moduleSpec.wan_port_detect&&r?errStr.linkPhyDownMesh:errStr.linkPhyDown;slp.latestWanStatus(function(b){var a=b.error_code;if(uciProto.optValue.proto.staticIp==b.proto)switch(id("upSpeed").innerHTML=h,id("downSpeed").innerHTML=h,id("upUnit").innerHTML=h,id("downUnit").innerHTML=
+h,parseInt(b.link_status)){case LINK_DOWN:LINK_CODE_MANUAL!=a&&LINK_CODE_NORMAL!=a?LINK_CODE_IP_CONFLICT==a?setLinkState(!1,linkCode[a]):setLinkState(!1,linkStatus[LINK_DOWN]+label.lBrackets+linkCode[a]+label.rBrackets):setLinkState(!1,linkStatus[LINK_DOWN]);break;case LINK_UP:a=speedConversion(b[uciNetwork.optName.upSpeed]);b=speedConversion(b[uciNetwork.optName.downSpeed]);null==a||null==b?(id("upSpeed").innerHTML=h,id("downSpeed").innerHTML=h,id("upUnit").innerHTML=h,id("downUnit").innerHTML=h):
+(id("upSpeed").innerHTML=a.speed,id("upUnit").innerHTML=a.unit,id("downSpeed").innerHTML=b.speed,id("downUnit").innerHTML=b.unit);setLinkState(!0,linkStatus[LINK_UP]);break;case LINKING_DOWN:setLinkState(!1,linkStatus[LINKING_DOWN]);break;case LINKING_UP:LINK_CODE_MANUAL!=a&&LINK_CODE_NORMAL!=a?setLinkState(!1,linkStatus[LINKING_UP]+label.lBrackets+linkCode[a]+label.rBrackets):setLinkState(!1,linkStatus[LINKING_UP])}clearTimeout(y);y=$.setTimeout(x,2E3)},!0,WAN_INDEX)}function A(){var b=s[uciProto.fileName][l],
+a=s[uciProto.fileName][f];e.setValue(a[uciProto.optName.ip]);c.setValue(a[uciProto.optName.netmask]);m.setValue(a[uciProto.optName.gateway]);n.setValue(a[uciProto.optName.priDns]);p.setValue(a[uciProto.optName.sndDns]||"");t.setValue(a[uciProto.optName.mtu]);selectInit("wanRateSel",rateOptions,b[uciProto.optName.speed]);if(slp.moduleSpec.wan_port_detect&&1==slp.moduleSpec.wan_port_detect)if(DUAL_WAN_OPEN){if(g="undefined"!=typeof k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort]){var d=
+initDynamicPortRate(currentSelectPos[WAN_INDEX-1],slp.devicePowerPos);id("wanRateSel").resetOptions(d,b[uciProto.optName.speed])}}else{b=$('<div><div class="subTitle"><h2>'+label.wanPortLayout+'</h2></div><span class="wanPortDetectTip"></span><ul class="inputCMPT medium selectUl"><label class="outerLbl">'+label.wanPortMode+'</label><li class="inputLi"><span class="selectWrap"><span id="wanPortSel" class="select"><span class="value"></span><i class="arrow iconfont icon-folddropdown"></i></span></span></li></ul><div><div id="portImageAuto" class="portImage"></div><div id="portImageFixed" class="portImage"></div></div><div id="wanPortDetectSave"></div></div>');
+$("#save").after(b);b=[{str:label.wanPortStatic,value:uciWanPortDetect.optValue.enable.off},{str:label.wanPortDynamic,value:uciWanPortDetect.optValue.enable.on}];a=k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable];r=k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable]==uciWanPortDetect.optValue.enable.on;var g="undefined"!=typeof k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort];
+selectInit("wanPortSel",b,k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.enable],function(a){var b=a==uciWanPortDetect.optValue.enable.on;g?($("span.wanPortDetectTip").text(a==uciWanPortDetect.optValue.enable.off?label.wanPortFixTip:label.wanPortDynamicTip),initPortCustomImage(b,wanPortSelCfg)):$("span.wanPortDetectTip").text(a==uciWanPortDetect.optValue.enable.off?label.wanPortStaticTip:label.wanPortDynamicTip);switchPortImage(b)});g?(wanPortSelCfg=-1==k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort]?
+0:k[uciWanPortDetect.fileName][uciWanPortDetect.secName.config][uciWanPortDetect.optName.fixWanPort],$("span.wanPortDetectTip").text(a==uciWanPortDetect.optValue.enable.off?label.wanPortFixTip:label.wanPortDynamicTip)):$("span.wanPortDetectTip").text(a==uciWanPortDetect.optValue.enable.off?label.wanPortStaticTip:label.wanPortDynamicTip);b=a==uciWanPortDetect.optValue.enable.on;g?initPortCustomImage(b,wanPortSelCfg):initPortImage();switchPortImage(b);new Button({text:btn.save,onClick:function(){wanCheckWDS(function(){var a=
+{},b={};a[uciWanPortDetect.fileName]={};a[uciWanPortDetect.fileName][uciWanPortDetect.secName.config]=b;b[uciWanPortDetect.optName.enable]=id("wanPortSel").value;if(g&&id("wanPortSel").value==uciWanPortDetect.optValue.enable.off){b[uciWanPortDetect.optName.fixWanPort]=wanPortSelCfg;var c=id("wanRateSel").value;checkIfWanRateShouldChange(wanPortSelCfg,c)&&(c="auto",a[uciProto.fileName]={},a[uciProto.fileName][uciProto.secName.wan]={},a[uciProto.fileName][uciProto.secName.wan][uciProto.optName.rate]=
+"auto")}$.modify(a,function(a){a[ERR_CODE]==ENONE?(showToast(label.saveSuccess),r=b[uciWanPortDetect.optName.enable]==uciWanPortDetect.optValue.enable.on,g&&(initDynamicPortRate(wanPortSelCfg,slp.devicePowerPos),id("wanRateSel").resetOptions(d,c))):v(a[ERR_CODE])})})},type:Button.TYPE.PRIMARY,id:"wanPortDetectSave",props:{width:"240px",margin:"12px 0 0 132px"}})}x()}var h="---",y=null,s,k,r=!1,l,f;"undefined"!=typeof WAN_INDEX&&2==WAN_INDEX?(l=uciProto.secName.wan2,f=uciProto.secName.sta2):(l=uciProto.secName.wan,
+f=uciProto.secName.sta);var e=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.ipAddr},targetId:"basicArguments",check:{blur:function(){return""==this.input.value?(this.showNote(errStr.wzdStcIpEmpty),!1):checkInputIp.call(this)?w():!1}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),c=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.mask},targetId:"basicArguments",check:{blur:function(){return""==this.input.value?(this.showNote(errStr.wzdStcMaskEmpty),!1):ENONE!=checkMask(this.input.value)?
+(this.showNote(errStr.wzdStcMaskErr),!1):w()}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),m=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.gateway},targetId:"basicArguments",check:{blur:function(){return q.call(this,errStr.wzdStcGatewayEmpty,errStr.wzdStcGatewayErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),n=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.preferredDnsServer},targetId:"basicArguments",check:{blur:function(){return q.call(this,
+errStr.wzdPrimDnsEmpty,errStr.wzdPrimDnsErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),p=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.alternativeDnsServer},targetId:"basicArguments",check:{blur:function(){return"0.0.0.0"==this.input.value?!0:q.call(this,null,errStr.wzdSeDnsErr)}},props:{maxlength:"15",type:"text",placeholder:"0.0.0.0"}}),t=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.mtu},targetId:"advancedArguments",tips:{value:label.unitByte,className:"unit"},
+hint:{value:label.mtuComment},check:{blur:function(){if(!checkNum(this.input.value))return this.showNote(errStr.dhcpcMtuErr),!1;1500<this.input.value?this.setValue((1500).toString()):576>this.input.value&&this.setValue((576).toString());return!0}},props:{maxlength:"4",type:"text"}}),u=new Button({text:btn.connect,onClick:function(){function b(a){var b={};b[l]={};b[l][uciProto.optName.speed]=id("wanRateSel").value;b[l][uciProto.optName.type]=uciProto.optValue.proto.staticIp;b[f]={};b[f][uciProto.optName.ip]=
+e.getValue();b[f][uciProto.optName.netmask]=c.getValue();b[f][uciProto.optName.gateway]=m.getValue();b[f][uciProto.optName.priDns]=n.getValue();b[f][uciProto.optName.sndDns]=p.getValue();b[f][uciProto.optName.mtu]=t.getValue();u.disable(!0);if(slp.gSysModeSupport){var d={};d.system={sys_mode:{mode:uciSystem.optValue.sysMode.routerMode}};switch(slp.bandsProvided){case slp.SINGLE:d.wireless={wlan_wds_2g:{enable:"0"}};break;case slp.DOUBLE:d.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g:{enable:"0"}};
+break;case slp.TRIPLE:d.wireless={wlan_wds_2g:{enable:"0"},wlan_wds_5g_1:{enable:"0"},wlan_wds_5g_4:{enable:"0"}}}$.modify(d,function(a){a.error_code==ENONE&&(curSysMode=uciSystem.optValue.sysMode.routerMode)})}slp.protocol.setData({data:b,success:function(){highSetWanType=uciProto.optValue.proto.staticIp;u.disable(!1);showToast(label.saveSuccess);"function"==typeof a&&a()},fail:function(a){u.disable(!1);v(a[ERR_CODE])}},WAN_INDEX)}var a=!0,d=[e,c,m,n,p,t];m.closeNote();n.closeNote();p.closeNote();
+d.forEach(function(b){b.setValue(hideLeadingZeros(b.getValue()));a=b.checkAll()&&a});a&&(slp.gSysModeSupport&&curSysMode!=uciSystem.optValue.sysMode.routerMode?changeSysModeAlert("switch",uciSystem.optValue.sysMode.routerMode,function(){b(function(){menuLoad("WanLoader.htm")})}):b())},type:Button.TYPE.PRIMARY,id:"save",props:{width:"240px",margin:"12px 0 0 132px"}});$("i.helpBtn").attr("helpStr","staticIpHelp");selectInit("wanSel",wanOptions,LINK_TYPE_STATIC_IP,loadPageByIndex);(function(){var b=
+$.Deferred(),a=$.Deferred(),d=[],c={};d.push(b);slp.protocol.getData({success:function(a){s=a;b.resolve()}},WAN_INDEX);slp.moduleSpec.wan_port_detect&&1==slp.moduleSpec.wan_port_detect&&(d.push(a),c[uciWanPortDetect.fileName]={},c[uciWanPortDetect.fileName][KEY_NAME]=uciWanPortDetect.secName.config,$.query(c,function(b){k=b;a.resolve()}));$.when.apply($,d).done(function(){A()})})()})();
+</script><style type="text/css">i.wanPortDetectImg{margin-bottom:12px}#portImageAuto{border:0}#portImageFixed{border:0}#wanSelUl .inputLi{display:inline-block}</style>

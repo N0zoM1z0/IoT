@@ -1,0 +1,8 @@
+Package: terminal_list
+Version: 1
+Depends: libc, libuci, libeasyuci
+Source: package/B-LINK/terminal_list
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 29890
+Description:  for terminal list

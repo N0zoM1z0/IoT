@@ -1,0 +1,126 @@
+<script type="text/javascript">
+	(function(){
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function onSave(){
+			var cfg = {};
+
+			cfg[uciProto.secName.wanv6] = {};
+			cfg[uciProto.secName.wanv6][uciProto.optName.type] = uciProto.optValue.proto.bridgev6;
+
+			if (curWanv6Type != uciProto.optValue.proto.bridgev6)
+			{
+				confirmDialog.show({
+					content:label.ipv6BridgeChgTip,
+					callback:function(result){
+						if (result)
+						{
+							sendData();
+						}
+					}
+				});
+			}
+			else
+			{
+				sendData();
+			}
+
+			function sendData(){
+				slp.protocol.setData({
+					data: cfg,
+					success: function(){
+						curWanv6Type = uciProto.optValue.proto.bridgev6;
+						showToast(label.saveSuccess);
+					},
+					fail: function(result){
+						errHandle(result[ERR_CODE]);
+					}
+				});
+			}
+		}
+
+		function setBridgeWanStatus(ALL_DATA){
+			var wanStatus = ALL_DATA[uciNetwork.fileName][uciNetwork.dynData.wanv6Status];
+
+			if (wanStatus.proto != uciNetwork.optValue.proto.bridgeIpv6)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+				return;
+			}
+
+			ipAddrAuto.setValue(curLanv6LocalAddr);
+		}
+
+		wanStatusRefresh = function(){
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.dynData.wanv6Status;
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			$.query(data, function(data){
+				setBridgeWanStatus(data);
+				updateWanStatusTimer = $.setTimeout(wanStatusRefresh, 2000);
+			}, undefined, true);
+		}
+
+		var ipAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipv6LanLocalAddr},
+			targetId:"bridgev6Container",
+			props:{maxlength: '39', type: "text"}});
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		selectInit("wanSel", wanv6Options, LINK_TYPE_BRIDGE, loadPageByIndex);
+
+		wanStatusRefresh();
+		lanStatusRefresh();
+	})();
+</script>
+<style type="text/css">
+</style>
+<!--<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>-->
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="bridgev6Container"></div>
+<div id="save"></div>

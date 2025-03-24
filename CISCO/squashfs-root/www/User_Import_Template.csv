@@ -1,0 +1,18 @@
+TYPE,USERNAME,PASSWORD
+Admin,admin123,admin123
+Guest,guest,guest
+TYPE,USERNAME,PASSWORD,
+VPNServer,vpn-user-1,12345678
+VPNServer,vpn-user-2,3345678
+TYPE,USERNAME,PASSWORD,ENABLE
+PPTP,PPTP-user-1,12345678,enable
+PPTP,PPTP-user-2,12345678,disable
+TYPE,USERNAME,PASSWORD,ACCESS_TIME
+guestnet,guestnet-user-1,12345678,1440
+guestnet,guestnet-user-2,3345678,60
+
+
+
+#TYPE : Admin(For Web GUI login), Guest(For Web GUI login), VPNServer(For VPN Server), PPTP(For PPTP user), guestnet(For Captive Portal user)
+#ENABLE : enable/disable (Only for PPTP user)
+#ACCESS_TIME : 0~1440 (0 means forever, Only for Captive Portal user)

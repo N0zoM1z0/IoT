@@ -1,0 +1,22 @@
+
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.gamePort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.gameDescription%}</p>
+</div>
+<div id="gameContent">
+</div><script type="text/javascript">function errHandle(g){var e="";switch(g){case ENONE:return!0;case ESYSTEM:e=errStr.systemErr}alarmDialog.show(e);return!1}
+(function(){function g(){var b={},a;b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo;$.query(b,function(b){var c=b[ERR_CODE];c==ENONE?(h=b[uciPortConfig.fileName][uciPortConfig.secType.devInfo],a=h.some(function(a){return-1!=a[uciPortConfig.dynOptName.subFunc].indexOf("game")?a[uciPortConfig.dynOptName.phyInfo].some(function(a){return"lan"==a[uciPortConfig.dynOptName.role]||"game"==a[uciPortConfig.dynOptName.role]}):!1})):errHandle(c)},!1);return a}var e,
+f=$("#gameContent");e=new Switch("switchCon",0,function(b){var a={},d=this,c;a[uciPortConfig.fileName]={};a[uciPortConfig.fileName][uciPortConfig.secType.game]={};a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable]=1==b?uciPortConfig.optValue.enable.on:uciPortConfig.optValue.enable.off;loadingDialog.show({title:menuStr.gamePort,content:{primary:label.wanSettingWait}});1==b?(c=g())?(c={},c[uciPortConfig.fileName]={},c[uciPortConfig.fileName][KEY_NAME]=uciPortConfig.secType.game,
+$.query(c,function(b){var d;if(b[ERR_CODE]==ENONE)if((d=b[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0])&&d[uciPortConfig.optName.gameDev]&&"00-00-00-00-00-00"!=d[uciPortConfig.optName.gameDev]){a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList]=[{}];a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gamePhy]=d[uciPortConfig.optName.gamePhy];a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev]=
+d[uciPortConfig.optName.gameDev];var c=!1;h.forEach(function(a){(a.mac.toLowerCase()===d[uciPortConfig.optName.gameDev].toLowerCase()||"ff-ff-ff-ff-ff-ff"===d[uciPortConfig.optName.gameDev].toLowerCase()&&a.cap==uciPortConfig.dynOptValue.cap.cap)&&a[uciPortConfig.dynOptName.phyInfo].forEach(function(a){+a[uciPortConfig.dynOptName.phy]===+d[uciPortConfig.optName.gamePhy]&&"lan"!==a[uciPortConfig.dynOptName.role]&&(c=!0)})});c?loadingDialog.hide(function(){alarmDialog.show({content:errStr.portOccupiedErr,
+callback:function(){loadPage("GameCfg.htm","gameContent")}});f.css("display","block")}):$.modify(a,function(a){loadingDialog.hide(function(){var b=a[ERR_CODE];b==ENONE?(showToast(label.gameOpened),loadPage("GameCfgEnd.htm","gameContent")):b==EINVCLOUDCLIENTDOWNLOADESTABLISHTCP?alarmDialog.show({content:errStr.portOccupiedErr,callback:function(){loadPage("GameCfg.htm","gameContent")}}):errHandle(b);f.css("display","block")})})}else loadingDialog.hide(function(){loadPage("GameCfg.htm","gameContent");
+f.css("display","block")})})):loadingDialog.hide(function(){d.setState(1-b);alarmDialog.show(errStr.portNumLessErr)}):$.modify(a,function(a){f.css("display","none");loadingDialog.hide(function(){showToast(label.gameClosed)})})},!1);var h;(function(){var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_NAME]=uciPortConfig.secType.game;$.query(b,function(a){var b;b=a[ERR_CODE];b==ENONE?(b=a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable],b==uciPortConfig.optValue.enable.on?
+(a=a[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList][0][uciPortConfig.optName.gameDev],e.setState(!0),"00-00-00-00-00-00"!=a?loadPage("GameCfgEnd.htm","gameContent"):loadPage("GameCfg.htm","gameContent")):(e.setState(b),f.css("display","none"))):errHandle(b)})})()})();
+</script><style type="text/css"></style>

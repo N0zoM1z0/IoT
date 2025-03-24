@@ -1,0 +1,27 @@
+#!/bin/sh
+
+enabled=$(uci -q get upnpd.config.enabled)
+[ "$enabled" = "1" ] || exit 0
+
+. /lib/functions/service.sh
+
+# If miniupnpd is not running:
+# - check on _any_ event (even updates may contribute to network_find_wan*)
+
+# If miniupnpd _is_ running:
+# - check only on ifup (otherwise lease updates etc would cause
+#   miniupnpd state loss)
+
+[ ! "$ACTION" = "ifup" ] && service_check /usr/sbin/miniupnpd && exit 0
+
+local iface
+local ifname
+local tmpconf="/var/etc/miniupnpd.conf"
+
+. /lib/functions/network.sh
+
+for iface in $(uci get upnpd.config.internal_iface); do
+    network_get_device device $iface
+    [ "$DEVICE" = "$device" ] && /etc/init.d/miniupnpd restart && exit 0
+done
+

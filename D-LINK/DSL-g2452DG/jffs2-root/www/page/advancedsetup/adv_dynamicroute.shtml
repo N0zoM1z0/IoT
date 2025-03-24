@@ -1,0 +1,220 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+    this.IPMode = "";
+}
+var n = 0;
+var Connection = new Array();
+
+/* LAN直接写死即可 */
+Connection[n] = new ConnectionTuple();
+Connection[n].Path = "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.IPInterface.1.";
+Connection[n].Type = "LAN";
+Connection[n].Name = "LAN";
+n++;
+
+/* wan需要动态获取 */
+<!--#getobject_noop "InternetGatewayDevice.WANDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+
+/*获取动态路由配置 */
+function DynamicRouteTuple(){
+    this.path="";
+    this.Enable="";
+    this.Protocol="";
+    this.Interface="";
+    this.RipPassive="";
+    this.BgpLocalAS="";
+    this.BgpRemoteAS="";
+    this.BgpNeighborIP="";
+}
+var index = 0;
+var gDynamicRoutingList = new Array();
+<!--#getobject_noop "InternetGatewayDevice.X_TRI_DynamicRoute. Enable Protocol Interface RipPassive BgpLocalAS BgpRemoteAS BgpNeighborIP" -->
+    gDynamicRoutingList[index] = new DynamicRouteTuple();
+    gDynamicRoutingList[index].path = "<!--#path -->";
+    gDynamicRoutingList[index].Enable = "<!--#leaf "1"-->";
+    gDynamicRoutingList[index].Protocol = "<!--#leaf "2"-->";
+    gDynamicRoutingList[index].Interface = "<!--#leaf "3"-->";
+    gDynamicRoutingList[index].RipPassive = "<!--#leaf "4"-->";
+    gDynamicRoutingList[index].BgpLocalAS = "<!--#leaf "5"-->";
+    gDynamicRoutingList[index].BgpRemoteAS = "<!--#leaf "6"-->";
+    gDynamicRoutingList[index].BgpNeighborIP = "<!--#leaf "7"-->";
+    index++;
+<!--#endgetobject -->
+
+
+function uiAdd()
+{
+    if(gDynamicRoutingList.length<30)
+    {
+        document.location.href='/page/advancedsetup/dynamicroute.shtml?Op=Add';
+    }
+    else
+    {
+        top.AlertMsg(getStr("LK_net_max30item2"));
+    }
+}
+
+
+function getconnectionname(path){
+    var conn_name = "";
+
+    for (i = 0; i < Connection.length; i++)
+    {
+      if (Connection[i].Path == path){
+           conn_name = Connection[i].Name;
+           break;
+      }
+    }
+    return conn_name;
+}
+
+
+function createTable(){
+    var trs = "";
+ 
+    for(var i=0;i<gDynamicRoutingList.length;i++)
+    {
+        var tr = "";
+        var Name = getconnectionname(gDynamicRoutingList[i].Interface);
+
+        /* 如果是rip协议,需要显示Active或者Passive */
+        if (gDynamicRoutingList[i].Protocol == "RIPv1" || gDynamicRoutingList[i].Protocol == "RIPv2")
+        {
+            if(gDynamicRoutingList[i].RipPassive=="0")
+            {
+                Name += "(Active)";
+            }
+            else
+            {
+                Name += "(Passive)";
+            }
+        }
+
+        if(i%2 == 0)
+            tr += "<tr class='OddRowB'>";
+        else
+            tr += "<tr class='EvenRowB'>";
+        tr += "<td>"+(i+1)+"</td>";
+        if(gDynamicRoutingList[i].Enable == '1')
+        {
+            tr += "<td>"+'Enable'+"</td>";
+        }
+        else
+        {
+            tr += "<td>"+'Disable'+"</td>";
+        }
+        tr += "<td>"+gDynamicRoutingList[i].Protocol+"</td>";
+        tr += "<td>"+Name+"</td>";
+        tr += "<td>" + "<img style='cursor:pointer' src='../../skin/edit.gif' name='edit' onclick='uiEdit(\"" +gDynamicRoutingList[i].path+"\",\"" +(i)+"\")'>"
+                     + "<img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +gDynamicRoutingList[i].path+ "\")'>"+"</td>";
+        tr += "</tr>";
+        trs += tr;  
+     
+    }
+    if(trs == "")
+        trs = '<tr class="OddRowB"><td colspan="9">'+getStr('LK_NoRule')+'</td></tr>'
+    jQuery("#DynamicRoutingTable").append(trs);
+}
+
+function uiDelete(path){
+	if(!validateCode())
+		return false;
+	top.ConfirmMsg(getStr('LK_net_confirmdelete'),"delete",path);
+}
+   
+function ConfirmMsgResult(type,func,a)
+{
+	if(func == "delete")
+	{
+		if(type == "yes")
+		{
+			var df=document.ipv4_rtroutecfgdataform;
+			AddElements(df,'del_obj',a);
+			df.submit();
+		}
+		else
+		{
+			window.event.returnValue = false;
+		}
+	}
+
+} 
+function uiEdit(path,idx)
+{
+    document.location.href='/page/advancedsetup/dynamicroute.shtml?Op=Edit'+'&id='+idx+'&path='+ path+'';
+}
+
+function __init()
+{
+    createTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_DynamicRoute'))</script>
+<table id='DynamicRoutingTable' cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Status"></td>
+	<td langkey="LK_Protocol"></td>
+	<td langkey="LK_Interface"></td>
+    <td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td><script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script></td></tr>
+</table>	
+<script>printEndContent()</script>    
+</form>
+<form method="post" name ="ipv4_rtroutecfgdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_dynamicroute.shtml">
+</form>
+</body>
+</html>

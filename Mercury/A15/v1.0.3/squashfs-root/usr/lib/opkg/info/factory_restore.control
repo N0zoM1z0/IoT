@@ -1,0 +1,8 @@
+Package: factory_restore
+Version: 1
+Depends: libc
+Source: tp_package/sys_packages/factory_restore
+Section: utils
+Architecture: rtl
+Installed-Size: 2458
+Description:  tools for restore factory using SLP flash op interface.

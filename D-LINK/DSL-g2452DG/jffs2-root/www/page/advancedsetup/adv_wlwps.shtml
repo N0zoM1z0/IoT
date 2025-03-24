@@ -1,0 +1,438 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css"type="text/css">
+<script type="text/javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+function G_wirelessTuple()
+{
+    this.Path = "";
+    this.SSID = "";
+    this.BeaconType = "";
+    this.BeaconTypeExt = "";
+    this.WEPEncryptionLevel = "";
+    this.WEPKeyIndex = "";
+    this.BasicAuthenticationMode = "";
+    this.BasicEncryptionModes = "";
+    this.WPAAuthenticationMode = "";
+    this.WPAEncryptionModes = "";
+    this.IEEE11iAuthenticationMode = "";
+    this.IEEE11iEncryptionModes = "";
+    this.PSKExpression = "";
+    this.KeyPassphrase = "";
+    this.PreSharedKey = "";
+}
+
+var index = 0;
+var G_wireless = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. SSID BeaconType WEPEncryptionLevel WEPKeyIndex BasicAuthenticationMode BasicEncryptionModes WPAAuthenticationMode WPAEncryptionModes IEEE11iAuthenticationMode IEEE11iEncryptionModes X_CT-COM_PSKExpression PreSharedKey.1.KeyPassphrase PreSharedKey.1.PreSharedKey BeaconTypeExt" -->
+    G_wireless[index] = new G_wirelessTuple();
+    G_wireless[index].Path = "<!--#path -->";
+    G_wireless[index].SSID = "<!--#leaf  "1"-->";
+    G_wireless[index].BeaconType = "<!--#leaf  "2"-->";
+    G_wireless[index].WEPEncryptionLevel = "<!--#leaf "3"-->";
+    G_wireless[index].WEPKeyIndex = "<!--#leaf  "4"-->";
+    G_wireless[index].BasicAuthenticationMode = "<!--#leaf  "5"-->";
+    G_wireless[index].BasicEncryptionModes = "<!--#leaf  "6"-->";
+    G_wireless[index].WPAAuthenticationMode = "<!--#leaf  "7"-->";
+    G_wireless[index].WPAEncryptionModes = "<!--#leaf  "8"-->";
+    G_wireless[index].IEEE11iAuthenticationMode = "<!--#leaf  "9"-->";
+    G_wireless[index].IEEE11iEncryptionModes = "<!--#leaf  "10"-->";
+    G_wireless[index].PSKExpression = "<!--#leaf  "11"-->";
+    G_wireless[index].KeyPassphrase = "<!--#leaf  "12"-->";
+    G_wireless[index].PreSharedKey = "<!--#leaf  "13"-->";
+	G_wireless[index].BeaconTypeExt = "<!--#leaf  "14"-->";
+    index++;
+<!--#endgetobject -->
+
+function G_WpsTuple()
+{
+        this.Path = "";
+        this.ConfigurationState  = "";
+        this.IsMatchCondition = "";
+        this.Role = "";
+        this.Enable = "";
+        this.DeviceName = "";
+        this.DevicePassword = "";
+        this.StartWpsSession = "";
+        this.GeneratePin = "";
+        this.WpsSessionStatus = "";
+        this.GeneratePinStatus = "";
+}
+
+var n = 0;
+var G_Wps = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration. WPS.ConfigurationState WPS.IsMatchCondition WPS.X_CT-COM_Role WPS.Enable WPS.DeviceName WPS.DevicePassword  WPS.StartWpsSession WPS.GeneratePin WPS.WpsSessionStatus WPS.GeneratePinStatus WPS.PeerPassword" -->
+    G_Wps[n] = new G_WpsTuple();
+    G_Wps[n].Path = "<!--#path -->";
+    G_Wps[n].ConfigurationState = "<!--#leaf  "1"-->";
+    G_Wps[n].IsMatchCondition = "<!--#leaf  "2"-->";
+    G_Wps[n].Role = "<!--#leaf "3"-->";
+    G_Wps[n].Enable = "<!--#leaf  "4"-->";
+    G_Wps[n].DeviceName = "<!--#leaf  "5"-->";
+    G_Wps[n].DevicePassword = "<!--#leaf  "6"-->";
+    G_Wps[n].StartWpsSession = "<!--#leaf  "7"-->";
+    G_Wps[n].GeneratePin = "<!--#leaf  "8"-->";
+    G_Wps[n].WpsSessionStatus = "<!--#leaf  "9"-->";
+    G_Wps[n].GeneratePinStatus = "<!--#leaf  "10"-->";
+    G_Wps[n].PeerPassword = "<!--#leaf  "11"-->";
+    n++;
+<!--#endgetobject -->
+
+var G_WepKey = [];
+var k = 0;
+<!--#getobject "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WEPKey. WEPKey" -->
+    G_WepKey[k] = "<!--#leaf  "1"-->";
+    k++;
+<!--#endgetobject -->
+
+function uiOnload(){    
+    var url = parseUrl();
+    $('SPAN_WpsSenStas').innerHTML = G_Wps[0].GeneratePinStatus || '';
+    $('SPAN_PinStatus').innerHTML = G_Wps[0].GeneratePinStatus || '';
+    $('SPAN_Pin').innerHTML = G_Wps[0].PeerPassword || '1234567890';
+    setValue('INPUT_Station'   , G_Wps[0].DevicePassword || '');
+    if(url == null){
+    setValue('SELECT_ApRole'   , G_Wps[0].Role);
+    } else {
+        setValue('SELECT_ApRole'   , 'Enrollee');
+    }
+    //ʨ׃WPS״̬    
+    setValue('INPUT_WPSEnable'   , G_Wps[0].Enable);
+    $('div_wps_info').style.display = (G_Wps[0].Enable == 1) ? 'block' : 'none';
+    OnEnableWPSClick();
+    //onChgApRole();
+    onChgVap();        
+}
+
+function onChgApRole(){
+    var apRole = $('SELECT_ApRole').value;
+    var Registrar = 0;
+    var Enrollee = 0; 
+    var Proxy = 0;
+    var index = 0;
+    
+    //if(G_Wps[index].ConfigurationState == '0'){
+    //    disableCtrl("INPUT_WPSEnable",true);
+    //    disableCtrl("SELECT_ApRole",true);
+    //} else {
+        switch(apRole){
+            case 'Registrar' :
+                Registrar = 1;
+                break;
+            case 'Enrollee' :
+                Enrollee = 1;
+                break;
+            case 'Proxy' :
+                Proxy = 1;
+                break;
+        }
+    //}
+    setDisplay('Registrar',Registrar);
+    setDisplay('Enrollee',Enrollee);
+}
+
+function onChgVap(){
+    var path = '';
+    var m = 0; //ĬɏѲºÊ    var psk = 0;
+    var wepkey = 0;
+    
+    for(var i = 0; i < G_wireless.length; i++){
+        if(G_wireless[i].Path == path){
+            m = i;
+            break;
+        }
+    }
+    //VAPхϢ¸³ֵ  
+    var wlan = getWlanMode(m);
+    $("td_wpsconfig").innerHTML = G_Wps[m].ConfigurationState || '';
+    $("td_ssid").innerHTML = G_wireless[m].SSID;
+    $("td_authmode").innerHTML = wlan[0];
+    $("td_encryp").innerHTML = wlan[1].replace(/Encryption/, '').replace(/and/, '/');
+    $("td_wepindex").innerHTML = G_wireless[m].WEPKeyIndex;
+    wepkey = G_WepKey[G_wireless[m].WEPKeyIndex - 1];
+    $("td_wepkey").innerHTML = wepkey;
+    psk = G_wireless[m].PreSharedKey;
+    $("td_wpakey").innerHTML = change_ascii_to_str(psk);
+    
+    //¹݀앁PхϢµŏՊ¾
+    var tr = $('td_vapmsg').getElementsByTagName('tr');
+    
+    if(wlan[1] == 'WEPEncryption'){ // WEP
+        tr[6].style.display = 'none';
+    } else if(wlan[0].indexOf('WPA') > -1){ // WPA & WPA2
+        tr[4].style.display = 'none';
+        tr[5].style.display = 'none';
+    } else { //  None
+        tr[4].style.display = 'none';
+        tr[5].style.display = 'none';
+        tr[6].style.display = 'none';
+    }
+}
+
+function getWlanMode(m){
+    var auth, encryp;
+    var mode = G_wireless[m].BeaconType;
+
+    switch(mode){
+        case 'None' :
+            auth   = 'None';
+            encryp = 'None';
+            return [auth, encryp];
+        case 'Basic' :
+            auth   = G_wireless[m].BasicAuthenticationMode == 'None' ? 'None' : 'Shared';
+            encryp = G_wireless[m].BasicEncryptionModes;
+            return [auth, encryp];
+        case 'WPA' :
+            auth   = 'WPA-PSK';
+            encryp = G_wireless[m].WPAEncryptionModes;
+            return [auth, encryp];
+        case '11i' :
+            auth   = 'WPA2-PSK';
+            encryp = G_wireless[m].IEEE11iEncryptionModes;
+            return [auth, encryp];
+        case 'WPAand11i' :
+            auth   = 'WPA-PSK/WPA2-PSK';
+            encryp = G_wireless[m].IEEE11iEncryptionModes;
+            return [auth, encryp];
+    }
+}
+
+function uiSubmit(){
+	if(!validateCode())
+		return false;
+    var df = document.network_wpscfgform;
+    AddElements(df,'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WPS.Enable', $('INPUT_WPSEnable').checked ? 1 : 0);
+    AddElements(df,'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.WPS.X_CT-COM_Role', getValue('SELECT_ApRole'));    
+    df.submit();
+}
+
+//ʺ³ʐµÐIN
+function parseUrl(){
+    var url=window.location.search;
+    var i=url.indexOf('?');
+    if(i==-1)
+    return null;
+    var arr = url.toString();
+    var str=arr.split('=');
+
+    return str[1];
+}
+
+function get_newpin(_text){
+    SetButtonStatus('newpin',"");
+    $('SPAN_Pin').innerHTML = _text;
+}
+
+function uiNewPin(){
+    SetButtonStatus('newpin',"disabled");
+	var _url = "/cgi-bin/wps_operate.cgi";    
+    ajax = Ajax.getInstance(_url, "action=4?index=1" , 0, get_newpin);
+    ajax.get();
+}
+//°´ЂPBC°´ť
+
+function uirefresh(){
+    document.location.href = '/page/advancedsetup/adv_wlwps.shtml';
+}
+
+function uiPushPBC(){
+    var _url = "/cgi-bin/wps_operate.cgi";
+    ajax = Ajax.getInstance(_url, "action=1?index=1" , 0,uirefresh);
+    ajax.get();
+}
+
+
+function uiInputPin(){
+    var input_value = $('INPUT_Station').value;    
+    if (input_value == null || (input_value.length != 4 && input_value.length != 8))
+    {
+        top.AlertMsg(getStr("LK_pinerr"));
+        return false;
+    }
+	
+	if ((input_value.length == 8 && (input_value.match(/^[0-9]{8}$/) == null || !checkPIN(input_value)))
+		|| (input_value.length == 4 && (input_value.match(/^[0-9]{4}$/) == null)))
+	{
+		top.AlertMsg(getStr("LK_pinerr"));
+        return false;
+	}
+	
+    var _url = "/cgi-bin/wps_operate.cgi";
+    ajax = Ajax.getInstance(_url, "action=2?value=" + input_value + "?index=1", 0,uirefresh);
+    ajax.get();
+}
+
+
+function uiResetOOB(){
+    if(!validateCode(2))
+        return false;
+    SetButtonStatus('Resetoob',"disabled");
+    var _url = "/cgi-bin/wps_operate.cgi";
+    ajax = Ajax.getInstance(_url, "action=5?value=Neutral?index=1" , 0, ResetOOBDone);
+    ajax.get();
+}
+
+function ResetOOBDone(){
+SetButtonStatus('Resetoob',"");    
+uirefresh();
+}
+
+function OnEnableWPSClick(){
+    var EnableWPS = $("INPUT_WPSEnable");
+    
+    if(EnableWPS.checked)
+    {
+	setDisplay('div_wps_info',1);
+	setDisplay('Enrollee',1);
+	setDisplay('Registrar',1);
+	onChgApRole();
+    }
+    else
+    {
+	setDisplay('div_wps_info',0);
+	setDisplay('Enrollee',0);
+ 	setDisplay('Registrar',0);
+    }
+}
+
+function checkPIN( pin ) 
+{
+    var accum = 0;
+    var pinNum = Number(pin);
+    
+    if(pinNum == NaN)
+        return false;
+    
+    accum += 3 * (Math.floor(pinNum / 10000000) % 10); 
+    accum += 1 * (Math.floor(pinNum / 1000000) % 10); 
+    accum += 3 * (Math.floor(pinNum / 100000) % 10); 
+    accum += 1 * (Math.floor(pinNum / 10000) % 10); 
+    accum += 3 * (Math.floor(pinNum / 1000) % 10); 
+    accum += 1 * (Math.floor(pinNum / 100) % 10); 
+    accum += 3 * (Math.floor(pinNum / 10) % 10); 
+    accum += 1 * (Math.floor(pinNum / 1) % 10); 
+    
+    return (0 == (accum % 10));
+}
+
+function __init()
+{
+    uiOnload();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());         
+
+}
+</script> 
+</head>
+<body>
+<form method="get">
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_WpsSet'));</script>
+<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+    <tr>
+            <td width="150px" langkey="LK_EnableWPS"></td>
+	    <td><input type="checkbox" id="INPUT_WPSEnable" onClick="OnEnableWPSClick()">
+    </tr>
+</table>
+<table id="div_wps_info" width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+    <tr>
+            <td width="150px" langkey="LK_ChooseAPRole"></td>
+            <td>
+                 <select id="SELECT_ApRole" onChange="onChgApRole()">
+                 <option value="Registrar">Registrar</option>
+                 <option value="Enrollee">Enrollee</option>
+                 <!-- <option value="Proxy">Proxy</option> -->
+                 </select>
+            </td>
+    </tr>
+</table>
+            
+            <!-- Enrollee -->
+<table id="Enrollee" width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+    <tr>
+            <td width="150px" langkey="LK_CurrentPIN"></td>
+            <td><script>PrintTriButton("newpin",getStr("LK_GenNewPin"),"uiNewPin()")</script>&nbsp;&nbsp; <span id="SPAN_Pin" style="font-weight:bold; "></span></td>
+    </tr>
+            
+    <tr>
+            <td width="150px" langkey="LK_SessionStat"></td>
+            <td><span id="SPAN_PinStatus" style="font-weight:bold; color:red; "></td>
+    </tr>
+</table>
+            
+            <!-- Registrar -->
+<table id="Registrar" width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+        <tr>
+            <td width="150px" langkey="LK_PressWPSBtn"></td>
+            <td><script>PrintTriButton("PBC","PBC","uiPushPBC()")</script></td>
+        </tr>
+            
+        <tr>
+            <td width="150px" langkey="LK_InputPinNum"></td>
+            <td><input type="text" id="INPUT_Station">&nbsp;&nbsp;<script>PrintTriButton('PIN',"PIN","uiInputPin()")</script></td>
+        </tr>
+            
+        <tr>
+            <td width="150px" langkey="LK_NegotStat"></td>
+            <td><span id="SPAN_WpsSenStas" style=" color:red; font-weight:bold;"></span></td>
+        </tr>
+</table>
+<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+        <tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>            
+        <tr>
+            <td colspan="2">
+                    <script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+                    <script>PrintTriButton("reset",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+            </td>
+        </tr>
+</table>
+            
+<script>SetContentTitle(getStr('LK_VapInfo'));</script>
+
+<table id="td_vapmsg" width="400" cellpadding="0" cellspacing="0" class="ContentTable">
+		    <tr class="OddRow">
+       			<td width="150"langkey="LK_WpsStat"></td><td id="td_wpsconfig"></td>
+                    </tr>
+                    <tr class="EvenRow">
+                        <td langkey="LK_SSIDd"></td><td id="td_ssid"></td>
+                    </tr>
+                    <tr class="OddRow">
+                        <td langkey="LK_AuthenticationModee"></td><td id="td_authmode"></td>
+                    </tr>
+                    <tr class="EvenRow">
+                        <td langkey="LK_EncryptionModee"></td><td id="td_encryp"></td>
+                    </tr>
+                    <tr class="OddRow">
+                        <td langkey="LK_WEPIndexx"></td><td id="td_wepindex"></td>
+                    </tr>
+                    <tr class="EvenRow">
+                        <td langkey="LK_WEPKeyy"></td><td id="td_wepkey"></td>
+                    </tr>
+                    <tr class="OddRow">
+                        <td langkey="LK_WPAKeyy"></td><td id="td_wpakey"></td>
+                    </tr>
+</table>
+            
+<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+    <tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+  <tr>
+            <td>
+                    <script>PrintTriButton("Resetoob","Reset OOB","uiResetOOB()");</script>
+            </td>
+        </tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="network_wpscfgform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_wlwps.shtml">
+</form>
+</body>
+</html>

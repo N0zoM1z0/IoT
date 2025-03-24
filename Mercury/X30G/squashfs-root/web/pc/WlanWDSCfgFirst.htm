@@ -1,0 +1,172 @@
+<script type="text/javascript">
+	(function(){
+		function tunrToNextPage(bsEnable)
+		{
+			$.setTimeout(function(){
+				/* TURN TO NEXT PAGE UNTIL WIRELESS_ENABLE IS OPEN */
+				if (bsEnable)
+				{
+					gLocalAPInfo[BAND_STEER].wifi_enable = "1";
+				}
+				else
+				{
+					for (var band = 0; band < gKeyNames.wlan_host.length; band++)
+					{
+						if (null != gKeyNames.wlan_host[band])
+						{
+							gLocalAPInfo[band].enable = "1";
+						}
+					}
+				}
+
+				stepPage(secondPage);
+			}, 3000);
+		}
+
+		function openWifi(bsEnable){
+			var cfg = {"wireless": {}};
+			if (bsEnable)
+			{
+				cfg.wireless.wlan_bs = {"wifi_enable": "1"};
+			}
+			else
+			{
+				$.each(gKeyNames.wlan_host, function(k, v){
+					if (null != v)
+					{
+						cfg.wireless[v] = {"enable": "1"};
+					}
+				});
+			}
+
+			$.modify(cfg, function(ret){
+				var errNo = ret[ERR_CODE];
+				if (ENONE !== errNo)
+				{
+					errHandle(errNo);
+				}
+				else
+				{
+					if (ret["dfs_wait_time"] && ret["dfs_wait_time"] != 0)
+					{
+						dfsDialog.show(ret["dfs_wait_time"], function(){
+							tunrToNextPage(bsEnable);
+						});
+					}
+					else
+					{
+						tunrToNextPage(bsEnable);
+					}
+				}
+			});
+		}
+
+		function chkWifiOpened(){
+			/* IF BAND_STEERING IS OPEN */
+			if (slp.bandSteeringProvided && "1" == gLocalAPInfo[BAND_STEER].bs_enable)
+			{
+				if ("1" == gLocalAPInfo[BAND_STEER].wifi_enable)
+				{
+					stepPage(secondPage);
+					return;
+				}
+				else
+				{
+					confirmDialog.show({
+						title: menuStr.wifiWDS,
+						content:label.alertWifiOpen,
+						callback:function(result){
+							if (result == true)
+							{
+								openWifi(true);
+							}
+						}
+					});
+				}
+			}
+			else
+			{
+				for (var band = 0; band < gLocalAPInfo.length; band++)
+				{
+					if ("1" == gLocalAPInfo[band].enable)
+					{
+						stepPage(secondPage);
+						return;
+					}
+				}
+
+				confirmDialog.show({
+					title: menuStr.wifiWDS,
+					content:label.alertWifiOpen,
+					callback:function(result){
+						if (result == true)
+						{
+							openWifi(false);
+						}
+					}
+				});
+			}
+		}
+
+		var wdsBtnNext = new Button({
+			text:btn.nextStep,
+			onClick:function(){
+				lanIpModeHandle(chkWifiOpened);
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"wdsBtnNext",
+			props:{width:"240px", position:"absolute", top:"208px", right:"0px"}
+		});
+
+		var wdsBtnBack = new Button({
+			text: btn.preStep,
+			onClick: null,
+			type:Button.TYPE.SECONDARY,
+			id:"wdsBtnBack",
+			props:{width:"240px", position:"absolute", top:"264px", right:"0px"}
+		});
+
+		if (true == backFromEndPage)
+		{
+			$("#wdsBtnBack").css("display", "block");
+			wdsBtnBack._ops.onClick = function(){
+				stepPage(endPage);
+			}
+		}
+	})();
+</script>
+<style type="text/css">
+	ul.wdsHelp{
+		width:480px;
+	}
+	ul.wdsHelp li{
+		list-style: outside;
+		color: #666666;
+		font-size: 13px;
+		line-height: 20px;
+		margin-left: 0px;
+		padding: 0px;
+		margin-left: 18px;
+	}
+	i.wdsGuidePng{
+		background:url(../web-static/images/basic.png) no-repeat scroll 0px -240px;
+		width:240px;
+		height:160px;
+		position:absolute;
+		right:0px;
+		top:0px;
+	}
+	#wdsBtnBack{
+		display: none;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.wdsOrgNetGuide%}</h2>
+</div>
+<ul class="wdsHelp">
+	<li>{%label.WDSWzdHpLF%}</li>
+	<li>{%label.WDSWzdHpLS%}</li>
+</ul>
+<i class="wdsGuidePng"></i>
+<div id="wdsBtnNext"></div>
+<div id="wdsBtnBack"></div>

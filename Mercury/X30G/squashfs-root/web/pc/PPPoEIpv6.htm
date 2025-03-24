@@ -1,0 +1,851 @@
+<script type="text/javascript">
+	(function(){
+		var protocolData, wanStatusv4Data, currentIPConfigVal;;
+
+		var ipGetPtlOptions = [
+			{str: label.ipv6Auto, value:uciProto.optValue.ipv6Allot.auto},
+			{str: label.ipv6DHCPv6, value:uciProto.optValue.ipv6Allot.dhcpv6},
+			{str: label.ipv6SLAAC, value:uciProto.optValue.ipv6Allot.slaac},
+			{str: label.ipv6Static, value:uciProto.optValue.ipv6Allot.static}
+		];
+
+		var dnsOptions = [
+			{str: label.ipv6DnsAuto, value:uciProto.optValue.dnsMode.dynamic},
+			{str: label.ipv6DnsManual, value:uciProto.optValue.dnsMode.manual}
+		];
+
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EPPPOEUSER:
+				showStr = errStr.pppoeUserErr;
+				break;
+			case EPPPOEPWD:
+				showStr = errStr.pppoePwdErr;
+				break;
+			case EINVMTU:
+				showStr = errStr.pppoeMtuErr;
+				break;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EIPV6INVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EIPV6INVIPFMT:
+				showStr = errStr.ipv6AddrFmtErr;
+				break;
+			case EIPV6INVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EIPV6LOOP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EIPV6LINKLOCAL:
+				showStr = errStr.ipv6LinkLoaclErr;
+				break;
+			case EIPV6INVFDNSVR:
+				showStr = errStr.primDnsErr;
+				break;
+			case EIPV6INVSDNSVR:
+				showStr = errStr.seDnsErr;
+				break;
+			case ENOLINK:
+				showStr = errStr.wanLinkDown;
+				break;
+			case ECONFLICTGATEWAY:
+				showStr = errStr.ipAddrLanGatewayConflict;
+				break;
+			case ECONFLICTFDNS:
+				showStr = errStr.ipAddrLanFDNSConflict;
+				break;
+			case ECONFLICTSDNS:
+				showStr = errStr.ipAddrLanSDNSConflict;
+				break;
+			default:
+				showStr = errStr.invRequestFail;
+				break;
+			}
+
+			if (alarmDialog.status == "idle")
+			{
+				alarmDialog.show(showStr);
+			}
+			return false;
+		}
+
+		function dnsModeSelectHandle(val){
+			$("#dnsArguments").css("display", (val == uciProto.optValue.dnsMode.manual ? "block" : "none"));
+		}
+
+		function ipGetPtlSelectHandle(val){
+			if (val == uciProto.optValue.ipv6Allot.static)
+			{
+				$("#ipStaticArguments").css("display", "block");
+				$("#ipv6PreDelgCon").css("display", "none");
+			}
+			else
+			{
+				$("#ipStaticArguments").css("display", "none");
+				$("#ipv6PreDelgCon").css("display", "block");
+			}
+		}
+
+		function sharev4ClickHandle(){
+			var self = this;
+
+			$("#authv6Container").css("display", (self.checked ? "none" : "block"));
+		}
+
+		function advancedSet(){
+			var cfg = {}, cfgPppoe = {}, inputArr = [], checkRes = true;
+			var oldPrefixDelDisabled = pppoePrefixSwitch.disabled;
+			var pppoev6Name;
+			if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+				pppoev6Name = uciProto.secName.pppoev62;
+			}else{
+				pppoev6Name = uciProto.secName.pppoev6;
+			}
+			cfg[pppoev6Name] = cfgPppoe;
+
+			cfgPppoe[uciProto.optName.ipConfig] = id("ipGetPtlSel").value;
+			cfgPppoe[uciProto.optName.dnsMode] = id("dnsModeSel").value;
+
+			if (cfgPppoe[uciProto.optName.ipConfig] == uciProto.optValue.ipv6Allot.static)
+			{
+				inputArr.push(ipStatic);
+			}
+
+			if (cfgPppoe[uciProto.optName.dnsMode] == uciProto.optValue.dnsMode.manual)
+			{
+				inputArr.push(priDns);
+				inputArr.push(sndDns);
+			}
+
+			inputArr.forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			if (cfgPppoe[uciProto.optName.ipConfig] == uciProto.optValue.ipv6Allot.static)
+			{
+				ipStatic.setValue(ipStatic.getValue().replace(/：/g, ":"));
+				cfgPppoe[uciProto.optName.specIp] = ipStatic.getValue();
+			}
+
+			if (id("dnsModeSel").value == uciProto.optValue.dnsMode.manual)
+			{
+				priDns.setValue(priDns.getValue().replace(/：/g, ":"));
+				cfgPppoe[uciProto.optName.priDns] = priDns.getValue();
+				sndDns.setValue(sndDns.getValue().replace(/：/g, ":"));
+				cfgPppoe[uciProto.optName.sndDns] = sndDns.getValue();
+			}
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			disableAllBtn(true);
+			slp.protocol.setData({
+				data: cfg,
+				success: function(){
+					disableAllBtn(false);
+					showToast(label.saveSuccess);
+
+					if (curWanv6Type == uciProto.optValue.proto.pppoev6)
+					{
+						if (cfgPppoe[uciProto.optName.ipConfig] != uciProto.optValue.ipv6Allot.static)
+						{
+							if (preDelgOnFlag == true)
+							{
+								localLanPrefix.toggleStatic(true);
+							}
+						}
+						else
+						{
+							if (preDelgOnFlag == true)
+							{
+								localLanPrefix.setValue("::");
+								localLanPrefix.toggleStatic(false);
+								preDelgOnFlag = false;
+							}
+						}
+					}
+
+					currentPppoeipGetPtlSel = cfgPppoe[uciProto.optName.ipConfig];
+					pppoePrefixSwitch.disable(cfgPppoe[uciProto.optName.ipConfig] == uciProto.optValue.ipv6Allot.static);
+
+					if(dualWanOpen)
+					{
+						pppoePrefixSwitch.disable(true);
+						preDelgOnFlag = false;
+						localLanPrefix.toggleStatic(false);
+					}
+
+					updateWanStatusTimer = $.setTimeout(function(){
+						wanStatusRefresh(WAN_IPV6_INDEX);
+					}, 0);
+				},
+				fail: function(result){
+					disableAllBtn(false);
+					pppoePrefixSwitch.disable(oldPrefixDelDisabled);
+
+					errHandle(result[ERR_CODE]);
+					updateWanStatusTimer = $.setTimeout(function(){
+						wanStatusRefresh(WAN_IPV6_INDEX);
+					}, 0);
+				}
+			});
+		}
+
+		function prefixSwitchHandle(state){
+			var self = this;
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			disableAllBtn(true);
+			wanCheckWDS(function(){
+				var pppoeName;
+				if(typeof wanIdx != "undefined" && wanIdx == 2){
+					pppoeName = uciProto.secName.pppoev62;
+				}else{
+					pppoeName = uciProto.secName.pppoev6;
+				}
+				var data = {};
+				data[uciProto.fileName] = {};
+				data[uciProto.fileName][pppoeName] = {};
+				data[uciProto.fileName][pppoeName][uciProto.optName.pdMode] = state == 0 ?
+																uciProto.optValue.ipv6Prefix.nonTemp :
+																uciProto.optValue.ipv6Prefix.prefix;
+
+				$.modify(data, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						if (curWanv6Type == uciProto.optValue.proto.pppoev6)
+						{
+							if (state == 1)
+							{
+								self.disable(false);
+								disableAllBtn(false);
+								updateWanStatusTimer = $.setTimeout(function(){
+									wanStatusRefresh(WAN_IPV6_INDEX);
+								}, 0);
+
+								if (preDelgOnFlag == false)
+								{
+									localLanPrefix.toggleStatic(true);
+									preDelgOnFlag = true;
+								}
+							}
+							else
+							{
+								self.disable(false);
+								disableAllBtn(false);
+								updateWanStatusTimer = $.setTimeout(function(){
+									wanStatusRefresh(WAN_IPV6_INDEX);
+								}, 0);
+								if (preDelgOnFlag == true)
+								{
+									localLanPrefix.setValue("::");
+									localLanPrefix.toggleStatic(false);
+									preDelgOnFlag = false;
+								}
+							}
+						}
+						else
+						{
+							self.disable(false);
+							disableAllBtn(false);
+							updateWanStatusTimer = $.setTimeout(function(){
+								wanStatusRefresh(WAN_IPV6_INDEX);
+							}, 0);
+						}
+					}
+					else
+					{
+						self.disable(false);
+						disableAllBtn(false);
+						updateWanStatusTimer = $.setTimeout(function(){
+							wanStatusRefresh(WAN_IPV6_INDEX);
+						}, 0);
+						self.setState(1 - state);
+					}
+				});
+			}, function(){
+				self.disable(false);
+				disableAllBtn(false);
+				self.setState(1 - state);
+				updateWanStatusTimer = $.setTimeout(function(){
+					wanStatusRefresh(WAN_IPV6_INDEX);
+				}, 0);
+			});
+		}
+
+		function disconnect(){
+			wanCheckWDS(function(){
+				var pppoev6Name;
+				if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+					pppoev6Name = uciNetwork.optValue.proto.pppoev62;
+				}else{
+					pppoev6Name = uciNetwork.optValue.proto.pppoev6;
+				}
+				var data = {};
+				data[uciNetwork.fileName] = {};
+				data[uciNetwork.fileName][uciNetwork.action.changeWanv6Status] = {};
+				data[uciNetwork.fileName][uciNetwork.action.changeWanv6Status][uciNetwork.optName.proto] = pppoev6Name;
+				data[uciNetwork.fileName][uciNetwork.action.changeWanv6Status][uciNetwork.optName.operate] =
+					uciNetwork.optValue.operate.disconnect;
+
+				disconnBtn.disable(true);
+				$.action(data, function(result){
+					disconnBtn.disable(false);
+					errHandle(result[ERR_CODE]);
+				});
+			});
+		}
+
+		function connect(){
+			if (sharev4.getValue())
+			{
+				var wanv4StatusReq = {};
+				wanv4StatusReq[uciNetwork.fileName] = {};
+				var wanStatusName;
+				if (typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+					wanStatusName = uciNetwork.dynData.wanStatus2;
+				} else {
+					wanStatusName = uciNetwork.dynData.wanStatus;
+				}
+				wanv4StatusReq[uciNetwork.fileName][KEY_NAME] = wanStatusName;
+				$.query(wanv4StatusReq, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						if (result[uciNetwork.fileName][wanStatusName][uciNetwork.optName.proto]
+							!= uciNetwork.optValue.proto.pppoe)
+						{
+							alarmDialog.show(label.ipv6Sharev4Disable);
+							sharev4.disable(false);
+						}
+						else
+						{
+							sendData();
+						}
+					}
+					else
+					{
+						sendData();
+					}
+				});
+			}
+			else
+			{
+				sendData()
+			}
+
+			function sendData()
+			{
+				var wanv6SecName,pppoev6SecName;
+				if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+					wanv6SecName = uciProto.secName.wanv62;
+					pppoev6SecName = uciProto.optValue.proto.pppoev62;
+				}else{
+					wanv6SecName = uciProto.secName.wanv6;
+					pppoev6SecName = uciProto.optValue.proto.pppoev6;
+				}
+				var req = {}, cfgPppoe = {};
+
+				req[wanv6SecName] = {};
+				req[wanv6SecName][uciProto.optName.type] = uciProto.optValue.proto.pppoev6;
+				req[pppoev6SecName] = cfgPppoe;
+
+				cfgPppoe[uciProto.optName.sharev4] = sharev4.getValue() ? "1" : "0";
+
+				if (sharev4.getValue())
+				{
+					var pppoeName;
+					if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+						pppoeName = uciProto.optValue.proto.pppoe2;
+					}else{
+						pppoeName = uciProto.optValue.proto.pppoe;
+					}
+					var pppoeReq = {};
+					pppoeReq[uciProto.fileName] = {};
+					pppoeReq[uciProto.fileName][KEY_NAME] = pppoeName;
+
+					$.query(pppoeReq, function(result){
+						cfgPppoe[uciProto.optName.pppoeUsr] = result[uciProto.fileName][pppoeName][uciProto.optName.pppoeUsr];
+						cfgPppoe[uciProto.optName.pppoePwd] = result[uciProto.fileName][pppoeName][uciProto.optName.pppoePwd];
+					}, false);
+				}
+				else
+				{
+					cfgPppoe[uciProto.optName.pppoeUsr] = account.getValue();
+				    cfgPppoe[uciProto.optName.pppoePwd] = pwd.getValue();
+				}
+
+				connBtn.disable(true);
+				slp.protocol.setData({
+					data: req,
+					success: function(){
+						showToast(label.saveSuccess);
+						account.setValue(cfgPppoe[uciProto.optName.pppoeUsr]);
+						pwd.setValue(cfgPppoe[uciProto.optName.pppoePwd]);
+						curWanv6Type = uciProto.optValue.proto.pppoev6;
+
+						if (pppoePrefixSwitch.state == 1 && currentIPConfigVal != uciProto.optValue.ipv6Allot.static)
+						{
+							if (preDelgOnFlag == false)
+							{
+								localLanPrefix.toggleStatic(true);
+								preDelgOnFlag = true;
+							}
+						}
+						else
+						{
+							if (preDelgOnFlag == true)
+							{
+								localLanPrefix.setValue("::");
+								localLanPrefix.toggleStatic(false);
+								preDelgOnFlag = false;
+							}
+						}
+						var pppoeProtoName;
+						if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+							pppoeProtoName = uciNetwork.optValue.proto.pppoev62;
+						}else{
+							pppoeProtoName = uciNetwork.optValue.proto.pppoev6;
+						}
+						var actionData = {};
+						actionData[uciNetwork.fileName] = {};
+						actionData[uciNetwork.fileName][uciNetwork.action.changeWanv6Status] = {};
+						actionData[uciNetwork.fileName][uciNetwork.action.changeWanv6Status][uciNetwork.optName.proto] = pppoeProtoName;
+						actionData[uciNetwork.fileName][uciNetwork.action.changeWanv6Status][uciNetwork.optName.operate] =
+							uciNetwork.optValue.operate.connect;
+						$.action(actionData, function(result){
+							connBtn.disable(false);
+							errHandle(result[ERR_CODE]);
+						});
+					},
+					fail: function(result){
+						connBtn.disable(false);
+						errHandle(result[ERR_CODE]);
+					}
+				},WAN_IPV6_INDEX);
+			}
+		}
+
+		function setPppoeWanStatus(ALL_DATA,wanIdx){
+			var wanv6StatusName;
+			if(typeof wanIdx != "undefined" && wanIdx == 2){
+				wanv6StatusName = uciNetwork.dynData.wanv6Status2;
+			}else{
+				wanv6StatusName = uciNetwork.dynData.wanv6Status;
+			}
+			var wanStatus = ALL_DATA[uciNetwork.fileName][wanv6StatusName];
+			var errCode = wanStatus[uciNetwork.optName.code];
+			var linkType = wanStatus[uciNetwork.optName.wanStatus];
+
+			if (wanStatus.proto != uciNetwork.optValue.proto.pppoev6)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+
+				disconnBtn.disable(true);
+				connBtn.disable(false);
+
+				return;
+			}
+
+			var ip = wanStatus[uciNetwork.optName.ipv6] || "::";
+			var priDns = wanStatus[uciNetwork.optName.priDns] || "::";
+			var sndDns = wanStatus[uciNetwork.optName.sndDns] || "::";
+
+			switch(parseInt(linkType))
+			{
+			case LINK_DOWN:
+				if ((LINK_CODE_MANUAL != errCode) &&
+					(LINK_CODE_NORMAL != errCode) &&
+					(LINK_CODE_INET_ERR != errCode) &&
+					(LINK_CODE_PPPOEv4_SWITCH != errCode))
+				{
+					if (LINK_CODE_IP_CONFLICT == errCode)
+					{
+						setLinkState(false, linkCode[errCode]);
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINK_DOWN] + label.lBrackets + linkCode[errCode] + label.rBrackets);
+					}
+				}
+				else
+				{
+					setLinkState(false, linkStatus[LINK_DOWN]);
+				}
+
+				ipAddrAuto.setValue("::/64");
+				dnsAuto.setValue(":: , ::");
+
+				disconnBtn.disable(true);
+				break;
+			case LINK_UP:
+				ipAddrAuto.setValue(ip + "/64");
+				dnsAuto.setValue(priDns + " , " + sndDns);
+
+				disconnBtn.disable(false);
+				setLinkState(true, linkStatus[LINK_UP]);
+				break;
+			case LINKING_DOWN:
+				ipAddrAuto.setValue("::/64");
+				dnsAuto.setValue(":: , ::");
+
+				disconnBtn.disable(true);
+				setLinkState(false, linkStatus[LINKING_DOWN]);
+				break;
+			case LINKING_UP:
+				if ((LINK_CODE_MANUAL != errCode) &&
+					(LINK_CODE_NORMAL != errCode) &&
+					(LINK_CODE_INET_ERR != errCode) &&
+					(LINK_CODE_PPPOEv4_SWITCH != errCode))
+				{
+					if (LINK_CODE_IP_CONFLICT == errCode)
+					{
+						setLinkState(false, linkCode[errCode]);
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINKING_UP] + label.lBrackets + linkCode[errCode] + label.rBrackets);
+					}
+				}
+				else
+				{
+					setLinkState(false, linkStatus[LINKING_UP]);
+				}
+
+				ipAddrAuto.setValue("::/64");
+				dnsAuto.setValue(":: , ::");
+
+				disconnBtn.disable(false);
+				break;
+			default:
+				break;
+			}
+		}
+
+		wanStatusRefresh = function(wanIdx){
+			var wanv6StatusName;
+			if(typeof wanIdx != "undefined" && wanIdx == 2){
+				wanv6StatusName = uciNetwork.dynData.wanv6Status2;
+			}else{
+				wanv6StatusName = uciNetwork.dynData.wanv6Status;
+			}
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = wanv6StatusName;
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			$.query(data, function(data){
+				setPppoeWanStatus(data,wanIdx);
+				updateWanStatusTimer = $.setTimeout(function(){
+					wanStatusRefresh(wanIdx);
+				}, 2000);
+			}, undefined, true);
+		}
+
+		function fillData(wanIdx){
+			var wanv6Name,pppoev6Name;
+			if(typeof wanIdx != "undefined" && wanIdx == 2){
+				wanv6Name = uciProto.secName.wanv62;
+				pppoev6Name = uciProto.secName.pppoev62;
+			}else{
+				wanv6Name = uciProto.secName.wanv6;
+				pppoev6Name = uciProto.secName.pppoev6;
+			}
+			var wanData = protocolData[uciProto.fileName][wanv6Name];
+			var pppoeData = protocolData[uciProto.fileName][pppoev6Name];
+
+			account.setValue(pppoeData[uciProto.optName.pppoeUsr]);
+			pwd.setValue(pppoeData[uciProto.optName.pppoePwd]);
+
+			/* IF SHAREV4 EQUALS 1 , PROVES THAT THE CURRENT TYPE OF IPv4 IS PPPoE, HERE'S FOR MAKE SURE  */
+			if (pppoeData[uciProto.optName.sharev4] == "1" &&
+				wanStatusv4Data[uciNetwork.optName.proto] == uciNetwork.optValue.proto.pppoe)
+			{
+				sharev4.setValue(true, undefined, true);
+			}
+			else if (wanStatusv4Data[uciNetwork.optName.proto] != uciNetwork.optValue.proto.pppoe)
+			{
+				sharev4.disable(false);
+			}
+
+			var ipGetPtlVal = pppoeData[uciProto.optName.ipConfig];
+			currentPppoeipGetPtlSel = ipGetPtlVal;
+			selectInit("ipGetPtlSel", ipGetPtlOptions, ipGetPtlVal, ipGetPtlSelectHandle);
+			ipGetPtlSelectHandle(ipGetPtlVal);
+			currentIPConfigVal = ipGetPtlVal
+
+			var isPrefixDelgOn = pppoeData[uciProto.optName.pdMode] == uciProto.optValue.ipv6Prefix.nonTemp ? 0 : 1;
+			if(dualWanOpen)
+			{
+				isPrefixDelgOn = 0;
+				pppoePrefixSwitch.setState(isPrefixDelgOn);
+				pppoePrefixSwitch.disable(true);
+				preDelgOnFlag = false;
+				localLanPrefix.toggleStatic(false);
+			}
+			else
+			{
+				pppoePrefixSwitch.setState(isPrefixDelgOn);
+				if (isPrefixDelgOn == 1)
+				{
+					if (curWanv6Type == uciProto.optValue.proto.pppoev6)
+					{
+						if (preDelgOnFlag == false)
+						{
+							localLanPrefix.toggleStatic(true);
+							preDelgOnFlag = true;
+						}
+					}
+				}
+				else
+				{
+					if (curWanv6Type == uciProto.optValue.proto.pppoev6)
+					{
+						if (preDelgOnFlag == true)
+						{
+							localLanPrefix.toggleStatic(false);
+							preDelgOnFlag = false;
+						}
+					}
+				}
+			}
+
+			if (ipGetPtlVal == uciProto.optValue.ipv6Allot.static)
+			{
+				ipStatic.setValue(pppoeData[uciProto.optName.specIp]);
+				pppoePrefixSwitch.disable(true);
+			}
+
+			var dnsModeVal = pppoeData[uciProto.optName.dnsMode];
+			selectInit("dnsModeSel", dnsOptions, dnsModeVal, dnsModeSelectHandle);
+			dnsModeSelectHandle(dnsModeVal);
+			if (dnsModeVal == uciProto.optValue.dnsMode.manual)
+			{
+				priDns.setValue(pppoeData[uciProto.optName.priDns] || "::");
+				sndDns.setValue((pppoeData[uciProto.optName.sndDns] && pppoeData[uciProto.optName.sndDns] != "::") ?
+								pppoeData[uciProto.optName.sndDns] : "");
+				$("#dnsArguments").css("display", "block");
+			}
+			else
+			{
+				$("#dnsArguments").css("display", "none");
+			}
+		}
+
+		function requestData(){
+			var dfdProto = $.Deferred();
+			var dfdWanv4 = $.Deferred();
+			var dfdArray = [], wanReq = {};
+			var wanStatusName;
+			dfdArray.push(dfdProto);
+			dfdArray.push(dfdWanv4);
+
+			slp.protocol.getData({
+				type: "IPv6",
+				success: function(res){
+					protocolData = res;
+					dfdProto.resolve();
+				}
+			},WAN_IPV6_INDEX);
+			if(typeof WAN_IPV6_INDEX != "undefined" && WAN_IPV6_INDEX == 2){
+				wanStatusName = uciNetwork.dynData.wanStatus2;
+			}else{
+				wanStatusName = uciNetwork.dynData.wanStatus;
+			}
+			wanReq[uciNetwork.fileName] = {};
+			wanReq[uciNetwork.fileName][KEY_NAME] = wanStatusName;
+			$.query(wanReq, function(res){
+				wanStatusv4Data = res[uciNetwork.fileName][wanStatusName];
+				dfdWanv4.resolve();
+			});
+
+			$.when.apply($, dfdArray).done(function(){
+				fillData(WAN_IPV6_INDEX);
+			});
+		}
+
+		var account = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netAccountv6},
+			targetId:"authv6Container",
+			props:{maxlength: '118', type: "text"}});
+		var pwd = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.netPwdv6},
+			targetId:"authv6Container",
+			props:{maxlength: '118', type: "text"}});
+		var sharev4 = new CheckBox({
+			targetId:"sharev4CheckBox",
+			label:label.ipv6Share,
+			onClick:sharev4ClickHandle,
+			checked:false
+		});
+		var ipAddrAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.ipv6Addr},
+			targetId:"pppoev6Container",
+			props:{value:"::/64", maxlength: '39', type: "text"}});
+		var dnsAuto = new Input({
+			type:Input.TYPE.STATIC_TEXT,
+			label:{value:label.dns},
+			targetId:"pppoev6Container",
+			props:{value:":: , ::", type: "text"}});
+		var disconnBtn = new Button({
+			text:btn.disconnect,
+			onClick:disconnect,
+			type:Button.TYPE.SECONDARY,
+			id:"disconnect",
+			props:{width:"116px"}
+		});
+		disconnBtn.disable(true);
+		var connBtn = new Button({
+			text:btn.connect,
+			onClick:connect,
+			type:Button.TYPE.PRIMARY,
+			id:"connect",
+			props:{width:"116px", marginLeft:"8px"}
+		});
+		var ipStatic = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipv6Addr},
+			targetId:"ipStaticArguments",
+			check:{blur:checkIPv6Input},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}
+		});
+		var ipStaticPrefix = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipv6PrefixLen},
+			targetId:"ipStaticArguments",
+			props:{type: "text", value: "64"}
+		});
+		ipStaticPrefix.disable(true);
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"dnsArguments",
+			check:{blur:checkPriDnsV6},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}
+		});
+		var sndDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"dnsArguments",
+			check:{blur:checkSndDnsV6},
+			hint:{value:label.allowEmpty},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}
+		});
+		var highsetBtn = new Button({
+			text:btn.save,
+			onClick:advancedSet,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		selectInit("wanSel", wanv6Options, LINK_TYPE_PPPOE, loadPageByIndex);
+
+		pppoePrefixSwitch = new Switch("prefixSwitchCon", 0, prefixSwitchHandle, false);
+
+		btnSet = [];
+		btnSet.push({btn: disconnBtn, autoEnable: false});
+		btnSet.push({btn: connBtn, autoEnable: true});
+		btnSet.push({btn: pppoePrefixSwitch, autoEnable: false});
+		btnSet.push({btn: highsetBtn, autoEnable: true});
+		btnSet.push({btn: lanSave, autoEnable: true});
+
+		requestData();
+		wanStatusRefresh(WAN_IPV6_INDEX);
+		lanStatusRefresh(WAN_IPV6_INDEX);
+	})();
+</script>
+<style type="text/css">
+</style>
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl innerElement">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+	<div id="sharev4CheckBox" class="checkboxElement innerElement"></div>
+</ul>
+<div id="authv6Container"></div>
+<div id="pppoev6Container"></div>
+<div class="buttonGroup">
+	<div id="disconnect"></div>
+	<div id="connect"></div>
+</div>
+<div class="subTitle">
+	<h2>{%label.wanAdvancedArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.ipv6GetPtl%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="ipGetPtlSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="ipStaticArguments"></div>
+<ul class="inputCMPT medium selectUl" id="ipv6PreDelgCon">
+	<label class="outerLbl">{%label.ipv6PreDelg%}</label>
+	<li class="liSwitchCon" style="display:table-cell">
+		<div id="prefixSwitchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</li>
+</ul>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.dns%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="dnsModeSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="dnsArguments"></div>
+<div id="save"></div>

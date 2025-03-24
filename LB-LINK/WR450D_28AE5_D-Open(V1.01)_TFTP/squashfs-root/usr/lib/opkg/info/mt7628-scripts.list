@@ -1,0 +1,5 @@
+/etc/wireless/mt7628/mt7628.dat
+/lib/upgrade/keep.d/mt7628-scripts
+/lib/wifi/mt7628.lua
+/etc/wireless/mt7628/version
+/etc/wireless/mt7628/mt7628.eeprom.bin

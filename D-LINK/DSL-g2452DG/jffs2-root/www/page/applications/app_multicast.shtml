@@ -1,0 +1,149 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script   language="javascript"> 
+
+function ConnectionTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+}
+var index = 0;
+var ConnectionS = new Array();
+//WAN Device
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].ServiceList = "<!--#leaf "2"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "3"-->";
+    index++;
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].Name = "<!--#leaf "1"-->";
+    ConnectionS[index].ServiceList = "<!--#leaf "2"-->";
+    ConnectionS[index].ConnectionType = "<!--#leaf "3"-->";
+    index++;
+<!--#endgetobject -->
+<!--#endgetobject -->    
+
+<!--#getobject "InternetGatewayDevice.X_CT-COM_Multicast. SnoopingEnable ProxyEnable WANPathName" --> 
+    var G_SnoopingEnable = "<!--#leaf "1"-->";
+    var G_ProxyEnable = "<!--#leaf "2"-->";
+    var G_WANPathName = "<!--#leaf "3"-->";
+<!--#endgetobject -->
+
+var num_wan = 0;
+var selected_wans = 0;
+var selected_wans_count = 0;
+
+function frmLoad(){
+    setValue('INPUT_Snooping_Enable',G_SnoopingEnable);
+    setValue('INPUT_Proxy_Enable',G_ProxyEnable );
+}
+
+function uiSubmit(){
+    var df = document.app_mccfgform;
+    var WanPathName = '';
+
+    for(var i = 0; i < num_wan; i++){                                                                                                                                                                                                   
+        if($('INPUT_WanConn' + i).checked){                                                                                                                                                                                 
+            WanPathName += $('INPUT_WanConn' + i).value + ',';
+        }                                                                             
+    } 
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.SnoopingEnable', getValue('INPUT_Snooping_Enable'));
+    AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.ProxyEnable', getValue('INPUT_Proxy_Enable'));
+    if(WanPathName == null || WanPathName == "" ){
+         AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.WANPathName', "");
+    }else{
+         AddElements(df, 'InternetGatewayDevice.X_CT-COM_Multicast.WANPathName', WanPathName.replace(/(^,*)|(,*$)/g,''));
+    }
+    df.submit();
+}
+
+function createTable(){
+    var array_value = [];
+    var check_flag = 0;
+    var tmpwan_id;
+    selected_wans = G_WANPathName.split(",");
+    selected_wans_count = G_WANPathName.split(",").length;
+    var z = 0;
+    for(var i = 0, j = 0, _len = ConnectionS.length; i < _len; i++){
+        if(ConnectionS[i].ServiceList == "TR069"){
+            continue;
+        }else{
+		if(z%2==0)
+            		document.write("<tr class='OddRowB'> ");
+		else
+			document.write("<tr class='EvenRowB'>");
+		z++;
+            	document.write("<td id='wlan_connect'>"+ConnectionS[i].Name+"</td>");
+                document.write('<td id="Multicast_apply"><input type="checkbox" id="INPUT_WanConn' + j + '" value="' + ConnectionS[i].Path + '" ' + (G_WANPathName.indexOf(ConnectionS[i].Path) > -1 ? 'checked' : '') + '></td>');
+            document.write("</tr>");
+        }
+        num_wan = ++j;
+    }
+    if(z == 0)
+	document.write('<tr class="OddRowB"><td colspan="2">'+getStr('LK_NoRule')+'</td></tr>');
+}  
+function __init()
+{
+    frmLoad();
+    if(IsExistedFunction("project_init") == true) 
+    {
+        project_init(GetCurrentFileName());
+    }
+}
+  
+</script> 
+  </head>
+  <body>
+    <form method="post" name ="app_mccfgform" action="/cgi-bin/setup.cgi?page/applications/app_multicast.shtml">
+    </form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_IGMPMLDSettings'))</script>
+<form method="get">
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="200" langkey="LK_EnableIGMPSnoopingg"></td>
+	<td><input type="checkbox" id="INPUT_Snooping_Enable"></td>
+</tr>
+<tr>
+	<td langkey="LK_EnableIGMPProxyy"></td>
+        <td><input type="checkbox" id="INPUT_Proxy_Enable"></td>
+</tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">   
+        <td langkey="LK_WANConnection"></td>
+        <td langkey="LK_EnableIGMPMLD"></td>
+	     <script language="javascript">  
+                 createTable();
+            </script>
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor">
+<tr><td><script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()");</script>
+</td></tr>
+           </table>
+<script>printEndContent()</script>   
+ </form> 
+</body></html> 

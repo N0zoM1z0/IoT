@@ -1,0 +1,10 @@
+Package: kmod-qca-wifi-unified-profile
+Version: 5.4.213+miwifi_git-1
+Depends: kernel (=5.4.213-1-cbe2a62f3338085642f53dd7a9d10d09), libgcc, libc, librt, kmod-cfg80211-linux, libroxml, libnl, qca-cfg80211, kmod-qca-cnss, qca-sal-rule, kmod-bonding, kmod-qca-nss-ppe-vp, kmod-qca-nss-ppe-ds
+Provides: kmod-qca-wifi
+Source: sdk/qca_qsdk/qca_qsdk_spf12.2_csu3/feeds/qca/net/qca-wifi
+Section: QCA
+Maintainer: Qualcomm Atheros
+Architecture: arm_cortex-a7_neon-vfpv4
+Installed-Size: 4624101
+Description:  QCA Wireless LAN Driver

@@ -1,0 +1,13 @@
+Package: hwnat_tool
+Version: 4200
+Depends: libc
+Provides: 
+Source: tp_package/u_packages/hwnat_tool
+Section: MTK Properties
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 38276
+Description:  An program to query info from hwnat driver

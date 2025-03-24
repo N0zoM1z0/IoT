@@ -1,0 +1,560 @@
+<html>
+	<head>
+		<link type="image/x-icon" rel="shortcut icon" href="./skin/logo.png">
+		<link type="text/css" rel="stylesheet" href="css/common.css">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script language="JavaScript" src="js/tri.js" type="text/javascript"></script>
+		<script language="javascript" src="/js/project.js"></script>
+		<script language="javascript" src="/js/t_utils.js"></script>
+    <script language="javascript" src="js/jquery.js"></script>
+		<script src="js/menu.js"></script>
+		<script src="js/project_menu.js"></script>
+
+		<script>
+			function getStr(str)
+			{
+				if(str == "") return str;
+			  var vars = 'window.parent.' + str;  
+				return eval(vars);
+			}
+
+			function getLogStr(str)
+			{
+			    var vars = 'window.' + str;
+				return eval(vars);
+			}
+			
+			function __init()
+			{
+				if(IsExistedFunction("project_init") == true)
+		 			project_init(GetCurrentFileName());
+			}
+		</script>
+
+		<script>
+			/**********menu控制变量，提供给menu.js使用，最好是把这些变量放到index.html里，保证变量所有页面可见，因为很多页面可能都要用到此变量**********/
+			var G_HAS_VOIP = "<!--#getsingle_noop "InternetGatewayDevice.Services.VoiceService.X_TRI_Is_Voip.X_TRI_Voip_Enable"-->"
+			var G_HAS_IPSEC = "<!--#getsingle_noop "InternetGatewayDevice.Services.X_TRI_IPSec.X_TRI_IPSec_Enable"-->"
+			var G_HAS_L2TP = "<!--#getsingle_noop "InternetGatewayDevice.Services.X_TRI_L2TP.X_TRI_L2TP_ENABLE"-->"
+			var G_HAS_WIFI_5G = "<!--#getsingle_noop "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID"-->";
+			var G_HAS_DEFAULT_ROUTE = "<!--#getsingle_noop "InternetGatewayDevice.X_TRI_DefautlRoute.Enabled"-->";
+			
+			var gHaveEthWan = 0;
+			var gHaveDslWan = 0;
+			var gHaveDongleWan = 0;
+			var userlevel='<!--#getuser "level" -->';
+			var ModelName = "<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.ModelName"-->"
+			var Manufacturer = "<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.Manufacturer"-->"
+			var Manufacturer = "<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.Manufacturer"-->"
+			top.SetModelName(ModelName);
+			top.SetTitle(Manufacturer+" Gateway");
+			top.SetCopyright(Manufacturer);
+
+			/******************end of menu控制变量****************/
+		</script>
+
+
+		<script>
+			/******************获取wand, 提供给menu.js使用****************/
+			function CreateWand()
+			{    
+			    this.path = "";
+			    this.WANAccessType = "";
+			    this.DslEnable = "";
+			    this.EthEnable="";
+			    this.DongleEnable="";
+			}
+			var gWandIndex = 0;
+			var gWandArray = new Array();
+			<!--#getobject "InternetGatewayDevice.WANDevice. WANCommonInterfaceConfig.WANAccessType WANDSLInterfaceConfig.Enable WANEthernetInterfaceConfig.Enable WANDongleInterfaceConfig.Enable" -->
+			    gWandArray[gWandIndex] = new CreateWand();
+			    gWandArray[gWandIndex].path = "<!--#path -->";
+			    gWandArray[gWandIndex].WANAccessType = "<!--#leaf "1"-->";
+			    gWandArray[gWandIndex].DslEnable = "<!--#leaf "2"-->";
+			    gWandArray[gWandIndex].EthEnable = "<!--#leaf "3"-->";
+			    gWandArray[gWandIndex].DongleEnable = "<!--#leaf "4"-->";
+			    gWandIndex++;
+			<!--#endgetobject -->
+
+
+			for(var i=0; i<gWandArray.length; i++)
+			{
+			    if(gWandArray[i].WANAccessType=="DSL" && gWandArray[i].DslEnable==1)
+			    {
+			        gHaveDslWan = 1;
+			    }
+			    else if (gWandArray[i].WANAccessType=="Ethernet" && gWandArray[i].EthEnable==1)
+			    {
+			        gHaveEthWan = 1;
+			    }
+			    else if (gWandArray[i].WANAccessType=="Dongle" && gWandArray[i].DongleEnable==1)
+			    {
+			        gHaveDongleWan = 1;
+			    }
+			}
+			/******************end of 获取wand****************/
+		</script>
+
+
+
+		<script>
+			var FNum = 0;
+			var SecNum = 0;
+			var ThiNum = 0;
+			var SecNumNoChild = 0;			
+			var idx = 0;
+			var MenuList = new Array();	
+
+
+			function MenuTree()
+			{
+				this.Node = "";//1 ,2 ,3;
+				this.reDirect = ""; 
+				this.Name = "";
+				this.haveChild = ""; //1 , 0;
+			}
+
+
+
+			function menuTreeAdd(Node, reDirect, Name, haveChild,pagelevel)
+			{
+				if(userlevel > pagelevel) return;
+				idx++;	
+				MenuList[idx] = new MenuTree();
+				MenuList[idx].Node=Node;
+				MenuList[idx].reDirect=reDirect;
+				MenuList[idx].Name=getStr(Name);
+				MenuList[idx].haveChild=haveChild;	
+			}
+
+
+			/* 增加所有页面到MenuList中 */
+			function AddMenus()
+			{
+				/* Status相关页面 */
+				menuTreeAdd("first",   "", "LK_StatusM", "1", MENU_LEVEL_status);
+				menuTreeAdd("secstart","", "", "", MENU_LEVEL_status);
+				menuTreeAdd("sec","page/status/status_info.shtml","LK_DeviceInformation","0", PAGE_LEVEL_status_info);
+				menuTreeAdd("sec","","LK_WAN","1", MENU_LEVEL_status_WAN);
+				menuTreeAdd("third","page/status/status_wannetwork.shtml","LK_Network","0", PAGE_LEVEL_status_wannetwork);
+				if(gHaveEthWan==1)
+				{
+				    menuTreeAdd("third","page/status/status_ethnetwork.shtml","LK_Ethernet","0", PAGE_LEVEL_status_ethnetwork);
+				}
+				if(gHaveDongleWan==1)
+				{
+				    menuTreeAdd("third","page/status/status_dongle.shtml","LK_Dongle","0", PAGE_LEVEL_status_dongle);
+				}
+
+				if(gHaveDslWan == 1)
+				{
+				    menuTreeAdd("third","page/status/status_wanxdsl.shtml","LK_xDSL","0", PAGE_LEVEL_status_wanxdsl);
+				}
+				menuTreeAdd("sec","","LK_LAN","1", MENU_LEVEL_status_LAN);
+				menuTreeAdd("third","page/status/status_lannetwork.shtml","LK_Network","0", PAGE_LEVEL_status_lannetwork);
+				menuTreeAdd("third","page/status/status_lanethernet.shtml","LK_Ethernet","0", PAGE_LEVEL_status_lanethernet);
+				menuTreeAdd("third","page/status/status_lanwlan.shtml","LK_WLAN","0", PAGE_LEVEL_status_lanwlan);
+				menuTreeAdd("third","page/status/status_dhcpclient.shtml","LK_DHCPClient","0", PAGE_LEVEL_status_dhcpclient);
+				menuTreeAdd("sec","","LK_Statistics","1", MENU_LEVEL_status_Statistics);
+				menuTreeAdd("third","page/status/status_statisticswan.shtml","LK_WAN","0", PAGE_LEVEL_status_statisticswan);
+				menuTreeAdd("third","page/status/status_statisticslan.shtml","LK_LAN","0", PAGE_LEVEL_status_statisticslan);
+				menuTreeAdd("third","page/status/status_statisticswlan.shtml","LK_WLAN","0", PAGE_LEVEL_status_statisticswlan);
+				if(gHaveDslWan == 1)
+				{
+				    menuTreeAdd("third","page/status/status_statisticsxtm.shtml","LK_xTM","0", PAGE_LEVEL_status_statisticsxtm);
+				    menuTreeAdd("third","page/status/status_statisticsxdsl.shtml","LK_xDSL","0", PAGE_LEVEL_status_statisticsxdsl);
+				}
+				menuTreeAdd("sec","page/status/status_arp.shtml","LK_ARP","0", PAGE_LEVEL_status_arp);
+				if(G_HAS_VOIP==1)
+				{
+					menuTreeAdd("sec","","LK_VoIP","1", MENU_LEVEL_status_VOIP);
+					menuTreeAdd("third","page/status/status_voipvoiceinfo.shtml","LK_VoiceStatus","0", PAGE_LEVEL_status_voipvoiceinfo);
+				}
+				menuTreeAdd("secend","","","", MENU_LEVEL_status);
+
+				/* Quick Setup页面 */
+				menuTreeAdd("first","page/quicksetup/quicksetup.shtml","LK_QuickSetup","0", PAGE_LEVEL_quicksetup);
+
+				/* Basic Setup相关页面 */
+				menuTreeAdd("first","","LK_BasicSetup","1",  MENU_LEVEL_basic);
+				menuTreeAdd("secstart","","","", MENU_LEVEL_basic);
+				menuTreeAdd("sec","page/basicsetup/basic_wanservice.shtml","LK_WANService","0", PAGE_LEVEL_basic_wanservice);
+				menuTreeAdd("sec","","LK_LAN","1", MENU_LEVEL_basic_LAN);
+				menuTreeAdd("third","page/basicsetup/basic_lanipv4config.shtml","LK_IPv4Configuration","0", PAGE_LEVEL_basic_lanipv4config);
+				menuTreeAdd("third","page/basicsetup/basic_lanipv6config.shtml","LK_IPv6Configuration","0", PAGE_LEVEL_basic_lanipv6config);
+
+				menuTreeAdd("sec","","LK_Wireless","1", MENU_LEVEL_basic_Wireless);
+				menuTreeAdd("third","page/basicsetup/basic_wlcfg.shtml","LK_BasicConfiguration","0", PAGE_LEVEL_basic_wlcfg);
+				if(G_HAS_WIFI_5G !="")
+				{
+					menuTreeAdd("third","page/basicsetup/basic_wlcfg_5g.shtml","LK_BasicConfiguration_5g","0", PAGE_LEVEL_basic_wlcfg_5g);
+				}
+				menuTreeAdd("third","page/basicsetup/basic_wlsecurity.shtml","LK_SecuritySetting","0", PAGE_LEVEL_basic_wlsecurity);
+				menuTreeAdd("secend","","","", MENU_LEVEL_basic);
+
+				/* Advanced Setup相关页面 */
+				menuTreeAdd("first","","LK_AdvancedSetup","1", MENU_LEVEL_advanced);
+				menuTreeAdd("secstart","","","", MENU_LEVEL_advanced);
+				menuTreeAdd("sec","","LK_WAN","1", MENU_LEVEL_advanced_WAN);
+				if(gHaveDslWan == 1)
+				{
+				    menuTreeAdd("third","page/advancedsetup/adv_xdslcfg.shtml","LK_xDSLConfiguration","0", PAGE_LEVEL_adv_xdslcfg);
+				}
+				if(gHaveEthWan==1)
+				{
+				    menuTreeAdd("third","page/advancedsetup/adv_wanethspeedconfig.shtml","LK_EthernetModeConfiguration","0", PAGE_LEVEL_adv_wanethspeedconfig);
+				}
+
+				menuTreeAdd("sec","","LK_LAN","1", MENU_LEVEL_advanced_LAN);
+				menuTreeAdd("third","page/advancedsetup/adv_lanethspeedconfig.shtml","LK_EthernetModeConfiguration","0", PAGE_LEVEL_adv_lanethspeedconfig);
+				//menuTreeAdd("third","page/advancedsetup/adv_dvlanconfig.shtml","LK_DVLANConfiguration","0", PAGE_LEVEL_adv_dvlanconfig);
+				menuTreeAdd("sec","","LK_Wireless","1", MENU_LEVEL_advanced_Wireless);
+				menuTreeAdd("third","page/advancedsetup/adv_wladvcfg.shtml","LK_AdvancedConfiguration","0", PAGE_LEVEL_adv_wladvcfg);
+				if(G_HAS_WIFI_5G !=""){
+				menuTreeAdd("third","page/advancedsetup/adv_wladvcfg_5g.shtml","LK_AdvancedConfiguration_5G","0", PAGE_LEVEL_adv_wladvcfg_5g);
+				}
+				menuTreeAdd("third","page/advancedsetup/adv_wlacl.shtml","LK_WirelessACL","0", PAGE_LEVEL_adv_wlacl);
+				menuTreeAdd("third","page/advancedsetup/adv_wlwps.shtml","LK_WPSConfiguration","0", PAGE_LEVEL_adv_wlwps);
+				if(G_HAS_WIFI_5G !=""){
+				menuTreeAdd("third","page/advancedsetup/adv_wlwps_5g.shtml","LK_WPSConfiguration_5g","0", PAGE_LEVEL_adv_wlwps_5g);
+				}
+				menuTreeAdd("third","page/advancedsetup/adv_wds.shtml","LK_WDSSettings","0", PAGE_LEVEL_adv_wds);
+				menuTreeAdd("third","page/advancedsetup/adv_channel_info.shtml","LK_ChannelInfo","0", PAGE_LEVEL_adv_channel_info );
+				menuTreeAdd("sec","","LK_NAT","1", MENU_LEVEL_advanced_NAT);
+				menuTreeAdd("third","page/advancedsetup/adv_scvrtsrv.shtml","LK_VirtualServers","0", PAGE_LEVEL_adv_scvrtsrv);
+				menuTreeAdd("third","page/advancedsetup/adv_porttriggering.shtml","LK_PortTriggering","0", PAGE_LEVEL_adv_porttriggering);
+				menuTreeAdd("third","page/advancedsetup/adv_multinat.shtml","LK_MultiNAT","0", PAGE_LEVEL_adv_multinat);
+				menuTreeAdd("third","page/advancedsetup/adv_scdmz.shtml","LK_DMZHost","0", PAGE_LEVEL_adv_scdmz);
+				menuTreeAdd("third","page/advancedsetup/adv_algcfg.shtml","LK_ALG","0", PAGE_LEVEL_adv_algcfg);
+				menuTreeAdd("sec","","LK_Security","1", MENU_LEVEL_advanced_Security);
+				menuTreeAdd("third","page/advancedsetup/adv_ipfilter.shtml","LK_IPFiltering","0", PAGE_LEVEL_adv_ipfilter);
+				menuTreeAdd("third","page/advancedsetup/adv_macfilter.shtml","LK_MACFiltering","0", PAGE_LEVEL_adv_macfilter);
+				menuTreeAdd("third","page/advancedsetup/adv_dos.shtml","LK_DoSProtection","0", PAGE_LEVEL_adv_dos);
+				menuTreeAdd("sec","","LK_ParentalControl","1", MENU_LEVEL_advanced_ParentalControl);
+				menuTreeAdd("third","page/advancedsetup/adv_timerestrict.shtml","LK_TimeRestriction","0", PAGE_LEVEL_adv_timerestrict);
+				menuTreeAdd("third","page/advancedsetup/adv_urlfilter.shtml","LK_UrlFilter","0", PAGE_LEVEL_adv_urlfilter);
+				menuTreeAdd("sec","","LK_Routing","1", MENU_LEVEL_advanced_Routing);
+				if(G_HAS_DEFAULT_ROUTE == 1){
+					menuTreeAdd("third","page/advancedsetup/adv_defaultroute.shtml","LK_DefaultRoute","0", PAGE_LEVEL_adv_defaultroute);
+				}
+				menuTreeAdd("third","page/advancedsetup/adv_staticroute.shtml", "LK_StaticRoute","0", PAGE_LEVEL_adv_staticroute);
+				menuTreeAdd("third","page/advancedsetup/adv_dynamicroute.shtml", "LK_DynamicRoute","0", PAGE_LEVEL_adv_dynamicroute);
+				menuTreeAdd("third","page/advancedsetup/adv_v6staticroute.shtml", "LK_IPv6StaticRoute","0", PAGE_LEVEL_adv_v6staticroute);
+				menuTreeAdd("third","page/advancedsetup/adv_v6dynamicroute.shtml", "LK_IPv6DynamicRoute","0", PAGE_LEVEL_adv_v6dynamicroute);
+				menuTreeAdd("sec","","LK_QualityofService","1", MENU_LEVEL_advanced_QualityofService);
+				menuTreeAdd("third","page/advancedsetup/adv_qosqueue.shtml","LK_QoSQueue","0", PAGE_LEVEL_adv_qosqueue);
+				menuTreeAdd("third","page/advancedsetup/adv_qoscliffication.shtml","LK_QosCliffication","0", PAGE_LEVEL_adv_qoscliffication);
+
+				menuTreeAdd("sec","","LK_BandwidthLimit","1", MENU_LEVEL_advanced_BandwidthLimit);
+				menuTreeAdd("third","page/advancedsetup/adv_portbwlimit.shtml","LK_PortBWLimit","0", PAGE_LEVEL_adv_portbwlimit);
+				menuTreeAdd("third","page/advancedsetup/adv_ipbwlimit.shtml","LK_IPBWLimit","0", PAGE_LEVEL_adv_ipbwlimit);
+
+				menuTreeAdd("sec","","LK_IPTunnel","1", MENU_LEVEL_advanced_IPTunnel);
+				menuTreeAdd("third","page/advancedsetup/adv_v4inv6.shtml","LK_IPV4inIPv6","0", PAGE_LEVEL_adv_v4inv6);
+				menuTreeAdd("third","page/advancedsetup/adv_add64.shtml","LK_IPV6inIPv4","0", PAGE_LEVEL_adv_v6inv4);				
+				menuTreeAdd("third","page/advancedsetup/adv_ipgre.shtml","LK_IPGRETunnel","0", PAGE_LEVEL_adv_ipgre);
+				menuTreeAdd("secend","","","", MENU_LEVEL_advanced);
+
+				/* Application相关页面 */
+				menuTreeAdd("first","","LK_Applications","1", MENU_LEVEL_app);
+				menuTreeAdd("secstart","","","", MENU_LEVEL_app);
+				menuTreeAdd("sec","","LK_StorageService","1", MENU_LEVEL_app_StorageService);
+				menuTreeAdd("third","page/applications/app_storagedevinfo.shtml","LK_StorageDevInfo","0", PAGE_LEVEL_app_storagedevinfo);
+				menuTreeAdd("third","page/applications/app_sambasrv.shtml","LK_SambaSrv","0", PAGE_LEVEL_app_sambasrv);
+				menuTreeAdd("third","page/applications/app_ftpsrv.shtml","LK_FTPServer","0", PAGE_LEVEL_app_ftpsrv);
+				menuTreeAdd("third","page/applications/app_ftpclient.shtml","LK_FTPClient","0", PAGE_LEVEL_app_ftpclient);
+				menuTreeAdd("third","page/applications/app_tftpsrv.shtml","LK_TFTPSrv","0", PAGE_LEVEL_app_tftpsrv);
+				menuTreeAdd("sec","page/applications/app_telnetsrv.shtml","LK_TELNET","0", PAGE_LEVEL_app_telnetsrv);
+				menuTreeAdd("sec","page/applications/app_sshsrv.shtml","LK_SSH","0", PAGE_LEVEL_app_sshsrv);
+				menuTreeAdd("sec","page/applications/app_printersrv.shtml","LK_Printer","0", PAGE_LEVEL_app_printersrv);
+				menuTreeAdd("sec","page/applications/app_dlna.shtml","LK_MediaShareTitle","0", PAGE_LEVEL_app_dlna);
+				menuTreeAdd("sec","","LK_DNS","1", MENU_LEVEL_app_DNS);
+				menuTreeAdd("third","page/applications/app_ddns.shtml","LK_DynamicDNS","0", PAGE_LEVEL_app_ddns);
+				menuTreeAdd("sec","page/applications/app_upnp.shtml","LK_UPnP","0", PAGE_LEVEL_app_upnp);			
+				menuTreeAdd("sec","","LK_Multicast","1", MENU_LEVEL_app_Multicast);
+				menuTreeAdd("third","page/applications/app_igmp.shtml","LK_IGMP","0", PAGE_LEVEL_app_igmp);
+				menuTreeAdd("third","page/applications/app_mld.shtml","LK_MLD","0", PAGE_LEVEL_app_mld);
+				menuTreeAdd("sec","page/applications/app_snmpsrv.shtml","LK_SNMP","0", PAGE_LEVEL_app_snmpsrv);
+				if(G_HAS_VOIP==1)
+				{
+					menuTreeAdd("sec","","LK_VoIP","1", MENU_LEVEL_app_VOIP);
+					menuTreeAdd("third","page/applications/app_voipbasiccall.shtml","LK_BasicSetup","0", PAGE_LEVEL_app_voipbasiccall);
+					menuTreeAdd("third","page/applications/app_voipadvanced.shtml","LK_AdvancedSetup","0", PAGE_LEVEL_app_voipadvanced);
+					menuTreeAdd("third","page/applications/app_voipmediasetting.shtml","LK_MediaSettings","0", PAGE_LEVEL_app_voipmediasetting);
+					menuTreeAdd("third","page/applications/app_voipfax.shtml","LK_FaxSettings","0", PAGE_LEVEL_app_voipfax);
+					menuTreeAdd("third","page/applications/app_voipvoiceservice.shtml","LK_VoiceOperation","0", PAGE_LEVEL_app_voipvoiceservice);
+					menuTreeAdd("third","page/applications/app_voipprotocalunregister.shtml","LK_ProtocolUnregister","0", PAGE_LEVEL_app_voipprotocalunregister);
+					menuTreeAdd("third","page/applications/app_voipdialplan.shtml","LK_NumberTable","0", PAGE_LEVEL_app_voipdialplan);
+					menuTreeAdd("third","page/applications/app_voipbasiccallcontrol.shtml","LK_BasicCallControl","0", PAGE_LEVEL_app_voipbasiccallcontrol);
+					menuTreeAdd("third","page/applications/app_voipcid.shtml","LK_ShowCallNumber","0", PAGE_LEVEL_app_voipcid);
+					menuTreeAdd("third","page/applications/app_voipcdr.shtml","LK_CDR","0", PAGE_LEVEL_app_voipcdr);
+				}
+				menuTreeAdd("sec","","LK_VPN","1", MENU_LEVEL_app_VPN);
+				if(G_HAS_IPSEC==1)
+				{
+					menuTreeAdd("third","page/applications/app_ipsec.shtml","LK_IPSec","0", PAGE_LEVEL_app_ipsec)
+				}
+				if(G_HAS_L2TP==1)
+				{
+					menuTreeAdd("third","page/applications/app_l2tp.shtml","LK_L2TP","0", PAGE_LEVEL_app_l2tp)
+				}
+
+				menuTreeAdd("secend","","","", MENU_LEVEL_app);
+
+				/* Management相关页面 */
+				menuTreeAdd("first","","LK_Management","1", MENU_LEVEL_management);
+				menuTreeAdd("secstart","","","", MENU_LEVEL_management);
+				menuTreeAdd("sec","page/management/mngt_reboot.shtml","LK_Reboot","0", PAGE_LEVEL_mngt_reboot);
+				menuTreeAdd("sec","","LK_Settings","1", MENU_LEVEL_mngt_Settings);
+				menuTreeAdd("third","page/management/mngt_backup.shtml","LK_Backup","0", PAGE_LEVEL_mngt_backup);
+				menuTreeAdd("third","page/management/mngt_opt66_backup.shtml","LK_Opt66_Backup","0", PAGE_LEVEL_mngt_opt66_backup);
+				menuTreeAdd("third","page/management/mngt_update.shtml","LK_Update","0", PAGE_LEVEL_mngt_update);
+				menuTreeAdd("third","page/management/mngt_restoredefault.shtml","LK_RestoreDefault","0", PAGE_LEVEL_mngt_restoredefault);
+				menuTreeAdd("sec","page/management/mngt_updatesoftware.shtml","LK_UpdateSoftware","0", PAGE_LEVEL_mngt_updatesoftware);
+				menuTreeAdd("sec","","LK_AccountManagement","1", MENU_LEVEL_mngt_AccountManagement);
+				menuTreeAdd("third","page/management/mngt_password.shtml","LK_Passwords","0", PAGE_LEVEL_mngt_password);
+				menuTreeAdd("sec","","LK_Logs","1", MENU_LEVEL_mngt_Logs);
+				menuTreeAdd("third","page/management/mngt_loglevel.shtml","LK_Loglevel","0",  PAGE_LEVEL_mngt_loglevel);
+				menuTreeAdd("third","page/management/mngt_logs.shtml","LK_Logs","0",  PAGE_LEVEL_mngt_logs);
+				menuTreeAdd("sec","page/management/mngt_srvctl.shtml","LK_SrvCtl","0", PAGE_LEVEL_mngt_srvctl);
+				menuTreeAdd("sec","page/management/mngt_cwmp.shtml","LK_CWMP","0", PAGE_LEVEL_mngt_cwmp);
+				menuTreeAdd("sec","page/management/mngt_internettime.shtml","LK_InternetTime","0", PAGE_LEVEL_mngt_internettime);				
+				if(gHaveDslWan==1)
+				{
+				    menuTreeAdd("sec","page/management/mngt_xdsldiag.shtml","LK_xDSLDiag","0", PAGE_LEVEL_mngt_xdsldiag);
+				}
+				menuTreeAdd("sec",  "","LK_Tools","1", MENU_LEVEL_mngt_Tools);
+				menuTreeAdd("third","page/management/mngt_pingroute.shtml","LK_PingRoute","0",  PAGE_LEVEL_mngt_pingroute);
+				menuTreeAdd("third","page/management/mngt_traceroute.shtml","LK_TraceRoute","0", PAGE_LEVEL_mngt_traceroute);
+				menuTreeAdd("secend","","","", MENU_LEVEL_management);
+			}
+
+
+			function closeOtherLinkFolder(node)
+			{
+				var i;
+				var obj_name;
+				var obj;
+				var MainMenuNumber = 6;
+
+				for(i=1; i<=MainMenuNumber; i++)
+				{
+					obj_name = "Menu_sec_" + i;
+					obj = document.getElementById(obj_name);
+					if(obj != null)
+					{
+						if(i != node)
+						{
+							obj.className="hideList";
+						}
+						else 
+						{
+							obj.className="showList";
+						}
+					}
+					
+					obj_name = "Menu_" + i;
+					obj = document.getElementById(obj_name);
+					
+					if(obj != null)
+					{
+						if(i != node)
+						{				
+							obj.className="firstMenu_normal";
+							obj.onmouseout = function(){this.className='firstMenu_normal';};
+							obj.onmouseover = function(){this.className='firstMenu_hover';};
+						}
+						else 
+						{
+							obj.className="firstMenu_selected";
+							obj.onmouseout = function(){this.className='firstMenu_selected';};
+							obj.onmouseover = function(){this.className='firstMenu_selected';};
+						}
+					}
+					
+					obj_name = "Menu_Fir_div_" + i;
+					obj = document.getElementById(obj_name);
+					
+					if(obj != null)
+					{
+						if(i != node)
+						{			
+							obj.className="firstMenu_Content";	
+						}
+						else 
+						{
+							obj.className="firstMenu_Content_open";
+						}
+					}
+					
+				}
+				ChangeSecFolder(0);
+			}
+
+			function changeFolderState(node)
+			{
+				closeOtherLinkFolder(node);
+				//top.contentFrame.location.href = linkHerf;
+			}
+
+
+			function printMenuTree()
+			{
+				AddMenus();
+
+				document.write('<table class="MenuTable" cellspacing="0" cellpadding="0" border="0">');
+				for(var i = 1; i<= idx ; i++)
+				{
+					if(MenuList[i].Node == "first")
+					{
+						FNum ++;
+						if(MenuList[i].haveChild == "0")
+						{
+							document.write('<tr><td id="Menu_'+FNum+'" onclick="changeFolderState('+FNum+');" class="firstMenu_normal" onmouseout="this.className=\'firstMenu_normal\';" onmouseover="this.className=\'firstMenu_hover\';">')
+							document.write('<a href="'+MenuList[i].reDirect+'" target="contentFrame"><div class="firstMenu_Content_nochild">'+MenuList[i].Name+'</div></a>');
+							document.write('</td></tr>');
+						}
+						else
+						{
+							document.write('<tr><td id="Menu_'+FNum+'" onclick="changeFolderState('+FNum+');" class="firstMenu_normal" onmouseout="this.className=\'firstMenu_normal\';" onmouseover="this.className=\'firstMenu_hover\';">')
+							document.write('<div id="Menu_Fir_div_'+FNum+'" class="firstMenu_Content"><a>'+MenuList[i].Name+'</a></div>');
+							document.write('</td></tr>');
+						}
+					}
+					else if(MenuList[i].Node == "secstart")
+					{
+						
+						document.write('<tr><td id="Menu_sec_'+FNum+'" class="hideList">');		
+					}
+					else if(MenuList[i].Node =="secend")
+					{
+						document.write('</td></tr>');		
+					}
+					else if(MenuList[i].Node =="sec")
+					{
+						if(MenuList[i].haveChild == "0")
+						{				
+							SecNumNoChild++;
+							document.write('<div class="SecMenu"><ul><li onClick="ChangeSecNoChild('+SecNumNoChild+', '+"0"+')" id="SecNochild_'+SecNumNoChild+'_0" class="unselect">');			
+							document.write('<a href="'+MenuList[i].reDirect+'" target="contentFrame">'+MenuList[i].Name+'</a>');
+							document.write('</li></ul></div>');
+						}
+						else if(MenuList[i].haveChild == "1")
+						{
+							SecNum++;
+							SecNumNoChild++;
+							document.write('<div id="SecNode_'+SecNum+'"  class="SecChildMenu" ><ul><li onClick="ChangeSecFolder('+SecNum+');" id="SecNodeli_'+SecNum+'" class="unselect">');			
+							document.write('<a>'+MenuList[i].Name+'</a>');
+							document.write('</li></ul></div>');
+							ThiNum = 0;
+						}
+					}
+					else if((MenuList[i].Node =="third"))
+					{
+						ThiNum++;
+						document.write('<div id="ThiNode_'+SecNum+'_'+ThiNum+'" class="ThirdMenu hideList"><ul><li onClick="ChangeSecNoChild('+SecNumNoChild+','+ThiNum+')" id="SecNochild_'+SecNumNoChild+'_'+ThiNum+'" class="unselect">');			
+						document.write('<a href="'+MenuList[i].reDirect+'" target="contentFrame">'+MenuList[i].Name+'</a>');
+						document.write('</li></ul></div>');
+					}
+					
+				}
+				document.write('</table>');	
+			}
+			function ChangeSecNoChild(node,thinode)
+			{
+				var i,j;
+				var obj_name;
+				var obj;
+				for(i = 1; i <= SecNumNoChild; i++)
+				{	
+					for( j = 0 ; j<= 10 ; j++)
+					{
+						obj_name = "SecNochild_" + i +"_"+ j;
+						obj = document.getElementById(obj_name);
+						if(obj != null)
+						{				
+							if(i == node && j == thinode)
+							{
+								obj.className = "select";
+							}
+							else
+							{
+								obj.className = "unselect";
+							}
+						}
+						else
+							continue;
+					}
+				}
+			}
+			function ChangeSecFolder(node)
+			{
+				//alert(1);
+				var i;
+				var obj_name;
+				var obj;
+				var ThiObj_name;
+				var ThiObj ;
+				var j = 1;
+				for(i = 1; i <= SecNum; i++)
+				{
+					obj_name = "SecNode_" + i;
+					obj = document.getElementById(obj_name);
+					if(obj != null)
+					{
+						ThiObj = "ThiNode_"+i;
+						if(node == 0)
+						{
+							while(document.getElementById(ThiObj+"_"+j))
+							{
+								document.getElementById(ThiObj+"_"+j).className = "hideList";
+								j++;
+							}
+							j=1;
+							obj.className = "SecChildMenu";
+						}
+						else if(i == node)
+						{					
+							if( obj.className == "SecChildMenuTwo")
+							{
+								while(document.getElementById(ThiObj+"_"+j))
+								{
+									document.getElementById(ThiObj+"_"+j).className = "hideList";
+									j++;
+								}
+								j=1;
+								obj.className = "SecChildMenu";
+							}
+							else 
+							{
+								while(document.getElementById(ThiObj+"_"+j))
+								{
+									document.getElementById(ThiObj+"_"+j).className = "ThirdMenu";
+									j++;
+								}
+								j=1;
+								obj.className = "SecChildMenuTwo";
+							}
+						}
+						else 
+						{
+							while(document.getElementById(ThiObj+"_"+j))
+							{
+								document.getElementById(ThiObj+"_"+j).className = "hideList";
+								j++;
+							}
+							j=1;
+							obj.className = "SecChildMenu";
+						}
+					}
+				}
+			}
+		</script>		
+		
+	</head>
+	<body onload="__init()"class="MenuBody">
+		<script>
+			printMenuTree();
+		</script>
+	</body>
+</html>

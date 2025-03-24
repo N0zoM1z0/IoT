@@ -1,0 +1,42 @@
+<script type="text/javascript">
+	function init()
+	{
+		id("sub").onclick = function(){
+			loadPage("PhoneWirelessRepeaterWeb.htm", "phCon");
+		};
+	}
+	init();
+</script>
+<style type="text/css">
+.imgReset{
+    display:inline-block;
+    width: 280px;
+    height: 160px;
+    background:url(../web-static/images/portal.png) 0px -224px no-repeat;
+}
+.imgMesh{
+    display:inline-block;
+    width: 280px;
+    height: 160px;
+    background:url(../web-static/images/portal.png) -300px -224px no-repeat;
+}
+.meshInfo{
+    font-size: 13px;
+    color: #666666;
+    text-align: left;
+}
+.meshPage{
+    padding: 24px;
+    text-align: center;
+}
+</style>
+<div class="meshPage">
+    <p class="meshInfo">本路由器可作为“Mesh”子路由器扩展现有无线网络：</p>
+    <p class="meshInfo">1.现将本路由器恢复至出厂状态（按住“Reset按键”直到系统指示灯闪烁后松开）。</p>
+    <div class="imgReset"></div>
+    <p class="meshInfo">2.本路由恢复出厂状态后，分别按下前端“Mesh”主路由器和本路由器的“Mesh”按键进行组网配对。</p>
+    <div class="imgMesh"></div>
+    <div class="phFunc">
+        <label id="sub" class="phOneBtn">{%btn.ok%}</label>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="../../css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+
+var IPSec_HDA_Enable = '<!--#getsingle "InternetGatewayDevice.Services.X_TRI_IPSec.X_TRI_IPSec_Hardware_Accelate_Enable" -->';
+
+function IPSecTunnelTuple(){
+    this.path="";
+    this.TunnelName="";
+    this.TunnelMode="";
+    this.RemoteGatewayAddress="";
+    this.LocalMode="";
+    this.LocalIP="";
+    this.LocalMask="";
+    this.RemoteMode="";
+    this.RemoteIP="";
+    this.RemoteMask="";    
+    this.KeyMode="";    
+    this.AuthenticationMode="";    
+    this.PreSharedKey="";    
+    this.Certificates="";    
+    this.PerfectForwardSecrecy="";    
+    this.ConnectionMode="";    
+    this.Phase1EncryptionAlgorithm="";    
+    this.Phase1IntegrityAlgorithm="";    
+    this.Phase1DiffieHellmanGroup="";    
+    this.Phase1KeyLifeTime="";    
+    this.Phase2EncryptionAlgorithm="";    
+    this.Phase2IntegrityAlgorithm="";    
+    this.Phase2DiffieHellmanGroup="";    
+    this.Phase2KeyLifeTime="";  
+    this.ManualEncryptionAlgorithm="";  
+    this.ManualEncryptionKey="";  
+    this.ManualAuthenticationAlgorithm="";  
+    this.ManualAuthenticationKey="";  
+    this.ManualSPI="";  
+}
+
+var index = 0;
+var IPSecList = new Array();
+<!--#getobject "InternetGatewayDevice.Services.X_TRI_IPSec.TunnelList. TunnelName TunnelMode RemoteGatewayAddress LocalMode LocalIP LocalMask RemoteMode RemoteIP RemoteMask KeyMode AuthenticationMode PreSharedKey Certificates PerfectForwardSecrecy ConnectionMode Phase1EncryptionAlgorithm Phase1IntegrityAlgorithm Phase1DiffieHellmanGroup Phase1KeyLifeTime Phase2EncryptionAlgorithm Phase2IntegrityAlgorithm Phase2DiffieHellmanGroup Phase2KeyLifeTime ManualEncryptionAlgorithm ManualEncryptionKey ManualAuthenticationAlgorithm ManualAuthenticationKey ManualSPI" -->
+IPSecList[index] = new IPSecTunnelTuple();
+IPSecList[index].path = "<!--#path -->";
+IPSecList[index].TunnelName = "<!--#leaf "1"-->";
+IPSecList[index].TunnelMode = "<!--#leaf "2"-->";
+IPSecList[index].RemoteGatewayAddress = "<!--#leaf "3"-->";
+IPSecList[index].LocalMode = "<!--#leaf "4"-->";
+IPSecList[index].LocalIP = "<!--#leaf "5"-->";
+IPSecList[index].LocalMask = "<!--#leaf "6"-->";
+IPSecList[index].RemoteMode = "<!--#leaf "7"-->";
+IPSecList[index].RemoteIP = "<!--#leaf "8"-->";
+IPSecList[index].RemoteMask = "<!--#leaf "9"-->";
+IPSecList[index].KeyMode = "<!--#leaf "10"-->";
+IPSecList[index].AuthenticationMode = "<!--#leaf "11"-->";
+IPSecList[index].PreSharedKey = "<!--#leaf "12"-->";
+IPSecList[index].Certificates = "<!--#leaf "13"-->";
+IPSecList[index].PerfectForwardSecrecy = "<!--#leaf "14"-->";
+IPSecList[index].ConnectionMode = "<!--#leaf "15"-->";
+IPSecList[index].Phase1EncryptionAlgorithm = "<!--#leaf "16"-->";
+IPSecList[index].Phase1IntegrityAlgorithm = "<!--#leaf "17"-->";
+IPSecList[index].Phase1DiffieHellmanGroup = "<!--#leaf "18"-->";
+IPSecList[index].Phase1KeyLifeTime = "<!--#leaf "19"-->";
+IPSecList[index].Phase2EncryptionAlgorithm = "<!--#leaf "20"-->";
+IPSecList[index].Phase2IntegrityAlgorithm = "<!--#leaf "21"-->";
+IPSecList[index].Phase2DiffieHellmanGroup = "<!--#leaf "22"-->";
+IPSecList[index].Phase2KeyLifeTime = "<!--#leaf "23"-->";
+IPSecList[index].ManualEncryptionAlgorithm = "<!--#leaf "24"-->";
+IPSecList[index].ManualEncryptionKey = "<!--#leaf "25"-->";
+IPSecList[index].ManualAuthenticationAlgorithm = "<!--#leaf "26"-->";
+IPSecList[index].ManualAuthenticationKey = "<!--#leaf "27"-->";
+IPSecList[index].ManualSPI = "<!--#leaf "28"-->";
+index++;
+<!--#endgetobject -->
+
+function AddRule()
+{
+	document.location.href = "app_addipsec.shtml";
+}
+
+function ConfirmMsgResult(type,func,a)
+{
+	if(func == 'delete')
+	{
+		if(type=='yes')
+		{
+			var df = document.app_ipsec;
+			df.submit();
+		}
+		else
+		{
+			return;
+		}
+	}
+}
+
+function uiEdit(path)
+{
+    G_Operation = "Edit";
+    document.location.href='/page/applications/app_addipsec.shtml?Op='+ G_Operation +'&G_Path='+ path+'';
+}
+
+function uiDelete(path)
+{
+	var df = document.app_ipsec; 
+    AddElements(df, 'del_obj',path);
+    top.ConfirmMsg(getStr("LK_net_confirmdelete"),"delete");
+
+}
+
+function setTable()
+{
+	var tr;
+	for(i=0;i<IPSecList.length;i++)
+	{
+		if(i%2 == 0)
+			tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		tr += '<td>'+IPSecList[i].TunnelName+'</td>';	
+		tr += '<td>'+IPSecList[i].RemoteGatewayAddress+'</td>';	
+		tr += '<td>'+IPSecList[i].LocalIP+'</td>';	
+		tr += '<td>'+IPSecList[i].RemoteIP+'</td>';	
+		tr += '<td><img src="../../skin/edit.gif" style="cursor:pointer" onClick="uiEdit(\'' +IPSecList[i].path+ '\')">&nbsp;<img src="../../skin/trash.gif" style="cursor:pointer" onClick="uiDelete(\'' +IPSecList[i].path+ '\')"></td>'
+		tr += '</td>'	
+		tr += '</tr>'
+	}
+	if(IPSecList.length == 0)
+		tr = "<tr class='OddRowB'><td colspan='5'>"+getStr('LK_NoRule')+"</td></tr>";
+	jQuery("#tunnelTable").append(tr);
+}
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+	var df = document.app_ipsec;
+	AddElements(df, "InternetGatewayDevice.Services.X_TRI_IPSec.X_TRI_IPSec_Hardware_Accelate_Enable", $("Enable_IPSec_HDA").checked == true ? 1 : 0);
+	df.submit();
+}
+
+function __init()
+{
+    setValue("Enable_IPSec_HDA", IPSec_HDA_Enable);
+    setTable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+</script> 
+  </head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_IPSecTunnelModeConnections'));</script>
+
+<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+    <tr>
+        <td width="150" langkey="LK_IPSec_HDA"></td>
+        <td><input type="checkbox" id="Enable_IPSec_HDA"></td>
+    </tr>
+</table>
+
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+    <tr id="BUTTON_BLOCK" class="spaceLine">
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <script>PrintTriButton("apply",getStr("LK_Apply"),onClick="uiSubmit();");</script>&nbsp;&nbsp;
+            <script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh();" );</script>
+        </td>
+    </tr>
+    <tr class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+
+<table id="tunnelTable" width="800" class="ContentBorder" cellspacing="0" cellpadding="0">
+<tr class="TitleRow">
+	<td langkey="LK_ConnectionName"></td>
+	<td langkey="LK_RemoteGateway"></td>
+	<td langkey="LK_LocalAddresses"></td>
+	<td langkey="LK_RemoteAddresses"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor">
+<tr>
+	<td><script>PrintTriButton("add",getStr('LK_Add'),"AddRule()")</script></td>
+</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="app_ipsec" action="/cgi-bin/setup.cgi?page/applications/app_ipsec.shtml">
+</form>
+</body>
+</html>

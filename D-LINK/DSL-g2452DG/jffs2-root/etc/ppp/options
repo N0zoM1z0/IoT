@@ -1,0 +1,6 @@
+#debug
+logfile /dev/null
+noipdefault
+nocrtscts
+lock
+maxfail 0

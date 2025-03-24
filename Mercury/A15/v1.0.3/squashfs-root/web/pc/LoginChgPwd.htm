@@ -1,0 +1,28 @@
+
+
+<div class="wizardContent mainGradient">
+	<div class="wizardHead">
+		<h1>
+			<i class="wizardLogo" id="mercuryLogo"></i>
+			<i class="wizardLogo" id="andlinkLogo"></i>
+			<span>{%titleStr.hardwareinfo%}</span>
+		</h1>
+		<p id="downloadAPP" class="downloadAPP"><i class="iconfont icon-download"></i><a>{%label.downloadAppAndManage%}</a></p>
+	</div>
+	<div class="wizardCon">
+		<div class="loginContainer">
+			<h1>{%label.setPwd%}</h1>
+			<p id="pwdConfirmErr" class="commonErrTip"><i class="iconfont icon-error"></i>{%label.chgPwdDif%}</p>
+			<div id="passwordInput"></div>
+			<div id="sub"></div>
+		</div>
+		<i class="surfingPeople"></i>
+	</div>
+</div><script type="text/javascript">(function(){function e(){c.checkAll()&&(c.getValue()!=f.getValue()?id("pwdConfirmErr").style.visibility="visible":(id("pwdConfirmErr").style.visibility="hidden",SET_SYS_PWD_LOADING&&!0==d.isLoading||(SET_SYS_PWD_LOADING&&d.showLoading(),$.changeDefaultPwd(c.getValue(),function(a){SET_SYS_PWD_LOADING&&d.closeLoading();ENONE==a?(a={},a[uciFunction.fileName]={},a[uciFunction.fileName][KEY_NAME]=[uciFunction.secName.newModuleSpec],a[uciCustomNetwork.fileName]={},a[uciCustomNetwork.fileName][KEY_NAME]=
+uciCustomNetwork.dynData.bridgeStatus,$.query(a,function(a){if(a[ERR_CODE]==ENONE)if(void 0!=a[uciFunction.fileName]&&void 0!=a[uciFunction.fileName][uciFunction.secName.newModuleSpec]&&a[uciFunction.fileName][uciFunction.secName.newModuleSpec][uciFunction.optName.elink]==uciFunction.optValue.enable){a=0==parseInt(a.custom_network.bridge_status.enable)?label.telWzdRouteCfm:label.telWzdBriCfm;var b=new Dialog({title:label.confirmTitle,content:a,size:Dialog.SIZE.SMALL,hasCloseIcon:!1,type:Dialog.TYPE.NORMAL,
+isConstant:!0,closeIconHandle:function(){b.hide()},bottom:[{type:component.Button.TYPE.PRIMARY,text:btn.telSkipWzd,id:"confirmChoiceA",onClick:function(){b.hide(function(){var a={};a[uciSystem.fileName]={};a[uciSystem.fileName][uciSystem.secName.sys]={};a[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory]=uciSystem.optValue.isFactory.no;$.modify(a,function(a){unloadLogin()})})}},{type:component.Button.TYPE.PRIMARY,text:btn.telBackWzd,id:"confirmChoiceB",onClick:function(){b.hide(function(){unloadLogin()})}}]});
+$("#confirmChoiceA, #confirmChoiceB").css("margin-left","8px");b.show()}else unloadLogin();else unloadLogin()})):EHASINITPWD==a?g.show():alarmDialog.show(errStr.setPwdErr)}))))}var c=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.loginSetPwd,position:Input.LABEL.INNER},strength:{show:!0,least:6,critical:10},check:{blur:function(){return this.input.value.length<SYS_LOGIN_PWD_LENGTH_MIN?(this.showNote(errStr.lgPwdLenInvalid),!1):!0},keyup:function(){return""==this.input.value?!0:/\s+/.test(this.input.value)?
+(this.showNote(errStr.inputPwdCharExistBlank),!1):/^[\x21-\x7e]+$/.test(this.input.value)?!0:(this.showNote(errStr.pwdCharValid),!1)}},targetId:"passwordInput",props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password",placeholder:label.plzInputSysLoginNewPwd}}),f=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.loginPwdConf,position:Input.LABEL.INNER},check:{keyup:function(a){a=a||window.event;13==a.keyCode&&e()}},targetId:"passwordInput",props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password",
+placeholder:label.plzInputNewPwdAgain}}),g=new Dialog({title:label.confirmTitle,content:errStr.hasInitPwd,size:Dialog.SIZE.SMALL,hasCloseIcon:!0,closeIconHandle:function(){location.reload()},type:Dialog.TYPE.ALARM,bottom:[{type:component.Button.TYPE.PRIMARY,text:btn.knowIt,id:"alreadySetPwdSubmit",onClick:function(){location.reload()}}]}),d=new Button({text:btn.confirmTip,onClick:e,type:Button.TYPE.PRIMARY,props:{width:"100%",marginTop:"64px"},id:"sub"});id("downloadAPP").onclick=function(a){a=a||
+window.event;cloudAppDialog.show(a)};$.setTimeout(ieUnsupportCheck,0);showAndlinkLogo&&$("#andlinkLogo").css("background",andlinkLogoBg).css("display","inline-block")})();
+</script><style type="text/css">div.loginContainer{display:inline-block;*display:inline;*zoom:1;width:280px;padding:120px 120px 0 80px}div.loginContainer h1{font-size:36px;font-weight:bold;color:#333;line-height:48px}#pwdConfirmErr{margin:16px 0 32px;visibility:hidden}#sub{width:100%;margin-top:64px}i.surfingPeople{background:url(../web-static/images/login.png) no-repeat scroll;display:inline-block;*display:inline;*zoom:1;width:400px;height:440px;margin-top:80px;vertical-align:top}div.wizardHead i#mercuryLogo{background:url(../web-static/images/basic.png) no-repeat}</style>

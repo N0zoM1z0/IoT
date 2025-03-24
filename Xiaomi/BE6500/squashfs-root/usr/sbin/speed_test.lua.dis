@@ -1,0 +1,62 @@
+local L0, L1, L2, L3
+L0 = require
+L1 = "nixio.fs"
+L0 = L0(L1)
+L1 = require
+L2 = "nixio"
+L1 = L1(L2)
+L2 = "/tmp/speed_test_pid"
+function L3()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "xiaoqiang.module.XQNetworkSpeedTest"
+  L0 = L0(L1)
+  L1 = L0.syncSpeedTest
+  L1, L2 = L1()
+  if L1 and L2 then
+    L3 = L0.saveSpeedTestResult
+    L4 = L1
+    L5 = L2
+    L3(L4, L5)
+  else
+    L3 = L0.saveSpeedTestResult
+    L4 = -1
+    L5 = -1
+    L3(L4, L5)
+  end
+end
+speed_test = L3
+function L3()
+  local L0, L1, L2, L3, L4
+  L0 = _UPVALUE0_
+  L0 = L0.readfile
+  L1 = _UPVALUE1_
+  L0 = L0(L1)
+  if L0 and L0 ~= "" then
+    L1 = os
+    L1 = L1.execute
+    L2 = "kill -0 "
+    L3 = tostring
+    L4 = L0
+    L3 = L3(L4)
+    L2 = L2 .. L3
+    L1 = L1(L2)
+    if L1 == 0 then
+      return
+    end
+  end
+  L1 = _UPVALUE2_
+  L1 = L1.getpid
+  L1 = L1()
+  L0 = L1
+  L1 = _UPVALUE0_
+  L1 = L1.writefile
+  L2 = _UPVALUE1_
+  L3 = L0
+  L1(L2, L3)
+  L1 = speed_test
+  L1()
+end
+main = L3
+L3 = main
+L3()

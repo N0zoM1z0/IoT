@@ -1,0 +1,146 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+# 	Author: AHMED Sahnoun <ahmed.sahnoun@pivasoftware.com>
+
+
+[ "$1" != "run" -a "$1" != "stop" ] && return
+
+UCI_GET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state get"
+UCI_SET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set"
+
+download_get() {
+	local val=`$UCI_GET_VARSTATE $1`
+	echo ${val:-$2}
+}
+
+download_run() {
+	[ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState_download`" = "Requested" ] && download_initiation
+}
+
+download_initiation() {
+	local romtime
+	local bomtime
+	local eomtime
+	local TestBytesReceived
+	local TotalBytesReceived
+	local TCPOpenRequestTime
+	local TCPOpenResponseTime
+	local url=`download_get easycwmp.@local[0].downloadurl`
+	local Interface=`download_get easycwmp.@local[0].Interface_download`
+	
+	[ "$url" = "" ] && return
+	download_launch
+	
+	rm -rf /tmp/download_info
+	rm -rf /tmp/download_file
+	
+	[ -n "$State" ] && { $UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_download=$State; event_dignostic; return; }
+
+	$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_download=Complete
+	$UCI_SET_VARSTATE easycwmp.@local[0].romtime_download=$romtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].bomtime_download=$bomtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].eomtime_download=$eomtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].testrx_download=$TestBytesReceived
+	$UCI_SET_VARSTATE easycwmp.@local[0].totalrx_download=$TotalBytesReceived
+	$UCI_SET_VARSTATE easycwmp.@local[0].tcpopenrequesttime_download=$TCPOpenRequestTime
+	$UCI_SET_VARSTATE easycwmp.@local[0].tcpopenresponsetime_download=$TCPOpenResponseTime
+	
+	event_dignostic
+}
+
+download_launch() {
+	local val val2 val3
+	
+	[ "$url" = "" ] && return
+	[ "$Interface" != "" ] && { 
+		ubusInterface=`echo {\"interface\":\"$Interface\"}`
+		iface=`ubus call "network.interface" "status" $ubusInterface`
+	}
+	[ "$iface" != "" ] && {
+		json_init
+		json_load "$iface" >&2
+		json_get_var device device >&2
+		if [ "$device" != "" ] 
+			then
+				Device=`echo --interface $device`
+			else
+				Device=""
+			fi
+		}
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenRequestTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenResponseTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenRequestTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		romtime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		bomtime=$val$val3
+	
+		curl ftp://$url $Device -o /tmp/download_file --connect-timeout 5 2> /tmp/download_info > /tmp/download_info
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		eomtime=$val$val3
+	
+		if [ ! -s /tmp/download_file ];then
+			State=Error_NoResponse
+			return
+		fi
+		
+		val=`cat /tmp/download_info | grep "Connection timed out"`
+		[ -n "$val" ] && { State=Error_InitConnectionFailed; return; }
+		
+		val=`cat /tmp/download_info | grep "Access denied"`
+		[ -n "$val" ] && { State=Error_LoginFailed; return; }
+		
+		val=`cat /tmp/download_info | grep "Recv failure"`
+		[ -n "$val" ] && { State=Error_TransferFailed; return; }
+		
+		val=`ls -l /tmp/download_file | awk -F ' ' '{ print $5 }'`
+		
+		TestBytesReceived=$val
+		TotalBytesReceived=$val
+}
+
+event_dignostic() {
+	local e=1
+	local i=0
+	while [ "$e" != 0 -a $i -lt 200 ]; do	
+		ubus -t 1 call tr069 inform '{"event":"8 DIAGNOSTICS COMPLETE"}'
+		e=$?
+		[ "$e" != "0" ] && sleep 1;
+		let i++
+	done
+}
+
+download_stop() {
+	local pids=`ps aux | grep download_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	[ -z "$pids" ] && pids=`ps | grep download_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	if [ -n "$pids" ]; then
+		kill -9 $pids 2>/dev/null
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_download=None
+	fi
+}
+
+[ "$1" == "run" ] && { download_run 2>/dev/null; exit 0; }
+[ "$1" == "stop" ] && download_stop 2>/dev/null
+

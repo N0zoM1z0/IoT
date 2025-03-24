@@ -1,0 +1,24 @@
+
+
+<div class="chooseGamePortGuide">
+	<h2>{%label.gamePortChoose%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="routerSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="routerPort"></div>
+<div id="gameBtnCancel"></div>
+<div id="gameBtnFinish"></div><script type="text/javascript">(function(){function k(b){f=b;g.refreshDevInfo(JSON.parse(JSON.stringify(c[b])))}function l(b){if("disable"!=b.state)for(var a=c[f][uciPortConfig.dynOptName.phyInfo],d=0;d<b.num;d++)"disable"!=g.getPort(d).state&&(d!=b.index||"normal"==b.state?g.setPort(d,{name:"LAN",state:"active"==g.getPort(d).state?"normal":void 0,role:a[d][uciPortConfig.dynOptName.role]}):g.setPort(d,{name:"游戏专用口",role:"game"}))}var e=[],c,f=0,h,g;new Button({text:btn.cancel,onClick:function(){loadPage("GamePort.htm","menuLoader")},
+type:Button.TYPE.SECONDARY,id:"gameBtnCancel",props:{width:"120px","margin-top":"48px","margin-left":"4px"}});new Button({text:btn.finish,onClick:function(){if(1>g.getActivePortList().length)showToast(label.selectOnePort);else{loadingDialog.show({title:label.gamePort,content:{primary:label.wanSettingWait}});var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=[uciPortConfig.secType.devInfo];$.query(b,function(a){var d=a[ERR_CODE];if(d==ENONE){a=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+var b=g.getActivePortList()[0],c={},e=[{}];e[0][uciPortConfig.optName.gamePhy]=b.index.toString();e[0][uciPortConfig.optName.gameDev]=f==h?"FF-FF-FF-FF-FF-FF":a[f][uciPortConfig.dynOptName.mac];c[uciPortConfig.fileName]={};c[uciPortConfig.fileName][uciPortConfig.secType.game]={};c[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.enable]=uciPortConfig.optValue.enable.on;c[uciPortConfig.fileName][uciPortConfig.secType.game][uciPortConfig.optName.gameList]=e;$.modify(c,function(a){a[ERR_CODE]==
+ENONE?loadingDialog.hide(function(){showToast(label.gameOpened);loadPage("GameCfgEnd.htm","gameContent")}):loadingDialog.hide(function(){alarmDialog.show(errStr.setFailedErr)})})}else loadingDialog.hide(function(){errHandle(d)})})}},type:Button.TYPE.PRIMARY,id:"gameBtnFinish",props:{width:"120px","margin-top":"48px"}});(function(){var b={};b[uciPortConfig.fileName]={};b[uciPortConfig.fileName][KEY_TABLE]=uciPortConfig.secType.devInfo;$.query(b,function(a){if(a[ERR_CODE]==ENONE)for(c=a[uciPortConfig.fileName][uciPortConfig.secType.devInfo],
+a=0;a<c.length;a++)"1"==c[a][uciPortConfig.dynOptName.cap]?(h=a,e[a]={str:"[主路由]"+c[a][uciPortConfig.dynOptName.name],value:a}):e[a]={str:c[a][uciPortConfig.dynOptName.name],value:a},-1==c[a][uciPortConfig.dynOptName.subFunc].indexOf("game")&&(e[a].disable=!0,e[a].str+="（不支持）",f==a&&f++),c[a][uciPortConfig.dynOptName.phyInfo].forEach(function(a,b){"game"==a[uciPortConfig.dynOptName.role]&&(a[uciPortConfig.dynOptName.role]="lan");"lan"!=a[uciPortConfig.dynOptName.role]&&(a.state="disable")})},!1);
+selectInit("routerSel",e,f,k);g=(new PortConfig).initDevInfo("routerPort",JSON.parse(JSON.stringify(c[f])),1,l,1)})()})();
+</script><style type="text/css">.chooseGamePortGuide{color:#333;font-weight:bold;margin-bottom:16px}ul.selOptsUl li.option{height:32px;line-height:32px;font-size:13px}</style>

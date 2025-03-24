@@ -1,0 +1,9 @@
+Package: luci-proto-ppp
+Version: unknown-1
+Depends: libc
+Source: package/mtk/ui/luci-mtk
+Section: luci
+Maintainer: LuCI Development Team <luci@lists.subsignal.org>
+Architecture: ramips_24kec
+Installed-Size: 2985
+Description:  Support for PPP/PPPoE/PPPoA/PPtP

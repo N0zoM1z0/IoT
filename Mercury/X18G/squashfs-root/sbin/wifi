@@ -1,0 +1,418 @@
+#!/bin/sh
+# Copyright (C) 2006 OpenWrt.org
+
+. /lib/functions.sh
+. /lib/wifi/acl.sh
+
+usage() {
+	cat <<EOF
+Usage: $0 [down|detect]
+enables (default), disables or detects a wifi configuration.
+EOF
+	exit 1
+}
+
+find_net_config() {(
+	local vif="$1"
+	local cfg
+	local ifname
+
+	config_get cfg "$vif" network
+
+	[ -z "$cfg" ] && {
+		include /lib/network
+		scan_interfaces
+
+		config_get ifname "$vif" ifname
+
+		cfg="$(find_config "$ifname")"
+	}
+	[ -z "$cfg" ] && return 0
+	echo "$cfg"
+)}
+
+
+bridge_interface() {(
+	local cfg="$1"
+	[ -z "$cfg" ] && return 0
+
+	include /lib/network
+	scan_interfaces
+
+	for cfg in $cfg; do
+		config_get iftype "$cfg" type
+		[ "$iftype" = bridge ] && config_get "$cfg" ifname
+		prepare_interface_bridge "$cfg"
+		return $?
+	done
+)}
+
+prepare_key_wep() {
+	local key="$1"
+	local hex=1
+
+	echo -n "$key" | grep -qE "[^a-fA-F0-9]" && hex=0
+	[ "${#key}" -eq 10 -a $hex -eq 1 ] || \
+	[ "${#key}" -eq 26 -a $hex -eq 1 ] || {
+		[ "${key:0:2}" = "s:" ] && key="${key#s:}"
+        	key="$(echo -n "$key" | hexdump -ve '1/1 "%02x" ""')"
+	}
+	echo "$key"
+}
+
+wifi_fixup_hwmode() {
+	local device="$1"
+	local default="$2"
+	local hwmode hwmode_11n
+
+	config_get channel "$device" channel
+	config_get hwmode "$device" hwmode
+	case "$hwmode" in
+		11bg) hwmode=bg;;
+		11a) hwmode=a;;
+		11b) hwmode=b;;
+		11g) hwmode=g;;
+		11n*)
+			hwmode_11n="${hwmode##11n}"
+			case "$hwmode_11n" in
+				a|g) ;;
+				default) hwmode_11n="$default"
+			esac
+			config_set "$device" hwmode_11n "$hwmode_11n"
+		;;
+		*)
+			hwmode=
+			if [ "${channel:-0}" -gt 0 ]; then 
+				if [ "${channel:-0}" -gt 14 ]; then
+					hwmode=a
+				else
+					hwmode=g
+				fi
+			else
+				hwmode="$default"
+			fi
+		;;
+	esac
+	config_set "$device" hwmode "$hwmode"
+}
+
+wifi_updown() {
+	scan_wifi
+	for device in ${2:-$DEVICES}; do (
+		config_get iftype "$device" type
+		if eval "type ${1}_$iftype" 2>/dev/null >/dev/null; then
+			eval "scan_$iftype '$device'"
+			eval "${1}_$iftype '$device'" || echo "$device($iftype): ${1} failed"
+		else
+			echo "$device($iftype): Interface type not supported"
+		fi
+	); done
+
+	# begin: added by xiesimin
+	[ enable = "$1" ] && {
+		wifi_restore_acl
+	}
+	# end: added by xiesimin
+}
+
+wifi_detect() {
+	/bin/sh /lib/wifi/apply.sh create_private_wireless
+	/bin/sh /lib/wifi/apply.sh upgrade_wireless_cfg
+	/bin/sh /lib/wifi/apply.sh detect_wireless_cfg
+}
+
+start_net() {(
+	local iface="$1"
+	local config="$2"
+	local vifmac="$3"
+
+	[ -f "/var/run/$iface.pid" ] && kill "$(cat /var/run/${iface}.pid)" 2>/dev/null
+	[ -z "$config" ] || {
+		include /lib/network
+		scan_interfaces
+		for config in $config; do
+			setup_interface "$iface" "$config" "" "$vifmac"
+		done
+	}
+)}
+
+set_wifi_up() {
+	local cfg="$1"
+	local ifname="$2"
+	uci_set_state wireless "$cfg" up 1
+	uci_set_state wireless "$cfg" ifname "$ifname"
+}
+
+set_wifi_down() {
+	local cfg="$1"
+	local vifs vif vifstr
+
+	[ -f "/var/run/wifi-${cfg}.pid" ] &&
+		kill "$(cat "/var/run/wifi-${cfg}.pid")" 2>/dev/null
+	uci_revert_state wireless "$cfg"
+	config_get vifs "$cfg" vifs
+	for vif in $vifs; do
+		uci_revert_state wireless "$vif"
+	done
+}
+
+scan_wifi() {
+	local cfgfile="$1"
+	local priv_cfg_uci driver_type
+	DEVICES=
+	IFACES=
+	config_cb() {
+		local type="$1"
+		local section="$2"
+
+		# section start
+		case "$type" in
+			wifi-device)
+				append_ex DEVICES "$section"
+				config_set "$section" vifs ""
+				config_set "$section" ht_capab ""
+			;;
+		esac
+
+		# section end
+		config_get TYPE "$CONFIG_SECTION" TYPE
+		case "$TYPE" in
+			wifi-iface|guest)
+				append_ex IFACES "$CONFIG_SECTION"
+				config_get device "$CONFIG_SECTION" device
+				config_get vifs "$device" vifs 
+				append_ex vifs "$CONFIG_SECTION"
+				config_set "$device" vifs "$vifs"
+			;;
+		esac
+	}
+	option_cb() {
+		local option_name="$1"
+		local option_val="$2"
+		local section_name="$CONFIG_SECTION"
+		
+		case "$option_name" in 
+			depend|disabled)
+				local disabled
+				local depend
+				config_get disabled "$section_name" disabled
+				config_get depend "$section_name" depend
+				[ -n "$disabled" -a -n "$depend" ] && { \
+					config_get depend_disabled "$depend" disabled 0
+					[ "$disabled" == "0" -a "$depend_disabled" == "1" ] && { \
+						local NO_CALLBACK_OLD="$NO_CALLBACK"
+						NO_CALLBACK=1
+						config_set "$section_name" disabled 1
+						NO_CALLBACK="$NO_CALLBACK_OLD"
+					}
+				}
+				;;
+		esac
+	}
+
+	[ -f /tmp/etc/private_wireless ] && { \
+		UCI_CONFIG_DIR="/tmp/etc"
+		config_load "private_wireless"
+		unset UCI_CONFIG_DIR
+	}
+}
+
+# begin: added by xiesimin
+add_device_to_acl() {
+	config_get is_blocked "$1" is_blocked
+	config_get mac "$1" mac
+
+	[ 1 = "$is_blocked" ] && {
+		for iface in ${2:-$IFACES}; do (
+			config_get ifname "$iface" ifname ""
+			config_get mode "$iface" mode ""
+			config_get backhaul "$iface" backhaul "0"
+			[ -n "$ifname" -a "$mode" = "ap" -a "$backhaul" = "0" ] && append_to_acl $ifname $mac
+		); done
+	}
+}
+
+wifi_restore_acl() {
+	for iface in ${2:-$IFACES}; do (
+		config_get ifname "$iface" ifname ""
+		config_get mode "$iface" mode ""
+		config_get backhaul "$iface" backhaul "0"
+		[ -n "$ifname" -a "$mode" = "ap" -a "$backhaul" = "0" ] && acl_reset $ifname
+	); done
+
+	config_load hosts_info
+
+	config_foreach add_device_to_acl device
+}
+# end: added by xiesimin
+
+# added by Guo Daquan for allow acl operation, 2017/7/6
+add_device_to_acl_ext() {
+	local ifname=$2
+
+	config_get mac "$1" mac
+	append_to_acl_ext $ifname $mac
+}
+
+acl_reload_ext() {
+	local ifname=$1
+
+	acl_reset_ext $ifname
+
+	config_load apclone
+	config_foreach add_device_to_acl_ext sta $ifname
+
+	apply_acl_ext $ifname
+}
+# end of add
+
+acl_reload() {
+	scan_wifi
+	wifi_restore_acl
+}
+
+wifi_get_cal_flag() {
+	local driver=${DRIVERS/ */}
+	local ret=
+
+	case $driver in
+	qcawifi) if eval "type slp_check_calculate_data" 2>/dev/null>/dev/null; then ret=$(slp_check_calculate_data); fi;;
+	mt*);;
+	*);;
+	esac
+
+	echo ${ret}
+}
+
+# begin: added by suqiang
+wifi_cal_detect() {
+	local driver=${DRIVERS/ */}
+
+	case $driver in
+	qcawifi) if eval "type qca_calculate_check" 2>/dev/null; then qca_calculate_check; fi;;
+	mt*) if eval "type mtk_calculate_check" 2>/dev/null; then mtk_calculate_check; fi;;
+	*);;
+	esac
+}
+# end: added by suqiang
+
+wifi_upgrade_cfg() {
+	/bin/sh /lib/wifi/apply.sh upgrade_wireless_cfg
+}
+
+wifi_reload_cfg() {
+	/bin/sh /lib/wifi/apply.sh reload_wireless
+}
+
+wifi_start_wds() {
+	/bin/sh /lib/wifi/apply.sh start_wds
+}
+
+wifi_set_turbo() {
+	/bin/sh /lib/wifi/apply.sh reload_turbo_cfg
+}
+
+wifi_create_cfg() {
+	/bin/sh /lib/wifi/apply.sh create_private_wireless
+}
+
+wifi_connect_bh() {
+	/bin/sh /lib/wifi/apply.sh connect_bh "$@"
+}
+
+wifi_disconnect_bh() {
+	/bin/sh /lib/wifi/apply.sh disconnect_bh "$@"
+}
+
+wifi_config_bh() {
+	/bin/sh /lib/wifi/apply.sh config_bh "$@"
+}
+
+wifi_reset_wifison() {
+	/bin/sh /lib/wifi/apply.sh reset_wifison
+}
+
+wifi_cal_finish() {
+	if eval "type slp_disable_blink" 2>/dev/null >/dev/null; then
+		slp_disable_blink
+	fi
+}
+
+wifi_reload_curchannel() {
+	/bin/sh /lib/wifi/apply.sh reload_curchannel
+}
+
+wifi_fetch_curchannel() {
+	/bin/sh /lib/wifi/apply.sh fetch_curchannel
+}
+
+wifi_config_curchannel() {
+	/bin/sh /lib/wifi/apply.sh config_curchannel "$@"
+}
+
+wifi_disable_bs() {
+	/bin/sh /lib/wifi/apply.sh disable_bs
+}
+
+append_ex()
+{
+	local _var _exist
+	eval export "_var=\$${1}"
+	_exist=$(echo "${_var}" | grep "$2")
+
+	if [ -n "${_exist}" ]; then
+		echo "repeat variable $2" 2>/dev/null >/dev/null;
+	else
+		append $@
+	fi
+}
+
+DEVICES=
+IFACES=
+DRIVERS=
+include /lib/wifi
+
+case "$1" in
+	--help|help) usage;;
+
+	cal_check) wifi_cal_detect;; # check cal data and set led
+	get_cal_flag) wifi_get_cal_flag;; # get cal flag
+	cal_finish) wifi_cal_finish;; # wifi cal finish operation
+
+	detect) wifi_detect "$2";;
+	down) wifi_updown "disable" "$2";;
+	up) wifi_updown "enable" "$2";;
+
+	reload_wifi) slp_reload_wifi;; # down/up wifi interface if reset lan ip
+	set_turbo) wifi_set_turbo;; # turbo config
+
+	reload_cfg) wifi_reload_cfg;; # reload wireless config
+	start_wds) wifi_start_wds;;
+	create_private_wireless) wifi_create_cfg;;
+
+	# ACL operation interface
+	acl_reset) acl_reset "$2";;
+	kick_wlan_device) kick_wlan_device "$2" "$3";;
+	append_to_acl) append_to_acl "$2" "$3";;
+	delete_from_acl) delete_from_acl "$2" "$3";;
+	acl_reload) acl_reload;;
+
+	# allow ACL operation interface
+	acl_reset_ext) acl_reset_ext "$2";;
+	append_to_acl_ext) append_to_acl_ext "$2" "$3";;
+	delete_from_acl_ext) delete_from_acl_ext "$2" "$3";;
+	clear_acl_ext) clear_acl_ext "$2";;
+	apply_acl_ext) apply_acl_ext "$2";;
+	acl_reload_ext) acl_reload_ext "$2";;
+
+	# wifison interface
+	connect_bh) shift 1; wifi_connect_bh "$@";;
+	disconnect_bh) shift 1; wifi_disconnect_bh "$@";;
+	config_bh) shift 1; wifi_config_bh "$@";;
+	reset_wifison) wifi_reset_wifison;;
+	reload_curchannel) wifi_reload_curchannel;;
+	fetch_curchannel) wifi_fetch_curchannel;;
+	config_curchannel) shift 1; wifi_config_curchannel "$@";;
+
+	disable_bs) wifi_disable_bs;;
+esac

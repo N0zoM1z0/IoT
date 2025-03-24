@@ -1,0 +1,4 @@
+/usr/sbin/ipv6_check.lua
+/usr/sbin/enable_ipv6
+/etc/init.d/ipv6
+/etc/config/ipv6

@@ -1,0 +1,706 @@
+<script type="text/javascript">
+	var wdsTargetIndex = undefined;
+	var curManualWdsBand = BAND_2G;
+	var wdsTargetSelBand = BAND_2G;
+	var wdsIsScanning = false;
+
+	function tryNextBand(band){
+		var bands = [BAND_2G, BAND_5G, BAND_5G1, BAND_5G2];
+		var find = false, next;
+
+		for (var i = 0; i < bands.length; i++)
+		{
+			next = bands[i + 1];
+			if (!find){
+				if (band == bands[i])
+				{
+					find = true;
+					if (null != next && "1" == gLocalAPInfo[next].enable)
+					{
+						return next;
+					}
+				}
+			}
+			else{
+				if (null != next && "1" == gLocalAPInfo[next].enable)
+				{
+					return next;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	function wdsTimeoutHandle(){
+		/* IF TIMEOUT BY MANUAL_WDS, TRY NEXT BAND */
+		if (MANUAL_WDS){
+			var next = tryNextBand(curManualWdsBand);
+			if (next > 0){
+				curManualWdsBand = next;
+				wdsNextStep();
+				return;
+			}
+		}
+
+		loadingDialog.hide(function(){
+			confirmDialog.show({
+				title:label.bridgingRootAP,
+				content: label.linkFailed,
+				callback: function(choose){
+					if (true == choose){
+						wdsNextStep();
+					}
+					else{
+						if (false == MANUAL_WDS){
+							wdsTargetIndex = undefined;
+						}
+
+						clearTimeout(getWdsStatusHd);
+						wdsCanceldHandle();
+					}
+				}
+			});
+		});
+	}
+
+	function wdsNextStep(){
+		var data = {}, secCfg = {};
+
+		if (false == MANUAL_WDS){
+			curWdsBand = wdsTargetSelBand;
+		}
+		else
+		{
+			/* MANUAL_BRIDGING */
+			curWdsBand = curManualWdsBand;
+		}
+
+		secCfg.enable = "1";
+		secCfg.ssid = gRootAPInfo[curWdsBand].ssid;
+		secCfg.encryption = gRootAPInfo[curWdsBand].encryption + "";
+
+		if ("1" == gRootAPInfo[curWdsBand].encryption)
+		{
+			secCfg.key = gRootAPInfo[curWdsBand].key;
+		}
+
+		data = gWDSModel[curWdsBand].set_wds(secCfg);
+
+		for (var band in gRootAPInfo)
+		{
+			gRootAPInfo[band].enable = (band == curWdsBand) ? "1" : "0";
+		}
+
+		if (loadingDialog.status == "idle")
+		{
+			loadingDialog.show({
+				title: label.bridgingRootAP,
+				content: {primary: label.bridgingAndWait}
+				}, null, null, true, function(){
+					if (false == MANUAL_WDS)
+					{
+						wdsTargetIndex = undefined;
+					}
+					wdsCanceldHandle();
+			});
+		}
+
+		$.modify(data, function(ret){
+			var code = ret[ERR_CODE];
+			if (ENONE == code){
+				var bLinkStatusHd = null;
+				var wdsStartArg = gWDSModel[curWdsBand].wds_start({"set_ip_immediate" : "0"});
+
+				$.action(wdsStartArg, undefined, undefined, true);
+
+				if (true == bWirelessLinked){
+					var bShowLoading = false;
+					var linkDetectCount = 1;
+
+					function bLinkStatusDetect(){
+						if (linkDetectCount > 3 && bShowLoading == false){
+							var pwdStr = "";
+							var showStr = label.unlinkEpt;
+
+							if (gLocalAPInfo[curEqtBand].encryption == "1"){
+								pwdStr = "<br />" + label.wirelessPwd + label.colon + gLocalAPInfo[curEqtBand].key;
+							}
+
+							showStr += label.wirelessName + label.colon + gLocalAPInfo[curEqtBand].ssid + pwdStr;
+							bShowLoading = true;
+
+							loadingDialog.hide(function(){
+								loadingDialog.show({
+									content:{primary:showStr}
+								});
+							});
+						}
+
+						$.detect(function(){
+							if (false == $.result.timeout){
+								clearTimeout(bLinkStatusHd);
+								loadingDialog.hide(function(){
+									loadingDialog.show({
+										title: label.bridgingRootAP,
+										content: {primary: label.bridgingAndWait}
+										}, null, null, true, function(){
+											if (false == MANUAL_WDS)
+											{
+												wdsTargetIndex = undefined;
+											}
+											wdsCanceldHandle();
+									});
+
+									connectingCount = 1;
+									getWdsStatusHd = $.setTimeout(wdsStatusHd, 100);
+								});
+							}
+						});
+
+						linkDetectCount++;
+						bLinkStatusHd = $.setTimeout(bLinkStatusDetect, 2000);
+					}
+
+					clearTimeout(bLinkStatusHd);
+					bLinkStatusHd = $.setTimeout(bLinkStatusDetect, 4000);
+				}
+				else{
+					connectingCount = 1;
+					getWdsStatusHd = $.setTimeout(wdsStatusHd, 5000);
+				}
+			}
+			else
+			{
+				loadingDialog.hide(function(){
+					errHandle(code);
+				});
+			}
+		}, undefined, true);
+	}
+
+	(function(){
+		var MAX_AP_ENTRY;
+		var getScanResultHd = null;
+		var scanList = [];
+
+		/* THE BANDS WHICH NEED TO SCAN */
+		var scanWiFiList = [];
+		scanWiFiList[BAND_2G] = false;
+		scanWiFiList[BAND_5G] = false;
+		scanWiFiList[BAND_5G1] = false;
+		scanWiFiList[BAND_5G2] = false;
+
+		function wdsSacnSelHandler(index, radioObj){
+			var encryption = scanList[index].encryption;
+			var band = scanList[index].band;
+
+			if (encryption != uciWireless.encryptionType.none && encryption != uciWireless.encryptionType.psk2_psk && 
+				(!slp.wpa3Support || (encryption != uciWireless.encryptionType.psk2_sae3 && encryption != uciWireless.encryptionType.sae3)))
+			{
+				/*针对WPA3，有以下调整方案：
+				*	1. 若后端不支持WPA3，前端加密方式为WPA3相关，则给出不支持该加密方式的提示语
+				*   2. 若后端支持WPA3，前端加密方式为比WPA2更老旧的方式，则在原有提示语中加上WPA3相关提示
+				*/
+				if (!slp.wpa3Support && (encryption == uciWireless.encryptionType.psk2_sae3 || encryption == uciWireless.encryptionType.sae3))
+				{
+					alarmDialog.show(label.encryptUnsupport);
+				}
+				else
+				{
+					alarmDialog.show(slp.wpa3Support ? label.encryptOldWithWpa3 : label.encryptOld);
+				}
+
+				wdsTargetIndex = undefined;
+				radioObj.setValue(false);
+				wdsBtnNext.setState({type:Button.TYPE.SECONDARY});
+				return;
+			}
+
+			if (encryption == uciWireless.encryptionType.psk2_psk || 
+				(slp.wpa3Support && (encryption == uciWireless.encryptionType.psk2_sae3 || encryption == uciWireless.encryptionType.sae3)))
+			{
+				wdsBtnNext.setState({type:Button.TYPE.SECONDARY});
+				wdsSsidPwdDialog.resetType(wdsSsidPwdDialog.TYPE.SELECT, {radioObj: radioObj});
+				wdsSsidPwdDialog.show();
+			}else if (encryption == uciWireless.encryptionType.none) {
+				wdsBtnNext.setState({type:Button.TYPE.PRIMARY});
+			}
+
+			wdsTargetIndex = index;
+
+			gRootAPInfo[band].ssid = scanList[index].ssid;
+			gRootAPInfo[band].encryption = parseInt(encryption);
+
+			MANUAL_WDS = false;
+			wdsTargetSelBand = band;
+		}
+
+		function refreshScanList(){
+			wdsTargetIndex = undefined;
+			wdsBtnNext.setState({type:Button.TYPE.SECONDARY});
+
+			wdsScanTable.showLoading();
+
+			if (wdsIsScanning)
+			{
+				return;
+			}
+
+			for (var band in scanWiFiList)
+			{
+				if (scanWiFiList[band])
+				{
+					$.action(gWDSModel[band].scan_start, undefined, undefined, true);
+					wdsIsScanning = true;
+				}
+			}
+			getScanResultHd = $.setTimeout(getScanResult, 3000);
+		}
+
+		function getScanResult(){
+			var arg = {"wireless": {"name": []}};
+
+			for (var band in scanWiFiList)
+			{
+				if (scanWiFiList[band])
+				{
+					arg.wireless.name.push(gWDSModel[band].wlan_scan_status);
+				}
+			}
+
+			$.query(arg, function(ret){
+				var bFinish = true;
+				var SCAN_FINISH = 1;
+
+				for (var name in ret.wireless)
+				{
+					if (SCAN_FINISH != ret.wireless[name].status)
+					{
+						bFinish = false;
+					}
+				}
+
+				if (true == bFinish)
+				{
+					wdsIsScanning = false;
+					loadScanResult();
+				}
+				else{
+					getScanResultHd = $.setTimeout(getScanResult, 2000);
+				}
+			}, undefined, true);
+		}
+
+		function loadScanResult(){
+			var arg = {"wireless":{"table":[]}};
+
+			for (var band in scanWiFiList)
+			{
+				if (scanWiFiList[band])
+				{
+					arg.wireless.table.push(gWDSModel[band].wlan_scan);
+				}
+			}
+
+			$.query(arg, function(data){
+				if (ENONE == data[ERR_CODE]){
+					scanList = getScanApList(data);
+					scanList.sort(function(pre, next){
+						var preRssi = parseInt(pre.rssi);
+						var nextRssi = parseInt(next.rssi);
+						if (preRssi > nextRssi) {
+							return 1;
+						}
+						else if (preRssi == nextRssi) {
+							return 0;
+						}
+						else {
+							return -1;
+						}
+					});
+
+					scanList = scanList.slice(-MAX_AP_ENTRY);
+				}
+				else{
+					scanList = [];
+					scanList.length = 0;
+					errHandle(data[ERR_CODE]);
+				}
+
+				wdsScanTable.setDataSource(scanList);
+				wdsScanTable.closeLoading(function(){
+					wdsScanTable.loadData();
+				});
+			});
+		}
+
+		function getScanApList(data){
+			var apList = [], name;
+			for (var band in scanWiFiList)
+			{
+				if (scanWiFiList[band])
+				{
+					name = gWDSModel[band].wlan_scan;
+					apList = apList.concat(fmtApList(data.wireless[name], band));
+				}
+			}
+
+			return apList;
+		}
+
+		function fmtApList(apList, band){
+			var len = apList.length;
+			var prefix = "ap_";
+			var fmtList = [];
+
+			for (var i = 0; i < len; i++)
+			{
+				var idx = i + 1;
+
+				fmtList[i] = {};
+				fmtList[i]["band"] = band;
+				fmtList[i]["ssid"] = apList[i][prefix + idx]["ssid"];
+				fmtList[i]["encryption"] = apList[i][prefix + idx]["encryption"];
+				fmtList[i]["rssi"] = apList[i][prefix + idx]["rssi"];
+				fmtList[i]["signal"] = signalLevel(apList[i][prefix + idx]["rssi"]);
+
+				var authModeStr;
+				switch (parseInt(apList[i][prefix + idx]["encryption"]))
+				{
+				case uciWireless.encryptionType.none:
+					authModeStr = label.wirelessNoSecurity;
+					break;
+				case uciWireless.encryptionType.psk2_psk:
+					authModeStr = label.wirelessPsk;
+					break;
+				case uciWireless.encryptionType.wep:
+					authModeStr = label.wirelessWep;
+					break;
+				case uciWireless.encryptionType.wpa2_wpa:
+					authModeStr = label.wirelessWpa;
+					break;
+				case uciWireless.encryptionType.psk2_sae3:
+					authModeStr = label.wirelessWpa2PskWpa3Sae;
+					break;
+				case uciWireless.encryptionType.sae3:
+					authModeStr = label.wirelessWpa3Sae;
+					break;
+				case uciWireless.encryptionType.wpa3:
+					authModeStr = label.wirelessWpa3;
+					break;
+				default:
+					authModeStr = label.wirelessUnknow;
+					break;
+				}
+
+				fmtList[i]["authMode"] = authModeStr;
+				//fmtList[i]["authMode"] = parseInt(apList[i][prefix + idx]["encryption"]);
+			}
+
+			return fmtList;
+		}
+
+		function signalLevel(rssi){
+			if (rssi >= 20) {
+				if (rssi >= 30) {
+					if (rssi >= 50) {
+						return 5;		/* rssi∈[50, 100) */
+					}
+					else {
+						return 4;		/* rssi∈[30, 50) */
+					}
+				}
+				else {
+					return 3;			/* rssi∈[20, 30) */
+				}
+			}
+			else {
+				if (rssi >= 10) {
+					return 2;			/* rssi∈[10, 20) */
+				}
+				else {
+					return 1;			/* rssi∈[0, 10) */
+				}
+			}
+		}
+
+		switch(slp.bandsProvided)
+		{
+		case slp.TRIPLE:
+			MAX_AP_ENTRY = MAX_WDS_SCAN_BAND * 3;
+			break;
+		case slp.DOUBLE:
+			MAX_AP_ENTRY = MAX_WDS_SCAN_BAND * 2;
+			break;
+		case slp.SINGLE:
+		default:
+			MAX_AP_ENTRY = MAX_WDS_SCAN_BAND;
+			break;
+		}
+
+		/* INIT scanWiFiList */
+		if (slp.bandSteeringProvided && "1" == gLocalAPInfo[BAND_STEER].bs_enable)
+		{
+			if ("1" == gLocalAPInfo[BAND_STEER].wifi_enable)
+			{
+				for (var band in gKeyNames.wlan_wds)
+				{
+					if (null != gKeyNames.wlan_wds[band])
+					{
+						scanWiFiList[band] = true;
+					}
+				}
+			}
+		}
+		else
+		{
+			for (var band in gLocalAPInfo)
+			{
+				if (BAND_STEER != band)
+				{
+					scanWiFiList[band] = ("1" == gLocalAPInfo[band].enable);
+				}
+			}
+		}
+
+		bInWizard = true;
+
+		var wdsScanTable = new Table({
+			targetId: "wdsScanTable",
+			title: label.WDSSelRootAp,
+			head:[
+				{field:label.select, width:"0.11"},
+				{field:label.wirelessNa, width:"0.37"},
+				{field:label.bandInfo, width:"0.14", props:{"text-align":"center"}},
+				{field:label.sigDep, width:"0.14", props:{"text-align":"center"}},
+				{field:label.secInfo, width:"0.24", props:{"text-align":"center"}}
+			],
+			column:[
+				{type:"radio", options:{name:"wdsScanRadio", callback:wdsSacnSelHandler}},
+				{name:"ssid", type:"str"},
+				{name:"band", type:"strSelect", props:{"text-align":"center"}, options:[{str:"2.4G", value:BAND_2G}, {str:"5G", value:BAND_5G}, {str:"5G1", value:BAND_5G1}, {str:"5G2", value:BAND_5G2}]},
+				{name:"signal", type:"signal"},
+				{name:"authMode", type: "str"}
+			],
+			tableOption:[
+				{icon: "icon-manual", str: btn.wdsAddManual, type: "manual", func: function(){
+					wdsSsidPwdDialog.resetType(wdsSsidPwdDialog.TYPE.MANUAL);
+					wdsSsidPwdDialog.show();
+				}},
+				{icon: "icon-refresh", str: btn.refresh, type: "refresh", func: function(){
+					refreshScanList();
+				}}
+			],
+			loadingOptions:{
+				str: label.scaningWiFiSignal
+			},
+			blankOptions:{
+				str: label.nonWdsScanData
+			},
+			editable: false,
+			hasCheckBox: false,
+			deletable: false,
+			addable: false,
+			hasFixedHeight: 10,
+			max: MAX_AP_ENTRY
+		});
+
+		var wdsSsidPwdDialog = new Dialog({
+			title: label.rootApPwdConfirm,
+			content: '<span class="wdsSsidPwdDesc">' + label.plzInputRootApSsidAndPwd +'</span>' +
+					 '<div id="wdsSsidCon" class="wdsSsidPwdInput"></div>' +
+					 '<div id="wdsPwdCon" class="wdsSsidPwdInput"></div>',
+			size: Dialog.SIZE.SMALL,
+			type: Dialog.TYPE.CUSTOM,
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text: btn.cancel,
+					id: "wdsSsidPwdCancel",
+					onClick: function(){
+						$(wdsSsidPwdDialog).trigger("ev_wdsSsidPwdCancel");
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text: btn.ok,
+					id: "wdsSsidPwdSubmit",
+					onClick: function(){
+						$(wdsSsidPwdDialog).trigger("ev_wdsSsidPwdSubmit");
+					}
+				}
+			],
+			renderCallBack: function(){
+				this.wdsSsidInput = new Input({
+					type: Input.TYPE.PLAIN_TEXT,
+					label: {value:label.wirelessName},
+					targetId: "wdsSsidCon",
+					check: {blur:checkSsidInput},
+					props: {maxlength: '32', type: "text"}
+				});
+
+				this.wdsPwdInput = new Input({
+					type: Input.TYPE.CIPHER_TEXT,
+					label: {value:label.wirelessPwd},
+					targetId: "wdsPwdCon",
+					check:{blur:onPwdBlur, keyup:onPwdKeyup},
+					props:{maxlength: '63', type: "text"}
+				});
+			}
+		});
+		wdsSsidPwdDialog.show = function(){
+			this.wdsSsidInput.setValue("");
+			this.wdsPwdInput.setValue("");
+			this.wdsSsidInput.closeNote();
+			this.wdsPwdInput.closeNote();
+
+			Dialog.prototype.show.call(this);
+		}
+		wdsSsidPwdDialog.resetType = function(TYPE, options){
+			var self = this;
+			var ssidInput = this.wdsSsidInput;
+			var pwdInput = this.wdsPwdInput;
+
+			switch (TYPE){
+			case wdsSsidPwdDialog.TYPE.SELECT:
+				$("#wdsSsidCon").css("display", "none");
+
+				$(wdsSsidPwdDialog).off("ev_wdsSsidPwdCancel").on("ev_wdsSsidPwdCancel", function(){
+					if (options != undefined && options.radioObj != undefined)
+					{
+						options.radioObj.setValue(false);
+					}
+
+					wdsTargetIndex = undefined;
+					self.hide();
+				});
+				$(wdsSsidPwdDialog).off("ev_wdsSsidPwdSubmit").on("ev_wdsSsidPwdSubmit", (function(pwdInput){
+					return function(){
+						if (!pwdInput.checkAll())
+						{
+							return;
+						}
+
+						gRootAPInfo[wdsTargetSelBand].encryption = uciWireless.dynOptValue.encryption.on;
+						gRootAPInfo[wdsTargetSelBand].key = pwdInput.getValue();
+
+						wdsNextStep();
+					}
+				})(pwdInput));
+				break;
+			case wdsSsidPwdDialog.TYPE.MANUAL:
+				$("#wdsSsidCon").css("display", "block");
+
+				$(wdsSsidPwdDialog).off("ev_wdsSsidPwdCancel").on("ev_wdsSsidPwdCancel", function(){
+					self.hide();
+				});
+				$(wdsSsidPwdDialog).off("ev_wdsSsidPwdSubmit").on("ev_wdsSsidPwdSubmit", (function(ssidInput, pwdInput){
+					return function(){
+						var inputArr = [ssidInput, pwdInput], ssidVal, pwdVal;
+						var checkResult = true;
+
+						inputArr.forEach(function(o){
+							checkResult = o.checkAll() && checkResult;
+						});
+
+						if (!checkResult)
+						{
+							return;
+						}
+
+						for (var band in scanWiFiList){
+							if (scanWiFiList[band])
+							{
+								curManualWdsBand = band;
+								break;
+							}
+						}
+
+						ssidVal = ssidInput.getValue();
+						pwdVal = pwdInput.getValue();
+
+						if (pwdVal == "")
+						{
+							gRootAPInfo[BAND_2G].encryption = "0";
+							gRootAPInfo[BAND_5G].encryption = "0";
+							gRootAPInfo[BAND_5G1].encryption = "0";
+							gRootAPInfo[BAND_5G2].encryption = "0";
+						}
+						else
+						{
+							gRootAPInfo[BAND_2G].encryption = "1";
+							gRootAPInfo[BAND_5G].encryption = "1";
+							gRootAPInfo[BAND_5G1].encryption = "1";
+							gRootAPInfo[BAND_5G2].encryption = "1";
+						}
+
+						gRootAPInfo[BAND_2G].ssid = ssidVal;
+						gRootAPInfo[BAND_5G].ssid = ssidVal;
+						gRootAPInfo[BAND_5G1].ssid = ssidVal;
+						gRootAPInfo[BAND_5G2].ssid = ssidVal;
+						gRootAPInfo[BAND_2G].key = pwdVal;
+						gRootAPInfo[BAND_5G].key = pwdVal;
+						gRootAPInfo[BAND_5G1].key = pwdVal;
+						gRootAPInfo[BAND_5G2].key = pwdVal;
+
+						MANUAL_WDS = true;
+						wdsNextStep();
+					}
+				})(ssidInput, pwdInput));
+				break;
+			}
+		}
+		wdsSsidPwdDialog.TYPE = {
+			SELECT: "select",
+			MANUAL: "manual"
+		}
+
+		var wdsBtnBack = new Button({
+			text: btn.preStep,
+			onClick: function(){
+				stepPage(firstPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"wdsBtnBack",
+			props:{width:"120px"}
+		});
+
+		var wdsBtnNext = new Button({
+			text:btn.nextStep,
+			onClick:function(){
+				if (this._ops.type == Button.TYPE.SECONDARY)
+				{
+					showToast(label.wdsNoHostSelect);
+					return;
+				}
+
+				wdsNextStep();
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"wdsBtnNext",
+			props:{width:"240px"}
+		});
+
+		refreshScanList();
+	})();
+</script>
+<style type="text/css">
+	span.wdsSsidPwdDesc{
+		display: block;
+		height: 20px;
+		line-height: 20px;
+		margin-bottom: 16px;
+	}
+	div.wdsSsidPwdInput label.outerLbl{
+		width: 96px;
+	}
+	i.radio[name="wdsScanRadio"]{
+		cursor:pointer;
+	}
+</style>
+<div id="wdsScanTable"></div>
+<div class="wdsScanStepBtn">
+	<div id="wdsBtnBack"></div>
+	<div id="wdsBtnNext"></div>
+</div>

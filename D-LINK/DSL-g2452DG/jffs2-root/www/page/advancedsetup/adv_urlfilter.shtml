@@ -1,0 +1,230 @@
+
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+var G_URLFilterEnabled = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_UrlFilter.Enable" -->';
+var G_URLFilterMode = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_UrlFilter.FilterMode" -->';
+function FilterTuple()
+{    
+    this.path = "";
+    this.URL = "";
+    this.weekdays = "";
+    this.timefrom = "";    
+    this.timeto = "";
+    this.description="";
+    this.SrcIP="";
+}
+var rulesNum = 0;
+var m = 0;
+var G_BlackList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UrlFilter.BlackList. URL WeekDays TimeFrom TimeTo Description SrcIP" -->
+    G_BlackList[m] = new FilterTuple();
+    G_BlackList[m].path = "<!--#path -->";
+    G_BlackList[m].URL = "<!--#leaf "1"-->";
+    G_BlackList[m].weekdays = "<!--#leaf "2"-->";
+    G_BlackList[m].timefrom = "<!--#leaf "3"-->";
+    G_BlackList[m].timeto = "<!--#leaf "4"-->";
+    G_BlackList[m].description = "<!--#leaf "5"-->";
+    G_BlackList[m].SrcIP = "<!--#leaf "6"-->";
+    m++;
+<!--#endgetobject -->
+var n = 0;
+var G_WhiteList = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UrlFilter.WhiteList.  URL WeekDays TimeFrom TimeTo Description SrcIP" -->
+    G_WhiteList[n] = new FilterTuple();
+    G_WhiteList[n].path = "<!--#path -->";
+    G_WhiteList[n].URL = "<!--#leaf "1"-->";
+    G_WhiteList[n].weekdays = "<!--#leaf "2"-->";
+    G_WhiteList[n].timefrom = "<!--#leaf "3"-->";
+    G_WhiteList[n].timeto = "<!--#leaf "4"-->";
+    G_WhiteList[n].description = "<!--#leaf "5"-->";
+    G_WhiteList[n].SrcIP = "<!--#leaf "6"-->";
+   n++;
+<!--#endgetobject -->
+
+function EditRules(idx){
+	document.location.href = "adv_urlfilteradd.shtml?action=edit&idx=" + idx;
+}
+
+function DelRules(path) {
+	if(!validateCode(2))
+		return false;
+	var df = document.urlfilterdataform;
+	AddElements(df, "del_obj", path);
+	df.submit();
+}
+
+function addTimeRestrict() {
+	if(rulesNum >= 16){
+		top.AlertMsg(getStr("LK_TimeRuleLimit"));
+		return false;
+	}
+	document.location.href = "adv_urlfilteradd.shtml?action=add";
+}
+var weekEnum = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+function parseWeekdays(week)
+{
+	var weekarray = "[";
+	var daysofweek = weekEnum.length;
+	for (var i = 0; i < daysofweek; i++)
+	{
+		if (week.indexOf(weekEnum[i]) != -1)
+			weekarray += "1";
+		else
+			weekarray += "0";
+		if (i < daysofweek - 1)
+			weekarray += ",";
+	}
+	weekarray += "]";
+	return weekarray;
+}
+
+
+function fillItems() {
+    if(G_URLFilterMode == "Deny"){
+        rulesNum = G_BlackList.length;
+        var restRules = G_BlackList;
+    }else if(G_URLFilterMode == "Allow"){
+        rulesNum = G_WhiteList.length;
+        var restRules = G_WhiteList;
+    }
+	if(rulesNum == 0) {
+		document.writeln('<tr class="OddRowB"><td colspan="14">' + getStr("LK_NoRule") + '</td></tr>');
+		return;
+	}
+	for(var i=0; i< rulesNum; i++) {
+		var weekarr = parseWeekdays(restRules[i].weekdays);
+		var week = eval(weekarr);
+		if(i%2 == 0)
+			document.writeln("<tr class='OddRowB'>");
+		else
+			document.writeln("<tr class='EvenRowB'>");
+
+		document.writeln("<td>&nbsp;"+ (i+1) + "</td>");
+		document.writeln("<td>&nbsp;"+ restRules[i].description + "</td>");
+		document.writeln("<td>&nbsp;"+ restRules[i].URL + "</td>");
+		document.writeln("<td>&nbsp;"+ restRules[i].SrcIP + "</td>");
+		document.writeln("<td>&nbsp;"+ (week[0] == "1" ? '&radic;' : "") + "</td>"); // sun
+		document.writeln("<td>&nbsp;"+ (week[1] == "1" ? '&radic;' : "") + "</td>"); // mon
+		document.writeln("<td>&nbsp;"+ (week[2] == "1" ? '&radic;' : "") + "</td>"); // tue
+		document.writeln("<td>&nbsp;"+ (week[3] == "1" ? '&radic;' : "") + "</td>"); // wed
+		document.writeln("<td>&nbsp;"+ (week[4] == "1" ? '&radic;' : "") + "</td>"); // thu
+		document.writeln("<td>&nbsp;"+ (week[5] == "1" ? '&radic;' : "") + "</td>"); // fri
+		document.writeln("<td>&nbsp;"+ (week[6] == "1" ? '&radic;' : "") + "</td>"); // sat
+		document.writeln("<td>&nbsp;"+ restRules[i].timefrom + "</td>");
+		document.writeln("<td>&nbsp;"+ restRules[i].timeto + "</td>");
+		document.writeln("<td><img href='#' src='/skin/edit.gif' style='cursor:pointer' onclick='EditRules(" + i + ")'>&nbsp;&nbsp;<img href='#' src='/skin/trash.gif' style='cursor:pointer' onclick='DelRules(\"" + restRules[i].path + "\")'></td>");
+		document.writeln("</tr>");
+	}
+}
+function init(){
+    if(G_URLFilterMode == "Deny"){
+        rulesNum = G_BlackList.length;
+    }else if(G_URLFilterMode == "Allow"){
+        rulesNum = G_WhiteList.length;
+    }
+    setValue("INPUT_URLFilterEnabled",G_URLFilterEnabled);
+    if(G_URLFilterEnabled==1){
+        $('INPUT_URLFilterEnabled').checked=true;
+    }else if(G_URLFilterEnabled==0){
+        $('INPUT_URLFilterEnabled').checked=false;
+    }
+    setValue("URLFilterMode",G_URLFilterMode);
+
+}
+
+
+function uiSubmit(){
+    if(!validateCode())
+        return false;
+    var df = document.urlfilterdataform; 
+    if($('INPUT_URLFilterEnabled').checked== false){
+        AddElements(df, "InternetGatewayDevice.X_CT-COM_UrlFilter.Enable",0);
+    }else if($('INPUT_URLFilterEnabled').checked== true){
+        AddElements(df, "InternetGatewayDevice.X_CT-COM_UrlFilter.Enable",1);
+    }
+    AddElements(df, "InternetGatewayDevice.X_CT-COM_UrlFilter.FilterMode", getValue('URLFilterMode'));
+    df.submit();
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true)
+        project_init(GetCurrentFileName());        
+
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_URLFilter'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>
+	<td><input type="checkbox" name="INPUT_URLFilterEnabled" id="INPUT_URLFilterEnabled" value="" checked/></td>
+</tr>
+<tr>
+	<td langkey="LK_FilterModee"></td>
+	<td><input type="radio" name="URLFilterMode" id="INPUT_ModeBlack" value="Deny"><span id="lang_modeBlack" langkey="LK_sec_wantolanblack"></span>
+            <input type="radio" name="URLFilterMode" id="INPUT_ModeWhite" value="Allow"><span id="lang_modeWhite" langkey="LK_sec_wantolanwhite"></span>
+            </td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_URLList'))</script>
+<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+	<tr class="FlagText">
+		<td langkey="LK_Max16Entrie"></td>
+	</tr>
+</table>
+<table id="td_URLList" cellpadding="0" cellspacing="0" class="ContentBorder"> 
+<tr class="TitleRow">
+  <td langkey="LK_Number"></td>
+  <td langkey="LK_Descriptionn"></td>
+  <td langkey="LK_URL"></td>
+  <td langkey="LK_SrcIPRange"></td>
+  <td langkey="LK_Sunday"></td>
+  <td langkey="LK_Monday"></td>
+  <td langkey="LK_Tuesday"></td>
+  <td langkey="LK_Wedesday"></td>
+  <td langkey="LK_Thuesday"></td>
+  <td langkey="LK_Friday"></td>
+  <td langkey="LK_Saturday"></td>
+  <td langkey="LK_Start"></td>
+  <td langkey="LK_Stop"></td>
+  <td langkey="LK_Action"></td>
+</tr>
+<script language="javascript">
+   <!-- hide
+		fillItems();
+   //-->
+</script>
+</table>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+   <td>
+      <script>PrintTriButton("submit",getStr("LK_Add"),onClick="addTimeRestrict();");</script>&nbsp;&nbsp;
+   </td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+   <form method="post" name ="urlfilterdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_urlfilter.shtml">
+</form>
+</body></html>

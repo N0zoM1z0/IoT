@@ -1,0 +1,552 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+
+function voiceProcessTuple()
+{
+    this.Path = "";
+    this.transmitGain = "";
+    this.receiveGain = "";
+    this.echoCancellationEnable = "";
+    this.isVADEnabled = "";
+}
+
+	function GetLineNumByDescription(Description){
+		for(var i = 0;i < 2;i++)
+		{
+				if(LineInfo[i].Description == Description)
+				return i;
+		}
+		if(Description == "LINE1")
+		    return 0;
+		if(Description == "LINE2")
+		    return 1;
+		return false;
+	}
+	
+	function LineDescription(){
+			this.Description = "";
+		}
+	var num = 0;
+ var LineInfo = new Array();
+ <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+     <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}. Description" -->
+	   LineInfo[num] = new LineDescription();
+     LineInfo[num].Description = "<!--#leaf "1"-->";
+     num++;
+     <!--#endgetobject -->
+ <!--#endgetobject -->
+var index=0;
+var voiceProcess = new Array();
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.VoiceProcessing. TransmitGain ReceiveGain EchoCancellationEnable" -->
+        voiceProcess[index] = new voiceProcessTuple();
+        voiceProcess[index].Path = "<!--#path -->";
+        voiceProcess[index].transmitGain = "<!--#leaf "1"-->";
+        voiceProcess[index].receiveGain = "<!--#leaf "2"-->";
+        voiceProcess[index].echoCancellationEnable = "<!--#leaf "3"-->";
+    <!--#endgetobject -->
+    <!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line.{i}.X_TRI-FLASHHOOK. VADEnable" -->
+        voiceProcess[index].isVADEnabled = "<!--#leaf "1"-->";
+	index++;
+    <!--#endgetobject --> 
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-Jitter. JitMode FixedJitLen AdaptJitMin AdaptJitMax" -->
+    var jitMode = "<!--#leaf "1"-->";
+    var fixedJitLen = "<!--#leaf "2"-->";
+    var adaptJitMin = "<!--#leaf "3"-->";
+    var adaptJitMax = "<!--#leaf "4"-->";
+<!--#endgetobject -->
+
+var dtmfMethod = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DTMFMethod"-->";
+var dtmfPt = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DTMFPT"-->";
+var mediaConsult = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-MediaConsult"-->";
+var rtpStartPort = "<!--#getsingle "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.RTPStartPort"-->";
+
+function change_mode()
+{
+    var mode=getValue("Frm_JitMode");
+    switch(mode)
+    {
+        case "0":
+	    {
+	        jslDiDisplay("TR_AdaptJitMax","TR_AdaptJitMin");
+		jslEnDisplay("TR_FixedJitLen");
+		setValue("Frm_FixedJitLen", fixedJitLen);
+		break;
+	    }
+	case "1":
+	    {
+	        jslEnDisplay("TR_AdaptJitMax","TR_AdaptJitMin");
+		jslDiDisplay("TR_FixedJitLen");
+		setValue("Frm_AdaptJitMax", adaptJitMax);
+		setValue("Frm_AdaptJitMin", adaptJitMin);
+		break;
+	    }
+	default:
+	    break;
+    }
+}
+function checkNumber(str)
+{
+    var reg=/^[0-9]+$/;
+    if(!reg.test(str))
+    {
+        return false;
+    }
+    return true;
+}
+
+function rmNULLInputs()
+{
+    var o=$('fSubmit');
+    var is =o.getElementsByTagName("input");
+    var l=is.length;
+    var ia=new Array();
+    for(var i=0;i<l;i++)
+    {
+        ia[i]=is[i];
+    }
+    for(var i=0;i<l;i++)
+    {
+        if(ia[i].value=="NULL")
+	{
+	    o.removeChild(ia[i]);
+	}
+    }
+}
+
+function pageCheckValue()
+{
+    var lineNum=index;
+    var mode=getValue("Frm_JitMode");
+    var dtmf=getValue("Frm_DTMFMethod");
+    var msg="";
+    var cResult;
+    var Tgain,Rgain;
+    if(dtmf==0)
+    { 
+        cResult=checkIntegerRange(getValue("Frm_DTMFPTValue"), 96, 127);
+        if(cResult==-1)
+        {
+            msg=getmsg(101);
+            top.AlertMsg(msg);
+            return false;
+        }
+        else if(cResult==-2)
+        {
+            msg=getmsg(115);
+            top.AlertMsg(msg);
+            return false;
+        }
+        else if(cResult==-3)
+        {
+            msg=getmsg(116,96,127);
+            top.AlertMsg(msg);
+            return false;
+        }
+    }
+    cResult=checkIntegerRange(getValue("Frm_RtpPortStart"), 4000, 65534);
+    if(cResult==-1)
+    {
+        msg=getmsg(101);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(cResult==-2)
+    {
+        msg=getmsg(115);
+	top.AlertMsg(msg);
+	return false;
+    }
+    else if(cResult==-3)
+    {
+        msg=getmsg(116,4000,65534);
+	top.AlertMsg(msg);
+	return false;
+    }
+    RtpStartValue=getValue("Frm_RtpPortStart");
+    if((RtpStartValue%2)!=0)
+    {
+        msg=getmsg(803);
+        top.AlertMsg(msg);
+        return false;
+    }
+    if("0"==mode)
+    {
+        FixLen=getValue("Frm_FixedJitLen");
+	if(checkNumber(FixLen)==false)
+	{
+	    msg=getmsg(114);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	var mm=checkIntegerRange(FixLen,0,200);
+	if(-1==mm)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-2==mm)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-3==mm)
+	{
+	    msg=getmsg(116,0,200);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+    else 
+    {
+        var MaxLen=getValue("Frm_AdaptJitMax");
+	var MinLen =getValue("Frm_AdaptJitMin");
+	if(checkNumber(MaxLen)==false)
+	{
+	    msg=getmsg(114);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(checkNumber(MinLen)==false)
+	{
+	    msg=getmsg(114);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	var mm1=checkIntegerRange(MaxLen,0,200);
+	var mm2=checkIntegerRange(MinLen, 0,200);
+	if(-1==mm1)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-2==mm1)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-3==mm1)
+	{
+	    msg=getmsg(116,0,200);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	if(-1==mm2)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-2==mm2)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(-3==mm2)
+	{
+	    msg=getmsg(116,0,200);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+        if(parseInt(MaxLen)<parseInt(MinLen))
+        {
+            msg=getmsg(159);
+            top.AlertMsg(msg);
+            return false;
+        }
+    }
+    for(var i=0;i<index;i++)
+    {
+        Tgain=checkIntegerRange(getValue("Frm_Transmit"+i),-14,6);
+	if(Tgain==-1)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(Tgain==-2)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(Tgain==-3)
+	{
+	    msg=getmsg(116,-14,6);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	Rgain =checkIntegerRange(getValue("Frm_Receive"+i),-14,6);
+	if(Rgain==-1)
+	{
+	    msg=getmsg(101);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(Rgain==-2)
+	{
+	    msg=getmsg(115);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+	else if(Rgain==-3)
+	{
+	    msg=getmsg(116,-14,6);
+	    top.AlertMsg(msg);
+	    return false;
+	}
+    }
+	if(!validateCode())
+		return false;
+    return true;
+}
+
+function uiSubmit()
+{
+    var df=$('fSubmit');
+   
+    ReSetValueRmZero("Frm_AdaptJitMax","Frm_AdaptJitMin","Frm_FixedJitLen","Frm_RtpPortStart");
+    if(pageCheckValue()==true)
+    {
+        jslDisable("Btn_Submit","Btn_Cancel");
+        AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DTMFMethod", getValue("Frm_DTMFMethod"));
+        if (getValue("Frm_DTMFMethod")==0)
+            AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.DTMFPT", getValue("Frm_DTMFPTValue"));
+            AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-MediaConsult", getValue("Frm_MediaConsult"));
+            AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.RTP.RTPStartPort", getValue("Frm_RtpPortStart"));
+            AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-Jitter.JitMode", getValue("Frm_JitMode"));
+	          AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-Jitter.FixedJitLen", getValue("Frm_FixedJitLen"));
+	          AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-Jitter.AdaptJitMin", getValue("Frm_AdaptJitMin"));
+	          AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-Jitter.AdaptJitMax", getValue("Frm_AdaptJitMax"));
+	      for(var i = 0;i < LineInfo.length; i++)
+	      {
+		      var LineNum = 0;
+		      if(LineInfo[i].Description == "LINE1")
+		         LineNum = 1;
+		      else if(LineInfo[i].Description == "LINE2")
+		 	       LineNum = 2;
+		 	    else 
+		 		     LineNum = parseInt(i/4)+1;
+	         AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".VoiceProcessing.EchoCancellationEnable", getValue("Frm_EchoCancellationEnable"+i));
+	         AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".X_TRI-FLASHHOOK.VADEnable", getChecked("Frm_VAD"+i) ? 1 : 0);
+	         AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".VoiceProcessing.TransmitGain", getValue("Frm_Transmit"+i));
+	         AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Line." + LineNum + ".VoiceProcessing.ReceiveGain", getValue("Frm_Receive"+i));
+	      }
+	       rmNULLInputs();
+	      df.submit();
+    }
+}
+
+function change_dtmf_mode()
+{
+    var mode=getValue("Frm_DTMFMethod");
+    switch(mode)
+    {
+        case "0":
+	    {
+	        jslEnDisplay("TR_DTMFPT");
+	        setValue("Frm_DTMFPTValue", dtmfPt);
+		    break;
+	    }
+	    case "1":
+	    {
+	        jslDiDisplay("TR_DTMFPT");
+		    break;
+	    }
+	    default:
+	        break;
+    }
+}
+
+
+
+
+function pageGetValue()
+{
+	createsel();
+    
+    setValue("Frm_DTMFMethod", dtmfMethod);
+    change_dtmf_mode();
+    setValue("Frm_JitMode", jitMode);
+    setValue("Frm_RtpPortStart", rtpStartPort);
+    setValue("Frm_FixedJitLen", fixedJitLen);
+    setValue("Frm_AdaptJitMin", adaptJitMin);
+    setValue("Frm_AdaptJitMax", adaptJitMax);
+    setValue("Frm_MediaConsult", mediaConsult);
+    for(var i=0;i < index; i++)
+    {
+    	 var LineNum = 0;
+	    if(LineInfo[i].Description == "LINE1")
+	        LineNum = 1;
+	    else if(LineInfo[i].Description == "LINE2")
+	        LineNum = 2;
+	    else
+	        LineNum = i+1;
+        if(voiceProcess[LineNum-1].isVADEnabled==1)
+	    setChecked("Frm_VAD"+i, true);
+	    else 
+	    setChecked("Frm_VAD"+i, false);
+
+	setValue("Frm_Receive"+i, voiceProcess[LineNum-1].receiveGain);
+	setValue("Frm_Transmit"+i, voiceProcess[LineNum-1].transmitGain);
+	setValue("Frm_EchoCancellationEnable"+i, voiceProcess[LineNum-1].echoCancellationEnable);
+    }
+    change_mode();
+}
+
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_Fixup"), getStr("LK_Auto")];
+  value = ['0', '1'];
+	createOptions('Frm_JitMode', text, value);
+	
+	text = [];value = [];
+	text = [getStr("LK_Remote"), getStr("LK_Local")];
+  value = ['0', '1'];
+	createOptions('Frm_MediaConsult', text, value);
+	
+	text = [];value = [];
+	text = [getStr("LK_Disable"), getStr("LK_Enable")];
+  value = ['0', '1'];
+	createOptions('Frm_EchoCancellationEnable0', text, value);
+	
+	text = [];value = [];
+	text = [getStr("LK_Disable"), getStr("LK_Enable")];
+  value = ['0', '1'];
+	createOptions('Frm_EchoCancellationEnable1', text, value);
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_AdvancedSetup'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipadvanced.shtml">
+</form>
+<table id="TestContent" class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_DTMFSettingg"></td>
+<td>
+<select id="Frm_DTMFMethod" name="select2" size="1" onchange="change_dtmf_mode()">
+<option value="0">RFC2833</option>
+<option value="1" langkey="LK_LimpidityPass"></option>
+</select></td>
+</tr>
+<tr id="TR_DTMFPT">
+<td langkey="LK_DTMFPT"></td>
+<td><input type="text" id="Frm_DTMFPTValue" class="inputId"></td>
+</tr>
+<tr>
+<td langkey="LK_BeginRTPPortt"></td>
+<td><input type="text" id="Frm_RtpPortStart" class="inputId"></td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+<td langkey="LK_TingleAmortizee"></td>
+<td>
+<select id="Frm_JitMode" name="select2" size="1" onchange="change_mode()">
+</select></td>
+</tr>
+<tr id="TR_FixedJitLen" style="display: none;">
+<td langkey="LK_Fixupp"></td>
+<td><input type="text" id="Frm_FixedJitLen" class="inputId">&nbsp;<span langkey="LK_ms"></span></td>
+</tr>
+<tr id="TR_AdaptJitMin" style="">
+<td langkey="LK_Minn"></td>
+<td><input type="text" id="Frm_AdaptJitMin" class="inputId">&nbsp;<span langkey="LK_ms"></span></td>
+</tr>
+<tr id="TR_AdaptJitMax" style="">
+<td langkey="LK_Maxx"></td>
+<td><input type="text" id="Frm_AdaptJitMax" class="inputId">&nbsp;<span langkey="LK_ms"></span></td>
+</tr>
+<tr><td colspan="2" class="spaceLine">&nbsp;</td></tr>
+<tr>
+<td langkey="LK_MediaControll"></td>
+<td>
+<select id="Frm_MediaConsult" name="select2" size="1">
+</select></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_Connection1'))</script>
+<table id="TableVAD" class="ContentTableNoColor" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_VoiceControll"></td>
+<td>
+<select id="Frm_EchoCancellationEnable0" name="Frm_EchoCancellationEnable0" size="1">
+</select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_VADd"></td>
+<td><input name="Frm_VAD0" id="Frm_VAD0" type="checkbox" value=""></td>
+</tr>
+<tr>
+<td langkey="LK_SendGainn"></td>
+<td><input name="Frm_Transmit0" id="Frm_Transmit0" type="text" class="inputId">(-14~6)</td>
+</tr>
+<tr>
+<td langkey="LK_ReceiveGainn"></td>
+<td class="td2"><input name="Frm_Receive0" id="Frm_Receive0" type="text" class="inputId">(-14~6)</td>
+</tr>
+
+<script>SetContentTitle(getStr('LK_Connection2'))</script>
+<table id="TableVAD" class="ContentTableNoColor" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td width="150" langkey="LK_VoiceControll"></td>
+<td>
+<select id="Frm_EchoCancellationEnable1" name="Frm_EchoCancellationEnable1" size="1">
+</select>
+</td>
+</tr>
+<tr>
+<td langkey="LK_VADd"></td>
+<td><input name="Frm_VAD1" id="Frm_VAD1" type="checkbox" value=""></td>
+</tr>
+<tr>
+<td langkey="LK_SendGainn"></td>
+<td><input name="Frm_Transmit1" id="Frm_Transmit1" type="text" class="inputId">(-14~6)</td>
+</tr>
+<tr>
+<td langkey="LK_ReceiveGainn"></td>
+<td><input name="Frm_Receive1" id="Frm_Receive1" type="text" class="inputId">(-14~6)</td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

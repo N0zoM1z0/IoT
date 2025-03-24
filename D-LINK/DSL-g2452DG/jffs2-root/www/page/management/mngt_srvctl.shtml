@@ -1,0 +1,341 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+var ServiceTelnetPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTelnet.Port"-->";
+var ServiceSSHPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceSSH.Port"-->";
+var ServiceTFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceTFTP.Port"-->";
+var ServiceFTPPorts = "<!--#getsingle_noop "InternetGatewayDevice.Services.ServiceFTP.Port"-->";
+
+
+function editPortArray(ServiceName,Port,Path,TotalPorts)
+{    
+    this.ServiceName = ServiceName;
+    this.Port = Port;
+	this.Path = Path;
+	this.TotalPorts = TotalPorts;
+}
+
+var G_editPortList =new Array();
+G_editPortList[0] = new editPortArray("HTTP","80","","");
+G_editPortList[1] = new editPortArray("TELNET","23","InternetGatewayDevice.Services.ServiceTelnet.Port",ServiceTelnetPorts);
+G_editPortList[2] = new editPortArray("FTP","21","InternetGatewayDevice.Services.ServiceFTP.Port",ServiceFTPPorts);
+G_editPortList[3] = new editPortArray("TFTP","69","InternetGatewayDevice.Services.ServiceTFTP.Port",ServiceTFTPPorts);
+G_editPortList[4] = new editPortArray("SSH","22","InternetGatewayDevice.Services.ServiceSSH.Port",ServiceSSHPorts);
+G_editPortList[5] = new editPortArray("TCP","","","");
+G_editPortList[6] = new editPortArray("UDP","","","");
+
+
+function Acl()
+{    
+    this.path = "";
+    this.ServiceName = "";
+    this.Enable = "";
+    this.AccessDirection="";
+    this.SrcIpRange = "";
+    this.Action = "";
+    this.IPMode = "";
+    this.Port = "";
+}
+var restart = "<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.X_TRI-RestartWeb"-->";
+var m = 0;
+var G_Acl = new Array();
+<!--#getobject "InternetGatewayDevice.Services.ServiceAccessControl.ServiceCtrlList. ServiceName Enable AccessDirection SrcIpRange Action IPMode Port" -->
+    G_Acl[m] = new Acl();
+    G_Acl[m].path = "<!--#path -->";
+    G_Acl[m].ServiceName = "<!--#leaf "1"-->";
+    G_Acl[m].Enable = "<!--#leaf "2"-->";
+    G_Acl[m].AccessDirection = "<!--#leaf "3"-->";
+    G_Acl[m].SrcIpRange = "<!--#leaf "4"-->";
+    G_Acl[m].Action = "<!--#leaf "5"-->";
+    G_Acl[m].IPMode = "<!--#leaf "6"-->";
+    G_Acl[m].Port = "<!--#leaf "7"-->";
+    m++;
+<!--#endgetobject -->
+var AclEnable = "<!--#getsingle "InternetGatewayDevice.Services.ServiceAccessControl.Enable"-->";
+
+var G_Operation = "Add";
+var G_Path ;
+var ConnIdx;
+
+function searchDevPath(DevPath){
+    for(var i = 0; i < Connection.length; i++) {
+        if(Connection[i].Path == DevPath) {
+            return Connection[i].Name;
+        }
+    }
+    return '';
+}
+
+function uiEdit(idx)
+{    
+    G_Operation = "Edit";
+    document.location.href='/page/management/mngt_srvctl_edit.shtml?Op='+ G_Operation+'&id='+idx+'';   
+}
+function update_acl(path){
+	var i,j;
+	var del_idx;
+	var svcPath,svc;
+	for(i=0;i<G_Acl.length;i++){
+		if(G_Acl[i].path == path){
+			G_Acl[i].ServiceName = "";
+			return;
+		}
+	}
+}
+function submit_service_port(df)
+{
+	var i,j,k;
+	var protoList=["FTP","TFTP","TELNET","SSH"];
+	if(AclEnable != 1){
+		if(ServiceTelnetPorts != 23)
+			AddElements(df, "InternetGatewayDevice.Services.ServiceTelnet.Port","23");
+		if(ServiceSSHPorts != 23)
+			AddElements(df, "InternetGatewayDevice.Services.ServiceSSH.Port","22");
+		if(ServiceFTPPorts != 23)
+			AddElements(df, "InternetGatewayDevice.Services.ServiceFTP.Port","21");
+		if(ServiceTFTPPorts != 23)
+			AddElements(df, "InternetGatewayDevice.Services.ServiceTFTP.Port","69");
+		return;
+	}
+	for(i=0;i<protoList.length;i++)
+	{
+		var ports = new Array();
+		var totalPorts = "";
+		var defaultPort ,path;
+		for(j=0;j<G_editPortList.length;j++){
+			if(G_editPortList[j].ServiceName == protoList[i]){
+				defaultPort = G_editPortList[j].Port;
+				path = G_editPortList[j].Path;
+				totalPorts = G_editPortList[j].TotalPorts;
+				break;
+			}
+		}
+		for(j=0;j<G_Acl.length;j++){
+			if(protoList[i] != G_Acl[j].ServiceName)
+				continue;
+			if(G_Acl[j].Enable != 1 || G_Acl[j].Action != "ACCEPT")
+				continue;
+			for(k=0;k<ports.length;k++)
+				if(ports[k] == G_Acl[j].Port)
+					break;
+			if(k == ports.length)
+				ports.push(G_Acl[j].Port);
+		}
+		if(ports.length == 0)
+			ports.push(defaultPort);
+		var totalPortsArray = totalPorts.split(",");
+		var needSubmit = 0;
+		for(j=0;j<ports.length;j++){
+			for(k=0;k<totalPortsArray.length;k++){
+				if(ports[j] == totalPortsArray[k])
+					break;
+			}
+			if(k == totalPortsArray.length){
+				needSubmit = 1;
+				break;
+			}
+		}
+		
+		if(ports.length != totalPortsArray.length)
+			needSubmit = 1;
+		if(needSubmit == 1){
+			AddElements(df, path, ports.join(","));
+			//alert(path+ports.join(",")+ " != "+totalPorts );//johnma
+		}
+		else{
+			//alert(path+ports.join(",")+ " == "+totalPorts );//johnma
+		}
+	}
+}
+function uiDelete(path){
+	var i;
+	if(!validateCode())
+		return false;
+    var df = document.Acldataform; 
+	update_acl(path);
+ 	submit_service_port(df);
+    AddElements(df, 'del_obj',path);
+	/*setup.cgi ½㏶ϊ͢
+		µ±ɾ³�t¶¨׆¶˿ںò323µŊ±º򣭐钪ʨ׃ InternetGatewayDevice.Services.ServiceTelnet.Port,Ȼº�´ѐdel_objµĶ¯ط£¬
+		֢ҹ²Ƅܱ£֤service controlµÏPՙʨ׃SCL_IP_DROP¹畲µŊ±º򣭄ܹ»´ԏµͳאֽȷ¶¡µ½ServiceTelnet.Port¡£
+		µ«ˇsetup.cgi½㏶µŊ±º򣫯setˇ·Ɣۗ͡½»µġ£µ¼ׂЈִѐservice controlЈִѐdel_objµĶ¯ط.֢ҹ¾͵¼ׂSCL_IP_DROPא¶�opһЩ¶˿ںÊ		
+	*/
+	for(i=0;i<G_Acl.length;i++){
+		if(G_Acl[i].path != path){
+   			AddElements(df, G_Acl[i].path+"Enable", G_Acl[i].Enable);
+			break;
+		}
+		else
+			continue;
+	}
+   df.submit(); 
+}
+
+function uiAdd(){    
+    document.location.href='/page/management/mngt_srvctl_edit.shtml?Op='+ G_Operation+'';
+}
+function getServiceName(ServiceName,Port)
+{
+	var i;
+	var ret_val;
+	var trans = 0;
+	for(i=0;i<G_editPortList.length;i++){
+		if(G_editPortList[i].ServiceName == ServiceName){
+			if(Port != G_editPortList[i].Port && Port != "")
+				trans = 1;
+			break;
+		}
+	}
+	if(trans == 1)
+		return ServiceName+":"+Port;
+	else
+		return ServiceName;
+}
+function getRuleTrs(rules)
+{
+	var trs = "";
+	
+	if(rules.length == 0)
+	{
+		trs = '<tr class="OddRowB"><td colspan="8">'+getStr('LK_NoRule')+'</td></tr>';
+	}
+	
+	if (rules == null) {
+		return trs;
+	}
+
+	for(var i = 0; i < rules.length; i++){
+		var rule = rules[i];
+		if(i%2==0)
+			trs += "<tr class='OddRowB'>";
+		else
+			trs += "<tr class='EvenRowB'>";
+	
+		trs += "<td>" + getServiceName(rule.ServiceName,rule.Port)+"</td>"; 
+		
+		trs += "<td>" + rule.AccessDirection+"</td>";
+
+		if(rule.IPMode == 1)
+			trs += "<td>IPv4</td>";
+		else if(rule.IPMode == 2)
+			trs += "<td>IPv6</td>";
+		else if(rule.IPMode == 3)
+			trs += "<td>IPv4&6</td>";
+		else
+			trs += "<td></td>";
+
+		if(rule.SrcIpRange == "") trs += "<td>" + "Any" + "</td>";  
+		else trs += "<td>" + rule.SrcIpRange + "</td>";
+		if(rule.Enable == 1) trs += "<td>" + "Enable" +"</td>";
+		else if (rule.Enable == 0) trs += "<td>" + "Disable" + "</td>";
+		trs += "<td>" + rule.Action + "</td>"; 
+		trs += "<td>"
+			+ "<img name='edit' src='../../skin/edit.gif' style='cursor:pointer'"
+			+ " onclick='uiEdit(\"" + (i) + "\")'>"
+			+ "<img name='delete' src='../../skin/trash.gif' style='cursor:pointer' onclick='uiDelete(\"" + rule.path+ "\")'></td>";              
+		trs += "</tr>";
+	}
+	return trs;
+}
+function Acl()
+{    
+    this.path = "";
+    this.ServiceName = "";
+    this.Enable = "";
+    this.AccessDirection="";
+    this.SrcIpRange = "";
+    this.Action = "";
+}
+function createAclTable() {
+		var trs="";
+		trs += getRuleTrs(G_Acl);
+	jQuery("#td_Acllist").append(trs);
+}
+
+function uiSubmit(){
+	var df = document.Acldataform;
+
+	if(!validateCode())	
+	    return false;
+	AclEnable = getValue('INPUT_Enable');
+	submit_service_port(df);
+	AddElements(df, "InternetGatewayDevice.Services.ServiceAccessControl.Enable",getValue('INPUT_Enable'));
+	df.submit();  
+}
+function update_default_port()
+{
+	var i,j;
+	for(i=0;i<G_Acl.length;i++){
+		if(G_Acl[i].Port != "" && G_Acl[i].Port >0)
+			continue;
+		for(j=0;j<G_editPortList.length;j++){
+			if(G_Acl[i].ServiceName == G_editPortList[j].ServiceName){
+				G_Acl[i].Port = G_editPortList[j].Port;
+			}
+		}
+	}
+}
+function __init()
+{
+  	update_default_port();
+  	setValue("INPUT_Enable", AclEnable);
+  	createAclTable();
+
+  	if(restart == 1){
+        alert(getStr('LK_Services_alert'));
+        document.location.href="/";
+        return;
+    }
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_SrvCtlIpAddr'));</script>
+<table cellpadding="0" cellspacing="0" width="600" class="ContentTableNoColor">
+<tr class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table cellpadding="0" cellspacing="0" width="400" class="ContentTableNoColor">
+<tr>
+<tr>
+	<td width="150" langkey="LK_AclEnable">
+	<td><input type="checkbox" name="INPUT_Enable" id="INPUT_Enable"></td>
+	<td><script>PrintTriButton("set_enable",getStr('LK_Apply'),"uiSubmit()")</script><td>
+</tr>
+</tr>
+</table>
+&nbsp;<script>PrintTriButton("add_wan",getStr('LK_Add'),"uiAdd()")</script></td>
+<table id="td_Acllist" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_ServiceTypee"></td>
+	<td langkey="LK_AccessDir"></td>
+	<td langkey="LK_Protocol"></td>
+	<td langkey="LK_IPrange"></td>
+	<td langkey="LK_Status"></td>
+	<td langkey="LK_Action"></td>
+	<td langkey="LK_Method"></td>
+</tr>
+</table>
+<br>
+
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<script>printEndContent()</script>
+	</form>
+	<form method="post" name ="Acldataform" action="/cgi-bin/setup.cgi?page/management/mngt_srvctl.shtml">
+</form>
+  </body>
+</html>

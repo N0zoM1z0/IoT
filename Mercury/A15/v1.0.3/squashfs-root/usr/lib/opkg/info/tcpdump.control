@@ -1,0 +1,8 @@
+Package: tcpdump
+Version: 4.2.1-3
+Depends: libc, libpcap
+Source: tp_package/sys_packages/tcpdump
+Section: net
+Architecture: rtl
+Installed-Size: 270166
+Description:  Network monitoring and data acquisition tool

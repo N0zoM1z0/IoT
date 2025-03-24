@@ -1,0 +1,89 @@
+<html>
+   <head>
+      <meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+      <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+      <link rel="stylesheet" href='stylemain.css' type='text/css'>
+      <link rel="stylesheet" href='colors.css' type='text/css'>
+      <script language="javascript" src="/js/jquery.js"></script>
+      <script language="javascript" src="/js/init.js"></script>
+      <script language="javascript" src="/js/t_utils.js"></script>
+      <script language="javascript" src="/js/project.js"></script>
+      <script language="javascript">
+<!-- hide
+var state = '<%ejGet(syslogRefresh)%>';
+if ( state == '1' ) {
+   var code = 'location="logintro.cgi?syslogRefresh=0"';
+   eval(code);
+}
+
+function btnView() {
+   var options;
+   options = 'menubar=yes,resizable=yes,scrollbars=yes,titlebar=yes,toolbar=no,width=640,height=600';
+
+   //window.open('logview.cmd', 'BCM963xxSysLog', options);
+   view_window = window.open('', 'BCM963xxSysLog', options);
+   view_window.document.write('<H1>Popup Test!</H1>');
+}
+
+function btnSecView() {
+   var options;
+   options = 'menubar=yes,resizable=yes,scrollbars=yes,titlebar=yes,toolbar=no,width=640,height=600';
+
+   window.open('CTsecview.cmd', 'BCM963xxSysLog', options);
+}
+
+function btnCreateFile() {
+   var loc = 'CreateLogFile.cmd';
+   var code = 'location="' + loc + '"';
+   eval(code);
+}
+
+function btnClearLog() {
+   var loc = 'ClearLog.cmd';
+   var code = 'location="' + loc + '"';
+   eval(code);
+}
+
+function btnConfig() {
+   var loc = 'logconfig.shtml';
+
+   var code = 'location="' + loc + '"';
+   eval(code);
+}
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// done hiding -->
+</script>
+   </head>
+   <body>
+      <blockquote>
+         <form>
+            <b langkey="LK_log_record"></b><br>
+            <br>
+    <span langkey="LK_log_viewrecord"></span><br>
+            <br>
+            <span langkey="LK_log_pressaccessrecord"></span><br>
+            <br>
+            <span langkey="LK_log_presssecurityrecord"></span><br>
+            <br>
+			<span langkey="LK_log_createorcleanlog"></span><br>
+            <br>
+            <br>
+    <p > 
+      		<input type='button' onClick='btnView()' value='' langkey="LK_log_recordbutton"><input type='button' onClick='btnSecView()' value='' langkey="LK_log_secrecord">
+      <script language="javascript">
+<!-- hide
+var status = '<%ejGet(logStatus)%>';
+   if ( status == '1' )
+      document.writeln(" <input type='button' onClick='btnCreateFile()' value=''><input type='button' onClick='btnClearLog()' value=''> ");
+
+// done hiding -->
+</script>
+  </form>
+      </blockquote>
+   </body>
+</html>

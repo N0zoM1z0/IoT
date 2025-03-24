@@ -1,0 +1,8 @@
+Package: kmod-flow_manage
+Version: 3.10.108+1.4.0-1
+Depends: kernel (=3.10.108-1-d7a6743a2f9ea02dc451e89f83b40fec)
+Source: package/blink/flow_manage
+Section: kernel
+Architecture: ramips_24kec
+Installed-Size: 4980
+Description:  Kernel module to flow_manage

@@ -1,0 +1,357 @@
+select,
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+	border: none;
+	outline: 0;
+	text-indent: 12px;
+	width: 220px;
+	height: 30px;
+	line-height: 30px;
+	border: 1px solid #4598AA;
+}
+
+body {
+	padding-right: 0 !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+.el-table .cell {
+	white-space: pre-line !important;
+}
+
+/* #container .el-input {
+	width: 220px;
+} */
+.width-220 {
+	width: 220px !important;
+}
+.width-11vw{
+	width: 11vw !important;
+}
+#container .el-input input {
+	padding-left: 5px;
+}
+
+.active-color {
+	color: #4598AA;
+}
+
+.WR900 {
+	width: 900px;
+	margin: 0 auto;
+}
+
+.btn {
+	padding: 10px 25px;
+	background-color: #4598AA;
+	color: #fff;
+}
+
+.active {
+	color: #fff;
+	background-color: #409EFF;
+}
+
+.fileSelect {
+	width: 204px;
+	height: 36px;
+	position: absolute;
+	opacity: 0;
+}
+
+select {
+	/*清除select默认样式*/
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	-ms-appearance: none;
+	/*自定义箭头的样式，记得背景一定要加 白色或其他*/
+	/*ie下,原默认的箭头样式还是会显示，所以这里把自定义的样式给去除了*/
+	background: url(/opsw/img/select-icons.png) right -116px no-repeat;
+	color: #666;
+	width: 120px;
+	height: 30px;
+	line-height: 30px;
+	text-indent: 10px;
+	outline: none;
+}
+
+input.el-input__inner {
+	width: 100%;
+}
+
+
+.styled-select {
+	position: absolute;
+	right: 267px;
+	top: 0;
+	margin: 0 5px;
+	width: 220px;
+}
+
+.select-img {
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	right: 0;
+	top: 1px;
+	background: url(/opsw/img/select-icons.png) 0 -116px no-repeat;
+}
+
+.operaTips {
+	position: fixed;
+	width: 240px;
+	height: 42px;
+	text-align: center;
+	background-color: #eef;
+	padding: 25px 0;
+	color: #000000;
+	border-radius: 15px;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 1);
+	z-index: 99;
+}
+
+.operaTips span {
+	display: block;
+	font-size: 12px;
+	margin-top: 5px;
+}
+
+/* 头部 */
+.header {
+        position: relative;
+	color: #333;
+	background: #fff url(/opsw/img/header.gif) left top repeat-x;
+	height:102px;
+	display:flex;
+	align-items:center;
+}
+.header .topBar-item img ,.header .navBar-left img{
+   width:150px;
+}
+
+.topBar {
+	width: 900px;
+	margin: 0 auto;
+	height: 105px;
+	overflow: hidden;
+}
+
+.header .language{
+	position: absolute;
+	right: 50px;
+}
+.header .el-select{
+	width: 150px !important;
+	line-height: 40px;
+}
+.header .navBar ul li {
+	position: relative;
+	width: 160px;
+	height: 40px;
+	line-height: 40px;
+	text-align: center;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.header .navBar ul li a {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+}
+
+.header .navBar ul li:hover .li-dropDown {
+	display: block;
+}
+
+/* .header .navBar ul li:active .li-dropDown {
+	display: none;
+} */
+
+.header .navBar ul li .li-dropDown {
+	position: absolute;
+	top: 40px;
+	left: 5px;
+	min-width: 150px;
+	padding: 10px 0;
+	box-shadow: 7px 15px 15px #868686;
+	background-color: #fff;
+	border-top: 1px solid #B7B7B7;
+	display: none;
+	z-index: 9999;
+}
+
+.header .navBar ul li .li-dropDown::after {
+	position: absolute;
+	top: -10px;
+	left: 70px;
+	content: '';
+	width: 0px;
+	height: 0px;
+	border-bottom: 10px solid #fff;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+}
+
+.li-dropDown .dropDown-item {
+	padding: 0 12px;
+}
+
+.header .navBar ul li .dropDown-item:hover {
+	background-color: #4496A8;
+	color: #fff;
+}
+
+
+.Features_tips {
+	position: relative;
+	height: 193px;
+	/* background: url(/opsw/img/bg.png) right top no-repeat; */
+}
+
+.Features_tips h2 {
+	position: relative;
+	top: 10px;
+	left: 210px;
+	color: #56583f;
+	font-size: 40px;
+	width: 690px;
+}
+
+.Features_tips .directions {
+	position: absolute;
+	top: 70px;
+	left: 210px;
+	color: #56583f;
+	font-size: 11pt;
+	width: 690px;
+	line-height: 1.4;
+}
+
+.funcBar {
+	line-height: 50px;
+	font-size: 18px;
+	color: #aaa;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+	padding: 0 26%;
+}
+
+ul.funcBar-right li {
+	float: left;
+	height: 48px;
+	line-height: 48px;
+	text-align: center;
+	/* color: #4598aa; */
+	min-width: 120px;
+	padding: 0 5px;
+	border: solid 1px #ccc;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+ul.funcBar-right li:hover {
+	color: #fff;
+	background-color: #409EFF;
+}
+
+.devicemode {
+	/* margin: 20px auto 30px; */
+	line-height: 35px;
+}
+
+.devicemode label {
+	display: inline-block;
+	width: 378px;
+	text-align: right;
+	margin-right: 26px;
+}
+
+ul.modeList {
+	padding-bottom: 20px;
+}
+
+ul.modeList li {
+	position: relative;
+	margin-top: 12px;
+}
+
+.footer {
+	padding: 20px;
+	margin-top: 20px;
+	background: #fff url(/opsw/img/footer.png) left top no-repeat;
+	color: #7d7d7d;
+}
+
+.layer {
+	position: fixed;
+	width: 100%;
+	top: 0;
+	height: 100vh;
+	z-index: 99;
+}
+
+.bulletFrame {
+	position: fixed;
+	top: 38%;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: 270px;
+	border-radius: 10px;
+	padding: 10px;
+	z-index: 100;
+	background-color: #fff;
+	box-sizing: border-box;
+	font-weight: 550;
+	font-size: 14px;
+	box-shadow: 5px 3px 25px #000;
+}
+
+.bulletFrame-border {
+	border: 2px solid #ababab;
+	height: 100%;
+	border-radius: 12px;
+	background-color: #E3E3E3;
+	text-align: center;
+	padding: 25px 5px;
+}
+
+.bulletFrame img {
+	padding: 40px 0 10px;
+}
+
+.bulletFrame span {
+	display: inline-block;
+	line-height: 26px;
+	font-weight: 550;
+	font-size: 14px;
+	padding-top: 10px;
+}
+
+.bulletFrame button {
+	padding: 10px 15px;
+	background-color: #3A8EE6;
+	border-radius: 4px;
+	color: #fff;
+	cursor: pointer;
+}
+
+.system-journal {
+	height: 440px;
+	margin: 30px auto 0;
+	border: 1px solid #999;
+	padding: 15px;
+	overflow: scroll;
+}

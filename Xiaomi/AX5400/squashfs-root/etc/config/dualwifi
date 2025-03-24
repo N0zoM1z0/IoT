@@ -1,0 +1,3 @@
+config dualwifi settings
+    option enabled "0"
+

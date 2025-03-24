@@ -1,0 +1,10 @@
+Package: switch
+Version: 1
+Depends: libc, libnl-tiny1
+Source: package/mtk-open/switch
+SourceName: switch
+Section: MTK Properties
+SourceDateEpoch: 1652901453
+Architecture: aarch64_cortex-a53
+Installed-Size: 29369
+Description:  An program to config switch.

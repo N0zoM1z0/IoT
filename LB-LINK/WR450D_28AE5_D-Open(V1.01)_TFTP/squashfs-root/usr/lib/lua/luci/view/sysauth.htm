@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LB-LINK</title>
+		<link rel="icon" type="image/x-icon" href="/opsw/img/wireless_icon.png" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/common.css" />
+		<link rel="stylesheet" type="text/css" href="/opsw/css/elementUi.css" />
+		<script src="/opsw/js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/library/ele_language/tr.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hostUrl = '<%=luci.dispatcher.build_url("admin", "opsw", "")%>';
+			var hostUrlSystem = '<%=luci.dispatcher.build_url("admin", "system", "")%>';
+			var hostDomain = '<%=luci.dispatcher.get_host_domain()%>';
+			var login_user = '<%=luci.dispatcher.get_login_user()%>';
+			var model_type = <%=luci.dispatcher.get_devmodel_type()%>;
+			var hw_ver = '<%=luci.dispatcher.get_hw_ver()%>';
+			var fw_ver = '<%=luci.dispatcher.get_fw_ver()%>';
+			var language = '<%=luci.controller.admin.opsw.currentlanguage()%>';
+			localStorage.setItem('language',language);
+		</script>
+		<style type="text/css">
+		     div.el-select{
+				 width: 150px;
+			 }
+		     div.el-select .el-input{
+				 font-size: 13px;
+			 }
+			.header {
+				color: #333;
+				background: #fff url(/opsw/img/header.gif) left top repeat-x;
+			}
+		
+			.styled-select {
+				position: relative;
+				margin: 0 5px;
+			}
+		    
+			.topBar-item {
+				font-size: 13px;
+			}
+			.content-box {
+				width: 340px;
+				height: 220px;
+				margin: 40px auto 0;
+				border: 1px solid #aaa;
+				box-shadow: 5px 3px 25px #222;
+				border-radius: 4px;
+				background-color: #FCFCFC;
+				box-sizing: border-box;
+				padding: 20px 25px;
+				text-align: center;
+			}
+		
+			.content-box h3 {
+				font-size: 15px;
+				font-weight: 550;
+				margin: 15px 0;
+			}
+		
+			.content-box input {
+				margin: 15px 0;
+				height: 30px;
+				border: 1px solid #4598aa;
+				width: 230px;
+				text-indent: 12px;
+			}
+		
+			.content-box button {
+				padding: 12px 46px;
+				margin: 15px 0;
+				background-color: #4598AA;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container" style="display: none;" :style="{display:'block'}">
+			<div class="header" style="padding: 0;">
+				<div class="topBar WR900 flex flex-between flex-align">
+					<div class="topBar-item">
+						<a>
+							<img src="/opsw/img/logo.png">
+						</a>
+					</div>
+					<div class="topBar-item">
+						<label>{{ $t("modeName") }}:</label>
+						<span >BL-WR450D</span>
+					</div>
+					<div class="topBar-item">
+						<label>{{ $t("hardwareName") }}:</label>
+						<span>{{hw_ver}}</span>
+					</div>
+					<div class="topBar-item">
+						<label>{{ $t("firmwareVersion") }}:</label>
+						<span>{{fw_ver}}</span>
+					</div>
+					<div class="topBar-item flex flex-align">
+						<label>{{ $t("language") }}:</label>
+						<el-select v-model="curLanguage" @change="setLanguage" :placeholder="$t('plsChoose')" style="margin-left:5px;">
+							<el-option :key="0" value="TR" label="Turkey"></el-option>
+							<el-option :key="1" value="EN" label="English"></el-option>
+						</el-select>
+					</div>
+				</div>
+			</div>
+			<div class="content">
+				<div class="content-box">
+					<h3>{{ $t("adminPwd") }}</h3>
+					<input type="text" v-model="loginPwd" @keyup.enter="loginIn" ref="loginPwdRef" />
+					<button @click="loginIn">{{ $t("login") }}</button>
+				</div>
+			</div>
+			<div class="layer" v-if="layerShow"></div>
+			<div class="operaTips" v-if="layerShow">
+				<!-- <img src="/opsw/images/loading.gif"> -->
+				<span>{{tips}}</span>
+			</div>
+			<div class="footer ac WR900" style="margin-top:100px;">
+				<p class="copyright">{{$t('copyRightTip')}}</p>
+			</div>
+		</div>
+		<script src="/opsw/js/language.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/opsw/js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			vm.getVersion();
+			vm.$refs.loginPwdRef.focus();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="wifi"></adv-child-menu>
+  <div class="advance-box">
+  	<x-help :text="lang_t('wifi.help_adv')"></x-help>
+	<br><br>
+	<div class="fun-box">
+	  <table class="table" v-show="wifiDualband != '0'">
+	    <tr>
+		  <td class="btn-tab-m">
+			  <a @click="wifiChange('0')" :class="['btn-tab',wifiActive == '0' ? 'btn-tab-active' : '']">2.4GHz</a>
+			  <a @click="wifiChange('1')" :class="['btn-tab',wifiActive == '1' ? 'btn-tab-active' : '']">5GHz</a>
+		  </td>
+	    </tr>       
+	  </table>
+	  <br v-show="wifiDualband != '0'">
+	  <table class="table">
+	    <tbody>
+        <tr> 
+          <td class="fun-left">{{ lang_t('wifi.roam') }}</td>
+          <td>
+            <input type="text" v-model="roamThreshold" maxlength="4" v-verify="fromRule" data-name="roamThreshold" :disabled="wifiDis">&nbsp;&nbsp;
+			<small>({{ lang_t('wifi.range') }}:-100-0)</small>
+          </td>
+        </tr>
+		<tr v-if="globalConfig.elinkWebSupport"> 
+		  <td class="fun-left">{{ lang_t('wifi.tx_power') }}</td>
+		  <td>
+            <select v-model="txPower" :disabled="wifiDis">
+			  <option value=0>{{lang_t('qos.high')}}</option>
+			  <option value=1>{{lang_t('qos.medium')}}</option>
+			  <option value=2>{{lang_t('qos.low')}}</option>
+			</select>
+          </td>
+		</tr>
+		<tr v-else> 
+		  <td class="fun-left">{{ lang_t('wifi.tx_power') }}</td>
+		  <td>
+            <select v-model="txPower" :disabled="wifiDis">
+			  <option value=0>{{ lang_t('wifi.level1') }}</option>
+			  <option value=1>{{ lang_t('wifi.level2') }}</option>
+			  <option value=2>{{ lang_t('wifi.level3') }}</option>
+			  <!-- <option value=0>100%</option>
+			  <option value=1>75%</option>
+			  <option value=2>50%</option>
+			  <option value=3>35%</option>
+			  <option value=4>15%</option> -->
+			</select>
+          </td>
+		</tr>
+		<tr> 
+          <td class="fun-left">{{ lang_t('wifi.sta_num') }}</td>
+          <td>
+            <input type="text" v-model="maxSta" maxlength="3" v-verify="fromRule" data-name="maxSta" :disabled="wifiDis">&nbsp;&nbsp;
+			<small>({{ lang_t('wifi.range') }}:1~{{globalConfig.wifiMaxNum}})</small>
+          </td>
+        </tr>
+        <tr> 
+          <td class="fun-left">{{ lang_t('wifi.ap_isolated') }}</td>
+          <td>
+          	<x-checkbox v-model="noForwarding" :disabled="wifiDis"></x-checkbox>
+          </td>
+        </tr>
+		<tr v-if="globalConfig.bandSteeringSupport && wifiActive != '0'">
+		  <td class="fun-left">{{ lang_t('wifi.band_steer') }}</td>
+		  <td>
+		    <x-checkbox v-model="bandSteering" :disabled="wifiDis"></x-checkbox>
+		  </td>
+		</tr>
+		<tr><td colspan="2"></td></tr>
+		<tr>
+		  <td class="fun-left"></td>
+		  <td>
+			<button type="button" class="btn" @click="applyFun" :disabled="wifiDis">{{ lang_t('common.apply') }}</button>
+		  </td>
+		</tr>
+	    </tbody> 
+	  </table>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,wifiActive:"0",wifiDis:!1,wifiDualband:"0",roamThreshold:"0",maxSta:"",txPower:"0",noForwarding:!1,wmmCapable:!1,bandSteering:!1}},computed:{fromRule:function(){var t=this;return{roamThreshold:function(i,a){i==parseInt(i)&&i<=0?a():0<i||i<-100?a(t.lang_t("wifi.msg20",[-100,0])):parseInt(i)!=i&&a(t.lang_t("wifi.msg21",[-100,0]))},maxSta:function(i,a){var n=cs.num_range(i,1,globalConfig.wifiMaxNum);1==cs.num(i)?a(t.lang_t("wifi.sta_num")+t.lang_t("wifi.msg7")):99!=n?a(t.lang_t("wifi.sta_num")+t.lang_t("rule.msg56",[1,globalConfig.wifiMaxNum])):a()}}}},created:function(){var i=location.href.split("idx=");null!=i[1]&&(this.wifiActive=i[1]),this.advInit(this.wifiActive)},methods:{wifiChange:function(i){cs.local(i,"href")},advInit:function(a){var n=this,i={};i.wifiIdx=a,uiPost.getWiFiAdvancedCfg(i,function(i){n.wifiDualband=i.wifiDualband,n.wmmCapable="1"==i.wmmCapable,n.wifiDis="1"==i.wifiOff,"1"==a&&globalConfig.bandSteeringSupport&&(n.bandSteering="1"==i.bandSteering),n.noForwarding="1"==i.noForwarding,n.roamThreshold=i.roamThreshold,n.txPower=i.txPower,n.maxSta=i.maxSta,n.bandSteering="1"==i.bandSteering})},applyFun:function(){var a=this,n={};Cstool.Verify(this.fromRule,function(i){i&&(a.wifiActive,n.wifiIdx=a.wifiActive,n.roamThreshold=a.roamThreshold,n.txPower=a.txPower,n.maxSta=a.maxSta,n.noForwarding=a.noForwarding?"1":"0",n.wmmCapable=a.wmmCapable?"1":"0",globalConfig.bandSteeringSupport&&"0"!=a.wifiActive&&(n.bandSteering=a.bandSteering?"1":"0"),uiPost.setWiFiAdvancedCfg(n,function(i){applyCallback(i,10,function(){cs.local(a.wifiActive,"href")})}))})}}}</script><script src="/static/js/main.js"></script></body></html>

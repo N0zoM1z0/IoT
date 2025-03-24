@@ -1,0 +1,67 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function Opt66_download_cfg(id)
+{
+	if(!validateCode())
+	    return false;
+
+	if (id == '1')
+		document.location.href='/cgi-bin/config_download.cgi?action=Spec';
+	else
+		document.location.href='/cgi-bin/config_download.cgi?action=Global';
+}
+</script>
+
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_SettingsOpt66Backup"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td langkey="LK_BackupOpt66Text"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_BackupOpt66Text_1"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_BackupOpt66Text_2"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+			<script>PrintTriButton("backup",getStr("LK_BackupOpt66Setting_Global"),"Opt66_download_cfg('0');" );</script>
+			</td>
+		</tr>
+		<tr width="100" height="23"><td></td></tr>
+		<tr>
+			<td>
+			<script>PrintTriButton("backup_1",getStr("LK_BackupOpt66Setting_Spec"),"Opt66_download_cfg('1');" );</script>
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+</body>
+</html>

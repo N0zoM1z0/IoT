@@ -1,0 +1,8 @@
+Package: stund
+Version: 1.1-1
+Depends: libc, libpolarssl, libuci
+Source: package/network/services/stund
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 15015
+Description:  stund

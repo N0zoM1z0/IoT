@@ -1,0 +1,388 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<style type="text/css"><!-- 
+    input.yearLength { width:40px;}
+    input.timeLength { width:26px;}
+    --></style>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+<!--#getobject "InternetGatewayDevice.Time. Enable Status NTPServer1 NTPServer2 NTPServer3 NTPServer4 NTPServer5 X_CT-COM_NTPInterval X_CT-COM_RetryInterval LocalTimeZoneName LocalTimeZone DaylightSavingsUsed DaylightSavingsStart DaylightSavingsEnd" -->
+    var G_Enable = "<!--#leaf "1"-->";
+    var G_Status = "<!--#leaf "2"-->";
+    var G_NTPServer1 = "<!--#leaf "3"-->";
+    var G_NTPServer2 = "<!--#leaf "4"-->";
+    var G_NTPServer3 = "<!--#leaf "5"-->";
+    var G_NTPServer4 = "<!--#leaf "6"-->";
+    var G_NTPServer5 = "<!--#leaf "7"-->";
+    var G_UpdateInterval = "<!--#leaf "8"-->";
+    var G_RetryInterval    = "<!--#leaf "9"-->";
+    var G_LocalTimeZoneName = "<!--#leaf "10"-->";
+    var G_LocalTimeZone = "<!--#leaf "11"-->";
+    var G_DaylightSavingsUsed = "<!--#leaf "12"-->";
+    var G_DaylightSavingsStart = "<!--#leaf "13"-->";
+    var G_DaylightSavingsEnd = "<!--#leaf "14"-->";
+<!--#endgetobject -->
+
+function init(){
+    initElement();
+    var DaylightSavingsStart = G_DaylightSavingsStart.split('T');
+    var DaylightSavingsEnd   = G_DaylightSavingsEnd.split('T');
+    var DaylightSavings = [].concat(DaylightSavingsStart[0].split('-'),DaylightSavingsStart[1].split(':'),DaylightSavingsEnd[0].split('-'),DaylightSavingsEnd[1].split(':'));
+    setValue("INPUT_Enable", G_Enable);
+    setValue("INPUT_NTPServer1", G_NTPServer1);
+    setValue("INPUT_NTPServer2", G_NTPServer2);
+    setValue("INPUT_NTPServer3", G_NTPServer3);
+    setValue("INPUT_NTPServer4", G_NTPServer4);
+    setValue("INPUT_NTPServer5", G_NTPServer5);
+    setValue("INPUT_UpdateInterval", G_UpdateInterval);
+    setValue("INPUT_RetryInterval", G_RetryInterval);
+    setValue("INPUT_TimeZone", G_LocalTimeZone);
+    setValue("INPUT_DaylightSavingsUsed", G_DaylightSavingsUsed);
+    setValue("INPUT_StartYear", DaylightSavings[0]);
+    setValue("INPUT_StartMonth", DaylightSavings[1]);
+    setValue("INPUT_StartDay", DaylightSavings[2]);
+    setValue("INPUT_StartHour", DaylightSavings[3]); 
+    setValue("INPUT_StartMinute", DaylightSavings[4]);   
+    setValue("INPUT_StartSecond", DaylightSavings[5]);           
+    setValue("INPUT_EndYear", DaylightSavings[6]);
+    setValue("INPUT_EndMonth", DaylightSavings[7]);
+    setValue("INPUT_EndDay", DaylightSavings[8]);
+    setValue("INPUT_EndHour", DaylightSavings[9]); 
+    setValue("INPUT_EndMinute", DaylightSavings[10]);   
+    setValue("INPUT_EndSecond", DaylightSavings[11]);                              
+}
+
+function initElement(){
+    checkTimeZone();
+    if(G_Enable == '1'){
+         $('INPUT_Enable').checked = true;
+    }else if(G_Enable == '0'){
+        $('INPUT_Enable').checked = false;
+    }
+      if(G_DaylightSavingsUsed == '1'){
+        $('INPUT_DaylightSavingsUsed').checked = true;
+        $('INPUT_StartYear').disabled = false;
+        $('INPUT_StartMonth').disabled = false;
+        $('INPUT_StartDay').disabled = false;
+        $('INPUT_StartHour').disabled = false;
+        $('INPUT_StartMinute').disabled = false;
+        $('INPUT_StartSecond').disabled = false;
+        $('INPUT_EndYear').disabled = false;
+        $('INPUT_EndMonth').disabled = false;
+        $('INPUT_EndDay').disabled = false;
+        $('INPUT_EndHour').disabled = false;
+        $('INPUT_EndMinute').disabled = false;
+        $('INPUT_EndSecond').disabled = false;
+      }else if(G_DaylightSavingsUsed == '0'){
+        $('INPUT_DaylightSavingsUsed').checked = false;
+        $('INPUT_StartYear').disabled = true;
+        $('INPUT_StartMonth').disabled = true;
+        $('INPUT_StartDay').disabled = true;
+        $('INPUT_StartHour').disabled = true;
+        $('INPUT_StartMinute').disabled = true;
+        $('INPUT_StartSecond').disabled = true;
+        $('INPUT_EndYear').disabled = true;
+        $('INPUT_EndMonth').disabled = true;
+        $('INPUT_EndDay').disabled = true;
+        $('INPUT_EndHour').disabled = true;
+        $('INPUT_EndMinute').disabled = true;
+        $('INPUT_EndSecond').disabled = true;
+    }
+}
+
+function uiSubmit()
+{
+    var object_path="InternetGatewayDevice.Time.";    
+    var df = document.Timedataform; 
+    var _node = $('INPUT_StartYear','INPUT_StartMonth','INPUT_StartDay','INPUT_StartHour','INPUT_StartMinute','INPUT_StartSecond','INPUT_EndYear','INPUT_EndMonth','INPUT_EndDay','INPUT_EndHour','INPUT_EndMinute','INPUT_EndSecond');
+    var DaylightSavingsStart = _node[0].value + '-' + _node[1].value + '-' + _node[2].value + 'T' + _node[3].value + ':' + _node[4].value + ':' + _node[5].value;
+    var DaylightSavingsEnd   = _node[6].value + '-' + _node[7].value + '-' + _node[8].value + 'T' + _node[9].value + ':' + _node[10].value + ':' + _node[11].value;
+    if(getValue('INPUT_UpdateInterval').length <= 0)
+	{
+		top.AlertMsg(getStr('LK_nullnumber'),"INPUT_UpdateInterval");
+		return false;
+	}	
+    if(!isAllNum(getValue('INPUT_UpdateInterval'))){ 
+        	top.AlertMsg(getStr('LK_number'),"INPUT_UpdateInterval");
+                return false;
+    }else if (getValue('INPUT_UpdateInterval')<0 || getValue('INPUT_UpdateInterval')>86400) {
+        top.AlertMsg(getStr("LK_UpdateInterval"),"INPUT_UpdateInterval");
+        return false;
+    }
+    if(getValue('INPUT_RetryInterval').length <=0)
+	{
+		top.AlertMsg(getStr('LK_nullnumber'),"INPUT_RetryInterval");
+	}	
+    if(!isAllNum(getValue('INPUT_RetryInterval'))){  
+        	top.AlertMsg(getStr('LK_number'),"INPUT_RetryInterval");
+        return false;
+    }else if (getValue('INPUT_RetryInterval')<1 || getValue('INPUT_RetryInterval')>3600) {
+        top.AlertMsg(getStr("LK_RetryInterval"),"INPUT_RetryInterval");
+        return false;
+    }
+	if(!validateCode())
+		return false;
+    if($('INPUT_Enable').checked==true){
+        AddElements(df, object_path+"Enable", 1);
+    }else{
+        AddElements(df, object_path+"Enable", 0);
+    }
+    AddElements(df, object_path+"NTPServer1", getValue('INPUT_NTPServer1'));
+    AddElements(df, object_path+"NTPServer2", getValue('INPUT_NTPServer2'));
+    AddElements(df, object_path+"NTPServer3", getValue('INPUT_NTPServer3'));
+    AddElements(df, object_path+"NTPServer4", getValue('INPUT_NTPServer4'));
+    AddElements(df, object_path+"NTPServer5", getValue('INPUT_NTPServer5'));
+    AddElements(df, object_path+"X_CT-COM_NTPInterval", getValue('INPUT_UpdateInterval'));
+    AddElements(df, object_path+"X_CT-COM_RetryInterval", getValue('INPUT_RetryInterval'));
+    AddElements(df, object_path+"LocalTimeZoneName", searchTimeZoneName(getValue('INPUT_RetryInterval')));
+    AddElements(df, object_path+"LocalTimeZone", getValue('INPUT_TimeZone'));
+    if($('INPUT_DaylightSavingsUsed').checked==true){
+        AddElements(df, object_path+"DaylightSavingsUsed", 1);
+        AddElements(df, object_path+"DaylightSavingsStart", DaylightSavingsStart);
+        AddElements(df, object_path+"DaylightSavingsEnd",DaylightSavingsEnd);
+    }else{
+        AddElements(df, object_path+"DaylightSavingsUsed", 0);
+    }
+    df.submit();
+}
+
+function searchTimeZoneName(){
+    var timeZoneNameMap = {
+        '-12:00':'IDLW',
+        '-11:00':'SST',
+        '-10:00':'HST',
+        '-09:00':'YST',
+        '-08:00':'PST',
+        '-07:00':'MST',
+        '-06:00':'CST',
+        '-05:00':'EST',
+        '-04:00':'AST',
+        '-03:00':'BST',
+        '-02:00':'FST',
+        '-01:00':'EGT',
+        '+00:00':'GMT',
+        '+01:00':'CET',
+        '+02:00':'EET',
+        '+03:00':'BST',
+        '+04:00':'GST',
+        '+05:00':'PKT',
+        '+05:30':'IST',
+        '+06:00':'BDT',
+        '+07:00':'THA',
+        '+08:00':'CCT',
+        '+09:00':'JST',
+        '+10:00':'AEST',
+        '+11:00':'SBT',
+        '+12:00':'NZT'
+    };
+
+    for(var i in timeZoneNameMap){
+        if(i == arguments[0]){
+            return timeZoneNameMap[i];
+        }
+    }
+    return G_LocalTimeZoneName;
+}
+
+function DisplayStatusLang(G_Status){
+    var statusName='';
+
+    if(G_Status == 'Unsynchronized' || G_Status == 'Disable')
+    {
+        statusName = getStr("LK_Timenotsync");
+    }
+    else if(G_Status == 'Synchronized')
+    {
+        statusName = getStr("LK_Timehadsync");
+    }
+    else if(G_Status == 'Synchronizing')
+    {
+        statusName = getStr("LK_Timesyncing");     
+    }
+    else if(G_Status == 'Error_FailedToSynchronize')
+    {
+        statusName = getStr("LK_Timesyncerr");     
+    }
+
+    return statusName;
+}
+
+function checkTimeZone(){
+    var TimeZone = $('INPUT_TimeZone').options;
+    for(var i = 0; i < TimeZone.length; i++){
+        if(G_LocalTimeZone == '' || TimeZone[i].value == G_LocalTimeZone){
+            return;
+        }
+    }
+    TimeZone[26] = new Option('(GMT' + (G_LocalTimeZone.indexOf('-') > -1 ? G_LocalTimeZone.replace(/\-/,'+') : G_LocalTimeZone.replace(/\+/,'-')) + ')');
+    TimeZone[26].value = G_LocalTimeZone;
+}
+
+function ctrlDayLightDisplay(){
+    if($('INPUT_DaylightSavingsUsed').checked==true){
+        $('INPUT_StartYear').disabled = false;
+        $('INPUT_StartMonth').disabled = false;
+        $('INPUT_StartDay').disabled = false;
+        $('INPUT_StartHour').disabled = false;
+        $('INPUT_StartMinute').disabled = false;
+        $('INPUT_StartSecond').disabled = false;
+        $('INPUT_EndYear').disabled = false;
+        $('INPUT_EndMonth').disabled = false;
+        $('INPUT_EndDay').disabled = false;
+        $('INPUT_EndHour').disabled = false;
+        $('INPUT_EndMinute').disabled = false;
+        $('INPUT_EndSecond').disabled = false;
+    }else if($('INPUT_DaylightSavingsUsed').checked==false){
+        $('INPUT_StartYear').disabled = true;
+        $('INPUT_StartMonth').disabled = true;
+        $('INPUT_StartDay').disabled = true;
+        $('INPUT_StartHour').disabled = true;
+        $('INPUT_StartMinute').disabled = true;
+        $('INPUT_StartSecond').disabled = true;
+        $('INPUT_EndYear').disabled = true;
+        $('INPUT_EndMonth').disabled = true;
+        $('INPUT_EndDay').disabled = true;
+        $('INPUT_EndHour').disabled = true;
+        $('INPUT_EndMinute').disabled = true;
+        $('INPUT_EndSecond').disabled = true;
+    }
+}
+
+function updateTime(obj)
+{
+    var str=obj.split("?");
+    time=str[0];
+    var _status=str[1];
+	$('CUR_TIME').innerHTML = time;
+  $('DIV_Status').innerHTML = DisplayStatusLang(_status);
+	//jQuery("#DIV_Status").html(DisplayStatusLang(_status));
+}
+
+function currentTime()
+{
+	var ajax = Ajax.getInstance("/cgi-bin/time.cgi", "", 0, updateTime);
+	ajax.get();
+}
+                
+function createsel()
+{ 
+	var text = [];
+  var value = [];
+	text = [getStr("LK_GMT_P12"), getStr("LK_GMT_p11"), getStr("LK_GMT_p10"), getStr("LK_GMT_p09"), getStr("LK_GMT_p08"), getStr("LK_GMT_p07"), getStr("LK_GMT_p06"), 
+	getStr("LK_GMT_p05"), getStr("LK_GMT_p04"), getStr("LK_GMT_p03"), getStr("LK_GMT_p02"), getStr("LK_GMT_p01"), getStr("LK_GMT_00"), getStr("LK_GMT_m01"), 
+	getStr("LK_GMT_m02"), getStr("LK_GMT_m03"), getStr("LK_GMT_m04"), getStr("LK_GMT_m05"), getStr("LK_GMT_m05_30"), getStr("LK_GMT_m06"), getStr("LK_GMT_m07"), 
+	getStr("LK_GMT_m08"), getStr("LK_GMT_m09"), getStr("LK_GMT_m10"), getStr("LK_GMT_m11"), getStr("LK_GMT_m12")];
+  value = ['-12:00', '-11:00', '-10:00', '-09:00', '-08:00', '-07:00', '-06:00', '-05:00', '-04:00', '-03:00', '-02:00', '-01:00', '+00:00', '+01:00', '+02:00', '+03:00', '+04:00', '+05:00', '+05:30', '+06:00', '+07:00', '+08:00', '+09:00', '+10:00', '+11:00', '+12:00'];
+	createOptions('INPUT_TimeZone', text, value);
+	text[0].selected='selected';
+}
+               
+function __init()
+{  
+    createsel();
+    jQuery("#DIV_Status").html(DisplayStatusLang(G_Status));
+    init();
+    currentTime();
+    setInterval("currentTime()",1000);
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_TimeSettings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_TimeCurrentLoc"></td>
+	<td id="CUR_TIME"></td>
+</tr>
+<tr>
+	<td width="150" langkey="LK_TimeServiceEnablee"></td>
+	<td><input type="checkbox" name="INPUT_Enable" id="INPUT_Enable"></td>
+</tr>
+<tr>
+	<td langkey="LK_SynchronizationStatuss"></td>
+	<td><span id="DIV_Status"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_TimeServer1"></td>
+	<td><input type="text" maxlength=64 name="INPUT_NTPServer1" id="INPUT_NTPServer1" value=""/></td>
+</tr>
+<tr>
+	<td langkey="LK_TimeServer2"></td>
+	<td><input type="text" maxlength=64 name="INPUT_NTPServer2" id="INPUT_NTPServer2" value=""/></td>
+</tr>
+<tr>
+	<td langkey="LK_TimeServer3"></td>
+	<td><input type="text" maxlength=64 name="INPUT_NTPServer3" id="INPUT_NTPServer3" value=""/></td>
+</tr>
+<tr>
+    	<td langkey="LK_TimeServer4"></td>
+	<td><input type="text" maxlength=64 name="INPUT_NTPServer4" id="INPUT_NTPServer4" value=""/></td>
+</tr>
+<tr>
+	<td langkey="LK_TimeServer5"></td>
+	<td><input type="text" maxlength=64 name="INPUT_NTPServer5" id="INPUT_NTPServer5" value=""/></td>
+</tr>
+<tr>
+	<td langkey="LK_UpdateIntervall"></td>
+	<td><input type="text" maxlength=5 name="INPUT_UpdateInterval" id="INPUT_UpdateInterval" value="" /> <span id="lang_u_seconds" langkey="LK_Seconds"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_RetryIntervall"></td>
+	<td><input type="text" maxlength=4 name="INPUT_RetryInterval" id="INPUT_RetryInterval" value=""/> <span id="lang_r_seconds" langkey="LK_Seconds"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_TimeZone"></td>
+	<td><select name="INPUT_TimeZone" id="INPUT_TimeZone">
+                <option value='-12:00' selected='selected' langkey = "LK_GMT_P12"></option>
+              </select></td>
+</tr>
+<tr>
+	<td langkey="LK_DaylightSavingg"></td>
+	<td><input type="checkbox" name="INPUT_DaylightSavingsUsed" id="INPUT_DaylightSavingsUsed" onClick="ctrlDayLightDisplay()"></td>
+</tr>
+<tr>
+	<td langkey="LK_StartTimee"></td>
+	<td>
+                <input type="text" id="INPUT_StartYear" class="yearLength" maxlength="4"> <span id="lang_years1" langkey="LK_net_year"></span>
+                <input type="text" id="INPUT_StartMonth" class="timeLength" maxlength="2"> <span id="lang_months1" langkey="LK_net_moon"></span>
+                <input type="text" id="INPUT_StartDay" class="timeLength" maxlength="2"> <span id="lang_days1" langkey="LK_net_day"></span>&nbsp;&nbsp;&nbsp;<input type="text" id="INPUT_StartHour" class="timeLength" maxlength="2"> <span id="lang_hours1" langkey="LK_net_hour"></span>
+                <input type="text" id="INPUT_StartMinute" class="timeLength" maxlength="2"> <span id="lang_minutes1" langkey="LK_net_minitus"></span>
+                <input type="text" id="INPUT_StartSecond" class="timeLength" maxlength="2"> <span id="lang_seconds1" langkey="LK_net_seconds"></span>
+            </td>
+</tr>
+<tr>
+	<td langkey="LK_EndTimee"></td>
+	<td>
+                <input type="text" id="INPUT_EndYear" class="yearLength" maxlength="4"> <span id="lang_years2" langkey="LK_net_year"></span>
+                <input type="text" id="INPUT_EndMonth" class="timeLength" maxlength="2"> <span id="lang_months2" langkey="LK_net_moon"></span>
+                <input type="text" id="INPUT_EndDay" class="timeLength" maxlength="2"> <span id="lang_days2" langkey="LK_net_day"></span>&nbsp;&nbsp;&nbsp;<input type="text" id="INPUT_EndHour" class="timeLength" maxlength="2"> <span id="lang_hours2" langkey="LK_net_hour"></span
+                ><input type="text" id="INPUT_EndMinute" class="timeLength" maxlength="2"> <span id="lang_minutes2" langkey="LK_net_minitus"></span>
+                <input type="text" id="INPUT_EndSecond" class="timeLength" maxlength="2"> <span id="lang_seconds2" langkey="LK_net_seconds"></span>
+         </td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td><script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()");</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+</td></tr>
+</table>
+<script>printEndContent()</script>   
+ </form>
+  <form method="post" name ="Timedataform" action="/cgi-bin/setup.cgi?page/management/mngt_internettime.shtml">
+   </form>
+  </body>
+</html>

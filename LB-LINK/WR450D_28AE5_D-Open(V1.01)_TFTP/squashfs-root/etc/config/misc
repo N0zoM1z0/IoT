@@ -1,0 +1,30 @@
+
+config dw_type 'limit'
+
+config wireless 'wifi'
+	option dw_g5 '3'
+	option wps_g24 '1'
+	option wps_g5 '1'
+	option dw_g24 '0'
+
+config rn_typy 'rename'
+
+config portmap 'iptv'
+	option ports '0,1,1,0'
+	option tag '3300'
+	option enable '0'
+
+config guestwifi 'guestwifi'
+	option isolated '1'
+
+config wanport 'wanport'
+	option speed '0'
+
+config upnp 'upnp'
+	option enable '0'
+
+config blackwhitelist 'blackwhitelist'
+	option mode '0'
+	
+config misc 'misc'
+	option language 'EN'

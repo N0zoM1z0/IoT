@@ -1,0 +1,97 @@
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!-- 
+  * { font:12px Arial, Helvetica, sans-serif;}
+  td { background:#FFFFFF; text-align:center;}
+  .title {font-size:14px; font-weight:bold;}
+-->
+</style>
+<script type="text/javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script type="text/javascript">
+
+var interval = 1500; 
+function uiOnload(){
+    var _url = "/cgi-bin/cat_fwimage_time.cgi";
+    ajax = Ajax.getInstance(_url,"",0 , processResult);
+    ajax.get();
+    uiProgress();
+}
+
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+function processResult(responseText)
+{
+    interval=responseText;
+}
+
+var bar = 0;
+var amount ="";
+var ajax = null;
+
+function DoLogin() 
+{ 
+    window.location = "/";
+} 
+
+function uiProgress(){
+    if (bar>=110){ 
+        DoLogin(); 
+        return;
+    }
+
+    if (bar<110){ 
+        setTimeout("uiProgress()", interval); 
+    } 
+    document.upgrading.chart.value=amount ;
+    document.upgrading.percent.value=Math.round(bar*100/110)+"%" ;
+    amount =amount + "|" ;
+    bar= bar+1;
+}
+
+
+window.onload = uiOnload;
+
+</script>
+</head>
+<body >
+<div id="Content">
+<table cellspacing=0 border=0 cellpadding=5 align=center width=600>
+    <tr>
+        <td>
+            <span id="lang_title" class="title" langkey="LK_mngt_fwupgrading">firmware upgrading...</span>
+            <br><br>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span id="lang_notice1" langkey="LK_mngt_upgradingwait">firmware is upgrading... Please wait for a moment</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span id="lang_notice2" langkey="LK_mngt_loginafterupgrading">Please relogin after reboot</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form name="upgrading">
+                <input type="text" name="chart" size="51" style="font-family:Arial; font-weight:bolder; color:#0000FF; background-color:#F0F0F0; padding:0px; border-style:none;">
+                <input type="text" name="percent" size="1" style="font-family:Arial; color:#000000;  background-color:white;text-align:right; border-width:medium; border-style:none;" class="unnamed1">
+            </form>
+        </td>
+    </tr>
+</table>
+</div>
+</body>
+</html>

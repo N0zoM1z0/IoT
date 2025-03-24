@@ -1,0 +1,322 @@
+<script type="text/javascript">
+	(function () {
+		$("#wanTabCon").show();
+		var directRadio = new Radio({
+			targetId: "directRadio",
+			label: label.directMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				$("#vlanId").css("display","none");
+			}
+		});
+		var vlanRadio = new Radio({
+			targetId: "vlanRadio",
+			label: label.vlanMode,
+			name: "iptvModeSet",
+			onClick: function () {
+				$("#vlanId").css("display","block");
+			}
+		});
+		var vlanId = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.vlanId},
+			targetId:"vlanIdInput",
+			props:{type:"number"},
+			check:{blur:checkVlanId}
+		});
+		var iptvBtnSave = new Button({
+			text:btn.save,
+			onClick:function() {
+				var checkRes = true;
+				if (vlanRadio.getValue()) {
+					checkRes = vlanId.checkAll() && checkRes;
+				}
+				if(!checkRes){
+					$("#vlanIdInput input").blur();
+				}
+				else {
+					//设置iptv_manage的work_mode和vlan_id
+					var iptvCfg = {};
+					iptvCfg[uciIptvConfig.fileName] = {};
+					iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)] =  {};
+					iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.workMode] = directRadio.getValue()? "0":"1";
+					iptvCfg[uciIptvConfig.fileName]["iptv_entry_"+(wanIdx+1)][uciIptvConfig.optName.vlanId] = directRadio.getValue()? "0":vlanId.getValue();
+					$.modify(iptvCfg,function(res) {
+						var err_code = res[ERR_CODE];
+						if (err_code == ENONE) {
+							showToast(label.iptvModeChanged);
+						}
+						else {
+							errHandle(err_code);
+						}
+					});
+				}
+			},
+			type:Button.TYPE.PRIMARY,
+			id:"iptvBtnSave",
+			props:{width:"120px", "margin-top":"48px"}
+		});
+
+		var iptvBtnReset = new Button({
+			text: btn.reSelPort,
+			onClick: function () {
+				$(".meshIptvDisable").hide();
+				if (isMultiWan) {
+					$("#subIptvStepTab").css("display","block");
+				}
+				else {
+					$("#iptvStepTab").css("display","block");
+				}
+				stepPage(iptvFirstPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"iptvBtnReset",
+			props:{width:"120px", "margin-top":"48px", "margin-left": "4px"}
+		});
+		var port,portUp,dev_info;
+		var uplinkPortName = isMultiWan? (label.iptvUplinkPort + (wanIdx+1)) : label.iptvUplinkPort;
+		var portName = isMultiWan? (label.iptvPort + (wanIdx+1)) : label.iptvPort;
+
+		function checkVlanId() {
+			if ("" == this.input.value || this.input.value < 1 || this.input.value > 4094) {
+				this.showNote(errStr.vlanIdErr);
+				return false;
+			}
+			return true;
+		}
+
+		function init() {
+			var data = {};
+
+			data[uciIptvConfig.fileName] = {};
+			data[uciIptvConfig.fileName][KEY_TABLE] = uciIptvConfig.secType.iptvEntry;
+
+			$.query(data, function(result) {
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE) {
+					var iptv_entry = result[uciIptvConfig.fileName][uciIptvConfig.secType.iptvEntry][wanIdx]["iptv_entry_"+(wanIdx+1)];
+
+					if (iptv_entry[uciIptvConfig.optName.linkMode] == "1") {//单线复用
+						id("iptvConnectMode").innerHTML = label.gatherMode;
+						if (iptv_entry[uciIptvConfig.optName.workMode] == "0") {
+							directRadio.setValue(true);
+							$("#vlanId").css("display","none");
+						}
+						else {
+							vlanRadio.setValue(true);
+							vlanId.setValue(iptv_entry[uciIptvConfig.optName.vlanId]);
+						}
+
+						// 获取路由器端口数据
+						var data = {};
+
+						data[uciPortConfig.fileName] = {};
+						data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+						$.query(data, function(result){
+							var err_code = result[ERR_CODE];
+							var routerIdx;
+
+							if (err_code == ENONE) {
+								dev_info = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+								initMeshIptvDisable(dev_info);
+								//获取端口数据所在的路由器index
+								var data = {};
+								data[uciPortConfig.fileName] = {};
+								data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.iptv;
+
+								$.query(data, function(result){
+									var err_code = result[ERR_CODE], downlink_dev;
+
+									if (err_code == ENONE) {
+										downlink_dev = result[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_"+(wanIdx+1)][uciPortConfig.optName.downlinkDev];
+										dev_info.forEach(function(router,idx){
+											if (router[uciPortConfig.dynOptName.mac] == downlink_dev || (downlink_dev == "FF-FF-FF-FF-FF-FF" && router[uciPortConfig.dynOptName.cap] == "1")) {
+												routerIdx = idx;
+
+												// 角色为downlink的端口名称设为IPTV口，state设为active
+												router[uciPortConfig.dynOptName.phyInfo].forEach(function(portItem,idx) {
+													if (portItem[uciPortConfig.dynOptName.role] == ("downlink" + (wanIdx+1))) {
+														router[uciPortConfig.dynOptName.phyInfo][idx]["name"] = portName;
+														router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+													}
+												});
+											}
+										});
+
+										port = new PortConfig().initDevInfo("routerPort",JSON.parse(JSON.stringify(dev_info[routerIdx])));
+									}
+								});
+
+							}
+						});
+					}
+					else { //分线传输
+						id("iptvConnectMode").innerHTML = label.aloneMode;
+						$(".iptvUsing").html(label.iptvUpDownUsing);
+						$("#iptvModeCon").css("display","none");
+						$("#vlanId").css("display","none");
+						$("#iptvBtnSave").css("display","none");
+
+						// 获取路由器端口数据
+						var data = {};
+
+						data[uciPortConfig.fileName] = {};
+						data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.devInfo;
+
+						$.query(data, function(result){
+							var err_code = result[ERR_CODE];
+							var routerIdx,routerIdxUp;
+
+							if (err_code == ENONE) {
+								dev_info = result[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+								initMeshIptvDisable(dev_info);
+								//获取端口数据所在的路由器index
+								var data = {};
+								data[uciPortConfig.fileName] = {};
+								data[uciPortConfig.fileName][KEY_TABLE] = uciPortConfig.secType.iptv;
+
+								$.query(data, function(result){
+									var err_code = result[ERR_CODE], downlink_dev;
+
+									if (err_code == ENONE) {
+										downlink_dev = result[uciPortConfig.fileName][uciPortConfig.secType.iptv][wanIdx]["iptv_" + (wanIdx+1)][uciPortConfig.optName.downlinkDev];
+										//判断显示一个还是两个路由
+										if (downlink_dev == "FF-FF-FF-FF-FF-FF") {
+											//一个路由，即上联口和下联口都在主路由上
+											dev_info.forEach(function (router,idx){
+												//找到主路由的index，设置端口状态
+												if (router[uciPortConfig.dynOptName.cap] == "1") {
+													routerIdx = idx;
+
+													router[uciPortConfig.dynOptName.phyInfo].forEach(function(portItem,idx) {
+														if (portItem[uciPortConfig.dynOptName.role] == ("downlink" + (wanIdx+1))) {
+															router[uciPortConfig.dynOptName.phyInfo][idx]["name"] = portName;
+															router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+														}
+														if (portItem[uciPortConfig.dynOptName.role] == ("uplink" + (wanIdx+1))) {
+															router[uciPortConfig.dynOptName.phyInfo][idx]["name"] = uplinkPortName;
+															router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+														}
+													});
+												}
+											});
+										}
+										else {
+											//上联口在主路由，下联口在其他路由
+											dev_info.forEach(function(router,idx) {
+												//找到主路由的index，设置端口状态
+												if (router[uciPortConfig.dynOptName.cap] == "1") {
+													routerIdxUp = idx;
+
+													router[uciPortConfig.dynOptName.phyInfo].forEach(function(portItem,idx) {
+														if (portItem[uciPortConfig.dynOptName.role] == ("uplink" + (wanIdx+1))) {
+															router[uciPortConfig.dynOptName.phyInfo][idx]["name"] = uplinkPortName;
+															router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+														}
+													});
+												}
+												//找到下联口所在路由
+												if (router[uciPortConfig.dynOptName.mac] == downlink_dev) {
+													routerIdx = idx;
+
+													router[uciPortConfig.dynOptName.phyInfo].forEach(function(portItem,idx) {
+														if (portItem[uciPortConfig.dynOptName.role] == ("downlink" + (wanIdx+1))) {
+															router[uciPortConfig.dynOptName.phyInfo][idx]["name"] = portName;
+															router[uciPortConfig.dynOptName.phyInfo][idx]["state"] = "active";
+														}
+													});
+												}
+											});
+											portUp = new PortConfig().initDevInfo("routerPortUp",JSON.parse(JSON.stringify(dev_info[routerIdxUp])));
+										}
+
+										port = new PortConfig().initDevInfo("routerPort",JSON.parse(JSON.stringify(dev_info[routerIdx])));
+									}
+								});
+							}
+						});
+					}
+				}
+			});
+		}
+
+		function initMeshIptvDisable(devInfo){
+			var data = {};
+			data[uciPlc.fileName] = {};
+			data[uciPlc.fileName][KEY_TABLE]= uciPlc.secType.connectedExt;
+			var hasMeshIptvDisable = false;
+			$.query(data, function(result){
+				if (ENONE == result[ERR_CODE]){
+					var childMeshNum = result[uciPlc.fileName][uciPlc.secType.connectedExt].length;
+					var meshNum = childMeshNum + 1;
+					if(devInfo.length < meshNum){
+						hasMeshIptvDisable = true;
+					}else{
+						dev_info.forEach(function(router,idx){
+							if (router[uciPortConfig.dynOptName.subFunc].indexOf("iptv") == -1) {
+								hasMeshIptvDisable = true;
+							}
+						});
+					}
+					if(hasMeshIptvDisable){
+						$(".meshIptvDisable").show();
+					}
+				}
+			});
+		}
+		init();
+	})()
+</script>
+<style type="text/css">
+	div.radioLabel{
+		display: inline-block;
+		margin-right:16px;
+		color: #333333;
+	}
+	#vlanId{
+		position: relative;
+	}
+	#vlanId .vlanInputTips{
+		position: absolute;
+		top: 0;
+		line-height: 32px;
+		margin-left: 384px;
+		font-size: 13px;
+		color: #999999;
+	}
+	.vlanIdTips{
+		font-size: 12px;
+		color: #999999;
+		margin-left: 132px;
+	}
+	#routerPort{
+		margin-top: 24px;
+	}
+	.iptvUsing{
+		color: #999999;
+		display: block;
+		margin-top: 16px;
+		font-size: 13px;
+	}
+</style>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvConnectMode2%}</label>
+	<li class="inputLi state"><span id="iptvConnectMode"></span></li>
+</ul>
+<ul id="iptvModeCon" class="inputCMPT medium">
+	<label class="outerLbl">{%label.iptvMode%}</label>
+	<div id="directRadio" class="radioLabel"></div>
+	<div id="vlanRadio" class="radioLabel"></div>
+</ul>
+<div id="vlanId">
+	<div id="vlanIdInput"></div>
+	<span class="vlanInputTips">{%label.vlanInputTips%}</span>
+	<span class="vlanIdTips">{%label.vlanIdTips%}</span>
+</div>
+<div id="routerPortUp"></div>
+<div id="routerPort"></div>
+<span class="iptvUsing">{%label.iptvUsing%}</span>
+<div id="iptvBtnReset"></div>
+<div id="iptvBtnSave"></div>

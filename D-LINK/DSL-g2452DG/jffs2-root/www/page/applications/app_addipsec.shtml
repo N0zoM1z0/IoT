@@ -1,0 +1,594 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="../../css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+function ConnectionTuple()
+{
+    this.Path = "";
+    this.Name = "";
+	this.ConnectionStatus = "";
+	this.Enable = "";
+	this.ConnectionType = "";
+	this.AddressingType = "";
+	this.IPAddress = "";
+	this.ServiceList = "";
+	this.ConnectionType = "";
+	this.IPMode = "";
+}
+var index = 0;
+var ConnectionS = new Array();
+//WAN Device
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. ConnectionStatus Name Enable ConnectionType AddressingType ExternalIPAddress X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].ConnectionStatus = "<!--#leaf "1"-->";
+	ConnectionS[index].Name = "<!--#leaf "2"-->";
+	ConnectionS[index].Enable = "<!--#leaf "3"-->";
+	ConnectionS[index].ConnectionType = "<!--#leaf "4"-->";
+	ConnectionS[index].AddressingType = "<!--#leaf "5"-->";
+	ConnectionS[index].IPAddress = "<!--#leaf "6"-->";
+	ConnectionS[index].ServiceList = "<!--#leaf "7"-->";
+	ConnectionS[index].ConnectionType = "<!--#leaf "8"-->";
+	ConnectionS[index].IPMode = "<!--#leaf "9"-->";
+    index++;
+    <!--#endgetobject -->
+
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. ConnectionStatus Name Enable ConnectionType AddressingType ExternalIPAddress X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    ConnectionS[index] = new ConnectionTuple();   
+    ConnectionS[index].Path = "<!--#path -->";
+    ConnectionS[index].ConnectionStatus = "<!--#leaf "1"-->";
+	ConnectionS[index].Name = "<!--#leaf "2"-->";
+	ConnectionS[index].Enable = "<!--#leaf "3"-->";
+	ConnectionS[index].ConnectionType = "<!--#leaf "4"-->";
+	ConnectionS[index].AddressingType = "<!--#leaf "5"-->";
+	ConnectionS[index].IPAddress = "<!--#leaf "6"-->";
+	ConnectionS[index].ServiceList = "<!--#leaf "7"-->";
+	ConnectionS[index].ConnectionType = "<!--#leaf "8"-->";
+	ConnectionS[index].IPMode = "<!--#leaf "9"-->";
+    index++;
+    <!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function IPSecTunnelTuple(){
+    this.path="";
+    this.TunnelName="";
+    this.TunnelMode="";
+    this.RemoteGatewayAddress="";
+    this.LocalMode="";
+    this.LocalIP="";
+    this.LocalMask="";
+    this.RemoteMode="";
+    this.RemoteIP="";
+    this.RemoteMask="";    
+    this.KeyMode="";    
+    this.AuthenticationMode="";    
+    this.PreSharedKey="";    
+    this.Certificates="";    
+    this.PerfectForwardSecrecy="";    
+    this.ConnectionMode="";    
+    this.Phase1EncryptionAlgorithm="";    
+    this.Phase1IntegrityAlgorithm="";    
+    this.Phase1DiffieHellmanGroup="";    
+    this.Phase1KeyLifeTime="";    
+    this.Phase2EncryptionAlgorithm="";    
+    this.Phase2IntegrityAlgorithm="";    
+    this.Phase2DiffieHellmanGroup="";    
+    this.Phase2KeyLifeTime="";  
+    this.ManualEncryptionAlgorithm="";  
+    this.ManualEncryptionKey="";  
+    this.ManualAuthenticationAlgorithm="";  
+    this.ManualAuthenticationKey="";  
+    this.ManualSPI="";  
+}
+var index = 0;
+var IPSecList = new Array();
+<!--#getobject "InternetGatewayDevice.Services.X_TRI_IPSec.TunnelList. TunnelName TunnelMode RemoteGatewayAddress LocalMode LocalIP LocalMask RemoteMode RemoteIP RemoteMask KeyMode AuthenticationMode PreSharedKey Certificates PerfectForwardSecrecy ConnectionMode Phase1EncryptionAlgorithm Phase1IntegrityAlgorithm Phase1DiffieHellmanGroup Phase1KeyLifeTime Phase2EncryptionAlgorithm Phase2IntegrityAlgorithm Phase2DiffieHellmanGroup Phase2KeyLifeTime ManualEncryptionAlgorithm ManualEncryptionKey ManualAuthenticationAlgorithm ManualAuthenticationKey ManualSPI WanConnection" -->
+IPSecList[index] = new IPSecTunnelTuple();
+IPSecList[index].path = "<!--#path -->";
+IPSecList[index].TunnelName = "<!--#leaf "1"-->";
+IPSecList[index].TunnelMode = "<!--#leaf "2"-->";
+IPSecList[index].RemoteGatewayAddress = "<!--#leaf "3"-->";
+IPSecList[index].LocalMode = "<!--#leaf "4"-->";
+IPSecList[index].LocalIP = "<!--#leaf "5"-->";
+IPSecList[index].LocalMask = "<!--#leaf "6"-->";
+IPSecList[index].RemoteMode = "<!--#leaf "7"-->";
+IPSecList[index].RemoteIP = "<!--#leaf "8"-->";
+IPSecList[index].RemoteMask = "<!--#leaf "9"-->";
+IPSecList[index].KeyMode = "<!--#leaf "10"-->";
+IPSecList[index].AuthenticationMode = "<!--#leaf "11"-->";
+IPSecList[index].PreSharedKey = "<!--#leaf "12"-->";
+IPSecList[index].Certificates = "<!--#leaf "13"-->";
+IPSecList[index].PerfectForwardSecrecy = "<!--#leaf "14"-->";
+IPSecList[index].ConnectionMode = "<!--#leaf "15"-->";
+IPSecList[index].Phase1EncryptionAlgorithm = "<!--#leaf "16"-->";
+IPSecList[index].Phase1IntegrityAlgorithm = "<!--#leaf "17"-->";
+IPSecList[index].Phase1DiffieHellmanGroup = "<!--#leaf "18"-->";
+IPSecList[index].Phase1KeyLifeTime = "<!--#leaf "19"-->";
+IPSecList[index].Phase2EncryptionAlgorithm = "<!--#leaf "20"-->";
+IPSecList[index].Phase2IntegrityAlgorithm = "<!--#leaf "21"-->";
+IPSecList[index].Phase2DiffieHellmanGroup = "<!--#leaf "22"-->";
+IPSecList[index].Phase2KeyLifeTime = "<!--#leaf "23"-->";
+IPSecList[index].ManualEncryptionAlgorithm = "<!--#leaf "24"-->";
+IPSecList[index].ManualEncryptionKey = "<!--#leaf "25"-->";
+IPSecList[index].ManualAuthenticationAlgorithm = "<!--#leaf "26"-->";
+IPSecList[index].ManualAuthenticationKey = "<!--#leaf "27"-->";
+IPSecList[index].ManualSPI = "<!--#leaf "28"-->";
+IPSecList[index].WanConnection = "<!--#leaf "29"-->";
+index++;
+<!--#endgetobject -->
+function load_wan_select()
+{
+	var options = "";
+    for (i = 0; i < ConnectionS.length; i++)
+    {
+		if (!isBridgedConn(ConnectionS[i].ConnectionType) && ConnectionS[i].ServiceList != 'TR069' && ConnectionS[i].IPMode != '2'){
+			options += "<option value='" + i + "'>" + ConnectionS[i].Name + "</option>";
+        }
+	}
+	jQuery('#wanconn').append(options);
+	jQuery('#wanconn').html(options);    
+
+/*
+
+var _text = [], _value = [];
+    for(var i = 0; i < ConnectionS.length; i++){
+        _text.push(ConnectionS[i].Name);
+        _value.push(ConnectionS[i].Name);
+    }
+    createOptions('wanconn',_text,_value);*/
+}
+
+function backpage()
+{
+	document.location.href = "app_ipsec.shtml"
+}
+
+var G_Operation = "Add";
+var G_EditPath = "";
+function setAdv(obj)
+{
+	if(obj.id == "close")
+	{
+		setDisplay('advsetting', 1);
+		obj.id = "open";
+	}
+	else
+	{
+		setDisplay('advsetting', 0);
+		obj.id = "close";
+	}	
+}
+function isBridgedConn(conntype)
+{
+    if (conntype == 'PPPoE_Bridged' || conntype == 'IP_Bridged')
+        return true;
+    else
+        return false;
+}
+
+function changeSelect(mode,obj)
+{
+	if(mode == 'local')
+	{
+		if(obj.selectedIndex == 0)
+			setDisplay('localmask', 1);
+		else
+			setDisplay('localmask', 0);
+	}
+	else if(mode == 'remote')
+	{
+		if(obj.selectedIndex == 0)
+			setDisplay('remotemask', 1);
+		else
+			setDisplay('remotemask', 0);	
+	}
+	else if(mode == 'keymode')
+	{
+		if(obj.selectedIndex == 0)
+		{
+			setDisplay('manualmode', 0);
+			setDisplay('automode', 1);
+		}
+		else
+		{
+			setDisplay('manualmode', 1);
+			setDisplay('automode', 0);
+		}
+	}
+	else if(mode == 'authmode')
+	{
+		if(obj.selectedIndex == 0)
+		{
+			setDisplay('cer', 0);
+			setDisplay('pre', 1);
+		}
+		else
+		{
+			setDisplay('cer', 1);
+			setDisplay('pre', 0);
+		}
+	}
+}
+function uiSubmit()
+{
+	var df = document.app_ipsec;
+
+	var wanConn = $('wanconn').value;
+    	if (wanConn == '')
+    	{
+		top.AlertMsg(getStr("LK_app_chooseWanConnect"));
+		return false;
+	}
+
+	if(getValue('INPUT_remotegateway') == "0.0.0.0" || !isCheckIPV4($('INPUT_remotegateway'))  )
+	{
+		top.AlertMsg("Invalid remote GW IP");
+		return false;
+	}
+
+	if(getValue('INPUT_localipvpn') == "0.0.0.0"   || !isCheckIPV4($('INPUT_localipvpn')) )
+	{
+		top.AlertMsg("Invalid tunnel local IP");
+		return false;
+	}
+
+	if($('localipmode').selectedIndex == 0 && (!isCheckIPV4($('INPUT_localmask'),0,255)))
+	{
+		top.AlertMsg("Invalid tunnel local mask");
+		return false
+	} 
+
+	if(getValue('INPUT_remotevpn') == "0.0.0.0"  || !isCheckIPV4($('INPUT_remotevpn')) )
+	{
+		top.AlertMsg("Invalid tunnel remote IP");
+		return false;
+	}
+	
+	if($('remoteipmode').selectedIndex == 0 && (!isCheckIPV4($('INPUT_remotemask'),0,255)))
+	{
+		top.AlertMsg("Invalid tunnel remote mask");
+		return false
+	} 
+
+	if(G_Operation=="Add")
+	{
+		var object_path="InternetGatewayDevice.Services.X_TRI_IPSec.TunnelList.{i}."; 
+		AddElements(df, 'add_obj',object_path);
+	}
+	else
+	{
+		var object_path=G_EditPath;
+	}
+
+	AddElements(df, object_path+"TunnelName", getValue('INPUT_tunnelname'));
+	AddElements(df, object_path+"TunnelMode", getValue('SELECT_tunnelmode'));
+	AddElements(df, object_path+"WanConnection", ConnectionS[wanConn].Path);
+
+	AddElements(df, object_path+"RemoteGatewayAddress", getValue('INPUT_remotegateway'));
+	AddElements(df, object_path+"LocalMode", getValue('localipmode'));
+	AddElements(df, object_path+"LocalIP", getValue('INPUT_localipvpn'));
+	if($('localipmode').selectedIndex == 0)
+	{
+		AddElements(df, object_path+"LocalMask", getValue('INPUT_localmask'));
+	} 
+	
+	AddElements(df, object_path+"RemoteMode", getValue('remoteipmode'));
+	AddElements(df, object_path+"RemoteIP", getValue('INPUT_remotevpn'));
+	if($('remoteipmode').selectedIndex == 0)
+	{
+		AddElements(df, object_path+"RemoteMask", getValue('INPUT_remotemask'));
+	} 
+	 
+	if($('keymode').selectedIndex == 0)//auto
+	{
+		AddElements(df, object_path+"KeyMode", "Auto");
+		if($('authmode').selectedIndex == 0)
+		{
+			AddElements(df, object_path+"AuthenticationMode", "PreSharedKey");
+			AddElements(df, object_path+"PreSharedKey", getValue('INPUT_presharekey'));
+		}
+		else
+		{
+			AddElements(df, object_path+"AuthenticationMode", "Certificate");
+		}
+		
+		AddElements(df, object_path+"PerfectForwardSecrecy", getValue('SELECT_PFS'));
+	
+		if($('SELECT_onemode'))
+		{
+			AddElements(df, object_path+"ConnectionMode", getValue('SELECT_onemode'));	
+			AddElements(df, object_path+"Phase1EncryptionAlgorithm", getValue('SELECT_1encry'));	
+			AddElements(df, object_path+"Phase1IntegrityAlgorithm", getValue('SELECT_1integrity'));	
+			AddElements(df, object_path+"Phase1DiffieHellmanGroup", getValue('SELECT_1dhg'));	
+			AddElements(df, object_path+"Phase1KeyLifeTime", getValue('INPUT_1keylifetime'));	
+			AddElements(df, object_path+"Phase2EncryptionAlgorithm", getValue('SELECT_2encry'));	
+			AddElements(df, object_path+"Phase2IntegrityAlgorithm", getValue('SELECT_2integrity'));	
+			AddElements(df, object_path+"Phase2DiffieHellmanGroup", getValue('SELECT_2dhg'));	
+			AddElements(df, object_path+"Phase2KeyLifeTime", getValue('INPUT_2keylifetime'));	
+		}	
+	}
+	else//manual
+	{
+		AddElements(df, object_path+"KeyMode", "Manual");
+		
+		AddElements(df, object_path+"ManualEncryptionAlgorithm", getValue('SELECT_manualencry'));	
+		AddElements(df, object_path+"ManualEncryptionKey", getValue('INPUT_manualencrykey'));	
+		AddElements(df, object_path+"ManualAuthenticationAlgorithm", getValue('SELECT_manualauth'));	
+		AddElements(df, object_path+"ManualAuthenticationKey", getValue('INPUT_manualauthkey'));	
+		AddElements(df, object_path+"ManualSPI", getValue('INPUT_manualspi'));	
+	}	
+	df.submit();  
+}
+function setLocalip()
+{
+	var obj = $('wanconn');	
+    for(var i = 0; i < ConnectionS.length; i++){
+    	if(ConnectionS[i].Name == $('wanconn').options[$('wanconn').selectedIndex].text)
+	{
+		if(ConnectionS[i].IPAddress == "")
+			$('localgatewayip').innerHTML = "0.0.0.0";
+		else		
+			$('localgatewayip').innerHTML = ConnectionS[i].IPAddress;
+		
+		return;
+	}
+    }
+
+}
+function __init()
+{
+	changeSelect('keymode',$('keymode'));
+	changeSelect('authmode',$('authmode'));
+	load_wan_select();
+		
+	var url=window.location.search;
+	if(url.length > 10)
+	{
+		G_Operation = "Edit";
+		var arr = url.toString();
+		var strs = arr.split("&"); 
+		var str= strs[0].split("=");
+		var id=strs[1].split("=");
+		G_Operation =str[1];
+    	G_EditPath =id[1];
+	}
+	if(G_Operation == "Edit")
+	{
+		for(var i = 0; i < IPSecList.length; i++)
+		{
+			if(IPSecList[i].path == G_EditPath)
+			{
+				var wanConnIndex;
+				for (var j = 0; j < ConnectionS.length; j++)
+    				{
+      					if (ConnectionS[j].Path == IPSecList[i].WanConnection ){
+           				wanConnIndex = j + "";
+           				break;
+     					 }
+    				}
+    				setValue('wanconn', wanConnIndex);		
+				setValue("wanconn",IPSecList[i].WanConnection);
+				setValue("INPUT_tunnelname",IPSecList[i].TunnelName);
+				setValue("SELECT_tunnelmode",IPSecList[i].TunnelMode); 
+				setValue("INPUT_remotegateway",IPSecList[i].RemoteGatewayAddress);
+				setValue("localipmode",IPSecList[i].LocalMode);
+				changeSelect("local",$("localipmode"));
+				setValue("INPUT_localipvpn",IPSecList[i].LocalIP);
+				setValue("INPUT_localmask",IPSecList[i].LocalMask);
+				setValue("remoteipmode",IPSecList[i].RemoteMode);
+				changeSelect("remote",$("remoteipmode"));
+				setValue("INPUT_remotevpn",IPSecList[i].RemoteIP);
+				setValue("INPUT_remotemask",IPSecList[i].RemoteMask);
+				setValue("keymode",IPSecList[i].KeyMode);
+				changeSelect('keymode',$('keymode'));
+				setValue("authmode",IPSecList[i].AuthenticationMode);
+				changeSelect('authmode',$('authmode'));
+				setValue("INPUT_presharekey",IPSecList[i].PreSharedKey); 
+				//setValue("",IPSecList[i].Certificates); 
+				setValue("SELECT_PFS",IPSecList[i].PerfectForwardSecrecy); 
+				setValue("SELECT_onemode",IPSecList[i].ConnectionMode);
+				setValue("SELECT_1encry",IPSecList[i].Phase1EncryptionAlgorithm); 
+				setValue("SELECT_1integrity",IPSecList[i].Phase1IntegrityAlgorithm);
+				setValue("SELECT_1dhg",IPSecList[i].Phase1DiffieHellmanGroup);
+				setValue("INPUT_1keylifetime",IPSecList[i].Phase1KeyLifeTime);
+				setValue("SELECT_2encry",IPSecList[i].Phase2EncryptionAlgorithm); 
+				setValue("SELECT_2integrity",IPSecList[i].Phase2IntegrityAlgorithm);
+				setValue("SELECT_2dhg",IPSecList[i].Phase2DiffieHellmanGroup);
+				setValue("INPUT_2keylifetime",IPSecList[i].Phase2KeyLifeTime);
+				setValue("SELECT_manualencry",IPSecList[i].ManualEncryptionAlgorithm);
+				setValue("INPUT_manualencrykey",IPSecList[i].ManualEncryptionKey);
+				setValue("SELECT_manualauth",IPSecList[i].ManualAuthenticationAlgorithm);
+				setValue("INPUT_manualauthkey",IPSecList[i].ManualAuthenticationKey);
+				setValue("INPUT_manualspi",IPSecList[i].ManualSPI);
+			
+			}
+		}	
+	}
+
+	setLocalip();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script> 
+  </head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_IPSecSettings'));</script>
+<table id="tunnelTable" width="800" class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+<tr>
+	<td width="260" langkey="LK_IPSecConnectionNamee"></td>
+	<td><input id="INPUT_tunnelname" type="text" value="new connection"></td>
+</tr>
+<tr>
+	<td langkey="LK_TunnelModee"></td>
+	<td><select id="SELECT_tunnelmode"><option value="ESP">ESP</option><option value="AH">AH</option></select></td>
+</tr>
+<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td langkey="LK_WANConnection_Colon"></td>
+	<td><select id="wanconn" onChange="setLocalip()"></select></td>
+</tr>
+<tr>
+	<td langkey="LK_LocalGatewayy"></td>
+	<td id="localgatewayip">0.0.0.0</td>
+</tr>
+<tr>
+	<td langkey="LK_RemoteGatewayy"></td>
+	<td><input id="INPUT_remotegateway" type="text" value="0.0.0.0"></td>
+</tr>
+<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td langkey="LK_Tunnelfromlocall"></td>
+	<td><select id="localipmode" onChange="changeSelect('local',this)"><option value="0">Subnet</option><option value="1">Single Address</option></select></td>
+</tr>
+<tr>
+	<td langkey="LK_IPAddressforVPNn"></td>
+	<td><input type="text" id="INPUT_localipvpn" value="0.0.0.0"></td>
+</tr>
+<tr id="localmask">
+	<td langkey="LK_IPSubnetmaskk"></td>
+	<td><input type="text" id="INPUT_localmask" value="255.255.255.0"></td>
+</tr>
+<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td langkey="LK_Tunnelfromremotee"></td>
+	<td><select id="remoteipmode" onChange="changeSelect('remote',this)"><option value="0">Subnet</option><option value="1">Single Address</option></select></td>
+</tr>
+<tr>
+	<td langkey="LK_IPAddressforVPNn"></td>
+	<td><input type="text" id="INPUT_remotevpn" value="0.0.0.0"></td>
+</tr>
+<tr id="remotemask">
+	<td langkey="LK_IPSubnetmaskk"></td>
+	<td><input type="text" id="INPUT_remotemask" value="255.255.255.0"></td>
+</tr>
+<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td langkey="LK_KeyExchangeMethodd"></td>
+	<td><select id="keymode" onChange="changeSelect('keymode',this)"><option value="Auto">Auto(IKE)</option><option value="Manual">Manual</option></select></td>
+</tr>
+<tr id="manualmode"><td colspan="2">
+	<table class="TabTable" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="260" langkey="LK_EncryptionAlgorithmm"></td>
+		<td><select id="SELECT_manualencry"><option value="DES">DES</option><option value="3DES">3DES</option><option value="AES(aes-cbc)">AES(aes-cbc)</option></select></td>
+	</tr>
+	<tr>
+		<td langkey="LK_EncryptionKeyy"></td>
+		<td><input id="INPUT_manualencrykey" type="text"> DES: 16 digit Hex, 3DES: 48 digit Hex</td>
+	</tr>
+	<tr>
+		<td langkey="LK_AuthenticationAlgorithmm"></td>
+		<td><select id="SELECT_manualauth"><option value="MD5">MD5</option><option value="SHA1">SHA1</option></select></td>
+	</tr>
+	<tr>
+		<td langkey="LK_AuthenticationKeyy"></td>
+		<td><input id="INPUT_manualauthkey" type="text"> MD5: 32 digit Hex, SHA1: 40 digit Hex</td>
+	</tr>
+	<tr>
+		<td langkey="LK_SPIi"></td>
+		<td><input id="INPUT_manualspi" type="text"> Hex 100-FFFFFFFF</td>
+	</tr>
+	</table>
+</td></tr>
+<tr id="automode"><td colspan="2">
+	<table class="TabTable" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="260" langkey="LK_AuthenticationMethodd"></td>
+		<td><select id="authmode" onChange="changeSelect('authmode',this)"><option value="PreSharedKey">Pre-Shared Key</option><option value="Certificate">Certificate(X.509)</option></select></td>
+	</tr>
+	<tr id="pre">
+		<td langkey="LK_PreSharedKeyy"></td>
+		<td><input type="text" id="INPUT_presharekey" value="key"></td>
+	</tr>
+	<tr id="cer">
+		<td langkey="LK_Certificatess"></td>
+		<td><select></select></td>
+	</tr>
+	<tr>
+		<td langkey="LK_PrefectForwardSecrecyy"></td>
+		<td><select id="SELECT_PFS"><option value="Enable">Enable</option><option value="Disable">Disable</option></select></td>
+	</tr>
+	<tr>
+		<td langkey="LK_AdvancedIKESettingss"></td>
+		<td><script>PrintTriButton("close",getStr('LK_showAdvancedSettings'),"setAdv(this)");</script></td>
+	</tr>
+	<tr id="advsetting" style="display:none"><td colspan="2">
+		<table class="TabTable" cellpadding="0" cellspacing="0">
+		<tr>
+			<tdcolspan="2" langkey="LK_Phase1"></td>
+		</tr>
+		<tr>
+			<td width="260" langkey="LK_Modee"></td>
+			<td><select id="SELECT_onemode"><option value="Main">Main</option><option value="Aggressive">Aggressive</option></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_EncryptionAlgorithmm"></td>
+			<td><select id="SELECT_1encry"><option value="DES">DES</option><option value="3DES">3DES</option><option value="AES">AES</option></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_IntegrityAlgorithmm"></td>
+			<td><select id="SELECT_1integrity"><option value="MD5">MD5</option><option value="SHA1">SHA1</option></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_DHGroupp"></td>
+			<td><select id="SELECT_1dhg"><option value="768bit">768bit</option><option value="1024bit" selected>1024bit</option>
+			<option value="1536bit">1536bit</option><option value="2048bit">2048bit</option>
+			</select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_KeyLifeTimee"></td>
+			<td><input type="text" id="INPUT_1keylifetime" value="3600"></td>
+		</tr>
+		<tr>
+			<td colspan="2" langkey="LK_Phase2"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_EncryptionAlgorithmm"></td>
+			<td><select id="SELECT_2encry"><option value="DES">DES</option><option value="3DES">3DES</option><option value="AES">AES</option></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_IntegrityAlgorithmm"></td>
+			<td><select id="SELECT_2integrity"><option value="MD5">MD5</option><option value="SHA1">SHA1</option></select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_DHGroupp"></td>
+			<td><select id="SELECT_2dhg"><option value="768bit">768bit</option><option value="1024bit" selected>1024bit</option>
+			<option value="1536bit">1536bit</option><option value="2048bit">2048bit</option>
+			</select></td>
+		</tr>
+		<tr>
+			<td langkey="LK_KeyLifeTimee"></td>
+			<td><input type="text" id="INPUT_2keylifetime" value="3600"></td>
+		</tr>
+		</table>
+	</td></tr>
+	</table>	
+</td></tr>
+<tr class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"backpage()");</script>
+	<script>PrintTriButton("save",getStr('LK_Apply'),"uiSubmit()");</script>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+    <form method="post" name ="app_ipsec" action="/cgi-bin/setup.cgi?page/applications/app_ipsec.shtml">
+    </form></body>
+</html>

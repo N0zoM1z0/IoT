@@ -1,0 +1,8 @@
+Package: makeswap
+Version: 1-1
+Depends: libc
+Source: package/miwifi/makeswap
+Section: utils
+Architecture: aarch64_cortex-a53
+Installed-Size: 701
+Description:  make swap.

@@ -1,0 +1,3470 @@
+<?xml version="1.0"?>
+<InternetGatewayDevice type="object">
+	<DeviceSummary type="string(1024)" w="0" const="1"></DeviceSummary>
+	<DeviceInfo type="object" key="sysmgr:devInfo" op="FuncDeviceInfo">
+		<Manufacturer type="string(64)" w="0" const="1">TriductorTechnology,Inc.</Manufacturer>
+		<ManufacturerOUI type="string(6)" w="0" const="1">00E0A6</ManufacturerOUI>
+		<ModelName type="string(64)" w="0" const="1"></ModelName>
+		<Description type="string(256)" w="0" const="1">TriductorHomeGateway</Description>
+		<ModelURL type="string(128)" w="0" const="1">http://www.triductor.com/</ModelURL>
+		<ModelNum type="string(128)" w="0" const="1">TriductorModel</ModelNum>
+		<ProductClass type="string(64)" w="0" const="1"></ProductClass>
+		<ModemFirmwareVersion type="string(64)" w="0" const="1">1.0.0</ModemFirmwareVersion>
+		<SerialNumber type="string(64)" w="0" const="1">001EE3010203</SerialNumber>
+		<SoftwareVersion type="string(64)" w="0" const="1"></SoftwareVersion>
+		<X_TRI_FWVersion type="string(64)" w="0" const="1" hidden="1">V1.2.8l</X_TRI_FWVersion>
+		<X_TRI_Provider type=string w="1" >TM</X_TRI_Provider>
+		<X_TRI_FWTime type="string(64)" w="0" const="1" hidden="1"></X_TRI_FWTime>
+		<MacAddress type="string" w="1">00:00:00:00:00:00</MacAddress>
+		<HardwareVersion type="string(64)" w="0" const="1">v1.0.0</HardwareVersion>
+		<X_TRI_DSPVersion type="string(64)" w="0" const="1"></X_TRI_DSPVersion>
+		<DeviceLog type="string(32k)" w="0" const="1" tr69r_val="@path:/tmp/log/debug.txt"></DeviceLog>
+		<SpecVersion type="string(16)" w="0" const="1">1.0</SpecVersion>
+		<ProvisioningCode type="string(64)" w="1"></ProvisioningCode>
+		<AdditionalSoftwareVersion type="string(64)" w="0" const="1"></AdditionalSoftwareVersion>
+		<AdditionalHardwareVersion type="string(64)" w="0" const="1"></AdditionalHardwareVersion>
+        <X_TRI-UserChange type="string" w="1">Factory</X_TRI-UserChange>
+        <X_TRI-RestartWeb type="bool" w="0">0</X_TRI-RestartWeb>
+		<X_TRI_URLredirect type="object" op="FuncUrlRedirect">
+		<Enable type="bool" w="1">1</Enable>
+		<Period type="uint" w="1">86400</Period>
+		<Url type="string(256)" w="1">web.triductor.com</Url>
+		</X_TRI_URLredirect>
+
+		<EnabledOptions type="string(1024)" w="0"></EnabledOptions>
+		<FirstUseDate type="dateTime" w="0">1970-01-01T00:00:01</FirstUseDate>
+		<UpTime type="uint" w="0">0</UpTime>
+
+		<VendorConfigFileNumberOfEntries type="uint" w="0" const="1">0</VendorConfigFileNumberOfEntries>
+		<VendorConfigFile type="array" w="0" max="8" op="FuncVendorConfigFile">
+			<i type="object">
+				<Name type="string(64)" w="0"></Name>
+				<Date type="dateTime" w="0"></Date>
+				<Version type="string(15)" w="0"></Version>
+				<Description type="string(256)" w="0"></Description>
+			</i>
+		</VendorConfigFile>
+		<X_CT-COM_InterfaceVersion type="string(16)" w="0" const="1"></X_CT-COM_InterfaceVersion>
+		<X_CT-COM_CardInterVersion type="string(16)" w="0" const="1"></X_CT-COM_CardInterVersion>
+		<X_CT-COM_DeviceType type="uint" w="0" const="1">3</X_CT-COM_DeviceType>
+		<X_CT-COM_Card type="bool" w="0" const="1"></X_CT-COM_Card>
+		<X_CT-COM_UPLink type="uint" w="0" const="1"></X_CT-COM_UPLink>
+		<X_CT-COM_Capability type="string" w="0" const="1"></X_CT-COM_Capability>
+
+		<X_CT-COM_FactoryMode type="string" w="0">default_settings</X_CT-COM_FactoryMode>
+		<X_CT-COM_IPForwardModeEnabled type="bool" w="1">0</X_CT-COM_IPForwardModeEnabled>
+
+		<X_CT-COM_ReConnect type="object" op="FuncReConnect">
+			<Enable type="bool" w="1">1</Enable>
+		</X_CT-COM_ReConnect>
+		<X_CT-COM_Ping type="object" op="FuncPing">
+			<Enable type="bool" w="1">0</Enable>
+			<PingNumberOfEntries type="uint" w="0" const="1">0</PingNumberOfEntries>
+			<PingConfig type="array" max="8" w="1" op="FuncPingConfigI" refer="PingNumberOfEntries">
+				<i type="object" w="1">
+					<DiagnosticsState type="string" w="0">None</DiagnosticsState>
+					<Interface type="string(256)" w="1"></Interface>
+					<Host type="string(256)" w="1"></Host>
+					<NumberOfRepetitions type="uint[0:]" w="1">5</NumberOfRepetitions>
+					<Timeout type="uint[1:]" w="1">5</Timeout>
+					<DataBlockSize type="uint[1:60000]" w="1">56</DataBlockSize>
+					<DSCP type="uint[0:63]" w="1">0</DSCP>
+					<Interval type="uint" w="1">1</Interval>
+					<Stop type="bool" w="1">0</Stop>
+					<NumberOfSend type="uint[0:]" w="0">0</NumberOfSend>
+				</i>
+			</PingConfig>
+		</X_CT-COM_Ping>
+		<X_CT-COM_ALGAbility type="object" op="FuncALGAbility">
+			<IPSECEnable w="1" type="bool">1</IPSECEnable>
+			<L2TPEnable w="1" type="bool">1</L2TPEnable>
+			<RTSPEnable w="1" type="bool">1</RTSPEnable>
+			<SIPEnable w="1" type="bool">0</SIPEnable>
+			<H323Enable w="1" type="bool">1</H323Enable>
+			<PPTPEnable w="1" type="bool">1</PPTPEnable>
+			<TFTPEnable w="1" type="bool">1</TFTPEnable>
+			<FTPEnable w="1" type="bool">1</FTPEnable>
+		</X_CT-COM_ALGAbility>
+		<X_CT-COM_MiddlewareMgt type="object" op="FuncMiddlewareMgt">
+			<Tr069Enable type="uint[0:2]" w="1">1</Tr069Enable>
+			<MiddlewareURL type="string" w="1">0.0.0.0:0</MiddlewareURL>
+		</X_CT-COM_MiddlewareMgt>
+		<X_CT-COM_Monitor type="object" op="FuncMonitor">
+			<Enable type="bool" w="1">0</Enable>
+			<MonitorNumberOfEntries type="uint" w="0" const="1">0</MonitorNumberOfEntries>
+			<MonitorConfig type="array" max="1024" op="FuncMonitorConfigI" w="1" refer="MonitorNumberOfEntries">
+				<i type="object" w="1">
+					<TimeList type="string" w="1"></TimeList>
+					<ParaList type="string" w="1"></ParaList>
+					<TRI_SecondsCnt type="uint" w="1"></TRI_SecondsCnt>
+				</i>
+			</MonitorConfig>
+		</X_CT-COM_Monitor>
+		<X_CT-COM_Alarm type="object" op="FuncAlarm">
+			<Enable type="bool" w="1">0</Enable>
+			<AlarmNumber type="string" w="0"></AlarmNumber>
+			<AlarmNumberOfEntries type="uint" w="0" const="1">0</AlarmNumberOfEntries>
+			<AlarmConfig type="array" max="1024" w="1" op="FuncAlarmConfigI" refer="AlarmNumberOfEntries">
+				<i type="object" w="1">
+					<Mode type="uint" w="1">0</Mode>
+					<TimeList type="string" w="1"></TimeList>
+					<Limit-Min type="string" w="1"></Limit-Min>
+					<Limit-Max type="string" w="1"></Limit-Max>
+					<ParaList type="string" w="1"></ParaList>
+					<TRI_SecondsCnt type="uint" w="1"></TRI_SecondsCnt>
+					<TRI_ParaVal type="uint" w="1"></TRI_ParaVal>
+				</i>
+			</AlarmConfig>
+		</X_CT-COM_Alarm>
+		<X_CT-COM_Syslog type="object" op="FuncSyslog">
+			<Enable type="bool" w="1">0</Enable>
+			<Level type="uint" w="1">3</Level>
+		</X_CT-COM_Syslog>
+		<X_CT-COM_IPProtocolVersion type="object" op="FuncIPProtocolVersion">
+			<mode type="int" w="1">3</mode>
+		</X_CT-COM_IPProtocolVersion>
+		<X_CT-COM_UPNP type="object" op="FuncUPNP">
+			<Enable type="bool" w="1">0</Enable>
+			<LANPathName type="string" w="1"></LANPathName>
+			<WANPathName type="string" w="1"></WANPathName>
+			<BlacklistNumberOfEntries type="uint" w="0" const="1">0</BlacklistNumberOfEntries>
+			<Blacklist type="array" max="100" w="1" op="FuncUPNPBlackListI">
+				<i type="object" w="1">
+					<Enable type="bool" w="1">0</Enable>
+					<SrcIP type="string" w="1"></SrcIP>
+				</i>
+			</Blacklist>
+		</X_CT-COM_UPNP>
+		<X_CT-COM_Restore type="object" op="FuncRestore">
+			<Enable w="1" type="bool">0</Enable>
+		</X_CT-COM_Restore>
+		<X_CT-COM_ServiceManage type="object" op="FuncServiceManage">
+			<X_TRI_DebugToolEnable type="bool" w="1">0</X_TRI_DebugToolEnable>
+			<X_TRI_DebugToolPort type="uint" w="1">6000</X_TRI_DebugToolPort>
+			<X_TRI_OneBitEnable type="bool" w="1">0</X_TRI_OneBitEnable>
+		</X_CT-COM_ServiceManage>
+	</DeviceInfo>
+	<X_TRI_SystemState type="object" w="1" key="sysmgr:devInfo">
+		<CPU type="object" w="1" op="FuncCPUState">
+			<CPULoad type="uint" w="1">0</CPULoad>
+		</CPU>	
+		<Mem type="object" w="1" op="FuncMemoryState">
+			<MemTotalFree type="uint" w="1">0</MemTotalFree>
+			<MemTotal type="uint" w="1">0</MemTotal>
+		</Mem>
+	</X_TRI_SystemState>
+	<LANConfigSecurity type="object" key="srvcmgr:srvcdiag" op="FuncLANConfigSecurity">
+		<ConfigPassword type="string" w="1"></ConfigPassword>
+	</LANConfigSecurity>
+	<IPPingDiagnostics type="object" key="srvcmgr:srvcdiag" op="FuncIPPingDiagnostics">
+		<DiagnosticsState type="string" w="1">None</DiagnosticsState>
+		<Interface type="string(256)" w="1">atm1</Interface>
+		<Host type="string(256)" w="1">192.168.1.188</Host>
+		<NumberOfRepetitions type="uint[0:]" w="1">5</NumberOfRepetitions>
+		<Timeout type="uint[1:]" w="1">5000</Timeout>
+		<DataBlockSize type="uint[1:65535]" w="1">56</DataBlockSize>
+		<DSCP type="uint[0:63]" w="1">0</DSCP>
+		<Protocol type="string" w="1">IPv4</Protocol>
+		<SuccessCount type="uint" w="0">0</SuccessCount>
+		<FailureCount type="uint" w="0">0</FailureCount>
+		<AverageResponseTime type="uint" w="0">0</AverageResponseTime>
+		<MinimumResponseTime type="uint" w="0">0</MinimumResponseTime>
+		<MaximumResponseTime type="uint" w="0">0</MaximumResponseTime>
+		<websubmit type="bool" w="1" hidden="1">0</websubmit>
+	</IPPingDiagnostics>
+	<TraceRouteDiagnostics type="object" key="srvcmgr:srvcdiag"  op="FuncTracerouteDiagnostics">
+		<DiagnosticsState type="string" w="1">None</DiagnosticsState>
+		<Interface type="string(256)" w="1"></Interface>
+		<Host type="string(256)" w="1"></Host>
+		<NumberOfTries type="uint[1:3]" w="1">3</NumberOfTries>
+		<Timeout type="uint[1:]" w="1">5000</Timeout>
+		<DataBlockSize type="uint[1:65535]" w="1">38</DataBlockSize>
+		<DSCP type="uint[0:63]" w="1">0</DSCP>
+		<MaxHopCount type="uint[1:64]" w="1">30</MaxHopCount>
+		<ResponseTime type="uint" w="0">0</ResponseTime>
+		<RouteHopsNumberOfEntries type="uint" w="0">0</RouteHopsNumberOfEntries>
+		<RouteHops type="array" w="0" op="FuncTraceRouteDiagnosticsRouteHops" refer="RouteHopsNumberOfEntries">
+			<i type="object" w="0">
+				<HopHost type="string(256)" w="0"></HopHost>
+				<HopHostAddress type="string" w="0"></HopHostAddress>
+				<HopErrorCode type="uint" w="0"></HopErrorCode>
+				<HopRTTimes type="string(16)" w="0"></HopRTTimes>
+			</i>
+		</RouteHops>
+		<websubmit type="bool" w="1" hidden="1">0</websubmit>
+	</TraceRouteDiagnostics>
+	<UDPEchoConfig type="object" key="srvcmgr:srvcdiag">
+		<Enable type="bool" w="1">0</Enable>
+		<Interface type="string(256)" w="1"></Interface>
+		<SourceIPAddress type="string" w="1"></SourceIPAddress>
+		<UDPPort type="uint" w="1"></UDPPort>
+		<EchoPlusEnabled type="bool" w="1">0</EchoPlusEnabled>
+		<EchoPlusSupported type="bool" w="0">0</EchoPlusSupported>
+		<PacketsReceived type="uint" w="0">0</PacketsReceived>
+		<PacketsResponded type="uint" w="0">0</PacketsResponded>
+		<BytesReceived type="uint" w="0">0</BytesReceived>
+		<BytesResponded type="uint" w="0">0</BytesResponded>
+		<TimeFirstPacketReceived type="dateTime" w="0">0001-01-01T00:00:00</TimeFirstPacketReceived>
+		<TimeLastPacketReceived type="dateTime" w="0">0001-01-01T00:00:00</TimeLastPacketReceived>
+	</UDPEchoConfig>
+	<WANDeviceNumberOfEntries type="uint" w="0" const="1">0</WANDeviceNumberOfEntries>
+	<WANDevice type="array" w="0" max="4" key="portmgr:wan">
+		<i type="object" op="FuncWANDeviceI">
+			<X_CT-COM_WANIndex type="string" w="1"></X_CT-COM_WANIndex>
+			<X_CT-COM_WANConnectionIndex type="uint" w="0">0</X_CT-COM_WANConnectionIndex>
+			<WANConnectionNumberOfEntries type="uint" w="0" const="1">0</WANConnectionNumberOfEntries>
+			<WANConnectionDevice type="array" w="1" max="8" depend="WANDSLLinkConfig,WANPTMLinkConfig" op="FuncWANDeviceIConnectionDeviceI" refer="WANConnectionNumberOfEntries">
+				<i type="object" op="FuncWANDeviceIConnectionDeviceI" w="1">
+					<WANPPPConnectionNumberOfEntries type="uint" w="0" const="1">0</WANPPPConnectionNumberOfEntries>
+					<WANPPPConnection type="array" max="1" w="1" op="FuncWANDeviceIConnectionDeviceIPPPI" depend="WANDSLLinkConfig,WANPTMLinkConfig,WANConnectionDevice">
+						<i type="object" w="1" op="FuncWANDeviceIConnectionDeviceIPPPI">
+							<X_TRI_DisableEdit type="bool" w="1">0</X_TRI_DisableEdit>
+							<Name type="string(256)" w="1"></Name>
+							<Enable type="bool" w="1">0</Enable>
+							<Reset type="bool" w="1">0</Reset>
+							<ConnectionStatus type="string" w="0">Disconnected</ConnectionStatus>
+							<PossibleConnectionTypes type="string" w="1">IP_Routed,IP_Bridged</PossibleConnectionTypes>
+							<ConnectionType type="string" w="1"></ConnectionType>
+							<Uptime type="uint" w="0">0</Uptime>
+							<RSIPAvailable type="bool" w="0">0</RSIPAvailable>
+							<PPPoESessionID type="uint" w="1"></PPPoESessionID>
+							<DefaultGateway type="string" w="1"></DefaultGateway>
+							<LastConnectionError type="string" w="0">ERROR_NONE</LastConnectionError>
+							<AutoDisconnectTime type="uint" w="1">0</AutoDisconnectTime>
+							<IdleDisconnectTime type="uint" w="1">300</IdleDisconnectTime>
+							<WarnDisconnectDelay type="uint" w="1">0</WarnDisconnectDelay>
+							<NATEnabled type="bool" w="1">1</NATEnabled>
+							<PPPoEPassThrough type="bool" w="1">0</PPPoEPassThrough>
+							<Username type="string(64)" w="1"></Username>
+							<Password type="string(64)" w="1" tr69r_val=""></Password>
+							<PPPEncryptionProtocol type="string" w="0">None</PPPEncryptionProtocol>
+							<PPPCompressionProtocol type="string" w="0">None</PPPCompressionProtocol>
+							<PPPAuthenticationProtocol type="string" w="0">PAP,CHAP</PPPAuthenticationProtocol>
+							<X_TRI_PPPAuthenticationProtocol type="string" w="1">Auto</X_TRI_PPPAuthenticationProtocol>
+							<X_TRI_PPPoEPassThrough type="bool" w="1">0</X_TRI_PPPoEPassThrough>
+							<X_TRI_ManualConnect type="uint" w="1">0</X_TRI_ManualConnect>
+							<ExternalIPAddress type="string" w="0" Notification="2"></ExternalIPAddress>
+							<RemoteIPAddress type="string" w="0"></RemoteIPAddress>
+							<MaxMRUSize type="uint" w="1">1492</MaxMRUSize>
+							<CurrentMRUSize type="uint" w="0">1492</CurrentMRUSize>
+							<DNSEnabled type="bool" w="1">1</DNSEnabled>
+							<DNSOverrideAllowed type="bool" w="1">0</DNSOverrideAllowed>
+							<DNSServers type="string(64)" w="1"></DNSServers>
+							<MACAddress type="string" w="1">00:00:00:00:00:00</MACAddress>
+							<MACAddressOverride type="bool" w="1">0</MACAddressOverride>
+							<TransportType type="string" w="0"></TransportType>
+							<PPPoEACName type="string" w="1"></PPPoEACName>
+							<PPPoEServiceName type="string" w="1"></PPPoEServiceName>
+							<ConnectionTrigger type="string" w="1">AlwaysOn</ConnectionTrigger>
+							<PPPLCPEcho type="uint" w="1">30</PPPLCPEcho>
+							<PPPLCPEchoRetry type="uint" w="1">5</PPPLCPEchoRetry>
+							<X_TRI_LimitRetryTime type="uint" w="1">0</X_TRI_LimitRetryTime>
+							<X_TRI_RetryTimes type="uint" w="1">3</X_TRI_RetryTimes>
+							<X_TRI_APN type="string" w="1"></X_TRI_APN>
+							<X_TRI_PIN type="string" w="1"></X_TRI_PIN>
+							<X_TRI_DialNumber type="string" w="1"></X_TRI_DialNumber>
+							<X_TRI_DialDelay type="uint" w="1">0</X_TRI_DialDelay>
+							<X_TRI-InetBrMCRuleFlag type="bool" w="0">0</X_TRI-InetBrMCRuleFlag>
+
+							<ShapingRate type="int[-1:]" w="1">-1</ShapingRate>
+							<ShapingBurstSize type="uint" w="1">0</ShapingBurstSize>
+							<MaxMTUSize type="uint" w="1">1492</MaxMTUSize>
+							<CurrentMTUSize type="uint" w="0">1492</CurrentMTUSize>
+							<IPv6NTPServers type="string" w="0"></IPv6NTPServers>
+							<GetIPv6NTPServers type="bool" w="1">0</GetIPv6NTPServers>
+							<DUID type="string" w="1">00:01:00:01:00:00:00:01:00:00:00:00:00:01</DUID>
+							<DUIDConfigType type="string" w="1">Auto</DUIDConfigType>
+							<RemoteIPv6LinkLocalAddress type="string" w="1"></RemoteIPv6LinkLocalAddress>
+							<RouteProtocolRx type="string" w="1">Off</RouteProtocolRx>
+							<Autorun_Password type="string(64)" w="0" hidden="1"></Autorun_Password>
+							<X_TRI_OP60Setting type="string" w="1"></X_TRI_OP60Setting>
+							<X_TRI_OP60SettingEnable type="bool" w="1">0</X_TRI_OP60SettingEnable>
+							<X_TRI_OP66SettingEnable type="bool" w="1">0</X_TRI_OP66SettingEnable>
+							<X_TRI_VlanID type="int" w="1">-1</X_TRI_VlanID>
+							<X_TRI_VlanPriority type="int" w="1">-1</X_TRI_VlanPriority>
+							<X_TRI_VlanPassKeepTag type="bool" w="1">0</X_TRI_VlanPassKeepTag>
+							<X_TRI_VlanTaggingIf type="string" w="1"></X_TRI_VlanTaggingIf>
+							<X_CT-COM_IPMode type="uint" w="1">1</X_CT-COM_IPMode>
+							<X_CT-COM_Aftr type="string(64)" w="1"></X_CT-COM_Aftr>
+							<X_CT-COM_AftrMode type="int" w="1">0</X_CT-COM_AftrMode>
+							<X_CT-COM_Dslite_Enable type="bool" w="1">0</X_CT-COM_Dslite_Enable>
+							<X_TRI_Dslite_Status type="string" w="1">down</X_TRI_Dslite_Status>
+							<X_CT-COM_IPv6DomainName type="string(64)" w="1"></X_CT-COM_IPv6DomainName>
+							<X_CT-COM_DefaultIPv6Gateway type="string(40)" w="1"></X_CT-COM_DefaultIPv6Gateway>
+							<X_CT-COM_IPv6PrefixPltime type="uint" w="1"></X_CT-COM_IPv6PrefixPltime>
+							<X_CT-COM_IPv6PrefixVltime type="uint" w="1"></X_CT-COM_IPv6PrefixVltime>
+							<X_CT-COM_IPv6Prefix type="string(40)" w="1"></X_CT-COM_IPv6Prefix>
+							<X_CT-COM_IPv6PrefixOrigin type="string(32)" w="1">PrefixDelegation</X_CT-COM_IPv6PrefixOrigin>
+							<X_CT-COM_IPv6PrefixAlias type="string(40)" w="1"></X_CT-COM_IPv6PrefixAlias>
+							<X_CT-COM_IPv6PrefixDelegationEnabled type="bool" w="1">1</X_CT-COM_IPv6PrefixDelegationEnabled>
+							<X_CT-COM_IPv6DNSServers type="string" w="1"></X_CT-COM_IPv6DNSServers>
+							<X_CT-COM_IPv6IPAddressOrigin type="string(32)" w="1">DHCPv6</X_CT-COM_IPv6IPAddressOrigin>
+							<X_CT-COM_IPv6IPAddressAlias type="string(40)" w="1"></X_CT-COM_IPv6IPAddressAlias>
+							<X_CT-COM_IPv6AddressPrefixLen type="uint" w="1">128</X_CT-COM_IPv6AddressPrefixLen>
+							<X_CT-COM_IPv6IPAddress type="string(40)" w="1"></X_CT-COM_IPv6IPAddress>
+							<X_CT-COM_IPv6ConnStatus type="string(32)" w="0">Disconnected</X_CT-COM_IPv6ConnStatus>
+							<X_CT-COM_IPv6DNSAddressSource type="string(32)" w="1">DHCPv6</X_CT-COM_IPv6DNSAddressSource>
+							<X_TRI_6RD_Enable type="uint" w="1"></X_TRI_6RD_Enable>
+                            <X_TRI_6RD_TunnelName type="string(40)" w="1"></X_TRI_6RD_TunnelName>	
+                            <X_TRI_6RD_Mechanism type="string(40)" w="1">6RD</X_TRI_6RD_Mechanism> 
+							<X_TRI_6RD_LAN type="string(40)" w="1"></X_TRI_6RD_LAN>
+							<X_TRI_6RD_Act type="uint" w="1"></X_TRI_6RD_Act>
+                            <X_TRI_6RD_IPv4Mask_LEN type="uint" w="1"></X_TRI_6RD_IPv4Mask_LEN>
+                            <X_TRI_6RD_Prefix type="string(40)" w="1"></X_TRI_6RD_Prefix>
+							<X_TRI_6RD_PrefixLen type="uint" w="1"></X_TRI_6RD_PrefixLen>
+							<X_TRI_6RD_BorderRelay type="string(40)" w="1"></X_TRI_6RD_BorderRelay>
+                            <X_TRI_6RD_Auto_IPv4Mask_LEN type="uint" w="1"></X_TRI_6RD_Auto_IPv4Mask_LEN>
+                            <X_TRI_6RD_Auto_Prefix type="string(40)" w="1"></X_TRI_6RD_Auto_Prefix>
+					        <X_TRI_6RD_Auto_PrefixLen type="uint" w="1"></X_TRI_6RD_Auto_PrefixLen>
+							<X_TRI_6RD_Auto_BorderRelay type="string(40)" w="1"></X_TRI_6RD_Auto_BorderRelay>
+                            <X_CT-COM_MulticastVlan type="int" w="1">-1</X_CT-COM_MulticastVlan>
+							<X_CT-COM_ConnectedDeviceName type="string" w="0"></X_CT-COM_ConnectedDeviceName>
+							<X_CT-COM_LanInterface type="string" w="1"></X_CT-COM_LanInterface>
+							<X_CT-COM_ServiceList type="string" w="1">INTERNET</X_CT-COM_ServiceList>
+							<X_CT-COM_LanInterface-DHCPEnable type="bool" w="1">1</X_CT-COM_LanInterface-DHCPEnable>
+							<X_CT-COM_IPForwardList type="string" w="1"></X_CT-COM_IPForwardList>
+							<X_CT-COM_UsrDNSServers type="string" w="1"></X_CT-COM_UsrDNSServers>
+
+							<X_CT-COM_SessionID type="string" w="1"></X_CT-COM_SessionID>
+							<X_CT-COM_PppoeRetryNum type="uint" w="1">0</X_CT-COM_PppoeRetryNum>
+							<X_CT-COM_ConnectionAction type="string" w="1">Disconnect</X_CT-COM_ConnectionAction>
+							<X_CT-COM_ProxyEnable type="bool" w="1">0</X_CT-COM_ProxyEnable>
+							<X_CT-COM_MAXUser type="uint" w="1">1</X_CT-COM_MAXUser>
+							<X_TRI_UnnumberEn type="bool" w="1">0</X_TRI_UnnumberEn>
+							<X_TRI_UnnumberLanPath type="string(256)" w="1"></X_TRI_UnnumberLanPath>
+
+							<Stats type="object" w="0" op="FuncWANDeviceIConnectionDeviceIPPPIStats">
+								<EthernetPacketsReceived type="uint" w="0">0</EthernetPacketsReceived>
+								<EthernetPacketsSent type="uint" w="0">0</EthernetPacketsSent>
+								<EthernetBytesReceived type="uint" w="0">0</EthernetBytesReceived>
+								<EthernetBytesSent type="uint" w="0">0</EthernetBytesSent>
+								<EthernetErrorsSent type="uint" w="0">0</EthernetErrorsSent>
+								<EthernetErrorsReceived type="uint" w="0">0</EthernetErrorsReceived>
+								<EthernetUnicastPacketsSent type="uint" w="0">0</EthernetUnicastPacketsSent>
+								<EthernetUnicastPacketsReceived type="uint" w="0">0</EthernetUnicastPacketsReceived>
+								<EthernetDiscardPacketsSent type="uint" w="0">0</EthernetDiscardPacketsSent>
+								<EthernetDiscardPacketsReceived type="uint" w="0">0</EthernetDiscardPacketsReceived>
+								<EthernetMulticastPacketsSent type="uint" w="0">0</EthernetMulticastPacketsSent>
+								<EthernetMulticastPacketsReceived type="uint" w="0">0</EthernetMulticastPacketsReceived>
+								<EthernetBroadcastPacketsSent type="uint" w="0">0</EthernetBroadcastPacketsSent>
+								<EthernetBroadcastPacketsReceived type="uint" w="0">0</EthernetBroadcastPacketsReceived>
+								<EthernetUnknownProtoPacketsReceived type="uint" w="0">0</EthernetUnknownProtoPacketsReceived>
+							</Stats>
+							<PortMappingNumberOfEntries type="uint" w="0" const="1">0</PortMappingNumberOfEntries>
+							<PortMapping type="array" w="1" max="100" op="FuncWANDeviceIConnectionDeviceIPPPIPortMappingI">
+								<i w="1" type="object">
+									<PortMappingEnabled type="bool" w="1">0</PortMappingEnabled>
+									<PortMappingLeaseDuration type="uint" w="1">0</PortMappingLeaseDuration>
+									<RemoteHost type="string" w="1"></RemoteHost>
+									<ExternalPort type="uint" w="1">0</ExternalPort>
+									<ExternalPortEndRange type="uint" w="1">0</ExternalPortEndRange>
+									<InternalPort type="uint" w="1">0</InternalPort>
+									<PortMappingProtocol type="string" w="1">TCP</PortMappingProtocol>
+									<InternalClient type="string(256)" w="1"></InternalClient>
+									<PortMappingDescription type="string(256)" w="1"></PortMappingDescription>
+									<NatLoopbackEnabled type="bool" w="1">0</NatLoopbackEnabled>
+									<SchedulePath type="string" w="1">Always</SchedulePath>
+									<X_CT-COM_Weight type="string" w="0">0</X_CT-COM_Weight>
+									<X_CT-COM_RemoteMask type="string" w="1"></X_CT-COM_RemoteMask>
+								</i>
+							</PortMapping>
+							<X_CT-COM_DDNSConfigurationNumberOfEntries type="uint" w="0" const="1">0</X_CT-COM_DDNSConfigurationNumberOfEntries>
+							<X_CT-COM_DDNSConfiguration w="1" type="array" max="8" op="FuncWANDeviceIConnectionDeviceIPPPIDDNSI">
+								<i w="1" type="object">
+									<DDNSState type="string" w="0">Unsynchronized</DDNSState>
+									<Key type="string(64)" w="1">Key</Key>
+									<Email type="string(64)" w="1">Email</Email>
+									<DDNSDomainName type="string(256)" w="1">ns1.cammail.net</DDNSDomainName>
+									<CgiPath type="string(128)" w="0">/cgi-bin/gdipupdt.cgi</CgiPath>
+									<Method type="string(16)" w="0">http</Method>
+									<DDNSUsername type="string(256)" w="1">User</DDNSUsername>
+									<DDNSPassword type="string(256)" w="1">Pass</DDNSPassword>
+									<WANInterfaceState type="string" w="0">Disconnected</WANInterfaceState>
+									<DDNSHostName type="string(256)" w="1">myhostname</DDNSHostName>
+									<ServicePort type="string(256)" w="1"></ServicePort>
+									<DDNSProvider type="string(256)" w="1"></DDNSProvider>
+									<DDNSCfgEnabled type="bool" w="1">0</DDNSCfgEnabled>
+									<X_CT-COM_ConnectedDeviceName type="string(256)" w="1"></X_CT-COM_ConnectedDeviceName>
+								</i>
+							</X_CT-COM_DDNSConfiguration>
+							<X_CT-COM_DHCPv6OPTION17NumberOfEntries type="uint" w="0" const="1" hidden="1">0</X_CT-COM_DHCPv6OPTION17NumberOfEntries>
+							<X_CT-COM_DHCPv6OPTION17 type="array" max="8" w="1" hidden="1" op="FuncWANDeviceIConnectionDeviceIPPPIOption17I">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Type type="int" w="1">2</Type>
+									<Value type="string" w="1"></Value>
+									<subopt-code type="int" w="1">0</subopt-code>
+									<sub-option-data type="string" w="1"></sub-option-data>
+								</i>
+							</X_CT-COM_DHCPv6OPTION17>
+							<X_TRI_PortTriggeringNumberOfEntries type="uint" w="0" const="1">0</X_TRI_PortTriggeringNumberOfEntries>
+							<X_TRI_PortTriggering type="array" max="32" w="1" op="FuncWANDeviceIConnectionDeviceIPPPIPortTriggeringI" key="srvcmgr:porttriggering">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Protocol type="string" w="1"></Protocol>
+									<Port type="uint" w="1"></Port>
+									<PortEnd type="uint" w="1"></PortEnd>
+									<OpenProtocol type="string" w="1"></OpenProtocol>
+									<OpenPort type="uint" w="1"></OpenPort>
+									<OpenPortEnd type="uint" w="1"></OpenPortEnd>
+									<Description type="string" w="1"></Description>
+								</i>
+							</X_TRI_PortTriggering>
+						</i>
+					</WANPPPConnection>
+
+					<WANIPConnectionNumberOfEntries type="uint" w="0" const="1">0</WANIPConnectionNumberOfEntries>
+					<WANIPConnection type="array" w="1" max="1" depend="WANDSLLinkConfig,WANPTMLinkConfig,WANConnectionDevice" op="FuncWANDeviceIConnectionDeviceIIPI">
+						<i type="object" op="FuncWANDeviceIConnectionDeviceIIPI" w="1">
+							<X_TRI_DisableEdit type="bool" w="1">0</X_TRI_DisableEdit>
+							<Name type="string(256)" w="1"></Name>
+							<Enable type="bool" w="1">0</Enable>
+							<Reset type="bool" w="1">0</Reset>
+							<ConnectionStatus type="string" w="0">Disconnected</ConnectionStatus>
+							<PossibleConnectionTypes type="string" w="0">IP_Routed,IP_Bridged</PossibleConnectionTypes>
+							<ConnectionType type="string" w="1"></ConnectionType>
+							<Uptime type="uint" w="0">0</Uptime>
+							<RSIPAvailable type="bool" w="0">0</RSIPAvailable>
+							<LastConnectionError type="string" w="0">ERROR_NONE</LastConnectionError>
+							<AutoDisconnectTime type="uint" w="1">0</AutoDisconnectTime>
+							<NATEnabled type="bool" w="1">1</NATEnabled>
+							<AddressingType type="string" w="1">DHCP</AddressingType>
+							<ExternalIPAddress type="string" Notification="2" w="1"></ExternalIPAddress>
+							<SubnetMask type="string" w="1"></SubnetMask>
+							<DefaultGateway type="string" w="1"></DefaultGateway>
+							<DNSEnabled type="bool" w="1">1</DNSEnabled>
+							<DNSOverrideAllowed type="bool" w="1">0</DNSOverrideAllowed>
+							<DNSServers type="string(64)" w="1"></DNSServers>
+							<MACAddress type="string" w="1">00:00:00:00:00:00</MACAddress>
+							<MACAddressOverride type="bool" w="1">0</MACAddressOverride>
+							<ConnectionTrigger type="string" w="1">AlwaysOn</ConnectionTrigger>
+							<MaxMRUSize type="uint" w="1">1500</MaxMRUSize>
+							<MaxMTUSize type="uint" w="1">1500</MaxMTUSize>
+							<ShapingRate type="int[-1:]" w="1">-1</ShapingRate>
+							<ShapingBurstSize type="uint" w="1">0</ShapingBurstSize>
+							<IPv6NTPServers type="string" w="0">1</IPv6NTPServers>
+							<GetIPv6NTPServers type="bool" w="1">0</GetIPv6NTPServers>
+							<DUID type="string" w="1">00:01:00:01:00:00:00:01:00:00:00:00:00:01</DUID>
+							<DUIDConfigType type="string" w="1">Auto</DUIDConfigType>
+							<RouteProtocolRx type="string" w="1">Off</RouteProtocolRx>
+							<X_TRI_OP60Setting type="string" w="1"></X_TRI_OP60Setting>
+							<X_TRI_OP60SettingEnable type="bool" w="1">0</X_TRI_OP60SettingEnable>
+							<X_TRI_OP66SettingEnable type="bool" w="1">0</X_TRI_OP66SettingEnable>
+							<X_TRI_OP120SettingEnable type="bool" w="1">0</X_TRI_OP120SettingEnable>
+							<X_TRI_VlanID type="int" w="1">-1</X_TRI_VlanID>
+							<X_TRI_VlanPriority type="int" w="1">-1</X_TRI_VlanPriority>
+							<X_TRI_VlanPassKeepTag type="bool" w="1">0</X_TRI_VlanPassKeepTag>
+							<X_TRI_VlanTaggingIf type="string" w="1"></X_TRI_VlanTaggingIf>
+							<X_TRI_DhcpTransparent type="int" w="1">0</X_TRI_DhcpTransparent>
+							<X_CT-COM_IPMode type="uint" w="1">1</X_CT-COM_IPMode>
+							<X_CT-COM_Aftr type="string(64)" w="1"></X_CT-COM_Aftr>
+							<X_CT-COM_AftrMode type="int" w="1">0</X_CT-COM_AftrMode>
+							<X_CT-COM_Dslite_Enable type="bool" w="1">0</X_CT-COM_Dslite_Enable>
+							<X_TRI_Dslite_Status type="string" w="1">down</X_TRI_Dslite_Status>
+							<X_CT-COM_IPv6DomainName type="string(64)" w="1"></X_CT-COM_IPv6DomainName>
+							<X_CT-COM_DefaultIPv6Gateway type="string(40)" w="1"></X_CT-COM_DefaultIPv6Gateway>
+							<X_CT-COM_IPv6PrefixPltime type="uint" w="1"></X_CT-COM_IPv6PrefixPltime>
+							<X_CT-COM_IPv6PrefixVltime type="uint" w="1"></X_CT-COM_IPv6PrefixVltime>
+							<X_CT-COM_IPv6Prefix type="string(40)" w="1"></X_CT-COM_IPv6Prefix>
+							<X_CT-COM_IPv6PrefixOrigin type="string(32)" w="1">PrefixDelegation</X_CT-COM_IPv6PrefixOrigin>
+							<X_CT-COM_IPv6PrefixAlias type="string(40)" w="1"></X_CT-COM_IPv6PrefixAlias>
+							<X_CT-COM_IPv6PrefixDelegationEnabled type="bool" w="1">1</X_CT-COM_IPv6PrefixDelegationEnabled>
+							<X_CT-COM_IPv6DNSServers type="string" w="1"></X_CT-COM_IPv6DNSServers>
+							<X_CT-COM_IPv6IPAddressOrigin type="string(32)" w="1">DHCPv6</X_CT-COM_IPv6IPAddressOrigin>
+							<X_CT-COM_IPv6IPAddressAlias type="string(40)" w="1"></X_CT-COM_IPv6IPAddressAlias>
+							<X_CT-COM_IPv6AddressPrefixLen type="uint" w="1">128</X_CT-COM_IPv6AddressPrefixLen>
+							<X_CT-COM_IPv6IPAddress type="string(40)" w="1"></X_CT-COM_IPv6IPAddress>
+							<X_CT-COM_IPv6ConnStatus type="string(32)" w="0">Disconnected</X_CT-COM_IPv6ConnStatus>
+							<X_CT-COM_IPv6DNSAddressSource type="string(32)" w="1">DHCPv6</X_CT-COM_IPv6DNSAddressSource>
+							<X_TRI_6RD_Enable type="uint" w="1"></X_TRI_6RD_Enable>
+                            <X_TRI_6RD_TunnelName type="string(40)" w="1"></X_TRI_6RD_TunnelName>
+                            <X_TRI_6RD_Mechanism type="string(40)" w="1">6RD</X_TRI_6RD_Mechanism>
+                            <X_TRI_6RD_LAN type="string(40)" w="1"></X_TRI_6RD_LAN>
+							<X_TRI_6RD_Act type="uint" w="1"></X_TRI_6RD_Act>
+                            <X_TRI_6RD_IPv4Mask_LEN type="uint" w="1"></X_TRI_6RD_IPv4Mask_LEN>
+                            <X_TRI_6RD_Prefix type="string(40)" w="1"></X_TRI_6RD_Prefix>
+							<X_TRI_6RD_PrefixLen type="uint" w="1"></X_TRI_6RD_PrefixLen>
+							<X_TRI_6RD_BorderRelay type="string(40)" w="1"></X_TRI_6RD_BorderRelay>
+							<X_TRI_6RD_Auto_IPv4Mask_LEN type="uint" w="1"></X_TRI_6RD_Auto_IPv4Mask_LEN>
+                            <X_TRI_6RD_Auto_Prefix type="string(40)" w="1"></X_TRI_6RD_Auto_Prefix>
+							<X_TRI_6RD_Auto_PrefixLen type="uint" w="1"></X_TRI_6RD_Auto_PrefixLen>
+							<X_TRI_6RD_Auto_BorderRelay type="string(40)" w="1"></X_TRI_6RD_Auto_BorderRelay> 
+							<X_CT-COM_MulticastVlan type="int" w="1">-1</X_CT-COM_MulticastVlan>
+							<X_CT-COM_ConnectedDeviceName type="string" w="0"></X_CT-COM_ConnectedDeviceName>
+							<X_CT-COM_LanInterface type="string" w="1"></X_CT-COM_LanInterface>
+							<X_CT-COM_ServiceList type="string" w="1">INTERNET</X_CT-COM_ServiceList>
+							<X_CT-COM_LanInterface-DHCPEnable type="bool" w="1">1</X_CT-COM_LanInterface-DHCPEnable>
+							<X_CT-COM_IPForwardList type="string" w="1"></X_CT-COM_IPForwardList>
+							<X_CT-COM_UsrDNSServers type="string" w="1"></X_CT-COM_UsrDNSServers>
+							<X_TRI_APN type="string" w="1"></X_TRI_APN>
+							<X_TRI_PIN type="string" w="1"></X_TRI_PIN>
+							<X_TRI_DialNumber type="string" w="1"></X_TRI_DialNumber>
+							<X_TRI-InetBrMCRuleFlag type="bool" w="0">0</X_TRI-InetBrMCRuleFlag>
+
+							<Stats type="object" w="0" op="FuncWANDeviceIConnectionDeviceIIPIStats">
+								<EthernetPacketsReceived type="uint" w="0">0</EthernetPacketsReceived>
+								<EthernetPacketsSent type="uint" w="0">0</EthernetPacketsSent>
+								<EthernetBytesReceived type="uint" w="0">0</EthernetBytesReceived>
+								<EthernetBytesSent type="uint" w="0">0</EthernetBytesSent>
+								<EthernetErrorsSent type="uint" w="0">0</EthernetErrorsSent>
+								<EthernetErrorsReceived type="uint" w="0">0</EthernetErrorsReceived>
+								<EthernetUnicastPacketsSent type="uint" w="0">0</EthernetUnicastPacketsSent>
+								<EthernetUnicastPacketsReceived type="uint" w="0">0</EthernetUnicastPacketsReceived>
+								<EthernetDiscardPacketsSent type="uint" w="0">0</EthernetDiscardPacketsSent>
+								<EthernetDiscardPacketsReceived type="uint" w="0">0</EthernetDiscardPacketsReceived>
+								<EthernetMulticastPacketsSent type="uint" w="0">0</EthernetMulticastPacketsSent>
+								<EthernetMulticastPacketsReceived type="uint" w="0">0</EthernetMulticastPacketsReceived>
+								<EthernetBroadcastPacketsSent type="uint" w="0">0</EthernetBroadcastPacketsSent>
+								<EthernetBroadcastPacketsReceived type="uint" w="0">0</EthernetBroadcastPacketsReceived>
+								<EthernetUnknownProtoPacketsReceived type="uint" w="0">0</EthernetUnknownProtoPacketsReceived>
+							</Stats>
+
+							<DHCPClient type="object" w="0">
+								<SentDHCPOptionNumberOfEntries type="uint" w="0" const="1">0</SentDHCPOptionNumberOfEntries>
+								<SentDHCPOption type="array" w="1" max="256">
+									<i w="1" type="object">
+										<Enable type="bool" w="1">0</Enable>
+										<Tag type="uint[1:254]" w="1">1</Tag>
+										<Value type="string(340)" w="1"></Value>
+									</i>
+								</SentDHCPOption>
+								<ReqDHCPOptionNumberOfEntries type="uint" w="0" const="1">0</ReqDHCPOptionNumberOfEntries>
+								<ReqDHCPOption type="array" w="1" max="256">
+									<i w="1" type="object">
+										<Enable type="bool" w="1">0</Enable>
+										<Tag type="uint[1:254]" w="1">1</Tag>
+										<Value type="string(340)" w="1"></Value>
+									</i>
+								</ReqDHCPOption>
+							</DHCPClient>
+
+							<PortMappingNumberOfEntries type="uint" w="0" const="1">0</PortMappingNumberOfEntries>
+							<PortMapping type="array" max="100" w="1" op="FuncWANDeviceIConnectionDeviceIIPIPortMappingI">
+								<i w="1" type="object">
+									<PortMappingEnabled type="bool" w="1">0</PortMappingEnabled>
+									<PortMappingLeaseDuration type="uint" w="1">0</PortMappingLeaseDuration>
+									<RemoteHost type="string" w="1"></RemoteHost>
+									<ExternalPort type="uint" w="1">0</ExternalPort>
+									<ExternalPortEndRange type="uint" w="1">65535</ExternalPortEndRange>
+									<InternalPort type="uint" w="1">0</InternalPort>
+									<PortMappingProtocol type="string" w="1">TCP</PortMappingProtocol>
+									<SchedulePath type="string" w="1">Always</SchedulePath>
+									<InternalClient type="string(256)" w="1"></InternalClient>
+									<PortMappingDescription type="string(256)" w="1"></PortMappingDescription>
+									<NatLoopbackEnabled type="bool" w="1">0</NatLoopbackEnabled>
+									<X_CT-COM_Weight type="string" w="0">0</X_CT-COM_Weight>
+									<X_CT-COM_RemoteMask type="string" w="1">255.255.255.255</X_CT-COM_RemoteMask>
+								</i>
+							</PortMapping>
+							<X_CT-COM_DDNSConfigurationNumberOfEntries type="uint" w="0" const="1">0</X_CT-COM_DDNSConfigurationNumberOfEntries>
+							<X_CT-COM_DDNSConfiguration type="array" w="1" max="8" op="FuncWANDeviceIConnectionDeviceIIPIDDNSI">
+								<i w="1" type="object">
+									<DDNSState type="string" w="0">Unsynchronized</DDNSState>
+									<Key type="string(64)" w="1">Key</Key>
+									<Email type="string(64)" w="1">Email</Email>
+									<DDNSDomainName type="string(256)" w="1">ns1.cammail.net</DDNSDomainName>
+									<CgiPath type="string(128)" w="0">/cgi-bin/gdipupdt.cgi</CgiPath>
+									<Method type="string(16)" w="0">http</Method>
+									<DDNSPassword type="string(256)" w="1">Pass</DDNSPassword>
+									<DDNSUsername type="string(256)" w="1">User</DDNSUsername>
+									<WANInterfaceState type="string" w="0">Disconnected</WANInterfaceState>
+									<DDNSHostName type="string(256)" w="1">myhostname</DDNSHostName>
+									<ServicePort type="string(256)" w="1">80</ServicePort>
+									<DDNSProvider type="string(256)" w="1"></DDNSProvider>
+									<DDNSCfgEnabled type="bool" w="1">0</DDNSCfgEnabled>
+									<X_CT-COM_ConnectedDeviceName type="string(256)" w="1"></X_CT-COM_ConnectedDeviceName>
+								</i>
+							</X_CT-COM_DDNSConfiguration>
+							<DHCPOPTION60NumberOfEntries type="uint" w="0" const="1" hidden="1">0</DHCPOPTION60NumberOfEntries>
+							<X_CT-COM_DHCPOPTION60 type="array" max="8" w="1" hidden="1" op="FuncWANDeviceIConnectionDeviceIIPIOption60I" refer="DHCPOPTION60NumberOfEntries">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Type type="int" w="1">34</Type>
+									<ValueMode type="string" w="1"></ValueMode>
+									<Value type="string" w="1"></Value>
+								</i>
+							</X_CT-COM_DHCPOPTION60>
+							<DHCPOPTION16NumberOfEntries type="uint" w="0" const="1" hidden="1">0</DHCPOPTION16NumberOfEntries>
+							<X_CT-COM_DHCPOPTION16 type="array" max="8" w="1" hidden="1" op="FuncWANDeviceIConnectionDeviceIIPIOption16I" refer="DHCPOPTION16NumberOfEntries">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Type type="int" w="1">34</Type>
+									<ValueMode type="string" w="1"></ValueMode>
+									<Value type="string" w="1"></Value>
+								</i>
+							</X_CT-COM_DHCPOPTION16>
+							<DHCPOPTION17NumberOfEntries type="uint" w="0" const="1" hidden="1">0</DHCPOPTION17NumberOfEntries>
+							<X_CT-COM_DHCPv6OPTION17 type="array" max="8" w="1" hidden="1" op="FuncWANDeviceIConnectionDeviceIIPIOption17I" refer="DHCPOPTION17NumberOfEntries">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Type type="int" w="1">2</Type>
+									<Value type="string" w="1"></Value>
+									<subopt-code type="int" w="1">0</subopt-code>
+									<sub-option-data type="string" w="1"></sub-option-data>
+								</i>
+							</X_CT-COM_DHCPv6OPTION17>
+							<DHCPOPTION125NumberOfEntries type="uint" w="0" const="1" hidden="1">0</DHCPOPTION125NumberOfEntries>
+							<X_CT-COM_DHCPOPTION125 type="array" max="8" w="1" hidden="1" op="FuncWANDeviceIConnectionDeviceIIPIOption125I" refer="DHCPOPTION125NumberOfEntries">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Type type="int" w="1">2</Type>
+									<Value type="string" w="1"></Value>
+									<subopt-code type="int" w="1">0</subopt-code>
+									<sub-option-data type="string" w="1"></sub-option-data>
+								</i>
+							</X_CT-COM_DHCPOPTION125>
+							<X_TRI_PortTriggeringNumberOfEntries type="uint" w="0" const="1">0</X_TRI_PortTriggeringNumberOfEntries>
+							<X_TRI_PortTriggering type="array" max="32" w="1" op="FuncWANDeviceIConnectionDeviceIIPIPortTriggeringI" key="srvcmgr:porttriggering">
+								<i w="1" type="object">
+									<Enable type="bool" w="1">0</Enable>
+									<Protocol type="string" w="1"></Protocol>
+									<Port type="uint" w="1"></Port>
+									<PortEnd type="uint" w="1"></PortEnd>
+									<OpenProtocol type="string" w="1"></OpenProtocol>
+									<OpenPort type="uint" w="1"></OpenPort>
+									<OpenPortEnd type="uint" w="1"></OpenPortEnd>
+									<Description type="string" w="1"></Description>
+								</i>
+							</X_TRI_PortTriggering>
+						</i>
+					</WANIPConnection>
+					<WANEthernetLinkConfig type="object" op="FuncWANDeviceIConnectionDeviceIWANEthernetLinkConfig">
+						<EthernetLinkStatus type="string" w="0">Unavailable</EthernetLinkStatus>
+					</WANEthernetLinkConfig>
+					<WANDSLLinkConfig type="object" depend="WANPTMLinkConfig,WANConnectionDevice" op="FuncWANDeviceIConnectionDeviceIWANDSLLinkConfig">
+						<Enable type="bool" w="1">0</Enable>
+						<LinkStatus type="string" w="0">Unavailable</LinkStatus>
+						<LinkType type="string(256)" w="1">EoA</LinkType>
+						<AutoConfig type="bool" w="1">0</AutoConfig>
+						<ModulationType type="string" w="0">VDSL</ModulationType>
+						<ATMSustainableCellRate type="uint" w="1">0</ATMSustainableCellRate>
+						<ATMMaximumBurstSize type="uint" w="1">0</ATMMaximumBurstSize>
+						<ATMPeakCellRate type="uint" w="1">0</ATMPeakCellRate>
+						<ATMQoS type="string" w="1">UBR</ATMQoS>
+						<ATMAAL type="string" w="0">AAL5</ATMAAL>
+						<ATMEncapsulation type="string" w="1">LLC</ATMEncapsulation>
+						<DestinationAddress type="string" w="1">PVC:0/0</DestinationAddress>
+						<ATMTransmittedBlocks type="uint" w="0">0</ATMTransmittedBlocks>
+						<ATMReceivedBlocks type="uint" w="0">0</ATMReceivedBlocks>
+						<ATMCRCErrors type="uint" w="0">0</ATMCRCErrors>
+						<X_CT-COM_VLAN type="int" w="1">-1</X_CT-COM_VLAN>
+						<X_CT-COM_ATMMinimumCellRate type="uint" w="1">0</X_CT-COM_ATMMinimumCellRate>
+					</WANDSLLinkConfig>
+					<WANATMF5LoopbackDiagnostics type="object" op="FuncWANDeviceIConnectionDeviceIWANATMF5LoopbackDiagnostics">
+						<DiagnosticsState type="string" w="1">None</DiagnosticsState>
+						<NumberOfRepetitions type="uint[1:]" w="1">1</NumberOfRepetitions>
+						<Timeout type="uint[1:]" w="1">0</Timeout>
+						<SuccessCount type="uint" w="0">0</SuccessCount>
+						<FailureCount type="uint" w="0">0</FailureCount>
+						<AverageResponseTime type="uint" w="0">0</AverageResponseTime>
+						<MinimumResponseTime type="uint" w="0">0</MinimumResponseTime>
+						<MaximumResponseTime type="uint" w="0">0</MaximumResponseTime>
+					</WANATMF5LoopbackDiagnostics>
+					<WANPTMLinkConfig type="object" op="FuncWANDeviceIConnectionDeviceIWANPtmLinkConfig">
+						<Enable type="bool" w="1">0</Enable>
+						<LinkStatus type="string" w="0">Unavailable</LinkStatus>
+						<MACAddress type="string" w="0">0/0</MACAddress>
+						<Stats type="object" op="FuncWANDeviceIConnectionDeviceIWANPtmLinkConfigStats">
+							<BytesSent type="uint" w="0">0</BytesSent>
+							<BytesReceived type="uint" w="0">0</BytesReceived>
+							<FramesSent type="uint" w="0">0</FramesSent>
+							<FramesReceived type="uint" w="0">0</FramesReceived>
+							<OOSNearEnd type="uint" w="0">0</OOSNearEnd>
+							<OOSFarEnd type="uint" w="0">0</OOSFarEnd>
+							<ErrorsSent type="uint" w="0">0</ErrorsSent>
+							<ErrorsReceived type="uint" w="0">0</ErrorsReceived>
+							<UnicastPacketsSent type="uint" w="0">0</UnicastPacketsSent>
+							<UnicastPacketsReceived type="uint" w="0">0</UnicastPacketsReceived>
+							<DiscardPacketsSent type="uint" w="0">0</DiscardPacketsSent>
+							<DiscardPacketsReceived type="uint" w="0">0</DiscardPacketsReceived>
+							<MulticastPacketsSent type="uint" w="0">0</MulticastPacketsSent>
+							<MulticastPacketsReceived type="uint" w="0">0</MulticastPacketsReceived>
+							<BroadcastPacketsSent type="uint" w="0">0</BroadcastPacketsSent>
+							<BroadcastPacketsReceived type="uint" w="0">0</BroadcastPacketsReceived>
+							<UnknownProtoPacketsReceived type="uint" w="0">0</UnknownProtoPacketsReceived>
+						</Stats>
+					</WANPTMLinkConfig>
+				</i>
+			</WANConnectionDevice>
+			<WANCommonInterfaceConfig type="object" op="FuncWanDeviceICommonInterfaceConfig">
+				<TotalPacketsReceived type="uint" w="0">0</TotalPacketsReceived>
+				<TotalPacketsSent type="uint" w="0">0</TotalPacketsSent>
+				<TotalBytesReceived type="uint" w="0">0</TotalBytesReceived>
+				<TotalBytesSent type="uint" w="0">0</TotalBytesSent>
+				<WANAccessProvider type="string(256)" w="0"></WANAccessProvider>
+				<PhysicalLinkStatus type="string" w="0">Unavailable</PhysicalLinkStatus>
+				<Layer1DownstreamMaxBitRate type="uint" w="0">0</Layer1DownstreamMaxBitRate>
+				<Layer1UpstreamMaxBitRate type="uint" w="0">0</Layer1UpstreamMaxBitRate>
+				<WANAccessType type="string" w="0"></WANAccessType>
+				<EnabledForInternet type="bool" w="1">1</EnabledForInternet>
+
+
+				<MaximumActiveConnections type="uint" w="0">8</MaximumActiveConnections>
+				<NumberOfActiveConnections type="uint" w="0">0</NumberOfActiveConnections>
+				<Connection type="array" w="0" max="8" op="FuncWanDeviceICommonInterfaceConfigConnectionI">
+					<i type="object">
+						<ActiveConnectionRef type="uint" w="0"></ActiveConnectionRef>
+						<ActiveConnectionServiceID type="string(256)" w="0"></ActiveConnectionServiceID>
+						<ActiveConnectionDeviceContainer type="string(256)" w="0"></ActiveConnectionDeviceContainer>
+					</i>
+				</Connection>
+			</WANCommonInterfaceConfig>
+			<X_TRI_xTMInfo type="object" op="FuncWANDeviceIxTMInfo">
+				<Inoctets type="uint" w="0">0</Inoctets>
+				<Outoctets type="uint" w="0">0</Outoctets>
+				<Inpackets type="uint" w="0">0</Inpackets>
+				<Outpackets type="uint" w="0">0</Outpackets>
+				<InOAMcells type="uint" w="0">0</InOAMcells>
+				<OutOAMcells type="uint" w="0">0</OutOAMcells>
+				<InASMcells type="uint" w="0">0</InASMcells>
+				<OutASMcells type="uint" w="0">0</OutASMcells>
+				<Inpacketerrors type="uint" w="0">0</Inpacketerrors>
+				<Incellerrors type="uint" w="0">0</Incellerrors>
+			</X_TRI_xTMInfo>
+			<WANDSLInterfaceConfig type="object" op="FuncWanDeviceIDSLInterfaceConfig">
+				<SNRMpbus type="string" w="0"></SNRMpbus>
+				<SNRMpbds type="string" w="0"></SNRMpbds>
+				<ACTUALCE type="uint" w="0">0</ACTUALCE>
+				<ACTSNRMODEus type="uint" w="0">0</ACTSNRMODEus>
+				<ACTSNRMODEds type="uint" w="0">0</ACTSNRMODEds>
+				<TRELLISus type="int" w="0">0</TRELLISus>
+				<TRELLISds type="int" w="0">0</TRELLISds>
+				<UPBOKLE type="uint" w="0">0</UPBOKLE>
+				<TotalStart type="uint" w="0">0</TotalStart>
+				<ShowtimeStart type="uint" w="0">0</ShowtimeStart>
+				<LastShowtimeStart type="uint" w="0">0</LastShowtimeStart>
+				<LineEncoding type="string" w="0">QAM</LineEncoding>
+				<CurrentDayStart type="string" w="0">0</CurrentDayStart>
+				<QuarterHourStart type="string" w="0">0</QuarterHourStart>
+				<ATUCCountry type="string(4)" w="0">0000</ATUCCountry>
+				<ATUCVendor type="string(8)" w="0">00000000</ATUCVendor>
+				<ATURCountry type="string(4)" w="0">0000</ATURCountry>
+				<ATURVendor type="string(8)" w="0">00000000</ATURVendor>
+				<ATURVersion type="string(8)" w="0">00000000</ATURVersion>
+				<DownstreamDelay type="uint" w="0"></DownstreamDelay>
+				<UpstreamDelay type="uint" w="0"></UpstreamDelay>
+				<DownstreamInterleaveDelay type="uint" w="0"></DownstreamInterleaveDelay>
+				<UpstreamInterleaveDelay type="uint" w="0"></UpstreamInterleaveDelay>
+				<DownstreamInterleaveDepth type="uint" w="0">0</DownstreamInterleaveDepth>
+				<UpstreamInterleaveDepth type="uint" w="0">0</UpstreamInterleaveDepth>
+				<DownstreamPower type="int" w="0">0</DownstreamPower>
+				<UpstreamPower type="int" w="0">0</UpstreamPower>
+				<DownstreamAttainableRate type="string" w="0">0</DownstreamAttainableRate>
+				<UpstreamAttainableRate type="string" w="0">0</UpstreamAttainableRate>
+				<DownstreamAttenuation type="int" w="0">0</DownstreamAttenuation>
+				<UpstreamAttenuation type="int" w="0">0</UpstreamAttenuation>
+				<DownstreamNoiseMargin type="int" w="0">0</DownstreamNoiseMargin>
+				<UpstreamNoiseMargin type="int" w="0">0</UpstreamNoiseMargin>
+				<DownstreamMaxRate type="uint" w="0">0</DownstreamMaxRate>
+				<UpstreamMaxRate type="uint" w="0">0</UpstreamMaxRate>
+				<DownstreamCurrRate type="uint" w="0">0</DownstreamCurrRate>
+				<UpstreamCurrRate type="uint" w="0">0</UpstreamCurrRate>
+				<InterleaveDepth type="uint" w="0">0</InterleaveDepth>
+				<EstimateDistance type="string" w="0">0</EstimateDistance>
+				<DataPath type="string" w="0">Interleaved</DataPath>
+				<PowerManagementState type="string" w="0"></PowerManagementState>
+				<TrellisCoding type="string" w="0"></TrellisCoding>
+				<CurrentProfile type="string" w="0"></CurrentProfile>
+				<AllowedProfiles type="string" w="1">8a,8b,8c,8d,12a,12b,17a,30a</AllowedProfiles>
+				<LinkEncapsulationUsed type="string" w="0"></LinkEncapsulationUsed>
+				<LinkEncapsulationSupported type="string" w="0">G_992_3_Annex_K_ATM,G_993_2_Annex_K_PTM</LinkEncapsulationSupported>
+				<LinkEncapsulationRequested type="string" w="1"></LinkEncapsulationRequested>
+				<ModulationType type="string" w="0">VDSL</ModulationType>
+				<StandardUsed type="string" w="0"></StandardUsed>
+				<StandardsSupported type="string" w="1"></StandardsSupported>
+				<UpTime type="string" w="0"></UpTime>
+				<Status type="string" w="0">Disabled</Status>
+				<Enable type="bool" w="1">0</Enable>
+				<BitSwapEnable type="bool" w="1">1</BitSwapEnable>
+				<SRAEnable type="bool" w="1">1</SRAEnable>
+				<US0Enable type="bool" w="1">1</US0Enable>
+				<TestParams type="object">
+					<HLOGGds type="uint" w="0">0</HLOGGds>
+					<HLOGGus type="uint" w="0">0</HLOGGus>
+					<HLOGpsds type="string(2559)" w="0">0</HLOGpsds>
+					<HLOGpsus type="string(2559)" w="0">0</HLOGpsus>
+					<HLOGMTds type="uint" w="0">0</HLOGMTds>
+					<HLOGMTus type="uint" w="0">0</HLOGMTus>
+					<QLNGds type="uint" w="0">0</QLNGds>
+					<QLNGus type="uint" w="0">0</QLNGus>
+					<QLNpsds type="string(2047)" w="0">0</QLNpsds>
+					<QLNpsus type="string(2047)" w="0">0</QLNpsus>
+					<QLNMTds type="uint" w="0">0</QLNMTds>
+					<QLNMTus type="uint" w="0">0</QLNMTus>
+					<SNRGds type="uint" w="0">0</SNRGds>
+					<SNRGus type="uint" w="0">0</SNRGus>
+					<SNRpsds type="string(2047)" w="0">0</SNRpsds>
+					<SNRpsus type="string(2047)" w="0">0</SNRpsus>
+					<SNRMTds type="uint" w="0">0</SNRMTds>
+					<SNRMTus type="uint" w="0">0</SNRMTus>
+					<LATNds type="string(24)" w="0">0</LATNds>
+					<LATNus type="string(24)" w="0">0</LATNus>
+					<SATNds type="string(24)" w="0">0</SATNds>
+					<SATNus type="string(24)" w="0">0</SATNus>
+				</TestParams>
+				<Stats type="object">
+					<Total type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsTotal">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</Total>
+					<Showtime type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsShowtime">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</Showtime>
+					<LastShowtime type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsLastShowtime">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</LastShowtime>
+					<CurrentDay type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsCurrentDay">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</CurrentDay>
+					<PreviousDay type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsPreDay">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</PreviousDay>
+					<QuarterHour type="object" op="FuncWanDeviceIDSLInterfaceConfigStatsQuarterHour">
+						<ReceiveBlocks type="uint" w="0">0</ReceiveBlocks>
+						<TransmitBlocks type="uint" w="0">0</TransmitBlocks>
+						<CellDelin type="uint" w="0">0</CellDelin>
+						<LinkRetrain type="uint" w="0">0</LinkRetrain>
+						<InitErrors type="uint" w="0">0</InitErrors>
+						<LInit  type="bool" w="0">0</LInit>
+						<InitTimeouts type="uint" w="0">0</InitTimeouts>
+						<LossOfFraming type="uint" w="0">0</LossOfFraming>
+						<LOF  type="bool" w="0">0</LOF>
+						<ErroredSecs type="uint" w="0">0</ErroredSecs>
+						<ATUCErroredSecs type="uint" w="0">0</ATUCErroredSecs>
+						<SeverelyErroredSecs type="uint" w="0">0</SeverelyErroredSecs>
+						<ATUCSeverelyErroredSecs type="uint" w="0">0</ATUCSeverelyErroredSecs>
+						<FECErrors type="uint" w="0">0</FECErrors>
+						<ATUCFECErrors type="uint" w="0">0</ATUCFECErrors>
+						<HECErrors type="uint" w="0">0</HECErrors>
+						<ATUCHECErrors type="uint" w="0">0</ATUCHECErrors>
+						<CRCErrors type="uint" w="0">0</CRCErrors>
+						<ATUCCRCErrors type="uint" w="0">0</ATUCCRCErrors>
+						<LossOfSignal type="uint" w="0">0</LossOfSignal>
+						<ATUCLossOfFraming type="uint" w="0">0</ATUCLossOfFraming>
+						<ATUCLossOfSignal type="uint" w="0">0</ATUCLossOfSignal>
+					</QuarterHour>
+				</Stats>
+			</WANDSLInterfaceConfig>
+			<WANDongleInterfaceConfig type="object" op="FuncWanDeviceIDongleInterfaceConfig">
+				<Enable type="bool" w="1">0</Enable>
+				<Status type="string" w="0">NoLink</Status>
+				<provider type="string" w="1"></provider>
+				<ppp_status type="string" w="1"></ppp_status>
+				<network_type_var type="string" w="1"></network_type_var>
+				<rssi type="string" w="1"></rssi>
+				<cell_id type="string" w="1"></cell_id>
+				<roam type="string" w="1"></roam>
+				<realtime_up type="string" w="1"></realtime_up>
+				<realtime_down type="string" w="1"></realtime_down>
+				<X_TRI_TTYDEV type="string" w="1"></X_TRI_TTYDEV>
+				<X_TRI_TTYDEV_FIXED type="string" w="1"></X_TRI_TTYDEV_FIXED>
+			</WANDongleInterfaceConfig>
+			<WANEthernetInterfaceConfig type="object" op="FuncWanDeviceIEthernetInterfaceConfig">
+				<Enable type="bool" w="1">0</Enable>
+				<Status type="string" w="0">NoLink</Status>
+				<MACAddress type="string" w="0"></MACAddress>
+				<MaxBitRate type="string" w="1">Auto</MaxBitRate>
+				<DuplexMode type="string" w="1">Auto</DuplexMode>
+				<ShapingRate type="int" w="1">-1</ShapingRate>
+				<ShapingBurstSize type="uint" w="1">0</ShapingBurstSize>
+				<X_TRI_PhyPort type="uint" w="1">0</X_TRI_PhyPort>
+				<X_TRI_PhyIndex type="uint" w="1">0</X_TRI_PhyIndex>
+				<X_TRI_PhyName type="string" w="1"></X_TRI_PhyName>
+				<X_TRI-BitRate type="uint" w="0">0</X_TRI-BitRate>
+				<X_TRI-DuplexMode type="string" w="0"></X_TRI-DuplexMode>
+				<Stats type="object" op="FuncWanDeviceIEthernetInterfaceConfigStats" w="0">
+					<PacketsReceived type="uint" w="0">0</PacketsReceived>
+					<PacketsSent type="uint" w="0">0</PacketsSent>
+					<BytesReceived type="uint" w="0">0</BytesReceived>
+					<BytesSent type="uint" w="0">0</BytesSent>
+				</Stats>
+			</WANEthernetInterfaceConfig>
+			<WANDSLConnectionManagement type="object" op="FuncWanDeviceIDSLConnectionManagement">
+				<ConnectionServiceNumberOfEntries type="uint" w="0" const="1">0</ConnectionServiceNumberOfEntries>
+				<ConnectionService type="array" max="8" w="0" op="FuncWanDeviceIDSLConnectionManagementConnectionDeviceI">
+					<i type="object">
+						<Name type="string(32)" w="0"></Name>
+						<ConnectionType type="string(16)" w="0"></ConnectionType>
+						<LinkType type="string(16)" w="0"></LinkType>
+						<DestinationAddress type="string(256)" w="0"></DestinationAddress>
+						<WANConnectionService type="string(256)" w="0"></WANConnectionService>
+						<WANConnectionDevice type="string(256)" w="0"></WANConnectionDevice>
+					</i>
+				</ConnectionService>
+			</WANDSLConnectionManagement>
+			<WANDSLDiagnostics type="object" op="FuncWanDeviceIDSLDiagnostics">
+				<GAINSpsds type="string(61430)" w="0"></GAINSpsds>
+				<BITSpsus type="string(61430)" w="0"></BITSpsus>
+				<BITSpsds type="string(61430)" w="0"></BITSpsds>
+				<SNRMTus type="uint" w="0">0</SNRMTus>
+				<SNRMTds type="uint" w="0">0</SNRMTds>
+				<SNRpsus type="string(61430)" w="0"></SNRpsus>
+				<SNRpsds type="string(61430)" w="0"></SNRpsds>
+				<SNRGus type="uint" w="0">0</SNRGus>
+				<SNRGds type="uint" w="0">0</SNRGds>
+				<QLNMTus type="uint" w="0">0</QLNMTus>
+				<QLNMTds type="uint" w="0">0</QLNMTds>
+				<QLNpsus type="string(61430)" w="0"></QLNpsus>
+				<QLNpsds type="string(61430)" w="0"></QLNpsds>
+				<QLNGus type="uint" w="0">0</QLNGus>
+				<QLNGds type="uint" w="0">0</QLNGds>
+				<HLINpsus type="string(61430)" w="0"></HLINpsus>
+				<HLINpsds type="string(61430)" w="0"></HLINpsds>
+				<SATNus type="string(24)" w="0"></SATNus>
+				<SATNds type="string(24)" w="0"></SATNds>
+				<LATNpbus type="string(24)" w="0"></LATNpbus>
+				<LATNpbds type="string(24)" w="0"></LATNpbds>
+				<HLOGMTus type="uint" w="0">0</HLOGMTus>
+				<HLOGMTds type="uint" w="0">0</HLOGMTds>
+				<HLOGpsus type="string(2559)" w="0"></HLOGpsus>
+				<HLOGpsds type="string(2559)" w="0"></HLOGpsds>
+				<HLOGGus type="uint" w="0">0</HLOGGus>
+				<HLOGGds type="uint" w="0">0</HLOGGds>
+				<HLINGus type="uint" w="0">0</HLINGus>
+				<HLINGds type="uint" w="0">0</HLINGds>
+				<HLINSCus type="int" w="0">0</HLINSCus>
+				<HLINSCds type="int" w="0">0</HLINSCds>
+				<ACTATPus type="int" w="0">0</ACTATPus>
+				<ACTATPds type="int" w="0">0</ACTATPds>
+				<ACTPSDus type="int" w="0">0</ACTPSDus>
+				<ACTPSDds type="int" w="0">0</ACTPSDds>
+				<LoopDiagnosticsState type="string" w="1">None</LoopDiagnosticsState>
+			</WANDSLDiagnostics>
+		</i>
+	</WANDevice>
+	<LANDeviceNumberOfEntries type="uint" w="0" const="1">0</LANDeviceNumberOfEntries>
+	<LANDevice type="array" max="8" key="portmgr:lan" op="FuncLANDeviceI">
+		<i type="object">
+			<LANEthernetInterfaceNumberOfEntries type="uint" w="0" const="1">0</LANEthernetInterfaceNumberOfEntries>
+			<LANEthernetInterfaceConfig type="array" w="0" max="8" refer="LANEthernetInterfaceNumberOfEntries">
+				<i type="object" op="FuncLANEthernetInterfaceConfigI">
+					<Enable type="bool" w="1">1</Enable>
+					<Status type="string" w="0">Disabled</Status>
+					<Name type="string" w="0" const="1"></Name>
+					<MACAddress type="string" w="0"></MACAddress>
+					<MACAddressControlEnabled type="bool" w="1">0</MACAddressControlEnabled>
+					<MaxBitRate type="string" w="1">Auto</MaxBitRate>
+					<DuplexMode type="string" w="1">Auto</DuplexMode>
+					<X_TRI_PhyPort type="uint" w="1">0</X_TRI_PhyPort>
+					<X_TRI_PhyIndex type="uint" w="1">0</X_TRI_PhyIndex>
+					<X_TRI_PhyName type="string" w="1"></X_TRI_PhyName>
+					<X_TRI-BitRate type="uint" w="0">0</X_TRI-BitRate>
+					<X_TRI-DuplexMode type="string" w="0"></X_TRI-DuplexMode>
+					<X_CT-COM_Mode type="uint" w="1">0</X_CT-COM_Mode>
+					<X_CT-COM_VLAN type="string" w="1"></X_CT-COM_VLAN>
+					<X_CT-COM_Description type="string" w="0" const="1"></X_CT-COM_Description>
+					<X_CT-COM_MACAddressControlAction type="string" w="1">Blacklist</X_CT-COM_MACAddressControlAction>
+					<X_CT-COM_DetectionStatus type="uint" w="0">0</X_CT-COM_DetectionStatus>
+					<Stats type="object" op="FuncLANEthernetInterfaceConfigStats" w="0">
+						<PacketsReceived type="uint" w="0">0</PacketsReceived>
+						<PacketsSent type="uint" w="0">0</PacketsSent>
+						<BytesReceived type="uint" w="0">0</BytesReceived>
+						<BytesSent type="uint" w="0">0</BytesSent>
+						<ErrorsReceived type="uint" w="0">0</ErrorsReceived>
+						<ErrorsSent type="uint" w="0">0</ErrorsSent>
+						<UnicastPacketsSent type="uint" w="0">0</UnicastPacketsSent>
+						<UnicastPacketsReceived type="uint" w="0">0</UnicastPacketsReceived>
+						<DiscardPacketsReceived type="uint" w="0">0</DiscardPacketsReceived>
+						<DiscardPacketsSent type="uint" w="0">0</DiscardPacketsSent>
+						<MulticastPacketsSent type="uint" w="0">0</MulticastPacketsSent>
+						<MulticastPacketsReceived type="uint" w="0">0</MulticastPacketsReceived>
+						<BroadcastPacketsSent type="uint" w="0">0</BroadcastPacketsSent>
+						<BroadcastPacketsReceived type="uint" w="0">0</BroadcastPacketsReceived>
+						<UnknownProtoPacketsReceived type="uint" w="0">0</UnknownProtoPacketsReceived>
+					</Stats>
+				</i>
+			</LANEthernetInterfaceConfig>
+			<LANWLANConfigurationNumberOfEntries type="uint" w="0" const="1">0</LANWLANConfigurationNumberOfEntries>
+			<WLANConfiguration type="array" max="8" op="FuncWLANConfigurationI" refer="LANWLANConfigurationNumberOfEntries">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Name type="string" w="0"></Name>
+					<Isolation type="string" w="1">0</Isolation>
+					<BeaconInterval type="string" w="1">100</BeaconInterval>
+					<RTS_Threshold type="string" w="1">2347</RTS_Threshold>
+					<Fragment_Threshold type="string" w="1">2346</Fragment_Threshold>
+					<Maximum_Clients type="string" w="1">32</Maximum_Clients>
+					<Status type="string" w="0">Disabled</Status>
+					<BSSID type="string" w="0"></BSSID>
+					<MaxBitRate type="string" w="1">Auto</MaxBitRate>
+					<Channel type="uint[0:255]" w="1">0</Channel>
+					<AutoChannelEnable type="bool" w="1">1</AutoChannelEnable>
+					<SSID type="string(32)" w="1"></SSID>
+					<BeaconType type="string" w="1">WPAand11i</BeaconType>
+					<MACAddressControlEnabled type="bool" w="1">0</MACAddressControlEnabled>
+					<Standard type="string" w="1">b,g,n</Standard>
+					<WEPKeyIndex type="uint[1:4]" w="1">1</WEPKeyIndex>
+					<KeyPassphrase type="string(63)" w="1" tr69r_val="">12345678</KeyPassphrase>
+					<WEPEncryptionLevel type="string(64)" w="1">40-bit</WEPEncryptionLevel>
+					<BasicEncryptionModes type="string(31)" w="1">None</BasicEncryptionModes>
+					<BasicAuthenticationMode type="string(31)" w="1">None</BasicAuthenticationMode>
+					<WPAEncryptionModes type="string(31)" w="1">AESEncryption</WPAEncryptionModes>
+					<WPAAuthenticationMode type="string(31)" w="1">PSKAuthentication</WPAAuthenticationMode>
+					<IEEE11iEncryptionModes type="string(31)" w="1">AESEncryption</IEEE11iEncryptionModes>
+					<IEEE11iAuthenticationMode type="string(31)" w="1">PSKAuthentication</IEEE11iAuthenticationMode>
+					<PossibleChannels type="string(1024)" w="0">1-13</PossibleChannels>
+					<BasicDataTransmitRates type="string(256)" w="1">1,2,5.5,6,9,11,12,18,24,36,48,54,108,135,144</BasicDataTransmitRates>
+					<OperationalDataTransmitRates type="string(256)" w="1">1,2,5.5,6,9,11,12,18,24,36,48,54,108,135,144</OperationalDataTransmitRates>
+					<PossibleDataTransmitRates type="string(256)" w="0">1,2,5.5,6,9,11,12,18,24,36,48,54,108,135,144</PossibleDataTransmitRates>
+					<InsecureOOBAccessEnabled type="bool" w="1">0</InsecureOOBAccessEnabled>
+					<BeaconAdvertisementEnabled type="bool" w="1">0</BeaconAdvertisementEnabled>
+					<SSIDAdvertisementEnabled type="bool" w="1">0</SSIDAdvertisementEnabled>
+					<RadioEnabled type="bool" w="1">0</RadioEnabled>
+					<AutoRateFallBackEnabled type="bool" w="1">0</AutoRateFallBackEnabled>
+					<LocationDescription type="string(4096)" w="1"></LocationDescription>
+					<RegulatoryDomain type="string(3)" w="1">CN</RegulatoryDomain>
+					<X_TRI_RegulatoryDomainSupported type="string" w="0">CN,HK,MO,TW</X_TRI_RegulatoryDomainSupported>
+					<ChannelsInUse type="string(1024)" w="0"></ChannelsInUse>
+					<DeviceOperationMode type="string" w="1">InfrastructureAccessPoint</DeviceOperationMode>
+					<DistanceFromRoot type="uint" w="1">0</DistanceFromRoot>
+					<PeerBSSID type="string" w="1"></PeerBSSID>
+					<AuthenticationServiceMode type="string" w="1">None</AuthenticationServiceMode>
+					<TotalAssociations type="uint" w="0">0</TotalAssociations>
+					<TotalPacketsReceived type="uint" w="0">0</TotalPacketsReceived>
+					<TotalPacketsSent type="uint" w="0">0</TotalPacketsSent>
+					<TotalBytesReceived type="uint" w="0">0</TotalBytesReceived>
+					<TotalBytesSent type="uint" w="0">0</TotalBytesSent>
+
+					<DTIM type="uint[1:15]" w="1">1</DTIM>
+					<WMMSupported type="bool" w="0">1</WMMSupported>
+					<WMMEnable type="bool" w="1">0</WMMEnable>
+					<UAPSDSupported type="bool" w="0">1</UAPSDSupported>
+					<UAPSDEnable type="bool" w="1">0</UAPSDEnable>
+					<WEPKeyFormat type="uint[0:4]" w="1">1</WEPKeyFormat>
+					<PowerSave type="bool" w="1">0</PowerSave>
+					<TransmitPower type="uint" w="1">100</TransmitPower>
+					<TransmitPowerSupported type="string(64)" w="0">10,25,30,50,80,100</TransmitPowerSupported>
+					<X_TRI_Name type="string" w="0"></X_TRI_Name>
+					<X_CT-COM_SSIDHide type="bool" w="1">0</X_CT-COM_SSIDHide>
+					<X_CT-COM_Powerlevel type="uint" w="1">1</X_CT-COM_Powerlevel>
+					<X_CT-COM_PowerValue type="uint" w="0">17</X_CT-COM_PowerValue>
+					<X_CT-COM_RetryTimeout type="uint[0:65535]" w="1">20</X_CT-COM_RetryTimeout>
+					<X_CT-COM_WPSKeyWord type="uint[0:128]" w="1">128</X_CT-COM_WPSKeyWord>
+					<X_CT-COM_GuardInterval type="uint[0:1]" w="1">0</X_CT-COM_GuardInterval>
+					<X_CT-COM_RFBand type="uint[0:1]" w="1">0</X_CT-COM_RFBand>
+					<X_CT-COM_ChannelWidth type="uint[0:5]" w="1">0</X_CT-COM_ChannelWidth>
+					<X_CT-COM_DetectionStatus type="uint" w="0">0</X_CT-COM_DetectionStatus>
+					<X_CT-COM_PSKExpression type="string" w="1">KeyPassphrase</X_CT-COM_PSKExpression>
+
+					<Stats type="object" w="0" op="FuncWLANConfigurationIStats">
+						<UnknownProtoPacketsReceived type="uint" w="0">0</UnknownProtoPacketsReceived>
+						<BroadcastPacketsReceived type="uint" w="0">0</BroadcastPacketsReceived>
+						<BroadcastPacketsSent type="uint" w="0">0</BroadcastPacketsSent>
+						<MulticastPacketsReceived type="uint" w="0">0</MulticastPacketsReceived>
+						<MulticastPacketsSent type="uint" w="0">0</MulticastPacketsSent>
+						<DiscardPacketsReceived type="uint" w="0">0</DiscardPacketsReceived>
+						<DiscardPacketsSent type="uint" w="0">0</DiscardPacketsSent>
+						<UnicastPacketsReceived type="uint" w="0">0</UnicastPacketsReceived>
+						<UnicastPacketsSent type="uint" w="0">0</UnicastPacketsSent>
+						<ErrorsReceived type="uint" w="0">0</ErrorsReceived>
+						<ErrorsSent type="uint" w="0">0</ErrorsSent>
+					</Stats>
+					<AssociatedDeviceNumberOfEntries type="uint" w="0" const="1">0</AssociatedDeviceNumberOfEntries>
+					<AssociatedDevice type="array" w="0" op="FuncWLANConfigurationAssociatedDeviceI">
+						<X_TRI-vanguard type="string" w="0"></X_TRI-vanguard>
+						<i type="object" w="0">
+							<AssociatedDeviceMACAddress type="string" w="0">00:00:00:00:00:00</AssociatedDeviceMACAddress>
+							<AssociatedDeviceIPAddress type="string(64)" w="0"></AssociatedDeviceIPAddress>
+							<AssociatedDeviceAuthenticationState type="bool" w="0">0</AssociatedDeviceAuthenticationState>
+							<LastRequestedUnicastCipher type="string(256)" w="0"></LastRequestedUnicastCipher>
+							<LastRequestedMulticastCipher type="string(256)" w="0"></LastRequestedMulticastCipher>
+							<LastPMKId type="string(256)" w="0"></LastPMKId>
+							<LastDataTransmitRate type="string(4)" w="0"></LastDataTransmitRate>
+						</i>
+					</AssociatedDevice>
+					<WEPKeyNumberOfEntries type="uint" w="0" const="1">0</WEPKeyNumberOfEntries>
+					<WEPKey type="array" max="4">
+						<i type="object" depend="WLANConfiguration" op="FuncWLANConfigurationIWEPKeyI">
+							<WEPKey type="string(128)" w="1"></WEPKey>
+							<websubmit type="bool" w="1" hidden="1">0</websubmit>
+						</i>
+					</WEPKey>
+					<PreSharedKeyNumberOfEntries type="uint" w="0" const="1">0</PreSharedKeyNumberOfEntries>
+					<PreSharedKey type="array" max="4">
+						<i type="object" depend="WLANConfiguration" op="FuncWLANConfigurationIPreSharedKeyI">
+							<AssociatedDeviceMACAddress type="string" w="1"></AssociatedDeviceMACAddress>
+							<KeyPassphrase type="string(63)" w="1" tr69r_val="">undefined</KeyPassphrase>
+							<PreSharedKey type="string(64)" w="1" tr69r_val="">3132333435363738</PreSharedKey>
+						</i>
+					</PreSharedKey>
+					<WPS type="object" w="0" op="FuncWLANConfigurationWPS">
+						<Enable type="bool" w="1">1</Enable>
+						<DeviceName type="string(32)" w="0"></DeviceName>
+						<DevicePassword type="string" w="1"></DevicePassword>
+						<IsMatchCondition type="string" w="0">0</IsMatchCondition>
+						<GeneratePinStatus type="string" w="0"></GeneratePinStatus>
+						<WpsSessionStatus type="string" w="0"></WpsSessionStatus>
+						<PeerPassword type="string" w="1"></PeerPassword>
+						<GeneratePin type="string" w="1">0</GeneratePin>
+						<StartWpsSession type="string" w="1">0</StartWpsSession>
+						<RegistrarEstablished type="bool" w="0">0</RegistrarEstablished>
+						<RegistrarNumberOfEntries type="uint" w="0" const="1">0</RegistrarNumberOfEntries>
+						<Registrar type="array" max="8">
+							<i type="object">
+								<Enable type="bool" w="1">0</Enable>
+								<UUID type="string(36)" w="0"></UUID>
+								<DeviceName type="string(32)" w="0"></DeviceName>
+							</i>
+						</Registrar>
+						<LastConfigurationError type="string" w="0">NoError</LastConfigurationError>
+						<ConfigurationState type="string" w="0"></ConfigurationState>
+						<SetupLock type="bool" w="1">0</SetupLock>
+						<SetupLockedState type="string" w="0">Unlocked</SetupLockedState>
+						<ConfigMethodsEnabled type="string" w="1"></ConfigMethodsEnabled>
+						<ConfigMethodsSupported type="string" w="0">PushButton,Keypad</ConfigMethodsSupported>
+						<Version type="uint" w="0"></Version>
+						<UUID type="string(36)" w="0">63041253101920061228000000000000</UUID>
+						<X_CT-COM_ResetOob type="string" w="1">0</X_CT-COM_ResetOob>
+						<X_CT-COM_Role type="string" w="1">Registrar</X_CT-COM_Role>
+						<X_CT-COM_OriginalEnc type="string" w="0">None</X_CT-COM_OriginalEnc>
+						<X_CT-COM_OriginalAuth type="string" w="0">None</X_CT-COM_OriginalAuth>
+						<X_CT-COM_OriginalSSID type="string(32)" w="0">vdsl_01</X_CT-COM_OriginalSSID>
+						<X_CT-COM_SetupMethod type="string" w="1">None</X_CT-COM_SetupMethod>
+					</WPS>
+					<APWMMParameterNumberOfEntries type="uint" w="0" const="1">0</APWMMParameterNumberOfEntries>
+					<APWMMParameter type="array" max="8" op="FuncWLANConfigurationAPWMMParameterI">
+						<i type="object">
+							<AckPolicy type="bool" w="1">0</AckPolicy>
+							<TXOP type="uint[0:255]" w="1"></TXOP>
+							<ECWMax type="uint[0:15]" w="1"></ECWMax>
+							<ECWMin type="uint[0:15]" w="1"></ECWMin>
+							<AIFSN type="uint[2:15]" w="1"></AIFSN>
+						</i>
+					</APWMMParameter>
+					<STAWMMParameterNumberOfEntries type="uint" w="0" const="1">0</STAWMMParameterNumberOfEntries>
+					<STAWMMParameter type="array" max="8" op="FuncWLANConfigurationSTAWMMParameterI">
+						<i type="object">
+							<AckPolicy type="bool" w="0">0</AckPolicy>
+							<TXOP type="uint[0:255]" w="1"></TXOP>
+							<ECWMax type="uint[0:15]" w="1"></ECWMax>
+							<ECWMin type="uint[0:15]" w="1"></ECWMin>
+							<AIFSN type="uint[2:15]" w="1"></AIFSN>
+						</i>
+					</STAWMMParameter>
+					<RadiusServerNumberOfEntries type="uint" w="0" const="1">0</RadiusServerNumberOfEntries>
+					<X_CT-COM_RadiusServer type="array" max="8" w="1" op="FuncWLANConfigurationRadiusServerI" refer="RadiusServerNumberOfEntries">
+						<i type="object">
+							<X_CT-COM_AccountPort type="uint" w="1"></X_CT-COM_AccountPort>
+							<X_CT-COM_ShareKey type="string(64)" w="1"></X_CT-COM_ShareKey>
+							<X_CT-COM_Port type="uint" w="1"></X_CT-COM_Port>
+							<X_CT-COM_IPAddress type="string" w="1"></X_CT-COM_IPAddress>
+						</i>
+					</X_CT-COM_RadiusServer>
+					<X_TRI-ACL type="object" op="FuncWLANACLConfig">
+						<Status type="uint[0:2]" w="1">0</Status>
+						<Mac_ListNumberOfEntries type="uint" w="0" const="1">0</Mac_ListNumberOfEntries>
+						<Mac_List type="array" max="100" w="1" op="FuncWLANACLConfigMacList">
+							<i w="1" type="object">
+								<MacAddr type="string" w="1"></MacAddr>
+								<Desc type="string" w="1"></Desc>
+							</i>
+						</Mac_List>
+					</X_TRI-ACL>
+					<WDS type="object" op="FuncWLANWDSConfig">
+						<WdsMode type="string" w="1">disabled</WdsMode>
+						<WdsList type="string" w="1"></WdsList>
+						<WdsStaMac type="string" w="1"></WdsStaMac>
+						<WdsRootAP type="string" w="1"></WdsRootAP>
+						<WdsEncrypType type="string" w="1">NONE</WdsEncrypType>
+						<WdsKey type="string" w="1"></WdsKey>
+						<WdsWepKeyIdx type="string" w="1">0</WdsWepKeyIdx>
+						<WdsVendor type="string" w="0"></WdsVendor>
+						<WDSAPScanExecSH type="string" w="0"></WDSAPScanExecSH>
+					</WDS>
+				</i>
+			</WLANConfiguration>
+			<LANUSBInterfaceNumberOfEntries type="uint" w="0" const="1">0</LANUSBInterfaceNumberOfEntries>
+			<LANUSBInterfaceConfig type="array" max="2" op="FuncLANUSBInterfaceConfigI" refer="LANUSBInterfaceNumberOfEntries">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Status type="bool" w="0">Disabled</Status>
+					<MacAddress type="string" w="1"></MacAddress>
+					<MACAddressControlEnabled type="bool" w="1"></MACAddressControlEnabled>
+					<Standard type="string" w="0"></Standard>
+					<Type type="string" w="0"></Type>
+					<Rate type="uint" w="0"></Rate>
+					<Power type="uint" w="0"></Power>
+				</i>
+			</LANUSBInterfaceConfig>
+			<LANHostConfigManagement type="object" op="FuncLANHostConfigManagement">
+				<MACAddress type="string" w="0">00:00:00:00:00:00</MACAddress>
+				<DHCPServerConfigurable type="bool" w="1">1</DHCPServerConfigurable>
+				<DHCPServerEnable type="bool" w="1">1</DHCPServerEnable>
+				<DHCPRelay type="bool" w="1">0</DHCPRelay>
+				<ReservedAddresses type="string(256)" w="1"></ReservedAddresses>
+				<SubnetMask type="string" w="1">255.255.255.0</SubnetMask>
+				<DNSServers type="string(64)" w="1">192.168.1.1</DNSServers>
+				<DomainName type="string(64)" w="1">localhost</DomainName>
+				<IPRouters type="string(64)" w="1">192.168.1.1</IPRouters>
+				<DHCPLeaseTime type="int[-1:]" w="1">86400</DHCPLeaseTime>
+				<UseAllocatedWAN type="string" w="1">Normal</UseAllocatedWAN>
+				<AssociatedConnection type="string(256)" w="1"></AssociatedConnection>
+				<PassthroughLease type="uint" w="1">0</PassthroughLease>
+				<PassthroughMACAddress type="string" w="1">00:00:00:00:00:00</PassthroughMACAddress>
+				<AllowedMACAddresses type="string(512)" w="1"></AllowedMACAddresses>
+
+				<X_CT-COM_DNSRelayEnable type="bool" w="1">1</X_CT-COM_DNSRelayEnable>
+				<X_CT-COM_DHCPRelayAddress type="string" w="1">192.168.0.200</X_CT-COM_DHCPRelayAddress>
+				<X_CT-COM_OPTION125Enable type="bool" w="1">1</X_CT-COM_OPTION125Enable>
+				<X_CT-COM_OPTION16Enable type="bool" w="1">1</X_CT-COM_OPTION16Enable>
+				<X_CT-COM_OPTION17Enable type="bool" w="1">1</X_CT-COM_OPTION17Enable>
+
+				<MinAddress type="string" w="1">192.168.1.2</MinAddress>
+				<MaxAddress type="string" w="1">192.168.1.254</MaxAddress>
+                <X_CT-COM_DhcpBlockPorts type="string(1024)" w="1"></X_CT-COM_DhcpBlockPorts>
+
+				<IPInterfaceNumberOfEntries type="uint" w="0" const="1">0</IPInterfaceNumberOfEntries>
+				<IPInterface type="array" max="32" w="1" op="FuncLANHostConfigManagementIPInterfaceI">
+					<i w="1" type="object">
+						<Enable type="bool" w="1">1</Enable>
+						<IPInterfaceIPAddress type="string" w="1">192.168.1.1</IPInterfaceIPAddress>
+						<IPInterfaceSubnetMask type="string" w="1">255.255.255.0</IPInterfaceSubnetMask>
+						<IPInterfaceAddressingType type="string" w="1">DHCP</IPInterfaceAddressingType>
+						<IPv6AddressNumberOfEntries type="uint" w="0" const="1">0</IPv6AddressNumberOfEntries>
+						<X_CT-COM_IPv6Address type="array" max="32" op="FuncIPInterfaceGlobalIPv6AddressI" refer="IPv6AddressNumberOfEntries">
+							<LocalAddress type="string" w="1">fe80::1</LocalAddress>
+							<i type="object">
+								<IPAddress type="string(64)" w="1"></IPAddress>
+							</i>
+						</X_CT-COM_IPv6Address>
+					</i>
+				</IPInterface>
+				<DHCPStaticAddressNumberOfEntries type="uint" w="0" const="1">0</DHCPStaticAddressNumberOfEntries>
+				<DHCPStaticAddress type="array" w="1" max="256" op="FuncLANHostConfigManagementDHCPStaticAddressI">
+					<i w="1" type="object">
+						<Enable type="string" w="1">1</Enable>
+						<Yiaddr type="string" w="1">192.16.30.254</Yiaddr>
+						<Chaddr type="string" w="1">ee:ee:ee:ee:ee:ee</Chaddr>
+					</i>
+				</DHCPStaticAddress>
+				<DHCPConditionalPoolNumberOfEntries type="uint" w="0" const="1">0</DHCPConditionalPoolNumberOfEntries>
+				<DHCPConditionalServingPool type="array" max="256" w="1" op="FuncLANHostConfigManagementDHCPConditionalServingPool">
+					<i w="1" type="object">
+						<Enable type="bool" w="1">0</Enable>
+						<PoolOrder type="uint[1:]" w="0">1</PoolOrder>
+						<SourceInterface type="string(1024)" w="1"></SourceInterface>
+						<DeviceClassName type="string(256)" w="1"></DeviceClassName>
+						<VendorClassID type="string(256)" w="1"></VendorClassID>
+						<VendorClassIDExclude type="bool" w="1">0</VendorClassIDExclude>
+						<VendorClassIDMode type="string(256)" w="1"></VendorClassIDMode>
+						<ClientID type="string(256)" w="1"></ClientID>
+						<UserClassID type="string(256)" w="1"></UserClassID>
+						<Chaddr type="string" w="1"></Chaddr>
+						<ChaddrMask type="string" w="1"></ChaddrMask>
+						<LocallyServed type="bool" w="1">1</LocallyServed>
+						<MinAddress type="string" w="1"></MinAddress>
+						<MaxAddress type="string" w="1"></MaxAddress>
+						<ReservedAddresses type="string(512)" w="1"></ReservedAddresses>
+						<SubnetMask type="string" w="1"></SubnetMask>
+						<DNSServers type="string(64)" w="1"></DNSServers>
+						<DomainName type="string(64)" w="1"></DomainName>
+						<IPRouters type="string(64)" w="1"></IPRouters>
+						<DHCPLeaseTime type="int[-1:]" w="0">86400</DHCPLeaseTime>
+						<DHCPServerIPAddress type="string" w="1"></DHCPServerIPAddress>
+						<DHCPOptionNumberOfEntries type="uint" w="0" const="1">0</DHCPOptionNumberOfEntries>
+						<DHCPOption type="array" max="256" w="1" op="FuncLANHostConfigManagementDHCPOption">
+							<i w="1" type="object">
+								<Enable type="bool" w="1">0</Enable>
+								<Tag type="uint[1:254]" w="1">1</Tag>
+								<Value type="string(340)" w="1"></Value>
+							</i>
+						</DHCPOption>
+					</i>
+				</DHCPConditionalServingPool>
+				<DHCPOptionNumberOfEntries type="uint" w="0" const="1">0</DHCPOptionNumberOfEntries>
+				<DHCPOption type="array" max="256" w="1" op="FuncLANHostConfigManagementDHCPOption">
+					<i w="1" type="object">
+						<Enable type="bool" w="1">0</Enable>
+						<Tag type="uint[1:254]" w="1">1</Tag>
+						<Value type="string(340)" w="1"></Value>
+					</i>
+				</DHCPOption>
+			</LANHostConfigManagement>
+			<Hosts type="object" w="0" op="FuncLANDeviceHosts">
+				<HostNumberOfEntries type="uint" w="0" const="1">0</HostNumberOfEntries>
+				<Host type="array" w="0" op="FuncLANDeviceHostI" refer="HostNumberOfEntries">
+					<i type="object" w="0">
+						<IPAddress type="string" w="0"></IPAddress>
+						<AddressSource type="string" w="0">Static</AddressSource>
+						<LeaseTimeRemaining type="int[-1:]" w="0">-1</LeaseTimeRemaining>
+						<MACAddress type="string" w="0"></MACAddress>
+						<HostName type="string" w="0"></HostName>
+						<InterfaceType type="string" w="0">Ethernet</InterfaceType>
+						<Layer2Interface type="string" w="0"></Layer2Interface>
+						<Active type="bool" w="0">1</Active>
+						<X_CT-COM_LeaseTimeExpire type="string" w="0">0</X_CT-COM_LeaseTimeExpire>
+					</i>
+				</Host>
+			</Hosts>
+			<X_CT-COM_IPv6LANHostConfigManagement type="object" op="FuncIPv6LANHostConfigManagement">
+				<IPv6InterfaceNumberOfEntries type="uint" w="0" const="1">0</IPv6InterfaceNumberOfEntries>
+				<IPv6Interface type="array" max="8" w="1" op="FuncIPv6InterfaceI">
+					<i w="1" type="object">
+						<Status type="string" w="0">Invalid</Status>
+						<IPv6InterfacePrefixLength type="uint" w="1"></IPv6InterfacePrefixLength>
+						<IPv6InterfaceAddress type="string" w="1"></IPv6InterfaceAddress>
+						<IPv6InterfaceAddressScope type="string" w="1"></IPv6InterfaceAddressScope>
+					</i>
+				</IPv6Interface>
+				<RadvdConfig type="object" op="FuncRadvdConfig">
+					<DHCPEnabled type="bool" w="1">1</DHCPEnabled>
+					<SLAACEnabled type="bool" w="1">0</SLAACEnabled>
+					<IPv6SubnetID type="uint" w="1">0</IPv6SubnetID>
+					<OtherConfFlag type="uint" w="1"></OtherConfFlag>
+					<ManagedFlag type="uint" w="1"></ManagedFlag>
+					<FlagConfType type="string" w="1">Auto</FlagConfType>
+					<MinRAInterval type="uint" w="1">10</MinRAInterval>
+					<MaxRAInterval type="uint" w="1">15</MaxRAInterval>
+					<RouterLifeTime type="uint" w="1">60</RouterLifeTime>
+					<RouterPreference type="string" w="1">medium</RouterPreference>
+					<Enable type="bool" w="1">1</Enable>
+					<UniqueLocalPrefixConfig type="object" op="FuncUniqueLocalPrefixConfig">
+						<Enable type="bool" w="1">0</Enable>
+						<GlobalID type="string" w="1">11:22:33:44:55</GlobalID>
+					</UniqueLocalPrefixConfig>
+				</RadvdConfig>
+			</X_CT-COM_IPv6LANHostConfigManagement>
+			<X_CT-COM_IPv6Config type="object" op="FuncIPv6Config">
+				<DomainName type="string(64)" w="1"></DomainName>
+				<IPv6DNSConfigType type="string(32)" w="1">WANConnection</IPv6DNSConfigType>
+				<IPv6DNSWANConnection type="string" w="1"></IPv6DNSWANConnection>
+				<IPv6DNSServers type="string" w="1"></IPv6DNSServers>
+				<PrefixInformationNumberOfEntries type="uint" w="0" const="1">0</PrefixInformationNumberOfEntries>
+				<PrefixInformation type="array" max="1" w="1" op="FuncIPv6ConfigPrefixInformationI">
+					<i w="1" type="object">
+						<Mode type="string(32)" w="1">WANDelegated</Mode>
+						<DelegatedWanConnection type="string" w="1"></DelegatedWanConnection>
+						<Prefix type="string" w="1">56</Prefix>
+						<PreferredLifeTime type="uint" w="1"></PreferredLifeTime>
+						<ValidLifeTime type="uint" w="1"></ValidLifeTime>
+						<X_TRI-LanIPv6Address type="string" w="1" hidden="1"></X_TRI-LanIPv6Address>
+					</i>
+				</PrefixInformation>
+			</X_CT-COM_IPv6Config>
+			<X_CT-COM_DHCPv6Server type="object" op="FuncDHCPv6Server">
+				<Enable type="bool" w="1">1</Enable>
+				<ValidLifeTime type="string" w="1"></ValidLifeTime>
+				<PreferredLifeTime type="string" w="1"></PreferredLifeTime>
+				<MinAddress type="string" w="1"></MinAddress>
+				<MaxAddress type="string" w="1"></MaxAddress>
+				<PoolNumberOfEntries type="uint" w="0" const="1">0</PoolNumberOfEntries>
+				<Pool type="array" max="8" w="1" op="FuncDHCPv6ServerPoolI">
+					<i w="1" type="object">
+						<Enable type="bool" w="1">1</Enable>
+						<MinAddress type="string" w="1"></MinAddress>
+						<MaxAddress type="string" w="1"></MaxAddress>
+					</i>
+				</Pool>
+			</X_CT-COM_DHCPv6Server>
+			<X_CT-COM_RouterAdvertisement type="object" op="FuncRouterAdvertisement">
+				<Enable type="bool" w="1">1</Enable>
+				<MinRtrAdvInterval type="uint[3:1350]" w="1">10</MinRtrAdvInterval>
+				<MaxRtrAdvInterval type="uint[4:1800]" w="1">15</MaxRtrAdvInterval>
+				<AdvManagedFlag type="bool" w="1">0</AdvManagedFlag>
+				<AdvOtherConfigFlag type="bool" w="1">1</AdvOtherConfigFlag>
+			</X_CT-COM_RouterAdvertisement>
+			<X_CT-COM_LoopbackDetection type="object" w="0" op="FuncLoopbackDetection">
+				<EthernetType type="string" w="1">0xFFFA</EthernetType>
+				<VlanTag type="string" w="1">untagged</VlanTag>
+				<LoopCancelPeriod type="uint" w="1">300</LoopCancelPeriod>
+				<LoopExistPeriod type="uint" w="1">5</LoopExistPeriod>
+				<LoopbackEnable type="bool" w="1">1</LoopbackEnable>
+			</X_CT-COM_LoopbackDetection>
+			<X_CT-COM_DataSpeedLimit type="object" op="FuncDataSpeedLimit">
+				<SpeedLimitMode_UP type="int[0:3]" w="1">0</SpeedLimitMode_UP>
+				<SpeedLimitMode_DOWN type="int[0:3]" w="1">0</SpeedLimitMode_DOWN>
+				<InterfaceLimit_UP type="string(256)" w="1"></InterfaceLimit_UP>
+				<InterfaceLimit_DOWN type="string(256)" w="1"></InterfaceLimit_DOWN>
+				<VlanTagLimit_UP type="string(256)" w="1"></VlanTagLimit_UP>
+				<VlanTagLimit_DOWN type="string(256)" w="1"></VlanTagLimit_DOWN>
+				<IPLimit_UP type="string(256)" w="1"></IPLimit_UP>
+				<IPLimit_DOWN type="string(256)" w="1"></IPLimit_DOWN>
+			</X_CT-COM_DataSpeedLimit>
+		</i>
+	</LANDevice>
+	<LANInterfaces type="object" key="portmgr:lan" w="0">
+		<LANEthernetInterfaceNumberOfEntries type="uint" w="0" const="1">0</LANEthernetInterfaceNumberOfEntries>
+		<LANUSBInterfaceNumberOfEntries type="uint" w="0" const="1">0</LANUSBInterfaceNumberOfEntries>
+		<LANWLANConfigurationNumberOfEntries type="uint" w="0" const="1">0</LANWLANConfigurationNumberOfEntries>
+	</LANInterfaces>
+	<X_TRI-DMZ type="object" key="srvcmgr:firewall" op="FuncDMZ">
+		<Enabled type="bool" w="1">0</Enabled>
+		<WanConnection type="string" w="1"></WanConnection>
+		<Host type="string" w="1"></Host>
+	</X_TRI-DMZ>
+	<Layer2Bridging type="object" key="srvcmgr:l2" op="FuncLayer2Bridging">
+		<MaxBridgeEntries type="uint" w="0" const="1">2</MaxBridgeEntries>
+		<MaxDBridgeEntries type="uint" w="0" const="1">0</MaxDBridgeEntries>
+		<MaxQBridgeEntries type="uint" w="0" const="1">0</MaxQBridgeEntries>
+		<MaxFilterEntries type="uint" w="0" const="1">2</MaxFilterEntries>
+		<MaxMarkingEntries type="uint" w="0" const="1">2</MaxMarkingEntries>
+		<MaxVLANEntries type="uint" w="0" const="1">0</MaxVLANEntries>
+		<BridgeNumberOfEntries type="uint" w="0" const="1">0</BridgeNumberOfEntries>
+		<Bridge type="array" w="1" max="8" op="FuncLayer2BridgingBridgeI">
+			<i w="1" type="object">
+				<BridgeKey type="uint" w="0">1</BridgeKey>
+				<BridgeStandard type="string" w="1">802.1Q</BridgeStandard>
+				<BridgeEnable type="bool" w="1">0</BridgeEnable>
+				<BridgeStatus type="string" w="0">Disabled</BridgeStatus>
+				<BridgeName type="string(64)" w="1">Bridge_1</BridgeName>
+				<VLANID type="uint[0:4094]" w="1">0</VLANID>
+				<PortNumberOfEntries type="uint" w="0" const="1">0</PortNumberOfEntries>
+				<Port type="array" w="1" max="8">
+					<i w="1" type="object">
+						<PortEnable type="bool" w="1">0</PortEnable>
+						<PortInterface type="string(16)" w="1"></PortInterface>
+						<PortState type="string" w="1">Disabled</PortState>
+						<PVID type="int[1:4094]" w="1">1</PVID>
+						<AcceptableFrameTypes type="string" w="1">AdmitAll</AcceptableFrameTypes>
+						<IngressFiltering type="bool" w="1">0</IngressFiltering>
+					</i>
+				</Port>
+
+				<X_TRI_DualLanCfg type="object" w="1" op="FuncLayer2BridgingBridgeDualLanCfgI">
+                    <Enable type="bool" w="1">0</Enable>
+                    <AddrMode type="string" w="1">1</AddrMode>
+                    <IpAddr type="string" w="1">10.68.48.16</IpAddr>
+                    <IpUnnumberedAddr type="string" w="1">10.68.48.16</IpUnnumberedAddr>
+                    <IpUnnumberedMask type="string" w="1">255.255.255.248</IpUnnumberedMask>
+                    <LanStartIp type="string" w="1">10.68.48.17</LanStartIp>
+                    <LanEndIp type="string" w="1">10.68.48.22</LanEndIp>
+                    <PrimaryDns type="string" w="1"></PrimaryDns>
+                    <SecondaryDns type="string" w="1"></SecondaryDns>
+                    <LanPort type="string" w="1"></LanPort>
+                    <WanConnPath type="string" w="1"></WanConnPath>
+				</X_TRI_DualLanCfg>
+
+				<VLANNumberOfEntries type="uint" w="0" const="1">0</VLANNumberOfEntries>
+				<VLAN type="array" w="1" max="8">
+					<i w="1" type="object">
+						<VLANEnable type="bool" w="1">0</VLANEnable>
+						<VLANName type="string(64)" w="1"></VLANName>
+						<VLANID type="int[1:4094]" w="1">1</VLANID>
+					</i>
+				</VLAN>
+			</i>
+		</Bridge>
+		<FilterNumberOfEntries type="uint" w="0" const="1">0</FilterNumberOfEntries>
+		<Filter type="array" max="100" w="1" op="FuncLayer2BridgingFilterI">
+			<i w="1" type="object">
+				<FilterKey type="uint" w="0">1</FilterKey>
+				<FilterEnable type="bool" w="1">1</FilterEnable>
+				<FilterStatus type="string" w="0">Enabled</FilterStatus>
+				<FilterBridgeReference type="int[-1:]" w="1">-1</FilterBridgeReference>
+				<ExclusivityOrder type="uint" w="1">1</ExclusivityOrder>
+				<FilterInterface type="string" w="1">AllInterfaces</FilterInterface>
+				<VLANIDFilter type="int[-1:4095]" w="1">-1</VLANIDFilter>
+				<AdmitOnlyVLANTagged type="bool" w="1">1</AdmitOnlyVLANTagged>
+				<EthertypeFilterList type="string(256)" w="1"></EthertypeFilterList>
+				<EthertypeFilterExclude type="bool" w="1">0</EthertypeFilterExclude>
+				<SourceMACAddressFilterList type="string(512)" w="1"></SourceMACAddressFilterList>
+				<SourceMACAddressFilterExclude type="bool" w="1">0</SourceMACAddressFilterExclude>
+				<DestMACAddressFilterList type="string(512)" w="1"></DestMACAddressFilterList>
+				<DestMACAddressFilterExclude type="bool" w="1">0</DestMACAddressFilterExclude>
+				<SourceMACFromVendorClassIDFilter type="string(256)" w="1"></SourceMACFromVendorClassIDFilter>
+				<SourceMACFromVendorClassIDFilterExclude type="bool" w="1">0</SourceMACFromVendorClassIDFilterExclude>
+				<DestMACFromVendorClassIDFilter type="string(256)" w="1"></DestMACFromVendorClassIDFilter>
+				<DestMACFromVendorClassIDFilterExclude type="bool" w="1">0</DestMACFromVendorClassIDFilterExclude>
+				<SourceMACFromClientIDFilter type="string(256)" w="1"></SourceMACFromClientIDFilter>
+				<SourceMACFromClientIDFilterExclude type="bool" w="1">0</SourceMACFromClientIDFilterExclude>
+				<DestMACFromClientIDFilter type="string(256)" w="1"></DestMACFromClientIDFilter>
+				<DestMACFromClientIDFilterExclude type="bool" w="1">0</DestMACFromClientIDFilterExclude>
+				<SourceMACFromUserClassIDFilter type="string(256)" w="1"></SourceMACFromUserClassIDFilter>
+				<SourceMACFromUserClassIDFilterExclude type="bool" w="1">0</SourceMACFromUserClassIDFilterExclude>
+				<DestMACFromUserClassIDFilter type="string(256)" w="1"></DestMACFromUserClassIDFilter>
+				<DestMACFromUserClassIDFilterExclude type="bool" w="1">0</DestMACFromUserClassIDFilterExclude>
+			</i>
+		</Filter>
+		<MarkingNumberOfEntries type="uint" w="0" const="1">0</MarkingNumberOfEntries>
+		<Marking type="array" max="8" w="1" op="FuncLayer2BridgingMarkingI">
+			<i w="1" type="object">
+				<MarkingKey type="uint" w="0">0</MarkingKey>
+				<MarkingEnable type="bool" w="1">0</MarkingEnable>
+				<MarkingStatus type="string" w="0">Disabled</MarkingStatus>
+				<MarkingBridgeReference type="int[-1:]" w="1">-1</MarkingBridgeReference>
+				<MarkingInterface type="string" w="1"></MarkingInterface>
+				<VLANIDUntag type="bool" w="1">0</VLANIDUntag>
+				<VLANIDMark type="int[-1:4095]" w="1">-1</VLANIDMark>
+				<VLANIDMarkOverride type="bool" w="1">0</VLANIDMarkOverride>
+				<EthernetPriorityMark type="int[-1:7]" w="1">-1</EthernetPriorityMark>
+				<EthernetPriorityOverride type="bool" w="1">0</EthernetPriorityOverride>
+			</i>
+		</Marking>
+		<AvailableInterfaceNumberOfEntries type="uint" w="0" const="1">0</AvailableInterfaceNumberOfEntries>
+		<AvailableInterface type="array" max="16" w="0" op="FuncLayer2BridgingAvailableInterfaceI">
+			<i w="0" type="object">
+				<AvailableInterfaceKey type="uint" w="0">1</AvailableInterfaceKey>
+				<InterfaceType type="string" w="0">LANInterface</InterfaceType>
+				<InterfaceReference type="string(256)" w="0">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.1.</InterfaceReference>
+			</i>
+		</AvailableInterface>
+	</Layer2Bridging>
+	<QueueManagement type="object" key="srvcmgr:l3">
+		<Enable type="bool" w="1">0</Enable>
+		<MaxQueues type="uint" w="0">0</MaxQueues>
+		<MaxClassificationEntries type="uint" w="0">0</MaxClassificationEntries>
+
+		<MaxAppEntries type="uint" w="0">0</MaxAppEntries>
+		<AppNumberOfEntries type="uint" w="0">0</AppNumberOfEntries>
+		<MaxFlowEntries type="uint" w="0">0</MaxFlowEntries>
+		<FlowNumberOfEntries type="uint" w="0">0</FlowNumberOfEntries>
+		<MaxPolicerEntries type="uint" w="0">0</MaxPolicerEntries>
+
+		<MaxQueueEntries type="uint" w="0">0</MaxQueueEntries>
+
+		<QueueStatsNumberOfEntries type="uint" w="0">0</QueueStatsNumberOfEntries>
+		<DefaultForwardingPolicy type="uint" w="1">0</DefaultForwardingPolicy>
+		<DefaultTrafficClass type="int[-1:]" w="1">-1</DefaultTrafficClass>
+		<DefaultPolicer type="int[-1:]" w="1">-1</DefaultPolicer>
+		<DefaultQueue type="uint" w="1">0</DefaultQueue>
+		<DefaultDSCPMark type="int[-2:]" w="1">-1</DefaultDSCPMark>
+		<DefaultEthernetPriorityMark type="int[-2:]" w="1">-1</DefaultEthernetPriorityMark>
+		<AvailableAppList type="string(1024)" w="0"></AvailableAppList>
+		<ClassificationNumberOfEntries type="uint" w="0">0</ClassificationNumberOfEntries>
+		<Classification type="array" max="16" w="1">
+			<i w="1" type="object">
+				<ClassificationKey type="uint" w="0">0</ClassificationKey>
+				<ClassificationEnable type="bool" w="1">0</ClassificationEnable>
+				<ClassificationStatus type="string" w="0">Disabled</ClassificationStatus>
+				<ClassificationOrder type="uint[1:]" w="0">1</ClassificationOrder>
+				<ClassInterface type="string(256)" w="0"></ClassInterface>
+				<DestIP type="string" w="1"></DestIP>
+				<DestMask type="string" w="1"></DestMask>
+				<DestIPExclude type="bool" w="1">0</DestIPExclude>
+				<SourceIP type="string" w="1"></SourceIP>
+				<SourceMask type="string" w="1"></SourceMask>
+				<SourceIPExclude type="bool" w="1">0</SourceIPExclude>
+				<Protocol type="int[-1:]" w="1">-1</Protocol>
+				<ProtocolExclude type="bool" w="1">0</ProtocolExclude>
+				<DestPort type="int[-1:]" w="1">-1</DestPort>
+				<DestPortRangeMax type="int[-1:]" w="1">-1</DestPortRangeMax>
+				<DestPortExclude type="bool" w="1">0</DestPortExclude>
+				<SourcePort type="int[-1:]" w="1">-1</SourcePort>
+				<SourcePortRangeMax type="int[-1:]" w="1">-1</SourcePortRangeMax>
+				<SourcePortExclude type="bool" w="1">0</SourcePortExclude>
+				<SourceMACAddress type="string" w="1"></SourceMACAddress>
+				<SourceMACMask type="string" w="1"></SourceMACMask>
+				<SourceMACExclude type="bool" w="1">0</SourceMACExclude>
+				<DestMACAddress type="string" w="1"></DestMACAddress>
+				<DestMACMask type="string" w="1"></DestMACMask>
+				<DestMACExclude type="bool" w="1">0</DestMACExclude>
+				<DSCPCheck type="int[-1:]" w="1">-1</DSCPCheck>
+				<DSCPExclude type="bool" w="1">0</DSCPExclude>
+				<DSCPMark type="int[-2:]" w="1">-1</DSCPMark>
+				<EthernetPriorityCheck type="int[-1:]" w="1">-1</EthernetPriorityCheck>
+				<EthernetPriorityExclude type="bool" w="1">0</EthernetPriorityExclude>
+				<EthernetPriorityMark type="int[-2:]" w="1">-1</EthernetPriorityMark>
+				<VLANIDCheck type="int[-1:]" w="1">-1</VLANIDCheck>
+				<VLANIDExclude type="bool" w="1">0</VLANIDExclude>
+				<ForwardingPolicy type="uint" w="1">0</ForwardingPolicy>
+				<TrafficClass type="int[-1:]" w="1">-1</TrafficClass>
+				<ClassPolicer type="int[-1:]" w="1">-1</ClassPolicer>
+				<ClassQueue type="int[-1:]" w="1">-1</ClassQueue>
+			</i>
+		</Classification>
+		<PolicerNumberOfEntries type="uint" w="0">0</PolicerNumberOfEntries>
+		<Policer w="1" type="array" max="16">
+			<i w="1" type="object">
+				<PolicerKey type="uint" w="0">0</PolicerKey>
+				<PolicerEnable type="bool" w="1">0</PolicerEnable>
+				<PolicerStatus type="string" w="0">Disabled</PolicerStatus>
+				<CommittedRate type="uint" w="1">0</CommittedRate>
+				<CommittedBurstSize type="uint" w="1">0</CommittedBurstSize>
+				<ExcessBurstSize type="uint" w="1">0</ExcessBurstSize>
+				<PeakRate type="uint" w="1">0</PeakRate>
+				<PeakBurstSize type="uint" w="1">0</PeakBurstSize>
+				<MeterType type="string" w="1">SimpleTokenBucket</MeterType>
+				<PossibleMeterTypes type="string" w="0"></PossibleMeterTypes>
+				<ConformingAction type="string" w="1">Null</ConformingAction>
+				<PartialConformingAction type="string" w="1">Null</PartialConformingAction>
+				<NonConformingAction type="string" w="1">Drop</NonConformingAction>
+				<CountedPackets type="uint" w="1">0</CountedPackets>
+				<CountedBytes type="uint" w="1">0</CountedBytes>
+			</i>
+		</Policer>
+		<QueueNumberOfEntries type="uint" w="0">0</QueueNumberOfEntries>
+		<Queue type="array" max="16" w="1">
+			<i w="1" type="object">
+				<QueueKey type="uint" w="0">0</QueueKey>
+				<QueueEnable type="bool" w="1">0</QueueEnable>
+				<QueueStatus type="string" w="0">Disabled</QueueStatus>
+				<TrafficClasses type="string(256)" w="1"></TrafficClasses>
+				<QueueInterface type="string(256)" w="1"></QueueInterface>
+				<QueueBufferLength type="uint" w="0">0</QueueBufferLength>
+				<QueueWeight type="uint" w="1">0</QueueWeight>
+				<QueuePrecedence type="uint[1:]" w="1">1</QueuePrecedence>
+				<REDThreshold type="uint[0:100]" w="1">0</REDThreshold>
+				<REDPercentage type="uint[0:100]" w="1">0</REDPercentage>
+				<DropAlgorithm type="string" w="1">DT</DropAlgorithm>
+				<SchedulerAlgorithm type="string" w="1">SP</SchedulerAlgorithm>
+				<ShapingRate type="int[-1:]" w="1">-1</ShapingRate>
+				<ShapingBurstSize type="uint" w="1">0</ShapingBurstSize>
+			</i>
+		</Queue>
+	</QueueManagement>
+	<CaptivePortal type="object" key="utils:ntp">
+		<Enable type="bool" w="1">0</Enable>
+		<Status type="string" w="0">Disabled</Status>
+		<AllowedList type="string(10000)" w="1"></AllowedList>
+		<CaptivePortalURL type="string(10000)" w="1"></CaptivePortalURL>
+	</CaptivePortal>
+	<Layer3Forwarding type="object" key="srvcmgr:l3" op="FuncLayer3Forwarding">
+		<MAXForwardNumberOfEntries type="uint" w="0" const="1">30</MAXForwardNumberOfEntries>
+		<ForwardNumberOfEntries type="uint" w="0" const="1">0</ForwardNumberOfEntries>
+		<Forwarding type="array" max="100" w="1" op="FuncLayer3ForwardingI" refer="ForwardNumberOfEntries">
+			<i w="1" type="object" op="FuncLayer3ForwardingI">
+				<Enable type="bool" w="1">0</Enable>
+				<DestIPAddress type="string" w="1"></DestIPAddress>
+				<DestSubnetMask type="string" w="1"></DestSubnetMask>
+				<SourceIPAddress type="string" w="1"></SourceIPAddress>
+				<SourceSubnetMask type="string" w="1"></SourceSubnetMask>
+				<ForwardingPolicy type="int" w="1"></ForwardingPolicy>
+				<StaticRoute type="bool" w="0">1</StaticRoute>
+				<ForwardingMetric type="uint" w="1"></ForwardingMetric>
+				<Interface type="string" w="1"></Interface>
+				<GatewayIPAddress type="string" w="1"></GatewayIPAddress>
+				<X_CT-COM_ErrorInfo type="string" w="0">NULL</X_CT-COM_ErrorInfo>
+			</i>
+		</Forwarding>
+	</Layer3Forwarding>
+	<Time type="object" key="utils:ntp" op="FuncTime">
+		<Enable type="bool" w="1">0</Enable>
+		<Status type="string" w="0">Disabled</Status>
+		<NTPServer1 type="string(64)" w="1"></NTPServer1>
+		<NTPServer2 type="string(64)" w="1"></NTPServer2>
+		<NTPServer3 type="string(64)" w="1"></NTPServer3>
+		<NTPServer4 type="string(64)" w="1"></NTPServer4>
+		<NTPServer5 type="string(64)" w="1"></NTPServer5>
+		<CurrentLocalTime type="dateTime" w="0">0001-01-01T00:00:00</CurrentLocalTime>
+		<LocalTimeZone type="string(6)" w="1">+08:00</LocalTimeZone>
+		<LocalTimeZoneName type="string(64)" w="1">CCT</LocalTimeZoneName>
+		<DaylightSavingsUsed type="bool" w="1">0</DaylightSavingsUsed>
+		<DaylightSavingsStart type="dateTime" w="1">2000-04-01T02:00:00</DaylightSavingsStart>
+		<DaylightSavingsEnd type="dateTime" w="1">2000-09-01T02:00:00</DaylightSavingsEnd>
+		<X_CT-COM_NTPInterval type="uint" w="1">86400</X_CT-COM_NTPInterval>
+		<X_CT-COM_RetryInterval type="uint" w="1">60</X_CT-COM_RetryInterval>
+		<X_CT-COM_NTPServerType type="uint" w="1">0</X_CT-COM_NTPServerType>
+	</Time>
+	<ManagementServer type="object" key="sysmgr:mgtsrvr" op="FuncManagementServer">
+		<EnableCWMP type="bool" w="1">1</EnableCWMP>
+		<URL type="string(256)" w="1"></URL>
+		<Username type="string(256)" w="1"></Username>
+		<Password type="string(256)" w="1"></Password>
+		<PeriodicInformEnable type="bool" w="1">1</PeriodicInformEnable>
+		<PeriodicInformInterval type="uint[1:]" w="1">86400</PeriodicInformInterval>
+		<PeriodicInformTime type="dateTime" w="1">0000-00-00T00:00:00</PeriodicInformTime>
+		<ParameterKey type="string(32)" w="0"></ParameterKey>
+		<X_TRI_ConnectionRequestAuthentication type="string(256)" w="1">1</X_TRI_ConnectionRequestAuthentication>
+		<ConnectionRequestURL type="string(256)" w="1">http://192.168.100.150:7547</ConnectionRequestURL>
+		<ConnectionRequestUsername type="string(256)" w="1">itms</ConnectionRequestUsername>
+		<ConnectionRequestPassword type="string(256)" w="1">itms</ConnectionRequestPassword>
+		<DownloadProgressURL type="string(256)" w="1"></DownloadProgressURL>
+		<UpgradesManaged type="bool" w="1">0</UpgradesManaged>
+		<KickURL type="string(256)" w="0"></KickURL>
+		<UDPConnectionRequestAddress type="string(256)" w="0"></UDPConnectionRequestAddress>
+		<UDPConnectionRequestAddressNotificationLimit type="uint" w="1">0</UDPConnectionRequestAddressNotificationLimit>
+		<STUNEnable type="bool" w="1">1</STUNEnable>
+		<STUNServerAddress type="string(256)" w="1"></STUNServerAddress>
+		<STUNServerPort type="uint[0:65535]" w="1">0</STUNServerPort>
+		<STUNUsername type="string(256)" w="1"></STUNUsername>
+		<STUNPassword type="string(256)" w="1"></STUNPassword>
+		<STUNMaximumKeepAlivePeriod type="int[-1:]" w="1">-1</STUNMaximumKeepAlivePeriod>
+		<STUNMinimumKeepAlivePeriod type="uint" w="1">0</STUNMinimumKeepAlivePeriod>
+		<NATDetected type="bool" w="1">0</NATDetected>
+		<X_TRI_RequestPort type="uint[1:]" w="1">7547</X_TRI_RequestPort>
+		<X_TRI_RequestPath type="string(256)" w="1">/tr069</X_TRI_RequestPath>
+		<X_TRI_TR069WANIFNAME type="string(64)" w="0"></X_TRI_TR069WANIFNAME>
+		<X_TRI_TR069WANIPADDR type="string(32)" w="0"></X_TRI_TR069WANIPADDR>
+		<X_TRI_TR069WANGATEWAY type="string(32)" w="0"></X_TRI_TR069WANGATEWAY>
+		<X_TRI_TR069ValueChange type="bool" w="0">0</X_TRI_TR069ValueChange>
+		<X_TRI_TR069WANSAVE type="string" w="1"></X_TRI_TR069WANSAVE>
+		<X_TRI_TR069UpWAN type="string" w="1"></X_TRI_TR069UpWAN>
+		<X_CT-COM_CommandKey type="string(32)" w="0"></X_CT-COM_CommandKey>
+		<X_TRI_CAEnable type="bool" w="1">0</X_TRI_CAEnable>
+		<X_TRI_CAFile type="string" w="1" tr69r_val=""></X_TRI_CAFile>
+		<X_TRI_NATSessionDet type="bool" w="0">0</X_TRI_NATSessionDet>
+		<X_TRI_NATSessionKey type="string" w="0">80,20,21,431</X_TRI_NATSessionKey>
+
+
+		<X_CT-COM_ManualInform type="bool">0</X_CT-COM_ManualInform>
+		<X_CT-COM_MaintenanceInformState type="bool" w="0">0</X_CT-COM_MaintenanceInformState>
+		<X_CT-COM_ManualInformState type="uint" w="0">0</X_CT-COM_ManualInformState>
+		<X_CT-COM_ConnReqState type="uint" w="0">0</X_CT-COM_ConnReqState>
+		<X_CT-COM_InformState type="uint" w="0">0</X_CT-COM_InformState>
+		<X_CT-COM_CheckInterval type="uint">0</X_CT-COM_CheckInterval>
+		<X_CT-COM_DownloadStartTime type="string(32)" w="0">0000-00-00T00:00:00-00:00</X_CT-COM_DownloadStartTime>
+		<X_CT-COM_DownloadCompleteTime type="string(32)" w="0">0000-00-00T00:00:00-00:00</X_CT-COM_DownloadCompleteTime>
+		<X_CT-COM_FaultStruct type="string" w="0"></X_CT-COM_FaultStruct>
+		<X_CT-COM_DefaultManageConnectionService type="string"></X_CT-COM_DefaultManageConnectionService>
+		<X_TRI-SucessFlag type="uint" w="1" hidden="1">0</X_TRI-SucessFlag>
+		<CTMgtIPAddress type="string" w="0"></CTMgtIPAddress>
+		<MgtDNS type="string" w="0"></MgtDNS>
+		<InternetPvc type="string" w="0"></InternetPvc>
+		<X_CT-COM_MaintainComplete type="bool" w="0">0</X_CT-COM_MaintainComplete>
+		<X_CT-COM_EventsNumberOfEntries type="uint" w="0" const="1">0</X_CT-COM_EventsNumberOfEntries>
+		<X_CT-COM_Events type="array" w="0" op="FuncManagementServerEventsI">
+			<i type="object">
+				<Event type="string(64)" w="0"></Event>
+				<CommandKey type="string(32)" w="0"></CommandKey>
+			</i>
+		</X_CT-COM_Events>
+
+		<CTUserIPNumberOfEntries type="uint" w="0" const="1">0</CTUserIPNumberOfEntries>
+		<CTUserIPAddress type="array" max="8" op="FuncManagementServerCTUserIPAddressI" refer="CTUserIPNumberOfEntries">
+			<i type="object">
+				<CTUserIPAddress type="string" w="1"></CTUserIPAddress>
+			</i>
+		</CTUserIPAddress>
+
+		<ManageableDeviceNumberOfEntries type="uint" w="0" const="1">0</ManageableDeviceNumberOfEntries>
+		<ManageableDevice type="array" max="8">
+			<i type="object">
+				<ManufacturerOUI type="string(6)" w="0"></ManufacturerOUI>
+				<SerialNumber type="string(64)" w="0"></SerialNumber>
+				<ProductClass type="string(64)" w="0"></ProductClass>
+				<Host type="string(1024)" w="0"></Host>
+			</i>
+		</ManageableDevice>
+	</ManagementServer>
+	<Services type="object" key="sysmgr:capabinfo" w="0">
+		<VoiceServiceNumberOfEntries type="uint" w="0" const="1">0</VoiceServiceNumberOfEntries>
+		<VoiceService type="array" op="FuncServVoipServ">
+			<X_TRI_Is_Voip type="object">
+				<X_TRI_Voip_Enable type="int" w="1">1</X_TRI_Voip_Enable>
+				<X_TRI_Voip_AutoConfig type="int" w="1">0</X_TRI_Voip_AutoConfig>
+				<X_TRI_has_dect type="bool" w="1">0</X_TRI_has_dect>
+			</X_TRI_Is_Voip>
+			<i type="object">
+				<VoiceProfileNumberOfEntries type="uint" w="0" const="1">0</VoiceProfileNumberOfEntries>
+				<VoiceProfile type="array" w="1" op="FuncServVoiceProfile">
+					<i w="1" type="object">
+						<DigitMapEnable type="bool" w="1">1</DigitMapEnable>
+						<DigitMap type="string" w="1"></DigitMap>
+						<X_CT-COM_ServerType type="string" w="1">0</X_CT-COM_ServerType>
+						<X_CT-COM_StartDigitTimer type="int" w="1">20</X_CT-COM_StartDigitTimer>
+						<X_CT-COM_InterDigitTimerShort type="int" w="1">2</X_CT-COM_InterDigitTimerShort>
+						<X_CT-COM_InterDigitTimerLong type="int" w="1">4</X_CT-COM_InterDigitTimerLong>
+						<X_CT-COM_HangingReminderToneTimer type="int" w="1">60</X_CT-COM_HangingReminderToneTimer>
+						<X_CT-COM_BusyToneTimer type="int" w="1">40</X_CT-COM_BusyToneTimer>
+						<X_CT-COM_NoAnswerTimer type="int" w="1">60</X_CT-COM_NoAnswerTimer>
+						<proname type="string" w="1">genric</proname>
+						<CountryId type="int" w="1">10</CountryId>
+						<SIP type="object" op="FuncServVoipSIPI">
+							<ProxyServer type="string(256)" w="1"></ProxyServer>
+							<ProxyServerPort type="uint[0:65535]" w="1"></ProxyServerPort>
+							<ProxyServerTransport type="string" w="1"></ProxyServerTransport>
+							<X_CT-COM_Standby-ProxyServer type="string(256)" w="1"></X_CT-COM_Standby-ProxyServer>
+							<X_CT-COM_Standby-ProxyServerPort type="uint[65535]" w="1"></X_CT-COM_Standby-ProxyServerPort>
+							<X_CT-COM_Standby-ProxyServerTransport type="string" w="1"></X_CT-COM_Standby-ProxyServerTransport>
+							<RegistrarServer type="string(256)" w="1"></RegistrarServer>
+							<RegistrarServerPort type="uint[0:65535]" w="1"></RegistrarServerPort>
+							<RegistrarServerTransport type="string" w="1"></RegistrarServerTransport>
+							<X_CT-COM_Standby-RegistrarServer type="string(256)" w="1"></X_CT-COM_Standby-RegistrarServer>
+							<X_CT-COM_Standby-RegistrarServerPort type="uint[0:65535]" w="1"></X_CT-COM_Standby-RegistrarServerPort>
+							<X_CT-COM_Standby-RegistrarServerTransport type="string" w="1"></X_CT-COM_Standby-RegistrarServerTransport>
+							<OutboundProxy type="string(256)" w="1"></OutboundProxy>
+							<OutboundProxyPort type="uint[0:65535]" w="1"></OutboundProxyPort>
+							<X_CT-COM_Standby-OutboundProxy type="string(256)" w="1"></X_CT-COM_Standby-OutboundProxy>
+							<X_CT-COM_Standby-OutboundProxyPort type="uint[0:65535]" w="1"></X_CT-COM_Standby-OutboundProxyPort>
+							<UserAgentDomain type="string" w="1"></UserAgentDomain>
+							<UserAgentPort type="uint[0:65535]" w="1"></UserAgentPort>
+							<UserAgentTransport type="string" w="1"></UserAgentTransport>
+							<VLANIDMark type="int[-1:]" w="1"></VLANIDMark>
+							<X_CT-COM_802-1pMark type="int" w="1">-1</X_CT-COM_802-1pMark>
+							<DSCPMark type="uint[0:63]" w="1">0</DSCPMark>
+							<X_CT-COM_HeartbeatSwitch type="bool" w="1"></X_CT-COM_HeartbeatSwitch>
+							<X_CT-COM_HeartbeatCycle type="int" w="1">60</X_CT-COM_HeartbeatCycle>
+							<X_CT-COM_HeartbeatCount type="int" w="1">3</X_CT-COM_HeartbeatCount>
+							<X_CT-COM_SessionUpdateTimer type="int" w="1">30</X_CT-COM_SessionUpdateTimer>
+							<RegisterRetryInterval type="int" w="1"></RegisterRetryInterval>
+							<RegisterExpires type="int" w="1"></RegisterExpires>
+							<P-Asserted-Identity type="bool" w="1">0</P-Asserted-Identity>
+							<P-Access-Network-Info type="bool" w="1">0</P-Access-Network-Info>
+							<X_TRI-RegisterExpires-Enable type="int" w="1">0</X_TRI-RegisterExpires-Enable>
+							<ImplicitRegistrationEnable type="bool" w="1">0</ImplicitRegistrationEnable>
+							<X_TRI-HALF_Expire type="int" w="1" preserve="1">0</X_TRI-HALF_Expire>
+							<X_TRI-LinkTest type="bool" w="1">0</X_TRI-LinkTest>
+							<X_TRI-LinkTestInterval type="bool" w="1">20</X_TRI-LinkTestInterval>
+							<X_TRI-EscapeFlag type="bool" w="1">0</X_TRI-EscapeFlag>
+							<X_TRI-DisplayIdFlag_FromTo type="bool" w="1">0</X_TRI-DisplayIdFlag_FromTo>
+							<X_TRI-illegal_SipMessageFlag type="bool" w="1">1</X_TRI-illegal_SipMessageFlag>
+							<X_TRI-illegal_SipAllowAddrFlag type="bool" w="1">0</X_TRI-illegal_SipAllowAddrFlag>
+							<X_TRI-illegal_SipAllowAddr type="string(256)" w="1">0.0.0.0</X_TRI-illegal_SipAllowAddr>
+						</SIP>
+						<X_CT-COM_H248 type="object" op="FuncServVoipH248I">
+							<MediaGatewayControler type="string" w="1"></MediaGatewayControler>
+							<MediaGatewayControlerPort type="int" w="1">2944</MediaGatewayControlerPort>
+							<Standby-MediaGatewayControler type="string" w="1"></Standby-MediaGatewayControler>
+							<Standby-MediaGatewayControlerPort type="int" w="1">2944</Standby-MediaGatewayControlerPort>
+							<MediaGatewayPort type="int" w="1"></MediaGatewayPort>
+							<DeviceID type="string" w="1"></DeviceID>
+							<DeviceIDType type="uint" w="1"></DeviceIDType>
+							<PhysicalTermID type="string" w="1"></PhysicalTermID>
+							<PhysicalTermIDConfigMethod type="uint" w="1"></PhysicalTermIDConfigMethod>
+							<PhysicalTermIDPrefix type="uint" w="1"></PhysicalTermIDPrefix>
+							<PhysicalTermIDAddLen type="uint" w="1"></PhysicalTermIDAddLen>
+							<RTPPrefix type="string" w="1"></RTPPrefix>
+							<EphemeralTermIDAddLen type="uint" w="1"></EphemeralTermIDAddLen>
+							<EphemeralTermIDUniform type="uint" w="1"></EphemeralTermIDUniform>
+							<EphemeralTermIDStart type="uint" w="1">0</EphemeralTermIDStart>
+							<ThreeHandShake type="uint" w="1"></ThreeHandShake>
+							<LongTimer type="uint" w="1"></LongTimer>
+							<PendingTimerInit type="uint" w="1"></PendingTimerInit>
+							<RetranIntervalTimer type="uint" w="1"></RetranIntervalTimer>
+							<MaxRetranCount type="uint" w="1"></MaxRetranCount>
+							<RetransmissionTime type="int" w="1">25</RetransmissionTime>
+							<RetransmissionCycle type="int" w="1">4</RetransmissionCycle>
+							<HeartbeatMode type="uint" w="1">1</HeartbeatMode>
+							<HeartbeatCycle type="int" w="1">90</HeartbeatCycle>
+							<HeartbeatCount type="int" w="1">3</HeartbeatCount>
+							<RegisterCycle type="int[1:300]"></RegisterCycle>
+							<MandatoryRegister type="bool" w="1"></MandatoryRegister>
+							<AuthenticationMethID type="uint" w="1">0</AuthenticationMethID>
+						</X_CT-COM_H248>
+						<RTP type="object" op="FuncServVoipRTP">
+							<VLANIDMark type="int[-1:]" w="1"></VLANIDMark>
+							<X_CT-COM_802-1pMark type="int" w="1">-1</X_CT-COM_802-1pMark>
+							<DSCPMark type="uint[0:63]" w="1">0</DSCPMark>
+							<RTPStartPort type="uint[0:65535]" w="1">4000</RTPStartPort>
+						</RTP>
+						<NumberingPlan type="object" op="FuncServVoipNmuPlan">
+							<X_CT-COM_NumberPlan type="string" w="1"></X_CT-COM_NumberPlan>
+						</NumberingPlan>
+						<FaxT38 type="object" op="FuncServVoipFaxT38">
+							<Enable type="bool" w="1">0</Enable>
+						</FaxT38>
+						<X_CT-COM_G711FAX type="object" op="FuncServVoipG711Fax">
+							<Enable type="bool" w="1">0</Enable>
+							<ControlType type="string" w="1">all</ControlType>
+							<PT type="uint[0:127]" w="1">8</PT>
+							<Codec type="string" w="1">PCMA</Codec>
+						</X_CT-COM_G711FAX>
+						<LineNumberOfEntries type="uint" w="0" const="1">0</LineNumberOfEntries>
+						<Line type="array" w="1" op="FuncServVoipLines">
+							<i w="1" type="object" op="FuncServVoipLines">
+								<Enable type="string" w="1">Enabled</Enable>
+								<Status type="string" w="1">Disabled</Status>
+								<CallState type="string(256)" w="1">Idle</CallState>
+								<PhyReferenceList type="string(32)" w="1"></PhyReferenceList>
+								<Description type="string(256)" w="1"></Description>
+								<X_TRI-VoiceServiceExtComm type="object" op="FuncServVoipExtComm">
+									<TermNumber type="uint" w="1">0</TermNumber>
+									<CfnrTimer type="string" w="1">1</CfnrTimer>
+									<DhlTimer type="uint" w="1">1000</DhlTimer>
+									<MRF type="string" w="1"></MRF>
+								</X_TRI-VoiceServiceExtComm>
+								<CallingFeatures type="object" op="FuncServVoipCF">
+									<CallerIDEnable type="bool" w="1">1</CallerIDEnable>
+									<CallerID type="string" w="1"></CallerID>
+									<CallerIDNameEnable type="bool" w="1">0</CallerIDNameEnable>
+									<X_TRI-CallerIDHide_KeySet type="string" w="1"></X_TRI-CallerIDHide_KeySet>
+									<CallerIDName type="string" w="1"></CallerIDName>
+									<CallWaitingEnable type="bool" w="1">1</CallWaitingEnable>
+									<CallWaitingStatus type="string" w="1">Idle</CallWaitingStatus>
+									<X_TRI-CallWaitingKeySet_Enable type="string" w="1"></X_TRI-CallWaitingKeySet_Enable>
+									<X_TRI-CallWaitingKeySet_Disable type="string" w="1"></X_TRI-CallWaitingKeySet_Disable>
+									<ConferenceCallingStatus type="string" w="1">Idle</ConferenceCallingStatus>
+									<ConferenceCallingSessionCount type="uint" w="1">0</ConferenceCallingSessionCount>
+									<CallForwardUnconditionalEnable type="bool" w="1">0</CallForwardUnconditionalEnable>
+									<CallForwardUnconditionalNumber type="string" w="1"></CallForwardUnconditionalNumber>
+									<CallForwardLocalUnconditionalEnable type="bool" w="1">0</CallForwardLocalUnconditionalEnable>
+									<CallForwardLocalUnconditionalNumber type="string" w="1"></CallForwardLocalUnconditionalNumber>
+									<X_TRI-CallWaitingUnconditionalKeySet_Enable type="string" w="1"></X_TRI-CallWaitingUnconditionalKeySet_Enable>
+									<X_TRI-CallWaitingUnconditionalKeySet_Disable type="string" w="1"></X_TRI-CallWaitingUnconditionalKeySet_Disable>
+									<X_TRI-CallWaitingLocalUnconditionalKeySet_Enable type="string" w="1"></X_TRI-CallWaitingLocalUnconditionalKeySet_Enable>
+									<X_TRI-CallWaitingLocalUnconditionalKeySet_Disable type="string" w="1"></X_TRI-CallWaitingLocalUnconditionalKeySet_Disable>
+									<CallForwardOnBusyEnable type="bool" w="1">0</CallForwardOnBusyEnable>
+									<CallForwardOnBusyNumber type="string" w="1"></CallForwardOnBusyNumber>
+									<X_TRI-CallWaitingOnBusyKeySet_Enable type="string" w="1"></X_TRI-CallWaitingOnBusyKeySet_Enable>
+									<X_TRI-CallWaitingOnBusyKeySet_Disable type="string" w="1"></X_TRI-CallWaitingOnBusyKeySet_Disable>
+									<CallForwardOnNoAnswerEnable type="bool" w="1">0</CallForwardOnNoAnswerEnable>
+									<CallForwardOnNoAnswerNumber type="string" w="1"></CallForwardOnNoAnswerNumber>
+									<X_TRI-CallWaitingOnNoAnswerKeySet_Enable type="string" w="1"></X_TRI-CallWaitingOnNoAnswerKeySet_Enable>
+									<X_TRI-CallWaitingOnNoAnswerKeySet_Disable type="string" w="1"></X_TRI-CallWaitingOnNoAnswerKeySet_Disable>
+									<CallTransferEnable type="bool" w="1">1</CallTransferEnable>
+									<MWIEnable type="bool" w="1">0</MWIEnable>
+									<MessageWaiting type="bool" w="1"></MessageWaiting>
+									<AnonymousCallBlockEnable type="bool" w="1">0</AnonymousCallBlockEnable>
+									<AnonymousCalEnable type="bool" w="1">0</AnonymousCalEnable>
+									<DoNotDisturbEnable type="bool" w="1">0</DoNotDisturbEnable>
+									<CallReturnEnable type="bool" w="1"></CallReturnEnable>
+									<RepeatDialEnable type="bool" w="1"></RepeatDialEnable>
+								</CallingFeatures>
+								<X_CT-COM_IMS type="object" op="FuncServVoipIMS">
+									<dial-tone-pattern type="uint" w="0">0</dial-tone-pattern>
+									<mcid-service type="uint" w="0"></mcid-service>
+									<no-dialing-behaviour type="uint" w="0"></no-dialing-behaviour>
+									<hold-service type="uint" w="1">1</hold-service>
+									<three-party-service type="uint" w="1">1</three-party-service>
+									<conference-uri type="string" w="1"></conference-uri>
+									<hotline-uri type="string" w="1"></hotline-uri>
+									<cw-service type="uint" w="1">1</cw-service>
+									<X_TRI-VoiceServiceExt type="object" op="FuncServVoipExt">
+										<SingleCallTransfer type="bool" w="1">1</SingleCallTransfer>
+										<ExplicitCallTransfer type="bool" w="1">1</ExplicitCallTransfer>
+										<CallerIDEnable type="bool" w="1">0</CallerIDEnable>
+										<InfoReportFlag type="bool" w="1">0</InfoReportFlag>
+										<ThreeWayMode type="bool" w="1">1</ThreeWayMode>
+										<HotLine type="uint" w="1">0</HotLine>
+										<HLNumber type="string" w="1"></HLNumber>
+										<AntiPole type="bool" w="1">0</AntiPole>
+										<SubScribeEnable type="bool" w="1">0</SubScribeEnable>
+									</X_TRI-VoiceServiceExt>
+								</X_CT-COM_IMS>
+								<SIP type="object" op="FuncServVoipSIP">
+									<AuthUserName type="string(128)" w="1"></AuthUserName>
+									<AuthPassword type="string(128)" w="1"></AuthPassword>
+									<URI type="string(389)" w="1"></URI>
+								</SIP>
+								<X_CT-COM_H248 type="object" op="FuncServVoipH248">
+									<PhysicalTermID type="string" w="1"></PhysicalTermID>
+								</X_CT-COM_H248>
+								<Codec type="object">
+									<ListNumberOfEntries type="uint" w="0" const="1">0</ListNumberOfEntries>
+									<List type="array" w="1" op="FuncServVoipCodecList">
+										<i w="1" type="object">
+											<Enable type="bool" w="1">1</Enable>
+											<EntryID type="uint" w="1"></EntryID>
+											<Codec type="string" w="1"></Codec>
+											<Priority type="uint[1:]" w="1"></Priority>
+											<PacketizationPeriod type="string" w="1"></PacketizationPeriod>
+										</i>
+									</List>
+								</Codec>
+								<VoiceProcessing type="object" op="FuncServVoipVoiceProcess">
+									<TransmitGain type="int" w="1">0</TransmitGain>
+									<ReceiveGain type="int" w="1">0</ReceiveGain>
+									<EchoCancellationEnable type="bool" w="1">1</EchoCancellationEnable>
+									<EchoCancellationInUse type="bool" w="1"></EchoCancellationInUse>
+									<EchoCancellationTail type="uint" w="1"></EchoCancellationTail>
+								</VoiceProcessing>
+								<X_TRI-FLASHHOOK type="object" op="FuncServVoipFlashHook">
+								<FlashHookTime type="uint" w="1">50</FlashHookTime>
+								<FlashLowMin type="uint" w="1">100</FlashLowMin>
+									<FlashLowMax type="uint" w="1">500</FlashLowMax>
+									<VADEnable type="bool" w="1">0</VADEnable>
+								</X_TRI-FLASHHOOK>
+								<Stats type="object" op="FuncServVoipLineStats">
+									<ResetStatistics type="uint" w="1">0</ResetStatistics>
+									<PacketsSent type="uint" w="1">0</PacketsSent>
+									<PacketsReceived type="uint" w="1">0</PacketsReceived>
+									<BytesSent type="uint" w="1">0</BytesSent>
+									<BytesReceived type="uint" w="1">0</BytesReceived>
+									<PacketsLost type="uint" w="1">0</PacketsLost>
+									<IncomingCallsReceived type="uint" w="1">0</IncomingCallsReceived>
+									<IncomingCallsAnswered type="uint" w="1">0</IncomingCallsAnswered>
+									<IncomingCallsConnected type="uint" w="1">0</IncomingCallsConnected>
+									<IncomingCallsFailed type="uint" w="1">0</IncomingCallsFailed>
+									<OutgoingCallsAttempted type="uint" w="1">0</OutgoingCallsAttempted>
+									<OutgoingCallsAnswered type="uint" w="1">0</OutgoingCallsAnswered>
+									<OutgoingCallsConnected type="uint" w="1">0</OutgoingCallsConnected>
+									<OutgoingCallsFailed type="uint" w="1">0</OutgoingCallsFailed>
+									<TotalCallTime type="uint" w="1">0</TotalCallTime>
+									<ServerDownTime type="uint" w="1">0</ServerDownTime>
+									<ReceivePacketLossRate type="uint" w="1">0</ReceivePacketLossRate>
+									<FarEndPacketLossRate type="uint" w="1">0</FarEndPacketLossRate>
+									<ReceiveInterarrivalJitter type="uint" w="1">0</ReceiveInterarrivalJitter>
+									<FarEndInterarrivalJitter type="uint" w="1">0</FarEndInterarrivalJitter>
+									<RoundTripDelay type="uint" w="1">0</RoundTripDelay>
+									<AverageReceiveInterarrivalJitter type="uint" w="1">0</AverageReceiveInterarrivalJitter>
+									<AverageFarEndInterarrivalJitter type="uint" w="1">0</AverageFarEndInterarrivalJitter>
+									<AverageRoundTripDelay type="uint" w="1">0</AverageRoundTripDelay>
+								</Stats>
+							</i>
+						</Line>
+						<X_CT-COM_IADDiagnostics type="object" op="FuncServVoipIADDiag">
+							<IADDiagnosticsState type="string" w="1">None</IADDiagnosticsState>
+							<TestServer type="uint" w="1"></TestServer>
+							<RegistResult type="uint" w="0"></RegistResult>
+							<Reason type="uint" w="0"></Reason>
+						</X_CT-COM_IADDiagnostics>
+						<X_TRI-CID type="object" op="FuncServVoipCID">
+							<CidMode type="string" w="1">1</CidMode>
+							<TimeEnable type="string" w="1">0</TimeEnable>
+						</X_TRI-CID>
+						<DTMFMethod type="uint" w="1">1</DTMFMethod>
+						<DTMFPT type="uint" w="1">97</DTMFPT>
+						<X_TRI-Jitter type="object" op="FuncServVoipJitter">
+							<JitMode type="uint" w="1">1</JitMode>
+							<FixedJitLen type="uint" w="1">20</FixedJitLen>
+							<AdaptJitMin type="uint" w="1">20</AdaptJitMin>
+							<AdaptJitMax type="uint" w="1">200</AdaptJitMax>
+						</X_TRI-Jitter>
+						<X_TRI-ACTIONNumberOfEntries type="uint" w="0" const="1">0</X_TRI-ACTIONNumberOfEntries>
+						<X_TRI-ACTION type="array" op="FuncServAction">
+							<i type="object">
+								<Register type="unit" w="1">0</Register>
+								<Unregister type="unit" w="1">0</Unregister>
+								<Reboot type="unit" w="1">0</Reboot>
+							</i>
+						</X_TRI-ACTION>
+						<X_TRI-MediaConsult type="uint" w="1">0</X_TRI-MediaConsult>
+					</i>
+				</VoiceProfile>
+				<PhyInterfaceNumberOfEntries type="uint" w="0" const="1">0</PhyInterfaceNumberOfEntries>
+				<PhyInterface type="array" op="FuncServVoicePhyIf">
+					<i type="object">
+						<Alias type="string(64)" w="1"></Alias>
+						 <PhyPort type="string(2)" w="1"></PhyPort>
+						 <InterfaceID type="uint" w="1"></InterfaceID>
+						 <Description type="string(64)" w="1"></Description>
+						<Tests type="object" op="FuncServVoipPhyTest">
+							<TestState type="string" w="1">None</TestState>
+							<TestSelector type="string" w="1"></TestSelector>
+							<PhoneConnectivity type="bool" w="1"></PhoneConnectivity>
+							<X_CT-COM_SimulateTest type="object" op="FuncServVoipSimulateTest">
+								<TestType type="string" w="1">None</TestType>
+								<CalledNumber type="string(32)" w="1"></CalledNumber>
+								<DailDTMFConfirmEnable type="bool" w="1">0</DailDTMFConfirmEnable>
+								<DailDTMFConfirmNumber type="string(32)" w="1"></DailDTMFConfirmNumber>
+								<DailDTMFConfirmResult type="string" w="1"></DailDTMFConfirmResult>
+								<Status type="string" w="1"></Status>
+								<Conclusion type="string" w="1"></Conclusion>
+								<CallerFailReason type="string" w="1"></CallerFailReason>
+								<CalledFailReason type="string" w="1"></CalledFailReason>
+								<FailedResponseCode type="uint[0:]" w="1">0</FailedResponseCode>
+							</X_CT-COM_SimulateTest>
+						</Tests>
+						<X_CT-COM_Stats type="object" op="FuncServVoipStats">
+							<PoorQualityList type="array" max="10" op="FuncServVoipPoorQuaList">
+								<i type="object">
+									<StatTime type="datetime" w="0"></StatTime>
+									<TxPackets type="uint[0:]" w="0"></TxPackets>
+									<RxPackets type="uint[0:]" w="0"></RxPackets>
+									<MeanDelay type="uint[0:65535]" w="0"></MeanDelay>
+									<MeanJitter type="uint[0:65535]" w="0"></MeanJitter>
+									<FractionLoss type="uint[0:100]" w="0"></FractionLoss>
+									<LocalIPAddress type="string(16)" w="0"></LocalIPAddress>
+									<LocalUDPPort type="uint[0:65535]" w="0"></LocalUDPPort>
+									<FarEndIPAddress type="string(16)" w="0"></FarEndIPAddress>
+									<FarEndUDPPort type="uint[0:65535]" w="0"></FarEndUDPPort>
+									<MosLq type="uint" w="0"></MosLq>
+									<Codec type="string" w="0"></Codec>
+								</i>
+							</PoorQualityList>
+						</X_CT-COM_Stats>
+					</i>
+				</PhyInterface>
+				<Capabilities type="object" op="FuncServVoipCapbility">
+					<DigitMap type="bool" w="0"></DigitMap>
+					<SignalingProtocols type="string" w="0"></SignalingProtocols>
+					<X_CT-COM_Heartbeat type="bool" w="0"></X_CT-COM_Heartbeat>
+					<CodecsListNumberOfEntries type="uint" w="0" const="1">0</CodecsListNumberOfEntries>
+					<Codecs type="array" op="FuncServVoipCapCodec">
+						<i type="object">
+							<EntryID type="uint" w="0"></EntryID>
+							<Codec type="string" w="0"></Codec>
+							<PacketizationPeriod type="string" w="0"></PacketizationPeriod>
+						</i>
+					</Codecs>
+				</Capabilities>
+				<X_TRI_Dect type="object" op="FuncServDect">
+				  <DectEnable type="bool" w="1">0</DectEnable>
+				  <HandsetNumberOfEntries type="uint" w="0" const="1">0</HandsetNumberOfEntries>
+				  <Handset type="array" op="FuncServDect">
+				   <i type="object">
+				    <HandsetEnable type="bool" w="1"></HandsetEnable>
+				    <RequLineId type="uint" w="1"></RequLineId>
+				    <RepsLineId type="uint" w="1"></RepsLineId>
+					<HandsetName type="string(32)" w="1"></HandsetName>
+                    <HandsetId type="uint" w="1"></HandsetId>
+					<Status type="uint" w="1"></Status>
+					<Ipui type="string(32)" w="1"></Ipui>
+				   </i>
+				  </Handset>
+				</X_TRI_Dect>
+			</i>
+		</VoiceService>
+		<X_TRI_GRETunnel type="object" w="1" op="FuncServGRETunnel">
+			<TunnelListNumberOfEntries type="uint" w="0" const="1">0</TunnelListNumberOfEntries>
+			<TunnelList type="array" max="8" w="1" op="FuncServGRETunnelList">
+				<i w="1" type="object">
+					<TunnelEnable type="bool" w="1">0</TunnelEnable>
+					<TunnelName type="string" w="1"></TunnelName>
+					<TunnelMode type="string" w="1">gre</TunnelMode>
+					<TunnelIPAddr type="string" w="1"></TunnelIPAddr>
+					<TunnelIPMask type="string" w="1"></TunnelIPMask>
+					<WanInterface type="string" w="1"></WanInterface>
+					<RemoteIP type="string" w="1"></RemoteIP>
+					<LocalIP type="string" w="1"></LocalIP>
+					<TTL type="uint" w="1">255</TTL>
+				</i>
+			</TunnelList>
+		</X_TRI_GRETunnel>
+		<X_TRI_L2TP type="object" w="1" op="FuncServL2TP">
+			<X_TRI_L2TP_ENABLE type="bool" w="1">1</X_TRI_L2TP_ENABLE>
+			<TunnelListNumberOfEntries type="uint" w="0" const="1">0</TunnelListNumberOfEntries>
+			<TunnelList type="array" max="8" w="1" op="FuncServL2TPTunnelList">
+				<i w="1" type="object">
+					<WanInterface type="string" w="1"></WanInterface>
+					<ListenIP type="string" w="1"></ListenIP>
+					<TunnelEnable type="bool" w="1">0</TunnelEnable>
+					<TunnelName type="string" w="1"></TunnelName>
+					<TunnelMode type="string" w="1"></TunnelMode>
+					<TunnelLocalIP type="string" w="1"></TunnelLocalIP>
+					<LnsIP type="string" w="1"></LnsIP>
+					<LnsLanIP type="string" w="1"></LnsLanIP>
+					<LnsLanMask type="string" w="1"></LnsLanMask>
+					<PPPUserName type="string" w="1"></PPPUserName>
+					<PPPPassword type="string" w="1"></PPPPassword>
+				</i>
+			</TunnelList>
+		</X_TRI_L2TP>
+
+	    <X_TRI_RateLimit type="object" w="1" op="FuncRateLimitCfg">
+		    <PerPort type="array" w="1" max="12" op="FuncRateLimitPerPortCfg">
+			    <i w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1"></LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+			    </i>
+			    <1 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.1.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </1>
+			    <2 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.2.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </2>
+			    <3 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.3.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </3>
+			    <4 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.4.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </4>
+			    <5 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </5>
+			    <6 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.2.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </6>
+			    <7 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.3.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </7>
+			    <8 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.4.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </8>
+			    <9 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </9>
+			    <10 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.6.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </10>
+			    <11 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.7.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </11>
+			    <12 w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <LanPort type="string" w="1">InternetGatewayDevice.LANDevice.1.WLANConfiguration.8.</LanPort>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+                </12>
+            </PerPort>
+
+		    <PerIP type="array" max="32" w="1" op="FuncRateLimitPerIPCfg">
+			    <i w="1" type="object">
+				    <Enable type="bool" w="1">0</Enable>
+				    <Min type="string" w="1"></Min>
+				    <Max type="string" w="1"></Max>
+				    <Igr type="uint" w="1">0</Igr>
+				    <Egr type="uint" w="1">0</Egr>
+			    </i>
+		    </PerIP>
+	    </X_TRI_RateLimit>
+	
+		<X_TRI_IPSec type="object" w="1" op="FuncServIPSec">
+			<X_TRI_IPSec_Enable type="uint" w="1">1</X_TRI_IPSec_Enable>
+			<X_TRI_IPSec_Hardware_Accelate_Enable type="uint" w="1">0</X_TRI_IPSec_Hardware_Accelate_Enable>
+			<TunnelListNumberOfEntries type="uint" w="0" const="1">0</TunnelListNumberOfEntries>
+			<TunnelList type="array" max="100" w="1" op="FuncServIPSecTunnelList">
+				<i w="1" type="object">
+					<TunnelName type="string" w="1"></TunnelName>
+					<TunnelMode type="string" w="1">ESP</TunnelMode>
+					<WanConnection type="string" w="1"></WanConnection>
+					<RemoteGatewayAddress type="string" w="1">0.0.0.0</RemoteGatewayAddress>
+					<LocalMode type="string" w="1">Subnet</LocalMode>
+					<LocalIP type="string" w="1">0.0.0.0</LocalIP>
+					<LocalMask type="string" w="1">255.255.255.0</LocalMask>
+					<RemoteMode type="string" w="1">Subnet</RemoteMode>
+					<RemoteIP type="string" w="1">0.0.0.0</RemoteIP>
+					<RemoteMask type="string" w="1">255.255.255.0</RemoteMask>
+					<KeyMode type="string" w="1">AUTO</KeyMode>
+					<AuthenticationMode type="string" w="1">PreSharedKey</AuthenticationMode>
+					<PreSharedKey type="string" w="1">key</PreSharedKey>
+					<Certificates type="string" w="1"></Certificates>
+					<PerfectForwardSecrecy type="bool" w="1">0</PerfectForwardSecrecy>
+					<ConnectionMode type="string" w="1">Main</ConnectionMode>
+					<Phase1EncryptionAlgorithm type="string" w="1">DES</Phase1EncryptionAlgorithm>
+					<Phase1IntegrityAlgorithm type="string" w="1">MD5</Phase1IntegrityAlgorithm>
+					<Phase1DiffieHellmanGroup type="string" w="1">1024</Phase1DiffieHellmanGroup>
+					<Phase1KeyLifeTime type="string" w="1">3600</Phase1KeyLifeTime>
+					<Phase2EncryptionAlgorithm type="string" w="1">DES</Phase2EncryptionAlgorithm>
+					<Phase2IntegrityAlgorithm type="string" w="1">MD5</Phase2IntegrityAlgorithm>
+					<Phase2DiffieHellmanGroup type="string" w="1">1024</Phase2DiffieHellmanGroup>
+					<Phase2KeyLifeTime type="string" w="1">3600</Phase2KeyLifeTime>
+					<ManualEncryptionAlgorithm type="string" w="1"></ManualEncryptionAlgorithm>
+					<ManualEncryptionKey type="string" w="1"></ManualEncryptionKey>
+					<ManualAuthenticationAlgorithm type="string" w="1"></ManualAuthenticationAlgorithm>
+					<ManualAuthenticationKey type="string" w="1"></ManualAuthenticationKey>
+					<ManualSPI type="string" w="1"></ManualSPI>
+				</i>
+			</TunnelList>
+		</X_TRI_IPSec>
+		<ServiceTelnet type="object" op="FuncServTelnet">
+			<Enable type="bool" w="1">1</Enable>
+			<Port type="string" w="1">23</Port>
+		</ServiceTelnet>
+		<ServiceSSH type="object" op="FuncServSSH">
+			<Enable type="bool" w="1">0</Enable>
+			<Port type="string" w="1">22</Port>
+		</ServiceSSH>
+		<ServiceFTP type="object" op="FuncServFTP">
+			<Enable type="bool" w="1">1</Enable>
+			<Status w="1" type="bool">0</Status>
+			<ServerName type="string" w="1">Triductor</ServerName>
+			<Port type="string" w="1">21</Port>
+			<RootDIR type="string" w="1">/mnt</RootDIR>
+			<MaxConn type="uint" w="1">10</MaxConn>
+			<AllowAnonymous type="bool" w="1">0</AllowAnonymous>
+		</ServiceFTP>
+		<ServiceTFTP type="object" op="FuncServTFTP">
+			<Enable type="bool" w="1">0</Enable>
+			<Port type="string" w="1">69</Port>
+			<RootDIR type="string" w="1"></RootDIR>
+		</ServiceTFTP>
+		<X_TRI-ServicePrinter type="object" op="FuncServPrinter">
+			<Enabled type="bool" w="1">0</Enabled>
+			<QueueName type="string" w="1">myprinter</QueueName>
+		</X_TRI-ServicePrinter>
+		<ServiceSNMP type="object" op="FuncServSNMP">
+			<Enable type="bool" w="1">0</Enable>
+			<Port type="uint" w="1">161</Port>
+			<SystemContact type="string" w="1"></SystemContact>
+			<SystemName type="string" w="1"></SystemName>
+			<SystemLocation type="string" w="1"></SystemLocation>
+			<PublicCommunity type="string" w="1"></PublicCommunity>
+			<PrivateCommunity type="string" w="1"></PrivateCommunity>
+			<TrapEnabled type="bool" w="1">0</TrapEnabled>
+			<TrapVersion type="string" w="1">SNMPV1</TrapVersion>
+			<TrapAddress type="string" w="1">192.168.1.100</TrapAddress>
+		</ServiceSNMP>
+		<ServiceSamba type="object" op="FuncServSamba">
+			<Enable type="bool" w="1">0</Enable>
+			<Port type="uint" w="1">445</Port>
+			<Status w="1" type="bool">0</Status>
+			<NetBIOSName w="1" type="string(16)">Samba</NetBIOSName>
+			<NetWorkGroup w="1" type="string(16)">WORKGROUP</NetWorkGroup>
+			<SambaPathInterface type="string(256)" w="1">public</SambaPathInterface>
+		</ServiceSamba>
+		<ServiceStorage type="object" op="FuncServStorage">
+			<AccountNumberOfEntries type="uint" w="0" const="1">0</AccountNumberOfEntries>
+			<Account type="array" max="10" w="1" op="FuncServStorageUserAccount">
+				<i w="1" type="object">
+					<Username w="1" type="string(16)">username</Username>
+					<Password w="1" type="string(16)">password</Password>
+					<Enable w="1" type="bool">0</Enable>
+					<FTPEnableUpload w="1" type="bool">0</FTPEnableUpload>
+					<FTPEnableDownload w="1" type="bool">0</FTPEnableDownload>
+				</i>
+			</Account>
+		</ServiceStorage>
+		<ServiceAccessControl type="object" op="FuncSCL">
+			<Enable type="bool" w="1">0</Enable>
+			<OnlyTr69Wan type="bool" w="1">0</OnlyTr69Wan>
+			<ServiceCtrlListNumberOfEntries type="uint" w="0" const="1">0</ServiceCtrlListNumberOfEntries>
+			<ServiceCtrlList type="array" max="50" w="1" depend="ServiceAccessControl" op="FuncSrvLists">
+				<i w="1" type="object">
+					<ServiceName type="string" w="1">HTTP</ServiceName>
+					<Enable type="bool" w="1">0</Enable>
+					<AccessDirection type="string" w="1">WAN</AccessDirection>
+					<SrcIpRange type="string" w="1"></SrcIpRange>
+					<Action type="string" w="1">ACCEPT</Action>
+					<IPMode type="int" w="1">1</IPMode>
+					<Port type="int" w="1"></Port>
+				</i>
+			</ServiceCtrlList>
+		</ServiceAccessControl>
+		<ServiceDLNA type="object" w="0" key="utils:dlna" op="FuncDlnaServer">
+			<Enable type="bool" w="1">0</Enable>
+			<Status type="uint" w="1">0</Status>
+			<MediaDIR type="string" w="1"></MediaDIR>
+		</ServiceDLNA>
+	</Services>
+	<X_TRI_RemoteAccess type="object" key="sysmgr:capabinfo" op="FuncRemoteAccess">
+		<Enable type="bool" w="1">0</Enable>
+		<RemoteIPListNumberOfEntries type="uint" w="0" const="1">0</RemoteIPListNumberOfEntries>
+		<RemoteIPList type="array" max="32" w="1" op="FuncRemoteIPList">
+			<i w="1" type="object">
+				<RemoteIPAddress type="string" w="0"></RemoteIPAddress>
+			</i>
+		</RemoteIPList>
+	</X_TRI_RemoteAccess>
+	<X_CT-COM_UserInfo type="object" key="sysmgr:capabinfo" op="FuncUserInfo">
+		<UserId type="string(32)" w="1"></UserId>
+		<UserName type="string(256)" w="1"></UserName>
+		<Status type="uint" w="1">99</Status>
+		<Limit type="uint" w="1">10</Limit>
+		<Times type="uint" w="1">0</Times>
+		<Result type="uint" w="1">99</Result>
+		<ServiceNum type="uint" w="1">0</ServiceNum>
+		<ServiceName type="string(32)" w="1"></ServiceName>
+		<X_CT-COM_PPPName type="string" w="1"></X_CT-COM_PPPName>
+		<X_CT-COM_AuthComplete type="bool" w="0">0</X_CT-COM_AuthComplete>
+		<SessionTimeout type="uint" w="1">300</SessionTimeout>
+		<BlockTimeout type="uint" w="1">60</BlockTimeout>
+		<LeftTime type="uint" w="1">0</LeftTime>
+		<X_TRI-UserPasswordMinLength type="uint" w="1">1</X_TRI-UserPasswordMinLength>
+		<UserNumberOfEntries type="uint" w="0" const="1">0</UserNumberOfEntries>
+		<UserList type="array" max="2" w="1" op="FuncUserInfoUserListI" refer="UserNumberOfEntries">
+			<i w="1" type="object">
+				<UserName type="string" w="1">admin</UserName>
+				<Password type="string" w="1">8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918</Password>
+				<Password_realtext type="string" w="1" hidden="1">admin</Password_realtext>
+				<Level type="uint" w="0">1</Level>
+			</i>
+		</UserList>
+	</X_CT-COM_UserInfo>
+	<X_CT-COM_ACL type="object" key="srvcmgr:acl" op="FuncACL">
+		<RACLEnable type="bool" w="1">1</RACLEnable>
+		<RACLNumberOfEntries type="uint" w="0" const="1">0</RACLNumberOfEntries>
+		<RACL type="array" max="32" w="1" op="FuncAclRaclI">
+			<i w="1" type="object">
+				<WanConnection type="string" w="1"></WanConnection>
+				<ServiceNumberOfEntries type="uint" w="0" const="1">0</ServiceNumberOfEntries>
+				<Service type="array" max="100" w="1" op="FuncAclRaclIServiceI">
+					<i w="1" type="object">
+						<Name type="string" w="1"></Name>
+						<Enable type="bool" w="1">0</Enable>
+						<Protocol type="string" w="1"></Protocol>
+						<SrcIP type="string" w="1">0.0.0.0</SrcIP>
+						<SrcMask type="string" w="1">0.0.0.0</SrcMask>
+						<InternalPort type="uint" w="1">0</InternalPort>
+						<ExternalPort type="uint" w="1">0</ExternalPort>
+					</i>
+				</Service>
+			</i>
+		</RACL>
+		<LACLEnable type="bool" w="1">0</LACLEnable>
+		<LACLNumberOfEntries type="uint" w="0" const="1">0</LACLNumberOfEntries>
+		<LACL type="array" max="32" w="1" op="FuncAclLaclI">
+			<i w="1" type="object">
+				<WanConnection type="string" w="1"></WanConnection>
+				<ServiceNumberOfEntries type="uint" w="0" const="1">0</ServiceNumberOfEntries>
+				<Service type="array" max="100" w="1" op="FuncAclLaclIServiceI">
+					<i w="1" type="object">
+						<Name type="string" w="1"></Name>
+						<Enable type="bool" w="1">1</Enable>
+						<Protocol type="string" w="1"></Protocol>
+						<SrcIP type="string" w="1">0.0.0.0</SrcIP>
+						<SrcMask type="string" w="1">0.0.0.0</SrcMask>
+						<InternalPort type="uint" w="1">0</InternalPort>
+					</i>
+				</Service>
+			</i>
+		</LACL>
+	</X_CT-COM_ACL>
+	<X_CT-COM_Logger type="object" key="utils:logmgt" depend="X_CT-COM_Syslog" op="FuncLogger">
+		<DisplayLevel type="uint" w="1">3</DisplayLevel>
+		<RemoteLogger type="string(64)" w="1"></RemoteLogger>
+		<RemotePort type="uint" w="1">514</RemotePort>
+		<RemoteLogEnabled type="bool" w="1">0</RemoteLogEnabled>
+		<DebugLogEnabled type="bool" w="1">0</DebugLogEnabled>
+		<DebugLogFileSize type="uint" w="1">0</DebugLogFileSize>
+		<LogUploadTrigger type="bool" w="1">0</LogUploadTrigger>
+		<LogClearTrigger type="bool" w="1">0</LogClearTrigger>
+		<LogTFTPServer type="string(64)" w="1"></LogTFTPServer>
+	</X_CT-COM_Logger>
+	<X_CT-COM_Multicast type="object" key="srvcmgr:multicast" op="FuncMulticast">
+        <IGMPSnooping type="object" op="FuncIGMPSnooping">
+            <Enable type="bool" w="1">1</Enable>
+        </IGMPSnooping>
+        <IGMPProxy type="object" op="FuncIGMPProxy">
+            <Enable type="bool" w="1">1</Enable>
+            <WANPathName type="string" w="1"></WANPathName>
+            <WANVersion type="uint" w="1">3</WANVersion>
+            <LANVersion type="uint" w="1">2</LANVersion>
+            <QI type="uint" w="1">125</QI>
+            <QRI type="uint" w="1">100</QRI>
+            <LMQI type="uint" w="1">10</LMQI>
+            <ROBUST type="uint" w="1">2</ROBUST>
+            <MMDS type="uint" w="1">10</MMDS>
+            <FLEnable type="bool" w="1">1</FLEnable>
+        </IGMPProxy>
+        <MLDSnooping type="object" op="FuncMLDSnooping">
+            <Enable type="bool" w="1">1</Enable>
+        </MLDSnooping>
+        <MLDProxy type="object" op="FuncMLDProxy">
+            <Enable type="bool" w="1">1</Enable>
+            <WANPathName type="string" w="1"></WANPathName>
+            <Version type="uint" w="1">2</Version>
+            <QI type="uint" w="1">125</QI>
+            <QRI type="uint" w="1">100</QRI>
+            <LMQI type="uint" w="1">10</LMQI>
+            <ROBUST type="uint" w="1">2</ROBUST>
+            <MMDS type="uint" w="1">10</MMDS>
+            <FLEnable type="bool" w="1">1</FLEnable>
+        </MLDProxy>
+	</X_CT-COM_Multicast>
+	<X_CT-COM_UplinkQoS type="object" w="1" key="srvcmgr:acl" op="FuncUplinkQoS">
+		<Mode type="string" w="1">TR069,IPTV,INTERNET</Mode>
+		<Enable type="bool" w="1">0</Enable>
+		<Bandwidth type="uint" w="1">0</Bandwidth>
+		<Plan type="string" w="1">priority</Plan>
+		<EnableForceWeight type="bool" w="1">0</EnableForceWeight>
+		<EnableDSCPMark type="bool" w="1">0</EnableDSCPMark>
+		<Enable802-1_P type="uint" w="1">0</Enable802-1_P>
+		<TcpSessionRestrict type="object" w="1" op="FuncUplinkQoSTcpSessionRestrict">
+			<Enable type="bool" w="1">0</Enable>
+			<LimitMode type="uint[1:2]" w="1">1</LimitMode>
+			<LimitPercentage type="uint[0:100]" w="1">60</LimitPercentage>
+			<LimitNumber type="uint" w="1">2048</LimitNumber>
+		</TcpSessionRestrict>
+		<AppNumberOfEntries type="uint" w="0" const="1">0</AppNumberOfEntries>
+		<App type="array" max="4" w="1" op="FuncUplinkQoSAppI">
+			<i w="1" type="object">
+				<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+				<AppName type="string" w="1"></AppName>
+				<ClassQueue type="int" w="1">1</ClassQueue>
+				<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+				<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+			</i>
+		</App>
+		<ClassificationNumberOfEntries type="uint" w="0" const="1">0</ClassificationNumberOfEntries>
+		<Classification type="array" max="100" w="1" op="FuncUplinkQoSClassificationI">
+			<i w="1" type="object">
+				<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+				<ClassQueue type="int" w="1">1</ClassQueue>
+				<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+				<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+				<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+				<typeNumberOfEntries type="uint" w="0" const="1">0</typeNumberOfEntries>
+				<type type="array" w="1" op="FuncUplinkQoSClassificationITypeI">
+					<i w="1" type="object">
+						<Type type="string" w="1"></Type>
+						<Min type="string" w="1"></Min>
+						<Max type="string" w="1"></Max>
+						<ProtocolList type="string" w="1"></ProtocolList>
+					</i>
+				</type>
+			</i>
+		</Classification>
+		<PriorityQueueNumberOfEntries type="uint" w="0" const="1">8</PriorityQueueNumberOfEntries>
+		<PriorityQueue type="array" w="1" max="8" op="FuncUplinkQoSPriorityQueueI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">0</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</i>
+			<1 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1" const="1">1</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</1>
+			<2 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">2</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</2>
+			<3 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">3</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</3>
+			<4 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">4</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</4>
+			<5 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">5</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</5>
+			<6 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">6</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</6>
+			<7 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">7</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</7>
+			<8 w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Priority type="uint" w="1">8</Priority>
+				<Weight type="uint" w="1">0</Weight>
+				<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+			</8>
+		</PriorityQueue>
+	</X_CT-COM_UplinkQoS>
+	<X_TRI_UplinkQoSNumberOfEntries type="uint" w="0" const="1">4</X_TRI_UplinkQoSNumberOfEntries>
+	<X_TRI_UplinkQoS_Template type="array" max="4" key="sysmgr:devInfo" hidden="1" refer="X_TRI_UplinkQoSNumberOfEntries">
+		<1 type="object">
+			<Mode type="string" w="1">TR069,INTERNET</Mode>
+			<Enable type="bool" w="1">0</Enable>
+			<Bandwidth type="uint" w="1">0</Bandwidth>
+			<Plan type="string" w="1">priority</Plan>
+			<EnableForceWeight type="bool" w="1">0</EnableForceWeight>
+			<EnableDSCPMark type="bool" w="1">0</EnableDSCPMark>
+			<Enable802-1_P type="uint" w="1">0</Enable802-1_P>
+			<TcpSessionRestrict type="object" w="1">
+				<Enable type="bool" w="1">0</Enable>
+				<LimitMode type="uint[1:2]" w="1">1</LimitMode>
+				<LimitPercentage type="uint[0:100]" w="1">60</LimitPercentage>
+				<LimitNumber type="uint" w="1">2048</LimitNumber>
+			</TcpSessionRestrict>
+			<AppNumberOfEntries type="uint" w="0" const="1">1</AppNumberOfEntries>
+			<App type="array" max="4" op="FuncUplinkQoSAppI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<AppName type="string" w="1"></AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</i>
+				<1 type="object">
+					<X_TRI-Enable type="int" w="1">1</X_TRI-Enable>
+					<AppName type="string" w="1">TR069</AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</1>
+			</App>
+			<ClassificationNumberOfEntries type="uint" w="0" const="1">0</ClassificationNumberOfEntries>
+			<Classification type="array" max="100" op="FuncUplinkQoSClassificationI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">0</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+					</type>
+				</i>
+			</Classification>
+			<PriorityQueueNumberOfEntries type="uint" w="0" const="1">8</PriorityQueueNumberOfEntries>
+			<PriorityQueue type="array" w="1" max="8" op="FuncUplinkQoSPriorityQueueI">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">0</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</i>
+				<1 type="object">
+					<Enable type="bool" w="1">1</Enable>
+					<Priority type="uint" w="1">1</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</1>
+				<2 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">2</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</2>
+				<3 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">3</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</3>
+				<4 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">4</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</4>
+				<5 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">5</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</5>
+				<6 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">6</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</6>
+				<7 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">7</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</7>
+				<8 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">8</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</8>
+			</PriorityQueue>
+		</1>
+		<2 type="object">
+			<Mode type="string" w="1">TR069,IPTV,INTERNET</Mode>
+			<Enable type="bool" w="1">0</Enable>
+			<Bandwidth type="uint" w="1">0</Bandwidth>
+			<Plan type="string" w="1">priority</Plan>
+			<EnableForceWeight type="bool" w="1">0</EnableForceWeight>
+			<EnableDSCPMark type="bool" w="1">0</EnableDSCPMark>
+			<Enable802-1_P type="uint" w="1">0</Enable802-1_P>
+			<TcpSessionRestrict type="object" w="1">
+				<Enable type="bool" w="1">0</Enable>
+				<LimitMode type="uint[1:2]" w="1">1</LimitMode>
+				<LimitPercentage type="uint[0:100]" w="1">60</LimitPercentage>
+				<LimitNumber type="uint" w="1">2048</LimitNumber>
+			</TcpSessionRestrict>
+			<AppNumberOfEntries type="uint" w="0" const="1">1</AppNumberOfEntries>
+			<App type="array" max="4" op="FuncUplinkQoSAppI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<AppName type="string" w="1"></AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</i>
+				<1 type="object">
+					<X_TRI-Enable type="int" w="1">1</X_TRI-Enable>
+					<AppName type="string" w="1">TR069</AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</1>
+			</App>
+			<ClassificationNumberOfEntries type="uint" w="0" const="1">1</ClassificationNumberOfEntries>
+			<Classification type="array" max="100" op="FuncUplinkQoSClassificationI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">0</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+					</type>
+				</i>
+				<1 type="object">
+					<X_TRI-Enable type="int" w="1">1</X_TRI-Enable>
+					<ClassQueue type="int" w="1">2</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">1</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+						<1 type="object">
+							<Type type="string" w="1">LANInterface</Type>
+							<Min type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.2</Min>
+							<Max type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.2</Max>
+							<ProtocolList type="string" w="1">TCP,UDP</ProtocolList>
+						</1>
+					</type>
+				</1>
+			</Classification>
+			<PriorityQueueNumberOfEntries type="uint" w="0" const="1">8</PriorityQueueNumberOfEntries>
+			<PriorityQueue type="array" w="1" max="8" op="FuncUplinkQoSPriorityQueueI">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">0</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</i>
+				<1 type="object">
+					<Enable type="bool" w="1">1</Enable>
+					<Priority type="uint" w="1">1</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</1>
+				<2 type="object">
+					<Enable type="bool" w="1">1</Enable>
+					<Priority type="uint" w="1">2</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</2>
+				<3 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">3</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</3>
+				<4 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">4</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</4>
+				<5 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">5</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</5>
+				<6 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">6</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</6>
+				<7 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">7</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</7>
+				<8 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">8</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</8>
+			</PriorityQueue>
+		</2>
+		<3 type="object">
+			<Mode type="string" w="1">IPTV,TR069,INTERNET</Mode>
+			<Enable type="bool" w="1">0</Enable>
+			<Bandwidth type="uint" w="1">0</Bandwidth>
+			<Plan type="string" w="1">priority</Plan>
+			<EnableForceWeight type="bool" w="1">0</EnableForceWeight>
+			<EnableDSCPMark type="bool" w="1">0</EnableDSCPMark>
+			<Enable802-1_P type="uint" w="1">0</Enable802-1_P>
+			<TcpSessionRestrict type="object" w="1">
+				<Enable type="bool" w="1">0</Enable>
+				<LimitMode type="uint[1:2]" w="1">1</LimitMode>
+				<LimitPercentage type="uint[0:100]" w="1">60</LimitPercentage>
+				<LimitNumber type="uint" w="1">2048</LimitNumber>
+			</TcpSessionRestrict>
+			<AppNumberOfEntries type="uint" w="0" const="1">1</AppNumberOfEntries>
+			<App type="array" max="4" op="FuncUplinkQoSAppI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<AppName type="string" w="1"></AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</i>
+				<1 type="object">
+					<X_TRI-Enable type="int" w="1">1</X_TRI-Enable>
+					<AppName type="string" w="1">TR069</AppName>
+					<ClassQueue type="int" w="1">2</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</1>
+			</App>
+			<ClassificationNumberOfEntries type="uint" w="0" const="1">1</ClassificationNumberOfEntries>
+			<Classification type="array" max="100" op="FuncUplinkQoSClassificationI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">1</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+					</type>
+				</i>
+				<1 type="object">
+					<X_TRI-Enable type="int" w="1">1</X_TRI-Enable>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">1</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+						<1 type="object">
+							<Type type="string" w="1">LANInterface</Type>
+							<Min type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.2</Min>
+							<Max type="string" w="1">InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.2</Max>
+							<ProtocolList type="string" w="1">TCP,UDP</ProtocolList>
+						</1>
+					</type>
+				</1>
+			</Classification>
+			<PriorityQueueNumberOfEntries type="uint" w="0" const="1">8</PriorityQueueNumberOfEntries>
+			<PriorityQueue type="array" w="1" max="8" op="FuncUplinkQoSPriorityQueueI">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">0</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</i>
+				<1 type="object">
+					<Enable type="bool" w="1">1</Enable>
+					<Priority type="uint" w="1">1</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</1>
+				<2 type="object">
+					<Enable type="bool" w="1">1</Enable>
+					<Priority type="uint" w="1">2</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</2>
+				<3 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">3</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</3>
+				<4 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">4</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</4>
+				<5 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">5</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</5>
+				<6 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">6</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</6>
+				<7 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">7</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</7>
+				<8 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">8</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</8>
+			</PriorityQueue>
+		</3>
+		<4 type="object">
+			<Mode type="string" w="1">OTHER</Mode>
+			<Enable type="bool" w="1">0</Enable>
+			<Bandwidth type="uint" w="1">0</Bandwidth>
+			<Plan type="string" w="1">priority</Plan>
+			<EnableForceWeight type="bool" w="1">0</EnableForceWeight>
+			<EnableDSCPMark type="bool" w="1">0</EnableDSCPMark>
+			<Enable802-1_P type="uint" w="1">0</Enable802-1_P>
+			<TcpSessionRestrict type="object" w="1">
+				<Enable type="bool" w="1">0</Enable>
+				<LimitMode type="uint[1:2]" w="1">1</LimitMode>
+				<LimitPercentage type="uint[0:100]" w="1">60</LimitPercentage>
+				<LimitNumber type="uint" w="1">2048</LimitNumber>
+			</TcpSessionRestrict>
+			<AppNumberOfEntries type="uint" w="0" const="1">0</AppNumberOfEntries>
+			<App type="array" max="4" op="FuncUplinkQoSAppI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<AppName type="string" w="1"></AppName>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<X_TRI-DSCPMarkValue type="int" w="1">-1</X_TRI-DSCPMarkValue>
+					<X_TRI-802-1_P_Value type="int" w="1">-1</X_TRI-802-1_P_Value>
+				</i>
+			</App>
+			<ClassificationNumberOfEntries type="uint" w="0" const="1">0</ClassificationNumberOfEntries>
+			<Classification type="array" max="100" op="FuncUplinkQoSClassificationI">
+				<i type="object">
+					<X_TRI-Enable type="int" w="1">0</X_TRI-Enable>
+					<ClassQueue type="int" w="1">1</ClassQueue>
+					<DSCPMarkValue type="int" w="1">-1</DSCPMarkValue>
+					<802-1_P_Value type="int" w="1">-1</802-1_P_Value>
+					<X_TRI-TC type="int" w="1">-1</X_TRI-TC>
+					<typeNumberOfEntries type="uint" w="0" const="1">0</typeNumberOfEntries>
+					<type type="array" op="FuncUplinkQoSClassificationITypeI">
+						<i type="object">
+							<Type type="string" w="1"></Type>
+							<Min type="string" w="1"></Min>
+							<Max type="string" w="1"></Max>
+							<ProtocolList type="string" w="1"></ProtocolList>
+						</i>
+					</type>
+				</i>
+			</Classification>
+			<PriorityQueueNumberOfEntries type="uint" w="0" const="1">8</PriorityQueueNumberOfEntries>
+			<PriorityQueue type="array" w="1" max="8" op="FuncUplinkQoSPriorityQueueI">
+				<i type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">0</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</i>
+				<1 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">1</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</1>
+				<2 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">2</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</2>
+				<3 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">3</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</3>
+				<4 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">4</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</4>
+				<5 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">5</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</5>
+				<6 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">6</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</6>
+				<7 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">7</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</7>
+				<8 type="object">
+					<Enable type="bool" w="1">0</Enable>
+					<Priority type="uint" w="1">8</Priority>
+					<Weight type="uint" w="1">0</Weight>
+					<X_TRI-ConfirmedRate type="uint" w="1" hidden="1">0</X_TRI-ConfirmedRate>
+				</8>
+			</PriorityQueue>
+		</4>
+	</X_TRI_UplinkQoS_Template>
+
+	<X_CT-COM_IPv6Layer3Forwarding type="object" key="srvcmgr:l3" op="FuncIPv6Layer3Forwarding">
+		<ForwardNumberOfEntries type="uint" w="0" const="1">0</ForwardNumberOfEntries>
+		<IPv6Forwarding type="array" max="100" w="1" op="FuncIPv6Layer3ForwardingI" refer="ForwardNumberOfEntries">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Status type="string" w="0">Disabled</Status>
+				<Type type="string" w="1">Network</Type>
+				<SourceIPv6Address type="string" w="1"></SourceIPv6Address>
+				<SourcePrefixLength type="uint" w="1"></SourcePrefixLength>
+				<DestIPv6Address type="string" w="1"></DestIPv6Address>
+				<DestPrefixLength type="uint" w="1"></DestPrefixLength>
+				<ForwardingMetric type="uint" w="1"></ForwardingMetric>
+				<GatewayIPv6Address type="string" w="1"></GatewayIPv6Address>
+				<Interface type="string" w="1"></Interface>
+				<MTU type="uint" w="1"></MTU>
+				<StaticRoute type="bool" w="1">1</StaticRoute>
+				<X_CT-COM_ErrorInfo type="string" w="0">NULL</X_CT-COM_ErrorInfo>
+			</i>
+		</IPv6Forwarding>
+	</X_CT-COM_IPv6Layer3Forwarding>
+	<X_CT-COM_Firewall type="object" key="srvcmgr:firewall" op="FuncFirewall">
+		<IPFilterEnable type="bool" w="1">1</IPFilterEnable>
+		<SecurityLevel type="string" w="1">M</SecurityLevel>
+		<CurrentLANFilterTable type="uint" w="1">2</CurrentLANFilterTable>
+		<CurrentWANFilterTable type="uint" w="1">1</CurrentWANFilterTable>
+
+		<WanBlackFilterNumberOfEntries type="uint" w="0" const="1">0</WanBlackFilterNumberOfEntries>
+		<WanBlackFilter type="array" max="100" w="1" op="FuncFirewallWanBlackFilterI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">1</Enable>
+				<Description type="string" w="1"></Description>
+				<SrcIP type="string" w="1"></SrcIP>
+				<SrcMask type="string" w="1"></SrcMask>
+				<DestIP type="string" w="1"></DestIP>
+				<DstMask type="string" w="1"></DstMask>
+				<Protocol type="string" w="1"></Protocol>
+				<SrcPort type="string" w="1"></SrcPort>
+				<DestPort type="string" w="1"></DestPort>
+				<DevPath type="string" w="1"></DevPath>
+			</i>
+		</WanBlackFilter>
+		<WanWhiteFilterNumberOfEntries type="uint" w="0" const="1">0</WanWhiteFilterNumberOfEntries>
+		<WanWhiteFilter type="array" max="100" w="1" op="FuncFirewallWanWhiteFilterI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">1</Enable>
+				<Description type="string" w="1"></Description>
+				<SrcIP type="string" w="1"></SrcIP>
+				<DestIP type="string" w="1"></DestIP>
+				<SrcMask type="string" w="1"></SrcMask>
+				<DstMask type="string" w="1"></DstMask>
+				<Protocol type="string" w="1"></Protocol>
+				<SrcPort type="string" w="1"></SrcPort>
+				<DestPort type="string" w="1"></DestPort>
+				<DevPath type="string" w="1"></DevPath>
+			</i>
+		</WanWhiteFilter>
+		<LanBlackFilterNumberOfEntries type="uint" w="0" const="1">0</LanBlackFilterNumberOfEntries>
+		<LanBlackFilter type="array" max="100" w="1" op="FuncFirewallLanBlackFilterI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">1</Enable>
+				<Description type="string" w="1"></Description>
+				<SrcIP type="string" w="1"></SrcIP>
+				<SrcMask type="string" w="1"></SrcMask>
+				<DestIP type="string" w="1"></DestIP>
+				<DstMask type="string" w="1"></DstMask>
+				<Protocol type="string" w="1"></Protocol>
+				<SrcPort type="string" w="1"></SrcPort>
+				<DestPort type="string" w="1"></DestPort>
+				<DevPath type="string" w="1"></DevPath>
+			</i>
+		</LanBlackFilter>
+		<LanWhiteFilterNumberOfEntries type="uint" w="0" const="1">0</LanWhiteFilterNumberOfEntries>
+		<LanWhiteFilter type="array" max="100" w="1" op="FuncFirewallLanWhiteFilterI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">1</Enable>
+				<Description type="string" w="1"></Description>
+				<SrcIP type="string" w="1"></SrcIP>
+				<SrcMask type="string" w="1"></SrcMask>
+				<DestIP type="string" w="1"></DestIP>
+				<DstMask type="string" w="1"></DstMask>
+				<Protocol type="string" w="1"></Protocol>
+				<SrcPort type="string" w="1"></SrcPort>
+				<DestPort type="string" w="1"></DestPort>
+				<DevPath type="string" w="1"></DevPath>
+			</i>
+		</LanWhiteFilter>
+	</X_CT-COM_Firewall>
+	<X_CT-COM_AntiAttack type="object" key="srvcmgr:firewall" op="FuncAntiAttack">
+		<AntiLogEnable type="bool" w="1">0</AntiLogEnable>
+		<AntiDosEnable type="bool" w="1">1</AntiDosEnable>
+		<AntiDos type="object" op="FuncAntiAttackDos">
+			<SynCookieEnable type="bool" w="1">1</SynCookieEnable>
+			<SynMaxConnections type="uint" w="1">30</SynMaxConnections>
+			<SynProposedMaxConnections type="uint" w="0">30</SynProposedMaxConnections>
+			<IcmpEchoIgnrBcastEnable type="bool" w="1">1</IcmpEchoIgnrBcastEnable>
+			<IgnrPortScanEnable type="bool" w="1">1</IgnrPortScanEnable>
+			<AntiFraggleEnable type="bool" w="1">1</AntiFraggleEnable>
+			<AntiEchoCargenEnable type="bool" w="1">1</AntiEchoCargenEnable>
+			<AntiIPLandEnable type="bool" w="1">1</AntiIPLandEnable>
+			<ArpRateLimitEnable type="bool" hidden="1" w="1">1</ArpRateLimitEnable>
+			<ArpMaxPacketsPerSecond type="uint" hidden="1" w="1">20</ArpMaxPacketsPerSecond>
+			<DhcpRateLimitEnable type="bool" hidden="1" w="1">1</DhcpRateLimitEnable>
+			<DhcpMaxPacketsPerSecond type="uint" hidden="1" w="1">10</DhcpMaxPacketsPerSecond>
+			<IgmpRateLimitEnable type="bool" hidden="1" w="1">1</IgmpRateLimitEnable>
+			<IgmpMaxPacketsPerSecond type="uint" hidden="1" w="1">10</IgmpMaxPacketsPerSecond>
+			<BroadcastRateLimitEnable type="bool" hidden="1" w="1">1</BroadcastRateLimitEnable>
+			<BroadcastMaxPacketsPerSecond type="uint" hidden="1" w="1">30</BroadcastMaxPacketsPerSecond>
+		</AntiDos>
+		<AntiScan type="object" op="FuncAntiAttackScan">
+			<AntiScanSetSynFinEnable type="bool" w="1">1</AntiScanSetSynFinEnable>
+			<AntiScanSetSynRstEnable type="bool" w="1">1</AntiScanSetSynRstEnable>
+			<AntiScanSetFinRstEnable type="bool" w="1">1</AntiScanSetFinRstEnable>
+			<AntiScanUnAckSetFinEnable type="bool" w="1">1</AntiScanUnAckSetFinEnable>
+			<AntiScanUnAckSetPshEnable type="bool" w="1">1</AntiScanUnAckSetPshEnable>
+			<AntiScanUnAckSetUrgEnable type="bool" w="1">1</AntiScanUnAckSetUrgEnable>
+			<AntiScanUnsetAllEnable type="bool" w="1">1</AntiScanUnsetAllEnable>
+			<AntiScanSetAllEnable type="bool" w="1">1</AntiScanSetAllEnable>
+			<AntiScanForAllSetSynRstAckFinUrgEnable type="bool" w="1">1</AntiScanForAllSetSynRstAckFinUrgEnable>
+			<AntiScanForAllSetFinEnable type="bool" w="1">1</AntiScanForAllSetFinEnable>
+			<AntiScanForAllSetFinUrgPshEnable type="bool" w="1">1</AntiScanForAllSetFinUrgPshEnable>
+		</AntiScan>
+	</X_CT-COM_AntiAttack>
+	<TimeRestriction type="object" key="srvcmgr:firewall" op="FuncTimeRestrict">
+		<Enable type="bool" w="1">0</Enable>
+		<RestRulesNumberOfEntries type="uint" w="0" const="1">0</RestRulesNumberOfEntries>
+		<RestRules type="array" max="16" w="1" op="FuncTimeRestrictRules">
+			<i w="1" type="object">
+				<InternetAllowed type="bool" w="1">0</InternetAllowed>
+				<Username type="string" w="1">Parent</Username>
+				<MACAddr type="string" w="1">00:00:00:00:00:00</MACAddr>
+				<WeekDays type="string" w="1">Sun,Mon,Tue,Wed,Thu,Fri,Sat</WeekDays>
+				<TimeFrom type="string" w="1">00:00</TimeFrom>
+				<TimeTo type="string" w="1">23:59</TimeTo>
+			</i>
+		</RestRules>
+	</TimeRestriction>
+	<X_CT-COM_UrlFilter type="object" key="srvcmgr:firewall" op="FuncUrlFilter">
+		<Enable type="bool" w="1">0</Enable>
+		<FilterMode type="string" w="1">Deny</FilterMode>
+		<WhiteListNumberOfEntries type="uint" w="0" const="1">0</WhiteListNumberOfEntries>
+		<WhiteList type="array" max="100" w="1" op="FuncUrlFilterWhiteListI">
+			<i w="1" type="object">
+				<URL type="string" w="1"></URL>
+				<Description type="string" w="1"></Description>
+				<SchedulePath type="string" w="1">Always</SchedulePath>
+				<WeekDays type="string" w="1">Sun,Mon,Tue,Wed,Thu,Fri,Sat</WeekDays>
+				<TimeFrom type="string" w="1">00:00</TimeFrom>
+				<TimeTo type="string" w="1">23:59</TimeTo>
+				<SrcIP type="string" w="1"></SrcIP>
+			</i>
+		</WhiteList>
+		<BlackListNumberOfEntries type="uint" w="0" const="1">0</BlackListNumberOfEntries>
+		<BlackList type="array" max="100" w="1" op="FuncUrlFilterBlackListI">
+			<i w="1" type="object">
+				<URL type="string" w="1"></URL>
+				<Description type="string" w="1"></Description>
+				<SchedulePath type="string" w="1">Always</SchedulePath>
+				<WeekDays type="string" w="1">Sun,Mon,Tue,Wed,Thu,Fri,Sat</WeekDays>
+				<TimeFrom type="string" w="1">00:00</TimeFrom>
+				<TimeTo type="string" w="1">23:59</TimeTo>
+				<SrcIP type="string" w="1"></SrcIP>
+			</i>
+		</BlackList>
+	</X_CT-COM_UrlFilter>
+	<X_CT-COM_USBDevice type="object" w="0" key="utils:usb" op="FuncUSBDevice">
+		<StorageSum type="uint" w="0">0</StorageSum>
+		<StorageNumberOfEntries type="uint" w="0" const="1">0</StorageNumberOfEntries>
+		<Storage type="array" max="8" op="FuncUSBDeviceStorageI">
+			<i type="object" w="0">
+				<Model type="string" w="0"></Model>
+				<Vendor type="string" w="0"></Vendor>
+				<DiskSizeMB type="uint" w="0">0</DiskSizeMB>
+				<PartitionSum type="uint" w="0">0</PartitionSum>
+				<PartitionsNumberOfEntries type="uint" w="0" const="1">0</PartitionsNumberOfEntries>
+				<Partitions type="array" w="0" op="FuncUSBDeviceStorageIPartitionsI">
+					<i type="object" w="0">
+						<SDName type="string" w="0"></SDName>
+						<Boot type="bool" w="0">0</Boot>
+						<SysID type="int[0:255]" w="0">0</SysID>
+						<FileSystem type="string" w="0"></FileSystem>
+						<SizeMB type="uint" w="0">0</SizeMB>
+						<UsedKB type="string" w="0"></UsedKB>
+						<UsedPercent type="int[0:100]" w="0">0</UsedPercent>
+						<Mounted type="bool" w="0">0</Mounted>
+						<MountPoint type="string" w="0"></MountPoint>
+						<CfgBackupFileExist type="bool" w="0">0</CfgBackupFileExist>
+					</i>
+				</Partitions>
+			</i>
+		</Storage>
+	</X_CT-COM_USBDevice>
+	<X_CT-COM_FTPClient type="object" key="utils:ftp" op="FuncFTPClient">
+		<TaskListNumberOfEntries type="uint" w="0" const="1">0</TaskListNumberOfEntries>
+		<TaskList type="array" w="1" max="100" op="FuncFTPClientTaskListI">
+			<i w="1" type="object">
+				<URL type="string" w="1">ftp://</URL>
+				<Enable type="bool" w="1">0</Enable>
+				<Username type="string" w="1">anonymous</Username>
+				<Password type="string" w="1"></Password>
+				<Port type="uint" w="1">21</Port>
+				<UsbPartion type="string" w="1">usb1_1</UsbPartion>
+				<SavePath type="string" w="1">xdown</SavePath>
+				<Progress type="string" w="1">0</Progress>
+				<DownloadState type="uint" w="1">0</DownloadState>
+				<Sign type="uint" w="1">0</Sign>
+				<Flag type="string" w="0"></Flag>
+			</i>
+		</TaskList>
+	</X_CT-COM_FTPClient>
+	<X_CT-COM_PortTrigger type="object" key="srvcmgr:firewall" op="FuncPortTrigger">
+		<Enable type="bool" w="1">1</Enable>
+		<TriggerListNumberOfEntries type="uint" w="0" const="1">0</TriggerListNumberOfEntries>
+		<TriggerList type="array" max="100" w="1" op="FuncPortTriggerListI">
+			<i w="1" type="object">
+				<Enable type="bool" w="1">0</Enable>
+				<Name type="string" w="1"></Name>
+				<OpenProtocol type="string" w="1">TCP</OpenProtocol>
+				<OpenStartPort type="uint" w="1">0</OpenStartPort>
+				<OpenEndPort type="uint" w="1">0</OpenEndPort>
+				<TriggerProtocol type="string" w="1">TCP</TriggerProtocol>
+				<TriggerStartPort type="uint" w="1">0</TriggerStartPort>
+				<TriggerEndPort type="uint" w="1">0</TriggerEndPort>
+			</i>
+		</TriggerList>
+	</X_CT-COM_PortTrigger>
+	<X_CT-COM_MacFilter type="object" key="srvcmgr:l2" op="FuncMacFilter">
+		<Enable type="bool" w="1">0</Enable>
+		<FilterMode type="string" w="1">Deny</FilterMode>
+		<MacListNumberOfEntries type="uint" w="0" const="1">0</MacListNumberOfEntries>
+		<MacList type="array" max="100" w="1" op="FuncMacFilterMacListI">
+			<i w="1" type="object">
+				<MACAddress type="string" w="1"></MACAddress>
+			</i>
+		</MacList>
+	</X_CT-COM_MacFilter>
+	<X_CT-COM_DnsQuery type="object" key="utils:dns" op="FuncDnsQuery">
+		<Interface type="string(256)" w="1"></Interface>
+		<URL type="string(256)" w="1"></URL>
+		<Protocol type="string" w="1">IPv4</Protocol>
+		<Ipaddress type="string" w="1"></Ipaddress>
+		<ResolveStates type="string" w="1"></ResolveStates>
+	</X_CT-COM_DnsQuery>
+	<X_CT-COM_HttpRequest type="object" key="srvcmgr:srvcdiag" op="FuncHttpRequest">
+		<Interface type="string(256)" w="1"></Interface>
+		<URL type="string(256)" w="1"></URL>
+		<Protocol type="string" w="1">IPv4</Protocol>
+		<StatusCode type="string" w="0">200</StatusCode>
+		<DiagnosticsState type="string" w="1"></DiagnosticsState>
+	</X_CT-COM_HttpRequest>
+	<X_CT-COM_DDNS type="object" key="utils:dns" op="FuncDDnsCtl">
+		<Enable type="bool" w="1">0</Enable>
+		<MaxListEntryNumber type="uint" w="0">16</MaxListEntryNumber>
+		<DDNSCurEntryNumber type="uint" w="0">0</DDNSCurEntryNumber>
+	</X_CT-COM_DDNS>
+	<X_TRI_Language type="object" w="0" key="sysmgr:devInfo">
+		<Language type="string(256)" w="1">en</Language>
+	</X_TRI_Language>
+	<X_TR69_Transfer type="object" w="1" key="sysmgr:devInfo">
+		<X_TRI_Upload type="object" w="1" op="FuncTRI_TR69Upload">
+			<CommandKey type="string(32)" w="1"></CommandKey>
+			<FileType type="string(64)" w="1"></FileType>
+			<URL type="string(256)" w="1"></URL>
+			<Username type="string(256)" w="1"></Username>
+			<Password type="string(256)" w="1"></Password>
+			<DelaySeconds type="uint" w="1">0</DelaySeconds>
+			<FaultCode type="string" w="1">0</FaultCode>
+			<FaultString type="string" w="1"></FaultString>
+			<StartTime type="dateTime" w="1">0000-00-00T00:00:00</StartTime>
+			<CompleteTime type="dateTime" w="1">0000-00-00T00:00:00</CompleteTime>
+		</X_TRI_Upload>
+		<X_TRI_Download type="object" w="1" op="FuncTRI_TR69Download">
+			<CommandKey type="string(32)" w="1"></CommandKey>
+			<FileType type="string(64)" w="1"></FileType>
+			<URL type="string(256)" w="1"></URL>
+			<Username type="string(256)" w="1"></Username>
+			<Password type="string(256)" w="1"></Password>
+			<FileSize type="uint" w="1">0</FileSize>
+			<TargetFileName type="string(256)" w="1"></TargetFileName>
+			<DelaySeconds type="uint" w="1">0</DelaySeconds>
+			<SuccessURL type="string(256)" w="1"></SuccessURL>
+			<FailureURL type="string(256)" w="1"></FailureURL>
+			<FaultCode type="string" w="1">0</FaultCode>
+			<FaultString type="string" w="1"></FaultString>
+			<StartTime type="dateTime" w="1">0000-00-00T00:00:00</StartTime>
+			<CompleteTime type="dateTime" w="1">0000-00-00T00:00:00</CompleteTime>
+		</X_TRI_Download>
+	</X_TR69_Transfer>
+	<Capabilities type="object" w="1" key="sysmgr:devInfo">
+		<PerformanceDiagnostic type="object" w="1" op="FuncPerformanceDiagnostic">
+			<DownloadTransports type="string(32)" w="1">HTTP</DownloadTransports>
+			<UploadTransports type="string(32)" w="1">HTTP</UploadTransports>
+		</PerformanceDiagnostic>
+	</Capabilities>
+	<DownloadDiagnostics type="object" w="1" key="utils:logmgt" op="FuncDownloadDiagnostics">
+		<DiagnosticsState type="string(32)" w="1">None</DiagnosticsState>
+		<Interface type="string(256)" w="1"></Interface>
+		<DownloadURL type="string(256)" w="1"></DownloadURL>
+		<DSCP type="uint[0:63]" w="1">0</DSCP>
+		<EthernetPriority type="uint[0:7]" w="1">0</EthernetPriority>
+		<ROMTime type="dateTime" w="0"></ROMTime>
+		<BOMTime type="dateTime" w="0"></BOMTime>
+		<EOMTime type="dateTime" w="0"></EOMTime>
+		<TestBytesReceived type="uint" w="0"></TestBytesReceived>
+		<TotalBytesReceived type="uint" w="0"></TotalBytesReceived>
+		<TCPOpenRequestTime type="dateTime" w="0"></TCPOpenRequestTime>
+		<TCPOpenResponseTime type="dateTime" w="0"></TCPOpenResponseTime>
+	</DownloadDiagnostics>
+	<UploadDiagnostics type="object" w="1" key="utils:logmgt" op="FuncUploadDiagnostics">
+		<DiagnosticsState type="string(32)" w="1">None</DiagnosticsState>
+		<Interface type="string(256)" w="1"></Interface>
+		<UploadURL type="string(256)" w="1"></UploadURL>
+		<DSCP type="uint[0:63]" w="1">0</DSCP>
+		<EthernetPriority type="uint[0:7]" w="1">0</EthernetPriority>
+		<TestFileLength type="uint" w="1"></TestFileLength>
+		<ROMTime type="dateTime" w="0"></ROMTime>
+		<BOMTime type="dateTime" w="0"></BOMTime>
+		<EOMTime type="dateTime" w="0"></EOMTime>
+		<TotalBytesSent type="uint" w="0"></TotalBytesSent>
+		<TCPOpenRequestTime type="dateTime" w="0"></TCPOpenRequestTime>
+		<TCPOpenResponseTime type="dateTime" w="0"></TCPOpenResponseTime>
+	</UploadDiagnostics>
+	<MultiNAT type="array" max="100" w="1" key="portmgr:wan" op="FuncMultiNATI">
+		<i type="object" w="1">
+			<Enabled type="bool" w="1">0</Enabled>
+			<Type type="string" w="1"></Type>
+			<WanConnection type="string" w="1"></WanConnection>
+			<LocalStartIP type="string" w="1"></LocalStartIP>
+			<LocalEndIP type="string" w="1"></LocalEndIP>
+			<PublicStartIP type="string" w="1"></PublicStartIP>
+			<PublicEndIP type="string" w="1"></PublicEndIP>
+		</i>
+	</MultiNAT>
+	<X_TRI_DNSHijack type="object" key="srvcmgr:firewall" hidden="1" op="FuncDNSHijack">
+		<Enable type="bool" w="1" hidden="1">0</Enable>
+		<Url type="string(256)" w="1" hidden="1"></Url>
+	</X_TRI_DNSHijack>
+	<X_TRI_DefautlRoute type="object" w="0" key="portmgr:wan" op="FuncDefaultRoute">
+		<Enabled type="bool" w="1">0</Enabled>
+		<WanInterface type="string" w="1"></WanInterface>
+	</X_TRI_DefautlRoute>
+	<X_TRI_DynamicRoute type="array" w="1" key="srvcmgr:l3" op="FuncDynamicRoute">
+		<i type="object" w="1" op="FuncDynamicRoute">
+			<Enable type="bool" w="1">0</Enable>
+			<Protocol type="string" w="1"></Protocol>
+			<Interface type="string" w="1"></Interface>
+			<RipPassive type="bool" w="1"></RipPassive>
+			<BgpLocalAS type="uint" w="1"></BgpLocalAS>
+			<BgpRemoteAS type="uint" w="1"></BgpRemoteAS>
+			<BgpNeighborIP type="string" w="1"></BgpNeighborIP>
+		</i>
+	</X_TRI_DynamicRoute>
+</InternetGatewayDevice>
+

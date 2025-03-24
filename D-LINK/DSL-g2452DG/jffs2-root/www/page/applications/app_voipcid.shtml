@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<link rel="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/voip_util.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+<!--
+function change_mode()
+{
+    /*var mode=$('Frm_CIDMode').value;
+    if(mode==2)
+        jslDisable("Frm_TimeEnable");
+    else 
+        jslEnable("Frm_TimeEnable");
+	*/
+}
+
+<!--#getobject "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-CID. CidMode TimeEnable" -->
+    var cidMode = "<!--#leaf "1"-->";
+    var timeEnable = "<!--#leaf "2"-->";
+<!--#endgetobject -->
+
+function pageGetValue()
+{
+    $('Frm_CIDMode').value = cidMode; //"1";
+    //$('Frm_TimeEnable').value = timeEnable;
+    change_mode();
+}
+
+function uiSubmit()
+{
+	if(!validateCode())
+		return false;
+
+    var df = $('fSubmit');
+    jslDisable("Btn_Submit","Btn_Cancel");
+    AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-CID.CidMode", getValue("Frm_CIDMode"));
+    //AddElements(df, "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.X_TRI-CID.TimeEnable", getValue("Frm_TimeEnable"));
+    df.submit();
+}
+
+function __init()
+{
+    pageGetValue();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+// -->
+</script>
+</head>
+
+<body>
+<script>printBeginContent</script>
+<script>SetContentTitle(getStr('LK_ShowCallNumber'))</script>
+<form name="fSubmit" id="fSubmit" method="POST" action="/cgi-bin/setup.cgi?page/applications/app_voipcid.shtml">
+</form>
+<table id="TestContent" class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+	<td width="150" langkey="LK_CIDModee"></td>
+	<td>
+	<select id="Frm_CIDMode" name="Frm_CIDMode" size="1" onchange="change_mode()">
+	<option value="1">FSK</option>
+	<option value="2">DTMF</option>
+	<!--option value="3">FSK&amp;DTMF</option-->
+	</select>
+	</td>
+</tr>
+<tr>
+<!--td langkey="LK_CallEnablee"></td>
+	<td>
+	<select id="Frm_TimeEnable" name="Frm_TimeEnable" size="1">
+	<option langkey="LK_Close"></option>
+	<option langkey="LK_Open"></option>
+	<option langkey="LK_Auto"></option>
+	</select>
+	</td>
+</tr-->
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+<script>PrintTriButton('Btn_Submit',getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+<script>PrintTriButton('Btn_Cancel',getStr("LK_Refresh"),"uiPageRefresh()")</script>&nbsp;
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</body></html>

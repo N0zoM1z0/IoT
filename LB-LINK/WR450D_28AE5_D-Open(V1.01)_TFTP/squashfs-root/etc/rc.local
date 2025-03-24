@@ -1,0 +1,9 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+/bin/get_FirstUseDate.sh &
+
+if [ ! -f /etc/dhcp ];then
+	cp /etc/config/dhcp /etc/dhcp
+fi
+

@@ -1,0 +1,8 @@
+Package: kmod-enid
+Version: 4.4.198-0
+Depends: kernel (=4.4.198-1-924b3e090b99f2b48028e306a2d1519e)
+Source: package/miwifi/enid
+Section: kernel
+Architecture: mipsel_24kc
+Installed-Size: 5708
+Description:  MiWiFi Ethernet Neighbor Info Detect

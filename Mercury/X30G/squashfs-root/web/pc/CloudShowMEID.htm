@@ -1,0 +1,144 @@
+<style type="text/css">
+	p.cloudTip{
+		text-align:left;
+		margin:24px auto 8px;
+		display: block;
+		width: 280px;
+	}
+	p.cloudAccount{
+		margin:0px auto 8px;
+		text-align:left;
+		font-size:16px;
+		line-height: 24px;
+		color: #333333;
+		display: block;
+		width: 280px;
+		font-weight: bold;
+	}
+	div.cloudAppSuggestion{
+		width:278px;
+		border: 1px solid #E6E6E6;
+		padding: 16px 0px;
+		margin: 24px auto 24px;
+	}
+	#resetPwd, #unbind{
+		display: block;
+		width: 280px;
+		margin: 0 auto 16px;
+	}
+</style>
+<script type="text/javascript">
+	(function(){
+		var cloudAccount, data = {};
+
+		function errHandle(errNo){
+			var showStr = "";
+			var cloudErrRel;
+
+			switch (parseInt(errNo))
+			{
+			case ENONE:
+				return true;
+			case EINVHOSTID:
+				showStr = label.cloudUnbindFail + label.cloudServerNoRespCheckNetwork;
+				break;
+			case EINDEVICEALREADYUNBOUND:
+				showStr = label.cloudUnbindFail + label.cloudAccountReadyUnbind;
+				break;
+			default:
+				cloudErrRel = cloudErrHandle(errNo);
+
+				if (cloudErrRel.result == false)
+				{
+					showStr = cloudErrRel.tip;
+				}
+				else
+				{
+					showStr = errStr.invRequestFail;
+				}
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function unbindAccount(){
+			confirmDialog.show({
+				title: label.unbindId,
+				content: label.cloudIDUnbindConfirm,
+				button: {confirmStr:btn.unbindID},
+				callback: function(choose){
+					if (true == choose)
+					{
+						loadingDialog.show({
+							title: label.unbindId,
+							content:{primary:label.unbindingAndWait}
+						}, undefined, undefined, false, undefined);
+
+						cloudAccountUnind(function(type, state, result){
+							loadingDialog.hide(function(){
+								if (type == cloudResultType.FINISH)
+								{
+									if (errHandle(parseInt(result[cloudClientStatus.fileName][cloudClientStatus.secName.unbind][cloudClientStatus.optName.errCode])))
+									{
+										cloudHistory.setState({
+											bind: false,
+											account: null
+										});
+										refreshNavBarCloudStatus();
+
+										cloudHistory.go(-3);
+										showToast(label.unbindIdSuccess);
+									}
+								}
+								else
+								{
+									if (type == cloudResultType.ACTION_ERROR)
+									{
+										errHandle(parseInt(state.errCode));
+									}
+									else if (state != undefined && state.result == false)
+									{
+										alarmDialog.show(state.errStr);
+									}
+								}
+							});
+						});
+					}
+				}
+			});
+		}
+
+		var resetPwd = new Button({
+			text:btn.changePwd,
+			onClick: function(){
+				cloudHistory.go(1);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"resetPwd"
+		});
+		var unbind = new Button({
+			text:btn.unbindID,
+			onClick: unbindAccount,
+			type:Button.TYPE.SECONDARY,
+			id:"unbind"
+		});
+
+		$("#cloudAccount").html(cloudHistory.getState("account"));
+	})();
+</script>
+<h1 class="cloudTitle">{%label.cloudMEID%}</h1>
+<p class="cloudTip">{%label.cloudIDBinded%}</p>
+<p id="cloudAccount" class="cloudAccount"></p>
+<p class="suggestionSummaryHeader">{%label.cloudIDManagerFromApp%}</p>
+<div class="cloudAppSuggestion">
+	<p class="cloudAppSuggesstionTitle">{%label.downloadApp%}</p>
+	<i class="cloudAppSuggesstionQRCode"></i>
+	<div class="cloudAppSuggesstionLogoCon">
+		<div class="cloudAppSuggesstionLogo"><i class="iconfont icon-android"></i><span>Android</span></div>
+		<div class="cloudAppSuggesstionLogo"><i class="iconfont icon-ios"></i><span>IOS</span></div>
+	</div>
+</div>
+<div id="resetPwd"></div>
+<div id="unbind"></div>

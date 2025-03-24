@@ -1,0 +1,177 @@
+<script type="text/javascript">
+	(function(){
+		var firstLoad = true;
+		var oldIp, oldEnableVal;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVNET:
+				showStr = errStr.ipAddrNetErr;
+				break;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case ENOTLANSUBNET:
+				showStr = errStr.ipNotLanSubnet;
+				break;
+			case ELANIPCONFLIC:
+				showStr = errStr.lanConflictErr;
+				break;
+			case EINVNETID:
+				showStr = errStr.ipAddrNetIdErr;
+				break;
+			case EINVHOSTID:
+				showStr = errStr.ipAddrHostIdErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function checkIpAddr()
+		{
+			if ("" == this.input.value)
+			{
+				this.showNote(errStr.wzdStcIpEmpty);
+				return false;
+			}
+			else if (ENONE != checkIp(this.input.value))
+			{
+				this.showNote(errStr.wzdStcIpErr);
+				return false;
+			}
+
+			return true;
+		}
+
+		function onSave()
+		{
+			var data = {}, param = {}, dmzEnableVal;
+			data[uciFirewall.fileName] = {};
+			data[uciFirewall.fileName][uciFirewall.secName.dmz] = param;
+
+			if (!ipAddr.checkAll())
+			{
+				return;
+			}
+
+			dmzEnableVal = dmzOnRadio.getValue() == true ? "1" : "0";
+
+			ipAddr.setValue(hideLeadingZeros(ipAddr.getValue()));
+
+			if (ipAddr.getValue() == oldIp && dmzEnableVal == oldEnableVal)
+			{
+				return;
+			}
+
+			if (ipAddr.getValue() != oldIp)
+			{
+				param[uciFirewall.optName.destIP] = ipAddr.getValue();
+			}
+
+			if (dmzEnableVal != oldEnableVal)
+			{
+				param[uciFirewall.optName.enable] = dmzEnableVal;
+			}
+
+			$.modify(data, function(res){
+				if (errHandle(res[ERR_CODE]))
+				{
+					showToast(label.saveSuccess);
+					oldEnableVal = dmzEnableVal;
+					oldIp = ipAddr.getValue();
+				}
+				else
+				{
+					dmzOnRadio.setValue(!dmzOnRadio.getValue());
+					dmzOffRadio.setValue(!dmzOffRadio.getValue());
+				}
+			});
+		}
+
+		function requestData()
+		{
+			var data = {};
+			data[uciFirewall.fileName] = {};
+			data[uciFirewall.fileName][KEY_NAME] = uciFirewall.secName.dmz;
+
+			$.query(data, function(res){
+				var dmzData = res[uciFirewall.fileName][uciFirewall.secName.dmz];
+
+				dmzData[uciFirewall.optName.enable] == "1" ?
+					dmzOnRadio.setValue(true) : dmzOffRadio.setValue(true);
+
+				oldEnableVal = dmzData[uciFirewall.optName.enable];
+				oldIp = dmzData[uciFirewall.optName.destIP];
+
+				ipAddr.setValue(oldIp);
+			});
+		}
+
+		var dmzOnRadio = new Radio({
+			targetId: "dmzOn",
+			label: label.open,
+			name: "dmzEnable"
+		});
+		var dmzOffRadio = new Radio({
+			targetId: "dmzOff",
+			label: label.close,
+			name: "dmzEnable"
+		});
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.dmzIp},
+			targetId:"dmzIp",
+			props:{maxlength: '15', type: "text", placeholder: "0.0.0.0"},
+			check:{blur:checkIpAddr}
+		});
+		new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"36px 0 0 132px"}
+		});
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.dmzRadio{
+		display: inline-block;
+		margin-right:16px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.DMZS%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="DMZHelp"></i>
+	</div>
+	<p class="description">{%titleDescriptionStr.dmzConfigDescription%}</p>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%menuStr.DMZS%}</label>
+	<div id="dmzOn" class="dmzRadio"></div>
+	<div id="dmzOff" class="dmzRadio"></div>
+</ul>
+<div id="dmzIp"></div>
+<div id="save"></div>

@@ -1,0 +1,24 @@
+
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.resetNreboot%}</h1>
+	</div>
+	<p class="description"></p>
+</div>
+<div class="subTitle">
+	<h2>{%label.rebootRouter%}</h2>
+</div>
+<div id="rebootRouterTable">
+</div>
+<div class="subTitle">
+	<h2>{%label.resetRouter%}</h2>
+</div>
+<div id="resetRouterTable">
+</div><script type="text/javascript">(function(){function k(){$.action({system:{reset:null}},function(a){ENONE==a[ERR_CODE]?(a=a.wait_time,a=void 0!=a&&0!=parseInt(a,10)?1E3*parseInt(a,10):RESET_SECONDS,loadingDialog.show({title:label.resetRouter,content:{primary:label.resetting,secondary:label.resettingTips}},function(){$.setLgPwd("");$.changeDomain(d);lanDetecting(function(){checkIp(window.location.host)==ENONE?window.location.href=window.location.protocol+"//"+d:window.location.reload()})},a)):showAlert(statusStr.resetRouterFail)})}
+function l(){$.action({system:{reboot:null}},function(a){a[ERR_CODE]==ENONE?(a=a.wait_time,a=void 0!=a&&0!=parseInt(a,10)?1E3*parseInt(a,10):REBOOT_SECONDS,loadingDialog.show({title:label.rebootRouter,content:{primary:label.rebooting,secondary:label.rebootingTips}},function(){lanDetecting(function(){window.location.reload()})},a)):alarmDialog.show(statusStr.rebootRouterFail)})}function m(a){var c={};c[uciPlc.fileName]={};c[uciPlc.fileName][uciPlc.actionName.resetExt]={};c[uciPlc.fileName][uciPlc.actionName.resetExt][uciPlc.optName.mac]=
+a.mac;$.action(c,function(a){ENONE==a[ERR_CODE]?(a=a.wait_time,a=void 0!=a&&0!=parseInt(a,10)?1E3*parseInt(a,10):RESET_SECONDS,loadingDialog.show({title:label.resetRouter,content:{primary:label.resetting}},function(){e();loadingDialog.hide()},a)):alarmDialog.show(statusStr.resetRouterFail)})}function n(a){var c={};c[uciPlc.fileName]={};c[uciPlc.fileName][uciPlc.actionName.rebootExt]={};c[uciPlc.fileName][uciPlc.actionName.rebootExt][uciPlc.optName.mac]=a.mac;$.action(c,function(a){ENONE==a[ERR_CODE]?
+(a=a.wait_time,a=void 0!=a&&0!=parseInt(a,10)?1E3*parseInt(a,10):REBOOT_SECONDS,loadingDialog.show({title:label.rebootRouter,content:{primary:label.rebooting}},function(){e();loadingDialog.hide()},a)):showAlert(statusStr.rebootRouterFail)})}function e(){var a={};a[uciProto.fileName]={};a[uciProto.fileName][KEY_NAME]=uciProto.secName.dhcp;a[uciPlc.fileName]={};a[uciPlc.fileName][KEY_TABLE]=uciPlc.secType.connectedExt;$.query(a,function(a){if(ENONE==a[ERR_CODE]){var b={};b.name=a[uciProto.fileName][uciProto.secName.dhcp][uciProto.optName.hostName];
+b.is_cap=!0;a=formatTableData(a[uciPlc.fileName][uciPlc.secType.connectedExt]);b=[b];b=a.concat(b);f.setDataSource(b);f.loadData();g.setDataSource(b);g.loadData()}})}var d="",h={},f=new Table({targetId:"rebootRouterTable",head:[{field:label.deviceName,width:"1"}],column:[{name:uciPlc.optName.name,type:"str"}],itemOption:[{icon:"icon-restart",type:"restart",str:btn.rebootRouter,func:function(a,c){var b=f.data[a];confirmDialog.show({title:label.rebootRouter,content:b.is_cap?label.rebootRouterConfirm:
+label.rebootRouterConfirmRe,callback:function(a){!0==a&&(b.is_cap?l():n(b))}})}}],itemOptionTitleWidth:"200px",deletable:!1,editable:!1,addable:!1,hasCheckBox:!1}),g=new Table({targetId:"resetRouterTable",head:[{field:label.deviceName,width:"1"}],column:[{name:uciPlc.optName.name,type:"str"}],itemOption:[{icon:"icon-reset",type:"reset",str:btn.resetRouter,func:function(a,c){var b=g.data[a];confirmDialog.show({title:label.resetRouter,content:b.is_cap?label.resetRouterConfirm:label.resetRouterConfirmRe,
+callback:function(a){!0==a&&(b.is_cap?k():m(b))}})}}],itemOptionTitleWidth:"200px",deletable:!1,editable:!1,addable:!1,hasCheckBox:!1});h[uciNetwork.fileName]={};h[uciNetwork.fileName][KEY_NAME]=uciNetwork.secName.lan;$.query(h,function(a){ENONE==a[ERR_CODE]&&(d=a[uciNetwork.fileName][uciNetwork.secName.lan][uciNetwork.optName.facIp],e())})})();
+</script>

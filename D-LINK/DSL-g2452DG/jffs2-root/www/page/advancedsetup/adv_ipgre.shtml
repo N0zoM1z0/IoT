@@ -1,0 +1,202 @@
+
+<html><head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+    this.ConnectionStat = "";
+    this.ConnectionIPAddr = "";
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType ConnectionStatus ExternalIPAddress" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].ConnectionStat = "<!--#leaf "4"-->";
+    Connection[n].ConnectionIPAddr = "<!--#leaf "5"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType ConnectionStatus ExternalIPAddress" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].ConnectionStat = "<!--#leaf "4"-->";
+    Connection[n].ConnectionIPAddr = "<!--#leaf "5"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function GRETunnelListTuple()
+{    
+    this.Path = "";
+    this.Name = "";
+	this.Type = "";
+	this.WanInterface = "";
+	this.IfIPAddr = "";
+	this.IfIPMask = "";
+    this.RemoteIP= "";
+    this.LocalIP = "";
+}
+
+var tnl_idx = 0;
+var GREList = new Array();
+<!--#getobject "InternetGatewayDevice.Services.X_TRI_GRETunnel.TunnelList. TunnelName TunnelMode WanInterface TunnelIPAddr TunnelIPMask RemoteIP LocalIP" -->
+GREList[tnl_idx] = new GRETunnelListTuple();
+GREList[tnl_idx].Path = "<!--#path -->";
+GREList[tnl_idx].Name = "<!--#leaf "1"-->";
+GREList[tnl_idx].Type = "<!--#leaf "2"-->";
+GREList[tnl_idx].WanInterface = "<!--#leaf "3"-->";
+GREList[tnl_idx].IfIPAddr = "<!--#leaf "4"-->";
+GREList[tnl_idx].IfIPMask = "<!--#leaf "5"-->";
+GREList[tnl_idx].RemoteIP = "<!--#leaf "6"-->";
+GREList[tnl_idx].LocalIP = "<!--#leaf "7"-->";
+tnl_idx++;
+<!--#endgetobject -->
+
+var G_Operation = "Add";
+var G_Path ;
+var ConnIdx;
+var WANConnection="";
+function uiAdd(){
+    if(GREList.length < 8){
+        ConnIdx=(GREList.length+1);
+        document.location.href='/page/advancedsetup/adv_ipgre_edit.shtml?id='+ConnIdx+'&Op='+ G_Operation+'';
+    }else{
+        top.AlertMsg(getStr("LK_Tunnel_max8item"));
+    }
+}
+
+function genLocalIP(idx) {
+	for(var i=0; i<n; i++ )
+	{
+		if(GREList[idx].WanInterface == Connection[i].Path)
+		{
+			if(Connection[i].ConnectionStat == "Connected")
+				return Connection[i].ConnectionIPAddr;
+			else
+				break;	
+		}
+	}
+	return "-";
+}
+
+function createTunnelList(){
+    var trs = "";
+    var text = [];
+    var value = [];
+    var conn = 0;
+    for (i = 0; i < Connection.length; i++)
+    {
+        if(!isBridgedConn(Connection[i].ConnectionType) && Connection[i].ServiceList != 'TR069'){
+            text[conn] = Connection[i].Name;
+            value[conn] = i;
+            conn++;
+        }    
+    }
+    for(var i=0;i<GREList.length;i++){
+            var tr = "";
+			if(i%2 == 0)
+				tr += "<tr class='OddRowB'>";
+			else
+				tr += "<tr class='EvenRowB'>";
+
+            tr += "<td>"+(i+1)+"</td>";
+			tr += "<td>"+GREList[i].Name+"</td>";
+			tr += "<td>"+GREList[i].IfIPAddr+"/"+GREList[i].IfIPMask+"</td>";
+			tr += "<td>"+GREList[i].RemoteIP+"</td>";
+			tr += "<td>"+genLocalIP(i)+"</td>";
+			tr += "<td><img style='cursor:pointer' src='../../skin/edit.gif' name='edit' onclick='uiEdit(\"" +GREList[i].Path+"\",\"" +(i)+"\")'><img style='cursor:pointer' src='../../skin/trash.gif' name='delete' onclick='uiDelete(\"" +GREList[i].Path+ "\")'></td>";                          
+            tr += "</tr>";
+			trs += tr;            
+     
+    }
+	if(trs == "")
+		trs = '<tr class="OddRowB"><td colspan="6">'+getStr('LK_NoRule')+'</td></tr>'
+	jQuery("#GRETunnelList").append(trs);
+}
+
+function uiDelete(path){
+	if(!validateCode())
+		return false;
+	top.ConfirmMsg(getStr('LK_net_confirmdelete'),"delete",path);
+}
+   
+function ConfirmMsgResult(type,func,path)
+{
+	if(func == "delete")
+	{
+		if(type == "yes")
+		{
+			var df=document.ipv4_ipgre;
+			AddElements(df,'del_obj',path);
+			df.submit();
+		}
+		else
+		{
+			window.event.returnValue = false;
+		}
+	}
+} 
+function uiEdit(path,idx)
+{    
+    G_Path = path;
+    G_Operation = "Edit";
+    document.location.href='/page/advancedsetup/adv_ipgre_edit.shtml?id='+idx+'&Op='+ G_Operation +'&G_Path='+ path+'';
+}
+
+function __init()
+{
+    createTunnelList();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());	
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_GRE'))</script>
+<table id='GRETunnelList' cellspacing="0" cellpadding="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_TunnelName"></td>
+	<td langkey="LK_TunnelIfAddr"></td>
+	<td langkey="LK_RemoteIPAddress"></td>
+	<td langkey="LK_LocalAddresses"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<br>
+<table cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td><script>PrintTriButton("add",getStr('LK_Add'),"uiAdd()");</script></td></tr>
+</table>	
+<script>printEndContent()</script>    
+</form>
+<form method="post" name ="ipv4_ipgre" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_ipgre.shtml">
+</form>
+</body>
+</html>

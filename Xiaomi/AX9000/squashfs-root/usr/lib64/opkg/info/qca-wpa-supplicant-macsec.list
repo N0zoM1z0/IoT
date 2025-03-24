@@ -1,0 +1,5 @@
+/lib/wifi/wpa_supplicant.sh
+/usr/sbin/wpa_supplicant-macsec
+/etc/init.d/macsec
+/etc/config/macsec
+/etc/init.d/qca-wpa-supplicant

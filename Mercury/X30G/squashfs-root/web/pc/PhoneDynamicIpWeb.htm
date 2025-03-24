@@ -1,0 +1,43 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		wzdSelectInit("netModeSel", wzOptions, WAN_TYPE_DHCP, wzdNetWorkModeChange);
+		id("sub").onclick = function(){
+			saveNetworkCfg(uciProto.optValue.proto.dynIp, function(){
+				loadPage("WizardWirelessCfg.htm", "phCon");
+			});
+		};
+		id("backDetect").onclick = function(){
+			loadPage("PhoneNetworkWeb.htm", "phCon");
+		}
+		if(slp.gSysModeSupport) {
+			$("#backDetect").show();
+		} else {
+			$("#backDetect").hide();
+		}
+		showNetworkCfg(uciProto.optValue.proto.dynIp);
+	}
+	init();
+</script>
+<style>
+#backDetect{
+	color: #333333;
+	margin-top: 12px;
+	background: #E0E0E0;
+}
+</style>
+<h1 class="phoneTitle">{%label.netSet%}</h1>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="netModeSel">{%label.netMode%}</label>
+		<i class="clapboard"></i>
+		<span id="netModeSel" class="phSelect">
+			<span class="value">{%label.dhcp%}</span>
+			<i class="arrow"></i>
+		</span>
+	</li>
+</ul>
+<div class="phFunc">
+	<label id="sub" class="phOneBtn">{%btn.nextStep%}</label>
+	<label id="backDetect" class="phOneBtn">重新检测上网方式</label>
+</div>

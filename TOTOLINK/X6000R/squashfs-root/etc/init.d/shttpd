@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=60
+
+USE_PROCD=1
+PROG=/usr/sbin/shttpd
+
+
+start_service() {
+	procd_open_instance
+	procd_set_param command "$PROG" -root /web -ports 80
+	#procd_set_param command "$PROG" -ssl_cert /etc/ssl/certs/server.pem -root /web -ports 80,443s
+	procd_set_param respawn 0
+	procd_close_instance
+}
+

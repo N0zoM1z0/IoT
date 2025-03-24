@@ -1,0 +1,13 @@
+Package: ralink-switch
+Version: 1
+Depends: libc
+Provides: 
+Source: tp_package/sys_packages/ralink-switch
+Section: Ralink Properties
+Status: unknown ok not-installed
+Essential: no
+Priority: optional
+Maintainer: OpenWrt Developers Team <openwrt-devel@openwrt.org>
+Architecture: mtk
+Installed-Size: 33434
+Description:  An program to config switch.

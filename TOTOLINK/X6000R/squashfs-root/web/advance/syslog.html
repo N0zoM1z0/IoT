@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="tools"></adv-child-menu>   
+  <div class="advance-box">
+    <x-help :text="lang_t('syslog.help')"></x-help>
+  	<br><br>
+	<div class="fun-box">
+	  <table class="table">  
+	    <tbody>
+		<tr>
+		  <td class="fun-left"><b>{{ lang_t('syslog.state') }}</b></td>
+		  <td>
+		  	<x-switch v-model="status" @change="syslog_enable"></x-switch>
+		  </td>
+	  	</tr>
+		</tbody>
+	  </table>
+	  <table class="table" v-show="status">
+	  	<tbody v-if="globalConfig.addFlag=='1' && initStatus && !globalConfig.elinkSupport">
+			<tr>
+				<td class="fun-left">{{ lang_t('syslog.remote') }}</td>
+				<td>
+				  	<x-switch v-model="remoteEnable"></x-switch>
+				</td>
+			</tr>
+			<tr v-if="remoteEnable">
+				<td class="fun-left">{{ lang_t('wan.ip') }}</td>
+				<td>
+				  	<input type="text" v-model="ip" v-verify="rules" data-name="ip">
+				</td>
+			</tr>
+			<tr>
+				<td class="fun-left"></td>
+				<td>
+				  	<button class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+				</td>
+			</tr>
+	  	</tbody>
+	  	<tbody>  
+		  <tr>
+		    <td colspan="2">
+			  <textarea style="width:600px; height:300px;"  v-model="syslog" readonly></textarea>
+		    </td>
+		  </tr>
+		  <tr><td colspan="2"></td></tr>
+		  <tr>
+		    <td class="fun-left"></td>
+		    <td>
+			  <button type="button" class="btn" @click="submittype(true)">{{ lang_t('common.clear') }}</button>&nbsp;&nbsp;
+			  <button type="button" class="btn" @click="submittype(false)">{{ lang_t('common.refresh') }}</button>
+		    </td>
+		  </tr>
+	    </tbody>
+	  </table>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,status:!1,syslog:"",remoteEnable:!1,ip:"",initStatus:!1}},computed:{rules:function(){var a=this;return{ip:function(t,n){t=cs.ip(t);0==t?n(a.lang_t("network.msg1")):1==t?n(a.lang_t("network.msg2")):2==t||3==t||4==t?n(a.lang_t("network.msg6")):n()}}}},created:function(){var n=this;uiPost.getSyslogCfg(function(t){n.status="1"==t.enable,n.initStatus=n.status,n.remoteEnable="1"==t.rtLogEnabled,n.ip=t.rtLogServer,n.status&&uiPost.showSyslog(function(t){n.syslog=t.syslog})})},methods:{handleSubmit:function(){var n=this;Cstool.Verify(this.rules,function(t){t&&((t={}).rtLogEnabled=n.remoteEnable?"1":"0",t.rtLogServer=n.ip,t.enable="1",uiPost.setSyslogCfg(t,applyCallback))})},syslog_enable:function(t){var n={};this.status?n.enable="1":n.enable="0",uiPost.setSyslogCfg(n,applyCallback)},submittype:function(t){t?uiPost.clearSyslog(applyCallback):location.href=location.href}}}</script><script src="/static/js/main.js"></script></body></html>

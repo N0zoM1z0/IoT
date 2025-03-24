@@ -1,0 +1,608 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+var MAX_QUEUE_NUMBER = 8;
+
+function UplinkQos()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.";
+	this.mode = { ID: "SELECT_QosMode", PATH: "Mode", TYPE: "str", SBMT: "n", VAL: "" };
+	this.enable = { ID: "INPUT_QosEnable", PATH: "Enable", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.band = { ID: "INPUT_QosBandwidth", PATH: "Bandwidth", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.plan = { ID: "SELECT_QosScheduling", PATH: "Plan", TYPE: "str", SBMT: "y", VAL: "priority" };
+	this.weight = { ID: "INPUT_EnableForceWieght", PATH: "EnableForceWeight", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.dscp = { ID: "INPUT_EnableDSCPMark", PATH: "EnableDSCPMark", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.ethpri = { ID: "INPUT_EnableCOSMark", PATH: "Enable802-1_P", TYPE: "int", SBMT: "y", VAL: 0 };
+}
+
+var UplinkQosInst = new UplinkQos();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS. Mode Enable Bandwidth Plan EnableForceWeight EnableDSCPMark Enable802-1_P" -->
+UplinkQosInst.mode.VAL = "<!--#leaf "1"-->";
+UplinkQosInst.enable.VAL = <!--#leaf "2"-->;
+UplinkQosInst.band.VAL = <!--#leaf "3"-->;
+UplinkQosInst.plan.VAL = "<!--#leaf "4"-->";
+UplinkQosInst.weight.VAL = <!--#leaf "5"-->;
+UplinkQosInst.dscp.VAL = <!--#leaf "6"-->;
+UplinkQosInst.ethpri.VAL = <!--#leaf "7"-->;
+<!--#endgetobject -->
+
+
+function checkPercentage(item)
+{
+	var val = parseInt($(item.ID).value);
+	if (isNaN(val) || val < 0 || val > 100) {
+		return false;
+	}
+	return true;
+}
+
+function TcpSession()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.TcpSessionRestrict.";
+	this.enable = { ID: "INPUT_EnableTcpSessionLimit", PATH: "Enable", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.mode = { ID: "SELECT_LimitMode", PATH: "LimitMode", TYPE: "int", SBMT: "n", VAL: 1 };
+	this.percentage = { ID: "INPUT_Percentage", PATH: "LimitPercentage", TYPE: "int", SBMT: "n",
+		CHK: checkPercentage, MSG: "The percentage value of tcp sessions must be 0~100",
+		VAL: 60 };
+	this.number = { ID: "INPUT_Number", PATH: "LimitNumber", TYPE: "int", SBMT: "n", VAL: 2048 };
+}
+
+var TcpSessionInst = new TcpSession();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.TcpSessionRestrict. Enable LimitMode LimitPercentage LimitNumber" -->
+TcpSessionInst.enable.VAL = <!--#leaf "1"-->;
+TcpSessionInst.mode.VAL = <!--#leaf "2"-->;
+TcpSessionInst.percentage.VAL = <!--#leaf "3"-->;
+TcpSessionInst.number.VAL = <!--#leaf "4"-->;
+<!--#endgetobject -->
+
+function getEnableIdTmpl(tmpl)
+{
+	var plan = getValue(UplinkQosInst.plan.ID);
+	var m_map = {
+		"priority": "priority",
+		"car": "car",
+		"weight": "wfq"
+	};
+
+	var t = tmpl.replace("%m", m_map[plan]);
+	return t;
+}
+
+function EnableId(item, obj)
+{
+	var tmpl = getEnableIdTmpl(item.TMPL);
+	return tmpl + (obj._index + 1);
+}
+
+function NormalId(item, obj)
+{
+	return item.TMPL + (obj._index + 1);
+}
+
+function EnableInit(item, obj)
+{
+	var id = EnableId(item, obj);
+	setValue(id, item.VAL);
+}
+
+function WfqInit(item, obj)
+{
+	var plan = getValue(UplinkQosInst.plan.ID);
+	if (plan != "weight")
+		return;
+
+	var id = NormalId(item, obj);
+	setValue(id, item.VAL);
+}
+
+function CarInit(item, obj)
+{
+	var plan = getValue(UplinkQosInst.plan.ID);
+	if (plan != "car")
+		return;
+
+	var id = NormalId(item, obj);
+	setValue(id, item.VAL);
+}
+
+function EnableSet(item, form, objpath, obj)
+{
+	var id = EnableId(item, obj);
+	var val = getValue(id);
+	AddElements(form, objpath + item.PATH, val);
+}
+
+function WfqSet(item, form, objpath, obj)
+{
+	var plan = getValue(UplinkQosInst.plan.ID);
+	if (plan != "weight")
+		return;
+
+	var id = NormalId(item, obj);
+	var val = getValue(id);
+	AddElements(form, objpath + item.PATH, val);
+}
+
+function CarSet(item, form, objpath, obj)
+{
+	var plan = getValue(UplinkQosInst.plan.ID);
+	if (plan != "car")
+		return;
+
+	var id = NormalId(item, obj);
+	var val = getValue(id);
+	AddElements(form, objpath + item.PATH, val);
+}
+
+function PriorityQueue()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue.";
+	this.enable = { PATH: "Enable", TYPE: "int",
+		ID: "fake",
+		INIT: EnableInit,
+		SBMT: EnableSet,
+		TMPL: "queue_%m_enable_",
+		VAL: 0 };
+	this.priority = { ID: "", PATH: "Priority", TYPE: "int", VAL: 0 };
+	this.weight = { PATH: "Weight", TYPE: "int",
+		ID: "fake",
+		INIT: WfqInit,
+		SBMT: WfqSet,
+		TMPL: "queue_wfq_weight_",
+		VAL: 0 };
+
+	this.crate = { PATH: "X_TRI-ConfirmedRate", TYPE: "int",
+		ID: "fake",
+		INIT: CarInit,
+		SBMT: CarSet,
+		TMPL: "queue_car_crate_",
+		VAL: 0 };
+}
+
+var index = 0;
+var PriorityQueueInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue. Enable Priority Weight X_TRI-ConfirmedRate" -->
+PriorityQueueInsts[index] = new PriorityQueue();
+PriorityQueueInsts[index].enable.VAL = <!--#leaf "1" -->;
+PriorityQueueInsts[index].priority.VAL = <!--#leaf "2" -->;
+PriorityQueueInsts[index].weight.VAL = <!--#leaf "3" -->;
+PriorityQueueInsts[index].crate.VAL = <!--#leaf "4" -->;
+PriorityQueueInsts[index]._inspath = "<!--#path -->";
+PriorityQueueInsts[index]._index = index;
+index++;
+<!--#endgetobject -->
+
+function generatePqTable(pqs)
+{
+	var trs = "";
+	
+	for (var i = 0; i < pqs.length; i++) {
+		var tr = "";
+		var pq = pqs[i];
+		if(i%2==0 )
+			tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		tr += "<td>" + (i+1) + "</td>";
+		tr += "<td><input type='checkbox' id='queue_priority_enable_" + (i+1) + "' /> </td>";
+		tr += "<td>" + pq.priority.VAL + "</td>";
+		tr += "</tr>";
+		trs += tr;
+	}
+	jQuery("#queue_cfg_sp").append(trs);
+}
+
+function generateCarTable(pqs)
+{
+	var trs = "";
+	
+	for (var i = 0; i < pqs.length; i++) {
+		var tr = "";
+		var pq = pqs[i];
+		if(i%2==0 )
+			tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		tr += "<td>" + (i+1) + "</td>";
+		tr += "<td><input type='checkbox' id='queue_car_enable_" + (i+1) + "' /> </td>";
+		tr += "<td><input type='text' id='queue_car_crate_" + (i+1) + "' value='" + pq.crate.VAL + "'/></td>";
+		tr += "</tr>";
+		trs += tr;
+	}
+	jQuery("#queue_cfg_car").append(trs);
+}
+
+function generateWeightTable(pqs)
+{
+	var trs = "";
+	
+	for (var i = 0; i < pqs.length; i++) {
+		var tr = "";
+		if(i%2==0 )
+			tr += "<tr class='OddRowB'>";
+		else
+			tr += "<tr class='EvenRowB'>";
+		var pq = pqs[i];
+		tr += "<td>" + (i+1) + "</td>";
+		tr += "<td><input type='checkbox' id='queue_wfq_enable_" + (i+1) + "' /> </td>";
+		tr += "<td><input type='text' id='queue_wfq_weight_" + (i+1) + "' value='" + pq.weight.VAL + "'/></td>";
+		tr += "</tr>";
+		trs += tr;
+	}
+	jQuery("#queue_cfg_wfq").append(trs);
+}
+
+function onChgLimitEnable()
+{
+	var obj = $(TcpSessionInst.enable.ID);
+	if(obj.checked)
+	{
+		$("LMT_display_or_none").style.display = "";
+	}
+	else
+	{
+		$("LMT_display_or_none").style.display = "none";
+	}
+}
+
+function onChgLimitMode()
+{
+	var mode = $(TcpSessionInst.mode.ID).value;
+	if (mode == 1) {
+		$(TcpSessionInst.percentage.ID).style.display = "";
+		$(TcpSessionInst.number.ID).style.display = "none";
+	} else {
+		$(TcpSessionInst.percentage.ID).style.display = "none";
+		$(TcpSessionInst.number.ID).style.display = "";
+	}
+}
+
+function onQosScheduleChange()
+{
+	var plan = $(UplinkQosInst.plan.ID).value;
+	switch (plan) {
+	case "priority":
+		$("queue_cfg_sp").style.display = "";
+		$("queue_cfg_car").style.display = "none";
+		$("queue_cfg_wfq").style.display = "none";
+		break;
+	case "car":
+		$("queue_cfg_sp").style.display = "none";
+		$("queue_cfg_car").style.display = "";
+		$("queue_cfg_wfq").style.display = "none";
+		break;
+	case "weight":
+		$("queue_cfg_sp").style.display = "none";
+		$("queue_cfg_car").style.display = "none";
+		$("queue_cfg_wfq").style.display = "";
+		break;
+	default:
+		break;
+	}
+}
+
+function initNewUplinkQosModel(mode)
+{
+	var qosInst = new UplinkQos();
+	qosInst.mode.VAL = mode;
+	ConfigObjectUIInit(qosInst);
+
+	var tsInst = new TcpSession();
+	ConfigObjectUIInit(tsInst);
+
+	var pqInsts = new Array();
+	var pqNum = mode.split(",").length;
+	for (var i = 0; i < PriorityQueueInsts.length; i++) {
+		var pq = new PriorityQueue();
+		// default plan is priority
+		pq.enable.VAL = i < pqNum ? 1 : 0;
+		pqInsts[i] = pq;
+	}
+	PriorityQueueInit(pqInsts);
+	
+	onQosScheduleChange();
+	onChgLimitEnable();
+	onChgLimitMode();
+}
+
+function TemplateSwitched()
+{
+	$(UplinkQosInst.mode.ID).disabled = false;
+	$("submit").disabled = false;
+	$("refresh").disabled = false;
+	uiPageRefresh();
+}
+
+function TemplateSwitchSubmit()
+{
+	var form = document.dataform;
+
+	AddElements(form, UplinkQosInst._objpath + UplinkQosInst.mode.PATH,
+		$(UplinkQosInst.mode.ID).value);
+
+	$(UplinkQosInst.mode.ID).disabled = true;
+	$("submit").disabled = true;
+	$("refresh").disabled = true;
+
+	jQuery.post(
+		"/cgi-bin/setup.cgi",
+		jQuery(form).serialize(),
+		function () {
+			setTimeout(TemplateSwitched, 5000);
+		}
+	);
+}
+function ConfirmMsgResult(type,func,a)
+{
+	if(func == 'changeMode')
+	{
+		if(type=='yes')
+		{
+			TemplateSwitchSubmit();
+		}
+		else
+		{
+			var mode = $(UplinkQosInst.mode.ID).value;
+			setValue(UplinkQosInst.mode.ID, UplinkQosInst.mode.VAL);
+		}
+
+	}
+
+}
+function onChgUplinkQosMode()
+{
+	var mode = $(UplinkQosInst.mode.ID).value;
+	if (mode == UplinkQosInst.mode.VAL) {
+		return;
+	}
+
+	top.ConfirmMsg(getStr("LK_net_qos_template_switch_confirm"),"changeMode")
+}
+
+function PriorityQueueInit(pqInsts)
+{
+	for (var i = 0; i < pqInsts.length; i++) {
+		var pq = pqInsts[i];
+		ConfigObjectUIInit(pq);
+	}
+}
+
+function PriorityQueueCheck()
+{
+	var plan = $(UplinkQosInst.plan.ID).value;
+	switch (plan) {
+	case "priority":
+		break;
+	case "car":
+		for (var i = 0; i < PriorityQueueInsts.length; i++) {
+			var bandwidth = getValue("queue_car_crate_" + (i+1));
+
+			if(isAllNum(bandwidth)==0)
+			{
+				top.AlertMsg(getStr('LK_GuaranteedBandwidth'));
+				return false;
+			}
+			else if(bandwidth > 200000)
+			{
+				top.AlertMsg(getStr('LK_GuaranteedBandwidthRange')); 
+				return false;
+			}
+		}
+		break;
+	case "weight":
+
+		var sum = 0;
+		for (var i = 0; i < PriorityQueueInsts.length; i++) {
+			var enable = getValue("queue_wfq_enable_" + (i+1));
+			if (enable) {
+				var p = getValue("queue_wfq_weight_" + (i+1));
+				if ((isAllNum(p)==0) || parseInt(p) < 0) {
+                                        top.AlertMsg(getStr("LK_net_weightfmterr"));
+                                        return false;
+                                }
+                                p = parseInt(p);
+                                sum += p;
+			}
+		}
+		if (sum != 100) {
+			top.AlertMsg(getStr("LK_net_sum100"));
+			return false;
+		}
+		break;
+	default:
+		top.AlertMsg(getStr("LK_net_unknowplan"));
+		return false;
+		break;
+	}
+	return true;
+}
+
+function PriorityQueuePrepareSet(pqInsts, form)
+{
+	for (var i = 0; i < PriorityQueueInsts.length; i++) {
+		var pq = PriorityQueueInsts[i];
+		ConfigObjectPrepareSet(pq, form);
+	}
+}
+
+function TcpSessionModePrepareSet(form)
+{
+	var enable = getValue(TcpSessionInst.enable.ID);
+
+	if (enable) {
+		TcpSessionInst.mode.SBMT = "y";
+
+		var mode = $(TcpSessionInst.mode.ID).value;
+		if (mode == 1) {
+			TcpSessionInst.percentage.SBMT = "y";
+		} else {
+			TcpSessionInst.number.SBMT = "y";
+		}
+	}
+	ConfigObjectPrepareSet(TcpSessionInst, form);
+}
+
+function init()
+{
+	ConfigObjectUIInit(UplinkQosInst);
+	ConfigObjectUIInit(TcpSessionInst);
+	PriorityQueueInit(PriorityQueueInsts);
+
+	onQosScheduleChange();
+	onChgLimitEnable();
+	onChgLimitMode();
+}
+
+function check()
+{
+	var valid = true;
+
+	valid = valid && ConfigObjectCheck(UplinkQosInst);
+	valid = valid && ConfigObjectCheck(TcpSessionInst);
+	valid = valid && PriorityQueueCheck();
+
+	return valid;
+}
+
+function uiSubmit()
+{
+	var form = document.dataform;
+  
+	if (!check())
+		return;
+	if(!validateCode())
+		return false;
+
+	if(isAllNum($('INPUT_QosBandwidth').value)==0)
+        {
+                top.AlertMsg(getStr('LK_UpstrandBandwidth'),"INPUT_QosBandwidth");
+                return false;
+        }
+	else if($('INPUT_QosBandwidth').value > 200000)
+	{
+		top.AlertMsg(getStr('LK_UpstreamBandwidthRange'),"INPUT_QosBandwidth");	
+		return false;
+	}
+	ConfigObjectPrepareSet(UplinkQosInst, form);
+	TcpSessionModePrepareSet(form);
+	PriorityQueuePrepareSet(PriorityQueueInsts, form);
+
+	form.submit();
+}
+
+function __init()
+{
+    generatePqTable(PriorityQueueInsts);
+    generateCarTable(PriorityQueueInsts);
+    generateWeightTable(PriorityQueueInsts);
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+</script>
+
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_QosGlobalSettings'))</script>
+<form>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="200" langkey="LK_EnableQoSProfilee"></td>
+	<td><select id="SELECT_QosMode" onChange="onChgUplinkQosMode()">
+		<option value="TR069,INTERNET">TR069,INTERNET</option>
+		<option value="TR069,IPTV,INTERNET">TR069,IPTV,INTERNET</option>
+		<option value="IPTV,TR069,INTERNET">IPTV,TR069,INTERNET</option>
+		<option value="OTHER" langkey="LK_net_selftemplate"></option>
+	</select><span langkey="LK_net_qos_template_chage_warning"></span></td>
+</tr>
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_QosEnable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_UpstreamBandwidthh"></td>
+	<td><input type="text" id="INPUT_QosBandwidth"> Kbps <font color="red" langkey="LK_net_qosbandwidthinput"></font></td>
+</tr>
+<tr>
+	<td langkey="LK_SchedulingPolicyy"></td>
+	<td><select id="SELECT_QosScheduling" onChange="onQosScheduleChange()">
+		<option value='priority'>SP</option>
+		<option value='car'>CAR</option>
+		<option value='weight'>WFQ</option>
+	    </select></td>
+</tr>
+<tr>
+	<td langkey="LK_EnableForceBandwidthh"></td>
+	<td><input type="checkbox" id="INPUT_EnableForceWieght"></td>
+</tr>
+<tr>
+	<td langkey="LK_DSCPTCMarkk"></td>
+	<td><input type="checkbox" id="INPUT_EnableDSCPMark"></td>
+</tr>
+<tr>
+	<td langkey="LK_8021PTagg"></td>
+	<td><input type="checkbox" id="INPUT_EnableCOSMark"></td>
+</tr>
+<tr>
+	<td langkey="LK_TCPConnectionLimitt"></td>
+	<td><input type="checkbox" id="INPUT_EnableTcpSessionLimit" onClick="onChgLimitEnable()" /></td>
+</tr>
+<tr id="LMT_display_or_none">
+	<td langkey="LK_LimitModee"></td>
+	<td><select id="SELECT_LimitMode" onChange="onChgLimitMode()">
+	<option value="1" langkey="LK_PercentMode"></option>
+	<option value="2" langkey="LK_NumberMode"></option>
+	</select>&nbsp;
+	<input type="text" id="INPUT_Percentage" value="">
+	<input type="text" id="INPUT_Number" value="">
+	</td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_UpstreamQueueSettings'))</script>				
+<table class="ContentBorder" id="queue_cfg_sp">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_Priority1"></td>
+</tr>
+</table>
+<table class="ContentBorder" id="queue_cfg_car" style="display:none;">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_net_keepbands"></td>
+</tr>
+</table>
+<table class="ContentBorder" id="queue_cfg_wfq" style="display:none;">
+<tr class="TitleRow">
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_net_percent"></td>
+</tr>
+</table>
+<table class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr><td>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()")</script> 
+</td></tr>	 
+</table>
+<script>printEndContent()</script>
+ </form>
+<form method="post" name="dataform" action="/cgi-bin/setup.cgi?/page/advancedsetup/adv_qosqueue.shtml">
+</form>
+</body></html>

@@ -1,0 +1,319 @@
+<script type="text/javascript">
+	(function(){
+		var bWiFiChged = false;
+		var dom;
+
+		function onSub(){
+			var checkResult = true;
+			var fakeCurWdsBand = curWdsBand;
+
+			var localApSsidVal = localApSsid.getValue();
+			var localApPwdVal = localApPwd.getValue();
+
+			[localApSsid, localApPwd].forEach(function(o){
+				checkResult = o.checkAll() && checkResult;
+			});
+
+			if (!checkResult)
+			{
+				return;
+			}
+
+			if (slp.bandSteeringProvided && "1" == gLocalAPInfo[BAND_STEER].bs_enable)
+			{
+				fakeCurWdsBand = BAND_STEER;
+			}
+
+			if (gLocalAPInfo[fakeCurWdsBand].ssid != localApSsidVal)
+			{
+				gLocalAPInfo[fakeCurWdsBand].ssid = localApSsidVal;
+				bWiFiChged = true;
+			}
+
+			if ("" == localApPwdVal)
+			{
+				if (gLocalAPInfo[fakeCurWdsBand].encryption == "1")
+				{
+					bWiFiChged = true;
+				}
+
+				gLocalAPInfo[fakeCurWdsBand].encryption = "0";
+				gLocalAPInfo[fakeCurWdsBand].key = "";
+			}
+			else
+			{
+				if ((gLocalAPInfo[fakeCurWdsBand].key != localApPwdVal) || (gLocalAPInfo[fakeCurWdsBand].encryption == "0"))
+				{
+					bWiFiChged = true;
+				}
+
+				gLocalAPInfo[fakeCurWdsBand].encryption = "1";
+				gLocalAPInfo[fakeCurWdsBand].key = localApPwdVal;
+			}
+
+			var dhcpsArg = {"udhcpd":{"enable":"0", "auto":"1"}};
+			var lanArg = {"lan":{"ipaddr":gLanIP, "netmask":gLanMask,"ip_mode":"dynamic"}};
+			var hostArg = {"ssid":gLocalAPInfo[fakeCurWdsBand].ssid,
+						   "key":gLocalAPInfo[fakeCurWdsBand].key,
+						   "encryption":gLocalAPInfo[fakeCurWdsBand].encryption};
+
+			var wlanHostArg = {};
+
+			if (slp.bandSteeringProvided && "1" == gLocalAPInfo[BAND_STEER].bs_enable)
+			{
+				wlanHostArg["wlan_bs"] = hostArg;
+			}
+			else
+			{
+				var name = gKeyNames.wlan_host[fakeCurWdsBand];
+				wlanHostArg[name] = hostArg;
+			}
+
+			if (checkStrHasCN(localApSsidVal))
+			{
+				confirmDialog.show({
+					content: label.confirmSsidHasCNChar,
+					button: {confirmStr:btn.btnY,
+							 cancelStr:btn.btnN},
+					callback: function(choose){
+						if (choose)
+						{
+							localApSsid.input.select();
+						}
+						else
+						{
+							readyToSend();
+						}
+					}
+				});
+			}
+			else
+			{
+				readyToSend();
+			}
+
+			function readyToSend()
+			{
+				var data = {};
+				data.wireless = wlanHostArg;
+				data.network = lanArg;
+				data.dhcpd = dhcpsArg;
+
+				if ((true == bWirelessLinked) && (bWiFiChged == true))
+				{
+					$("#wdsWRLocalApSsid").html(htmlEscape(gLocalAPInfo[curEqtBand].ssid));
+
+					dom = initStaticTextObj(label.wirelessName, htmlEscape(gRootAPInfo[curWdsBand].ssid));
+					dom.title = gRootAPInfo[curWdsBand].ssid;
+					$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+
+					dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gRootAPInfo[curWdsBand].key == "" ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key));
+					dom.title = gRootAPInfo[curWdsBand].key == "" ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key;
+					$(dom).css("margin-bottom", "0px");
+					$("div.wdsWirelessResult div.wdsRootAp").append(dom);
+
+					dom = initStaticTextObj(label.wirelessName, htmlEscape(gLocalAPInfo[curEqtBand].ssid));
+					dom.title = gLocalAPInfo[curEqtBand].ssid
+					$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+
+					dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gLocalAPInfo[curEqtBand].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[curEqtBand].key));
+					dom.title = gLocalAPInfo[curEqtBand].key == "" ? label.wirelessNoSecurity : gLocalAPInfo[curEqtBand].key;
+					$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+
+					dom = initStaticTextObj(label.dhcpServerState, statusStr.auto);
+					$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+
+					dom = initStaticTextObj(label.lanIPAddr, gLanIP);
+					$(dom).css("margin-bottom", "0px");
+					$("div.wdsWirelessResult div.wdsLocalAp").append(dom);
+
+					wirelessLinkTipsDialog.show();
+				}
+				else
+				{
+					loadingDialog.show({
+						title: label.savingConfig,
+						content:{primary:label.savingAndWait}
+					});
+				}
+
+				$.modify(data, function(result){
+					/* LET LAN CONFIG WORK */
+					$.action({"network":{"apply_lan_config":null}}, null, true, true);
+
+					var jumpPageHd = $.setTimeout(function(){
+						window.location.href = "http://" + gLanIP;
+					}, 60000);
+
+					if ($.local == true)
+					{
+						$.setTimeout(function() {
+							clearTimeout(jumpPageHd);
+							if ((true == bWirelessLinked) && (bWiFiChged == true))
+							{
+								wirelessLinkTipsDialog.hide(function(){
+									stepPage(endPage);
+								});
+							}
+							else
+							{
+								loadingDialog.hide(function(){
+									stepPage(endPage);
+								});
+							}
+						}, 4000);
+					}
+					else
+					{
+						if (true == isLanIpChanged){
+							$.changeDomain(gLanIP);
+							$.setTimeout(function(){
+								lanDetecting(function() {
+									window.location.href = "http://" + gLanIP;
+								});
+							}, 4000);
+						}
+						else
+						{
+							$.setTimeout(function() {
+								lanDetecting(function() {
+									clearTimeout(jumpPageHd);
+									if ((true == bWirelessLinked) && (bWiFiChged == true))
+									{
+										wirelessLinkTipsDialog.hide(function(){
+											stepPage(endPage);
+										});
+									}
+									else
+									{
+										loadingDialog.hide(function(){
+											stepPage(endPage);
+										});
+									}
+								});
+							}, 4000);
+						}
+					}
+				});
+			}
+		}
+
+		if (gRootAPInfo[curWdsBand].encryption == 0){
+			gRootAPInfo[curWdsBand].key = "";
+		}
+
+		dom = initStaticTextObj(label.wirelessName, htmlEscape(gRootAPInfo[curWdsBand].ssid));
+		dom.title = gRootAPInfo[curWdsBand].ssid;
+		$("div.wdsReady div.wdsRootAp").append(dom);
+
+		dom = initStaticTextObj(label.wirelessPwd, htmlEscape(gRootAPInfo[curWdsBand].key == "" ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key));
+		dom.title = gRootAPInfo[curWdsBand].key == "" ? label.wirelessNoSecurity : gRootAPInfo[curWdsBand].key;
+		$("div.wdsReady div.wdsRootAp").append(dom);
+
+		var localApSsid = new Input({
+			type: Input.TYPE.PLAIN_TEXT,
+			label: {value:label.wirelessName},
+			targetId: "localApSsid",
+			check: {blur:checkSsidInput},
+			props: {maxlength: '32', type: "text", value:gRootAPInfo[curWdsBand].ssid}
+		});
+
+		var localApPwd = new Input({
+			type: Input.TYPE.PLAIN_TEXT,
+			label: {value:label.wirelessPwd},
+			targetId: "localApPwd",
+			check:{blur:onPwdBlur, keyup:onPwdKeyup},
+			props:{maxlength: '63', type: "text", value:gRootAPInfo[curWdsBand].key}
+		});
+
+		dom = initStaticTextObj(label.dhcpServerState, statusStr.auto);
+		$("div.wdsReady div.wdsLocalAp").append(dom);
+
+		dom = initStaticTextObj(label.lanIPAddr, gLanIP);
+		$("div.wdsReady div.wdsLocalAp").append(dom);
+
+		var wdsBtnBack = new Button({
+			text: btn.preStep,
+			onClick: function(){
+				stepPage(secondPage);
+			},
+			type:Button.TYPE.SECONDARY,
+			id:"wdsBtnBack",
+			props:{width:"120px"}
+		});
+
+		var wdsBtnNext = new Button({
+			text:btn.nextStep,
+			onClick:onSub,
+			type:Button.TYPE.PRIMARY,
+			id:"wdsBtnNext",
+			props:{width:"240px"}
+		});
+
+		var wirelessLinkTipsDialog = new Dialog({
+			hasTitle: false,
+			content: "<div id='wirelessLinkTipsCon'></div>",
+			size: Dialog.SIZE.LARGE,
+			type: Dialog.TYPE.CUSTOM,
+			renderCallBack: function(){
+				var self = this;
+				loadDialogRenderPage(wirelessResultPage, "wirelessLinkTipsCon", function(){
+					self.connetcAndRetry = new Button({
+						text:btn.iAmConnectRouter,
+						onClick:function(){
+							if (true == isLanIpChanged){
+								$.changeDomain(gLanIP);
+								window.location.href = "http://" + gLanIP;
+							}
+							else
+							{
+								wirelessLinkTipsDialog.hide(function(){
+									stepPage(endPage);
+								});
+							}
+						},
+						type:Button.TYPE.PRIMARY,
+						id:"connetcAndRetry",
+						props:{width:"280px", display:"block", margin:"24px auto 0px"}
+					});
+
+					var rootApConScroll = new NiceScroll({targetId:"wdsRootAp", zIndex:1006});
+					rootApConScroll.scrollTipOpacity(1);
+					rootApConScroll.init();
+
+					var localApConScroll = new NiceScroll({targetId:"wdsLocalAp", zIndex:1006});
+					localApConScroll.scrollTipOpacity(1);
+					localApConScroll.init();
+				});
+			}
+		});
+
+		isLanIpChanged = (gLanIP != gOldLanIP);
+	})();
+</script>
+<style type="text/css">
+	#wirelessLinkTipsCon{
+		padding: 40px 136px 40px;
+	}
+</style>
+<div class="subTitle">
+	<h2>{%label.wdsHost%}</h2>
+</div>
+<div class="wdsBasicInfo wdsReady">
+	<i class="wdsBasicInfoPic wdsRootAp"></i>
+	<div class="wdsBasicInfoContent wdsRootAp"></div>
+</div>
+<div class="subTitle">
+	<h2>{%label.wdsRouter%}</h2>
+</div>
+<div class="wdsBasicInfo wdsReady">
+	<i class="wdsBasicInfoPic wdsLocalAp"></i>
+	<div class="wdsBasicInfoContent wdsLocalAp">
+		<div id="localApSsid"></div>
+		<div id="localApPwd"></div>
+	</div>
+</div>
+<div class="wdsScanStepBtn">
+	<div id="wdsBtnBack"></div>
+	<div id="wdsBtnNext"></div>
+</div>

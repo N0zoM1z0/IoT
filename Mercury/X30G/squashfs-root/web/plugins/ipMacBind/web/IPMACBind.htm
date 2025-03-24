@@ -1,0 +1,417 @@
+<script type="text/javascript">
+	(function(){
+		var ipMacMapList = [], ipMacBindList = [];
+		var uciFile = uciArp.fileName;
+		var uciTypeBind = uciArp.secType.arp;
+		var uciOptIp = uciArp.optName.ipAddr;
+		var uciOptMac = uciArp.optName.mac;
+		var uciOptHost = uciArp.optName.hostname;
+		var uciStatus = uciArp.optName.status;
+		var ROUTER_MODE = 0;
+		var AP_MODE = 1;
+		var WDS_MODE = 2;
+		var curSysMode = ROUTER_MODE;
+		var ipMacDisabled = false;
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EINVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EINVIPFMT:
+				showStr = errStr.ipAddrFmtErr;
+				break;
+			case EINVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EINVLOOPIP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EHOSTNAME:
+				showStr = errStr.hostLenErr;
+				break;
+			case ENOTLANWANNET:
+				showStr = errStr.ipAddrNotLanWanNetErr;
+				break;
+			case EINVMACFMT:
+				showStr = errStr.macFmtErr;
+				break;
+			case EBINDIPUSED:
+				showStr = errStr.bindIpUsedErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.entryConflicErr;
+				break;
+			case EENTRYEXIST:
+				showStr = errStr.entryExistErr;
+				break;
+			case ESYSTEM:
+				showStr = errStr.systemErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function requestData(action)
+		{
+			var data = {};
+			data[uciFile] = {};
+			data[uciFile][KEY_TABLE] = [uciTypeBind, uciArp.dynData.sysArp];
+			if(slp.gSysModeSupport){
+				data.system = {"name":"sys_mode"};
+			}
+
+			$.query(data, function(result){
+				fillData(result, action);
+			});
+		}
+
+		function fillData(ALL_DATA, action)
+		{
+			var ipMacMapLen = 0, ipMacBindLen = 0, tmpObj, ipMacMapTableCurPage, ipMacBindTableCurPage;
+			ipMacMapList = formatTableData(ALL_DATA[uciFile][uciArp.dynData.sysArp]) || [];
+			ipMacMapLen = ipMacMapList.length;
+
+			for (var i = 0; i < ipMacMapLen; i++)
+			{
+				tmpObj = ipMacMapList[i];
+				tmpObj["showHostName"] = tmpObj[uciOptHost] == "" ? label.anonymousHost : tmpObj[uciOptHost];
+			}
+
+			ipMacMapTableCurPage = ipMacMapTable.getCurrentPage();
+			ipMacMapTable.setDataSource(ipMacMapList);
+			ipMacMapTable.loadData(ipMacMapTableCurPage);
+
+			ipMacBindList = formatTableData(ALL_DATA[uciFile][uciTypeBind]) || [];
+			ipMacBindLen = ipMacBindList.length;
+
+			for (var i = 0; i < ipMacBindLen; i++)
+			{
+				tmpObj = ipMacBindList[i];
+				tmpObj["showHostName"] = tmpObj[uciOptHost] == "" ? label.anonymousHost : tmpObj[uciOptHost];
+			}
+
+			ipMacBindTableCurPage = ipMacBindTable.getCurrentPage();
+			ipMacBindTable.setDataSource(ipMacBindList);
+			ipMacBindTable.loadData(ipMacBindTableCurPage);
+
+			if (action == "refresh")
+			{
+				showToast(label.refreshSuccess);
+			}
+		}
+
+		function ipMacItemBind(index)
+		{
+			var entryExist = false, bindSecName;
+			var hostName = ipMacMapList[index][uciOptHost];
+			var ip = ipMacMapList[index][uciOptIp];
+			var mac = ipMacMapList[index][uciOptMac];
+
+			/* CHECK WHETHER THE RECORD IS ALREADY EXIST IN IP_MAC_BIND_LIST */
+			for (var i in ipMacBindList)
+			{
+				if (!ipMacBindList.hasOwnProperty(i)){
+					continue;
+				}
+				if ((ip == ipMacBindList[i][uciOptIp]) || mac == ipMacBindList[i][uciOptMac])
+				{
+					entryExist = true;
+					bindSecName = ipMacBindList[i][SEC_NAME];
+					break;
+				}
+			}
+
+			/* IF RECORD IN IP_MAC_BIND_LIST, MODIFY IT, OR ADD IT */
+			if (entryExist)
+			{
+				var secNameVal = bindSecName;
+				var cfg = {}, cfgBindFile = {}, cfgSecPara = {};
+
+				cfg[uciFile] = cfgBindFile;
+				cfgBindFile[secNameVal] = cfgSecPara;
+
+				cfgSecPara[uciOptIp] = ip;
+				cfgSecPara[uciOptMac] = mac;
+				cfgSecPara[uciOptHost] = hostName;
+
+				showLoading();
+				$.modify(cfg, function(result){
+					closeLoading();
+					if (errHandle(result[ERR_CODE]))
+					{
+						showToast(label.bindSuccess);
+						$.setTimeout(function(){
+							requestData("normal");
+						}, 100);
+					}
+				}, undefined, true);
+			}
+			else
+			{
+				var cfg = {}, cfgBindFile = {}, cfgSecPara = {};
+
+				cfg[uciFile] = cfgBindFile;
+				cfgBindFile[KEY_TABLE] = uciTypeBind;
+				cfgBindFile[KEY_NAME] = uciTypeBind + "_" + calcNextIndex(ipMacBindList);
+				cfgBindFile[KEY_PARA] = cfgSecPara;
+
+				cfgSecPara[uciOptIp] = ip;
+				cfgSecPara[uciOptMac] = mac;
+				cfgSecPara[uciOptHost] = hostName;
+
+				showLoading();
+				$.add(cfg, function(result){
+					closeLoading();
+					if (errHandle(result[ERR_CODE]))
+					{
+						showToast(label.bindSuccess);
+						$.setTimeout(function(){
+							requestData("normal");
+						}, 100);
+					}
+				}, undefined, true);
+			}
+		}
+
+		function ipMacItemUnbind(index)
+		{
+			var indexArray= index.split("-");
+			var secList = [];
+
+			for (var i = 0; i < indexArray.length; i++)
+			{
+				//排除dataGridStaList数组中的空元素
+				if (!ipMacBindList[indexArray[i]][SEC_NAME])
+				{
+					continue;
+				}
+
+				secList[i] = ipMacBindList[indexArray[i]][SEC_NAME];
+			}
+
+			var cfg = {}, cfgBindFile = {}, cfgSecPara = {};
+			cfg[uciFile] = cfgBindFile;
+			cfgBindFile[KEY_NAME] = secList;
+
+			showLoading();
+			$.del(cfg, function(result){
+				closeLoading();
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.unbindSuccess);
+					$.setTimeout(function(){
+						requestData("normal");
+					}, 100);
+				}
+			}, undefined, true);
+		}
+
+		function ipMacItemSave(mode, resultObj, index, asynFunc)
+		{
+			var hostName = resultObj["showHostName"];
+			var mac = resultObj[uciOptMac];
+			var ip = hideLeadingZeros(resultObj[uciOptIp]);
+
+			/* CHECK IP-CONFLICT ON IP_MAC_BIND_LIST*/
+			for (var idx in ipMacBindList)
+			{
+				if (!ipMacBindList.hasOwnProperty(idx)){
+					continue;
+				}
+				/* 排除本身条目和已删除条目 */
+				if (idx == index || !ipMacBindList[idx][uciOptIp])
+				{
+					continue;
+				}
+
+				if (ipMacBindList[idx][uciOptIp] == ip ||
+					ipMacBindList[idx][uciOptMac] == mac)
+				{
+					return asynFunc(errHandle(EENTRYCONFLIC));
+				}
+			}
+
+			if ("add" == mode)
+			{
+				var cfg = {}, cfgBindFile = {}, cfgSecPara = {};
+
+				cfg[uciFile] = cfgBindFile;
+				cfgBindFile[KEY_TABLE] = uciTypeBind;
+				cfgBindFile[KEY_NAME] = uciTypeBind + "_" + calcNextIndex(ipMacBindList);
+				cfgBindFile[KEY_PARA] = cfgSecPara;
+
+				cfgSecPara[uciOptIp] = ip;
+				cfgSecPara[uciOptMac] = mac;
+				cfgSecPara[uciOptHost] = hostName;
+
+				$.add(cfg, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						asynFunc(true);
+						showToast(label.bindSuccess);
+						$.setTimeout(function(){
+							requestData("normal");
+						}, 100);
+					}
+					else
+					{
+						asynFunc(false);
+					}
+				});
+			}
+			else if ("edit" == mode)
+			{
+				var secNameVal = ipMacBindList[index][SEC_NAME];
+				var cfg = {}, cfgBindFile = {}, cfgSecPara = {};
+
+				cfg[uciFile] = cfgBindFile;
+				cfgBindFile[secNameVal] = cfgSecPara;
+
+				cfgSecPara[uciOptIp] = ip;
+				cfgSecPara[uciOptMac] = mac;
+				cfgSecPara[uciOptHost] = hostName;
+
+				$.modify(cfg, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						asynFunc(true);
+						showToast(label.bindSuccess);
+						$.setTimeout(function(){
+							requestData("normal");
+						}, 100);
+					}
+					else
+					{
+						asynFunc(false);
+					}
+				});
+			}
+		}
+
+		function getDisableSysMode(callback){
+			if(slp.gSysModeSupport){
+				var data = {};
+				data.system = {"name":"sys_mode"};
+				$.query(data,function(res){
+					curSysMode = res.system.sys_mode.mode;
+					if(curSysMode != ROUTER_MODE) {
+						ipMacDisabled = true;
+						$(".relayErrorTip").show();
+						if (curSysMode == AP_MODE) {
+							$("#relayTipText").text("上网方式为AP（有线中继）时，无法使用IP与MAC绑定功能。");
+						} else {
+							$("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用IP与MAC绑定功能。");
+						}
+					}
+					callback(ipMacDisabled)
+				})
+			}else{
+				callback(ipMacDisabled);
+			}
+		}
+		var ipMacMapTable = null;
+		var ipMacBindTable = null;
+		getDisableSysMode(function(){
+			ipMacMapTable = new Table({
+				targetId:'ipMacMapTable',
+				title:label.ipMacMapTab,
+				head:[
+					{field:label.host, width:"0.32"},
+					{field:label.mac, width:"0.32"},
+					{field:label.ipAddr, width:"0.24"},
+					{field:label.curStatus, width:"0.12"}
+				],
+				column:[
+					{name: "showHostName", type:"str", maxLength:DEVICE_NAME_LEN_MAX},
+					{name: uciOptMac, type: "mac"},
+					{name: uciOptIp, type: "ip"},
+					{name: uciStatus,  type:"strSelect", options:[{str:label.ipMacBindNoBind, value:0}, {str:label.ipMacBindBinded, value:1}]}
+				],
+				tableOption:[
+					{icon: "icon-refresh", str: btn.refresh, selRelate: false, type:"refresh", func:function(){
+						requestData("refresh");
+					}}
+				],
+				itemOption:[
+					{
+						icon: "icon-connect",
+						type: "bind",
+						str: btn.bind,
+						func: ipMacItemBind,
+						onRender: function(dataObj)
+						{
+							if (dataObj.status == 0)
+							{
+								return {result:false};
+							}
+							else
+							{
+								return {result:true, str:""};
+							}
+						}
+					}
+				],
+				deletable:false,
+				editable:false,
+				addable:false,
+				hasCheckBox: false,
+				disableState: ipMacDisabled
+			});
+			ipMacBindTable = new Table({
+				targetId:'ipMacBindTable',
+				title:label.ipMacBindSet,
+				head:[
+					{field:label.host, width:"0.32"},
+					{field:label.mac, width:"0.32"},
+					{field:label.ipAddr, width:"0.36"}
+				],
+				column:[
+					{name: "showHostName", type:"str", maxLength:DEVICE_NAME_LEN_MAX},
+					{name: uciOptMac, type: "mac"},
+					{name: uciOptIp, type: "ip"}
+				],
+				tableOption:[
+					{icon: "icon-disconnect", str: btn.unbindSel, type: "unbind", func: ipMacItemUnbind, selRelate: true}
+				],
+				clickList:{
+					"click_save": {func:ipMacItemSave, asyn: true}
+				},
+				itemOption:[
+					{icon: "icon-disconnect", str: btn.unbind, type: "unbind", func: ipMacItemUnbind}
+				],
+				deletable:false,
+				max:IP_MAC_BIND_RULE_MAX,
+				disableState: ipMacDisabled
+			});	
+			requestData("normal");
+		})
+	})();
+</script>
+<div class="head">
+	<div class="title"><h1>{%menuStr.IPMACBind%}</h1><i class="helpBtn iconfont icon-help" helpStr="IPMACBindHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.ipMacBindDescription%}</p>
+	<ul class="relayErrorTip">
+		<i class="iconfont icon-warn"></i>
+		<span id="relayTipText"></span>
+	</ul>
+</div>
+<div id="ipMacMapTable"></div>
+<div id="ipMacBindTable" class="advanceTable"></div>

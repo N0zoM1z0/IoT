@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link rel="stylesheet" href="/static/css/main.css"><link rel="stylesheet" href="/static/css/common.css"><link rel="stylesheet" href="/static/css/advance_menu.css"></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <adv-child-menu childType="service"></adv-child-menu>
+  <div class="advance-box">
+  	<x-help :text="lang_t('remote.help')"></x-help><br><br>
+	<div class="fun-box">
+	  <table class="table">
+	  	<tbody>
+		<tr>
+		  <td class="fun-left"><b>{{ lang_t('remote.state') }}</b></td>
+		  <td>
+			<x-switch v-model="status"  @change="remote_on_off"></x-switch>
+		  </td>
+		</tr>
+	  	</tbody>
+	  	<tbody v-if="status">
+		<tr>
+		  <td class="fun-left">{{ lang_t('remote.port') }}</td>
+		  <td>
+			<input type="text" v-model="port" v-verify="formRules" data-name="port" maxlength="5">
+			<small>({{ lang_t('remote.range') }}:80~65535)</small>
+		  </td>
+		</tr>
+		<tr><td colspan="2"></td></tr>
+		<tr>
+		  <td class="fun-left"></td>
+		  <td>
+			<button type="button" class="btn" @click="handleSubmit">{{ lang_t('common.apply') }}</button>
+		  </td>
+		</tr>
+	  	</tbody> 
+	  </table>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,status:!1,port:"",enable:!1,forwardRule:[]}},computed:{formRules:function(){var r=this;return{port:function(t,e){var o,a=cs.num_range(t,80,65535),n=!1;for(o in r.forwardRule)t==r.forwardRule[o].ePort&&(n=!0);0==a?e(r.lang_t("remote.msg1")):2==a||1==a?e(r.lang_t("remote.msg2")):n?e(r.lang_t("remote.msg3")):e()}}}},created:function(){var e=this;uiPost.getRemoteCfg(function(t){e.status=1==t.enable,e.enable=e.status,e.port=t.port}),uiPost.getPortForwardRules(function(t){t.rule&&(e.forwardRule=t.rule)})},methods:{remote_on_off:function(t){this.enable&&!t&&(t={enable:"0"},uiPost.setRemoteCfg(t,applyCallback))},handleSubmit:function(){var e=this,o={};e.status&&Cstool.Verify(this.formRules,function(t){t&&(o.port=e.port,o.enable="1",uiPost.setRemoteCfg(o,applyCallback))})}}}</script><script src="/static/js/main.js"></script></body></html>

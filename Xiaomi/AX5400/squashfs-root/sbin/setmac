@@ -1,0 +1,227 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/system.sh
+
+GETMAC="getmac"
+art_mtd="0:ART"
+eth0adr=""
+eth1adr=""
+wan2adr=""
+
+usage() {
+	echo "setmac < lan | wan | wan2 | eth0 | eth1 | wl0 | wl1 | wl2> <mac>"
+	echo "example: setmac lan 00:11:22:33:44:55"
+}
+
+get_eth0_mac_from_art()
+{
+	eth0adr="`${GETMAC} eth0`"
+}
+
+get_eth1_mac_from_art()
+{
+	eth1adr="`${GETMAC} eth1`"
+}
+
+get_wan2_mac_from_art()
+{
+        wan2adr="`${GETMAC} wan2`"
+}
+
+set_wan2_mac()
+{
+        for NUM in 0 1;do
+                A="`eval echo '${eth'$NUM'adr:0:2}'`"
+                B="`eval echo '${eth'$NUM'adr:3:2}'`"
+                C="`eval echo '${eth'$NUM'adr:6:2}'`"
+                D="`eval echo '${eth'$NUM'adr:9:2}'`"
+                E="`eval echo '${eth'$NUM'adr:12:2}'`"
+                F="`eval echo '${eth'$NUM'adr:15:2}'`"
+                str="${str}\x$A\x$B\x$C\x$D\x$E\x$F"
+        done
+
+        for NUM in 2;do
+                A="`eval echo '${wan'$NUM'adr:0:2}'`"
+                B="`eval echo '${wan'$NUM'adr:3:2}'`"
+                C="`eval echo '${wan'$NUM'adr:6:2}'`"
+                D="`eval echo '${wan'$NUM'adr:9:2}'`"
+                E="`eval echo '${wan'$NUM'adr:12:2}'`"
+                F="`eval echo '${wan'$NUM'adr:15:2}'`"
+                str="${str}\x$A\x$B\x$C\x$D\x$E\x$F"
+        done
+
+        # pad 0xff to /tmp/macaddr
+        for i in `seq 19 64`; do
+                str="${str}\xff"
+        done
+
+        echo -n -e ${str} > /tmp/macaddr
+        # hexdump -C /tmp/macaddr
+
+        art_partition=$(find_mtd_part $art_mtd)
+        [ -z "$art_partition" ] && art_partition=$(find_mmc_part 0:ART)
+
+        # Find the partition and set the MAC addresses in the flash
+        dd if=/tmp/macaddr of=$art_partition bs=64 conv=sync 2>/dev/null
+        rm -f /tmp/macaddr
+}
+
+set_mac()
+{
+	for NUM in 0 1;do
+		A="`eval echo '${eth'$NUM'adr:0:2}'`"
+		B="`eval echo '${eth'$NUM'adr:3:2}'`"
+		C="`eval echo '${eth'$NUM'adr:6:2}'`"
+		D="`eval echo '${eth'$NUM'adr:9:2}'`"
+		E="`eval echo '${eth'$NUM'adr:12:2}'`"
+		F="`eval echo '${eth'$NUM'adr:15:2}'`"
+		str="${str}\x$A\x$B\x$C\x$D\x$E\x$F"
+	done
+
+        for NUM in 2;do
+                A="`eval echo '${wan'$NUM'adr:0:2}'`"
+                B="`eval echo '${wan'$NUM'adr:3:2}'`"
+                C="`eval echo '${wan'$NUM'adr:6:2}'`"
+                D="`eval echo '${wan'$NUM'adr:9:2}'`"
+                E="`eval echo '${wan'$NUM'adr:12:2}'`"
+                F="`eval echo '${wan'$NUM'adr:15:2}'`"
+                str="${str}\x$A\x$B\x$C\x$D\x$E\x$F"
+        done
+
+
+	# pad 0xff to /tmp/macaddr
+	for i in `seq 19 64`; do
+		str="${str}\xff"
+	done
+
+	echo -n -e ${str} > /tmp/macaddr
+	# hexdump -C /tmp/macaddr
+
+	art_partition=$(find_mtd_part $art_mtd)
+	[ -z "$art_partition" ] && art_partition=$(find_mmc_part 0:ART)
+
+	# Find the partition and set the MAC addresses in the flash
+	dd if=/tmp/macaddr of=$art_partition bs=64 conv=sync 2>/dev/null
+	rm -f /tmp/macaddr
+}
+
+raw_art_read() {
+    local mtdblock=$(find_mtd_part 0:ART)
+
+    if [ -z "$mtdblock" ]; then
+        #read from mmc
+        mtdblock=$(find_mmc_part 0:ART)
+    fi
+
+    [ -n "$mtdblock" ] || return
+
+    local apmp="/tmp"
+
+    dd if=${mtdblock} of=${apmp}/virtual_art.bin
+    echo "Copy ART caldata from ${mtdblock} to /tmp/virtual_art.bin" > /dev/console
+}
+
+setmac_wifi() {
+    . /lib/read_caldata_to_fs.sh;
+    . /lib/functions.sh;
+
+#wifi0/wifi1,偏移14,写6个，checksum:10,2byte，wifi2同d01
+    case $1 in
+        wl1|wifi0) artoff=$((0x1000));;
+		wl0|wifi1) artoff=$((0x26800));;
+        wl2|wifi2) artoff=$((0x4d000));;
+    *) return;;
+    esac;
+	
+	raw_art_read
+    artdev="/tmp/virtual_art.bin"
+	
+	backcsum=0
+	i=0
+	for data in `hexdump -v -e '/2 "%02X\n"' -n $((0x100)) -s $artoff -v $artdev`
+	do
+		backcsum=$((backcsum^0x$data))
+	done
+	backcsum=$((backcsum^0xffff))
+	
+    str='';
+    for octet in $(echo $2 | sed 's/:/ /g'); do
+        str="$str\x$octet";
+    done;
+    case $1 in
+	wl0|wifi0|wl1|wifi1) 
+		echo -n -e "$str" | dd of=$artdev bs=1 seek=$((artoff+14)) conv=notrunc 2>/dev/null
+    	#set nvMacflag to set wifi mac
+		echo -n -e "\x01\x00" | dd of=$artdev bs=1 seek=$((artoff+0x3e)) conv=notrunc 2>/dev/null
+		;;
+	wl2|wifi2) echo -n -e "$str" | dd of=$artdev bs=1 seek=$((artoff+6)) conv=notrunc 2>/dev/null;;
+    *) return;;
+    esac;
+    #csum=$(csum=0; u16=0; hexdump -e '1/2 "%u\n"' -n $((0x20000)) -s $artoff -v $artdev | while read line; do [ $((u16++)) -eq 5 ] && line=$((0xffff)); csum=$((csum^line)); [ $u16 -eq $((0x20000/2)) ] && printf '%x\n' $csum; done);
+	csum=0
+	i=0
+    case $1 in
+	wl1|wifi0|wl0|wifi1) csum_pos=10;;
+	wl2|wifi2) csum_pos=2;;
+    *) return;;
+    esac;
+ 
+	for data in `hexdump -v -e '/2 "%02X\n"' -n $((0x100)) -s $artoff -v $artdev`
+	do
+		if [ $i = $csum_pos ];then
+			csum=$((csum^0xffff))
+		else
+			csum=$((csum^0x$data))
+		fi		
+		i=$((i+2))
+	done
+	csum=$((csum^$backcsum))
+
+	case $1 in
+	wl1|wifi0|wl0|wifi1) echo -ne $(printf '\x%x\x%x' $(($csum&0xff)) $((($csum&0xff00)>>8))) | dd of=$artdev bs=1 seek=$((artoff+10)) conv=notrunc 2>/dev/null;;
+	wl2|wifi2) echo -ne $(printf '\x%x\x%x' $(($csum&0xff)) $((($csum&0xff00)>>8))) | dd of=$artdev bs=1 seek=$((artoff+2)) conv=notrunc 2>/dev/null;;
+    *) return;;
+    esac;
+    mtd write $artdev /dev/mtd13
+    do_load_ipq4019_board_bin 2>/dev/null;
+    #uci -q commit wireless;
+}
+
+[ ! $# -eq 2 ] && usage && exit 0
+
+case $1 in
+	lan|eth1)
+		get_eth0_mac_from_art
+		get_wan2_mac_from_art
+		eth1adr=$2
+		set_mac
+	;;
+	wan|eth0)
+		get_eth1_mac_from_art
+		get_wan2_mac_from_art
+		eth0adr=$2
+		set_mac
+	;;
+
+        wan2)
+		get_eth0_mac_from_art
+		get_eth1_mac_from_art
+                wan2adr=$2
+                set_wan2_mac
+        ;;
+
+	wl1|wifi0)
+		setmac_wifi wl1 "$2"
+	;;
+	wl0|wifi1)
+		setmac_wifi wl0 "$2"
+	;;
+	wl2|wifi2)
+		setmac_wifi wl2 "$2"
+	;; 
+	*)
+		usage
+	;;
+esac
+

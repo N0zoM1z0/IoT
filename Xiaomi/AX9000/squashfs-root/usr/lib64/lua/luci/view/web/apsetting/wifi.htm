@@ -1,0 +1,2040 @@
+<%
+--[[
+    Info    路由器Wi-Fi设置
+]]--
+local ver = require("xiaoqiang.XQVersion").webVersion
+local wifiUtil = require("xiaoqiang.util.XQWifiUtil")
+local LuciJson = require("luci.json")
+local XQFunction = require("xiaoqiang.common.XQFunction")
+local XQSysUtil = require("xiaoqiang.util.XQSysUtil")
+
+local remote_addr = luci.http.getenv("REMOTE_ADDR")
+local mac = luci.sys.net.ip4mac(remote_addr)
+
+local channel1 = wifiUtil.getDefaultWifiChannels(1)
+local channel2 = wifiUtil.getDefaultWifiChannels(2)
+local channel3 = wifiUtil.getDefaultWifiChannels(3)
+local wifi_pddk = LuciJson.encode(channel1)
+local wifi5_pddk = LuciJson.encode(channel2)
+local wifi5_game_pddk = LuciJson.encode(channel3)
+
+local active_apcli = XQFunction.get_active_apcli()
+local romChannel = XQSysUtil.getChannel()
+
+local netmod = 0
+local netmod = XQFunction.getnetmode()
+--4 mesh主设备  whc_cap
+--3 mesh从设备  whc_re
+--0 router
+local isMesh = (netmod == 3 or netmod == 4) and 'true'  or  'false'
+local uci = require("luci.model.uci").cursor()
+local features = require("xiaoqiang.XQFeatures").FEATURES
+local hardware = string.lower( XQSysUtil.getHardware() )
+local capmode = XQFunction.getCAPMode()
+%>
+<%include("web/inc/head")%>
+<title><%:小米路由器%></title>
+<meta name="viewport" content="width=1200">
+<link href="<%=resource%>/web/css/bc.css?v=<%=ver%>" rel="stylesheet">
+<link href="<%=resource%>/web/css/wifi.css?v=<%=ver%>" rel="stylesheet">
+<meta name="referrer" content="never">
+</head>
+<body>
+<div id="doc">
+    <%include("web/inc/header")%>
+    <div id="bd">
+
+        <div class="mod-set mod-wifi">
+            <div class="hd">
+                <h3><%:Wi-Fi三频合一%></h3>
+                <div class="switch">
+                    <a href="#" id="bsdswitch" class="btn-switch btn-switch-off" data-on="0"></a>
+                </div>
+            </div>
+            <div class="bd">
+                <p><%:2.4G、5G和5G Game WiFi合并，自动为你切换至最佳WiFi网络。%></p>
+            </div>
+        </div>
+
+        <!-- <div class="mod-set mod-wifi-bsd">
+            <form class="form form-horizontal" id="wifiset_bsd_select" name="wifiset_bsd_select" action="#" autocomplete="off">
+                <div class="hd">
+                    <h3><%:Wi-Fi合并设置%></h3>
+                    <div class="form-item-select">
+                        <label class="k">合并设置</label>
+                        <select name="bsdselect" id="bsdselect" class="beautify" >
+                            <option value="0" selected="selected" >
+                                <span><%:三频独立%></span>
+                            </option>
+                            <option value="1" >
+                                <span><%:双频合一（游戏专属通道）%></span>
+                            </option>
+                            <option value="2" >
+                                <span><%:双频合一（5G合并）%></span>
+                            </option>
+                            <option value="3" >
+                                <span><%:三频合一%></span>
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-contral">
+                        <button type="submit" class="btn btn-primary hidden" id="btnSubmitbsdselect"><span><%:保存%></span></button>
+                    </div>
+                </div>
+                <div class="bd">
+                    <p id="bsdSelectDsc"><%:2.4G、5G和5G Game WiFi分别独立%></p>
+                </div>
+            </form>
+        </div> -->
+        <div class="mod-set mod-wifi mod-wifi24">
+            <div class="hd">
+            <%if features["wifi"]["wifi50"] == "1" then%>
+                <h3><%:Wi-Fi设置%></h3>
+            <%else%>
+                <h3><%:Wi-Fi设置%></h3>
+            <%end%>
+            </div>
+            <div class="bd">
+                <form class="form form-horizontal" id="wifiset24" name="wifiset24"  action="<%=luci.dispatcher.build_url("api", "xqnetwork", "set_wifi")%>" autocomplete="off">
+                </form>
+            </div>
+        </div>
+        <%if features["wifi"]["wifi50"] == "1" then%>
+        <div class="mod-set mod-wifi mod-wifi50">
+            <div class="bd">
+                <form class="form form-horizontal" id="wifiset50" name="wifiset50" action="<%=luci.dispatcher.build_url("api", "xqnetwork", "set_wifi")%>" autocomplete="off">
+                </form>
+            </div>
+        </div>
+        <%end%>
+        <%if features["wifi"]["wifi50"] == "1" then%>
+        <div class="mod-set mod-wifi mod-wifi50-game">
+            <div class="bd">
+                <form class="form form-horizontal" id="wifiset50game" name="wifiset50game" action="<%=luci.dispatcher.build_url("api", "xqnetwork", "set_wifi")%>" autocomplete="off">
+                </form>
+            </div>
+        </div>
+        <%end%>
+         
+
+
+         <div class="mod-set mod-wifi">
+            <div class="hd">
+                <h3><%:Wi-Fi 5 兼容模式%></h3>
+                <div class="switch">
+                    <a href="#WIFI6switch" id="WIFI6switch" class="btn-switch btn-switch-on" data-on="1"></a>
+                </div>
+            </div>
+            <div class="bd">
+                <p><%:某些老设备对Wi-Fi6支持不好，可能扫描不到信号或者连接不上等。开启此开关后，将会切换到Wi-Fi5模式，解决兼容问题。但同时会关闭Wi-Fi6的相关功能，如OFDMA，BSS Coloring等。
+                %></p>
+            </div>
+        </div>
+
+        <div class="mod-set mod-wifi">
+            <div class="hd">
+                <h3><%:MU-MIMO%></h3>
+                <div class="switch">
+                    <a href="#txbfswitch" id="txbfswitch" class="btn-switch btn-switch-on" data-on="1"></a>
+                </div>
+            </div>
+            <div class="bd">
+                <p><%:MU-MIMO“多用户多入多出”技术，可以让路由器与多台终端同时通信，极大改善无线资源利用效率，提升Wi-Fi体验。该功能生效需要路由器和终端同时支持。
+                %></p>
+            </div>
+        </div>
+
+        <div class="mod-set mod-wifi">
+            <div class="hd">
+                <h3><%:AIoT智能天线自动扫描%></h3>
+                <div class="switch">
+                    <a href="#AIOTswitch" id="AIOTswitch" class="btn-switch btn-switch-on" data-on="1"></a>
+                </div>
+            </div>
+            <div class="bd">
+                <p><%:AIoT智能天线自动扫描功能可以自动发现未初始化的小米智能设备，通过米家APP快速入网。%><br/><%:此功能可能在网络拥塞的环境下导致网络出现一定的丢包变多及延时提高的问题。%></p>
+            </div>
+        </div>
+        <%if netmod ~= 3 then%>
+        <div class="mod-set mod-wifi">
+            <div class="hd">
+                <h3><%:畅快连%></h3>
+                <div class="switch">
+                    <a href="#cklswitch" id="cklswitch" class="btn-switch btn-switch-on" data-on="1"></a>
+                </div>
+            </div>
+            <div class="bd">
+                <p><%:开启此功能，路由器可自动发现支持畅快连的未初始化Wi-Fi设备，通过米家APP快速配网；修改路由器密码也将自动同步给支持畅快连的设备。%></p>
+            </div>
+        </div>
+        <%end%>
+    </div>
+    <%include("web/inc/footer")%>
+
+</div>
+
+<%include("web/inc/g.js")%>
+<script type="text/tmpl" id="tplbsdWrap">
+    <form class="form form-horizontal" id="wifisetbsd">
+        <!-- <%if hardware == "d01" then%>
+        <p class="bsd-ground"><%:Wi-Fi信息%></p>
+        <%end%> -->
+        <div id="wifisetbsdtop"></div>
+        <p class="bsd-ground"><%:2.4G 选项%></p>
+        <div id="wifiset24" class="form"></div>
+        <p class="bsd-ground"><%:5G 选项%></p>
+        <div id="wifiset50" class="form"></div>
+        <p class="bsd-ground"><%:5G Game 选项%></p>
+        <div id="wifiset50game" class="form"></div>
+    </form>
+</script>
+<script type="text/tmpl" id="tplWifiBsdTop">
+    <div class="item">
+     <%if netmod ~= 4 and capmode ~= 1 then%>
+        <span class="k"><%:开关%></span>
+        <span class="v">
+            <%:中继模式下不允许关闭%>
+        </span>
+     <%else%>
+        <%:在Mesh模式下不支持关闭Wi-Fi开关%>
+     <%end%>
+    </div>
+    <div class="form-item">
+        <label class="k"><%:名称%></label>
+        <span class="v"><input type="text" name="ssid" value="{$ssid}" class="ipt-text" autocomplete="off" datatype="ssid" maxlength="23" minLength="1" reqMsg="<%:Wi-Fi名称%>" /></span>
+        <em class="t"></em>
+    </div>
+    <div class="form-item">
+        <label for="hidessid{$wifitype}"> <input type="checkbox" id="hidessid{$wifitype}" name="hidden" value="1" {if ($hidden == 1)}checked{/if}> <span><%:隐藏网络不被发现%></span></label>
+    </div>
+    <div class="form-item-select">
+        <label class="k"><%:加密方式%></label>
+        <span class="v">
+            <select name="encryption" class="beautify encryption" >
+
+                <option value="ccmp"{if ($encryption == "ccmp")} selected{/if}><%:超强加密(WPA3个人版)%></option>
+                <option value="psk2+ccmp"{if ($encryption == "psk2+ccmp")} selected{/if}><%:强混合加密(WPA3/WPA2个人版)%></option>
+
+                <option value="psk2"{if ($encryption == "psk2")} selected{/if}><%:强加密(WPA2个人版)%></option>
+                <option value="mixed-psk"{if ($encryption == "mixed-psk")} selected{/if}><%:混合加密(WPA/WPA2个人版)%></option>
+                <option value="none"{if ($encryption == "none")} selected{/if}><%:无加密(允许所有人连接)%></option>
+            </select>
+        </span>
+        <em class="t0" style="display: inline;">
+            {if ($encryption == "ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+            {if ($encryption == "psk2+ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+        </em>
+    </div>
+    <div class="form-item" {if($encryption == "none")} style="display:none;"{/if}>
+        <label class="k"><%:密码%></label>
+        <span class="v">
+            <input type="password" data-type="password" name="pwd" value="{$password}" class="ipt-text" autocomplete="off" datatype="wifipassword" minLength="8" maxLength="63" reqMsg="<%:Wi-Fi密码%>" />
+        </span>
+        <em class="t"></em>
+    </div>
+    <!--新加信号强度-->
+   <!--  <div class="form-item-select">
+        <label class="k"><%:信号强度%></label>
+        <span class="v">
+            <select name="txpwr" class="beautify txpwr">
+                <option value="max"{if ($txpwr == "max")} selected{/if}><%:穿墙%></option>
+                <option value="mid"{if ($txpwr == "mid")} selected{/if}><%:标准%></option>
+                <option value="min"{if ($txpwr == "min")} selected{/if}><%:节能%></option>
+            </select>
+        </span>
+        <em class="t"></em>
+    </div> -->
+
+</script>
+<script type="text/tmpl" id="tplWifiBsd">
+    {if ($wifitype == 2)}
+    <input type="hidden" value="{$wifiIndex}" name="wifiIndex">
+    <div class="item">
+        <%if netmod ~= 4 and capmode ~= 1 then%>
+            {if ($wifiIndex == 1)}
+                <span class="k"><%:2.4G Wi-Fi%></span>
+            {elseif($wifiIndex == 2)}
+                <span class="k"><%:5G Wi-Fi%></span>
+            {else}
+                <span class="k"><%:5G Game Wi-Fi%></span>
+            {/if}
+            <span class="v">
+            {if ($wifitype == 3)}
+                <label><input type="radio" name="on" value="1"{if ($enabled == 1 && $status == 1)} checked{/if}> <span><%:开启%></span></label>
+                <label><input type="radio" name="on" value="0"{if ($enabled == 0 || $status == 0)} checked{/if}> <span><%:关闭%></span></label>
+            {else}
+                <label><input type="radio" name="on" value="1"{if ($status == 1)} checked{/if}> <span><%:开启%></span></label>
+                <label><input type="radio" name="on" value="0"{if ($status == 0)} checked{/if}> <span><%:关闭%></span></label>
+            {/if}
+            </span>
+         <%else%>
+            {if ($wifiIndex == 1)}
+                <span class="k"><%:2.4G Wi-Fi%></span>
+            {elseif($wifiIndex == 2)}
+                <span class="k"><%:5G Wi-Fi%></span>
+            {else}
+                <span class="k"><%:5G Game Wi-Fi%></span>
+            {/if}
+            <%:在Mesh模式下不支持关闭Wi-Fi开关%>
+         <%end%>
+
+    </div>
+    <div class="form-item">
+        <label class="k"><%:名称%></label>
+        <span class="v"><input type="text" name="ssid" value="{$ssid}" class="ipt-text" autocomplete="off" datatype="ssid" maxlength="23" minLength="1" reqMsg="<%:Wi-Fi名称%>" /></span>
+        <em class="t"></em>
+    </div>
+    <%if hardware ~= "d01" then%>
+    <div class="form-item">
+        <label for="hidessid{$wifitype}"> <input type="checkbox" id="hidessid{$wifitype}" name="hidden" value="1" {if ($hidden == 1)}checked{/if}> <span><%:隐藏网络不被发现%></span></label>
+    </div>
+    <%end%>
+    <div class="form-item-select">
+        <label class="k"><%:加密方式%></label>
+        <span class="v">
+            <select name="encryption" class="beautify encryption">
+
+                <option value="ccmp"{if ($encryption == "ccmp")} selected{/if}><%:超强加密(WPA3个人版)%></option>
+                <option value="psk2+ccmp"{if ($encryption == "psk2+ccmp")} selected{/if}><%:强混合加密(WPA3/WPA2个人版)%></option>
+
+                <option value="psk2"{if ($encryption == "psk2")} selected{/if}><%:强加密(WPA2个人版)%></option>
+                <option value="mixed-psk"{if ($encryption == "mixed-psk")} selected{/if}><%:混合加密(WPA/WPA2个人版)%></option>
+                <option value="none"{if ($encryption == "none")} selected{/if}><%:无加密(允许所有人连接)%></option>
+            </select>
+        </span>
+        <em class="t0" style="display: inline;">
+            {if ($encryption == "ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+            {if ($encryption == "psk2+ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+        </em>
+    </div>
+    <div class="form-item" {if($encryption == "none")} style="display:none;"{/if}>
+        <label class="k"><%:密码%></label>
+        <span class="v">
+            <input type="password" data-type="password" name="pwd" value="{$password}" class="ipt-text" autocomplete="off" datatype="wifipassword" minLength="8" maxLength="63" reqMsg="<%:Wi-Fi密码%>" />
+        </span>
+        <em class="t"></em>
+    </div>
+    {/if}
+
+    {if ($relayWifi == 0)}
+        <input type="hidden" name="channel" value="{$channel}">
+        <input type="hidden" name="bandwidth" value="{$bandwidth}">
+        <input type="hidden" name="txpwr" value="{$txpwr}">
+        <div class="form-item-select">
+        <label class="k"><%:信号强度%></label>
+        <span class="v">
+            <select name="txpwr" class="beautify txpwr">
+                <option value="max"{if ($txpwr == "max")} selected{/if}><%:穿墙%></option>
+                <option value="mid"{if ($txpwr == "mid")} selected{/if}><%:标准%></option>
+                <option value="min"{if ($txpwr == "min")} selected{/if}><%:节能%></option>
+            </select>
+        </span>
+        <em class="t"></em>
+    {else}
+    {if ($wifitype != 3)}
+    <div class="form-item-select itemChannel">
+        <label class="k"><%:无线信道%></label>
+        <span class="v">
+        <select name="channel" class="beautify channel" data-id="{$wifiIndex-1}">
+            <%if netmod ~= 4 then%>
+            {for(var i=0, len=$channels.length; i<len; i++)}
+                <option value="{$channels[i]['c']}" {if ($channel==$channels[i]['c'])}selected{/if}>
+                {if ($channels[i]['c']==0)}<%:自动%>
+                    {if ($channelInfo["channel"] != "0")}
+                        ({$channelInfo["channel"]})
+                    {/if}
+                {else}
+                    {$channels[i]['c']}
+                {/if}
+                </option>
+             {/for}
+            <%else%>
+            {for(var i=0, len=$channels.length; i<len; i++)}
+                {if ($channels[i]['c'] < 52 || $channels[i]['c'] > 64)}
+                    <option value="{$channels[i]['c']}" {if ($channel==$channels[i]['c'])}selected{/if}>
+                    {if ($channels[i]['c']==0)}<%:自动%>
+                        {if ($channelInfo["channel"] != "0")}
+                            ({$channelInfo["channel"]})
+                        {/if}
+                    {else}
+                        {$channels[i]['c']}
+                    {/if}
+                    </option>
+                {/if}
+            {/for}
+            <%end%>
+        </select>
+        </span>
+        <%if netmod ~= 4 then%>
+             <em class="t"></em>
+        <%else%>
+        {if ($wifilei == 2)}
+             <em class="t">Mesh模式下不支持DFS信道选择（52-64）</em>
+        {/if}
+        <%end%>
+    </div>
+    <div class="form-item-select itemBandwidth" >
+        <label class="k"><%:频段带宽%></label>
+        <span class="v">
+            <select name="bandwidth" class="beautify bandwidth" >
+                {if ($channelInfo["bandList"].length >= 4)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:160/80/40/20MHz%></option>
+                {/if}
+                {if ($channelInfo["bandList"].length == 3)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:80/40/20MHz%></option>
+                {/if}
+                {if ($channelInfo["bandList"].length == 2)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:40/20MHz%></option>
+                {/if}
+                {for(var i=0, len=$channelInfo["bandList"].length; i<len && i<3; i++)}
+                    <option value="{$channelInfo["bandList"][i]}" {if ($channelInfo["bandList"][i] == $bandwidth)}selected="selected"{/if}>{$channelInfo["bandList"][i]}MHz</option>
+                {/for}
+            </select>
+        </span>
+        <em class="t"></em>
+    </div>
+    <div class="form-item-select">
+        <label class="k"><%:信号强度%></label>
+        <span class="v">
+            <select name="txpwr" class="beautify txpwr">
+                <option value="max"{if ($txpwr == "max")} selected{/if}><%:穿墙%></option>
+                <option value="mid"{if ($txpwr == "mid")} selected{/if}><%:标准%></option>
+                <option value="min"{if ($txpwr == "min")} selected{/if}><%:节能%></option>
+            </select>
+        </span>
+        <em class="t"></em>
+    </div>
+    {/if}
+    {/if}
+    {if ($wifiIndex == 3)}
+    <div class="form-contral">
+        <button type="submit" class="btn btn-primary btn-l hidden"><span><%:保存%></span></button>
+    </div>
+    {/if}
+</script>
+<script type="text/tmpl" id="tplWifi">
+    <input type="hidden" value="{$wifiIndex}" name="wifiIndex">
+    <div class="item">
+        <%if netmod ~= 4 and capmode ~= 1 then%>
+            {if ($wifiIndex == 1)}
+                <span class="k"><%:2.4G Wi-Fi%></span>
+            {elseif($wifiIndex == 2)}
+                <span class="k"><%:5G Wi-Fi%></span>
+            {else}
+                <span class="k"><%:5G Game Wi-Fi%></span>
+            {/if}
+            <span class="v">
+                {if ($relayWifi == 0)}
+                    <%:中继模式下不允许关闭%>
+                {else}
+                    <label><input type="radio" name="on" value="1"{if ($status == 1)} checked{/if}> <span><%:开启%></span></label>
+                    <label><input type="radio" name="on" value="0"{if ($status == 0)} checked{/if}> <span><%:关闭%></span></label>
+                {/if}
+            </span>
+         <%else%>
+            {if ($wifiIndex == 1)}
+                <span class="k"><%:2.4G Wi-Fi%></span>
+            {elseif($wifiIndex == 2)}
+                <span class="k"><%:5G Wi-Fi%></span>
+            {else}
+                <span class="k"><%:5G Game Wi-Fi%></span>
+            {/if}
+            {if ($wifiIndex == 3)}
+                <span class="v" style="position:absolute;margin-left:10px"><%:在Mesh模式下不支持关闭Wi-Fi开关%></span>
+            {else}
+                <span class="v"><%:在Mesh模式下不支持关闭Wi-Fi开关%></span>
+            {/if}
+         <%end%>
+
+
+    </div>
+
+    <div class="form-item">
+        <label class="k"><%:名称%></label>
+        <span class="v"><input type="text" name="ssid" value="{$ssid}" class="ipt-text" autocomplete="off" datatype="ssid" maxlength="23" minLength="1" reqMsg="<%:Wi-Fi名称%>" /></span>
+        <em class="t"></em>
+    </div>
+    {if ($wifitype != 3)}
+    <div class="form-item">
+        <label for="hidessid{$wifitype}"> <input type="checkbox" id="hidessid{$wifitype}" name="hidden" value="1" {if ($hidden == 1)}checked{/if}> <span><%:隐藏网络不被发现%></span></label>
+    </div>
+    {/if}
+    <div class="form-item-select">
+        <label class="k"><%:加密方式%></label>
+        <span class="v">
+            <select name="encryption" class="beautify encryption" >
+
+                <option value="ccmp"{if ($encryption == "ccmp")} selected{/if}><%:超强加密(WPA3个人版)%></option>
+                <option value="psk2+ccmp"{if ($encryption == "psk2+ccmp")} selected{/if}><%:强混合加密(WPA3/WPA2个人版)%></option>
+
+                <option value="psk2"{if ($encryption == "psk2")} selected{/if}><%:强加密(WPA2个人版)%></option>
+                <option value="mixed-psk"{if ($encryption == "mixed-psk")} selected{/if}><%:混合加密(WPA/WPA2个人版)%></option>
+                <option value="none"{if ($encryption == "none")} selected{/if}><%:无加密(允许所有人连接)%></option>
+            </select>
+        </span>
+        <em class="t0" style="display: inline;">
+            {if ($encryption == "ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+            {if ($encryption == "psk2+ccmp")} <%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>
+            {/if}
+        </em>
+    </div>
+    <div class="form-item" {if($encryption == "none")} style="display:none;"{/if}>
+        <label class="k"><%:密码%></label>
+        <span class="v">
+            <input type="password" data-type="password" name="pwd" value="{$password}" class="ipt-text" autocomplete="off" datatype="wifipassword" minLength="8" maxLength="63" reqMsg="<%:Wi-Fi密码%>" />
+        </span>
+        <em class="t"></em>
+    </div>
+    {if ($relayWifi == 0)}
+        <input type="hidden" name="channel" value="{$channel}">
+        <input type="hidden" name="bandwidth" value="{$bandwidth}">
+        <input type="hidden" name="txpwr" value="{$txpwr}">
+        <div class="form-item-select">
+            <label class="k"><%:信号强度%></label>
+            <span class="v">
+
+                <select name="txpwr" class="beautify txpwr" >
+                    <option value="max"{if ($txpwr == "max")} selected{/if}><%:穿墙%></option>
+                    <option value="mid"{if ($txpwr == "mid")} selected{/if}><%:标准%></option>
+                    <option value="min"{if ($txpwr == "min")} selected{/if}><%:节能%></option>
+                </select>
+            </span>
+            <em class="t"></em>
+        </div>
+    {else}
+    <div class="form-item-select itemChannel">
+        <label class="k"><%:无线信道%></label>
+        <span class="v">
+        <select name="channel" class="beautify channel"  data-id="{$wifitype}">
+            {for(var i=0, len=$channels.length; i<len; i++)}
+                <option value="{$channels[i]['c']}" {if ($channel==$channels[i]['c'])}selected{/if}>
+                {if ($channels[i]['c']==0)}<%:自动%>
+                    {if ($channelInfo["channel"] != "0")}
+                        ({$channelInfo["channel"]})
+                    {/if}
+                {else}
+                    {$channels[i]['c']}
+                {/if}
+                </option>
+            {/for}
+        </select>
+        </span>
+        <em class="t"></em>
+    </div>
+    <div class="form-item-select itemBandwidth" >
+        <label class="k"><%:频段带宽%></label>
+        <span class="v">
+            <select name="bandwidth" class="beautify bandwidth" id="bandwidth" >
+                {if ($channelInfo["bandList"].length >= 4)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:160/80/40/20MHz%></option>
+                {/if}
+                {if ($channelInfo["bandList"].length == 3)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:80/40/20MHz%></option>
+                {/if}
+                {if ($channelInfo["bandList"].length == 2)}
+                    <option value="0" {if ($bandwidth  == "0" )}selected="selected"{/if}><%:40/20MHz%></option>
+                {/if}
+                {for(var i=0, len=$channelInfo["bandList"].length; i<len && i<3; i++)}
+                    <option value="{$channelInfo["bandList"][i]}" {if ($channelInfo["bandList"][i] == $bandwidth)}selected="selected"{/if}>{$channelInfo["bandList"][i]}MHz</option>
+                {/for}
+            </select>
+        </span>
+        <em class="t"></em>
+    </div>
+    <div class="form-item-select">
+        <label class="k"><%:信号强度%></label>
+        <span class="v">
+
+            <select name="txpwr" class="beautify txpwr" >
+                <option value="max"{if ($txpwr == "max")} selected{/if}><%:穿墙%></option>
+                <option value="mid"{if ($txpwr == "mid")} selected{/if}><%:标准%></option>
+                <option value="min"{if ($txpwr == "min")} selected{/if}><%:节能%></option>
+            </select>
+        </span>
+        <em class="t"></em>
+    </div>
+    {/if}
+    {if ($wifiIndex == 3)}
+    <div class="form-contral">
+        <button type="submit" class="btn btn-primary btn-l hidden"><span><%:保存%></span></button>
+    </div>
+    {/if}
+</script>
+<script>
+  var isMesh = <%=isMesh%>;
+  var netmod = <%=netmod%>;
+(function(){
+    var global = {};
+    var generateMixed = function (n) {
+         var res = "";
+         var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+         for(var i = 0; i < n ; i ++) {
+             var id = Math.ceil(Math.random()*35);
+             res += chars[id];
+         }
+         return res;
+    }
+    function onControlFocus() {
+        $(this).parents('form').find('.btn-primary').removeClass('hidden');
+        $('.mod-wifi50-game').find('#wifiset50game').find('.btn-primary').removeClass('hidden');
+    }
+
+    var bsdArr = [
+        {
+            name:'三频独立',
+            dsc:'2.4G、5G和5G Game WiFi分别独立。将合并的WiFi独立分开后，部分终端可能离线，需重新连接。'
+        },
+        {
+            name:'双频合一（游戏专属通道）',
+            dsc:'2.4G和5G WiFi合并，5G Game WiFi独立。合并WiFi名称后部分终端可能离线，需重新连接。'
+        },
+        {
+            name:'双频合一（5G合并）',
+            dsc:'5G和5G Game WiFi合并，2.4G WiFi独立。合并WiFi名称后终端可能离线，需重新连接。'
+        },
+        {
+            name:'三频合一',
+            dsc:'2.4G、5G和5G Game WiFi合并。合并WiFi名称后部分终端可能离线，需重新连接。'
+        }
+    ]
+
+//get device config
+
+  $.getJSON('<%=luci.dispatcher.build_url("api","xqnetwork","get_son_backhaul_mode")%>')
+    .done(function( rsp ){
+      if ( rsp.code == 0 ) {
+        if ( rsp.mode  == 1 || rsp.mode  == "1") {
+          $('#deviceSwitch')
+            .removeClass('btn-switch-off')
+            .addClass('btn-switch-on')
+            .attr('data-on', '1');
+        }
+      }else{
+
+        // $.alert( '<%:网络异常，请检查是否联网%>' );
+
+      }
+    })
+    $.sub( 'wifi:init', function(evt, data){
+        global.wifi = {
+            configs: [],
+            pddk: {
+                '1': '<%=wifi_pddk%>',
+                '2': '<%=wifi5_pddk%>',
+                '3': '<%=wifi5_game_pddk%>'
+            }
+        };
+
+        // get wifi and rander html
+        var containers = ['wifiset24', 'wifiset50', 'wifiset50game'],
+            roamContainer = ['roamset24', 'roamset50'],
+            tpl = $('#tplWifi').html();
+        hardware = '<%=hardware%>';
+
+
+        $.getJSON('<%=luci.dispatcher.build_url("api","xqnetwork","get_miscan_switch")%>')
+        .done(function( rsp ){
+            if ( rsp.code == 0 ) {
+                 if( rsp.enabled == 1 ){
+                    $('#AIOTswitch')
+                        .removeClass('btn-switch-off')
+                        .addClass('btn-switch-on')
+                        .attr('data-on', '1');
+                 }else{
+                    $('#AIOTswitch')
+                        .removeClass('btn-switch-on')
+                        .addClass('btn-switch-off')
+                        .attr('data-on', '0');
+                 }
+            }
+
+        });
+
+
+        $.getJSON('<%=luci.dispatcher.build_url("api","xqnetwork","wifi_detail_all")%>')
+        .done(function( rsp ){
+            if ( rsp.code == 0 ) {
+                $('#bsdSelectDsc').html(bsdArr[rsp.bsd].dsc)
+                $('#bsdselect').children('option').eq(rsp.bsd).attr('selected','selected').siblings('option').removeAttr('selected')
+
+                var wifiinfo = rsp.info;
+                var haswifi50 = $('#wifiset50').length > 0 ? true : false;
+                global.oldBsd = rsp.bsd
+
+                if ( wifiinfo[0].ax == 1 || wifiinfo[0].ax == "1") {
+                         $('#WIFI6switch')
+                        .removeClass('btn-switch-on')
+                        .addClass('btn-switch-off')
+                        .attr('data-on', '0');
+                }
+
+                for(var i = 0, len = wifiinfo.length; i < len; i ++){
+                    var id = containers[i];
+                    var container;
+                    //if( !haswifi50 && i == 1 ){
+                        //container = $(document.getElementById( 'wifisetguest' ));
+                    //}else{
+                        if (haswifi50 && i == 1) {
+                            if ( wifiinfo[i].txbf == 0 || wifiinfo[i].txbf == "0") {
+                                 $('#txbfswitch')
+                                .removeClass('btn-switch-on')
+                                .addClass('btn-switch-off')
+                                .attr('data-on', '0');
+                            }
+
+                        }
+                        container = $(document.getElementById(id));
+                    //}
+                    var wifiitem = wifiinfo[i];
+                    var password = wifiitem.password;
+                    var encryption = wifiitem.encryption;
+                    var type = '<%=active_apcli%>';
+                    var relayWifi = 1;
+
+                    if ( encryption == 'none' ) {
+                        password = '';
+                    }
+                    if ( i == 0 && type == 'wl11') { //new:wl11 ----2.4G 中继;wl12------5.G 中继 (mtk运营商的方案才是apcli这些)
+                        relayWifi = 0;
+                    }
+
+                    if (haswifi50 && i == 1) {
+                        if ( wifiinfo[i].txbf == 0 || wifiinfo[i].txbf == "0") {
+                            $('#txbfswitch')
+                            .removeClass('btn-switch-on')
+                            .addClass('btn-switch-off')
+                            .attr('data-on', '0');
+
+                        }
+                         if (type == 'wl12') { //new:wl11 ----2.4G 中继;wl12------5.G 中继
+                            relayWifi = 0;
+                     }
+                    }
+
+                    if ( i == 2 && type == 'wl13') { 
+                        relayWifi = 0;
+                    }
+                    var tplData = {
+                        relayWifi:relayWifi,
+                        wifitype: (!haswifi50 && i == 1) ? i+1 : i,
+                        wifiIndex: (!haswifi50 && i == 1) ? i+2 : i+1,
+                        status: wifiitem.status,
+                        ssid: StringH.encode4HtmlValue(wifiitem.ssid),
+                        password: StringH.encode4HtmlValue(password),
+                        encryption: wifiitem.encryption,
+                        channels: $.parseJSON(global.wifi.pddk[i+1]),
+                        channel: wifiitem.channel,
+                        bandwidth: wifiitem.bandwidth,
+                        channelInfo: wifiitem.channelInfo,
+                        weakenable: wifiitem.weakenable,
+                        weakthreshold: wifiitem.weakthreshold,
+                        kickthreshold: wifiitem.kickthreshold,
+                        hidden: wifiitem.hidden,
+                        txpwr: wifiitem.txpwr,
+                        txbf: wifiitem.txbf,
+                        enabled: wifiitem.enabled,
+                        wifilei:i
+                    };
+                    // if(i==0 && (encryption == 'ccmp'||encryption == 'psk2+ccmp')){//2.4G zhangpan
+                    //     $('#wifiset24 .t0').html('<%:仅支持WPA加密方式的设备将无法连接%>').show();
+                    // }else if(i==1 && (encryption == 'ccmp'||encryption == 'psk2+ccmp')){
+                    //     $('#wifiset50 .t0').html('<%:仅支持WPA加密方式的设备将无法连接%>').show();
+                    // }
+
+                    // if( i == 0 && rsp.bsd == 1 ){
+                    //     $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(tplData) );
+                    // }
+
+                    //     container.html( tpl.tmpl(tplData) );
+
+                    $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(tplData) );
+                    container.html( tpl.tmpl(tplData) );
+                    global.wifi.configs[i+1] = tplData;
+                }
+                // if(rsp.bsd > 0){
+                //     $('.mod-wifi24 .hd h3').text('<%:Wi-Fi%>');
+                //     tpl = $('#tplWifiBsd').html();
+                //     $('.mod-wifi24 .bd').html( $('#tplbsdWrap').html() );
+                //     if(rsp.bsd == 1){
+                //         for(var i = 0; i < containers.length; i++){
+                //             $(document.getElementById(containers[i])).html(tpl.tmpl(global.wifi.configs[i+1]))
+                //             $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[rsp.bsd]));
+                //         }
+                //         $('.mod-wifi50').hide()
+                //         $('#wifisetbsd').children('p').eq(2).remove()
+                //         $('#wifisetbsd').children('#wifiset50game').remove()
+                //         $('#wifisetbsd').delegate('input[type=text], input[type=checkbox], input[type=radio]', 'click', onControlFocus)
+                //             .delegate('.ipt-text', 'click', onControlFocus);
+                //         $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[rsp.bsd]));
+                //         tpl = $('#tplWifi').html();
+                //         $(document.getElementById('wifiset50game')).html(tpl.tmpl(global.wifi.configs[3]))
+                //     }else if(rsp.bsd == 2){
+                //         for(var i = 0; i < containers.length; i++){
+                //             $(document.getElementById(containers[i])).html(tpl.tmpl(global.wifi.configs[i+1]))
+                //             $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[rsp.bsd]));
+                //         }
+                //         $('.mod-wifi50').hide()
+                //         $('#wifisetbsd').children('p').eq(0).remove()
+                //         $('#wifisetbsd').children('#wifiset24').remove()
+                //         $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[rsp.bsd]));
+                //         //这得改变下wifitype，与tplwifibsd里的判断相一致
+                //         global.wifi.configs[3].wifitype = 1
+                //         $('#wifiset50game').html(tpl.tmpl(global.wifi.configs[3]))
+                //         //强行加上2.4G频段
+                //         $('.mod-wifi50-game .bd').children('form').attr({'id':'wifiset24'})
+                //         tpl = $('#tplWifi').html();
+                //         $(document.getElementById('wifiset24')).html(tpl.tmpl(global.wifi.configs[1]))
+                //         //默认让保存按钮一直跟随着5Ggame频段，但是bsd==2时，得把它移到2.4G频段下
+                //         $('.mod-wifi50-game #wifiset24').append($(document.getElementById('wifiset50game')).children('.form-contral'))
+                //         $(document.getElementById('wifiset50game')).children('.form-contral').remove()
+                //     }else{
+                //         $('.mod-wifi50').hide()
+                //         $('.mod-wifi50-game').hide()
+                //         for(var i = 0; i < containers.length; i++){
+                //             $(document.getElementById(containers[i])).html(tpl.tmpl(global.wifi.configs[i+1]))
+                //             $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[1]));
+                //         }
+                //         $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[1]));
+                //         //这得改变下wifitype，与tplwifibsd里的判断相一致
+                //         global.wifi.configs[3].wifitype = 1
+                //         $(document.getElementById('wifiset50game')).html(tpl.tmpl(global.wifi.configs[3]))
+                //     }
+                // }
+                if(rsp.bsd == 1){
+                    $('#bsdswitch')
+                    .removeClass('btn-switch-off')
+                    .addClass('btn-switch-on')
+                    .attr('data-on', '1');
+                    $('.mod-wifi24 .hd h3').text('<%:Wi-Fi%>');
+                    tpl = $('#tplWifiBsd').html();
+                    $('.mod-wifi24 .bd').html( $('#tplbsdWrap').html() );
+                    $('.mod-wifi50').hide()
+                    $('.mod-wifi50-game').hide()
+                    for(var i = 0; i < containers.length; i++){
+                        $(document.getElementById(containers[i])).html(tpl.tmpl(global.wifi.configs[i+1]))
+                        $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[1]));
+                    }
+                    $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(global.wifi.configs[1]));
+                    //这得改变下wifitype，与tplwifibsd里的判断相一致，更改这个为1会造成后选择5GGame的信道时出现错误（三频合一时），解决：在渲染时更改它的赋值方式
+                    global.wifi.configs[3].wifitype = 1
+                    $(document.getElementById('wifiset50game')).html(tpl.tmpl(global.wifi.configs[3]))
+                }
+            }
+            $('#wifiset24, #wifiset50,#wifiset50game, #roamset24,#roamset50,#wifiset_bsd_select,#wifisetbsdtop').delegate('input[type=text], input[type=checkbox], input[type=radio]', 'click', onControlFocus)
+                .delegate('.ipt-text', 'click', onControlFocus);
+            setTimeout( function(){
+                $.selectBeautify();
+                $.formInit();
+                $.pub('wifi:bindEventEncryption');
+                $.pub('wifi:bindEventChannel');
+                $.pub('wifi:bindEventBandwidth');
+            }, 100 );
+        });
+
+        $.getJSON('<%=luci.dispatcher.build_url("api","xqnetwork","get_miotrelay_switch")%>')
+            .done(function( rsp ){
+                if ( rsp.code == 0 ) {
+                    if( rsp.enabled == 1 ){
+                        $('#cklswitch')
+                            .removeClass('btn-switch-off')
+                            .addClass('btn-switch-on')
+                            .attr('data-on', '1');
+                    }else{
+                        $('#cklswitch')
+                            .removeClass('btn-switch-on')
+                            .addClass('btn-switch-off')
+                            .attr('data-on', '0');
+                    }
+
+                }
+            });
+
+    });
+
+    $.sub( 'wifi:bindEventEncryption', function(){
+        $( '.encryption' ).on( 'change', function( e ){
+            var val = $( this ).val(),
+                root = $( this ).parents('form'),
+                pwd = root.find('.form-item-pwd'),
+                tips = $(this.parentNode).next('.t0');
+
+
+            if ( val === 'none' ) {
+                pwd.hide();
+            } else {
+                pwd.show();
+            }
+             if (val === 'psk2') {
+                tips.html('<%:仅支持WPA加密方式的设备将无法连接%>').show();
+            }else if(val == 'ccmp'||val == 'psk2+ccmp'){
+                tips.html('<%:WPA3为新一代加密技术，可使安全性大大加强，但选择该选项后部分旧设备会存在兼容性问题而无法接入%>').show();
+            }else{
+                tips.html('');
+            }
+        } );
+    });
+
+    $.sub( 'wifi:bindEventChannel', function(){
+        $( '.channel' ).on( 'change', function( e ){
+            var channelVal = this.value,
+                that = this,
+                id = $(this).attr('data-id'),
+                id = parseInt(id, 10) + 1,
+                root = $( this ).parents('form'),
+                pwd = root.find('.form-item-pwd'),
+                $bandwidth = $( this ).closest('.form').find('[name=bandwidth]'),
+                $itemBandwidth = $( this ).closest('.form').find('.itemBandwidth'),
+                tips = $(this.parentNode).next('.t'),
+                pddk,
+                item,
+                bandtext,
+                bdlist = [];
+                var wifiname = $( this ).closest('.form').attr('id');
+
+
+
+
+            pddk = $.parseJSON( global.wifi.pddk[id] );
+            for (var i = 0; i < pddk.length; i++) {
+                var _c = pddk[i]['c'];
+                if ( _c == channelVal ) {
+                    bdlist = pddk[i]['b'];
+                    break;
+                }
+            }
+            if (bdlist.length >= 4)
+            {
+                bandtext = '160/80/40/20MHz';
+                item = '<option value="0"><%:160/80/40/20MHz%></option>';
+            }
+            else if (bdlist.length == 3)
+            {
+                bandtext = '80/40/20MHz';
+                item = '<option value="0"><%:80/40/20MHz%></option>';
+            }
+            else if (bdlist.length == 2)
+            {
+                bandtext = '40/20MHz';
+                item = '<option value="0"><%:40/20MHz%></option>';
+            }
+            else
+            {
+                bandtext = '20MHz';
+                item = '';
+            }
+
+            for ( var i = 0; (i <  bdlist.length) && (i < 3); i++ ) {
+                item += '<option value="'+bdlist[i]+'">'+ bdlist[i] +'MHz</option>';
+            }
+
+            if ($bandwidth.val() == '0' && (channelVal <= 161 && channelVal >= 149))
+            {
+                    // $.alert('<%:160MHz频宽只适用于36至64信道，系统会给你切换频宽至80MHz%>');
+                    // $bandwidth.html( item ).val("80")
+                    // $itemBandwidth
+                    //     .find( '.dummy' )
+                    //     .text("80MHz");
+            }
+            else if (channelVal == 165)
+            {
+                    $bandwidth.html( item )
+                    $itemBandwidth
+                        .find( '.dummy' )
+                        .text(bandtext);
+            }
+            else
+            {
+                    var bandwidthSelect = $bandwidth.val()
+                    $bandwidth.html( item ).val(bandwidthSelect);
+            }
+            $itemBandwidth.show();
+        });
+    } );
+
+    $.sub( 'wifi:bindEventBandwidth', function(){
+        $( '.bandwidth' ).on( 'change', function( e ){
+            var val = $( this ).val(),
+                tips = $(this.parentNode).next('.t0'),
+                $channel = $( this ).closest('.form').find('[name=channel]'),
+                $itemChannel = $( this ).closest('.form').find('.itemChannel');
+
+                // tips0 = $(this.parentNode).next('.t0');
+
+            if (val === '0') {
+                //tips.html('<%:推荐使用自动(80M)频宽，以获得更好的覆盖及抗干扰性能%>').show();
+                // if ($channel.val()  >= 149)
+                // {
+                //     $.alert('<%:160MHz频宽只适用于36至64信道，系统会自动给你进行信道切换%>');
+                //     $channel.val('36');
+                //     $itemChannel
+                //         .find( '.dummy' )
+                //         .text("36");
+                // }
+            }else{
+                tips.html('');
+            }
+
+        });
+    } );
+
+    $.sub( 'wifi:bindEvent', function( evt, data ){
+
+        function wifiSubmitHandler(e){
+            e.preventDefault();
+            var formOjb24 = document.getElementById('wifiset24'),
+                formOjb50 = document.getElementById('wifiset50'),
+                formOjb50game = document.getElementById('wifiset50game'),
+                validator24 = Valid.checkAll(formOjb24);
+                validator50 = Valid.checkAll(formOjb50);
+                validator50game = Valid.checkAll(wifiset50game);
+
+            if ( validator24 && validator50 && validator50game ) {
+            var bsd = 0;
+            var form1 = $('#wifiset24');
+            var form2 = $('#wifiset50');
+            var form3 = $('#wifiset50game');
+            var on1 = $( 'input[name=on]:checked', form1 ).val(),
+                ssid1 = $( 'input[name=ssid]', form1 ).val(),
+                pwd1 =  $( 'input[name=pwd]', form1 ).val(),
+                encryption1 = $( 'select[name=encryption]', form1 ).val(),
+                hidden1 = $('input[name=hidden]', form1 ).prop('checked') ? '1' : '0';
+                channel1 = $( 'select[name=channel]', form1 ).val(),
+                bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+                txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+                pwd1 = $.pwddecode( pwd1 ),
+                on2 = $( 'input[name=on]:checked', form2 ).val(),
+                ssid2 = $( 'input[name=ssid]', form2 ).val(),
+                pwd2 = $( 'input[name=pwd]', form2 ).val(),
+                encryption2 = $( 'select[name=encryption]', form2 ).val(),
+                hidden2 = $('input[name=hidden]', form2 ).prop('checked') ? '1' : '0';
+                channel2 = $( 'select[name=channel]', form2 ).val(),
+                bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+                txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+                on3 = $( 'input[name=on]:checked', form3 ).val(),
+                ssid3 = $( 'input[name=ssid]', form3 ).val(),
+                pwd3 = $( 'input[name=pwd]', form3 ).val(),
+                encryption3 = $( 'select[name=encryption]', form3 ).val(),
+                hidden3 = $('input[name=hidden]', form3 ).prop('checked') ? '1' : '0';
+                channel3 = $( 'select[name=channel]', form3 ).val(),
+                bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+                txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+                hardware = '<%=hardware%>';
+                // if(typeof(on1) == "undefined"){
+                //     on1 = 1;
+                //     on2 = on1
+                // };
+                // if(typeof(bsd) == "undefined"){
+                //     bsd = 1
+                // };
+                // if(isMesh){
+                //     on1 = 1;
+                //     on2 = on1;
+                //     bsd = 1;
+                // }
+
+                var isDFS;
+
+                if ((channel2 >= 52 && channel2 <= 64) || (bandwidth2 == 0))
+                {
+                    isDFS = 1;
+                }
+                else
+                {
+                    isDFS = 0;
+                }
+
+            var requestData = {
+                bsd: bsd,
+                on1: on1,
+                ssid1: ssid1,
+                encryption1: encryption1,
+                channel1: channel1,
+                bandwidth1: bandwidth1,
+                hidden1: hidden1,
+                txpwr1: txpwr1,
+                pwd1: pwd1,
+                on2: on2,
+                ssid2: ssid2,
+                encryption2: encryption2,
+                channel2: channel2,
+                bandwidth2: bandwidth2,
+                hidden2: hidden2,
+                txpwr2: txpwr2,
+                pwd2: pwd2,
+                on3: on3,
+                ssid3: ssid3,
+                encryption3: encryption3,
+                channel3: channel3,
+                bandwidth3: bandwidth3,
+                hidden3: hidden3,
+                txpwr3: txpwr3,
+                pwd3: pwd3,
+                isDFS: isDFS,
+            };
+
+                //$.alert(isDFS);
+              //console.info(requestData)
+              $.pub( 'wifi:confirm', {
+                    ok : function(){
+                        $.ajax({
+                            url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "set_all_wifi")%>',
+                            dataType: 'json',
+                            timeout: 5000,
+                            type: 'POST',
+                            data: requestData,
+                            success: function( rsp ){
+                                if( rsp.code === 0 ){
+                                    $.pub( 'wifi:success' , {
+                                        requestData : requestData,
+                                    });
+                                } else {
+                                    if ( rsp.code !== 401) {
+                                        var msg = StringH.encode4Html( rsp.msg );
+                                        $.alert( msg ).lock();
+                                    }
+                                }
+                            },
+                            error: function() {
+                                $.alert( '<%:网络异常，请检查是否联网%>' );
+                            }
+                        });
+                    },
+                    cancel : function(){}
+                } );
+            }
+        }
+
+        function wifiGuestSubmitHandler(e){
+            e.preventDefault();
+            e.preventDefault();
+            var formOjb = this,
+                formAction = this.action,
+                validator = Valid.checkAll(formOjb);
+            if ( validator) {
+                var wifiIndex = $( 'input[name=wifiIndex]', formOjb ).val(),
+                    on = $( 'input[name=on]:checked', formOjb ).val(),
+                    pwd =  $( 'input[name=pwd]', formOjb ).val(),
+                    ssid = $( 'input[name=ssid]', formOjb ).val(),
+                    encryption = $( 'select[name=encryption]', formOjb ).val();
+                    pwd = $.pwddecode( pwd );
+
+                var ssid24 = global.wifi.configs[1].ssid;
+                if ( ssid == ssid24 ) {
+                    Valid.fail( $( 'input[name=ssid]', formOjb )[0], '<%:访客SSID和2.4G SSID不能相同%>', true);
+                    return;
+                }
+                var requestData = {
+                    wifiIndex: wifiIndex,
+                    on: on,
+                    ssid: ssid,
+                    pwd: pwd,
+                    encryption: encryption
+                };
+
+                $.pub( 'wifi:confirm', {
+                    ok : function(){
+                        $.pub( 'wifi:modify', {
+                            requestData : requestData,
+                            url : formAction
+                        } );
+                    },
+                    cancel : function(){}
+                } );
+            }
+        }
+
+        function bsdWiFiSubmitHandler(e){
+            e && e.preventDefault();
+            var formOjb24 = document.getElementById('wifiset24'),
+                formOjb50 = document.getElementById('wifiset50'),
+                formOjb50game = document.getElementById('wifiset50game'),
+                formObj = document.getElementById('wifisetbsd'),
+                validator24,
+                validator50,
+                validator50game,
+                bsd
+            // var bsd = $('#bsdselect').val() ;
+            if($(e.currentTarget).attr('id') == 'bsdswitch'){
+                bsd = $('#bsdswitch').attr('data-on') == '0' ? 1 : 0 ;
+            }else{
+                bsd = global.oldBsd
+            }
+            // if(global.oldBsd == 0){
+            //     validator24 = Valid.checkAll(formOjb24);
+            //     validator50 = Valid.checkAll(formOjb50);
+            //     validator50game = Valid.checkAll(formOjb50game);
+            //     if(!validator24 || !validator50 || !validator50game){
+            //         return;
+            //     }
+
+            //     var form1 = $('#wifiset24');
+            //     var form2 = $('#wifiset50');
+            //     var form3 = $('#wifiset50game');
+            //     var on1 = $( 'input[name=on]:checked', form1 ).val(),
+            //         ssid1 = $( 'input[name=ssid]', form1 ).val(),
+            //         pwd1 =  $( 'input[name=pwd]', form1 ).val(),
+            //         encryption1 = $( 'select[name=encryption]', form1 ).val(),
+            //         hidden1 = $('input[name=hidden]', form1 ).prop('checked') ? '1' : '0';
+            //         channel1 = $( 'select[name=channel]', form1 ).val(),
+            //         bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+            //         txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+            //         pwd1 = $.pwddecode( pwd1 ),
+            //         on2 = $( 'input[name=on]:checked', form2 ).val(),
+            //         ssid2 = $( 'input[name=ssid]', form2 ).val(),
+            //         pwd2 =  $( 'input[name=pwd]', form2 ).val(),
+            //         encryption2 = $( 'select[name=encryption]', form2 ).val(),
+            //         hidden2 = $('input[name=hidden]', form2 ).prop('checked') ? '1' : '0';
+            //         channel2 = $( 'select[name=channel]', form2 ).val(),
+            //         bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+            //         txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+            //         pwd2 = $.pwddecode( pwd2 ),
+            //         on3 = $( 'input[name=on]:checked', form3 ).val(),
+            //         ssid3 = $( 'input[name=ssid]', form3 ).val(),
+            //         pwd3 =  $( 'input[name=pwd]', form3 ).val(),
+            //         encryption3 = $( 'select[name=encryption]', form3 ).val(),
+            //         hidden3 = $('input[name=hidden]', form3 ).prop('checked') ? '1' : '0';
+            //         channel3 = $( 'select[name=channel]', form3 ).val(),
+            //         bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+            //         txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+            //         pwd3 = $.pwddecode( pwd3 ),
+            //         hardware = '<%=hardware%>';
+
+            // }else if(global.oldBsd == 1){
+            //     validator = Valid.checkAll(formObj);
+            //     validator50game = Valid.checkAll(formOjb50game);
+            //     if(!validator || !validator50game){
+            //         return;
+            //     }
+
+            //     var form1 = $('#wifiset24');
+            //     var form2 = $('#wifiset50');
+            //     var form3 = $('#wifiset50game');
+            //     var form4 = $('#wifisetbsdtop')
+            //     var on1 = $( 'input[name=on]:checked', form4 ).val(),
+            //         ssid1 = $( 'input[name=ssid]', form4 ).val(),
+            //         pwd1 =  $( 'input[name=pwd]', form4 ).val(),
+            //         encryption1 = $( 'select[name=encryption]', form4 ).val(),
+            //         hidden1 = $('input[name=hidden]', form4 ).prop('checked') ? '1' : '0';
+            //         channel1 = $( 'select[name=channel]', form1 ).val(),
+            //         bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+            //         txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+            //         pwd1 = $.pwddecode( pwd1 ),
+            //         on2 = on1,
+            //         ssid2 = ssid1,
+            //         pwd2 =  pwd1,
+            //         encryption2 = encryption1,
+            //         hidden2 = hidden1;
+            //         channel2 = $( 'select[name=channel]', form2 ).val(),
+            //         bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+            //         txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+            //         pwd2 = pwd1,
+            //         on3 = $( 'input[name=on]:checked', form3 ).val(),
+            //         ssid3 = $( 'input[name=ssid]', form3 ).val(),
+            //         pwd3 =  $( 'input[name=pwd]', form3 ).val(),
+            //         encryption3 = $( 'select[name=encryption]', form3 ).val(),
+            //         hidden3 = $('input[name=hidden]', form3 ).prop('checked') ? '1' : '0';
+            //         channel3 = $( 'select[name=channel]', form3 ).val(),
+            //         bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+            //         txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+            //         pwd3 = $.pwddecode( pwd3 ),
+            //         hardware = '<%=hardware%>';
+
+            // }else if(global.oldBsd == 2){
+            //     validator = Valid.checkAll(formObj);
+            //     validator50game = Valid.checkAll(formOjb24);
+            //     if(!validator || !validator50game){
+            //         return;
+            //     }
+
+            //     var form1 = $('#wifiset24');
+            //     var form2 = $('#wifiset50');
+            //     var form3 = $('#wifiset50game');
+            //     var form4 = $('#wifisetbsdtop')
+            //     var on2 = $( 'input[name=on]:checked', form4 ).val(),
+            //         ssid2 = $( 'input[name=ssid]', form4 ).val(),
+            //         pwd2 =  $( 'input[name=pwd]', form4 ).val(),
+            //         encryption2 = $( 'select[name=encryption]', form4 ).val(),
+            //         hidden2 = $('input[name=hidden]', form4 ).prop('checked') ? '1' : '0';
+            //         channel2 = $( 'select[name=channel]', form2 ).val(),
+            //         bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+            //         txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+            //         pwd2 = $.pwddecode( pwd2 ),
+            //         on3 = on2,
+            //         ssid3 = ssid2,
+            //         pwd3 =  pwd2,
+            //         encryption3 = encryption2,
+            //         hidden3 = hidden2;
+            //         channel3 = $( 'select[name=channel]', form3 ).val(),
+            //         bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+            //         txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+            //         pwd3 = pwd2,
+            //         on1 = $( 'input[name=on]:checked', form1 ).val(),
+            //         ssid1 = $( 'input[name=ssid]', form1 ).val(),
+            //         pwd1 =  $( 'input[name=pwd]', form1 ).val(),
+            //         encryption1 = $( 'select[name=encryption]', form1 ).val(),
+            //         hidden1 = $('input[name=hidden]', form1 ).prop('checked') ? '1' : '0';
+            //         channel1 = $( 'select[name=channel]', form1 ).val(),
+            //         bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+            //         txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+            //         pwd1 = $.pwddecode( pwd1 ),
+            //         hardware = '<%=hardware%>';
+            // }else{
+            //     validator = Valid.checkAll(formObj);
+            //     if(!validator){
+            //         return;
+            //     }
+
+            //     var form1 = $('#wifiset24');
+            //     var form2 = $('#wifiset50');
+            //     var form3 = $('#wifiset50game');
+            //     var form4 = $('#wifisetbsdtop')
+            //     var on1 = $( 'input[name=on]:checked', form4 ).val(),
+            //         ssid1 = $( 'input[name=ssid]', form4 ).val(),
+            //         pwd1 =  $( 'input[name=pwd]', form4 ).val(),
+            //         encryption1 = $( 'select[name=encryption]', form4 ).val(),
+            //         hidden1 = $('input[name=hidden]', form4 ).prop('checked') ? '1' : '0';
+            //         channel1 = $( 'select[name=channel]', form1 ).val(),
+            //         bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+            //         txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+            //         pwd1 = $.pwddecode( pwd1 ),
+            //         on2 = on1,
+            //         ssid2 = ssid1,
+            //         pwd2 =  pwd1,
+            //         encryption2 = encryption1,
+            //         hidden2 = hidden1;
+            //         channel2 = $( 'select[name=channel]', form2 ).val(),
+            //         bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+            //         txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+            //         pwd2 = $.pwddecode( pwd2 ),
+            //         on3 = on1,
+            //         ssid3 = ssid1,
+            //         pwd3 =  pwd1,
+            //         encryption3 = encryption1,
+            //         hidden3 = hidden1;
+            //         channel3 = $( 'select[name=channel]', form3 ).val(),
+            //         bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+            //         txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+            //         pwd3 = $.pwddecode( pwd3 ),
+            //         hardware = '<%=hardware%>';
+            // }
+
+            if(global.oldBsd == 0){
+                validator24 = Valid.checkAll(formOjb24);
+                validator50 = Valid.checkAll(formOjb50);
+                validator50game = Valid.checkAll(formOjb50game);
+                if(!validator24 || !validator50 || !validator50game){
+                    return;
+                }
+
+                var form1 = $('#wifiset24');
+                var form2 = $('#wifiset50');
+                var form3 = $('#wifiset50game');
+                var on1 = $( 'input[name=on]:checked', form1 ).val(),
+                    ssid1 = $( 'input[name=ssid]', form1 ).val(),
+                    pwd1 =  $( 'input[name=pwd]', form1 ).val(),
+                    encryption1 = $( 'select[name=encryption]', form1 ).val(),
+                    hidden1 = $('input[name=hidden]', form1 ).prop('checked') ? '1' : '0';
+                    channel1 = $( 'select[name=channel]', form1 ).val(),
+                    bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+                    txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+                    pwd1 = $.pwddecode( pwd1 ),
+                    on2 = $( 'input[name=on]:checked', form2 ).val(),
+                    ssid2 = $( 'input[name=ssid]', form2 ).val(),
+                    pwd2 =  $( 'input[name=pwd]', form2 ).val(),
+                    encryption2 = $( 'select[name=encryption]', form2 ).val(),
+                    hidden2 = $('input[name=hidden]', form2 ).prop('checked') ? '1' : '0';
+                    channel2 = $( 'select[name=channel]', form2 ).val(),
+                    bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+                    txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+                    pwd2 = $.pwddecode( pwd2 ),
+                    on3 = $( 'input[name=on]:checked', form3 ).val(),
+                    ssid3 = $( 'input[name=ssid]', form3 ).val(),
+                    pwd3 =  $( 'input[name=pwd]', form3 ).val(),
+                    encryption3 = $( 'select[name=encryption]', form3 ).val(),
+                    hidden3 = $('input[name=hidden]', form3 ).prop('checked') ? '1' : '0';
+                    channel3 = $( 'select[name=channel]', form3 ).val(),
+                    bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+                    txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+                    pwd3 = $.pwddecode( pwd3 ),
+                    hardware = '<%=hardware%>';
+
+            }else{
+                validator = Valid.checkAll(formObj);
+                if(!validator){
+                    return;
+                }
+
+                var form1 = $('#wifiset24');
+                var form2 = $('#wifiset50');
+                var form3 = $('#wifiset50game');
+                var form4 = $('#wifisetbsdtop')
+                var on1 = $( 'input[name=on]:checked', form4 ).val(),
+                    ssid1 = $( 'input[name=ssid]', form4 ).val(),
+                    pwd1 =  $( 'input[name=pwd]', form4 ).val(),
+                    encryption1 = $( 'select[name=encryption]', form4 ).val(),
+                    hidden1 = $('input[name=hidden]', form4 ).prop('checked') ? '1' : '0';
+                    channel1 = $( 'select[name=channel]', form1 ).val(),
+                    bandwidth1 = $( 'select[name=bandwidth]', form1 ).val(),
+                    txpwr1 = $( 'select[name=txpwr]', form1 ).val(),
+                    pwd1 = $.pwddecode( pwd1 ),
+                    on2 = on1,
+                    ssid2 = ssid1,
+                    pwd2 =  pwd1,
+                    encryption2 = encryption1,
+                    hidden2 = hidden1;
+                    channel2 = $( 'select[name=channel]', form2 ).val(),
+                    bandwidth2 = $( 'select[name=bandwidth]', form2 ).val(),
+                    txpwr2 = $( 'select[name=txpwr]', form2 ).val(),
+                    pwd2 = $.pwddecode( pwd2 ),
+                    on3 = on1,
+                    ssid3 = ssid1,
+                    pwd3 =  pwd1,
+                    encryption3 = encryption1,
+                    hidden3 = hidden1;
+                    channel3 = $( 'select[name=channel]', form3 ).val(),
+                    bandwidth3 = $( 'select[name=bandwidth]', form3 ).val(),
+                    txpwr3 = $( 'select[name=txpwr]', form3 ).val(),
+                    pwd3 = $.pwddecode( pwd3 ),
+                    hardware = '<%=hardware%>';
+            }
+
+            var isDFS
+            //只需要判断5G Game里的信道是否在52到64之间，或者频宽是否是auto即可
+            if ((channel3 >= 52 && channel3 <= 64) || (bandwidth3 == 0))
+            {
+                isDFS = 1;
+            }
+            else
+            {
+                isDFS = 0;
+            }
+            //当5G Game频段关闭时，也不需要有雷达检测的提示
+            if (on3 == 0){
+                isDFS = 0
+            }
+            var requestData = {
+                bsd: bsd,
+                on1: on1,
+                ssid1: ssid1,
+                encryption1: encryption1,
+                channel1: channel1,
+                bandwidth1: bandwidth1,
+                hidden1: hidden1,
+                txpwr1: txpwr1,
+                pwd1: pwd1,
+                on2: on2,
+                ssid2: ssid2,
+                encryption2: encryption2,
+                channel2: channel2,
+                bandwidth2: bandwidth2,
+                hidden2: hidden2,
+                txpwr2: txpwr2,
+                pwd2: pwd2,
+                on3: on3,
+                ssid3: ssid3,
+                encryption3: encryption3,
+                channel3: channel3,
+                bandwidth3: bandwidth3,
+                hidden3: hidden3,
+                txpwr3: txpwr3,
+                pwd3: pwd3,
+                isDFS: isDFS,
+            };
+
+            $.pub( 'wifi:confirm', {
+                    ok : function(){
+                        $.ajax({
+                            url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "set_all_wifi")%>',
+                            dataType: 'json',
+                            timeout: 5000,
+                            type: 'POST',
+                            data: requestData,
+                            success: function( rsp ){
+                                if( rsp.code === 0 ){
+                                    $.pub( 'wifi:success' , {
+                                        requestData : requestData,
+                                    });
+                                } else {
+                                    if ( rsp.code !== 401) {
+                                        var msg = StringH.encode4Html( rsp.msg );
+                                        $.alert( msg ).lock();
+                                    }
+                                }
+                            },
+                            error: function() {
+                                $.alert( '<%:网络异常，请检查是否联网%>' );
+                            }
+                        });
+                    },
+                    cancel : function(){}
+            } );
+
+
+        }
+
+        $('#wifiset24').delegate('[name=on]', 'click', function(e){
+            // var val = $(this).val();
+            // if( global.wifi.configs[3] && global.wifi.configs[3].status ){
+            //     var wifigueststatus = global.wifi.configs[3].status;
+            //     var netModeType = parseInt('<%=XQFunction.getNetModeType()%>');
+            //     if ( val != wifigueststatus) {
+            //         if ( val == 0 && netModeType !== 2) {
+            //             $.alert('<%:关闭2.4 Wi-Fi会同时关闭访客Wi-Fi%>').time(3000);
+            //         }
+            //     }
+            // }
+        });
+
+        $('#wifiset50').delegate('[name=on]', 'click', function(e){
+            var _this = $(this)
+            var val = $(this).val();
+            var content = "<%:该修改将重启Wi-Fi并导致Wi-Fi下的设备暂时失去连接，关闭当前频段会影响Mesh组网功能正常使用，是否仍确认关闭？%>"
+            if(val == 0){
+                $.dialog({
+                    width: 390,
+                    title : "<%:提示%>",
+                    content : content,
+                    ok: function(){},
+                    cancel: function () {
+                        _this.prop("checked", false).parent('label').siblings('label').children('input[name=on]').prop("checked", true)
+                    }
+                }).lock();
+            }
+        });
+
+        $('#wifiset50game').delegate('[name=on]', 'click', function(e){
+            var _this = $(this)
+            var val = $(this).val();
+            var content = "<%:该修改将重启Wi-Fi并导致Wi-Fi下的设备暂时失去连接，关闭当前频段会影响Mesh组网功能正常使用，是否仍确认关闭？%>"
+            if(val == 0){
+                $.dialog({
+                    width: 390,
+                    title : "<%:提示%>",
+                    content : content,
+                    ok: function(){},
+                    cancel: function () {
+                        _this.prop("checked", false).parent('label').siblings('label').children('input[name=on]').prop("checked", true)
+                    }
+                }).lock();
+            }
+        });
+
+        $('body').delegate('#wifisetbsd input[name=on]', 'click', function(e){
+            // var val = $(this).val();
+            // if( global.wifi.configs[3] && global.wifi.configs[3].status ){
+            //     var wifigueststatus = global.wifi.configs[3].status;
+            //     var netModeType = parseInt('<%=XQFunction.getNetModeType()%>');
+            //     if ( val != wifigueststatus) {
+            //         if ( val == 0 && netModeType !== 2) {
+            //             $.alert('<%:关闭Wi-Fi会同时关闭访客Wi-Fi%>').time(3000);
+            //         }
+            //     }
+            // }
+            var _this = $(this)
+            var val = $(this).val();
+            var content = "<%:该修改将重启Wi-Fi并导致Wi-Fi下的设备暂时失去连接，关闭当前频段会影响Mesh组网功能正常使用，是否仍确认关闭？%>"
+            if(val == 0){
+                $.dialog({
+                    width: 390,
+                    title : "<%:提示%>",
+                    content : content,
+                    ok: function(){},
+                    cancel: function () {
+                        _this.prop("checked", false).parent('label').siblings('label').children('input[name=on]').prop("checked", true)
+                    }
+                }).lock();
+            }
+        });
+
+        $('#wifisetguest').delegate('[name=on]', 'click', function(e){
+            var val = $(this).val();
+            var wifi24status = global.wifi.configs[1].status;
+            if ( val != wifi24status ) {
+                if ( val == 1 ) {
+                    $.alert('<%:打开访客Wi-Fi会同时打开2.4 Wi-Fi%>').time(3000);
+                }
+            }
+        });
+
+        $('#wifiset24').on('submit', wifiSubmitHandler);
+        $('#wifiset50').on('submit', wifiSubmitHandler);
+        $('#wifiset50game').on('submit', bsdWiFiSubmitHandler);
+        //单击确定时，也让它去执行保存按钮的操作
+        $('#btnSubmitbsdselect').on('click',bsdWiFiSubmitHandler);
+        //$('#wifisetguest').on('submit', wifiGuestSubmitHandler);
+        $('body').delegate('#wifisetbsd', 'submit', bsdWiFiSubmitHandler);
+
+        $('body').delegate('input[name=ssid]' ,'blur', function(e){
+            var tar = e.currentTarget;
+            if ( escape(tar.value).indexOf("%u") >= 0 ) {
+                $(tar.parentNode).next('.t').text('<%:此SSID会导致某些设备支持不佳%>').show();
+            }
+        });
+
+        $('#wifiset24, #wifiset50, #wifisetguest,#wifiset50game').delegate('input[type=text], input[type=checkbox], input[type=radio]', 'click', onControlFocus)
+                .delegate('.ipt-text', 'click', onControlFocus);
+        
+        //三频切换(只是预览)
+        function selectBsdHandler(e){
+            e.preventDefault();
+            //切换模式时,动态更改文案展示
+            var currentIndex = $(this).index()
+            $('#bsdSelectDsc').html(bsdArr[currentIndex].dsc)
+            //切换开始
+            var containers = ['wifiset24', 'wifiset50', 'wifiset50game'],
+                tpl = $('#tplWifi').html();
+            var bsd = $('#bsdselect').val();
+            var dataInfo = global.wifi.configs
+                if(bsd == 0){
+                    $('.mod-wifi50-game .bd').children('form').attr({'id':'wifiset50game'})
+                    $(document.getElementById('wifiset50game')).html(tpl.tmpl(dataInfo[3]))
+                    $('.mod-wifi24 .hd h3').text('<%:Wi-Fi设置%>');
+                    $('.mod-wifi24 .bd').children('form').attr('id','wifiset24')
+                    $('.mod-wifi50').show()
+                    $('.mod-wifi50-game').show()
+                    for(var i = 0; i < containers.length; i++){
+                        $(document.getElementById(containers[i])).html(tpl.tmpl(dataInfo[i+1]))
+                    }
+                }else{
+                    $('.mod-wifi24 .hd h3').text('<%:Wi-Fi%>');
+                    tpl = $('#tplWifiBsd').html();
+                    $('.mod-wifi24 .bd').html( $('#tplbsdWrap').html() );
+                    if(bsd == 1){
+
+                        $('.mod-wifi50-game').show()
+                        for(var i = 0; i < containers.length; i++){
+                            $(document.getElementById(containers[i])).html(tpl.tmpl(dataInfo[i+1]))
+                            $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(dataInfo[bsd]));
+                        }
+
+
+                        $('.mod-wifi50').hide()
+                        $('#wifisetbsd').children('p').eq(2).remove()
+                        $('#wifisetbsd').children('#wifiset50game').remove()
+                        $('.mod-wifi50-game .bd').children('form').attr({'id':'wifiset50game'})
+                        tpl = $('#tplWifi').html();
+                        $(document.getElementById('wifiset50game')).html(tpl.tmpl(dataInfo[3]))
+                    }else if(bsd == 2){
+                        for(var i = 0; i < containers.length; i++){
+                            $(document.getElementById(containers[i])).html(tpl.tmpl(dataInfo[i+1]))
+                            $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(dataInfo[bsd]));
+                        }
+                        $('.mod-wifi50').hide()
+                        $('.mod-wifi50-game').show()
+                        $('#wifisetbsd').children('p').eq(0).remove()
+                        $('#wifisetbsd').children('#wifiset24').remove()
+                        //强行加上2.4G频段
+                        $('.mod-wifi50-game .bd').children('form').attr({'id':'wifiset24'})
+                        tpl = $('#tplWifi').html();
+                        $(document.getElementById('wifiset24')).html(tpl.tmpl(dataInfo[1]))
+                        tpl = $('#tplWifiBsd').html();
+                        //这得改变下wifitype，与tplwifibsd里的判断相一致
+                        dataInfo[3].wifitype = 1
+                        $(document.getElementById('wifiset50game')).html(tpl.tmpl(dataInfo[3]))
+                        //默认让保存按钮一直跟随着5Ggame频段，但是bsd==2时，得把它移到2.4G频段下
+                        $('.mod-wifi50-game #wifiset24').append($(document.getElementById('wifiset50game')).children('.form-contral'))
+                        $(document.getElementById('wifiset50game')).children('.form-contral').remove()
+                    }else{
+                        $('.mod-wifi50').hide()
+                        $('.mod-wifi50-game').hide()
+                        for(var i = 0; i < containers.length; i++){
+                            $(document.getElementById(containers[i])).html(tpl.tmpl(dataInfo[i+1]))
+                            $('#wifisetbsdtop').html( $('#tplWifiBsdTop').html().tmpl(dataInfo[1]));
+                        }
+                        //这得改变下wifitype，与tplwifibsd里的判断相一致
+                        dataInfo[3].wifitype = 1
+                        $(document.getElementById('wifiset50game')).html(tpl.tmpl(dataInfo[3]))
+                    }
+                }
+            
+            $('#wifiset24, #wifiset50,#wifiset50game, #roamset24,#roamset50,#wifiset_bsd_select,#wifisetbsdtop').delegate('input[type=text], input[type=checkbox], input[type=radio]', 'click', onControlFocus)
+                .delegate('.ipt-text', 'click', onControlFocus);
+            setTimeout( function(){
+                $.selectBeautify();
+                $.formInit();
+                $.pub('wifi:bindEventEncryption');
+                $.pub('wifi:bindEventChannel');
+                $.pub('wifi:bindEventBandwidth');
+            }, 100 );
+        }
+        //将selectbeautify.js里的改动拿过来，还是尽量不要影响公共的代码了...
+        $('#wifiset_bsd_select').on('click','.dummy',function(){
+            var option = $('#dummydata').children('a')
+            //option.click(selectBsdHandler)
+            option.click(bsdWiFiSubmitHandler)
+        })
+
+        $('#WIFI6switch').on('click', function(e){
+            e.preventDefault();
+            var ax = $(this).attr('data-on');
+            var self = this;
+
+            var isDFS;
+
+            if ((global.wifi.configs[3].channel >= 52 && global.wifi.configs[3].channel <= 64)
+                || ( global.wifi.configs[3].bandwidth == 0))
+            {
+                isDFS = 1;
+            }
+            else
+            {
+                isDFS = 0;
+            }
+
+            var requestData = {
+                ax: ax,
+                isDFS: isDFS,
+            };
+            $.ajax({
+                url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "set_wifi_ax")%>',
+                dataType: 'json',
+                timeout: 5000,
+                type: 'POST',
+                data: requestData,
+                success: function( rsp ){
+                    if( rsp.code === 0 ){
+                        if(ax == 1) {
+                            $(self)
+                            .removeClass('btn-switch-on')
+                            .addClass('btn-switch-off')
+                            .attr('data-on', '0');
+                        }else {
+                            $(self)
+                            .removeClass('btn-switch-off')
+                            .addClass('btn-switch-on')
+                            .attr('data-on', '1');
+                            }
+
+                        $.pub( 'wifi:success', {
+                            requestData : requestData,
+                        });
+                    } else {
+                        if ( rsp.code !== 401) {
+                            var msg = StringH.encode4Html( rsp.msg );
+                            $.alert( msg ).lock();
+                        }
+                    }
+                },
+                error: function() {
+                    $.alert( '<%:网络异常，请检查是否联网%>' );
+                }
+            });
+
+        });
+
+        $('#txbfswitch').on('click', function(e){
+            e.preventDefault();
+            var txbf = $(this).attr('data-on') == 1 ? 0 : 3;
+            var self = this;
+
+            if ((global.wifi.configs[3].channel >= 52 && global.wifi.configs[3].channel <= 64)
+                || ( global.wifi.configs[3].bandwidth == 0))
+            {
+                isDFS = 1;
+            }
+            else
+            {
+                isDFS = 0;
+            }
+
+            var requestData = {
+                txbf: txbf,
+                isDFS: isDFS,
+            };
+            $.ajax({
+                url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "set_wifi_txbf")%>',
+                dataType: 'json',
+                timeout: 5000,
+                type: 'POST',
+                data: requestData,
+                success: function( rsp ){
+                    if( rsp.code === 0 ){
+                        if(txbf == 0) {
+                            $(self)
+                            .removeClass('btn-switch-on')
+                            .addClass('btn-switch-off')
+                            .attr('data-on', '0');
+                        }else {
+                            $(self)
+                            .removeClass('btn-switch-off')
+                            .addClass('btn-switch-on')
+                            .attr('data-on', '1');
+                            }
+
+                        $.pub( 'wifi:success', {
+                            requestData : requestData,
+                        });
+                    } else {
+                        if ( rsp.code !== 401) {
+                            var msg = StringH.encode4Html( rsp.msg );
+                            $.alert( msg ).lock();
+                        }
+                    }
+                },
+                error: function() {
+                    $.alert( '<%:网络异常，请检查是否联网%>' );
+                }
+            });
+
+        });
+
+
+
+
+           $('#AIOTswitch').on('click', function(e){
+            e.preventDefault();
+            var on = $(this).attr('data-on') == 1 ? 0:1;
+            var self = this;
+            var requestData = {
+                on: on
+            };
+            $.ajax({
+                url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "miscan_switch")%>',
+                dataType: 'json',
+                timeout: 5000,
+                type: 'POST',
+                data: requestData,
+                success: function( rsp ){
+                    if( rsp.code === 0 ){
+                        if(on == 0) {
+                            $(self)
+                            .removeClass('btn-switch-on')
+                            .addClass('btn-switch-off')
+                            .attr('data-on', '0');
+                        }else {
+                            $(self)
+                            .removeClass('btn-switch-off')
+                            .addClass('btn-switch-on')
+                            .attr('data-on', '1');
+                            }
+                        /*
+                        $.pub( 'wifi:success', {
+                            requestData : requestData,
+                        });
+                        */
+                    } else {
+                        if ( rsp.code !== 401) {
+                            var msg = StringH.encode4Html( rsp.msg );
+                            $.alert( msg ).lock();
+                        }
+                    }
+                },
+                error: function() {
+                    $.alert( '<%:网络异常，请检查是否联网%>' );
+                }
+            });
+
+        });
+
+        $('#cklswitch').on('click', function(e){
+            e.preventDefault();
+            var cklOn = $(this).attr('data-on') == 1 ? 0 : 1
+            var self = this;
+
+            var requestData = {
+                on: cklOn
+            };
+            $.ajax({
+                url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "miotrelay_switch")%>',
+                dataType: 'json',
+                timeout: 5000,
+                type: 'POST',
+                data: requestData,
+                success: function( rsp ){
+                    if( rsp.code === 0 ){
+                        if(cklOn == 1) {
+                            $(self)
+                                .removeClass('btn-switch-off')
+                                .addClass('btn-switch-on')
+                                .attr('data-on', '1');
+                        }else {
+                            $(self)
+                                .removeClass('btn-switch-on')
+                                .addClass('btn-switch-off')
+                                .attr('data-on', '0');
+                        }
+                    } else {
+                        // if ( rsp.code !== 401) {
+                        //     var msg = StringH.encode4Html( rsp.msg );
+                        //     $.alert( msg ).lock();
+                        // }
+                    }
+                },
+                error: function() {
+                    $.alert( '<%:网络异常，请检查是否联网%>' );
+                }
+            });
+
+        });
+          
+        // $('#bsdswitch').on('click', function(e){
+        //     e.preventDefault();
+        //     var on = $(this).attr('data-on');
+        //     var self = this;
+        //     if ((global.wifi.configs[2].channel >= 52 && global.wifi.configs[2].channel <= 64)
+        //         || ( global.wifi.configs[2].bandwidth == 0))
+        //     {
+        //         isDFS = 1;
+        //     }
+        //     else
+        //     {
+        //         isDFS = 0;
+        //     }
+
+        //     if( on == 0 ){
+        //         var formOjb = $('#wifiset24');
+        //         // var on1 = $( 'input[name=on]:checked', formOjb ).val(),
+        //         var on1 = 1,
+        //             ssid1 = $( 'input[name=ssid]', formOjb ).val(),
+        //             pwd1 =  $( 'input[name=pwd]', formOjb ).val(),
+        //             encryption1 = $( 'select[name=encryption]', formOjb ).val(),
+        //             channel1 = $( 'input[name=channel]', formOjb ).val(),
+        //             bandwidth1 = $( 'input[name=bandwidth]', formOjb ).val(),
+        //             hidden1 = $('input[name=hidden]', formOjb ).prop('checked') ? '1' : '0',
+        //             txpwr1 = $( 'input[name=txpwr]', formOjb ).val(),
+        //             pwd1 = $.pwddecode( pwd1 );
+        //         var requestData = {
+        //             bsd: 1,
+        //             on1: on1,
+        //             ssid1: ssid1,
+        //             encryption1: encryption1,
+        //             channel1: channel1,
+        //             bandwidth1: bandwidth1,
+        //             hidden1: hidden1,
+        //             txpwr1: txpwr1,
+        //             pwd1: pwd1,
+        //             isDFS: isDFS,
+        //         };
+        //         $.ajax({
+        //             url: '<%=luci.dispatcher.build_url("api", "xqnetwork", "set_all_wifi")%>',
+        //             dataType: 'json',
+        //             timeout: 5000,
+        //             type: 'POST',
+        //             data: requestData,
+        //             success: function( rsp ){
+        //                 if( rsp.code === 0 ){
+        //                     $(self)
+        //                     .removeClass('btn-switch-off')
+        //                     .addClass('btn-switch-on')
+        //                     .attr('data-on', '1');
+        //                     $.pub( 'wifi:success', {
+        //                     requestData : requestData,
+        //                 });
+        //                 } else {
+        //                     if ( rsp.code !== 401) {
+        //                         var msg = StringH.encode4Html( rsp.msg );
+        //                         $.alert( msg ).lock();
+        //                     }
+        //                 }
+        //             },
+        //             error: function() {
+        //                 $.alert( '<%:网络异常，请检查是否联网%>' );
+        //             }
+        //         });
+        //     }else{
+        //         $.dialog({
+        //             width: 390,
+        //             title : "<%:提示信息%>",
+        //             content : '<%:WiFi双频合一关闭，5G会默认使用2.4G相同的网络名称（加后缀_5G）和密码，如需设成不一样，请进行修改。%>',
+        //             ok: function(){
+        //                 $(self)
+        //                 .removeClass('btn-switch-on')
+        //                 .addClass('btn-switch-off')
+        //                 .attr('data-on', '0');
+        //                 setTimeout(function(){
+        //                     bsdWiFiSubmitHandler();
+        //                 }, 0);
+        //             }
+        //         });
+        //     }
+        // });
+        $('#bsdswitch').on('click',bsdWiFiSubmitHandler)
+    });
+
+    $.sub( 'wifi:success', function( evt, data ){
+        var requestData =  data.requestData;
+        if (requestData && requestData.isDFS)
+        {
+            $.radarDialog({
+              width:500,
+            title : '<%:修改 Wi-Fi 设置%>',
+            content : '<div class="dialog_con_radar"></div><div class="radar_tips"><%:设置成功正在重启，遵照国家法律法规，路由器正在做退避雷达信号探测，Wi-Fi信号要%><span>69</span><%:s后才能开启，请稍候...%></div>',
+            cancel: false
+            }).lock().time( 69*1000 );
+            setTimeout( function(){
+                window.location.reload( true );
+            }, 69*1000 );
+            setInterval(function(){
+              var n = $('.radar_tips').find('span').html();
+              $('.radar_tips').find('span').html(--n);
+            },1000)
+        }
+        else
+        {
+            $.loadingDialog({
+            title : '<%:修改 Wi-Fi 设置%>',
+            content : '<%:设置成功正在重启，需要30秒请等待...%>',
+            cancel: false
+        }).lock().time( 30*1000 );
+        setTimeout( function(){
+            window.location.reload( true );
+        }, 30*1000 );
+        }
+    } );
+
+    $.sub( 'wifi:confirm', function( evt, data ){
+        var ok = data.ok || function(){},
+            cancel = data.cancel || function(){};
+
+        $.dialog({
+            id : "confirm",
+            width: 390,
+            title : "<%:修改Wi-Fi设置%>",
+            content : '<%:该操作将重启 Wi-Fi 并导致 Wi-Fi 下的所有设备失去连接，是否确认修改？%>',
+            ok: function(){
+                ok();
+            },
+            cancel: function () {
+                cancel();
+            }
+        }).lock();
+    } );
+
+    $.sub( 'wifi:modify', function( evt, data ){
+        var requestData =  data.requestData;
+        var url = data.url;
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            timeout: 5000,
+            type: "POST",
+            data: requestData,
+            success: function( rsp ) {
+                if( rsp.code === 0 ){
+                    $.pub( 'wifi:success', {
+                            requestData : requestData,
+                        });
+                } else {
+                    if ( rsp.code !== 401) {
+                        var msg = StringH.encode4Html( rsp.msg );
+                        $.alert( msg ).lock();
+                    }
+                }
+            },
+            error: function() {
+                $.alert( '<%:网络异常，请检查是否联网%>' );
+            }
+        });
+    });
+
+    $(function(){
+        $.pub( 'wifi:init' );
+        $.pub( 'wifi:bindEvent' );
+    });
+}());
+</script>

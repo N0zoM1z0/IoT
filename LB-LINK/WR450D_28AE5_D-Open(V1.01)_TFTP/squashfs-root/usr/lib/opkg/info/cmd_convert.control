@@ -1,0 +1,8 @@
+Package: cmd_convert
+Version: 4.5-1
+Depends: libc, libnvram
+Source: package/blink/cmd_convert
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 7004
+Description:  cmd_convert

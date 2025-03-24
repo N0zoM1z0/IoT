@@ -1,0 +1,49 @@
+<script type="text/javascript">
+	var wanTabCon = new Tab({
+		list: [{
+			name: label.wan1Port,
+			contentId : "wan1Tab",
+			onClick : function () {
+				wanIdx = 0;
+				loadPage("IptvSingleWan.htm","tabConent")
+			}
+
+		},{
+			name: label.wan2Port,
+			contentId : "wan2Tab",
+			onClick : function () {
+				wanIdx = 1;
+				loadPage("IptvSingleWan.htm","tabConent")
+			}
+		}],
+		targetId: "wanTabCon"
+	});
+</script>
+<style type="text/css">
+	#wanTabCon ul{
+		border-bottom:2px solid #E6E6E6;
+	}
+	#wanTabCon ul>li{
+		width: 160px;
+	}
+	#wanTabCon .underline{
+		bottom: -2px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.iptvPort%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.iptvDescription%}</p>
+	<p class="meshIptvDisable disNone">{%label.meshIptvDisable%}</p>
+	<div id="wanTabCon"></div>
+	<ul class="stepTab disNone" id="subIptvStepTab">
+		<li class="underline"></li>
+		<li class="step"><i class="stepNum">1</i><span>{%label.iptvConnectMode%}</span></li>
+		<li class="step"><i class="stepNum">2</i><span>{%label.iptvPortChoose%}</span></li>
+		<li class="step" id="subIptvModeChoose"><i class="stepNum">3</i><span>{%label.iptvModeChoose%}</span></li>
+	</ul>
+</div>
+<div id="wan1Tab"></div>
+<div id="wan2Tab"></div>
+<div id="tabConent"></div>

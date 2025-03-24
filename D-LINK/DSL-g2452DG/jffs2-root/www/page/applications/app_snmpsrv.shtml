@@ -1,0 +1,224 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+var G_SNMP_Enable = "0";
+var G_SNMP_SystemContact = "";
+var G_SNMP_SystemName = "";
+var G_SNMP_SystemLocation = "";
+var G_SNMP_PublicCommunity = "";
+var G_SNMP_PrivateCommunity = "";
+
+<!--#getobject "InternetGatewayDevice.Services.ServiceSSH. Enable" --> 
+var sshEnable = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.Services.ServiceSNMP. Enable SystemContact SystemName SystemLocation PublicCommunity PrivateCommunity TrapEnabled TrapVersion TrapAddress" -->
+    var G_SNMP_Enable = "<!--#leaf "1"-->";
+    var G_SNMP_SystemContact = "<!--#leaf "2"-->";
+    var G_SNMP_SystemName = "<!--#leaf "3"-->";
+    var G_SNMP_SystemLocation = "<!--#leaf "4"-->";
+    var G_SNMP_PublicCommunity = "<!--#leaf "5"-->";
+    var G_SNMP_PrivateCommunity = "<!--#leaf "6"-->";
+    var G_SNMP_TrapEnable = "<!--#leaf "7"-->";
+    var G_SNMP_TrapVersion = "<!--#leaf "8"-->";
+    var G_SNMP_TrapAddress = "<!--#leaf "9"-->";
+<!--#endgetobject -->
+
+function init()
+{
+    setValue("INPUT_SNMPEnable", G_SNMP_Enable);
+    setValue("INPUT_SystemContact", G_SNMP_SystemContact);
+    setValue("INPUT_SystemName", G_SNMP_SystemName);
+    setValue("INPUT_SystemLocation", G_SNMP_SystemLocation);
+    setValue("INPUT_PublicCommunity", G_SNMP_PublicCommunity);
+    setValue("INPUT_PrivateCommunity", G_SNMP_PrivateCommunity);
+
+	setValue('INPUT_TrapEnabled', G_SNMP_TrapEnable);
+	setValue('SELECT_TrapVersion', G_SNMP_TrapVersion);
+	setValue('INPUT_TrapAddress', G_SNMP_TrapAddress);
+
+    snmp_change_enable();
+}
+
+function snmp_change_enable()
+{
+	var node = $('INPUT_SystemContact', 'INPUT_SystemName', 'INPUT_SystemLocation', 'INPUT_PublicCommunity', 'INPUT_PrivateCommunity', 'INPUT_TrapEnabled', 'SELECT_TrapVersion', 'INPUT_TrapAddress');
+	var nodelen = node.length;
+    if($('INPUT_SNMPEnable').checked)
+    {
+		for(var i = 0; i < nodelen; i++)
+			node[i].disabled = false;
+		trap_change_enable();
+    }
+    else
+    {
+		for(var i = 0; i < nodelen; i++)
+			node[i].disabled = true;
+    }
+}
+
+function trap_change_enable()
+{
+	if($('INPUT_TrapEnabled').checked)
+	{
+		$('SELECT_TrapVersion').disabled = false;
+		$('INPUT_TrapAddress').disabled = false;
+	}
+	else
+	{
+		$('SELECT_TrapVersion').disabled = true;
+		$('INPUT_TrapAddress').disabled = true;
+	}
+}
+
+function uiSubmit()
+{
+    var df = document.dataform;
+    var object_path = "InternetGatewayDevice.Services.ServiceSNMP.";
+    var SNMPEnable = getValue('INPUT_SNMPEnable');
+    var SystemContact = getValue('INPUT_SystemContact');
+    var SystemName = getValue('INPUT_SystemName');
+    var SystemLocation = getValue('INPUT_SystemLocation');
+    var PublicCommunity = getValue('INPUT_PublicCommunity');
+    var PrivateCommunity = getValue('INPUT_PrivateCommunity');
+    var TrapEnable = getValue('INPUT_TrapEnabled');
+    var TrapVersion = getValue('SELECT_TrapVersion');
+    var TrapAddress = getValue('INPUT_TrapAddress');
+
+    RemoveAllChild("dataform");
+
+    if(SNMPEnable == 1)
+    {
+        //if(SystemContact == "")
+        //{
+        //    top.AlertMsg(getStr("LK_SNMP_syscontactnull"),"INPUT_SystemContact");
+        //    return false;
+        //}
+        //if(SystemName  == "")
+        //{
+        //    top.AlertMsg(getStr("LK_SNMP_sysnamenull"),"INPUT_SystemName");
+        //    return false;
+        //}
+        //if(SystemLocation == "")
+        //{
+        //    top.AlertMsg(getStr("LK_net_syslocationnull"),"INPUT_SystemLocation");
+        //    return false;
+        //}
+        if(PublicCommunity == "")
+        {
+            top.AlertMsg(getStr("LK_net_pubctynull"),"INPUT_PublicCommunity");
+            return false;
+        }
+        if(PrivateCommunity == "")
+        {
+            top.AlertMsg(getStr("LK_net_prictynull"),"INPUT_PrivateCommunity");
+            return false;
+        }
+		if(TrapEnable == 1)
+		{
+			if(!isCheckIPV4($('INPUT_TrapAddress')))
+				return false
+		}
+    }
+    if(!validateCode())
+        return false;
+
+    AddElements(df, object_path+"Enable", SNMPEnable);
+	if(SNMPEnable == '1')
+	{
+		AddElements(df, object_path+"SystemContact", SystemContact);
+		AddElements(df, object_path+"SystemName", SystemName);
+		AddElements(df, object_path+"SystemLocation", SystemLocation);
+		AddElements(df, object_path+"PublicCommunity", PublicCommunity);
+		AddElements(df, object_path+"PrivateCommunity", PrivateCommunity);
+		
+		AddElements(df, object_path+"TrapEnabled", TrapEnable);
+		if(TrapEnable == '1')
+		{
+			AddElements(df, object_path+"TrapVersion", TrapVersion);
+			AddElements(df, object_path+"TrapAddress", TrapAddress);
+		}
+	}
+    df.submit();  
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_SNMP_settings'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+    <tr>
+        <td width="190" langkey="LK_SNMP_enable"></td>
+        <td><input type="checkbox" id="INPUT_SNMPEnable" onClick='snmp_change_enable()'></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_syscontact"></td>
+        <td><input size="30" type="text" maxlength="256" id="INPUT_SystemContact"></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_sysname"></td>
+        <td><input size="30" type="text" maxlength="256" id="INPUT_SystemName"></td>
+    </tr>
+    <tr>	
+        <td langkey="LK_SNMP_syslocation"></td>
+        <td><input size="30" type="text" maxlength="256" id="INPUT_SystemLocation"/></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_pubcty"></td>
+	<td><input size="30" type="text" maxlength="256" id="INPUT_PublicCommunity"></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_pricty"></td>
+        <td><input size="30" type="text" maxlength="256" id="INPUT_PrivateCommunity"></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_trapenable"></td>
+        <td><input type="checkbox" id="INPUT_TrapEnabled" onClick='trap_change_enable()'></td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_trapver"></td>
+        <td><select id="SELECT_TrapVersion">
+                <option value="SNMPV1">SNMP V1</option>
+                <option value="SNMPV2">SNMP V2</option>
+            </select>
+		</td>
+    </tr>
+    <tr>
+        <td langkey="LK_SNMP_trapadd"></td>
+        <td><input size="30" type="text" maxlength="256" id="INPUT_TrapAddress"></td>
+    </tr>
+	<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor" cellpadding="0" cellspacing="0">
+<tr>
+	<td>
+	<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit()")</script>&nbsp;
+	<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent</script>
+</form>
+      <form method="post" name="dataform" id="dataform" action="/cgi-bin/setup.cgi?page/applications/app_snmpsrv.shtml">
+</form>
+  </body>
+</html>

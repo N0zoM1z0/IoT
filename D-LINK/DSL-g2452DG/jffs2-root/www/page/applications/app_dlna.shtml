@@ -1,0 +1,210 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<link rel="stylesheet" rev="stylesheet" href="/css/zTreeStyle.css" type="text/css">
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/jquery.ztree.core-3.5.min.js"></script>
+<script language="javascript" src="/js/jquery.ztree.exedit-3.5.min.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+<!--
+<!--#getobject "InternetGatewayDevice.Services.ServiceDLNA. Enable Status MediaDIR" --> 
+var dlnaEnable = "<!--#leaf "1"-->";
+var dlnaShareMode = "<!--#leaf "2"-->";
+var dlnaMediaDir = "<!--#leaf "3"-->";
+<!--#endgetobject -->
+
+var settings = {
+	data: {
+		simpleDate: {
+			enable: true
+		}
+	},
+	callback: {
+		beforeExpand: beforeExpand,
+		beforeClick: beforeClick
+	}
+};
+
+function getWholePath(treeNode) {
+	var path=treeNode.name
+	var pid = treeNode.pId;
+	var zTree = jQuery.fn.zTree.getZTreeObj("usbtree")
+	while(pid != null && pid != 0){
+		pNode = zTree.getNodeByParam("id", pid);
+		pName = pNode.name;
+		path = pName + "/" + path;
+		pid = pNode.pId;
+	}
+	return path;
+} 
+
+function beforeClick(treeId, treeNode){                                         
+	var path = getWholePath(treeNode)
+	document.getElementById("INPUT_DlnaFolder").value = path
+}
+
+function beforeExpand(treeId, treeNode) {
+	if(treeNode.expanded == 1)
+		return
+	var id = treeNode.id
+	var path = getWholePath(treeNode)
+	var url = "/cgi-bin/getusbtree.cgi"
+	ajax = Ajax.getInstance(url, "id="+id+"?path="+path, 0, add_nodes)
+	ajax.get()
+	treeNode.expanded = 1 // this node already expanded.
+}
+var pId = 0
+var subNodes = ""
+function add_nodes(_text) {
+	if (_text != "")
+		eval(_text)
+	else
+		return
+	
+	if (pId == 0)
+	{
+		$.fn.zTree.init($("#usbtree"), settings, subNodes);
+	}
+	else
+	{
+		var zTree = jQuery.fn.zTree.getZTreeObj("usbtree")
+		var pNode = zTree.getNodeByParam("id", pId)
+		zTree.addNodes(pNode, subNodes, 0) // add nodes, no silent
+	}
+}
+
+var shareMode = dlnaShareMode
+function modeClick() {
+	with ( document.forms[0] ) {
+		if ( shareFolders[0].checked == true )
+		{
+			shareMode = '0'; // all folders
+			//document.getElementById('dms_usb_tree').style.display = "none"
+			setDisplay("dms_usb_tree", 0)
+			setDisplay("usbzTree", 0)
+		}
+		else if ( shareFolders[1].checked == true )
+		{
+			shareMode = '1'; // custom folders
+			document.getElementById('INPUT_DlnaFolder').value = dlnaMediaDir
+			//document.getElementById('dms_usb_tree').style.display = "block"
+			setDisplay("dms_usb_tree", 1)
+			setDisplay("usbzTree", 1)
+		}
+	}
+}
+
+var flag = 1
+function selectFolder() {
+	if (flag)
+		setDisplay("usbzTree", 1)
+	else
+		setDisplay("usbzTree", 0)
+	flag = !flag
+}
+
+function uiSubmit() {
+	if(!validateCode())
+		return false;
+	var mediaDir = ""
+	if(shareMode == "1")
+		mediaDir = document.getElementById("INPUT_DlnaFolder").value;
+
+	var isEnable = document.getElementById("INPUT_EnableDlna").checked == true ? "1" : "0";
+	if (isEnable == "1" && dlnaEnable == isEnable && mediaDir == dlnaMediaDir)
+		uiPageRefresh();
+
+    var df = document.app_dlnaform
+    AddElements(df, "InternetGatewayDevice.Services.ServiceDLNA.Enable", isEnable)
+    AddElements(df, "InternetGatewayDevice.Services.ServiceDLNA.Status", shareMode)
+    AddElements(df, "InternetGatewayDevice.Services.ServiceDLNA.MediaDIR", mediaDir)
+    df.submit()
+}
+
+function frmLoad() {
+	if ( dlnaShareMode == "0" )
+	{
+		document.getElementById('shareFolders0').checked = true
+		document.getElementById('dms_usb_tree').style.display = "none"
+	}
+	else if ( dlnaShareMode == "1" )
+	{
+		document.getElementById('shareFolders1').checked = true
+		document.getElementById('dms_usb_tree').style.display = "block"
+	}
+	setValue("INPUT_EnableDlna", dlnaEnable)
+	setValue("INPUT_DlnaFolder", dlnaMediaDir)
+		
+}
+
+function __init() {
+    frmLoad()
+    ajax = Ajax.getInstance("/cgi-bin/getusbtree.cgi", "id=0?path=", 0, add_nodes)
+    ajax.get()
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// -->
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_Multimedia"));</script>
+	<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="150" langkey="LK_EnableDMS"></td>
+			<td><input type="checkbox" name="INPUT_EnableDlna" id="INPUT_EnableDlna"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+
+		<tr>
+			<td width="150" langkey="LK_ShareFolders"></td>
+			<td>
+				<input type='radio' name='shareFolders' id='shareFolders0' onClick='modeClick()'>&nbsp;<span langkey="LK_ShareAllFolder"></span>&nbsp;&nbsp;
+			</td>
+		</tr>
+		<tr>
+			<td width="150"></td>
+			<td>
+				<input type='radio' name='shareFolders' id='shareFolders1' onClick='modeClick()'>&nbsp;<span langkey="LK_CusShareFd"></span>
+			</td>
+		</tr>
+	</table>
+	<table id="dms_usb_tree" width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="150" langkey="LK_CusShareFdd"></td>
+			<td><input type="text" name="INPUT_DlnaFolder" id="INPUT_DlnaFolder" disabled>&nbsp;&nbsp;<script>PrintTriButton("selectFd",getStr('LK_Add'),"selectFolder()");</script></td>
+		</tr>
+	</table>
+	<table id="usbzTree" width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor" style="display:none">
+		<tr>
+			<td colspan="4" class="zTreeDemoBackground left">
+				<ul id="usbtree" class="ztree"></ul>
+			</td>
+		</tr>
+	</table>
+
+	<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+				<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+				&nbsp;&nbsp;
+				<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+			</td>
+		</tr>
+	</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="app_dlnaform" action="/cgi-bin/setup.cgi?page/applications/app_dlna.shtml"></form>
+</body>
+</html>

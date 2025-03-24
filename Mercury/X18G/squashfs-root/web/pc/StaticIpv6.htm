@@ -1,0 +1,324 @@
+<script type="text/javascript">
+	(function(){
+		function errHandle(errNo){
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case EIPV6INVIP:
+				showStr = errStr.ipAddrErr;
+				break;
+			case EIPV6INVIPFMT:
+				showStr = errStr.ipv6AddrFmtErr;
+				break;
+			case EIPV6INVGROUPIP:
+				showStr = errStr.ipAddrGroupErr;
+				break;
+			case EIPV6LOOP:
+				showStr = errStr.ipAddrLoopErr;
+				break;
+			case EIPV6INVGTW:
+				showStr = errStr.gatewayErr;
+				break;
+			case EINVMTU:
+				showStr = errStr.stcMtuErr;
+				break;
+			case EIPV6INVFDNSVR:
+				showStr = errStr.primDnsErr;
+				break;
+			case EIPV6INVSDNSVR:
+				showStr = errStr.seDnsErr;
+				break;
+			case EIPV6LINKLOCAL:
+				showStr = errStr.ipv6LinkLoaclErr;
+				break;
+			case ECONFLICTGATEWAY:
+				gateway.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case ECONFLICTFDNS:
+				priDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			case ECONFLICTSDNS:
+				sndDns.showNote(errStr.wzdStcIpLanConflict);
+				return false;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function onSave(){
+			var cfg = {}, cfgStatic = {}, checkRes = true;
+
+			cfg[uciProto.secName.wanv6] = {};
+			cfg[uciProto.secName.wanv6][uciProto.optName.type] = uciProto.optValue.proto.staticIpv6;
+			cfg[uciProto.optValue.proto.staticIpv6] = cfgStatic;
+
+			[ipAddr, gateway, priDns, sndDns].forEach(function(o){
+				checkRes = o.checkAll() && checkRes;
+			});
+
+			if (!checkRes)
+			{
+				return;
+			}
+
+			ipAddr.setValue(ipAddr.getValue().replace(/：/g, ":"));
+			cfgStatic[uciProto.optName.ipv6] = ipAddr.getValue();
+			gateway.setValue(gateway.getValue().replace(/：/g, ":"));
+			cfgStatic[uciProto.optName.gatewayv6] = gateway.getValue();
+			priDns.setValue(priDns.getValue().replace(/：/g, ":"));
+			cfgStatic[uciProto.optName.priDns] = priDns.getValue();
+			sndDns.setValue(sndDns.getValue().replace(/：/g, ":"));
+			cfgStatic[uciProto.optName.sndDns] = sndDns.getValue();
+
+			slp.protocol.setData({
+				data: cfg,
+				success: function(){
+					showToast(label.saveSuccess);
+
+					curWanv6Type = uciProto.optValue.proto.staticIpv6;
+
+					if (preDelgOnFlag == true)
+					{
+						localLanPrefix.setValue("::");
+						localLanPrefix.toggleStatic(false);
+						preDelgOnFlag = false;
+					}
+				},
+				fail: function(result){
+					errHandle(result[ERR_CODE]);
+				}
+			});
+
+			/* 开始轮询WAN口状态 */
+			updateWanStatusTimer = $.setTimeout(wanStatusRefresh, 2000);
+		}
+
+		function advancedSet(){
+			var cfg = {}, cfgStatic = {};
+
+			cfg[uciProto.optValue.proto.staticIpv6] = cfgStatic;
+
+			if (!mtu.checkAll())
+			{
+				return;
+			}
+
+			mtu.setValue(hideLeadingZeros(mtu.getValue()));
+			cfgStatic[uciProto.optName.mtu] = mtu.getValue();
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			disableAllBtn(true);
+			slp.protocol.setData({
+				data: cfg,
+				success: function(){
+					disableAllBtn(false);
+					showToast(label.saveSuccess);
+					updateWanStatusTimer = $.setTimeout(wanStatusRefresh, 0);
+				},
+				fail: function(result){
+					disableAllBtn(false);
+					errHandle(result[ERR_CODE]);
+					updateWanStatusTimer = $.setTimeout(wanStatusRefresh, 0);
+				}
+			});
+		}
+
+		wanStatusRefresh = function(){
+			var data = {};
+			data[uciNetwork.fileName] = {};
+			data[uciNetwork.fileName][KEY_NAME] = uciNetwork.dynData.wanv6Status;
+
+			if (updateWanStatusTimer != null)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+			}
+
+			$.query(data, function(data){
+				setStaIpWanStatus(data);
+				updateWanStatusTimer = $.setTimeout(wanStatusRefresh, 2000);
+			}, undefined, true);
+		}
+
+		function setStaIpWanStatus(ALL_DATA){
+			var wanStatus = ALL_DATA[uciNetwork.fileName][uciNetwork.dynData.wanv6Status];
+			var errCode = wanStatus[uciNetwork.optName.code];
+			var linkType = wanStatus[uciNetwork.optName.wanStatus];
+
+			if (wanStatus.proto != uciNetwork.optValue.proto.staticIpv6)
+			{
+				clearTimeout(updateWanStatusTimer);
+				updateWanStatusTimer = null;
+
+				connBtn.disable(false);
+
+				return;
+			}
+
+			switch(parseInt(linkType))
+			{
+			case LINK_DOWN:
+				if ((LINK_CODE_MANUAL != errCode) &&
+					(LINK_CODE_NORMAL != errCode) &&
+					(LINK_CODE_INET_ERR != errCode))
+				{
+					if (LINK_CODE_IP_CONFLICT == errCode)
+					{
+						setLinkState(false, linkCode[errCode]);
+					}
+					else
+					{
+						setLinkState(false, linkStatus[LINK_DOWN] + label.lBrackets + linkCode[errCode] + label.rBrackets);
+					}
+				}
+				else
+				{
+					setLinkState(false, linkStatus[LINK_DOWN]);
+				}
+
+				break;
+			case LINK_UP:
+				setLinkState(true, linkStatus[LINK_UP]);
+				break;
+			default:
+				break;
+			}
+		}
+
+		function fillData(ALL_DATA){
+			var wanData = ALL_DATA[uciProto.fileName][uciProto.secName.wanv6];
+			var staticData = ALL_DATA[uciProto.fileName][uciProto.secName.stav6];
+
+			ipAddr.setValue(staticData[uciProto.optName.ipv6]);
+			gateway.setValue(staticData[uciProto.optName.gatewayv6]);
+			priDns.setValue(staticData[uciProto.optName.priDns]);
+			sndDns.setValue((staticData[uciProto.optName.sndDns] && staticData[uciProto.optName.sndDns] != "::") ?
+							 staticData[uciProto.optName.sndDns] : "");
+			mtu.setValue(staticData[uciProto.optName.mtu]);
+
+			/* IF CURRENT WANv6 TYPE IS STATIC, FREE THE LAN PREFIX */
+			if (curWanv6Type == uciProto.optValue.proto.staticIpv6)
+			{
+				if (preDelgOnFlag == true)
+				{
+					localLanPrefix.toggleStatic(false);
+					preDelgOnFlag = false;
+				}
+			}
+		}
+
+		function requestData(){
+			slp.protocol.getData({
+				type: "IPv6",
+				success: function(res){
+					fillData(res);
+				}
+			});
+		}
+
+		var ipAddr = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipv6Addr},
+			targetId:"basicArguments",
+			check:{blur:checkIPv6Input},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}});
+		var prefixLen = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.ipv6PrefixLen},
+			targetId:"basicArguments",
+			props:{maxlength: '2', value: "64", type: "text"}});
+		prefixLen.disable(true);
+		var gateway = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.gateway},
+			targetId:"basicArguments",
+			check:{blur:checkGatewatV6},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}});
+		var priDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.preferredDnsServer},
+			targetId:"basicArguments",
+			check:{blur:checkPriDnsV6},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}});
+		var sndDns = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.alternativeDnsServer},
+			targetId:"basicArguments",
+			check:{blur:checkSndDnsV6},
+			hint:{value:label.allowEmpty},
+			props:{maxlength: '39', type: "text", placeholder: "0:0:0:0:0:0:0:0"}});
+		var connBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"connect",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+		var mtu = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mtu},
+			targetId:"staticHighsetArguments",
+			tips:{value:label.unitByte, className:"unit"},
+			hint:{value:label.mtuComment},
+			check:{blur:checkMtuInput},
+			props:{maxlength: '4', type: "text"}
+		});
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:advancedSet,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		selectInit("wanSel", wanv6Options, LINK_TYPE_STATIC_IP, loadPageByIndex);
+
+		btnSet = [];
+		btnSet.push({btn: connBtn, autoEnable: true});
+		btnSet.push({btn: saveBtn, autoEnable: true});
+		btnSet.push({btn: lanSave, autoEnable: true});
+
+		requestData();
+		wanStatusRefresh();
+		lanStatusRefresh();
+	})();
+</script>
+<style type="text/css">
+</style>
+<div class="subTitle">
+	<h2>{%label.linkStatus%}</h2>
+	<span id="linkState"><i class="disc"></i><span class="state"></span></span>
+</div>
+<div class="subTitle">
+	<h2>{%label.basicArguments%}</h2>
+</div>
+<ul class="inputCMPT medium selectUl">
+	<label class="outerLbl">{%label.netMode%}</label>
+	<li class="inputLi">
+		<span class="selectWrap">
+			<span id="wanSel" class="select">
+				<span class="value"></span>
+				<i class="arrow iconfont icon-folddropdown"></i>
+			</span>
+		</span>
+	</li>
+</ul>
+<div id="basicArguments"></div>
+<div id="connect"></div>
+<div class="subTitle">
+	<h2>{%label.wanAdvancedArguments%}</h2>
+</div>
+<div id="staticHighsetArguments"></div>
+<div id="save"></div>

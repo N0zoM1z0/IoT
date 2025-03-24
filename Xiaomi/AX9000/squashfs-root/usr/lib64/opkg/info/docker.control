@@ -1,0 +1,8 @@
+Package: docker
+Version: 1-1.0
+Depends: libc, libubus, libuci
+Source: package/miwifi/docker
+Section: util
+Architecture: aarch64_cortex-a53
+Installed-Size: 3561
+Description:  support docker function.

@@ -1,0 +1,34 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=1
+
+EXTRA_COMMANDS=""
+EXTRA_HELP="start stop"
+
+log(){
+	echo "[DUALWIFI] $@" > /dev/console
+}
+
+start() {
+    log "START dual wifi"
+	[ -f /usr/sbin/dualwifi.sh ] && /usr/sbin/dualwifi.sh start
+}
+
+stop() {
+    log "STOP dual wifi"
+	[ -f /usr/sbin/dualwifi.sh ] && /usr/sbin/dualwifi.sh stop
+}
+
+boot() {
+    log "BOOT dual wifi"
+    [ -f /usr/sbin/dualwifi.sh ] && {
+		(sleep 30; /usr/sbin/dualwifi.sh boot) &
+    }
+    return 0
+}
+
+shutdown() {
+    log "SHUTDOWN dual wifi"
+	[ -f /usr/sbin/dualwifi.sh ] && /usr/sbin/dualwifi.sh shutdown
+}

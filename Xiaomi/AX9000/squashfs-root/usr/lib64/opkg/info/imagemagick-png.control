@@ -1,0 +1,8 @@
+Package: imagemagick-png
+Version: 6.8.6-1
+Depends: libc, imagemagick, libpng
+Source: feeds/packages/multimedia/imagemagick
+Section: multimedia
+Architecture: aarch64_cortex-a53
+Installed-Size: 54060
+Description:  imagemagick tools (mogrify,convert)

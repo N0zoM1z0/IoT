@@ -1,0 +1,118 @@
+#!/bin/sh
+smb_start(){
+	wg=$(nvram get workgroup)
+	nbn=$(nvram get lan_device_name)
+	srv_string=$(nvram get netbios_name)
+	lanip=$(nvram get lan_ipaddr)
+	lanmask=$(nvram get lan_netmask)
+	
+	
+feature=$(nvram get feature_samba_security)
+access=$(nvram get enable_samba_security)
+#; access =1 is admin mode
+
+if test -z $feature
+then
+
+echo not feature usb samba mode
+access=0
+
+else
+
+echo $feature
+if test $feature -eq 0
+then
+echo feature zero
+access=0
+fi
+
+echo 2
+
+fi
+
+
+echo access mode  $access
+	
+	
+	cat << __SMB_CONF > /tmp/samba/smb.conf
+[global]
+workgroup = $wg
+netbios name = $nbn
+server string = $srv_string
+interfaces = br0 $lanip/$lanmask
+__SMB_CONF
+
+
+if test $access -eq 0 
+then
+
+cat << __SMB_CONF0 >> /tmp/samba/smb.conf
+security = SHARE
+load printers = no
+guest ok = yes
+guest account = guest
+__SMB_CONF0
+
+else
+
+cat << __SMB_CONF1 >> /tmp/samba/smb.conf
+security = user
+load printers = no
+guest ok = no
+guest account = admin
+username = admin
+__SMB_CONF1
+
+fi
+
+
+
+	cat << __SMB_CONF9 >> /tmp/samba/smb.conf
+writeable = yes
+smb passwd file = /etc/samba/smbpasswd
+force create mode = 0664
+create mask = 0664
+force directory mode = 0775
+directory mask = 0775
+include = /tmp/smb.dir.conf
+__SMB_CONF9
+
+
+
+
+
+}
+smb_init()
+{
+	mkdir -p /tmp/samba
+	mkdir -p /tmp/etc
+	echo '' > /tmp/etc/printcap
+	cp /etc/config/passwd /tmp/etc
+	cp /etc/config/group /tmp/etc
+	cp /etc/config/shadow /tmp/etc
+	mkdir /var/log/samba
+	echo '' > /tmp/samba/smbpasswd
+#	/usr/bin/smbpasswd root ''
+
+admin_pass=$(nvram get admin_password)
+
+        /usr/bin/smbpasswd admin "$admin_pass"
+
+
+}
+case $1 in
+start)
+        smb_start
+	#nmbd -s "/tmp/samba/smb.conf" -D
+	break
+        ;;
+stop)
+	/usr/bin/killall nmbd
+	break
+        ;;
+init)
+	smb_init
+	break
+	;;
+esac
+exit 0

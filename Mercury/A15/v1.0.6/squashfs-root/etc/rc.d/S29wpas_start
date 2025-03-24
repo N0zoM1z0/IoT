@@ -1,0 +1,97 @@
+#!/bin/sh /etc/rc.common
+#just for start wpa_supplicant
+
+# Before dms(30)
+START=29
+
+slp_check_calculate_data_2G(){
+	CALTAG_FILE_PATH="/tmp/calTag_2g"
+	CALTAG_OFFSET=8177
+	local CAL_TAG=nil
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag file
+	if [ ! -f "${CALTAG_FILE_PATH}" ]; then
+		dd if=/dev/mtdblock2 of=${CALTAG_FILE_PATH} bs=1 count=2 skip=$CALTAG_OFFSET
+	fi
+
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1234)
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+slp_check_calculate_data_5G(){
+	CALTAG_FILE_PATH="/tmp/calTag_5g"
+	CALTAG_OFFSET=8190
+	local CAL_TAG=nil
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag file
+	if [ ! -f "${CALTAG_FILE_PATH}" ]; then
+		dd if=/dev/mtdblock2 of=${CALTAG_FILE_PATH} bs=1 count=2 skip=$CALTAG_OFFSET
+	fi
+
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1234)
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+start() {
+	#重定向
+	#exec 2>&1 > /dev/console
+
+	#用户态进程挂起时生成coredump
+	[ -e /proc/sys/kernel/core_pattern ] && {
+		ulimit -c unlimited
+		echo '/tmp/%e.%p.%s.%t.core' > /proc/sys/kernel/core_pattern
+	}
+
+	local phy_2G="phy0"
+	local phy_5G="phy1"
+
+	# 针对AX3000机型适配，硬件PCIE1只能连5G芯片，AX3000 5G是phy0。
+	# AX1500机型，2G是rtl8192cd，rtk_wifi6目录下不会创建wlan0
+	[ -e /proc/net/rtk_wifi6/wlan0 ] && {
+		phy_2G="phy1"
+		phy_5G="phy0"
+	}
+
+	local caltag_2g=$(slp_check_calculate_data_2G)
+	local caltag_5g=$(slp_check_calculate_data_5G)
+
+	[ "$caltag_2g" == "false" -o "$caltag_5g" == "false" ] && { \
+		echo "=========> Not calibrated, do not start wpa" > /dev/console
+	} || {
+		#启动wpa_supplicant
+		echo "========> start wpas_2g"
+		#iw phy "wlan0" interface add "wlan0-vxd" type "managed" 4addr on
+		iw phy ${phy_2G} interface add wlan0-vxd type station
+		ifconfig wlan0-vxd down
+		ifconfig wlan0-vxd hw ether AE:57:4E:FD:93:5E
+		ifconfig wlan0-vxd up
+		brctl addif br-lan wlan0-vxd
+		#/usr/sbin/wpa_supplicant -i "wlan0-vxd" -c "/conf/wpa_supplicant.conf" &
+		/usr/sbin/wpa_supplicant -iwlan0-vxd -c/conf/wpa_supplicant.conf -Dnl80211 -bbr-lan -B
+
+		echo "========> start wpas_5g"
+		#iw phy "wlan1" interface add "wlan1-vxd" type "managed" 4addr on
+		iw phy ${phy_5G} interface add wlan1-vxd type station
+		ifconfig wlan1-vxd down
+		ifconfig wlan1-vxd hw ether A2:57:4E:FD:93:5E
+		ifconfig wlan1-vxd up
+		brctl addif br-lan wlan1-vxd
+		#/usr/sbin/wpa_supplicant -i "wlan1-vxd" -c "/conf/wpa_supplicant.conf" &
+		/usr/sbin/wpa_supplicant -iwlan1-vxd -c/conf/wpa_supplicant.conf -Dnl80211 -bbr-lan -B
+	}
+
+}

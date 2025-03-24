@@ -1,0 +1,247 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+</head>
+<script>
+function ConnectionTuple()
+{    
+    this.Type = ""
+    this.Path = ""
+    this.Name = ""
+    this.ServiceList = ""
+    this.ConnectionType = ""
+    this.IPMode = ""
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function MultiNATTuple()
+{    
+    this.Path = ""
+    this.Enable = ""
+    this.Type = ""
+    this.WanConn = ""
+    this.LocalStartIP = ""
+    this.LocalEndIP = ""
+    this.PublicStartIP = ""
+    this.PublicEndIP = ""
+}
+var natNum = 0;
+var natList = new Array();
+<!--#getobject "InternetGatewayDevice.MultiNAT. Enabled Type WanConnection LocalStartIP LocalEndIP PublicStartIP PublicEndIP" -->
+    natList[natNum] = new MultiNATTuple();
+    natList[natNum].Path = "<!--#path -->";
+    natList[natNum].Enable = "<!--#leaf  "1"-->";
+    natList[natNum].Type = "<!--#leaf  "2"-->";
+    natList[natNum].WanConn = "<!--#leaf  "3"-->";
+    natList[natNum].LocalStartIP = "<!--#leaf  "4"-->";
+    natList[natNum].LocalEndIP = "<!--#leaf  "5"-->";
+    natList[natNum].PublicStartIP = "<!--#leaf  "6"-->";
+    natList[natNum].PublicEndIP = "<!--#leaf  "7"-->"; /* not used */
+    natNum++;
+<!--#endgetobject -->
+function checkValue()
+{
+	if(!isCheckIPV4($('LocalSIP'),1,254)){            
+		return false
+	}
+	if(getValue("SELECT_Type") != "one-to-one" && !isCheckIPV4($('LocalEIP'),1,254)){            
+		return false
+	}
+	if(!isCheckIPV4($('PUBLICIP'),1,254)){            
+		return false
+	}
+	return true
+}
+
+var op = "";
+var value = "";
+
+function uiAdd()
+{
+	var object_path = "InternetGatewayDevice.MultiNAT."
+	var df = document.dataform
+	AddElements(df, "add_obj", object_path)
+	AddElements(df, object_path + '{i}.Enabled', $('ENABLE').checked == true ? 1: 0)
+	AddElements(df, object_path + '{i}.Type', getValue("SELECT_Type"))
+	AddElements(df, object_path + '{i}.WanConnection', getValue("SELECT_WanConnection"))
+	AddElements(df, object_path + '{i}.LocalStartIP', getValue("LocalSIP"))
+	if(getValue("SELECT_Type") == "one-to-one")
+		AddElements(df, object_path + '{i}.LocalEndIP', "")
+	else
+		AddElements(df, object_path + '{i}.LocalEndIP', getValue("LocalEIP"))
+	AddElements(df, object_path + '{i}.PublicStartIP', getValue("PUBLICIP"))
+	df.submit()
+}
+
+function uiEdit()
+{
+	var df = document.dataform
+	AddElements(df, value[0] + 'Enabled', $('ENABLE').checked == true ? 1: 0)
+	AddElements(df, value[0] + 'Type', getValue("SELECT_Type"))
+	AddElements(df, value[0] + 'WanConnection', getValue("SELECT_WanConnection"))
+	AddElements(df, value[0] + 'LocalStartIP', getValue("LocalSIP"))
+	if(getValue("SELECT_Type") == "one-to-one")
+		AddElements(df, value[0] + 'LocalEndIP', "")
+	else
+		AddElements(df, value[0] + 'LocalEndIP', getValue("LocalEIP"))
+	AddElements(df, value[0] + 'PublicStartIP', getValue("PUBLICIP"))
+	df.submit()
+}
+
+function uiSubmit()
+{
+	if(!checkValue())
+		return
+	if(!validateCode())
+		return
+	if(op == "add")
+		uiAdd()
+	else if(op == "edit")
+		uiEdit()
+}
+
+function uiBack()
+{
+	document.location.href = "adv_multinat.shtml"
+}
+
+function TypeChange()
+{
+	var type = getValue("SELECT_Type")
+	if(type == "one-to-one")
+		setDisplay("EndIp", 0)
+	else
+		setDisplay("EndIp", 1)
+}
+
+function createWANIf() {
+	var wanConnIndex = '';
+
+	var options = "";
+	for (i = 0; i < Connection.length; i++)
+	{
+		//if (!isBridgedConn(Connection[i].ConnectionType) && Connection[i].ServiceList != 'TR069' && Connection[i].ServiceList != 'VOIP' && Connection[i].IPMode != '2'){
+		if (!isBridgedConn(Connection[i].ConnectionType) && isINTERNETService(Connection[i].ServiceList) && Connection[i].IPMode != '2'){
+			options += "<option value='" + Connection[i].Path + "'>" + Connection[i].Name + "</option>";
+		}
+	}
+	jQuery('#SELECT_WanConnection').append(options)
+	jQuery('#SELECT_WanConnection').html(options)
+	jQuery('#SELECT_WanConnection').css("width", "auto")
+}
+
+function __init()
+{
+    createWANIf()
+    var url = window.location.search
+    var i = url.indexOf("?")
+    if (i == -1) {
+    return
+    }
+    var arr = url.toString()
+    var strs = arr.split("&")
+    op = strs[0].split("=")[1]
+
+    if(op == "edit")
+    {
+        var valueArr = strs[1].split("=")[1]
+        value = valueArr.split(",")
+        setValue("ENABLE",value[1])
+        setValue("SELECT_Type",value[2])
+        setValue("SELECT_WanConnection",value[3])
+        setValue("LocalSIP",value[4])
+        setValue("LocalEIP",value[5])
+        setValue("PUBLICIP",value[6])
+    }
+    TypeChange()
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_MultiNATEdit"));</script>
+<form method="get">
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td width="150" langkey="LK_Enablee"></td>
+			<td><input type='checkbox' id='ENABLE' checked></td>
+		</tr>		
+		<tr>
+			<td width="150" langkey="LK_WANConnection_Colon"></td>
+			<td>
+				<select name="SELECT_WanConnection" id="SELECT_WanConnection">
+					<option value=''>-</option>
+				</select>
+			</td>
+		</tr>		
+		<tr>
+			<td width="150" langkey="LK_Typee"></td>
+			<td>
+				<select name="SELECT_Type" id="SELECT_Type" onchange="TypeChange()">
+					<option value='one-to-one'>One-to-One</option>
+					<option value='many-to-one'>Many-to-One</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_LocalSIPP"></td>
+			<td><input type="text" id="LocalSIP" maxlength="32">
+		</tr>
+		<tr id="EndIp" style="display: none">
+			<td width="150" langkey="LK_LocalEIPP"></td>
+			<td><input type="text" id="LocalEIP" maxlength="32">
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_PublicIPP"></td>
+			<td><input type='text' id='PUBLICIP'></td>
+		</tr>		
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td colspan="2">&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+			<script>PrintTriButton("back",getStr("LK_Back"),"uiBack();" );</script>
+			<script>PrintTriButton("submit",getStr("LK_Apply"),"uiSubmit(op);" );</script>
+			<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+			</td>
+		</tr>
+	</table>
+</form>
+<script>printEndContent();</script>
+<form method="post" name="dataform" id="dataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_multinat.shtml">
+</form>
+</body>
+</html>

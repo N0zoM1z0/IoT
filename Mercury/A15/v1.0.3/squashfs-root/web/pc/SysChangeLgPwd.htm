@@ -1,0 +1,25 @@
+
+<style>
+div.pwdStrNote{
+	/* display: none; */
+    padding-left: 132px;
+    margin: -6px 0 12px 0;
+    line-height: 20px;
+    font-size: 13px;
+    color: #666666;
+}
+</style>
+<div class="head">
+	<div class="title">
+		<h1 id="titleStr">{%menuStr.changeLgPwd%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.sysChangeLoginPwdDescription%}</p>
+</div>
+<div id="basicArguments"></div>
+<div id="save"></div><script type="text/javascript">(function(){function g(b){var a="";switch(b){case ENONE:return!0;case EINVLGPWDLEN:a=errStr.lgPwdLenInvalid;break;case EINLGVALCHAR:a=errStr.pwdInvalid;break;case EINLGVALOLDSAME:a=errStr.pswNewOldSameErr;break;case EINVKEY:a=errStr.pwdError;break;case EINLGUSRVALOLDSAME:a=errStr.usrNewOldSameErr;break;default:a=errStr.unknown+b}alarmDialog.show(a);return!1}if("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT)var h=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.chgOrUsr},targetId:"basicArguments",
+check:{blur:checkSysUsrBlur,keyup:checkSysUsrKeyup},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"text",placeholder:label.plzInputOriUsr}});var e=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.chgOrPwd},targetId:"basicArguments",check:{blur:checkSysPwdBlur,keyup:checkSysPwdKeyup},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password",placeholder:label.plzInputOriPwd}});if("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT)var k=new Input({type:Input.TYPE.PLAIN_TEXT,label:{value:label.chgNewUsr},
+targetId:"basicArguments",check:{blur:checkSysUsrBlur,keyup:checkSysUsrKeyup},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"text",placeholder:label.plzInputNewUsr}});var c=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.chgNewPwd},strength:{show:!SYS_LOGIN_PWD_COMPLEX_CHECK,least:6,critical:10},complexity:SYS_LOGIN_PWD_COMPLEX_MIN,targetId:"basicArguments",check:{blur:checkSysPwdBlur,keyup:checkSysPwdKeyup},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password",placeholder:label.plzInputSysLoginNewPwd}});
+SYS_LOGIN_PWD_COMPLEX_CHECK&&$("#basicArguments").append('<div class="pwdStrNote">{%label.chgPwdChar8%}</div>');var l=new Input({type:Input.TYPE.CIPHER_TEXT,label:{value:label.chgConNewPwd},targetId:"basicArguments",check:{blur:function(){if(c.getValue()!=this.input.value)return this.showNote(errStr.inputPwdDif),!1;this.closeNote();return!0}},props:{maxlength:SYS_LOGIN_PWD_LENGTH_MAX,type:"password",placeholder:label.plzInputNewPwdAgain}});new Button({text:btn.save,onClick:function(){var b=e.getValue(),
+a=c.getValue(),d=[e,c,l],f=!0;if("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT)var m=h.getValue(),n=k.getValue(),d=[h,k,e,c,l];d.forEach(function(a){f=a.checkAll()&&f});f&&("undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT?$.changeUsrPwd(m,n,b,a,function(a){!0==g(a)&&(d.forEach(function(a){a.setValue("")}),alarmDialog.show(label.modifySuccess))}):$.changePwd(b,a,function(a){!0==g(a)&&(d.forEach(function(a){a.setValue("")}),alarmDialog.show(label.modifySuccess))}))},type:Button.TYPE.PRIMARY,
+id:"save",props:{width:"240px",margin:"32px 0 0 132px"}});"undefined"!=typeof USERNAME_SUPPORT&&USERNAME_SUPPORT&&$("#titleStr").text(menuStr.changeLgUsrPwd)})();
+</script>

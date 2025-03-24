@@ -1,0 +1,63 @@
+local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+L0 = require
+L1 = "xiaoqiang.util.XQNetUtil"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.XQLog"
+L1 = L1(L2)
+L2 = require
+L3 = "luci.model.uci"
+L2 = L2(L3)
+L2 = L2.cursor
+L2 = L2()
+L4 = L2
+L3 = L2.get
+L5 = "misc"
+L6 = "hardware"
+L7 = "model"
+L3 = L3(L4, L5, L6, L7)
+L3 = L3 or L3
+L4 = require
+L5 = "xiaoqiang.common.XQFunction"
+L4 = L4(L5)
+if L3 then
+  L5 = string
+  L5 = L5.lower
+  L6 = L3
+  L5 = L5(L6)
+  L3 = L5
+end
+L6 = L2
+L5 = L2.get
+L7 = "xiaoqiang"
+L8 = "common"
+L9 = "NETMODE"
+L5 = L5(L6, L7, L8, L9)
+L5 = L5 or L5
+L6 = arg
+L6 = L6[1]
+if L6 then
+  L7 = L4.isMeshCap
+  L7 = L7()
+  if L7 then
+    L7 = L1.log
+    L8 = 6
+    L9 = "CAP call RE upload log, CAP key:"
+    L10 = L6
+    L9 = L9 .. L10
+    L7(L8, L9)
+    L7 = os
+    L7 = L7.execute
+    L8 = "/sbin/whc_to_re_common_api.sh log_upload "
+    L9 = L6
+    L8 = L8 .. L9
+    L7(L8)
+  end
+  L7 = os
+  L7 = L7.execute
+  L8 = "/usr/sbin/log_collection.sh"
+  L7(L8)
+  L7 = L0.uploadLogV2
+  L8 = L6
+  L7(L8)
+end

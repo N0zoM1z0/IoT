@@ -1,0 +1,8 @@
+Package: kmod-gpio-slp
+Version: 4.4.176-1
+Depends: kernel (=4.4.176-1-89504c0ce6e66fa551eeb775ccfd8ad4)
+Source: tp_package/k_packages/gpio
+Section: kernel
+Architecture: rtl
+Installed-Size: 2826
+Description:  Kernel modules for GPIO button and leds

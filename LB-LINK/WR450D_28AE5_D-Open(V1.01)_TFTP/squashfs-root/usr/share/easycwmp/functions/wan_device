@@ -1,0 +1,1401 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.WANDevice."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WANDevice"
+entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform entry_execute_method_root_WANDevice"
+
+
+entry_execute_method_root_WANDevice() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.WANDevice."*)
+		common_execute_method_obj "$DMROOT.WANDevice." "0"
+		
+		common_execute_method_obj "$DMROOT.WANDevice.1." "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionNumberOfEntries" "0" "wan_device_get_connumentries" "" "xsd:unsignedInt" "0"
+		
+		common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice." "0" "" "" "wan_device_browse_instances_wancxdev $1"
+		return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_wandevice_wanconnectiondevice() {
+	local j="$2"
+	local iface="$3"
+	local protocol="$4"
+	local default="$5"
+	case_param "$1" belongto "$DMROOT.WANDevice.1.WANConnectionDevice.$j." && {
+		common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j." "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnectionNumberOfEntries" "0" "wan_device_get_ipcon_num" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnectionNumberOfEntries" "0" "wan_device_get_pppcon_num" "" "xsd:unsignedInt" "0"
+		
+		common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANEthernetLinkConfig." "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANEthernetLinkConfig.EthernetLinkStatus" "0" "wan_device_ethernet_linksta" "" "xsd:String" "0"
+		
+		case $protocol in
+			IP)
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection." "0"
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1." "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Enable" "1" "wan_device_get_wanip_enable" "wan_device_set_wanip_enable" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.X_[VENDOR]_COM_VLANEnable" "1" "wan_device_get_wanip_vlanenable" "wan_device_set_wanip_vlanenable" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.X_[VENDOR]_COM_VLANId" "1" "wan_device_get_wanip_vlanid" "wan_device_set_wanip_vlanid" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.X_[VENDOR]_COM_DHCPKeepAliveInterval" "1" "wan_device_get_wanip_dhcpaliveinterval" "wan_device_set_wanip_dhcpaliveinterval" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Reset" "1" "wan_device_get_wanip_reset" "wan_device_set_wanip_reset" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ConnectionStatus" "0" "wan_device_get_ipcx_status" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PossibleConnectionTypes" "0" "wan_device_get_wanip_possibleconnectiontypes" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ConnectionType" "1" "wan_device_get_wanip_connectiontype" "wan_device_set_wanip_connectiontype" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Name" "1" "wan_device_get_wanip_name" "wan_device_set_wanip_name" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Uptime" "0" "wan_device_get_wanip_uptime" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.LastConnectionError" "0" "wan_device_get_wanip_lastconnectionerror" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.AutoDisconnectTime" "1" "wan_device_get_wanip_autodisconnecttime" "wan_device_set_wanip_autodisconnecttime" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.IdleDisconnectTime" "1" "wan_device_get_wanip_idledisconnecttime" "wan_device_set_wanip_idledisconnecttime" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.WarnDisconnectDelay" "1" "wan_device_get_wanip_warndisconnectdelay" "wan_device_set_wanip_warndisconnectdelay" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.RSIPAvailable" "0" "wan_device_get_wanip_rsipavailable" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.NATEnabled" "1" "wan_device_get_wanip_natenabled" "wan_device_set_wanip_natenabled" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.AddressingType" "0" "wan_device_get_wanip_addressingtype" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ExternalIPAddress" "0" "wan_device_get_wanip_externalipaddress" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.SubnetMask" "0" "wan_device_get_wanip_subnetmask" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.DefaultGateway" "0" "wan_device_get_wanip_defaultgateway" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.DNSEnabled" "0" "wan_device_get_wanip_dnsenabled" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.DNSOverrideAllowed" "0" "wan_device_get_wanip_dnsoverrideallowed" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.DNSServers" "0" "wan_device_get_wanip_dnsservers" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.MaxMTUSize" "1" "wan_device_get_wanip_maxmtusize" "wan_device_set_wanip_maxmtusize" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.MACAddress" "1" "wan_device_get_wanip_macaddress" "wan_device_set_wanip_macaddress" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.MACAddressOverride" "1" "wan_device_get_wanip_macaddressoverride" "wan_device_set_wanip_macaddressoverride" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ConnectionTrigger" "1" "wan_device_get_wanip_connectiontrigger" "wan_device_set_wanip_connectiontrigger" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.RouteProtocolRx" "1" "wan_device_get_wanip_routeprotocolrx" "wan_device_set_wanip_routeprotocolrx" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ShapingRate" "1" "wan_device_get_wanip_shapingrate" "wan_device_set_wanip_shapingrate" "xsd:int" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.ShapingBurstSize" "1" "wan_device_get_wanip_shapingburstsize" "wan_device_set_wanip_shapingburstsize" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMappingNumberOfEntries" "0" "wan_device_get_wanip_portmappingnumberofentries" "" "xsd:unsignedInt" "0"
+			
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping." "1" "" "" "wan_device_browse_instances_ip_portmapping $1 $j"
+			
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats." "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetBytesSent" "0" "wan_device_get_wanip_ethernetbytessent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetBytesReceived" "0" "wan_device_get_wanip_ethernetbytesreceived" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetPacketsSent" "0" "wan_device_get_wanip_ethernetpacketssent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetPacketsReceived" "0" "wan_device_get_wanip_ethernetpacketsreceived" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetErrorsSent" "0" "wan_device_get_wanip_etherneterrorssent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.Stats.EthernetErrorsReceived" "0" "wan_device_get_wanip_ethernetrrrorsreceived" "" "xsd:unsignedInt" "0"
+			
+			;;
+			PPP)
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection." "0"
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1." "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Enable" "1" "wan_device_get_wanppp_enable" "wan_device_set_wanppp_enable" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.X_[VENDOR]_COM_VLANEnable" "1" "wan_device_get_wanppp_vlanenable" "wan_device_set_wanppp_vlanenable" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.X_[VENDOR]_COM_VLANId" "1" "wan_device_get_wanppp_vlanid" "wan_device_set_wanppp_vlanid" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Reset" "1" "wan_device_get_wanppp_reset" "wan_device_set_wanppp_reset" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ConnectionStatus" "0" "wan_device_get_wanppp_connectionstatus" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PossibleConnectionTypes" "0" "wan_device_get_wanppp_possibleconnectiontypes" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ConnectionType" "1" "wan_device_get_wanppp_connectiontype" "wan_device_set_wanppp_connectiontype" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPoESessionID" "0" "wan_device_get_wanppp_pppoesessionid" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.DefaultGateway" "0" "wan_device_get_wanppp_defaultgateway" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Name" "1" "wan_device_get_wanppp_name" "wan_device_set_wanppp_name" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Uptime" "0" "wan_device_get_wanppp_uptime" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.LastConnectionError" "0" "wan_device_get_wanppp_lastconnectionerror" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.AutoDisconnectTime" "1" "wan_device_get_wanppp_autodisconnecttime" "wan_device_set_wanppp_autodisconnecttime" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.IdleDisconnectTime" "1" "wan_device_get_wanppp_idledisconnecttime" "wan_device_set_wanppp_idledisconnecttime" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.WarnDisconnectDelay" "1" "wan_device_get_wanppp_warndisconnectdelay" "wan_device_set_wanppp_warndisconnectdelay" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.RSIPAvailable" "0" "wan_device_get_wanppp_rsipavailable" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.NATEnabled" "1" "wan_device_get_wanppp_natenabled" "wan_device_set_wanppp_natenabled" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Username" "1" "wan_device_get_wanppp_username" "wan_device_set_wanppp_username" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Password" "1" "wan_device_get_wanppp_password" "wan_device_set_wanppp_password" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPEncryptionProtocol" "0" "wan_device_get_wanppp_pppencryptionprotocol" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPCompressionProtocol" "0" "wan_device_get_wanppp_pppcompressionprotocol" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPAuthenticationProtocol" "0" "wan_device_get_wanppp_pppauthenticationprotocol" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ExternalIPAddress" "0" "wan_device_get_wanppp_externalipaddress" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.RemoteIPAddress" "0" "wan_device_get_wanppp_remoteipaddress" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.MaxMRUSize" "1" "wan_device_get_wanppp_maxmrusize" "wan_device_set_wanppp_maxmrusize" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.CurrentMRUSize" "1" "wan_device_get_wanppp_currentmrusize" "wan_device_set_wanppp_currentmrusize" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.DNSEnabled" "0" "wan_device_get_wanppp_dnsenabled" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.DNSOverrideAllowed" "0" "wan_device_get_wanppp_dnsoverrideallowed" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.DNSServers" "0" "wan_device_get_wanppp_dnsservers" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.MACAddress" "0" "wan_device_get_wanppp_macaddress" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.MACAddressOverride" "0" "wan_device_get_wanppp_macaddressoverride" "" "xsd:boolean" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.TransportType" "0" "wan_device_get_wanppp_transporttype" "" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPoEACName" "1" "wan_device_get_wanppp_pppoeacname" "wan_device_set_wanppp_pppoeacname" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPoEServiceName" "1" "wan_device_get_wanppp_pppoeservicename" "wan_device_set_wanppp_pppoeservicename" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ConnectionTrigger" "1" "wan_device_get_wanppp_connectiontrigger" "wan_device_set_wanppp_connectiontrigger" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.RouteProtocolRx" "1" "wan_device_get_wanppp_routeprotocolrx" "wan_device_set_wanppp_routeprotocolrx" "xsd:String" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPLCPEcho" "0" "wan_device_get_wanppp_ppplcpecho" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PPPLCPEchoRetry" "0" "wan_device_get_wanppp_ppplcpechoretry" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ShapingRate" "1" "wan_device_get_wanppp_shapingrate" "wan_device_set_wanppp_shapingrate" "xsd:int" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.ShapingBurstSize" "1" "wan_device_get_wanppp_shapingburstsize" "wan_device_set_wanppp_shapingburstsize" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMappingNumberOfEntries" "0" "wan_device_get_wanppp_portmappingnumberOfentries" "" "xsd:unsignedInt" "0"
+			
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping." "1" "" "" "wan_device_browse_instances_ppp_portmapping $1 $j"
+			
+			common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats." "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetBytesSent" "0" "wan_device_get_ppp_stats_ethernetbytessent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetBytesReceived" "0" "wan_device_get_ppp_stats_ethernetbytesreceived" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetPacketsSent" "0" "wan_device_get_ppp_stats_ethernetpacketssent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetPacketsReceived" "0" "wan_device_get_ppp_stats_ethernetpacketsreceived" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetErrorsSent" "0" "wan_device_get_ppp_stats_etherneterrorssent" "" "xsd:unsignedInt" "0"
+			common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.Stats.EthernetErrorsReceived" "0" "wan_device_get_ppp_stats_etherneterrorsreceived" "" "xsd:unsignedInt" "0"
+			;;
+		esac
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_wandevice_ip_portmapping() {
+	local j="$2"
+	local i="$3"
+	
+	case_param "$1" belongto "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i." && {
+		common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i." "1" "" ""
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.PortMappingEnabled" "1" "wan_device_get_portmapping_enabled $i" "wan_device_set_portmapping_enabled $i" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.PortMappingLeaseDuration" "0" "wan_device_get_portmapping_leaseduration $i" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.RemoteHost" "1" "wan_device_get_portmapping_remotehost $i" "wan_device_set_portmapping_remotehost $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.ExternalPort" "1" "wan_device_get_portmapping_externalport $i" "wan_device_set_portmapping_externalport $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.ExternalPortEndRange" "1" "wan_device_get_portmapping_externalportendrange $i" "wan_device_set_portmapping_externalportendrange $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.InternalPort" "1" "wan_device_get_portmapping_internalport $i" "wan_device_set_portmapping_internalport $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.PortMappingProtocol" "1" "wan_device_get_portmapping_portmappingprotocol $i" "wan_device_set_portmapping_portmappingprotocol $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.InternalClient" "1" "wan_device_get_portmapping_internalclient $i" "wan_device_set_portmapping_internalclient $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANIPConnection.1.PortMapping.$i.PortMappingDescription" "1" "wan_device_get_portmapping_portmappingdescription $i" "wan_device_set_portmapping_portmappingdescription $i" "xsd:String" "0"
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+sub_entry_wandevice_ppp_portmapping() {
+	local j="$2"
+	local i="$3"
+	
+	case_param "$1" belongto "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i." && {
+		common_execute_method_obj "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i." "1" "" ""
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.PortMappingEnabled" "1" "wan_device_get_portmapping_enabled $i" "wan_device_set_portmapping_enabled $i" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.PortMappingLeaseDuration" "0" "wan_device_get_portmapping_leaseduration $i" "" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.RemoteHost" "1" "wan_device_get_portmapping_remotehost $i" "wan_device_set_portmapping_remotehost $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.ExternalPort" "1" "wan_device_get_portmapping_externalport $i" "wan_device_set_portmapping_externalport $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.ExternalPortEndRange" "1" "wan_device_get_portmapping_externalportendrange $i" "wan_device_set_portmapping_externalportendrange $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.InternalPort" "1" "wan_device_get_portmapping_internalport $i" "wan_device_set_portmapping_internalport $i" "xsd:unsignedInt" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.PortMappingProtocol" "1" "wan_device_get_portmapping_portmappingprotocol $i" "wan_device_set_portmapping_portmappingprotocol $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.InternalClient" "1" "wan_device_get_portmapping_internalclient $i" "wan_device_set_portmapping_internalclient $i" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.WANDevice.1.WANConnectionDevice.$j.WANPPPConnection.1.PortMapping.$i.PortMappingDescription" "1" "wan_device_get_portmapping_portmappingdescription $i" "wan_device_set_portmapping_portmappingdescription $i" "xsd:String" "0"
+		
+		return 0
+	}
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#     Data model browse instances     #
+#######################################
+wan_device_browse_instances_wancxdev() {
+	local map maps=`wan_device_get_interface_maps` 
+	for map in $maps; do
+		local iface=${map%%:*} 
+		map=${map#*:}	
+		local j=${map%%:*}	
+		map=${map#*:}	
+		local protocol=${map%%:*}
+		local default=${map#*:}
+		sub_entry_wandevice_wanconnectiondevice "$1" "$j" "$iface" "$protocol" "$default"
+	done
+	return 0;
+}
+
+wan_device_browse_instances_ip_portmapping() {
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			sub_entry_wandevice_ip_portmapping "$1" "$2" "$i"
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_browse_instances_ppp_portmapping() {
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			sub_entry_wandevice_ppp_portmapping "$1" "$2" "$i"
+		fi
+	done < /etc/port_forward_list
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+restart_firewall() {
+	local restart_flag=`ps | grep restart_firewall | grep -v grep`
+	
+	if [ -z $restart_flag ];then
+		$UCI_COMMIT
+		/bin/restart_firewall.sh &
+	fi
+}
+
+wan_device_get_wanip_enable() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "0"
+	else
+		echo "1"
+	fi
+}
+
+wan_device_set_wanip_enable() {
+	return 0
+}
+
+wan_device_get_wanip_vlanenable() {
+	echo "1"
+}
+
+wan_device_set_wanip_vlanenable() {
+	return 0
+}
+
+wan_device_get_wanip_vlanid() {
+	echo "2"
+}
+
+wan_device_set_wanip_vlanid() {
+	return 0
+}
+
+wan_device_get_wanip_dhcpaliveinterval() {
+	echo "60"
+}
+
+wan_device_set_wanip_dhcpaliveinterval() {
+	return 0
+}
+
+wan_device_get_wanip_reset() {
+	echo "0"
+}
+
+wan_device_set_wanip_reset() {
+	return 0
+}
+
+wan_device_get_wanip_possibleconnectiontypes() {
+	echo "IP_Routed"
+}
+
+wan_device_get_wanip_connectiontype() {
+	echo "IP_Routed"
+}
+
+wan_device_set_wanip_connectiontype() {
+	return 0
+}
+
+wan_device_get_wanip_name() {
+	$UCI_GET network.wan.ifname
+}
+
+wan_device_set_wanip_name() {
+	return 0
+}
+
+wan_device_get_wanip_uptime() {
+	ubus call network.interface.wan status | grep uptime | awk -F ':' '{ print $2 }' | awk -F ',' '{ print $1 }'
+}
+
+wan_device_get_wanip_lastconnectionerror() {
+	echo "ERROR_NONE"
+}
+
+wan_device_get_wanip_autodisconnecttime() {
+	echo "0"
+}
+
+wan_device_set_wanip_autodisconnecttime() {
+	return 0
+}
+
+wan_device_get_wanip_idledisconnecttime() {
+	echo "0"
+}
+
+wan_device_set_wanip_idledisconnecttime() {
+		return 0
+}
+
+wan_device_get_wanip_warndisconnectdelay() {
+	echo "0"
+}
+
+wan_device_set_wanip_warndisconnectdelay() {
+	return 0
+}
+
+wan_device_get_wanip_rsipavailable() {
+	echo "1"
+}
+
+wan_device_get_wanip_natenabled() {
+	echo "1"
+}
+
+wan_device_set_wanip_natenabled() {
+	return 0
+}	
+
+wan_device_get_wanip_addressingtype() {
+	local type=`$UCI_GET network.wan.proto`
+	
+	if [ "$type" == "dhcp" ];then
+		echo "DHCP"
+	else
+		echo "Static"
+	fi
+}
+
+wan_device_get_wanip_externalipaddress() {
+	local iface=`$UCI_GET network.wan.ifname`
+	ifconfig $iface | grep "inet addr" | awk -F ':' '{ print $2 }' | awk -F ' ' '{ print $1 }'
+}
+
+wan_device_get_wanip_subnetmask() {
+	ifconfig eth0.2 | grep Mask | awk -F ':' '{print $4}'
+}
+
+wan_device_get_wanip_defaultgateway() {
+	route | grep default | awk -F ' ' '{print $2}'
+}
+
+wan_device_get_wanip_dnsenabled() {
+	echo "1"
+}
+
+wan_device_get_wanip_dnsoverrideallowed() {
+	echo "1"
+}
+
+wan_device_get_wanip_dnsservers() {
+	local dns1=`cat /tmp/resolv.conf.auto | grep nameserver | head -n 1 | awk -F ' ' '{print $2}'`
+	local dns2=`cat /tmp/resolv.conf.auto | grep nameserver | tail -n 1 | awk -F ' ' '{print $2}'`
+	
+	echo "$dns1,$dns2"
+}
+
+wan_device_get_wanip_maxmtusize() {
+	echo "1540"
+}
+
+wan_device_set_wanip_maxmtusize() {
+	return 0
+}
+
+wan_device_get_wanip_macaddress() {
+	local iface=`$UCI_GET network.wan.ifname`
+	ifconfig $iface | grep HWaddr | awk -F ' ' '{ print $5 }'
+}
+
+wan_device_set_wanip_macaddress() {
+	local val="$1"
+	
+	uci set network.wan.macaddr="$val"
+	/bin/restart_network.sh &
+	return 0
+}
+
+wan_device_get_wanip_macaddressoverride() {
+	echo "1"
+}
+
+wan_device_set_wanip_macaddressoverride() {
+	return 0
+}
+
+wan_device_get_wanip_connectiontrigger() {
+	echo "AlwaysOn"
+}
+
+wan_device_set_wanip_connectiontrigger() {
+	return 0
+}
+
+wan_device_get_wanip_routeprotocolrx() {
+	echo "Off"
+}
+
+wan_device_set_wanip_routeprotocolrx() {
+	return 0
+}
+
+wan_device_get_wanip_shapingrate() {
+	echo "-1"
+}
+
+wan_device_set_wanip_shapingrate() {
+	return 0
+}
+
+wan_device_get_wanip_shapingburstsize() {
+	echo "0"
+}
+
+wan_device_set_wanip_shapingburstsize() {
+	return 0
+}
+
+wan_device_get_wanip_portmappingnumberofentries() {
+	local i=0
+
+	if [ -f /etc/port_forward_list ];then
+		while read line
+		do
+			if [ ${#line} -gt 0 ];then
+				let i++
+			fi
+		done < /etc/port_forward_list
+		
+		echo "$i"
+	else
+		echo "0"
+	fi
+}
+
+wan_device_get_portmapping_enabled() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $2}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_enabled() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	local get_line
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				enable=`echo "$line" | awk -F ' ' '{print $2}'`
+				
+				if [ "$enable" != "$set_value" ];then
+					name=`echo "$line" | awk -F ' ' '{print $1}'`
+					ip=`echo "$line" | awk -F ' ' '{print $3}'`
+					lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+					wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+					protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$name $set_value $ip $lanport $wanport $protocal" >> /tmp/port_forward_list
+					
+					if [ "$set_value" == "0" ];then
+						while read line1
+						do
+							get_line="iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport"
+							
+							if [ "$get_line" != "$line1" ];then
+								echo "$line1" >> /tmp/firewall.user
+							fi
+						done < /etc/firewall.user
+					
+						rm -rf /etc/firewall.user
+						mv /tmp/firewall.user /etc/
+					else
+						echo "iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport" >> /etc/firewall.user
+					fi
+					
+					restart_firewall
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_portmapping_leaseduration() {
+	echo "0"
+}
+
+wan_device_get_portmapping_remotehost() {
+	echo "0.0.0.0"
+}
+
+wan_device_set_portmapping_remotehost() {
+	return 0
+}
+
+wan_device_get_portmapping_externalport() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $5}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_externalport() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	local get_line
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+				
+				if [ "$wanport" != "$set_value" ];then
+					name=`echo "$line" | awk -F ' ' '{print $1}'`
+					enable=`echo "$line" | awk -F ' ' '{print $2}'`
+					ip=`echo "$line" | awk -F ' ' '{print $3}'`
+					lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+					protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$name $enable $ip $lanport $set_value $protocal" >> /tmp/port_forward_list
+					
+					if [ "$enable" == "1" ];then
+						while read line1
+						do
+							get_line="iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport"
+							
+							if [ "$get_line" != "$line1" ];then
+								echo "$line1" >> /tmp/firewall.user
+							else
+								echo "iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $set_value -j DNAT --to $ip:$lanport" >> /etc/firewall.user	
+							fi
+						done < /etc/firewall.user
+					
+						rm -rf /etc/firewall.user
+						mv /tmp/firewall.user /etc/
+					fi
+					
+					restart_firewall
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_portmapping_externalportendrange() {
+	echo ""
+}
+
+wan_device_set_portmapping_externalportendrange() {
+	return 0
+}
+
+wan_device_get_portmapping_internalport() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $4}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_internalport() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	local get_line
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+				
+				if [ "$lanport" != "$set_value" ];then
+					name=`echo "$line" | awk -F ' ' '{print $1}'`
+					enable=`echo "$line" | awk -F ' ' '{print $2}'`
+					ip=`echo "$line" | awk -F ' ' '{print $3}'`
+					wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+					protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$name $enable $ip $set_value $wanport $protocal" >> /tmp/port_forward_list
+					
+					if [ "$enable" == "1" ];then
+						while read line1
+						do
+							get_line="iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport"
+							
+							if [ "$get_line" != "$line1" ];then
+								echo "$line1" >> /tmp/firewall.user
+							else
+								echo "iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$set_value" >> /etc/firewall.user	
+							fi
+						done < /etc/firewall.user
+					
+						rm -rf /etc/firewall.user
+						mv /tmp/firewall.user /etc/
+					fi
+					
+					restart_firewall
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_portmapping_portmappingprotocol() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $6}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_portmappingprotocol() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	local get_line
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+				
+				if [ "$protocal" != "$set_value" ];then
+					name=`echo "$line" | awk -F ' ' '{print $1}'`
+					enable=`echo "$line" | awk -F ' ' '{print $2}'`
+					ip=`echo "$line" | awk -F ' ' '{print $3}'`
+					lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+					wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+					
+					echo "$name $enable $ip $lanport $wanport $set_value" >> /tmp/port_forward_list
+					
+					if [ "$enable" == "1" ];then
+						while read line1
+						do
+							get_line="iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport"
+							
+							if [ "$get_line" != "$line1" ];then
+								echo "$line1" >> /tmp/firewall.user
+							else
+								echo "iptables -t nat -A PREROUTING -i $wan_ifname -p $set_value --dport $wanport -j DNAT --to $ip:$lanport" >> /etc/firewall.user	
+							fi
+						done < /etc/firewall.user
+					
+						rm -rf /etc/firewall.user
+						mv /tmp/firewall.user /etc/
+					fi
+					
+					restart_firewall
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_portmapping_internalclient() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $3}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_internalclient() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	local get_line
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				ip=`echo "$line" | awk -F ' ' '{print $3}'`
+				
+				if [ "$ip" != "$set_value" ];then
+					name=`echo "$line" | awk -F ' ' '{print $1}'`
+					enable=`echo "$line" | awk -F ' ' '{print $2}'`
+					lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+					wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+					protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$name $enable $set_value $lanport $wanport $protocal" >> /tmp/port_forward_list
+					
+					if [ "$enable" == "1" ];then
+						while read line1
+						do
+							get_line="iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $ip:$lanport"
+							
+							if [ "$get_line" != "$line1" ];then
+								echo "$line1" >> /tmp/firewall.user
+							else
+								echo "iptables -t nat -A PREROUTING -i $wan_ifname -p $protocal --dport $wanport -j DNAT --to $set_value:$lanport" >> /etc/firewall.user	
+							fi
+						done < /etc/firewall.user
+					
+						rm -rf /etc/firewall.user
+						mv /tmp/firewall.user /etc/
+					fi
+					
+					restart_firewall
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_portmapping_portmappingdescription() {
+	local cnt=$1
+	local i=0
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				echo "$line" | awk -F ' ' '{print $1}'
+			fi
+		fi
+	done < /etc/port_forward_list
+}
+
+wan_device_set_portmapping_portmappingdescription() {
+	local cnt=$1
+	local i=0
+	local set_value=$2
+	local name
+	local enable
+	local ip
+	local lanport
+	local wanport
+	local protocal
+	local wan_ifname=`uci get network.wan.ifname`
+	
+	while read line
+	do
+		if [ ${#line} -gt 0 ];then
+			let i++
+			
+			if [ $i -eq $cnt ];then
+				name=`echo "$line" | awk -F ' ' '{print $1}'`
+				
+				if [ "$name" != "$set_value" ];then
+					enable=`echo "$line" | awk -F ' ' '{print $2}'`
+					ip=`echo "$line" | awk -F ' ' '{print $3}'`
+					lanport=`echo "$line" | awk -F ' ' '{print $4}'`
+					wanport=`echo "$line" | awk -F ' ' '{print $5}'`
+					protocal=`echo "$line" | awk -F ' ' '{print $6}'`
+					
+					echo "$set_value $enable $ip $lanport $wanport $protocal" >> /tmp/port_forward_list
+				fi
+			else
+				echo "$line" >> /tmp/port_forward_list
+			fi
+		fi
+	done < /etc/port_forward_list	
+	
+	rm -rf /etc/port_forward_list	
+	mv /tmp/port_forward_list /etc/
+
+	return 0
+}
+
+wan_device_get_wanip_ethernetbytessent() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "TX bytes" | awk -F ' ' '{ print $6 }' | awk -F ':' '{ print $2 }'
+}
+
+wan_device_get_wanip_ethernetbytesreceived() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "RX bytes" | awk -F ' ' '{ print $2}' | awk -F ':' '{print $2}'
+}
+
+wan_device_get_wanip_ethernetpacketssent() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "TX packets" | awk -F ' ' '{ print $2}' | awk -F ':' '{ print $2 }'
+}
+
+wan_device_get_wanip_ethernetpacketsreceived() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "RX packets" | awk -F ' ' '{ print $2}' | awk -F ':' '{ print $2 }'
+}
+
+wan_device_get_wanip_etherneterrorssent() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "TX packets" | awk -F ' ' '{ print $3 }' | awk -F ':' '{ print $2}'
+}
+
+wan_device_get_wanip_ethernetrrrorsreceived() {
+	local ifname=`$UCI_GET network.wan.ifname`
+	
+	ifconfig $ifname | grep "RX packets" | awk -F ' ' '{ print $3}' | awk -F ':' '{ print $2}'
+}
+
+wan_device_get_wanppp_enable() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "1"
+	else
+		echo "0"
+	fi
+}
+
+wan_device_set_wanppp_enable() {
+	return 0
+}
+
+wan_device_get_wanppp_vlanenable() {
+	echo "0"
+}
+
+wan_device_set_wanppp_vlanenable() {
+	return 0
+}
+
+wan_device_get_wanppp_vlanid() {
+	echo "0"
+}
+
+wan_device_set_wanppp_vlanid() {
+	return 0
+}
+
+wan_device_get_wanppp_reset() {
+	echo "0"
+}
+
+wan_device_set_wanppp_reset() {
+	return 0
+}
+
+wan_device_get_wanppp_connectionstatus() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "Connected"
+	else
+		echo "Unconfigured"
+	fi
+}
+
+wan_device_get_wanppp_possibleconnectiontypes() {
+	echo "PPPoE_Bridged"
+}
+
+wan_device_get_wanppp_connectiontype() {
+	echo "PPPoE_Bridged"
+}
+
+wan_device_set_wanppp_connectiontype() {
+	return 0
+}
+
+wan_device_get_wanppp_pppoesessionid() {
+	echo "1"
+}
+
+wan_device_get_wanppp_defaultgateway() {
+	route | grep default | awk -F ' ' '{print $2}'
+}
+
+wan_device_get_wanppp_name() {
+	echo "pppoe-wan"
+}
+
+wan_device_set_wanppp_name() {
+	return 0
+}
+
+wan_device_get_wanppp_uptime() {
+	ubus call network.interface.wan status | grep uptime | awk -F ':' '{ print $2 }' | awk -F ',' '{ print $1 }'
+}
+
+wan_device_get_wanppp_lastconnectionerror() {
+	echo "ERROR_NONE"
+}
+
+wan_device_get_wanppp_autodisconnecttime() {
+	echo "0"
+}
+
+wan_device_set_wanppp_autodisconnecttime() {
+	return 0
+}
+
+wan_device_get_wanppp_idledisconnecttime() {
+	echo "0"
+}
+
+wan_device_set_wanppp_idledisconnecttime() {
+	return 0
+}
+
+wan_device_get_wanppp_warndisconnectdelay() {
+	echo "0"
+}
+
+wan_device_set_wanppp_warndisconnectdelay() {
+	return 0
+}
+
+wan_device_get_wanppp_rsipavailable() {
+	echo ""
+}
+
+wan_device_get_wanppp_natenabled() {
+	echo "1"
+}
+
+wan_device_set_wanppp_natenabled() {
+	return 0
+}
+
+wan_device_get_wanppp_username() {
+	uci get network.wan.username
+}
+
+wan_device_set_wanppp_username() {
+	local val="$1"
+	
+	uci set network.wan.username="$val"
+	return 0
+}
+
+wan_device_get_wanppp_password() {
+	uci get network.wan.password
+}
+
+wan_device_set_wanppp_password() {
+	local val="$1"
+	
+	uci set network.wan.password="$val"
+	return 0
+}
+
+wan_device_get_wanppp_pppencryptionprotocol() {
+	echo "None"
+}
+
+wan_device_get_wanppp_pppcompressionprotocol() {
+	echo "None"
+}
+
+wan_device_get_wanppp_pppauthenticationprotocol() {
+	echo "CHAP"
+}
+
+wan_device_get_wanppp_externalipaddress() {
+	ifconfig pppoe-wan | grep "inet addr" | awk -F ':' '{ print $2 }' | awk -F ' ' '{ print $1 }'
+}
+
+wan_device_get_wanppp_remoteipaddress() {
+	echo ""
+}
+
+wan_device_get_wanppp_maxmrusize() {
+	echo "1540"
+}
+
+wan_device_set_wanppp_maxmrusize() {
+	return 0
+}
+
+wan_device_get_wanppp_currentmrusize() {
+	ifconfig pppoe-wan | grep MTU | awk -F ' ' '{print $6}' | awk -F ':' '{print $2}'
+}
+
+wan_device_set_wanppp_currentmrusize() {
+	return 0
+}
+
+wan_device_get_wanppp_dnsenabled() {
+	echo "1"
+}
+
+wan_device_get_wanppp_dnsoverrideallowed() {
+	echo "1"
+}
+
+wan_device_get_wanppp_dnsservers() {
+	local dns1=`cat /tmp/resolv.conf.auto | grep nameserver | head -n 1 | awk -F ' ' '{print $2}'`
+	local dns2=`cat /tmp/resolv.conf.auto | grep nameserver | tail -n 1 | awk -F ' ' '{print $2}'`
+	
+	echo "$dns1,$dns2"
+}
+
+wan_device_get_wanppp_macaddress() {
+	ifconfig eth0.2 | grep HWaddr | awk -F ' ' '{print $5}'
+}
+
+wan_device_get_wanppp_macaddressoverride() {
+	echo "0"
+}
+
+wan_device_get_wanppp_transporttype() {
+	echo "PPPoE"
+}
+
+wan_device_get_wanppp_pppoeacname() {
+	echo ""
+}
+
+wan_device_set_wanppp_pppoeacname() {
+	return 0
+}
+
+wan_device_get_wanppp_pppoeservicename() {
+	echo ""
+}
+
+wan_device_set_wanppp_pppoeservicename() {
+	return 0
+}
+
+wan_device_get_wanppp_connectiontrigger() {
+	echo "AlwaysOn"
+}
+
+wan_device_set_wanppp_connectiontrigger() {
+	return 0
+}
+
+wan_device_get_wanppp_routeprotocolrx() {
+	echo "Off"
+}
+
+wan_device_set_wanppp_routeprotocolrx() {
+	return 0
+}
+
+wan_device_get_wanppp_ppplcpecho() {
+	echo "1"
+}
+
+wan_device_get_wanppp_ppplcpechoretry() {
+	echo "1"
+}
+
+wan_device_get_wanppp_shapingrate() {
+	echo "-1"
+}
+
+wan_device_set_wanppp_shapingrate() {
+	return 0
+}
+
+wan_device_get_wanppp_shapingburstsize() {
+	echo ""
+}
+
+wan_device_set_wanppp_shapingburstsize() {
+	return 0
+}
+
+wan_device_get_wanppp_portmappingnumberOfentries() {
+	echo "0"
+}
+
+wan_device_get_ppp_portmappingenabled() {
+	echo "0"
+}
+
+wan_device_set_ppp_portmappingenabled() {
+	return 0
+}
+
+wan_device_get_ppp_portmappingleaseduration() {
+	echo "0"
+}
+
+wan_device_get_ppp_remotehost() {
+	echo ""
+}
+
+wan_device_set_ppp_remotehost() {
+	return 0
+}
+
+wan_device_get_ppp_externalport() {
+	echo ""
+}
+
+wan_device_set_ppp_externalport() {
+	return 0
+}
+
+wan_device_get_ppp_externalportendrange() {
+	echo "0"
+}
+
+wan_device_set_ppp_externalportendrange() {
+	return 0
+}
+
+wan_device_get_ppp_internalport() {
+	echo ""
+}
+
+wan_device_set_ppp_internalport() {
+	return 0
+}
+
+wan_device_get_ppp_portmappingprotocol() {
+	echo ""
+}
+
+wan_device_set_ppp_portmappingprotocol() {
+	return 0
+}
+
+wan_device_get_ppp_internalclient() {
+	echo ""
+}
+
+wan_device_set_ppp_internalclient() {
+	return 0
+}
+
+wan_device_get_ppp_portmappingdescription() {
+	echo ""
+}
+
+wan_device_set_ppp_portmappingdescription() {
+	return 0
+}
+
+wan_device_get_ppp_stats_ethernetbytessent() {
+	echo "0"
+}
+
+wan_device_get_ppp_stats_ethernetbytesreceived() {
+	echo "0"
+}
+
+wan_device_get_ppp_stats_ethernetpacketssent() {
+	echo "0"
+}
+
+wan_device_get_ppp_stats_ethernetpacketsreceived() {
+	echo "0"
+}
+
+wan_device_get_ppp_stats_etherneterrorssent() {
+	echo "0"
+}
+
+wan_device_get_ppp_stats_etherneterrorsreceived() {
+	echo "0"
+}
+
+wan_device_get_ipcon_num() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "0"
+	else
+		echo "1"
+	fi
+}
+
+wan_device_get_pppcon_num() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "1"
+	else
+		echo "0"
+	fi
+}
+
+wan_device_ethernet_linksta() {
+	echo "Up"
+}
+
+wan_device_get_connumentries() {
+	echo "1"
+}
+
+wan_device_get_interface_maps() {
+	#should return a list like this: "<interface1>:<instance1>:<protocol>:<default interface? 1 : 0> <interface2>:<instance>:<protocol>:<default interface? 1 : 0>"
+	echo "mng:1:IP:1 wan:2:PPP:0"
+}
+
+wan_device_get_ipcx_status() {
+	local type=`uci get internet.config.mode`
+	
+	if [ "$type" == "routerpppoe" ];then
+		echo "Unconfigured"
+	else
+		echo "Connected"
+	fi
+}
+
+wan_device_get_ipcx_ipaddr() {
+	local val iface="$1"
+	network_get_ipaddr val "$iface"
+	echo "$val"
+}
+
+wan_device_get_ipcx_macaddr() {
+	local val iface="$1"
+	if [ -z "$default_wan_device_mng_interface_mac" ]; then
+		val=`$UCI_GET network.$iface.macaddr`
+	else
+		val=$default_wan_device_mng_interface_mac
+	fi
+	echo $val
+}
+
+wan_device_get_wan_ppp_enable() {
+	local iface="$1"
+	local val=`$UCI_GET network.$iface.auto`
+	echo ${val:-1}
+}
+
+wan_device_set_wan_ppp_enable() {
+	local iface="$1"
+	local val="$2"
+	common_set_bool "network.$iface.auto" "$val" "1" "0"
+	local e="$?"
+	[ "$e" != "0" ] && return $e
+	return 0
+}
+
+wan_device_set_wan_ppp_cfg() {
+	local cfg="$1"
+	local val="$2"
+	$UCI_SET $cfg="$val"
+	return 0
+}

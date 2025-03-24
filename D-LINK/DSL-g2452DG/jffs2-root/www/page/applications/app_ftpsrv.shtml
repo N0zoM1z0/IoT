@@ -1,0 +1,110 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+	
+var ftpEnable = '<!--#getsingle "InternetGatewayDevice.Services.ServiceFTP.Enable" -->';
+var ftpDir = '<!--#getsingle "InternetGatewayDevice.Services.ServiceFTP.RootDIR" -->';
+
+var usbDevNum = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_USBDevice.StorageNumberOfEntries" -->';
+
+function USBpartionTuple() {
+	this.usbmounted = ""
+	this.usbmountpoint = ""
+}
+
+var index = 0;
+var USBpartionS = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage."-->
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage.{i}.Partitions. Mounted MountPoint"-->
+	USBpartionS[index] = new USBpartionTuple();
+	USBpartionS[index].usbmounted = "<!--#leaf  "1"-->";
+	USBpartionS[index].usbmountpoint = "<!--#leaf  "2"-->";
+	index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function createUsbDecOpt() {
+	var _text = [], _value = [];
+	_text[0] = "mnt";
+	_value[0] = "/mnt";
+
+	for (i=0,_len=USBpartionS.length; i <_len; i++) {
+		if (USBpartionS[i].usbmounted != '0') {
+			var _pre_mountpoint = USBpartionS[i].usbmountpoint.toUpperCase();
+			_text.push(_pre_mountpoint.substring(5));
+			_value.push(USBpartionS[i].usbmountpoint);
+		}
+	}
+	createOptions("SELECT_UsbPartion",_text,_value);
+
+	if(ftpEnable == 1)
+		setValue("SELECT_UsbPartion", ftpDir);
+
+}
+
+function uiSubmit() {
+	var usbPart = $("SELECT_UsbPartion").value;
+	if (usbPart == "" && $("INPUT_EnableFTP").checked == true) {
+		top.AlertMsg(getStr("LK_NostorageText"));
+		return;
+	}
+	if(!validateCode())
+			return false;
+    var df = document.app_ftpform; 
+    AddElements(df, "InternetGatewayDevice.Services.ServiceFTP.Enable", $("INPUT_EnableFTP").checked == true ? 1 : 0);
+    AddElements(df, "InternetGatewayDevice.Services.ServiceFTP.RootDIR", usbPart);
+    df.submit();
+}
+
+function __init() {
+    setValue("INPUT_EnableFTP", ftpEnable);
+    createUsbDecOpt();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// -->
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_FTPSetup'));</script>
+	<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+		<tr class="FlagText">
+			<td langkey="LK_NoFTPUser"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="150" langkey="LK_FTPEnable"></td>
+			<td><input type="checkbox" name="INPUT_EnableFTP" id="INPUT_EnableFTP"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_FTPRootDir"></td>
+			<td><select id="SELECT_UsbPartion">
+							<option> </option>
+				</select>
+			</td>
+		</tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+		<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+		&nbsp;&nbsp;
+		<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script></td></tr>
+	</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="app_ftpform" action="/cgi-bin/setup.cgi?page/applications/app_ftpsrv.shtml"></form>
+</body>
+</html>

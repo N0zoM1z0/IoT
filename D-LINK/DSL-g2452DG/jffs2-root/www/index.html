@@ -1,0 +1,351 @@
+<html>
+<head>
+	<!--<link type="image/x-icon" rel="shortcut icon" href="./skin/icon.png">-->
+	<link type="text/css" rel="stylesheet" href="css/common.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script language="JavaScript" src="js/page.js" type="text/javascript"></script>
+    <script language="javascript" src="/js/t_utils.js"></script>
+	<script language="javascript" src="js/jquery.js"></script>
+	<script language="javascript" src="js/init.js"></script>
+	<script language="javascript" src="/js/ajax.js"></script>
+	<script src="js/tri.js"></script>
+	<script src="js/project.js"></script>
+    <style type="text/css">
+        .Copyright{position: absolute; bottom: 0px;	left: 0px;	right: 0px; text-align:center; height: 12px; width:100%; padding:10px; background-color:#c0d4e6; color:#000; font-size:12px; font-family:Arial}
+    </style>
+
+<script language="JavaScript">
+var G_language = "<!--#getsingle_noop "InternetGatewayDevice.X_TRI_Language.Language"-->";
+var UserName='Triductor ';
+
+function refreshword(){
+jQuery("[langkey]").each(function(){
+		var keys_id = 'window.parent.' + jQuery(this).attr("langkey");
+		var content = eval(keys_id);
+		if('input' == jQuery(this)[0].tagName.toLowerCase())
+			jQuery(this).attr("value", content);	
+		else 
+			jQuery(this).html(content);						
+		});
+}
+
+var lang_js = "";
+function __init()
+{	
+    //var url=window.location.search;
+    //var opts = url.split("&");
+    //if(opts[0].split("=")[1] == 'zh' || opts[0].split("=")[1] == 'en')
+    //language = opts[0].split("=")[1];
+    lang_js='js/language_'+	G_language + '.js';
+   // $.getScript(lang_js,refreshword); 
+	$.ajax({
+	  url: lang_js,
+	  dataType: "script",
+	  async:false,
+	  success: refreshword
+	 
+	});
+}
+
+function alertOk(obj)
+{
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+	maskDivObj.style.display = "none";
+	popDivObj.style.display = "none";
+	if(obj)
+		window.frames['contentFrame'].AlertFocus(obj);
+}
+
+function fixPNG(myImage) {
+var arVersion = navigator.appVersion.split("MSIE");
+var version = parseFloat(arVersion[1]);
+if ((version >= 5.5) && (version < 7) && (document.body.filters))
+{
+     var imgID = (myImage.id) ? "id='" + myImage.id + "' " : "";
+     var imgClass = (myImage.className) ? "class='" + myImage.className + "' " : "";
+     var imgTitle = (myImage.title) ? "title='" + myImage.title   + "' " : "title='" + myImage.alt + "' ";
+     var imgStyle = "display:inline-block;" + myImage.style.cssText;
+     var strNewHTML = "<span " + imgID + imgClass + imgTitle
+
+   + " style=\"" + "width:" + myImage.width
+
+   + "px; height:" + myImage.height
+
+   + "px;" + imgStyle + ";"
+
+   + "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader"
+
+   + "(src=\'" + myImage.src + "\', sizingMethod='scale');\"></span>";
+     myImage.outerHTML = strNewHTML;
+} }
+
+window.onload=function(){
+    document.getElementById("topBar").style.height=screen.height/5+"px";
+
+    if(IsExistedFunction("project_init") == true)
+	    project_init(GetCurrentFileName());
+}
+function CallAboutPage()
+{
+	about_window=window.open("about.htm","","menubar=no,width=480,height=425");
+}
+
+function RedirectPage(page)
+{
+	contentFrame.location.href=page;
+}
+
+function ChangeStyle(I,n)
+{
+	if(n==1)
+	{
+		I.src="./skin/close_hover.gif";
+	}
+	else if(n==2)
+	{
+		I.src="./skin/close.gif";
+	}
+}
+
+function AlertMsg(msg, inputId, title)
+{	
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+
+	maskDivObj.style.display = "block";
+	popDivObj.style.display = "block";
+	var obj;
+	if(inputId)
+		obj = inputId;
+	else
+		obj = "";
+	var HtmlStr="";
+
+	HtmlStr+='<table width="350" height="25" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #343434;background-color:#C1E5FF">'; 
+	HtmlStr+='<tr height="25" style="line-height:25px;">';
+	HtmlStr+='<td width="350" title="error" style="cursor:move;">'; 
+	HtmlStr+='<font style="font-size:12px;font-weight:bold;color:#000;margin-left:10px">Alert</font></td> ';
+	HtmlStr+='<td width="30"> ';
+	HtmlStr+='<img src="./skin/close.gif" style="margin-right:3px;cursor:hand;" onclick="alertOk(\''+obj+'\');" onmouseover="ChangeStyle(this,1);" onmouseout="ChangeStyle(this,2)"></td>';
+	HtmlStr+='</tr>';
+	HtmlStr+='<tr height="25" style="line-height:25px;" style="padding:2px;">';
+	HtmlStr+='<td colspan="3">';
+    HtmlStr+='<table width="350" height="145" border="0" cellspacing="0" cellpadding="0" align="center" style="margin:2px;">'; 
+	HtmlStr+='<tr height="113" bgcolor="#F4F4F4"><td>';
+	HtmlStr+='<table style="padding-right:15px;padding-top:5px;padding-bottom:5px" width="100%">';
+	HtmlStr+='<tr><td width="57">';
+	HtmlStr+='<img src="./skin/_blank.gif" width="15"><img src="./skin/warning.gif"></td>';
+	HtmlStr+='<td width="260" style="font-family:Arial" align="left"><br>'+msg+'</td></tr>';  
+	HtmlStr+='<tr colspan="2"><td><br></td></tr>'
+	HtmlStr+='<tr height="27"><td colspan="2" style="background:#F4F4F4;padding-top:0px;" valign="top" align="center">'; 	
+	HtmlStr+='<input class="Tributton" type="button" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');" value="OK" onclick="alertOk(\''+obj+'\');return false;"></td></tr>';
+	//HtmlStr+='<tr><td><img src="./skin/_blank.gif" height="10"></td></tr>';
+	HtmlStr+='</table>';
+	HtmlStr+='</td></tr>';
+	HtmlStr+='</table>';
+	HtmlStr+='</td>';
+	HtmlStr+='</tr>';
+    HtmlStr+='</table>';
+	document.getElementById("AlertDiv").innerHTML=HtmlStr;
+}
+
+function ConfirmMsgYes(n , a , b , c)
+{
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+	maskDivObj.style.display = "none";
+	popDivObj.style.display = "none";
+	window.frames['contentFrame'].ConfirmMsgResult("yes", n ,a,b,c);
+	return;
+}
+
+function ConfirmMsgNo(n , a , b , c)
+{
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+	maskDivObj.style.display = "none";
+	popDivObj.style.display = "none";
+	window.frames['contentFrame'].ConfirmMsgResult("no", n , a , b , c);
+	return;
+}
+
+function SetModelName(a)
+{	
+	document.getElementById('modelname').innerHTML = a;
+}
+function Froce_alert(msg , mode , a , b , c)
+{	
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+
+	maskDivObj.style.display = "block";
+	popDivObj.style.display = "block";
+	var HtmlStr="";
+
+	HtmlStr+='<table width="350" height="25" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #343434;background-color:#C1E5ff">'; 
+	HtmlStr+='<tr height="25" style="line-height:25px;">';
+	HtmlStr+='<td width="350" title="error" style="cursor:move;">'; 
+	HtmlStr+='<font style="font-size:12px;font-weight:bold;color:#000;margin-left:10px">Confirm</font></td> ';
+	HtmlStr+='<td width="30"> ';
+	HtmlStr+='<img src="./skin/close.gif" style="margin-right:3px;cursor:hand;" onclick="alertOk();" onmouseover="ChangeStyle(this,1);" onmouseout="ChangeStyle(this,2)"><td>';
+	HtmlStr+='</tr>';
+	HtmlStr+='<tr height="25" style="line-height:25px;" style="padding:2px;">';
+	HtmlStr+='<td colspan="3">';
+    HtmlStr+='<table width="350" height="145" border="0" cellspacing="0" cellpadding="0" align="center" style="margin:2px;">'; 
+	HtmlStr+='<tr height="113" bgcolor="#F4F4F4"><td>';
+	HtmlStr+='<table style="padding-right:15px;padding-top:5px;padding-bottom:5px" width="100%">';
+	HtmlStr+='<tr><td width="57">';
+	HtmlStr+='<img src="./skin/_blank.gif" width="15"><img src="./skin/warning.gif"><img src="./skin/_blank.gif" width="1"></td>';
+	HtmlStr+='<td width="260" style="font-family:Arial;" align="left"><br>'+msg+'</td><tr><td><img border="0" src="skin/_blank.gif"  height="20"></td></tr></tr>';  
+	HtmlStr+='<tr height="27"><td colspan="2" style="background:#F4F4F4;padding-top:0px;" valign="top" align="center">'; 
+	HtmlStr+='<input class="Tributton" type="button" value='+LK_OK+'  onclick="ConfirmMsgYes(\''+mode+'\',\''+a+'\',\''+b+'\',\''+c+'\');" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');"><img border="0" src="skin/_blank.gif"  width="8">';	
+	HtmlStr+='<tr><td><img src="./skin/_blank.gif" height="10"></td></tr>';
+	HtmlStr+='</table>';
+	HtmlStr+='</td></tr>';				
+	HtmlStr+='</table>';
+	HtmlStr+='</td>';
+	HtmlStr+='</tr>';
+    HtmlStr+='</table>';
+	document.getElementById("AlertDiv").innerHTML=HtmlStr;	
+}
+function ConfirmMsg(msg , mode , a , b , c)
+{	
+	var maskDivObj = document.getElementById ('maskAlertDiv');
+	var popDivObj = document.getElementById ('AlertDiv');
+
+	maskDivObj.style.display = "block";
+	popDivObj.style.display = "block";
+	var HtmlStr="";
+
+	HtmlStr+='<table width="350" height="25" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #343434;background-color:#C1E5ff">'; 
+	HtmlStr+='<tr height="25" style="line-height:25px;">';
+	HtmlStr+='<td width="350" title="error" style="cursor:move;">'; 
+	HtmlStr+='<font style="font-size:12px;font-weight:bold;color:#000;margin-left:10px">Confirm</font></td> ';
+	HtmlStr+='<td width="30"> ';
+	HtmlStr+='<img src="./skin/close.gif" style="margin-right:3px;cursor:hand;" onclick="alertOk();" onmouseover="ChangeStyle(this,1);" onmouseout="ChangeStyle(this,2)"><td>';
+	HtmlStr+='</tr>';
+	HtmlStr+='<tr height="25" style="line-height:25px;" style="padding:2px;">';
+	HtmlStr+='<td colspan="3">';
+    HtmlStr+='<table width="350" height="145" border="0" cellspacing="0" cellpadding="0" align="center" style="margin:2px;">'; 
+	HtmlStr+='<tr height="113" bgcolor="#F4F4F4"><td>';
+	HtmlStr+='<table style="padding-right:15px;padding-top:5px;padding-bottom:5px" width="100%">';
+	HtmlStr+='<tr><td width="57">';
+	HtmlStr+='<img src="./skin/_blank.gif" width="15"><img src="./skin/warning.gif"><img src="./skin/_blank.gif" width="1"></td>';
+	HtmlStr+='<td width="260" style="font-family:Arial;" align="left"><br>'+msg+'</td><tr><td><img border="0" src="skin/_blank.gif"  height="20"></td></tr></tr>';  
+	HtmlStr+='<tr height="27"><td colspan="2" style="background:#F4F4F4;padding-top:0px;" valign="top" align="center">'; 
+	HtmlStr+='<input class="Tributton" type="button" value='+LK_Yes+'  onclick="ConfirmMsgYes(\''+mode+'\',\''+a+'\',\''+b+'\',\''+c+'\');" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');"><img border="0" src="skin/_blank.gif"  width="8">';
+	HtmlStr+='<input class="Tributton" type="button" value='+LK_No+'  onclick="ConfirmMsgNo(\''+mode+'\',\''+a+'\',\''+b+'\',\''+c+'\');" onmouseover="ChangeButtonStyle(this,\'mouseover\');" onmouseout="ChangeButtonStyle(this,\'mouseout\');"></td></tr>';
+	HtmlStr+='<tr><td><img src="./skin/_blank.gif" height="10"></td></tr>';
+	HtmlStr+='</table>';
+	HtmlStr+='</td></tr>';				
+	HtmlStr+='</table>';
+	HtmlStr+='</td>';
+	HtmlStr+='</tr>';
+    HtmlStr+='</table>';
+	document.getElementById("AlertDiv").innerHTML=HtmlStr;	
+}
+
+var watchRun = false;
+var watchID = null;
+
+
+/***************************************************/
+
+/*												   */	
+
+/*      Begin of Save Check function			   */
+
+/*												   */	
+
+/***************************************************/
+
+
+
+var changeFlag = false;
+var goLink = "";
+var lastNode = 0;
+var thisNode = 0;
+
+
+
+//========== End of Save Check function ==========*/
+
+
+
+</script>
+</head>
+<body class="pageMain" style="overflow:hidden">
+	<div id="bodyDiv" class="bodyDiv">
+		<div id="topBar">
+			<table id="logoTable" border="0" cellpadding="0" cellspacing="0" width="100%" background="skin/logoback.gif" style="border-collapse: collapse;">
+				<tr>
+					<td valign="bottom" class="leftheaderfont" width="62" rowspan="2">
+						<img src="skin/logo.png" width="200" height="60" onload="fixPNG(this)">
+					</td>	
+					<td style="color:#000;font-family:Arial;font-size:20">
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="modelname" style="font-weight:bold;font-size:26"></span><span langkey = "LK_ModelType"></span>
+					</td>
+					<td  id=ID_TD_language_zh class="rightheaderfont">
+						<a href="/cgi-bin/language_zh.cgi"><script>document.write("中文");</script></a>
+					</td>	
+					<td id=ID_TD_language_en class="rightheaderfont">
+						<a href="/cgi-bin/language_en.cgi"><script>document.write("English");</script></a>
+					</td>	
+					<td class="rightheaderfont">
+						<img border="0" src="skin/_blank.gif" width="14" height="1">
+						<a href="/cgi-bin/logout.cgi" langkey="LK_LogOut"></a>
+						<img border="0" src="skin/_blank.gif" width="14" height="1">
+					</td>				
+				</tr>
+
+				<tr>	
+					<td valign="top" class="modelBar" colspan="2">
+					</td>
+				</tr>
+			</table>
+
+		</div>
+		<div id="mainContent">
+			<table id="contentTable" cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+				<tr>
+					<td id="menuTd" class="menuTdBg" height="100%" width="200" valign="top">
+						<iframe height="100%" frameborder="0" width="100%" allowtransparency="true" id="menuPage" name="menuPage" src="menu.shtml">
+						</iframe>
+					</td>
+					<td id="sizeBarBg" class="sizeBarBgNormal" height="100%" align="center" valign="middle" onmouseover="this.className='sizeBarBgHover';" onmouseup="this.className='sizeBarBgHover';" onmouseout="this.className='sizeBarBgNormal';" onmousedown="startResize()">
+					<table class="sizeBar" height="100%">
+						<tr>
+							<td>
+								<img id="sizeBarImg" height="100%" border="0" width="0" src="./skin/_blank.gif">
+							</td>
+						</tr>
+					</table>
+					</td>
+					<td id="contentTd" class="contentTdBg" height="100%" valign="top">
+						<div id="divRight" class="divRight">&nbsp;</div>
+						<iframe height="100%" frameborder="0" width="100%" allowtransparency="true" id="contentFrame" name="contentFrame" src="page/status/status_info.shtml">
+						</iframe>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="ID_Copyright" class="Copyright" >
+		</div>
+</div>
+
+
+<div id="maskAlertDiv" class="divAll">&nbsp;</div>
+	<div id="AlertDiv"  style="display:none;position: absolute; width: 356px; height: 176px; top: 30%; left: 40%; background: none repeat scroll 0% 0% white; z-index: 1112;">
+</div>
+
+
+<div id="resizeBlockDiv" class="divNothing">&nbsp;</div>
+	
+</form>
+
+</body>
+
+</html>
+

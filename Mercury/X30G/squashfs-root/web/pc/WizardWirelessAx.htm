@@ -1,0 +1,266 @@
+﻿<style type="text/css">
+	li.wzdSubBtn div.primary{
+		width:160px !important;
+	}
+	div.topTitle{
+		width:280px;
+		margin:24px auto;
+		display:block;
+	}
+	div.topTitle label{
+		font-size:16px;
+		color:#333;
+		line-height:24px;
+		font-weight:bold;
+		vertical-align:middle;
+		display:inline-block;
+		width:240px;
+		margin-right:8px;
+	}
+	div.topTitle p{
+		font-size:12px;
+		color:#666;
+		text-align:justify;
+		line-height:18px;
+		margin-top:12px;
+	}
+	li.wizardBody{
+		/* 定义最小高度，不然会有闪烁的滚动条出现 */
+		min-height:132px;
+	}
+	span .axCheckLabel{
+		font-size: 16px;
+		color: #333;
+		line-height: 24px;
+		font-weight: bold;
+	}
+</style>
+<script type="text/javascript">
+	function init()
+	{
+		var uciSecWifi2G = uciWireless.dynData.host_2g;
+		var uciSecWifi5G = uciWireless.dynData.host_5g;
+		var optMode = uciWireless.dynOptName.mode;
+		var BS_ENABLE = uciWireless.optValue.bsEnable.enable;
+		var BS_DISABLE = uciWireless.optValue.bsEnable.disable;
+		var originWifiChangedState = gWizardData.wifiChanged;
+		var bandSteeringOpen = gWizardData.isBandSteeringOpen;
+
+		function formatData(raw)
+		{
+			var dataArr = [], bsName = uciWireless.secName.wlanBS;
+
+			function dataPackage(name, title, follow)
+			{
+				dataArr.push({
+					name: name,
+					title: title,
+					follow: follow,
+					ssid: raw[name][uciWireless.dynOptName.ssid],
+					key:  raw[name][uciWireless.dynOptName.key]
+				});
+			}
+
+			switch(slp.bandsProvided)
+			{
+			case slp.SINGLE:
+				dataPackage(uciWireless.dynData.host_2g);
+				break;
+			case slp.DOUBLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(uciWireless.secName.wlanBS);
+				}
+				else
+				{
+					dataPackage(uciWireless.dynData.host_2g, label.wirelessNet2G);
+					dataPackage(uciWireless.dynData.host_5g, label.wirelessNet5G, gWizardData.followPwd[0]);
+				}
+				break;
+			case slp.TRIPLE:
+				if (true == bandSteeringOpen)
+				{
+					dataPackage(uciWireless.secName.wlanBS);
+				}
+				else
+				{
+					dataPackage(uciWireless.dynData.host_2g,  label.wirelessNet2G);
+					dataPackage(uciWireless.dynData.host_5g1, label.wirelessNet5G1, gWizardData.followPwd[1]);
+					dataPackage(uciWireless.dynData.host_5g2, label.wirelessNet5G2, gWizardData.followPwd[2]);
+				}
+				break;
+			}
+
+			return dataArr;
+		}
+
+		function backwards()
+		{
+			if (slp.gSysModeSupport && gSysMode == uciSystem.optValue.sysMode.apMode){
+				loadPage("WizardWiredWifiCfg.htm","wizardCon");
+			} else {
+				loadPage('WizardWireless.htm', "wizardCon");
+			}
+		}
+
+		function checkCloudStatus()
+		{
+			var timeout = 5;
+
+			(function polling(){
+				if (timeout-- == 0)
+				{
+					loadingDialog.hide(function(){
+						loadPage("WizardEnd.htm", "wizardCon");
+					});
+					return;
+				}
+
+				var data = {};
+				var cloudST = cloudClientStatus.fileName;
+				var cloudIF = cloudClientStatus.secName.clientInfo;
+				var cloudCS = cloudClientStatus.optName.connectStatus;
+
+				data[cloudST] = {};
+				data[cloudST][KEY_NAME] = cloudIF;
+
+				$.query(data, function(result){
+					if (ENONE == result[ERR_CODE] &&
+						1 == result[cloudST][cloudIF][cloudCS])
+					{
+						loadingDialog.hide(function(){
+							loadPage("WizardCloudMEID.htm", "wizardCon");
+						});
+					}
+					else
+					{
+						$.setTimeout(polling, 1*1000);
+					}
+				}, undefined, true);
+			})();
+		}
+
+		function forwards()
+		{
+			if (!axCheck.getValue())
+			{
+				gWizardData.wifiChanged = true;
+				gWizardData.gWifiCfgSave[uciSecWifi2G] = gWizardData.gWifiCfgSave[uciSecWifi2G] || {};
+				gWizardData.gWifiCfgSave[uciSecWifi5G] = gWizardData.gWifiCfgSave[uciSecWifi5G] || {};
+				gWizardData.gWifiCfgSave[uciSecWifi2G][optMode] = uciWireless.dynOptValue.mode.m_11bgn;
+				gWizardData.gWifiCfgSave[uciSecWifi5G][optMode] = uciWireless.dynOptValue.mode.m_11ac;
+			}
+
+			if (gWizardData.wifiChanged)
+			{
+				if (gWizardData.iAmWifiDevice)
+				{
+					gWizardData.wifiDisconnect = true;
+					loadPage("WizardEnd.htm", "wizardCon");
+				}
+				else
+				{
+					var data = {};
+					data[uciWireless.fileName] = gWizardData.gWifiCfgSave;
+
+					loadingDialog.show({
+						content: {primary: label.configging}
+					}, undefined, undefined, false, undefined);
+
+					wzdDone();
+					$.modify(data, function(result){
+						if (result[ERR_CODE] == ENONE)
+						{
+							formatData(gWizardData.wifiConf).forEach(function(obj){
+								if (gWizardData.gWifiCfgSave[obj.name] != undefined)
+								{
+									if (gWizardData.gWifiCfgSave[obj.name].ssid != undefined)
+									{
+										gWizardData.wifiConf[obj.name].ssid = gWizardData.gWifiCfgSave[obj.name].ssid;
+									}
+
+									if (gWizardData.gWifiCfgSave[obj.name].key != undefined)
+									{
+										gWizardData.wifiConf[obj.name].key = gWizardData.gWifiCfgSave[obj.name].key;
+									}
+								}
+							});
+
+							if (result["dfs_wait_time"] && result["dfs_wait_time"] != 0)
+							{
+								gWizardData.bShowDFS = true;
+								gWizardData.countdown = result["dfs_wait_time"];
+							}
+							else
+							{
+								gWizardData.bShowDFS = false;
+							}
+
+							checkCloudStatus();
+						}
+						else
+						{
+							loadingDialog.hide(function(){
+								alarmDialog.show(errStr.unknown + result[ERR_CODE]);
+							});
+						}
+					});
+				}
+			}
+			else
+			{
+				loadingDialog.show({
+					content: {primary: label.configging}
+				}, undefined, undefined, false, undefined);
+
+				wzdDone();
+				checkCloudStatus();
+			}
+		}
+
+		new Button({
+			text:btn.preStep,
+			onClick:backwards,
+			type:Button.TYPE.SECONDARY,
+			id:"pre"
+		});
+		var nextBtn = new Button({
+			text:btn.finish,
+			onClick:forwards,
+			type:Button.TYPE.PRIMARY,
+			id:"sub"
+		});
+
+		var listScroll = new NiceScroll({targetId:"wizardBody", hrzLine: true});
+		listScroll.scrollTipOpacity(1);
+		listScroll.init();
+
+		var axCheck = new CheckBox({
+						targetId:'axCheck',
+						label: '<span class="axCheckLabel">' + label.axCheckLabel +'</span>',
+						checked: true
+					});
+	}
+	init();
+</script>
+<ul class="wzdUl">
+	<li class="wizardSkip"><span class="wzdSkipDes">{%label.skipWzd%}</span></li>
+	<li class="wizardBody" id="wizardBody">
+		<h1>{%menuStr.ax%}</h1>
+		<div class="topTitle">
+			<p>{%label.axTip%}</p>
+		</div>
+		<ul id="axCheck" class="inputCMPT"></ul>
+		<div class="topTitle">
+			<p style="margin-bottom: 16px">由于部分无线网卡驱动较旧，连接至802.11ax无线路由器时，可能会出现一些兼容性问题。如果您有以上疑虑，请到相关制造商官网下载最新驱动程序。</p>
+			<p>Intel:&nbsp;&nbsp;<a href="https://downloadcenter.intel.com" target="_blank">https://downloadcenter.intel.com</a></p>
+			<p>Mediatek:&nbsp;&nbsp;<a href="https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi" target="_blank">https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi</a></p>
+			<p>Realtek:&nbsp;&nbsp;<a href="https://www.realtek.com/en/downloads" target="_blank">https://www.realtek.com/en/downloads</a></p>
+			<p>*需终端支持802.11ax协议，才能体验到802.11ax带来的高速上网体验。</p>
+		</div>
+	</li>
+	<li class="wzdSubBtn">
+		<div id="pre"></div>
+		<div id="sub"></div>
+	</li>
+</ul>

@@ -1,0 +1,271 @@
+﻿﻿<script type="text/javascript">
+	(function(){
+		var HOST_ROUTER = 0;
+		var SAME_SUBNET_ROUTER = 1;
+		var NOT_SAME_SUBNET_ROUTER = 2;
+
+		function sortDomainArryByType(a, b)
+		{
+			var typeA = 0;
+			var typeB = 0;
+
+			for (var prop in a)
+			{
+				typeA = a[prop].type;
+			}
+
+			for (var prop in b)
+			{
+				typeB = b[prop].type;
+			}
+
+			return (parseInt(typeA) - parseInt(typeB));
+		}
+
+		function sortDomainArryByIP(pre, next)
+		{
+			var ipPre, ipNext, ipPreArr, ipNextArr;
+
+			for (var prop in pre)
+			{
+				ipPre = pre[prop].ip;
+			}
+
+			for (var prop in next)
+			{
+				ipNext = next[prop].ip;
+			}
+
+			ipPreArr = ipPre.split(".");
+			ipNextArr = ipNext.split(".");
+
+			for (var i = 0; i < 4; i++)
+			{
+				if (parseInt(ipPreArr[i], 10) == parseInt(ipNextArr[i], 10))
+				{
+					continue;
+				}
+
+				if (parseInt(ipPreArr[i], 10) > parseInt(ipNextArr[i], 10))
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+
+			return 0;
+		}
+
+		function getDomainConflictRouterInfo()
+		{
+			var routerInfo;
+
+			if ($.local == true)
+			{
+				routerInfo = [{domain_array_1:{name:"Lan Xiang", ip:"192.168.1.12", mac:"22-22-22-33-33-33", type:0}},
+							  {domain_array_2:{name:"wajueji", ip:"192.168.100.123", mac:"22-22-2B-33-33-33", type:2}},
+							  {domain_array_3:{name:"wozuiqiang", ip:"192.168.1.112", mac:"22-2B-22-33-33-33", type:0}},
+							  {domain_array_4:{name:"najiaqiang", ip:"192.2.12.12", mac:"22-2B-22-33-33-33", type:2}},
+							  {domain_array_5:{name:"BlueFly", ip:"192.168.1.22", mac:"22-2B-22-33-33-33", type:1}},
+							  {domain_array_6:{name:"挖掘机挖坑", ip:"192.168.1.2", mac:"22-2B-22-33-33-33", type:1}},
+							  {domain_array_7:{name:"TL-WDR1234567890TL-WDR1234567890TL-WDR1234567890TL-WDR1234567890", ip:"192.168.1.88", mac:"22-2B-22-33-33-33", type:0}}];
+			}
+			else
+			{
+				routerInfo = gDomainDetectArr;
+			}
+
+			routerInfo = routerInfo.sort(sortDomainArryByIP);
+			return routerInfo.sort(sortDomainArryByType);
+		}
+
+		function initRouterItem(devInfo)
+		{
+			var routerItem = $(
+				'<div class="routerItem">' 								+
+					'<i class="routerLogo"></i>'						+
+					'<div class="routerInfo">'							+
+						'<span class="routerName"></span>'				+
+						'<span class="routerDetial routerIp"></span>'	+
+						'<span class="routerDetial routerMac"></span>'	+
+					'</div>'											+
+					'<i class="iconfont icon-next"></i>'				+
+				'</div>'
+			);
+
+			routerItem.find('span.routerName').text(htmlEscape(devInfo.name));
+			routerItem.find('span.routerName')[0].title = htmlEscape(devInfo.name);
+			routerItem.find('span.routerIp').text(label.ipAddr + label.colon + devInfo.ip);
+			routerItem.find('span.routerMac').text(label.mac + label.colon + devInfo.mac.toUpperCase());
+
+			switch(parseInt(devInfo.type))
+			{
+			case HOST_ROUTER:
+			case SAME_SUBNET_ROUTER:
+				routerItem.addClass('able');
+				routerItem.bind('click', function(){
+					window.location.href = "http://" + devInfo.ip;
+				});
+
+				if (devInfo.type == HOST_ROUTER)
+				{
+					routerItem.find("div.routerInfo").append($("<span class='routerTips'></span>").text(label.hostRouter));
+				}
+
+				break;
+			case NOT_SAME_SUBNET_ROUTER:
+				routerItem.append($('<div class="routerDisabled"></div>'));
+				routerItem.find("i.iconfont").remove();
+				routerItem.find("div.routerInfo").append($("<span class='routerTips'></span>").text(label.notSameSubnetRouter));
+				break;
+			default:
+				break;
+			}
+
+			return routerItem;
+		}
+
+		function initRouterSelectList(){
+			var devList = getDomainConflictRouterInfo();
+			var listCon = id("routerSelectList"), item, itemCon;
+
+			for (var index in devList)
+			{
+				for (var prop in devList[index])
+				{
+					item = devList[index][prop];
+				}
+
+				itemCon = initRouterItem(item);
+
+				if (index == 0)
+				{
+					itemCon.addClass("firstChild");
+				}
+
+				listCon.appendChild(itemCon[0]);
+				itemCon.find('i.iconfont').css('top', (parseInt(itemCon.actual('outerHeight')) / 2) - (parseInt(itemCon.find('i.iconfont').actual('height')) / 2));
+			}
+		}
+
+		var listScroll;
+		listScroll = new NiceScroll({targetId:"routerSelectList"});
+		listScroll.scrollTipOpacity(1);
+		listScroll.init();
+
+		/* Fix IE8 or Less */
+		window.setTimeout(function(){
+			ieUnsupportCheck();
+
+			initRouterSelectList();
+		});
+	})();
+</script>
+<style type="text/css">
+	div.routerSelectCon{
+		margin-top: 220px;
+	}
+	span.routerSelectConTitle{
+		padding-top: 120px;
+		margin-left: 80px;
+		font-size: 36px;
+		font-weight: bold;
+		color: #333333;
+		display: block;
+		line-height:48px;
+	}
+	div.routerSelectList{
+		margin-left : 80px;
+		margin-right: 64px;
+		margin-top: 48px;
+		padding-bottom: 40px;
+		height: 384px;
+	}
+	div.routerItem{
+		border: 1px solid #CCCCCC;
+		padding: 7px 23px;
+		min-height: 80px;
+		margin-top: 24px;
+		position: relative;
+		width: 752px;
+	}
+	div.routerItem.firstChild{
+		margin-top: 0px;
+	}
+	div.routerItem disabled{
+		border: 1px solid #B3B3B3;
+	}
+	div.routerItem i.routerLogo{
+		background: url(../web-static/images/wds_bridge.png) no-repeat scroll;
+		display: inline-block;
+		height: 80px;
+		width: 80px;
+		vertical-align: middle;
+	}
+	div.routerItem div.routerInfo{
+		display: inline-block;
+		margin-left: 40px;
+		vertical-align: middle;
+	}
+	div.routerItem div.routerInfo span.routerName{
+		line-height: 24px;
+		width: 600px;
+		margin-bottom: 4px;
+		color: #333333;
+		font-size: 16px;
+		font-weight: bold;
+		display: block;
+		word-break: break-all;
+	}
+	div.routerItem div.routerInfo span.routerDetial{
+		line-height: 20px;
+		height: 20px;
+		color: #666666;
+		font-size: 13px;
+		display: inline-block;
+	}
+	div.routerItem div.routerInfo span.routerIp{
+		margin-right: 24px;
+	}
+	div.routerItem div.routerInfo span.routerTips{
+		line-height: 20px;
+		height: 20px;
+		color: #666666;
+		font-size: 13px;
+		display: block;
+		margin-top: 4px;
+	}
+	div.routerItem i.iconfont{
+		display: inline-block;
+		font-size: 24px;
+		vertical-align: middle;
+		color: #999998;
+		position: absolute;
+		right: 23px;
+	}
+	div.routerItem.able:hover{
+		border: 1px solid #FF4C79;
+		cursor: pointer;
+	}
+	div.routerItem.able:hover i.iconfont{
+		color: #FF4C79;
+	}
+	div.routerItem div.routerDisabled{
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		top: 0px;
+		left: 0px;
+		opacity: 0.5;
+		background-color: #FFFFFF;
+	}
+</style>
+<div class="routerSelectContent mainGradient">
+	<div id="routerSelectCon" class="routerSelectCon">
+		<span class="routerSelectConTitle">{%label.domainDetectTitle%}</span>
+		<div id="routerSelectList" class="routerSelectList"></div>
+	</div>
+</div>

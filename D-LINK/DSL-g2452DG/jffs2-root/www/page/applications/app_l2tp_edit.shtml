@@ -1,0 +1,359 @@
+<!-- userlevel=2 -->
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript">
+
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function L2LTPTunnelListTuple()
+{
+	this.Path = "";
+	this.WanInterface = "";
+	this.Enable = "";
+	this.Name = "";
+	this.Mode = "";
+	this.LocalIP = "";
+	this.LnsIP = "";
+	this.LnsLanIP= "";
+	this.LnsLanMask = "";
+	this.PPPUserName = "";
+	this.PPPPassword = "";
+}
+
+var tnl_idx = 0;
+var L2TPList = new Array();
+<!--#getobject "InternetGatewayDevice.Services.X_TRI_L2TP.TunnelList.  WanInterface TunnelEnable TunnelName TunnelMode TunnelLocalIP LnsIP LnsLanIP LnsLanMask PPPUserName PPPPassword" -->
+L2TPList[tnl_idx] = new L2LTPTunnelListTuple();
+L2TPList[tnl_idx].Path = "<!--#path -->";
+L2TPList[tnl_idx].WanInterface = "<!--#leaf "1"-->";
+L2TPList[tnl_idx].Enable = "<!--#leaf "2"-->";
+L2TPList[tnl_idx].Name = "<!--#leaf "3"-->";
+L2TPList[tnl_idx].Mode = "<!--#leaf "4"-->";
+L2TPList[tnl_idx].LocalIP = "<!--#leaf "5"-->";
+L2TPList[tnl_idx].LnsIP = "<!--#leaf "6"-->";
+L2TPList[tnl_idx].LnsLanIP = "<!--#leaf "7"-->";
+L2TPList[tnl_idx].LnsLanMask = "<!--#leaf "8"-->";
+L2TPList[tnl_idx].PPPUserName = "<!--#leaf "9"-->";
+L2TPList[tnl_idx].PPPPassword = "<!--#leaf "10"-->";
+tnl_idx++;
+<!--#endgetobject -->
+
+var G_Operation = "Add";
+var G_index;
+var G_Path ;
+var wancd_name = [];
+var wancd_idx = [];
+var wancd_coun = 0;
+var selectedIndex=0;
+
+var password_changed=0;
+
+function Password_changed()
+{
+    password_changed=1;
+    return true;
+}
+
+function getconnectionname(path){
+    var conn_name = "";
+
+    for (i = 0; i < Connection.length; i++)
+    {
+      if (Connection[i].Path == path){
+           conn_name = Connection[i].Name;
+           break;
+      }
+    }
+    return conn_name;
+}
+
+
+function wancd_option_init()
+{
+
+    for (i = 0; i < Connection.length; i++)
+    {
+        if(!isBridgedConn(Connection[i].ConnectionType) && (Connection[i].ServiceList == 'OTHER' || isINTERNETService(Connection[i].ServiceList))){
+            wancd_name[wancd_coun] = Connection[i].Name;
+            wancd_idx[wancd_coun] = i;
+            wancd_coun++;
+        }    
+    }
+    createOptions('selectConnectionName', wancd_name, wancd_idx);
+    selectedIndex= $('selectConnectionName').value;
+}
+
+function init()
+{
+	var connection = "";
+	var text1 = [];
+	var value1 = [];
+
+	var url=window.location.search;
+	var i=url.indexOf('?');
+	var connection = "";
+
+	if(i==-1) return null;
+	
+	var arr = url.toString();
+	var strs = arr.split("&"); 
+	var str= strs[0].split("=");
+	var id=strs[1].split("=");
+	G_index =str[1];
+	G_Operation =id[1];
+
+	if(G_Operation == 'Add')
+	{
+		wancd_option_init()
+	}
+	else if(G_Operation == 'Edit')
+	{
+		var path=strs[2].split("=");
+		G_Path =path[1];    
+		Path = L2TPList[G_index].WanInterface
+		connection = getconnectionname(Path);
+
+		setValue("INPUT_Enable", L2TPList[G_index].Enable);
+		setValue("L2TPTunnelName", L2TPList[G_index].Name);
+		setValue('SELECT_TunnelMode', L2TPList[G_index].Mode);
+		setValue("TunnelLocalIP", L2TPList[G_index].LocalIP);
+		setValue("LNSIP", L2TPList[G_index].LnsIP);
+		setValue("LNSLanIP", L2TPList[G_index].LnsLanIP);
+		setValue("SubnetMask", L2TPList[G_index].LnsLanMask);	
+		setValue("INPUT_UserName", L2TPList[G_index].PPPUserName);
+		//setValue("INPUT_Password", L2TPList[G_index].PPPPassword);
+
+		$('selectConnectionName').disabled = true;
+		text1[0] = connection;
+		value1[0] = 0;
+		createOptions('selectConnectionName', text1,value1);
+		$('selectConnectionName').value = 0;    
+
+		$('L2TPTunnelName').disabled = true;
+	}
+
+}
+
+function checkValue()
+{
+	if(getValue('L2TPTunnelName') == "")
+		return false;
+
+	for(var i = 0; i < tnl_idx; i++) 
+	{
+		if( (L2TPList[i].Name == getValue('L2TPTunnelName')) 
+			|| L2TPList[i].LnsIP == getValue('LNSIP')
+			|| L2TPList[i].LnsLanIP == getValue('LNSLanIP')  )
+		{
+			top.AlertMsg(getStr("LK_L2TPTunnelRepeated"));
+			return false;
+		}
+	}
+	return true;
+}
+
+function uiSubmit()
+{
+	var selectedIndex=0;
+	var password = "";
+	var tnllist_path="InternetGatewayDevice.Services.X_TRI_L2TP.TunnelList.{i}";    
+	var df = document.vpn_l2tp; 
+	
+	if(!isCheckIPV4($('LNSIP'))
+		|| !isCheckIPV4($('LNSLanIP'))
+		|| !isIPMaskValid(getValue('SubnetMask')))
+	{
+		return false;
+	}
+
+	if($('TunnelLocalIP').value != "" && !isCheckIPV4($('TunnelLocalIP')))
+	{
+		top.AlertMsg(getStr("TunnelLocalIP"));
+		return false;
+	}
+
+	if(!validateCode())
+		return false;
+
+	if(G_Operation == 'Add' && checkValue())
+	{
+		AddElements(df, 'add_obj',tnllist_path);
+		if(selectedIndex >-1)
+		{
+			selectedIndex = getValue('selectConnectionName');
+			G_Path =Connection[selectedIndex].Path;
+			AddElements(df, tnllist_path+".WanInterface",G_Path);
+		}
+
+		AddElements(df, tnllist_path+".TunnelEnable", getValue('INPUT_Enable'));
+		AddElements(df, tnllist_path+".TunnelName",getValue('L2TPTunnelName'));
+		AddElements(df, tnllist_path+".TunnelMode",2);
+		AddElements(df, tnllist_path+".TunnelLocalIP",getValue('TunnelLocalIP'));
+		AddElements(df, tnllist_path+".LnsIP",getValue('LNSIP'));
+		AddElements(df, tnllist_path+".LnsLanIP",getValue('LNSLanIP'));
+		AddElements(df, tnllist_path+".LnsLanMask",getValue('SubnetMask'));
+		AddElements(df, tnllist_path+".PPPUserName",getValue('INPUT_UserName'));
+
+		if(password_changed == 1)
+		{
+			AddElements(df, tnllist_path+".PPPPassword",getValue('INPUT_Password'));
+		}
+		df.submit();
+	}
+	else
+	{
+		var _path=G_Path;    
+
+		AddElements(df, _path+"TunnelEnable", getValue('INPUT_Enable'));
+		AddElements(df, _path+"TunnelMode",2);
+		AddElements(df, _path+"TunnelLocalIP",getValue('TunnelLocalIP'));
+		AddElements(df, _path+"LnsIP",getValue('LNSIP'));
+		AddElements(df, _path+"LnsLanIP",getValue('LNSLanIP'));
+		AddElements(df, _path+"LnsLanMask",getValue('SubnetMask'));
+		AddElements(df, _path+"PPPUserName",getValue('INPUT_UserName'));
+
+		if(password_changed == 1)
+		{
+			AddElements(df, tnllist_path+".PPPPassword",getValue('INPUT_Password'));
+		}
+		df.submit();
+	}
+	
+
+}
+
+function __init()
+{
+    init();
+}
+
+function uiBack()
+{
+	document.location.href = "app_l2tp.shtml"
+}
+
+
+
+</script>
+</head>
+<body>
+
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_L2TPSetting'))</script>
+<table width="600" cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_ConnectionNamee"></td>
+	<td>
+		<select name="select" id="selectConnectionName">
+			<option ></option>
+		</select>
+	</td>
+</tr>
+
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable"></div><div class="div_right"></td>
+</tr>
+
+
+<tr>
+	<td langkey="LK_TunnelNamee"></td>
+	<td><input type="text" maxlength=15 id="L2TPTunnelName"/></td>
+</tr>
+
+<tr>
+	<td width="150" langkey="LK_L2TPTunnelModee"></td>
+	<td><select id="SELECT_TunnelMode" onChange="TunnelModeSwitch()">
+                            <option value="1">LNS</option>
+                            <option value="2">LAC</option>
+             </select>
+	</td>
+</tr>
+
+<tr>
+	<td langkey="LK_LNSIPp"></td>
+	<td><input type="text" maxlength=15 id="LNSIP"/></td>
+</tr>
+
+
+<tr>
+	<td langkey="LK_LNSLanIP"></td>
+	<td><input type="text" maxlength=15 id="LNSLanIP"/></td>
+</tr>
+
+<tr>
+	<td langkey="LK_SubnetMaskk"></td>
+	<td><input type="text" maxlength=15 id="SubnetMask"/></td>
+</tr>
+<br>
+
+<tr>
+	<td langkey="LK_TunnelLocalIP"></td>
+	<td><input type="text" maxlength=15 id="TunnelLocalIP"/></td>
+</tr>
+
+<tr>
+	<td langkey="LK_UserNamee"></td>
+	<td><input type="text" id="INPUT_UserName"></td>
+</tr>
+
+<tr>
+	<td langkey="LK_Passwordd"></td>
+	<td><input type="password" value="123456789ABCDEFG" id="INPUT_Password" onChange="Password_changed()"></td>
+</tr>
+
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="vpn_l2tp"  action="/cgi-bin/setup.cgi?page/applications/app_l2tp.shtml">
+</form>
+</body>
+</html>

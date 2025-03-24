@@ -1,0 +1,166 @@
+#!/bin/sh
+
+insmod -q rt2860v2_ap
+insmod -q MT7610_ap
+insmod -q ralink_wdt
+
+mount -a
+mount -t jffs2 /dev/mtdblock6 /mydlink
+mount -t jffs2 /dev/mtdblock7 /flash
+
+mkdir -p /var/run
+mkdir -p /var/tmp
+mkdir -p /var/log
+mkdir -p /var/ppp
+mkdir -p /var/ppp/peers
+mkdir -p /etc/Wireless/RT2860
+mkdir -p /etc/Wireless/iNIC
+mkdir -p /var/private
+ln -s /var/ppp /etc/ppp
+#ln -s /www/def_lang_w.js /www/uk_w.js
+#ln -s /www/uk_w.js /var/tmp/lang_w.js
+ln -s /www/def_lang_w.js /var/tmp/lang_w.js
+echo 0 > /var/tmp/usbmnt_status
+mkdir -p /tmp/usb/
+mkdir -p /var/tmp/usb/
+mkdir -p /etc/samba
+echo "" > /etc/samba/smbpasswd
+
+#dlna
+chmod 775 /var/tmp/usb
+
+cat /etc_ro/motd
+
+cp -f /etc_ro/inittab /etc
+cp -f /etc_ro/passwd /etc
+cp -f /etc_ro/group /etc
+cp -f /etc_ro/securetty /etc
+
+#silex
+#mkdir -p /etc/config
+##mkdir -p /var/silex_shared
+#cp -rf /etc_ro/hotplug.d /etc/.
+#cp -rf /etc_ro/samba /etc/.
+#cp -rf /etc_ro/silex /etc/.
+#cp -rf /etc_ro/init.d /etc/.
+#cp -rf /etc_ro/rc.d /etc/.
+
+#cp -af /www_ro/* /www
+#cp -af /wa_www_ro/* /wa_www
+
+mnt=`df | grep mydlink | awk '{printf $6}'`
+if [ "$mnt" == "/mydlink" ]
+then
+        echo "mount mydlink ok"
+else
+        echo "mount mydlink fail ..."
+	mtd_write erase /dev/mtd6 -r
+fi
+
+mnt=`df | grep flash | awk '{printf $6}'`
+if [ "$mnt" == "/flash" ]
+then
+        echo "mount flash ok"
+else
+        echo "mount flash fail ..."
+        mtd_write erase /dev/mtd7 -r
+fi
+
+ifconfig lo 127.0.0.1
+ifconfig lo up
+
+# language pack
+if [ -f "/flash/lang.js" ]; then
+	echo "old language pack exist, remove it now!"
+	rm -f /flash/lang.js
+else 
+	echo "old language pack not found"
+fi
+
+if [ -f "/flash/lang.js.bz2" ]; then
+        echo "language pack exists"
+	if [ -f "/flash/lang_chksum" ]; then
+	        cp -f /flash/lang.js.bz2 /var/tmp/lang.js.bz2
+		bunzip2 /var/tmp/lang.js.bz2
+#	        bzip2 -d -f /var/tmp/lang.js.bz2
+	else 
+		cp -f /www/def_lang.js /var/tmp/lang.js
+	fi
+fi
+
+if [ ! -f "/var/tmp/lang.js" ]; then
+        echo "decompress failed or language pack not found"
+        cp -f /www/def_lang.js /var/tmp/lang.js
+fi
+
+# Leo add
+# modify dst-cache setting
+echo "16384" > /proc/sys/net/ipv4/route/max_size
+echo "180" > /proc/sys/net/ipv4/route/gc_thresh
+echo 1 > /proc/sys/net/ipv4/route/gc_elasticity
+echo 35 > /proc/sys/net/ipv4/route/gc_interval
+echo 10 > /proc/sys/net/ipv4/route/gc_timeout
+
+echo "16384" > /proc/sys/net/netfilter/nf_conntrack_max
+
+#Leo add for ipv4 upd timeout
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout_stream
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_generic_timeout
+
+echo "1048576" > /proc/sys/net/ipv4/rt_cache_rebuild_count
+echo "32" > /proc/sys/net/netfilter/nf_conntrack_expect_max
+
+#Leo add for ipv4 conntrack timeout
+echo "20"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
+echo "60"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close_wait
+echo "240" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_established
+echo "120" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_fin_wait
+echo "30"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_last_ack
+echo "60"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_syn_recv
+echo "30"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_syn_sent
+#echo "15"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_syn_sent2
+echo "20"  > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_time_wait
+
+#Leo add for tcp unacknowledged timeout
+echo "90"  > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_unacknowledged
+
+#leo add for kernel security
+echo 1 >  /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+echo 3 >  /proc/sys/net/ipv4/tcp_retries1
+echo 60 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 1800 > /proc/sys/net/ipv4/tcp_keepalive_time
+echo 30 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+echo 3 >  /proc/sys/net/ipv4/tcp_keepalive_probes
+echo 1 >  /proc/sys/net/ipv4/tcp_window_scaling
+echo 1 >  /proc/sys/net/ipv4/tcp_sack
+echo 1 >  /proc/sys/net/ipv4/tcp_timestamps
+
+# disable TCP flag ECN and CWR
+echo 0 > /proc/sys/net/ipv4/tcp_ecn
+
+echo 8192 > /proc/sys/vm/min_free_kbytes
+
+echo 8192 11264 16384 > /proc/sys/net/ipv4/tcp_mem
+
+#run resetd for reset to default BTN
+resetd &
+#Start wireless
+
+iwevent&
+wps_daemon&
+#run ncc
+ncc
+
+echo "4096" > /proc/sys/net/ipv4/tcp_max_tw_buckets
+
+#Leo add for arp filter
+echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+
+wdg.sh
+watchdog &
+
+mp.sh
+
+#add mydlink libpath
+PATH=$PATH:/mydlink

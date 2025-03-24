@@ -1,0 +1,5 @@
+/etc/lock_file_2G
+/etc/lock_file_5G
+/usr/bin/nvram_set
+/usr/bin/nvram_get
+/usr/bin/wificonf

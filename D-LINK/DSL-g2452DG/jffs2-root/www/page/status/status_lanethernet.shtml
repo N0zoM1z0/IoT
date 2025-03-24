@@ -1,0 +1,132 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+
+
+function ConnectionTuple()
+{
+	this.Status = "";
+	this.Speed = "";
+	this.Duplex = "";
+	this.Description = "";
+}
+var m=0;
+var G_LanStatus = new Array();
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig." -->
+<!--#getobject "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.{i}. Status X_TRI-BitRate X_TRI-DuplexMode X_CT-COM_Description" -->
+    G_LanStatus[m] = new ConnectionTuple();
+    G_LanStatus[m].Status = "<!--#leaf "1"-->";;
+    G_LanStatus[m].Speed = "<!--#leaf "2"-->";;
+	G_LanStatus[m].Duplex = "<!--#leaf "3"-->";;
+	G_LanStatus[m].Description = "<!--#leaf "4"-->";;
+<!--#endgetobject -->
+m++;
+<!--#endgetobject -->
+function strGetStatus(val)
+{
+	switch(val)
+	{
+		case "NoLink" :
+			return getStr("LK_Down");
+		case "Up":
+			return getStr("LK_Up");
+	}	
+	return getStr("LK_Down");
+}
+function strGetSpeed(val){
+    switch(val){
+        case "10" : 
+            return getStr("LK_10MBS");
+        case "100" : 
+            return getStr("LK_100MBS");
+	case "1000" :
+	    return getStr("LK_1000MBS");
+    }
+    
+    return getStr("10MBS");
+}
+
+function strGetDuplex(val){
+    switch(val){
+        case "Half" : 
+            return getStr("LK_HalfDuplex");
+        case "Full" : 
+            return getStr("LK_FullDuplex");
+    }
+    
+    return getStr("LK_HalfDuplex");
+}
+
+function getIndexByDescription(Description)
+{
+    var i;
+
+    for(i=0;i<G_LanStatus.length;i++)
+    {
+        if(G_LanStatus[i].Description == Description)
+           return i;
+    }
+}
+
+function createTable()
+{
+	var trs="";
+	for(var i= 1;i<=G_LanStatus.length;i++)
+	{
+		var index = getIndexByDescription("LAN"+i);
+		if(index%2 ==0)
+				trs += '<tr class="OddROwB">';
+		else
+				trs += '<tr class="EvenRowB">';
+		
+		trs += '<td>LAN'+i+'</td>';
+		trs += '<td>'+ strGetStatus(G_LanStatus[index].Status)+"</td>";
+		switch(G_LanStatus[index].Status)
+		{
+			case "Up":
+				trs += '<td>'+ strGetSpeed(G_LanStatus[index].Speed)+'</td>';
+				trs += '<td>'+ strGetDuplex(G_LanStatus[index].Duplex) +'</td>';
+			break;
+			default:
+				trs += '<td>-</td>';
+				trs += '<td>-</td>';
+			break;
+		}
+		
+	}
+
+	jQuery("#td_table").append(trs);
+}
+
+function __init()
+{
+	createTable();
+	if(IsExistedFunction("project_init") == true) 
+             project_init(GetCurrentFileName());
+}
+</script>        
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_LANEthernet'))</script>
+<form method="get"> 
+<table class="ContentBorder" id="td_table" width="400" id="td_table" cellpadding="0" cellspacing="0">
+<tr class="TitleRow">
+<td langkey="LK_Interface"></td>
+<td langkey="LK_Status"></td>
+<td langkey="LK_Speed"></td>
+<td langkey="LK_Duplex"></td>
+</tr>
+</table>
+<script>printEndContent();</script>
+</form>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Package: Blink_Cloud
+Version: 1
+Depends: libc, libuci, libeasyuci, libcjson, libwificonf, libuart, libblinkapi, libpthread
+Source: package/B-LINK/Blink_Cloud
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 14232
+Description:  BLINK Cloud APP

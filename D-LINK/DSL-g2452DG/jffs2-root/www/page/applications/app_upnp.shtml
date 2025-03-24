@@ -1,0 +1,258 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP. Enable WANPathName LANPathName" --> 
+var G_UpnpEnable = "<!--#leaf "1"-->";
+var G_WANPathName = "<!--#leaf "2"-->";
+var G_LANPathName = "<!--#leaf "3"-->";
+<!--#endgetobject -->
+
+function ConnectionTuple()
+{
+    this.Path = "";
+    this.Name = "";
+    this.ConnectionType = "";
+    this.ServiceList = "";
+}
+var index = 0;
+var ConnectionS = new Array();
+//WAN Device
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+    <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name ConnectionType X_CT-COM_ServiceList" -->
+        ConnectionS[index] = new ConnectionTuple();   
+        ConnectionS[index].Path = "<!--#path -->";
+        ConnectionS[index].Name = "<!--#leaf "1"-->";
+        ConnectionS[index].ConnectionType = "<!--#leaf "2"-->";
+        ConnectionS[index].ServiceList = "<!--#leaf "3"-->";
+        index++;
+        <!--#endgetobject -->
+    
+        <!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name ConnectionType X_CT-COM_ServiceList" -->
+        ConnectionS[index] = new ConnectionTuple();   
+        ConnectionS[index].Path = "<!--#path -->";
+        ConnectionS[index].Name = "<!--#leaf "1"-->";
+        ConnectionS[index].ConnectionType = "<!--#leaf "2"-->";
+        ConnectionS[index].ServiceList = "<!--#leaf "3"-->";
+        index++;
+        <!--#endgetobject -->
+    <!--#endgetobject -->
+<!--#endgetobject -->
+
+//LAN Device
+<!--#getobject "InternetGatewayDevice.LANDevice.1. LANEthernetInterfaceNumberOfEntries " -->
+    ConnectionS[index] = new ConnectionTuple(); 
+    ConnectionS[index].Name = "br0";
+    ConnectionS[index].Path = "InternetGatewayDevice.LANDevice.1.";
+    index++;
+<!--#endgetobject -->
+
+function IPListTuple()
+{
+    this.Path = "";
+    this.SrcIP = "";
+    this.Enable = "";
+}
+var n = 0;
+var IPList = new Array();
+
+<!--#getobject "InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP.Blacklist. SrcIP Enable" -->
+    IPList[n] = new IPListTuple();   
+    IPList[n].Path = "<!--#path -->";
+    IPList[n].SrcIP = "<!--#leaf "1"-->";
+    IPList[n].Enable = "<!--#leaf "2"-->";
+    n++;
+<!--#endgetobject -->
+
+function frmLoad(){
+    setValue('INPUT_EnableUPnP',G_UpnpEnable);
+    wanAndLanPath();
+    setValue('SELECT_WanInterface',G_WANPathName);
+}
+
+function wanAndLanPath(){
+    var text_wan = [],value_wan = [];
+
+    for(var i = 0; i < ConnectionS.length; i++){
+        if( (ConnectionS[i].Path.indexOf('WANDevice') > 0) ){            
+          //if (ConnectionS[i].ServiceList != 'TR069' && ConnectionS[i].ServiceList != 'VOIP'){
+          if (isINTERNETService(ConnectionS[i].ServiceList)){
+            text_wan.push(ConnectionS[i].Name);
+            value_wan.push(ConnectionS[i].Path);
+          }
+        }
+    }
+    createOptions('SELECT_WanInterface',text_wan,value_wan);
+}
+
+//这个函数可以反复使用:生成mac列表
+function createTable(){
+    var array_IP = [];
+	var trs = "";
+	if( IPList.length == 0 )
+		trs += '<tr class="OddRowB"><td colspan="4">'+getStr("LK_NoRule")+'</td></tr>';
+    for(var i = 0; i < IPList.length; i++){
+	var tr = "";
+	if(i%2 == 0)
+		tr+="<tr class='OddRowB'>";
+	else
+		tr+="<tr class='EvenRowB'>"
+	if( IPList[i].Enable == '1')
+		tr+="<td><input type='checkbox' id='btn_disable' onClick='uiDisable(IPList["+i+"].Path,0)' checked></td>";
+	else
+		tr+="<td><input type='checkbox' id='btn_disable' onClick='uiDisable(IPList["+i+"].Path,1)'></td>";
+	
+	
+		tr += "<td scope='col'>"+(i+1)+"</td>";
+		tr += "<td scope='col'>"+IPList[i].SrcIP+"</td>";
+		tr += "<td scope='col'><img src='../../skin/trash.gif' name='btn_del' style='cursor:pointer;' onClick='uiDelete(IPList[" + i + "].Path)'></td>";
+		tr += "</tr>";
+		trs += tr;  
+    }
+	jQuery("#td_List").append(trs);
+}
+
+function uiSubmit(){
+	if(!validateCode())
+		return false;
+    var _node = $('SELECT_WanInterface');
+    var df = document.app_upnpform; 
+		//防止下拉选框为空
+	if (_node.value == ''){
+		top.AlertMsg(getStr("LK_app_chooseWanConnect"));
+		return false;
+	}
+    AddElements(df, "InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP.Enable", getValue("INPUT_EnableUPnP"));
+    AddElements(df, "InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP.WANPathName", _node.value);
+    AddElements(df, "InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP.LANPathName", "InternetGatewayDevice.LANDevice.1.");
+    df.submit();
+}
+
+function uiAdd(){
+    var value_ip = $('INPUT_IPAddress').value;
+    var df = document.app_upnpform; 
+    if(value_ip == ''|| !isIPAddrValid(value_ip)){
+        top.AlertMsg(getStr("LK_errorIP"));
+        return false;
+    }
+	for(var i =0 ;i < IPList.length; i++){
+		if(value_ip == IPList[i].SrcIP){
+			top.AlertMsg(getStr("LK_nosameIP"));
+			return false;
+		}
+	}
+	if(!validateCode(2))
+		return false;
+    var add_path = 'InternetGatewayDevice.DeviceInfo.X_CT-COM_UPNP.Blacklist.';
+    AddElements(df, 'add_obj',add_path);
+    AddElements(df, add_path+"{i}.Enable", getValue("INPUT_EnableIP"));
+    AddElements(df, add_path+"{i}.SrcIP", value_ip);
+    df.submit();
+}
+
+function uiDelete(path){
+	if(!validateCode(2))
+		return false;
+    var df = document.app_upnpform; 
+    AddElements(df, 'del_obj',path);
+    df.submit(); 
+
+}
+
+function uiDisable(path,m)
+{
+    var df = document.app_upnpform; 
+    AddElements(df, path + 'Enable',m);
+    df.submit(); 
+}
+
+function __init()
+{
+    createTable();
+    frmLoad();
+    change_upnp_enable();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+
+function change_upnp_enable()
+{
+	if($('INPUT_EnableUPnP').checked)
+	{
+		$('SELECT_WanInterface').disabled=false;
+		$('add').disabled=false;
+		$('INPUT_EnableIP').disabled=false;
+		$('INPUT_IPAddress').disabled=false;
+	}
+	else
+	{
+		$('SELECT_WanInterface').disabled=true;
+		$('add').disabled=true;
+		$('INPUT_EnableIP').disabled=true;
+		$('INPUT_IPAddress').disabled=true;
+	}
+}
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_UPNP'));</script>
+	<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="150" langkey="LK_EnableUPNPIGD"></td>
+			<td><input type="checkbox" name="INPUT_EnableUPnP" id="INPUT_EnableUPnP" onClick="change_upnp_enable()"></td>
+		</tr>
+		<tr>
+			<td width="150" langkey="LK_WANConnection_Colon"></td>
+			<td><select id="SELECT_WanInterface" name="SELECT_WanInterface">
+                	</select></td>
+	
+		</tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+		<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+		&nbsp;&nbsp;
+		<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script></td></tr>
+	</table>
+<script>SetContentTitle(getStr('LK_Blacklist'));</script>
+<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+	<tr> 
+		<td width="150" langkey="LK_Enablee"></td>
+                <td><input type="checkbox" name="INPUT_EnableIP" id="INPUT_EnableIP" checked></td> 
+	</tr>
+	<tr>
+		<td width="150" langkey="LK_IPAddresss"></td>
+		<td><input type="text" maxlength="17" name="INPUT_IPAddress" id="INPUT_IPAddress" value=""></td>
+	</tr>
+	<tr id="BUTTON_BLOCK2" class="spaceLine"><td>&nbsp;</td></tr>
+	<tr><td colspan="2">
+	<script>PrintTriButton('add',getStr('LK_Add'),"uiAdd()");</script>
+	</td></tr>
+</table>
+<br>
+<table id="td_List"  width="600" cellpadding="0" cellspacing="0" class="ContentBorder">
+<tr class="TitleRow">
+	<td langkey="LK_Enable"></td>
+	<td langkey="LK_Number"></td>
+	<td langkey="LK_IPAddress"></td>
+	<td langkey="LK_Action"></td>
+</tr>
+</table>
+<script>printEndContent();</script>
+         </form>
+   <form method="post" name ="app_upnpform" action="/cgi-bin/setup.cgi?page/applications/app_upnp.shtml">
+    </form>
+   </body>
+</html>

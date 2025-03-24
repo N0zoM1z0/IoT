@@ -1,0 +1,107 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<base target="_self">
+<script language="javascript">
+var userlevel='<!--#getuser "level" -->';
+
+function getUpTime(uptime)
+{
+	var hours = 0;
+	var minutes = 0;
+	var seconds = 0;
+	seconds = uptime % 60;
+	uptime = (uptime - seconds) / 60;
+	minutes = uptime % 60;
+	uptime = (uptime - minutes) / 60;
+	hours = uptime;
+	var utstr = hours + " hours, " + minutes + " mins, " + seconds + " secs";
+	return utstr;
+}
+
+function hideUpTime(){
+	if(userlevel == "1"){
+		trs = "";
+		trs += "<tr class='EvenRow'>";
+		trs += "<td>";
+		trs += getStr("LK_SystemUpTimee");
+		trs += "</td>";
+		trs += "<td>";
+		trs += getUpTime(DevInfoUpTime);
+		trs += "</td>";
+		trs += "</tr>";
+		jQuery("#td_table").append(trs);
+	}
+}
+
+var modelname = '<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.ModelName" -->';
+var hardwareVersion = '<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.HardwareVersion" -->';
+var softwareVersion = '<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.SoftwareVersion" -->';
+var DevInfoUpTime = <!--#getsingle "InternetGatewayDevice.DeviceInfo.UpTime" -->;	
+var serialNumber = '<!--#getsingle_noop "InternetGatewayDevice.DeviceInfo.SerialNumber" -->';
+var MACAddress = '<!--#getsingle_noop "InternetGatewayDevice.LANDevice.1.LANHostConfigManagement.MACAddress" -->';
+function __init()
+{
+	hideUpTime();
+	if(IsExistedFunction("project_init") == true) 
+		project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_DeviceInfo'));</script>
+<table id="td_table" cellpadding="0" cellspacing="0" width="400" class="ContentTable">
+<tr class="OddRow">     
+	<td langkey="LK_ProductTypee"></td>
+	<td>  
+	<script language="javascript">
+		document.write(modelname);
+	</script>
+	</td>        
+</tr>
+<tr class="EvenRow">	    
+	<td langkey="LK_DeviceID"></td>    
+	<td>          
+	<script language="javascript">
+		document.write(serialNumber);
+	</script>
+	</td>
+</tr>
+ <tr class="OddRow">      
+	<td langkey="LK_HardwareVersion"></td>    
+	<td>
+  <script language="javascript">
+		document.write(hardwareVersion);
+	</script>
+	</td>
+  </tr>
+  <tr class="EvenRow">    
+	<td langkey="LK_SoftwareVersion"></td>    
+	<td>
+	<script language="javascript">
+		document.write(softwareVersion);
+	</script>
+	</td>
+  </tr>
+  <tr class="OddRow">    
+	<td langkey="LK_MACAddresss"></td>    
+	<td>
+	<script language="javascript">
+		document.write(MACAddress);
+	</script>
+	</td>
+  </tr>
+</table>
+</b>
+</form>
+</body>
+</html>

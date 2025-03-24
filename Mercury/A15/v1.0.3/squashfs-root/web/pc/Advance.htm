@@ -1,0 +1,16 @@
+
+
+<div id="advanceWrapper" class="clearfix">
+	<div class="menuWrapper">
+		<div id="menuList"></div>
+		<div id="andlinkQRcode">
+			<img/>
+		</div>
+	</div>
+	<div class="pageWrapper">
+		<div class="dividingLine"></div>
+		<div id="menuLoader"></div>
+	</div>
+</div><script type="text/javascript">"function"!=typeof advanceAutoFit&&(advanceAutoFit=function(){var a=$("#header").height(),b=$("#footer").height(),c=document.documentElement.clientHeight;$(".wrapper").css("min-height",c);a=$(".wrapper").height()-a-b+"px";$(".dividingLine").css("height",a)});"function"!=typeof resizeWindow&&(resizeWindow=function(){window.onresize=function(){null==id("advanceWrapper")&&null==id("deviceListWrapper")||advanceAutoFit()}},resizeWindow());
+if("undefined"==typeof $menuLoader)var $menuLoader=$("#menuLoader");else $menuLoader.unbind("resize"),$menuLoader=$("#menuLoader");resizeAdvance=function(){$menuLoader.resize(function(){advanceAutoFit()})};resizeAdvance();(function(){window.setTimeout(function(){ieUnsupportCheck(function(){menuInit()})});clearTimeout(cloudRefreshHandle);refreshRoutine();showAndlinkQRcode&&$("#andlinkQRcode img").attr("src",andlinkQRcodeSrc)&&$("#andlinkQRcode").show()})();
+</script><style type="text/css">body{overflow-y:scroll;*overflow-y:visible}#advanceWrapper{width:1000px;margin:0 auto}div.menuWrapper{float:left;width:192px;margin-top:24px}div.pageWrapper{width:808px;float:left;position:relative}.dividingLine{width:1px;background:#e6e6e6;position:absolute}#menuLoader{padding-left:47px}</style>

@@ -1,0 +1,11 @@
+Package: mapd
+Version: 1
+Depends: libc, wapp, 1905daemon, libmapd
+Source: package/mtk/applications/mapd
+SourceName: mapd
+Section: MTK Properties
+SourceDateEpoch: 1689670735
+Architecture: aarch64_cortex-a53
+Installed-Size: 468853
+Description:  Multi AP daemon from mediatek.
+ yogender.pathak@mediatek.com

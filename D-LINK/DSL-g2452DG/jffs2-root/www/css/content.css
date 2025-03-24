@@ -1,0 +1,88 @@
+.hideList {
+display:none;
+}
+.showList {
+
+}
+
+.spaceLine{
+line-height:14px;
+}
+
+.MainContent{
+padding: 0 10 10 10px;
+}
+.Tributton{background-Color:#717171;padding-left:9px; border:0px;padding-right:9px; vertical-align:middle;color:#fff; font:12px Arial; height:23px;text-decoration:none; text-align:center; cursor:pointer; border-radius:2px 2px 2px 2px;  overflow:visible; background-size:100% 100%;}
+.Tributton.Hover{background-Color:#9f9f9f;padding-left:9px; padding-right:9px; vertical-align:middle;color:#000; font:12px Arial; height:23px; border:0px; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }
+.Tributton.Pressed{padding-left:9px; padding-right:9px; vertical-align:middle;color:#026c99; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }
+.Tributton.Primary{padding-left:9px; padding-right:9px; vertical-align:middle;color:#000; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%;}
+.Tributton.Disable{background-color:#c5c5c5;padding-left:9px; padding-right:9px; vertical-align:middle;color:#8E8E8E; font:12px Arial; height:23px; border-style:solid; border-collapse:collapse; text-decoration:none; text-align:center; vertical-align:middle; cursor:pointer;  overflow:visible; background-size:100% 100%; }
+
+.TitleStyle{
+color:#000; 
+font:18px Arial; 
+margin:15px; 
+text-align:left; 
+vertical-align:top
+}
+.TabTable{
+font:12px Arial;
+line-height:28px;
+}
+.ContentTable {
+margin-left:20px;
+font:12px Arial;
+border:1px solid #fff;
+}
+
+.ContentTableNoColor {
+margin-left:20px;
+font:13px Arial;
+line-height:28px;
+}
+.ContentTableNoColor th {
+ text-align:left;
+}
+
+.ContentBorder{
+text-align:left;
+border:1px solid #EAEAEA;
+border-collapse:collapse;
+margin-left:20px;
+font:12px Arial;
+}
+.ContentBorder tr{
+}
+.ContentBorder td{
+border:1px solid #EAEAEA;
+border-collapse:collapse;
+}
+
+.TextTable{
+	background:#f0f0f0;
+	padding:15 20 15 20px;
+	font:15px Arial;
+}
+.NoteLineHeight
+{
+ 	line-height:22px;
+}
+.FlagText{
+	color:Blue;	
+	Font:14px Arial;
+}
+
+.OddRowB, .OddRowB tr, .OddRowB td{border-collapse:collapse;word-spacing:1px; background:#ECF4FC; border:1 solid #EAEAEA; padding:5px 8px 5px 8px}
+.EvenRowB, .EvenRowB tr, .EvenRowB td{border-collapse:collapse;word-spacing:1px;background:#fff; border:1 solid #EAEAEA;  padding:5px 8px 5px 8px}
+.TitleRow, .TitleRow tr, .TitleRow td{border-collapse:collapse;word-spacing:1px;font-weight:bold; background:#C0D4E6; border:1 solid #EAEAEA;  padding:5px 8px 5px 8px}
+
+.OddRow, .OddRow tr, .OddRow td{border-collapse:collapse;word-spacing:1px; background:#ECF4FC; border-style:solid; border-width:0; padding:5px 8px 5px 8px}
+.EvenRow, .EvenRow tr, .EvenRow td{border-collapse:collapse;word-spacing:1px;background:#fff; border-width:0; padding:5px 8px 5px 8px}
+.SelectRow, .SelectRow tr, .SelectRow td{border-color:#8499A2; background:url("images/BTN2.gif"); background:-webkit-gradient(linear,left top,left bottom,from(#ADD050),to(#8DB71F)); background:-moz-linear-gradient(top,#ADD050,#8DB71F); filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#ADD050',endColorstr='#8DB71F'); background:-o-linear-gradient(top,#ADD050,#8DB71F); padding:5px 8px 5px 8px; color:#FFF; font-family:Arial; font-size:12px; font-weight:bold}
+.GrayRow, .GrayRow tr, .GrayRow td{background:#A2B9C9; opacity:.40; filter:alpha(opacity=40); color:#8e8e8e; padding:5px 8px 5px; font-family:Arial; font-size:12px}
+.ErrorMsg{height:16px;color:#E9102A;font-size:12px;font-family:Arial;vertical-align:middle;}
+div.zTreeDemoBackground {width:530px;height:362px;text-align:left;}
+ul.ztree {margin-top: 10px;border: 1px solid #617775;background: #f0f6e4;width:360px;height:250px;overflow-y:scroll;overflow-x:auto;}
+.hide { display: none; }
+#uploading{ font-size:12px; overflow:hidden; position:absolute}
+#file{ position:absolute; z-index:100; margin-left:-180px; font-size:60px;opacity:0;filter:alpha(opacity=0); margin-top:-5px;}

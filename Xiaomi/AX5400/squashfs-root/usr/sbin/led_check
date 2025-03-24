@@ -1,0 +1,14 @@
+#!/bin/sh
+# Turn off led if configured
+
+#turn off system/network led
+led=`uci get xiaoqiang.common.BLUE_LED 2&>/dev/null`
+[ "$led" = "0" ] && xqled sys_off
+
+#turn off xled
+xled=`uci get xiaoqiang.common.XLED 2&>/dev/null`
+[ "$xled" = "0" ] && /usr/sbin/xled_ctl xled_off
+
+#turn off ethernet link led
+ethled=`uci get xiaoqiang.common.ETHLED 2&>/dev/null`
+[ "$ethled" = "0" ] && /usr/sbin/ethled_ctl ethled_off

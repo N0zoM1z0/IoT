@@ -1,0 +1,531 @@
+#!/bin/sh /etc/rc.common
+
+START=20
+
+g_daemon=0
+g_cold_boot_support=0
+fw_ini_file=""
+board_name_prefix=""
+daemon_features_default_string=""
+cnssdaemon_log_file=""
+
+sysctl_cmd() {
+	sysctl -w $1=$2 >/dev/null 2>/dev/null
+}
+
+slp_check_calculate_data_2G(){
+	CALTAG_FILE_PATH="/tmp/calTag"
+	local CAL_TAG=nil
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag file
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1111)
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+slp_check_calculate_data_5G(){
+	CALTAG_FILE_PATH="/tmp/calTag_1"
+	CALTAG_FILE_PATH_5G2="/tmp/calTag_2"
+	local CAL_TAG=nil
+	local CAL_TAG_5G2=nil
+	local radioScheme=$(cat /proc/cmdline | awk -F 'radioScheme=' '{print $2}')
+	local radioNum=$(echo "${radioScheme}" | awk -F ',' '{print NF}')
+
+	# it's not first time to check cal data, just get caltag from /tmp/calTag_1 file
+	if [ -f "${CALTAG_FILE_PATH}" ]; then
+		CAL_TAG=$(hexdump "${CALTAG_FILE_PATH}" | grep 1111)
+		if [ "${radioNum}" == "3" ]; then
+			if [ -f "${CALTAG_FILE_PATH_5G2}" ]; then
+				CAL_TAG_5G2=$(hexdump "${CALTAG_FILE_PATH_5G2}" | grep 1111)
+				if [ -z "${CAL_TAG_5G2}" ]; then
+					echo "false"
+					return
+				fi
+			else
+				echo "false"
+				return
+			fi
+		fi
+	else
+		echo "false"
+		return
+	fi
+
+	if [ "$CAL_TAG" ]; then
+		echo "true"
+	else
+		echo "false"
+	fi
+}
+
+echo_cmd() {
+	if [[ $# == 3 ]] ; then
+		[ -n "${CFG80211_UPDATE_FILE}" ] && echo "echo $1 $2 > $3" >> $log_file
+		echo $1 $2 > $3
+	else
+		[ -n "${CFG80211_UPDATE_FILE}" ] && echo "echo $1 > $2" >> $log_file
+		echo $1 > $2
+	fi
+}
+
+update_global_daemon_coldboot_qdss_support_variables() {
+	local board_prefix=""
+	local version=0
+	local custom_ini_file=""
+	local default_ini_file=""
+	local board_name=""
+	local boardname_grep_result=0
+	local default_grep_result=0
+
+	if [ -e /sys/firmware/devicetree/base/MP_512 ]
+	then
+		custom_ini_file=/ini/firmware_rdp_feature_512P.ini
+		default_ini_file=/lib/firmware/firmware_rdp_feature_512P.ini
+	elif [ -e /sys/firmware/devicetree/base/MP_256 ]
+	then
+		# 256MB profile will use the same file as 512MB profile
+		custom_ini_file=/ini/firmware_rdp_feature_512P.ini
+		default_ini_file=/lib/firmware/firmware_rdp_feature_512P.ini
+	else
+		custom_ini_file=/ini/firmware_rdp_feature.ini
+		default_ini_file=/lib/firmware/firmware_rdp_feature.ini
+	fi
+
+	if [ -f $custom_ini_file ]
+	then
+		fw_ini_file=$custom_ini_file
+	elif [ -f $default_ini_file ]
+	then
+		fw_ini_file=$default_ini_file
+	else
+		echo "******FW ini file not found******" > /dev/console
+		return
+	fi
+
+	[ -f /tmp/sysinfo/board_name ] && {
+		board_name=ap$(cat /tmp/sysinfo/board_name | awk -F 'ap' '{print$2}')
+	}
+
+	[ -z "$board_name"  ] && {
+		echo "******Unable to find board name******" > /dev/console
+		return
+	}
+
+	#INI file has strings with the below format
+	#  <board_name>_<feature>=0/1   or
+	#  <board_name>_<PCI_device_id>_<PCI_Slot_number>_<feature>=0/1
+	# Append a "_" to the board_name here so that grep would be able to
+	# differentiate boards with similar names like ap-mp03.1 and
+	# ap-mp03.1-c2
+	board_name_prefix=${board_name}_
+
+	board_prefix=$(echo $board_name | sed 's/[0-9].*//g')
+
+	case "$board_name" in
+	ap-hk*)
+		[ -f /sys/firmware/devicetree/base/soc_version_major ] && {
+			version="$(cat /sys/module/cnss2/parameters/soc_version_major)"
+		}
+
+		daemon_features_default_string=$board_prefix"_v"$version"_default"
+		;;
+	*)
+		daemon_features_default_string=$board_prefix"_default"
+		;;
+	esac
+
+	#Grep the board_name_prefix in the fw_ini_file, if its not found, use the
+	#default string
+	boardname_grep_result=`grep -ci $board_name_prefix $fw_ini_file`
+	default_grep_result=`grep -ci $daemon_features_default_string $fw_ini_file`
+
+	if [ $boardname_grep_result != 0 ]
+	then
+		g_daemon=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | awk -F '=' '{print $2}' | grep -c 1`
+		g_cold_boot_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_cold_boot_support" | awk -F '=' '{print $2}' | grep -c 1`
+	elif [ $default_grep_result != 0 ]
+	then
+		g_daemon=`grep -i $daemon_features_default_string $fw_ini_file | grep "enable_daemon_support" | awk -F'=' '{print $2}' | cut -c 1`
+		g_cold_boot_support=`grep -i $daemon_features_default_string $fw_ini_file | grep "enable_cold_boot_support" | awk -F'=' '{print $2}' | cut -c 1`
+	else
+		echo "***** No coldboot or daemon support for $board_name******" > /dev/console
+	fi
+}
+
+start_cnssdaemon() {
+	args=""
+	local daemon=0
+
+	# Check if cnssdaemon is already running
+	cnssd_pid=$(pgrep cnssdaemon)
+	[ ! -z "$cnssd_pid" ] && {
+		return
+	}
+
+	#Daemon User Socket uses loopback interface, make sure it is up
+	ifconfig lo up
+
+	#For Integrated Radio
+	daemon=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -v pci | awk -F'=' '{print $2}' | grep -c 1`
+	if [ $daemon != 0 ]
+	then
+		args=" -i integrated"
+	fi
+
+	#***************** QCN9000*****************#
+	for slot in pci0 pci1
+	do
+		daemon=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -i "qcn9000" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		if [ $daemon != 0 ]
+		then
+			args="$args -i $slot"
+		fi
+	done
+
+	#***************** QCN6122**********************************#
+	# qcn6122 connected on pci0 is treated as integrated radio1 #
+	# qcn6122 connected on pci1 is treated as integrated radio2 #
+	#***********************************************************#
+	for slot in pci0 pci1
+	do
+		daemon=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -i "qcn6122" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		if [ $daemon != 0 ]
+		then
+			if [ "$slot" == "pci0" ] ; then
+				args="$args -i integrated1"
+			elif [ "$slot" == "pci1" ] ; then
+				args="$args -i integrated2"
+			fi
+		fi
+	done
+
+	# If args is empty here, then INI parsing has gone to default string
+	# In this case, overwrite daemon args to connect to integrated radio
+	[ -z "$args" ] && {
+		args=" -i integrated"
+	}
+
+	# To enable cnssdaemon in debug mode, log file name should be defined
+	# at the top of this file in "cnssdaemon_log_file"
+	[ ! -z "$cnssdaemon_log_file" ] && {
+		args="$args -dddd -f $cnssdaemon_log_file"
+	}
+
+	echo "***** starting cnssdaemon $args *****" > /dev/console
+	/usr/bin/cnssdaemon $args > /dev/null &
+
+	# cnssdaemon opens up sockets which is required for cnsscli.
+	# sleep here is to ensure the sockets are open before cnsscli is used.
+	sleep 1
+	cnssd_pid=$(pgrep cnssdaemon)
+	[ ! -z "$cnssd_pid" ] && {
+		echo_cmd -1000 "/proc/$cnssd_pid/oom_score_adj"
+		echo "***** cnssdaemon pid=$cnssd_pid *********" > /dev/console
+	}
+	[ -n "${CFG80211_UPDATE_FILE}" ] && echo "/usr/bin/cnssdaemon $args" >> $log_file
+}
+
+update_daemon_cold_boot_support_to_plat_priv() {
+	local daemon_support=0
+	local cold_boot_support=0
+	local interface_arg=""
+
+	# Update daemon_support flag for PCI targets
+	#***************** QCN9000*****************#
+	for slot in pci0 pci1
+	do
+		daemon_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -i "qcn9000" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		[ $daemon_support = 1 ] && {
+			cnsscli -i $slot --enable_daemon_support $daemon_support > /dev/null
+		}
+	done
+
+	#***************** QCN6122**********************************#
+	# qcn6122 connected on pci0 is treated as integrated radio1 #
+	# qcn6122 connected on pci1 is treated as integrated radio2 #
+	#***********************************************************#
+	for slot in pci0 pci1
+	do
+		daemon_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -i "qcn6122" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		if [ "$slot" == "pci0" ] ; then
+			interface_arg="integrated1"
+		elif [ "$slot" == "pci1" ] ; then
+			interface_arg="integrated2"
+		fi
+		[ $daemon_support = 1 ] && {
+			cnsscli -i $interface_arg --enable_daemon_support $daemon_support > /dev/null
+		}
+	done
+
+	# Update daemon_support flag for Integrated Radio
+	daemon_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_daemon_support" | grep -v pci | awk -F'=' '{print $2}' | cut -c 1`
+	[ -z $daemon_support ] && {
+		daemon_support=`grep -i $daemon_features_default_string $fw_ini_file | grep "enable_daemon_support" | awk -F'=' '{print $2}' | grep -c 1`
+	}
+
+	[ $daemon_support = 1 ] && {
+		cnsscli -i integrated --enable_daemon_support $daemon_support > /dev/null
+	}
+
+	# Update cold_boot_support flag for PCI targets
+	#***************** QCN9000*****************#
+	for slot in pci0 pci1
+	do
+		cold_boot_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_cold_boot_support" | grep -i "qcn9000" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		[ $cold_boot_support = 1 ] && {
+			cnsscli -i $slot --enable_cold_boot_support $cold_boot_support > /dev/null
+		}
+	done
+
+	#***************** QCN6122**********************************#
+	# qcn6122 connected on pci0 is treated as integrated radio1 #
+	# qcn6122 connected on pci1 is treated as integrated radio2 #
+	#***********************************************************#
+	for slot in pci0 pci1
+	do
+		cold_boot_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_cold_boot_support" | grep -i "qcn6122" | grep -i $slot | awk -F'=' '{print $2}' | grep -c 1`
+		if [ "$slot" == "pci0" ] ; then
+			interface_arg="integrated1"
+		elif [ "$slot" == "pci1" ] ; then
+			interface_arg="integrated2"
+		fi
+		[ $cold_boot_support = 1 ] && {
+			cnsscli -i $interface_arg --enable_cold_boot_support $cold_boot_support > /dev/null
+		}
+	done
+
+	# Update cold_boot_support flag for Integrated Radio
+	cold_boot_support=`grep -i $board_name_prefix $fw_ini_file | grep "enable_cold_boot_support" | grep -v pci | awk -F'=' '{print $2}' | cut -c 1`
+	[ -z $cold_boot_support ] && {
+		cold_boot_support=`grep -i $daemon_features_default_string $fw_ini_file | grep "enable_cold_boot_support" | awk -F'=' '{print $2}' | grep -c 1`
+	}
+
+	[ $cold_boot_support = 1 ] && {
+		cnsscli -i integrated --enable_cold_boot_support $cold_boot_support > /dev/null
+	}
+}
+
+do_cold_boot_calibration_qcawifi() {
+	local coldbootmode=7
+	#Update the daemon, coldboot and qdss support variables from FW INI
+	update_global_daemon_coldboot_qdss_support_variables
+
+	#Daemon needs to be started if enabled from ini, even if coldboot is
+	#disabled, it might be used by QDSS
+	[ $g_daemon != 0  ] && {
+		start_cnssdaemon
+		update_daemon_cold_boot_support_to_plat_priv
+	}
+
+	[ $g_cold_boot_support = 0 ] && {
+		echo "******No cold_boot_support*****"  > /dev/console
+		return 0
+	}
+
+	[ -f /tmp/cold_boot_done ] && {
+		echo "******Not the first boot. Skip coldboot calibration*****"  > /dev/console
+		return 0
+	}
+
+	echo "*********initiating cold boot calibration*************" > /dev/console
+	#Set Cold boot mode to 10 for FTM Mode, 7 otherwise
+	is_ftm="$(grep wifi_ftm_mode /proc/cmdline | wc -l)"
+	[ $is_ftm = 1  ] && {
+		coldbootmode=10
+		echo "*****FTM Coldboot mode set to 10*****" > /dev/console
+	}
+
+	#Set driver_mode as coldboot to the kernel
+	echo $coldbootmode > /sys/module/cnss2/parameters/driver_mode
+	insmod qca_ol.ko testmode=$coldbootmode
+	# insmod and rmmod wifi_3_0 kernel object in addition to qca_ol
+	# as wifi_3_0 initiates and shuts down driver.
+	insmod wifi_3_0.ko
+	rmmod wifi_3_0.ko
+	rmmod qca_ol.ko
+	#Reset driver_mode to 0 for mission mode
+	echo 0 > /sys/module/cnss2/parameters/driver_mode
+	sync
+	touch /tmp/cold_boot_done
+	echo "*********end cold boot calibration*************" > /dev/console
+}
+
+# Set NSS FW-TO-HOST buffer pool cfg
+set_nss_buffer_pool() {
+	local mp_256="$(ls /proc/device-tree/ | grep -rw "MP_256")"
+	local mp_512="$(ls /proc/device-tree/ | grep -rw "MP_512")"
+	local board_name
+	local hk_ol_num=0
+
+	[ -f /tmp/sysinfo/board_name ] && {
+		board_name=ap$(cat /tmp/sysinfo/board_name | awk -F 'ap' '{print$2}')
+	}
+
+	if [ "$mp_256" == "MP_256" ]; then
+	case "$board_name" in
+	ap-mp*)
+			#extra pbuf core0 = (high_water_core0 - (NSS + OCM buffers)) * pbuf_size
+			#where NSS+OCM buffers = 11720 and pbuf_size = 160 bytes
+			#total pbuf size is 160 bytes,allocate memory for 4616 pbufs
+			sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 800000
+			sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 16336
+			sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 0
+			;;
+	*)
+			sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 1400000
+			sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 20432
+			sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 0
+			;;
+	esac
+	elif [ "$mp_512" == "MP_512" ]; then
+		# 三频机型内存扩大到512M，且创建了新的频段，但由于/sys/module/qca_ol
+		# 目录存在，故此处不会执行sysctl_cmd指令，没有配置extra_pbuf_core0等
+		# 参数，导致NSS FW内存不足，进而导致无法产生数据包中断，有线不通。
+		# 故临时修改脚本，对于512M内存机型，强制执行如下sysctl_cmd指令。
+		#[ -d /sys/module/qca_ol ] || { \
+		#	hk_ol_num="$(cat /lib/wifi/wifi_nss_hk_olnum)"
+		#	if [ $hk_ol_num -eq 3 ]; then
+				#total pbuf size is 160 bytes,allocate memory for 19928 pbufs
+				sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 3200000
+				sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 31648
+				sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 0
+		#	else
+		#		#total pbuf size is 160 bytes,allocate memory for 18904 pbufs
+		#		sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 3100000
+		#		sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 30624
+		#		sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 8192
+		#	fi
+		#}
+	else
+	case "$board_name" in
+	ap-hk09*)
+			local soc_version_major
+			[ -f /sys/firmware/devicetree/base/soc_version_major ] && {
+				soc_version_major="$(hexdump -n 1 -e '"%1d"' /sys/firmware/devicetree/base/soc_version_major)"
+			}
+			if [ $soc_version_major = 2 ];then
+				[ -d /sys/module/qca_ol ] || { \
+					#total pbuf size is 160 bytes,allocate memory for 55672 pbufs
+					sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 9000000
+					sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 67392
+					#initially after init 4k buf for 5G and 4k for 2G will be allocated, later range will be configured
+					sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 40960
+				}
+			else
+				#total pbuf size is 160 bytes,allocate memory for 57184 pbufs
+				sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 9200000
+				sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 68904
+				sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 32768
+			fi
+	;;
+	ap-ac01)
+		#total pbuf size is 160 bytes,allocate memory for 14712 pbufs
+		sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 2400000
+		sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 26432
+		sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 0
+
+	;;
+	ap-ac02)
+		#total pbuf size is 160 bytes,allocate memory for 18808 pbufs
+		sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 3100000
+		sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 30528
+		sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 4096
+	;;
+	ap-hk* | ap-oak*)
+		hk_ol_num="$(cat /lib/wifi/wifi_nss_hk_olnum)"
+		[ -d /sys/module/qca_ol ] || { \
+			if [ $hk_ol_num -eq 3 ]; then
+				#total pbuf size is 160 bytes,allocate memory for 93560 pbufs
+				#NSS general payload(8000),Rx Buffer per radio(4k),Tx queue buffer per radio(1k), intial TX allocation per radio(4k)
+				#Below table is Tx desc allocation based on number of clients connected
+				#Radio     Range0   Range1     Range2       Range3
+				#           (<=64) (<=128)     (<=256)      (>256)
+				#5G-Hi        24k	24k		24k		32k
+				#2G           16k	16k		16k		16k
+				#5G-Low       24k	24k		24k		32k
+				#Absolute high water=NSS payloads + Rx buf per radio + Tx queue per radio + TxDescRange3(5g-low/5g-hi/2g)
+				#wifi pool buff = Min(Total tx desc at range 3, device_limit) - total intial tx allocation
+				#extra pbuf core0 = (high_water_core0 - (NSS + OCM buffers)) * pbuf_size
+				#	where NSS+OCM buffers = 11720 and pbuf_size = 160
+				sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 10000000
+				sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 72512
+				#initially after init 4k buf for 5G and 4k for 2G will be allocated, later range will be configured
+				sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 0
+			else
+				#total pbuf size is 160 bytes,allocate memory for 55672 pbufs
+				sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 9000000
+				sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 67392
+				#initially after init 4k buf for 5G and 4k for 2G will be allocated, later range will be configured
+				sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 40960
+			fi
+		}
+	;;
+	ap-cp* | ap-mp*)
+		[ -d /sys/module/qca_ol ] || { \
+			#total pbuf size is 160 bytes,allocate memory for 18808 pbufs
+			sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 3100000
+			sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 30528
+			sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 4096
+		}
+	;;
+	*)
+		#total pbuf size is 160 bytes,allocate memory for 48456 pbufs
+		sysctl_cmd dev.nss.n2hcfg.extra_pbuf_core0 7800000
+		sysctl_cmd dev.nss.n2hcfg.n2h_high_water_core0 60176
+		sysctl_cmd dev.nss.n2hcfg.n2h_wifi_pool_buf 35840
+	;;
+	esac
+	fi
+
+}
+
+start() {
+	# set the path of *.ini files
+	echo -n /ini > /sys/module/firmware_class/parameters/path
+
+	# create soft link for firmware_rdp_feature.ini
+	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
+		if [ -f /lib/firmware/IPQ5018/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/IPQ5018/WIFI_FW/firmware_rdp_feature_512P.ini .
+		fi
+	else
+		if [ -f /lib/firmware/IPQ5018/WIFI_FW/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/IPQ5018/WIFI_FW/firmware_rdp_feature.ini .
+		fi
+	fi
+
+	set_nss_buffer_pool
+
+	#insmod ko
+	cd /lib/modules/4.4.60
+	insmod mem_manager.ko
+	#insmod cfg80211.ko
+	insmod qdf.ko
+	insmod asf.ko
+	#insmod qca-ssdk.ko
+	#insmod qca-nss-dp.ko
+	#insmod qca-nss-drv.ko
+	insmod umac.ko
+	insmod qca_spectral.ko
+	do_cold_boot_calibration_qcawifi
+
+	local caltag_2g=$(slp_check_calculate_data_2G)
+	local caltag_5g=$(slp_check_calculate_data_5G)
+	[ "$caltag_2g" == "false" -o "$caltag_5g" == "false" ] && { \
+		insmod qca_ol.ko testmode=1
+	} || {
+		insmod qca_ol.ko
+	}
+
+	insmod wifi_3_0.ko
+	insmod ath_pktlog.ko
+	#insmod smart_antenna.ko
+}

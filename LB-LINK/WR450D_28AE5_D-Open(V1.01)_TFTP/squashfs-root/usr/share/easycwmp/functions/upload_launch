@@ -1,0 +1,146 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+# 	Author: AHMED Sahnoun <ahmed.sahnoun@pivasoftware.com>
+
+
+[ "$1" != "run" -a "$1" != "stop" ] && return
+
+UCI_GET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state get"
+UCI_SET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set"
+
+upload_get() {
+	local val=`$UCI_GET_VARSTATE $1`
+	echo ${val:-$2}
+}
+
+upload_run() {
+	[ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload`" = "Requested" ] && upload_initiation
+}
+
+upload_initiation() {
+	local romtime
+	local bomtime
+	local eomtime
+	local TestFileLength
+	local TotalBytesSent
+	local TCPOpenRequestTime
+	local TCPOpenResponseTime
+	local url=`upload_get easycwmp.@local[0].uploadurl`
+	local Interface=`upload_get easycwmp.@local[0].Interface_upload`
+	
+	[ "$url" = "" ] && return
+	upload_launch
+	
+	rm -rf /tmp/upload_info
+	rm -rf /tmp/upload_file
+	
+	[ -n "$State" ] && { $UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=$State; event_dignostic; return; }
+
+	$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=Complete
+	$UCI_SET_VARSTATE easycwmp.@local[0].romtime_upload=$romtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].bomtime_upload=$bomtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].eomtime_upload=$eomtime
+	$UCI_SET_VARSTATE easycwmp.@local[0].testfilelen_upload=$TestFileLength
+	$UCI_SET_VARSTATE easycwmp.@local[0].totaltx_upload=$TotalBytesSent
+	$UCI_SET_VARSTATE easycwmp.@local[0].tcpopenrequesttime_upload=$TCPOpenRequestTime
+	$UCI_SET_VARSTATE easycwmp.@local[0].tcpopenresponsetime_upload=$TCPOpenResponseTime
+	
+	event_dignostic
+}
+
+upload_launch() {
+	local val val2 val3
+	
+	[ "$url" = "" ] && return
+	[ "$Interface" != "" ] && { 
+		ubusInterface=`echo {\"interface\":\"$Interface\"}`
+		iface=`ubus call "network.interface" "status" $ubusInterface`
+	}
+	[ "$iface" != "" ] && {
+		json_init
+		json_load "$iface" >&2
+		json_get_var device device >&2
+		if [ "$device" != "" ] 
+			then
+				Device=`echo --interface $device`
+			else
+				Device=""
+			fi
+		}
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenRequestTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenResponseTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		TCPOpenRequestTime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		romtime=$val$val3
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		bomtime=$val$val3
+	
+		curl ftp://$url/ -T "/etc/config/network" $Device --connect-timeout 5 --max-time 5 2> /tmp/upload_info > /tmp/upload_info
+		
+		val=`date -u +%Y-%m-%d'T'%H:%M:%S.`
+		val2=`date -u +%s`
+		val3=`echo ${val2:5:6}`
+		eomtime=$val$val3
+	
+		if [ ! -s /tmp/upload_info ];then
+			State=Error_NoResponse
+			return
+		fi
+		
+		val=`cat /tmp/upload_info | grep "Connection timed out"`
+		[ -n "$val" ] && { State=Error_InitConnectionFailed; return; }
+		
+		val=`cat /tmp/upload_info | grep "Access denied"`
+		[ -n "$val" ] && { State=Error_LoginFailed; return; }
+		
+		val=`cat /tmp/upload_info | grep "Operation timed out"`
+		[ -n "$val" ] && { State=Error_TransferFailed; return; }
+		
+		val=`ls -l /etc/config/network | awk -F ' ' '{ print $5 }'`
+		
+		TotalBytesSent=$val
+		TestFileLength=$val
+}
+
+event_dignostic() {
+	local e=1
+	local i=0
+	while [ "$e" != 0 -a $i -lt 200 ]; do	
+		ubus -t 1 call tr069 inform '{"event":"8 DIAGNOSTICS COMPLETE"}'
+		e=$?
+		[ "$e" != "0" ] && sleep 1;
+		let i++
+	done
+}
+
+upload_stop() {
+	local pids=`ps aux | grep upload_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	[ -z "$pids" ] && pids=`ps | grep upload_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	if [ -n "$pids" ]; then
+		kill -9 $pids 2>/dev/null
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=None
+	fi
+}
+
+[ "$1" == "run" ] && { upload_run 2>/dev/null; exit 0; }
+[ "$1" == "stop" ] && upload_stop 2>/dev/null
+

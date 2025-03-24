@@ -1,0 +1,8 @@
+Package: sysapihttpd
+Version: 1.2.2-1
+Depends: libc, libpcre, zlib, libpthread, lua, libconfig, libjson-c, libubus, libblobmsg-json, libopenssl
+Source: package/miwifi/sysapihttpd
+Section: net
+Architecture: aarch64_cortex-a53
+Installed-Size: 280144
+Description:  system api web server, clone from nginx package.

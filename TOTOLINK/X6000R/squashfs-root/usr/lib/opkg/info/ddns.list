@@ -1,0 +1,7 @@
+/etc/init.d/noip2
+/etc/init.d/yddns
+/etc/init.d/orayddns
+/usr/bin/orayddns
+/etc/config/ddns
+/usr/bin/noip2
+/usr/bin/yddns

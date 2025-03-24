@@ -1,0 +1,64 @@
+local L0, L1, L2, L3
+L0 = require
+L1 = "luci.util"
+L0 = L0(L1)
+L1 = module
+L2 = "xiaoqiang.XQPreference"
+L3 = package
+L3 = L3.seeall
+L1(L2, L3)
+function L1(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8
+  L3 = require
+  L4 = "luci.model.uci"
+  L3(L4)
+  A2 = A2 or A2
+  L3 = luci
+  L3 = L3.model
+  L3 = L3.uci
+  L3 = L3.cursor
+  L3 = L3()
+  L5 = L3
+  L4 = L3.get
+  L6 = A2
+  L7 = "common"
+  L8 = A0
+  L4 = L4(L5, L6, L7, L8)
+  L5 = L4 or L5
+  if not L4 then
+    L5 = A1
+  end
+  return L5
+end
+get = L1
+function L1(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9
+  L3 = require
+  L4 = "luci.model.uci"
+  L3(L4)
+  A2 = A2 or A2
+  L3 = luci
+  L3 = L3.model
+  L3 = L3.uci
+  L3 = L3.cursor
+  L3 = L3()
+  if A1 == nil then
+    A1 = ""
+  end
+  L5 = L3
+  L4 = L3.set
+  L6 = A2
+  L7 = "common"
+  L8 = A0
+  L9 = A1
+  L4(L5, L6, L7, L8, L9)
+  L5 = L3
+  L4 = L3.save
+  L6 = A2
+  L4(L5, L6)
+  L5 = L3
+  L4 = L3.commit
+  L6 = A2
+  return L4(L5, L6)
+end
+set = L1

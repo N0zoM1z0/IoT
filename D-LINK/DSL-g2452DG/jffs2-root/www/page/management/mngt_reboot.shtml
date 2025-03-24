@@ -1,0 +1,66 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+</head>
+<script>
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function ConfirmMsgResult(type,func)
+{
+	if(func=='reboot')
+{
+		if(type=="yes")
+		{
+	document.location.href="/page/management/mngt_restart.shtml";
+		}
+		else
+		{
+			return;
+		}
+	}
+}
+function uiReboot()
+{
+	if(!validateCode())	
+	    return false;
+		
+	top.ConfirmMsg(getStr('LK_RebootText'),"reboot");
+}
+
+</script>
+
+<body>
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr("LK_Reboot"));</script>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+			<td langkey="LK_ClickBelowButton"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+	    <tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+    </table>
+	<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+		<tr>
+		    <td>
+			<script>PrintTriButton("reboot",getStr("LK_Reboot"),"uiReboot();" );</script>
+			</td>
+		</tr>
+	</table>
+<script>printEndContent();</script>
+<form method="post" name="Mngt_Reboot" id="Mngt_Reboot" action="/cgi-bin/setup.cgi?page/management/mngt_reboot.shtml">
+</form>
+</body>
+</html>

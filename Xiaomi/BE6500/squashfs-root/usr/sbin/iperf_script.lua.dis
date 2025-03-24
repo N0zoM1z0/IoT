@@ -1,0 +1,72 @@
+local L0, L1, L2, L3, L4, L5
+L0 = require
+L1 = "nixio.fs"
+L0 = L0(L1)
+L1 = require
+L2 = "nixio"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.common.XQFunction"
+L2 = L2(L3)
+L3 = "/tmp/iperf_script_pid"
+L4 = arg
+L4 = L4[1]
+function L5()
+  local L0, L1, L2, L3, L4
+  L0 = _UPVALUE0_
+  L0 = L0.readfile
+  L1 = _UPVALUE1_
+  L0 = L0(L1)
+  if L0 and L0 ~= "" then
+    L1 = os
+    L1 = L1.execute
+    L2 = "kill -0 "
+    L3 = tostring
+    L4 = L0
+    L3 = L3(L4)
+    L2 = L2 .. L3
+    L1 = L1(L2)
+    if L1 == 0 then
+      return
+    end
+  end
+  L1 = _UPVALUE2_
+  L1 = L1.getpid
+  L1 = L1()
+  L0 = L1
+  L1 = _UPVALUE0_
+  L1 = L1.writefile
+  L2 = _UPVALUE1_
+  L3 = L0
+  L1(L2, L3)
+  L1 = _UPVALUE3_
+  L1 = L1.forkExec
+  L2 = "iperf -s 2>/dev/null"
+  L1(L2)
+  L1 = os
+  L1 = L1.execute
+  L2 = "sleep 60; killall iperf 2>/dev/null"
+  L1(L2)
+end
+start = L5
+function L5()
+  local L0, L1, L2, L3
+  L0 = _UPVALUE0_
+  L0 = L0.readfile
+  L1 = _UPVALUE1_
+  L0 = L0(L1)
+  L1 = os
+  L1 = L1.execute
+  L2 = "killall iperf; kill -9 "
+  L3 = L0
+  L2 = L2 .. L3
+  L1(L2)
+end
+stop = L5
+if L4 and L4 == "start" then
+  L5 = start
+  L5()
+elseif L4 and L4 == "stop" then
+  L5 = stop
+  L5()
+end

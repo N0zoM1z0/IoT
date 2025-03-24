@@ -1,0 +1,251 @@
+<script type="text/javascript">
+	(function(){
+		var wifiAllSwitch, wifiStateHandle = null;
+
+		function getData(){
+			var deferredArray = [];
+			var ledResult = {}, meshResult = {}, wifiAllSwitchResult = {};
+			var systemLightSwitchId = "systemLight", meshButtonSwitchId = "meshButton",  wifiAllSwitchId = "wifiAllSwitch";
+
+			var ledDeferred = $.Deferred(), ledData = {};
+
+			if (slp.moduleSpec["wifison"] == 1 ||
+				slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				ledData[uciPlc.fileName] = {};
+				ledData[uciPlc.fileName][uciPlc.actionName.getLedStatus] = null;
+
+				deferredArray.push(ledDeferred);
+
+				$.action(ledData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						ledResult = result;
+						ledDeferred.resolve();
+					}
+				});
+			}
+			else if (slp.moduleSpec["sys_led_control"] == 1)
+			{
+				ledData[uciLed.fileName] = {};
+				ledData[uciLed.fileName][KEY_NAME] = uciLed.secName.config;
+
+				deferredArray.push(ledDeferred);
+
+				$.query(ledData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						ledResult = result;
+						ledDeferred.resolve();
+					}
+				});
+			}
+			else if (slp.customLedSupport)
+			{
+				ledData[uciCustomLed.fileName] = {};
+				ledData[uciCustomLed.fileName][KEY_NAME] = uciCustomLed.secName.config;
+
+				deferredArray.push(ledDeferred);
+
+				$.query(ledData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						ledResult = result;
+						ledDeferred.resolve();
+					}
+				});
+			}
+
+			if (slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				var meshDeferred = $.Deferred(), meshData = {};
+				meshData[uciMesh.fileName] = {};
+				meshData[uciMesh.fileName][KEY_NAME] = uciMesh.secName.config;
+
+				deferredArray.push(meshDeferred);
+
+				$.query(meshData, function(result){
+					if (result[ERR_CODE] == ENONE)
+					{
+						meshResult = result;
+						meshDeferred.resolve();
+					}
+				});
+			}
+
+			$.when.apply($, deferredArray).done(function(){
+				if (slp.moduleSpec["wifison"] == 1 ||
+					slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					status = ledResult[uciPlc.optName.status];
+					state = (status == uciPlc.optValue.ledStatus.on) ? 1 : 0;
+				}
+				else if (slp.moduleSpec["sys_led_control"] == 1)
+				{
+					status = ledResult[uciLed.fileName][uciLed.secName.config][uciLed.optName.sysLedEnable];
+					state = (status == uciLed.optValue.enable.on) ? 1 : 0;
+				}
+				else if (slp.customLedSupport)
+				{
+					/* LED灯状态值“22222”关，其他为开，设置开启LED状态时使用“10000” */
+					status = ledResult[uciCustomLed.fileName][uciCustomLed.secName.config][uciCustomLed.optName.config];
+					state = (status == uciCustomLed.optValue.enable.off) ? 0 : 1;
+				}
+
+				initComp(label.systemLight, systemLightSwitchId,
+						[{str: label.bright, val: 1},
+							{str: label.notBright, val: 0}],
+						state, label.systemLightDesc, systemLightClick);
+
+				if (slp.moduleSpec["wifison_mesh"] == 1)
+				{
+					var status = meshResult[uciMesh.fileName][uciMesh.secName.config][uciMesh.optName.pbcEnable];
+					var state = (status == uciMesh.optValue.enable.on) ? 0 : 1;
+
+					initComp(label.meshButtonLock, meshButtonSwitchId,
+							[{str: label.alreadyLock, val: 1},
+							 {str: label.unLock, val: 0}],
+							state, label.meshButtonDesc, meshButtonClick);
+				}
+			});
+		}
+
+		function systemLightClick(state){
+			var self = this;
+			var data = {}, args = {};
+
+			if (slp.moduleSpec["wifison"] == 1 ||
+				slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				data[uciPlc.fileName] = {};
+				data[uciPlc.fileName][uciPlc.actionName.setLedStatus] = args;
+				args[uciPlc.optName.status] = (state == 1) ? uciPlc.optValue.ledStatus.on
+														   : uciPlc.optValue.ledStatus.off;
+				$.action(data, function(result){
+					if (result[ERR_CODE] != ENONE)
+					{
+						alarmDialog.show(errStr.invRequestFail);
+						self.setState(1 - state);
+					}
+				});
+			}
+			else if (slp.moduleSpec["sys_led_control"] == 1)
+			{
+				data[uciLed.fileName] = {};
+				data[uciLed.fileName][uciLed.secName.config] = args;
+				args[uciLed.optName.sysLedEnable] = (state == 1) ? uciLed.optValue.enable.on
+																 : uciLed.optValue.enable.off;
+				$.modify(data, function(result){
+					if (result[ERR_CODE] != ENONE)
+					{
+						alarmDialog.show(errStr.invRequestFail);
+						self.setState(1 - state);
+					}
+				});
+			}
+			else if (slp.customLedSupport)
+			{
+				data[uciCustomLed.fileName] = {};
+				data[uciCustomLed.fileName][uciCustomLed.secName.config] = args;
+				args[uciCustomLed.optName.config] = (state == 1) ? uciCustomLed.optValue.enable.on : uciCustomLed.optValue.enable.off;
+
+				$.modify(data, function(result){
+					if (result[ERR_CODE] != ENONE)
+					{
+						alarmDialog.show(errStr.invRequestFail);
+						self.setState(1 - state);
+					}
+				});
+			}
+		}
+
+		function meshButtonClick(state){
+			var self = this;
+			var data = {}, args = {};
+			data[uciMesh.fileName] = {};
+			data[uciMesh.fileName][uciMesh.secName.config] = args;
+			args[uciMesh.optName.pbcEnable] = (state == 0) ? uciMesh.optValue.enable.on : uciMesh.optValue.enable.off;
+
+			$.modify(data, function (result) {
+				if (result[ERR_CODE] != ENONE) {
+					alarmDialog.show(errStr.invRequestFail);
+					self.setState(1 - state);
+				}
+			});
+		}
+
+		function initComp(title, switchId, statusArray, value, Desc, clickFunc){
+			$com = $('<div class="componentBoard">'	+
+						'<span class="componentTitle">' + title + '</span>'	+
+						'<div id="' + switchId + '" class="switchCon switchConHs">'	+
+							'<i class="switchBg"></i>'	+
+							'<i class="switchBall"/></i>' +
+						'</div>'	+
+						'<span id="' + switchId + 'Status"class="componentStatus"></span>'	+
+						'<span class="componentDesc">' + Desc + '</span>'	+
+					'</div>');
+
+			$("#componentSet").append($com);
+
+			return new Switch(switchId, value, clickFunc, false, function(state){
+				var str = "";
+				var strArray = this.statusArray;
+
+				for (var i = 0; i < strArray.length; i++)
+				{
+					if (strArray[i].val == state)
+					{
+						str = strArray[i].str;
+						break;
+					}
+				}
+
+				$("#" + this.switchId + "Status").text(str);
+			}, statusArray);
+		}
+
+		getData();
+	})();
+</script>
+<style type="text/css">
+	div.componentBoard{
+		padding:24px;
+		border: 1px solid #E6E6E6;
+		border-radius: 4px;
+		margin-bottom: 25px;
+	}
+	div.componentBoard span.componentTitle{
+		font-size: 18px;
+		color: #333333;
+		line-height:36px;
+		height:36px;
+		display:inline-block;
+		font-weight: bold;
+		vertical-align: middle;
+	}
+	div.componentBoard div.switchCon{
+		margin-left: 16px;
+	}
+	div.componentBoard span.componentStatus{
+		margin-left: 10px;
+		font-size: 13px;
+		color: #333333;
+		line-height:16px;
+		height:16px;
+		vertical-align:middle;
+	}
+	div.componentBoard span.componentDesc{
+		display:block;
+		margin-top:16px;
+		line-height:20px;
+		color:#666666;
+		font-size:13px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.lightNButton%}</h1>
+	</div>
+	<p class="description">{%titleDescriptionStr.lightAndButtonDescription%}</p>
+</div>
+<div id="componentSet"></div>

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+#nvram restore_default
+cli sys nvram restore_factory_default
+sleep 1
+reboot

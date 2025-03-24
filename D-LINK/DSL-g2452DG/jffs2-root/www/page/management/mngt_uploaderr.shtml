@@ -1,0 +1,22 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script >
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+<br>
+<table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+<tr><td>Invalid Config File...</td></tr>
+</table>
+</body>
+</html>

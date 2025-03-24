@@ -1,0 +1,144 @@
+
+<html>
+<head>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css"type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<base target="_self">
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">    
+var sysusername="telecomadmin"; 
+var user='<!--#getuser "name"-->';
+var userlevel='<!--#getuser "level" -->';
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANDSLInterfaceConfig. Status UpstreamCurrRate DownstreamCurrRate DownstreamNoiseMargin UpstreamInterleaveDepth DownstreamInterleaveDepth StandardUsed UpstreamAttenuation DownstreamAttenuation DownstreamPower UpstreamNoiseMargin UpstreamPower EstimateDistance UpstreamMaxRate DownstreamMaxRate" -->
+var status = "<!--#leaf "1"-->";
+var upstreamCurrRate = "<!--#leaf "2"-->";
+var downstreamCurrRate = "<!--#leaf "3"-->";
+var downstreamNoiseMargin = "<!--#leaf "4"-->";
+var UpstreamInterleaveDepth = "<!--#leaf "5"-->";
+var downstreamInterleaveDepth = "<!--#leaf "6"-->";
+var standardUsed = "<!--#leaf "7"-->";
+var upstreamAttenuation = "<!--#leaf "8"-->";
+var downstreamAttenuation = "<!--#leaf "9"-->";
+var downstreamPower = <!--#leaf "10"-->;
+var upstreamNoiseMargin = "<!--#leaf "11"-->";
+var upstreamPower = <!--#leaf "12"-->;
+var estimateDistance = "<!--#leaf "13"-->";
+var gUpstreamMaxRate = "<!--#leaf "14"-->";
+var gDownstreamMaxRate = "<!--#leaf "15"-->";
+<!--#endgetobject -->
+
+<!--#getobject "InternetGatewayDevice.WANDevice.1.WANDSLInterfaceConfig.Stats.Showtime. FECErrors ATUCFECErrors HECErrors ATUCHECErrors CRCErrors ATUCCRCErrors" -->
+var downShowtimeFEC = "<!--#leaf "1"-->";
+var upShowtimeFEC   = "<!--#leaf "2"-->";
+var downShowtimeHEC = "<!--#leaf "3"-->";
+var upShowtimeHEC   = "<!--#leaf "4"-->";
+var downShowtimeCRC = "<!--#leaf "5"-->";
+var upShowtimeCRC   = "<!--#leaf "6"-->";
+<!--#endgetobject -->
+
+
+function init()
+{    
+	$("TD_DslStatus").innerHTML = status ;
+	$("TD_StandardUsed").innerHTML = standardUsed;
+    $("TD_CurrRate").innerHTML = upstreamCurrRate + "/" + downstreamCurrRate+" kbps";
+    $("TD_MaxRate").innerHTML = gUpstreamMaxRate + "/" + gDownstreamMaxRate+" kbps";
+    $("TD_NoiseMargin").innerHTML = (upstreamNoiseMargin*0.1).toFixed(1) +"/" +(downstreamNoiseMargin*0.1).toFixed(1) + " dB";
+    $("TD_InterleaveDepth").innerHTML = UpstreamInterleaveDepth+"/" +downstreamInterleaveDepth;
+    $("TD_Attenuation").innerHTML = (upstreamAttenuation*0.1).toFixed(1) +"/" +(downstreamAttenuation*0.1).toFixed(1) +" dB";    
+    $("TD_OutputPower").innerHTML = (upstreamPower*0.1).toFixed(1) +"/" +(downstreamPower*0.1).toFixed(1) + " dBm";
+    $("TD_Showtime_FEC").innerHTML = upShowtimeFEC +"/" + downShowtimeFEC;
+    $("TD_Showtime_HEC").innerHTML = upShowtimeHEC +"/" + downShowtimeHEC;
+    $("TD_Showtime_CRC").innerHTML = upShowtimeCRC +"/" + downShowtimeCRC;
+    $("TD_Showdistance").innerHTML = estimateDistance;
+    
+	//一般用户限制
+	if(userlevel != "1"){
+		UserLimit();
+	}	
+} 
+
+function UserLimit(){
+	var tr = document.getElementsByTagName('TR');
+	
+	for(var i = 4; i < tr.length; i++){
+		tr[i].style.display = 'none';
+	}
+}
+
+function __init()
+{
+	init();
+	if(IsExistedFunction("project_init") == true) 
+    project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+	<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StatisticsXdsl'))</script>
+<table class="ContentBorder" cellpadding="0" cellspacing="0" width="300">
+<tr class="OddROwB">
+	<td id="lang_DslStatus" langkey="LK_Status_Colon"></td>
+	<td id="TD_DslStatus" name="TD_DslStatus"></td>
+</tr>
+<tr class='EvenRowB'>
+        <td id="lang_StandardUsed" langkey="LK_DSL_LineStandard"></td>
+        <td id="TD_StandardUsed" name="TD_StandardUsed"></td>
+</tr>
+<tr class="OddRowB">
+        <td id="lang_CurrRate" langkey="LK_DSL_CurrRate" nowrap="nowrap"></td>
+        <td id="TD_CurrRate" name="TD_CurrRate" nowrap="nowrap"></td>
+</tr>
+<tr class="EvenRowB">
+        <td id="lang_MaxRate" langkey="LK_DSL_MaxRate" nowrap="nowrap"></td>
+        <td id="TD_MaxRate" name="TD_MaxRate" nowrap="nowrap"></td>
+</tr>
+<tr class="OddRowB">
+        <td id="lang_NoiseMargin" langkey="LK_DSL_NoiseMargin" nowrap="nowrap"></td>
+        <td id="TD_NoiseMargin" name="TD_NoiseMargin" nowrap="nowrap"></td>
+</tr>
+<tr class='EvenRowB'>
+        <td id="lang_InterleaveDepth" langkey="LK_DSL_InterleaveDepth" nowrap="nowrap"></td>
+        <td id="TD_InterleaveDepth" name="TD_InterleaveDepth" nowrap="nowrap"></td>
+</tr>
+<tr class="OddRowB">
+        <td id="lang_Attenuation" langkey="LK_DSL_LineAttenuation" nowrap="nowrap"></td>
+        <td id="TD_Attenuation" name="TD_Attenuation" nowrap="nowrap"></td>
+</tr>
+<tr class="EvenRowB">
+        <td id="lang_OutputPower" langkey="LK_DSL_OutputPower" nowrap="nowrap"></td>
+        <td id="TD_OutputPower" name="TD_OutputPower" nowrap="nowrap"></td>
+</tr>
+<tr class="OddRowB">
+        <td langkey="LK_DSL_Showtime_FEC" nowrap="nowrap"></td>
+        <td id="TD_Showtime_FEC" name="TD_Showtime_FEC" nowrap="nowrap"></td>
+</tr>
+<tr class="EvenRowB">
+        <td langkey="LK_DSL_Showtime_HEC" nowrap="nowrap"></td>
+        <td id="TD_Showtime_HEC" name="TD_Showtime_HEC" nowrap="nowrap"></td>
+</tr>
+<tr class="OddRowB">
+        <td langkey="LK_DSL_Showtime_CRC" nowrap="nowrap"></td>
+        <td id="TD_Showtime_CRC" name="TD_Showtime_CRC" nowrap="nowrap"></td>
+</tr>
+<tr class="EvenRowB">
+        <td langkey="LK_DSL_Showdistance" nowrap="nowrap"></td>
+        <td id="TD_Showdistance" name="TD_Showdistance" nowrap="nowrap"></td>
+</tr>
+</table>
+<br>
+<table class="ContentTableNoColor"><tr><td>
+<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh();");</script>
+</td></tr></table>
+<script>printEndContent</script>
+</form>
+</body>
+</html>

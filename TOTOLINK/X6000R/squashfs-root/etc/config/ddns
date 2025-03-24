@@ -1,0 +1,10 @@
+config service 'wan'
+	option enable '0'
+	option provider '3322.org'
+	option domain ''
+	option account ''
+	option password ''
+	option domain_list ''
+	option ddns_mode '0'
+
+config service 'csddns'

@@ -1,0 +1,7 @@
+/etc/wireless/mt7663/mt7663.2.dat
+/etc/wireless/mt7663/mt7663.eeprom.bin
+/etc/wireless/mt7663/mt7663-sku.dat
+/etc/wireless/mt7663/mt7663-sku-bf.dat
+/lib/upgrade/keep.d/mt7663-scripts
+/lib/wifi/mt7663.lua
+/etc/wireless/mt7663/version

@@ -1,0 +1,838 @@
+<script type="text/javascript">
+    (function(){
+        var wanNum = 2;
+        var dualWanSwitch = null;
+        var cancelSelBtn,confirmBtn,reSelPortBtn,finishWanSetBtn,wan1BandWidth,wan2BandWidth;
+        var mulWanData = [],dnsBalanceOptions = [];
+        var capName,bandWidthUserSet,dnsBalanceSet;
+        var power_position,port_num,capIndex,power_index;
+        var wanDisplayPort,wanSetPort;
+        var MINBANDWIDTH = 1;
+        var MAXBANDWIDTH = 100000;
+
+        var ROUTER_MODE = 0;
+        var AP_MODE = 1;
+        var WDS_MODE = 2;
+        var curSysMode = ROUTER_MODE;
+        var curDhcpdStatus;
+
+        function closeDualWan(){
+            initDualWanPage();
+        }
+        function checkWanBandWidth(){
+            if (!checkNum(this.input.value))
+            {
+                this.showNote(errStr.wanBandWidthErr);
+                return false;
+            }
+
+            if (this.input.value > MAXBANDWIDTH)
+            {
+                this.setValue(MAXBANDWIDTH.toString());
+            }
+            else if (this.input.value < MINBANDWIDTH)
+            {
+                this.setValue(MINBANDWIDTH.toString());
+            }
+
+            return true;
+        }
+        function confirmSelectWan(){
+            var activePort = 0;
+            for(var i=0;i<mulWanData.length;i++){
+                if(mulWanData[i].name.slice(0,3).toUpperCase() == "WAN"){
+                    activePort++;
+                }
+            }
+            if(activePort == 2){
+                finishWanPortSel(function(){
+                    $(".showDualWanWrapper").show();
+                    if (typeof wanDisplayPort != "undefined"){
+                        wanDisplayPort.refresh();
+                    } else {
+                        wanDisplayPort = new PortConfig();
+                        var wanDisplayInitData = {
+                            element: $('#routerItemShow')[0],
+                            type: 'display',
+                            port: mulWanData,
+                            powerPos: power_position,
+                            powerIdx: power_index,
+                            showRouterName: true,
+                            routerName: capName
+                        };
+                        wanDisplayPort.init(wanDisplayInitData);
+                    }
+                    $(".selectDualWanWrapper").hide();
+                })
+            }else{
+                return;
+            }
+        }
+        function reSelectPort(){
+            transformLanPortState(mulWanData,true);
+            if(typeof mulWanData != undefined){
+                for(var i = 0;i<mulWanData.length;i++){
+                    if(mulWanData[i].state != "disable"){
+                        mulWanData[i].state = "normal";
+                        mulWanData[i].name = "LAN";
+                    }
+                }
+            }
+            if (typeof wanSetPort != "undefined"){
+                wanSetPort.refresh();
+            } else {
+                wanSetPort = new PortConfig();
+                var wanSetInitData = {
+                    element: $('#routerItemSelect .portArea')[0],
+                    type: 'setting',
+                    port: mulWanData,
+                    powerPos: power_position,
+                    powerIdx: power_index,
+                    showRouterName: false,
+                    routerName: capName,
+                    callback: wanClickHandler
+                };
+                wanSetPort.init(wanSetInitData);
+            }
+            setWanConfirmBtnStyle();
+            $("#routerItemSelect .routerName").html(capName);
+            $(".selectDualWanWrapper").show();
+            $(".showDualWanWrapper").hide();
+        }
+        function finishWanPortSel(callBack,showDialog){
+            if(typeof showDialog != "undefined" && !showDialog){
+                var data = {};
+                data[uciPortConfig.fileName] = {};
+                for(var i=0;i<wanNum;i++){
+                    var wanIdx = -1;
+                    var wanPort = -1;
+                    for(var j=0;j<mulWanData.length;j++){
+                        if(mulWanData[j].name.toUpperCase()=="WAN" + (i+1)){
+                            wanIdx = j;
+                        }
+                    }
+                    wanPort = wanIdx;
+                    data[uciPortConfig.fileName]["mwan_"+(i+1)] = {};
+                    data[uciPortConfig.fileName]["mwan_"+(i+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+                    data[uciPortConfig.fileName]["mwan_"+(i+1)][uciPortConfig.optName.wanPhy] = wanPort + "";
+                }
+                $.modify(data, function(result){
+                    if(result[ERR_CODE] == ENONE){
+                        showToast(label.dualWanPortOpen);
+                        callBack();
+                    }else if(result[ERR_CODE] == EWDSENABLE){
+                        alarmDialog.show(errStr.mulWanOpenConflict);
+                    }else if(result[ERR_CODE] == EDHCPSOFF){
+                        alarmDialog.show(errStr.mulWanOpenConflictDhcps);
+                    }else{
+                        alarmDialog.show(label.wanSetError);
+                    }
+                })
+            }else{
+                confirmDialog.show({
+                    content: label.dualWanSaveInfo,
+                    callback: function(choose){
+                        if (choose)
+                        {
+                            transformLanPortState(mulWanData,false);
+                            var data = {};
+                            data[uciPortConfig.fileName] = {};
+                            for(var i=0;i<wanNum;i++){
+                                var wanIdx = -1;
+                                var wanPort = -1;
+                                for(var j=0;j<mulWanData.length;j++){
+                                    if(mulWanData[j].name.toUpperCase()=="WAN" + (i+1)){
+                                        wanIdx = j;
+                                    }
+                                }
+                                wanPort = wanIdx;
+                                data[uciPortConfig.fileName]["mwan_"+(i+1)] = {};
+                                data[uciPortConfig.fileName]["mwan_"+(i+1)][uciPortConfig.optName.enable] = uciPortConfig.optValue.enable.on;
+                                data[uciPortConfig.fileName]["mwan_"+(i+1)][uciPortConfig.optName.wanPhy] = wanPort + "";
+                            }
+                            $.modify(data, function(result){
+                                if(result[ERR_CODE] == ENONE){
+                                    showToast(label.dualWanPortOpen);
+                                    callBack();
+                                }else if(result[ERR_CODE] == EWDSENABLE){
+                                    alarmDialog.show(errStr.mulWanOpenConflict);
+                                }else if(result[ERR_CODE] == EDHCPSOFF){
+                                    alarmDialog.show(errStr.mulWanOpenConflictDhcps);
+                                }else{
+                                    alarmDialog.show(label.wanSetError);
+                                }
+                            })
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                });
+            }
+        }
+        function finishWanSet(){
+            var data = {};
+            data["mwan_load_balance"] = {};
+            data["mwan_load_balance"]["band_width"] = {};
+            data["mwan_load_balance"]["band_width"]["mwan_mode"] = bandWidthUserSet;
+            if(bandWidthUserSet == "manual"){
+                var checkRes = true;
+                checkRes = wan1BandWidth.checkAll() && checkRes;
+                checkRes = wan2BandWidth.checkAll() && checkRes;
+                if(checkRes){
+                    data["mwan_load_balance"]["band_width"]["wan1_band_width"] = wan1BandWidth.getValue();
+                    data["mwan_load_balance"]["band_width"]["wan2_band_width"] = wan2BandWidth.getValue();
+                }else{
+                    return;
+                }
+            }
+            if (slp.gMWanLoadBalanceSupport) {
+                data["mwan_load_balance"]["basic"] = {};
+                data["mwan_load_balance"]["basic"]["balance_mode"] = dnsBalanceSet;
+            }
+            $.modify(data, function(result){
+                if(result[ERR_CODE] == ENONE){
+                    showToast(label.mwanChanged);
+                }else{
+                    // 设置失败，请重新尝试
+                    alarmDialog.show(label.wanSetError);
+                }
+            })
+        }
+        function dualWanBtnInit(){
+            cancelSelBtn = new Button({
+                text:btn.cancel,
+                onClick:closeDualWan,
+                type:Button.TYPE.SECONDARY,
+                id:"cancelSelect",
+                props:{width:"120px"}
+            });
+            confirmBtn = new Button({
+                text:btn.finish,
+                onClick:confirmSelectWan,
+                type:Button.TYPE.PRIMARY,
+                id:"cofirmSelect",
+                props:{width:"120px", marginLeft:"8px"}
+            });
+            reSelPortBtn = new Button({
+                text:btn.reSelPort,
+                onClick:reSelectPort,
+                type:Button.TYPE.SECONDARY,
+                id:"reSelPort",
+                props:{width:"116px"}
+            })
+            finishWanSetBtn = new Button({
+                text:btn.finish,
+                onClick:finishWanSet,
+                type:Button.TYPE.PRIMARY,
+                id:"finishWanSet",
+                props:{width:"116px", marginLeft:"8px"}
+            })
+            wan1BandWidth = new Input({
+                type:Input.TYPE.PLAIN_TEXT,
+                label:{value:label.wan1BandWidth},
+                targetId:"wanPortBandWidth",
+                tips:{value:label.bandWidthUnit, className:"unit"},
+                check:{blur:checkWanBandWidth},
+                props:{maxlength: '7', type: "text"}
+            });
+            wan2BandWidth = new Input({
+                type:Input.TYPE.PLAIN_TEXT,
+                label:{value:label.wan2BandWidth},
+                targetId:"wanPortBandWidth",
+                tips:{value:label.bandWidthUnit, className:"unit"},
+                check:{blur:checkWanBandWidth},
+                props:{maxlength: '7', type: "text"}
+            });
+        }
+        function wanClickHandler(portInfo){
+            var activeCount = 0;
+            for(var i=0;i<mulWanData.length;i++){
+                if(mulWanData[i].state == "active"){
+                    activeCount++;
+                }
+            }
+            switch (portInfo.state) {
+                case 'disable':
+                    return;
+                case 'normal':
+                    mulWanData[portInfo.index].name = "LAN";
+                    for(var i=0;i<mulWanData.length;i++){
+                        if(mulWanData[i].state == "active"){
+                            mulWanData[i].name = "WAN1";
+                        }
+                    }
+                    setWanConfirmBtnStyle();
+                    wanSetPort.refresh();
+                    break;
+                case 'active':
+                    if(activeCount <= 2){
+                        mulWanData[portInfo.index].name = "WAN" + activeCount;
+                    }else{
+                        mulWanData[portInfo.index].state = "normal";
+                        showToast(label.wanPortBusy);
+                    }
+                    setWanConfirmBtnStyle();
+                    wanSetPort.refresh();
+                    break;
+            }
+        }
+        function initDualWanPage(){
+            $("#balanceModeSelUl").hide();
+            $("topSpeedModeTips").hide();
+            $("#wanPortBandWidth").html(""); 
+            if (slp.gMWanLoadBalanceSupport) {
+                $("#balanceModeSelUl").show();
+                $("topSpeedModeTips").show();
+                $.query({"function":{"name":"new_module_spec"}}, function(result) {
+                    var loadBalanceMode = result["function"].new_module_spec.mwan_load_balance_mode;
+                    dnsBalanceOptions = [];
+                    for (var i = 0; i < loadBalanceMode.length; ++i) {
+                        switch(loadBalanceMode[i]) {
+                            case 'topspeed_mode':
+                                dnsBalanceOptions.push({str:"极速模式",value:"topspeed_mode"});
+                                break;
+                            case 'compat_mode':
+                                dnsBalanceOptions.push({str:"兼容模式",value:"compat_mode"});
+                                break;
+                            case 'dns_balance':
+                                dnsBalanceOptions.push({str:"DNS均衡",value:"dns_balance"});
+                                break;
+                        }
+                    }
+                }, false);
+            }
+            queryPortConfigData(initMultiWanModule);
+        }
+        function setWanConfirmBtnStyle(){
+            var activeCount = 0;
+            for(var i=0;i<mulWanData.length;i++){
+                if(mulWanData[i].state == "active"){
+                    activeCount++;
+                }
+            }
+            if(activeCount >= wanNum){
+                confirmBtn.disable(false);
+            }else{
+                confirmBtn.disable(true);
+            }
+        }
+        function errHandler(errCode)
+        {
+            var showStr = "";
+
+            switch (errCode) {
+                case ENONE:
+                    return true;
+                case EIPTVTABLEFULL:
+                    showStr = errStr.iptvTableFull;
+                    break;
+                case EIPTVENTRYCONFLIC:
+                    showStr = errStr.iptvEntryConflict;
+                    break;
+                case EIPTVENTRYNOTEXIST:
+                    showStr = errStr.iptvEntryNoExist;
+                    break;
+                case EIPTVLINKMODEERROR:
+                    showStr = errStr.iptvLinkModeError;
+                    break;
+                case EIPTVWORKMODEERROR:
+                    showStr = errStr.iptvWorkModeError;
+                    break;
+                case EIPTVVLANIDERROR:
+                    showStr = errStr.iptvVlanIdError;
+                    break;
+                case EIPTVWANINDEXERROR:
+                    showStr = errStr.iptvWanIndexError;
+                    break;
+                case EWDSMODEOPEN:
+				    showStr = errStr.wdsOnDhcpsOpen;
+				    break;
+			    case EAPMODEOPEN:
+				    showStr = errStr.apOnDhcpsOpen;
+				    break;
+			    case EWDSMODECLOSE:
+				    showStr = errStr.wdsOnDhcpsClose;
+				    break;
+			    case EAPMODECLOSE:
+				    showStr = errStr.apOnDhcpsClose;
+				    break;
+            }
+
+            alarmDialog.show(showStr);
+            return false;
+        }
+        function queryPortConfigData(callback) {
+            var req = {};
+            var resData = {};
+            req[uciPortConfig.fileName] = {};
+            req[uciPortConfig.fileName][KEY_TABLE] = [];
+            req[uciPortConfig.fileName][KEY_TABLE][0] = uciPortConfig.secType.devInfo;
+            req[uciPortConfig.fileName][KEY_TABLE].push(uciPortConfig.secType.mwan);
+            $.query(req, function(res) {
+                if (!errHandler(res[ERR_CODE])) {
+                    return;
+                }
+                resData["devRes"] = res[uciPortConfig.fileName][uciPortConfig.secType.devInfo];
+                resData["mwanRes"] =  formatTableData(res[uciPortConfig.fileName][uciPortConfig.secType.mwan]);
+                callback(resData);
+            });
+        }
+        function resetMulWanData(mulWanData){
+            for(var i=0; i<mulWanData.length; i++){
+                if(mulWanData[i].state == "active"){
+                    mulWanData[i].state = "normal";
+                    mulWanData[i].name = "LAN";
+                }
+            }
+        }
+        function initSetInfoLink(){
+            $(".showDualWanWrapper .wanSetInfo span").click(function(){
+                $("#netWorkData_menu").click();
+            })
+        }
+        function initBandWidthSet(){
+            var bandwidthOptions = [{str:"手动",value:"manual"},{str:"自动",value:"dynamic"}];
+            var req = {};
+            req["mwan_load_balance"] = {};
+            req["mwan_load_balance"]["name"] = [];
+            req["mwan_load_balance"]["name"][0] = "band_width";
+            $.query(req,function(res){
+                if(res.error_code == ENONE){
+                    bandWidthUserSet = res.mwan_load_balance.band_width.mwan_mode;
+                    var wan1BandCfg = res.mwan_load_balance.band_width.wan1_band_width;
+                    var wan2BandCfg = res.mwan_load_balance.band_width.wan2_band_width;
+                    selectInit("bandWidthSel",bandwidthOptions,bandWidthUserSet,bandWidthChange);
+                    if(typeof wan1BandCfg != "undefined" && typeof wan2BandCfg != "undefined"){
+                        wan1BandWidth.setValue(wan1BandCfg);
+                        wan2BandWidth.setValue(wan2BandCfg);
+                    }
+                    bandWidthChange(bandWidthUserSet);
+                }
+            });
+        }
+        function initDnsBalance(){
+            var req = {};
+            req["mwan_load_balance"] = {};
+            req["mwan_load_balance"]["name"] = [];
+            req["mwan_load_balance"]["name"][0] = "basic";
+            $.query(req,function(res){
+                if(res.error_code == ENONE){
+                    dnsBalanceSet = res.mwan_load_balance.basic.balance_mode;
+                    selectInit("balanceModeSel",dnsBalanceOptions,dnsBalanceSet,dnsBalanceChange);
+                    dnsBalanceChange(dnsBalanceSet);
+                }
+            })
+        }
+        function dnsBalanceChange(value) {
+            dnsBalanceSet = value;
+            if(value == 'topspeed_mode'){
+                $("#topSpeedModeTips").show();
+            }else{
+                $("#topSpeedModeTips").hide();
+            }
+        }
+        function bandWidthChange(value) {
+            bandWidthUserSet = value;
+            if(value == "manual"){
+	            $("#wanPortBandWidth").show();
+            }else{
+                $("#wanPortBandWidth").hide();
+            }
+        }
+        function switchDualWanState(state){
+            if(state == 1){
+                $.query({"port_manage":{"table":"dev_info"}},function(resCap){
+                    var deviceList = resCap.port_manage.dev_info;
+                    for(var i=0;i<deviceList.length;i++){
+                        if(deviceList[i].cap == 1){
+                            capIndex = i;
+                            power_position = deviceList[i][uciPortConfig.dynOptName.powerPos];
+                            power_index = deviceList[i][uciPortConfig.dynOptName.powerIdx];
+                            port_num = parseInt(deviceList[i][uciPortConfig.dynOptName.phyNum]);
+                            capName = deviceList[i][uciPortConfig.dynOptName.name]
+                        }
+                    }
+                    $.query({"port_manage":{"table":"mwan"}},function(res){
+                        loadingDialog.show({
+                            title: menuStr.dualWanPort,
+                            content: {primary:label.wanSettingWait}
+                        }, undefined, undefined, false, undefined);
+                        var phyInfoList = deviceList[capIndex][uciPortConfig.dynOptName.phyInfo];
+                        var sfpCapabilityList = deviceList[capIndex][uciPortConfig.dynOptName.sfpCapability];
+                        new PortConfig().initPortData(phyInfoList,"WAN",mulWanData,sfpCapabilityList);
+                        var currentActiveWan = 0;
+                        var currentUnUsedPort = 0;
+                        var setConflict = false;
+                        var settedPortExist = false;
+                        for(var i=0; i<wanNum; i++){
+                            var wanCfgPos = res.port_manage.mwan[i]["mwan_"+(i+1)][uciPortConfig.optName.wanPhy];
+                            if(wanCfgPos != -1){
+                                settedPortExist = true;
+                                if(mulWanData[wanCfgPos].state == "disable"){
+                                    setConflict = true;
+                                }
+                            }
+                        }
+                        for(var i=0;i<port_num;i++){
+                            if(mulWanData[i].state == "active"){
+                                currentActiveWan++;
+                            }
+                            if(mulWanData[i].state == "normal"){
+                                currentUnUsedPort++;
+                            }
+                        }
+                        if(currentUnUsedPort + currentActiveWan < wanNum){
+                            // 可定义端口不足
+                            loadingDialog.hide(function(){
+                                alarmDialog.show(label.dualWanPortLessErr);
+                            });
+                            dualWanSwitch.setState(0);
+                            return;
+                        }
+                        if(!settedPortExist){
+                            // 端口未设置
+                            wanSetPort = new PortConfig();
+                            var wanSetInitData = {
+                                element: $('#routerItemSelect .portArea')[0],
+                                type: 'setting',
+                                port: mulWanData,
+                                powerPos: power_position,
+                                powerIdx: power_index,
+                                callback: wanClickHandler
+                            };
+                            wanSetPort.init(wanSetInitData);
+                            setWanConfirmBtnStyle();
+                            loadingDialog.hide();
+                            $(".selectDualWanWrapper").show();
+                            $(".showDualWanWrapper").hide();
+                        }else{
+                            if(setConflict){
+                                // 原有设置不可用
+                                resetMulWanData(mulWanData);
+                                wanSetPort = new PortConfig();
+                                var wanSetInitData = {
+                                    element: $('#routerItemSelect .portArea')[0],
+                                    type: 'setting',
+                                    port: mulWanData,
+                                    powerPos: power_position,
+                                    powerIdx: power_index,
+                                    callback: wanClickHandler
+                                };
+                                wanSetPort.init(wanSetInitData);
+                                loadingDialog.hide(function(){
+                                    alarmDialog.show(label.wanSettedBusy);
+                                });
+                                setWanConfirmBtnStyle();
+                                $(".selectDualWanWrapper").show();
+                                $(".showDualWanWrapper").hide();
+                            }else{
+                                // 原有设置仍然可用
+                                for(var i=0;i<mulWanData.length;i++){
+                                    if(mulWanData[i].state == "active"){
+                                        mulWanData[i].name = "LAN";
+                                        mulWanData[i].state = "normal";
+                                    }
+                                }
+                                for(var i=0; i<wanNum; i++){
+                                    var wanCfgPos = res.port_manage.mwan[i]["mwan_"+(i+1)][uciPortConfig.optName.wanPhy];
+                                    if(wanCfgPos != -1){
+                                        mulWanData[wanCfgPos].state = "active";
+                                        mulWanData[wanCfgPos].name = "WAN" + (i+1);
+                                    }
+                                }
+                                $(".showDualWanWrapper").show();
+                                transformLanPortState(mulWanData,false);
+                                wanDisplayPort = new PortConfig();
+                                var wanDisplayInitData = {
+                                    element: $('#routerItemShow')[0],
+                                    type: 'display',
+                                    port: mulWanData,
+                                    powerPos: power_position,
+                                    powerIdx: power_index,
+                                    routerName: capName,
+                                    callback: wanClickHandler,
+                                    showRouterName: true
+                                };
+                                wanDisplayPort.init(wanDisplayInitData);
+                                loadingDialog.hide();
+                                finishWanPortSel(function(){
+                                    $(".selectDualWanWrapper").hide();
+                                },false);
+                            }
+                        }
+                        initSetInfoLink();
+                        initBandWidthSet();
+                        if(slp.gMWanLoadBalanceSupport) {
+                            initDnsBalance();
+                        }
+                    });
+                })
+            } else {
+                $(".selectDualWanWrapper").hide();
+                $(".showDualWanWrapper").hide();
+                var data = {};
+                data["port_manage"] = {};
+                for(var i=0;i<wanNum;i++){
+                    data["port_manage"]["mwan_"+(i+1)] = {};
+                    data["port_manage"]["mwan_"+(i+1)]["enable"] = "0";
+                }
+                iptvConflictCheck(function(iptvConflict){
+                    if(iptvConflict){
+                        confirmDialog.show({
+                            content: label.dualWanIptvConflict,
+                            callback: function(choose){
+                                if (choose)
+                                {
+                                    $.modify(data, function(result){
+                                        if(result[ERR_CODE] == ENONE){
+                                            showToast(label.dualWanPortClose);
+                                            initDualWanPage();
+                                        }else{
+                                            // 设置失败，请重新尝试
+                                            alarmDialog.show(label.wanSetError);
+                                        }
+                                    })
+                                }
+                                else
+                                {
+                                    initDualWanPage();
+                                }
+                            }
+                        });
+                    }else{
+                        $.modify(data,function(res){
+                            if(res[ERR_CODE] == ENONE){
+                                showToast(label.dualWanPortClose);
+                                initDualWanPage();
+                            }else{
+                                alarmDialog.show(label.wanSetError);
+                            }
+                        });
+                    }
+                })
+            }
+        }
+        function transformLanPortState(portData,state){
+            for(var i=0;i<portData.length;i++){
+                if(portData[i].name.toUpperCase() == "LAN"){
+                    if(state){
+                        portData[i].state = "normal";
+                    }else{
+                        portData[i].state = "disable";
+                    }
+                }
+            }
+        }
+        function iptvConflictCheck(callBack){
+            if(slp.gIptvSupport){
+                var req = {};
+                req[uciPortConfig.fileName] = {};
+                req[uciPortConfig.fileName][KEY_TABLE] = [];
+                req[uciPortConfig.fileName][KEY_TABLE].push(uciPortConfig.secType.iptv);
+                $.query(req,function(res){
+                    var iptvConfigs = res.port_manage.iptv;
+                    var iptvConflict = false;
+                    if(iptvConfigs[1]["iptv_2"]["enable"] == 1){
+                        iptvConflict = true;
+                    }
+                    callBack(iptvConflict);
+                })
+            }else{
+                callBack(false);
+            }
+        }
+        function initMultiWanModule(resData){
+            var resDataCopy = JSON.parse(JSON.stringify(resData));
+            dualWanBtnInit();
+            var deviceList = resDataCopy["devRes"];
+            for(var i=0;i<deviceList.length;i++){
+                if(deviceList[i].cap == 1){
+                    capIndex = i;
+                    power_position = deviceList[i][uciPortConfig.dynOptName.powerPos];
+                    power_index = deviceList[i][uciPortConfig.dynOptName.powerIdx];
+                    port_num = parseInt(deviceList[i][uciPortConfig.dynOptName.phyNum]);
+                    capMac = deviceList[i][uciPortConfig.dynOptName.mac];
+                    capName = deviceList[i][uciPortConfig.dynOptName.name];
+                }
+            }
+            $("#routerItemSelect .routerName").html(capName);
+            multiWanOpen = true;
+            for(var i=0; i<wanNum; i++){
+                if(resDataCopy["mwanRes"][i].enable == 0){
+                    multiWanOpen = false;
+                }
+            }
+            if(!multiWanOpen){
+                dualWanSwitch = new Switch("switchCon", 0, function(state){
+                    switchDualWanState(state);
+                }, false);
+                $(".selectDualWanWrapper").hide();
+                $(".showDualWanWrapper").hide();
+            }else{
+                if (slp.gMWanLoadBalanceSupport) {
+                    initDnsBalance();
+                }
+                initSetInfoLink();
+                initBandWidthSet();
+                dualWanSwitch = new Switch("switchCon", 1, function(state){
+                    switchDualWanState(state);
+                }, false);
+                var phyInfoList = deviceList[capIndex][uciPortConfig.dynOptName.phyInfo];
+                var sfpCapabilityList = deviceList[capIndex][uciPortConfig.dynOptName.sfpCapability];
+                new PortConfig().initPortData(phyInfoList,"WAN",mulWanData,sfpCapabilityList);
+                transformLanPortState(mulWanData,false);
+                $(".showDualWanWrapper").show();
+                wanDisplayPort = new PortConfig();
+                var wanDisplayInitData = {
+                    element: $('.showDualWanWrapper #routerItemShow')[0],
+                    type: 'display',
+                    port: mulWanData,
+                    powerPos: power_position,
+                    powerIdx: power_index,
+                    callback: wanClickHandler,
+                    routerName: capName,
+                    showRouterName: true
+                };
+                wanDisplayPort.init(wanDisplayInitData);
+                $(".selectDualWanWrapper").hide();
+            }
+        }
+        function requestSysMode(callback){
+            var data = {"dhcpd":{"name":"udhcpd"}};
+            if (slp.gSysModeSupport){
+                data.system = {"name":"sys_mode"};
+            }
+            $.query(data,function(res){
+                if(slp.gSysModeSupport){
+                    curSysMode = res.system.sys_mode.mode;
+                }
+                curDhcpdStatus = res.dhcpd.udhcpd.enable;
+                if(curSysMode != uciSystem.optValue.sysMode.routerMode || curDhcpdStatus == "0"){
+                    $(".relayErrorTip").show();
+                    $("#switchCon").hide();
+                    if (curSysMode == AP_MODE) {
+                        $("#relayTipText").text("上网方式为AP（有线中继）时，无法使用双WAN口功能。");
+                    } else if(curSysMode == WDS_MODE){
+                        $("#relayTipText").text("上网方式为桥接（无线中继）时，无法使用双WAN口功能。");
+                    } else {
+                        $("#relayTipText").text("DHCP服务器关闭时，无法使用双WAN口功能。");
+                    }
+                } else {
+                    typeof callback == "function" && callback();
+                }
+            })
+
+        }
+        requestSysMode(initDualWanPage);
+    })();
+</script>
+<style type="text/css">
+.selectDualWanInfo {
+    font-size: 16px;
+    color: #333333;
+    line-height: 24px;
+    font-weight: 800;
+}
+#routerItemSelect .routerName{
+    display: block;
+    font-size: 13px;
+    color: #333333;
+    line-height: 20px;
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+.showDualWanWrapper .wanSetInfo{
+    margin-top: 16px;
+    font-size: 13px;
+    color: #333333;
+    line-height: 20px;
+    margin-bottom:24px;
+}
+.showDualWanWrapper .wanSetInfo span{
+    cursor: pointer;
+    color: #FF3366;
+    text-decoration: underline;
+}
+.selectDualWanWrapper{
+    margin-top: 48px;
+}
+.showDualWanWrapper{
+    margin-top: 48px;
+}
+#routerItemSelect .buttonGroup{
+    margin-top: 48px;
+}
+.showDualWanWrapper .buttonGroup{
+    margin-top: 48px;
+}
+#topSpeedModeTips{
+    display: block;
+    margin-left: 137px;
+    width: 240px;
+    height: 36px;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #999999;
+    line-height: 18px;
+    font-weight: 400;
+}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.dualWanPort%}</h1>
+		<div id="switchCon" class="switchCon switchConHs">
+            <i class="switchBg"></i>
+            <i class="switchBall"/></i>
+        </div>
+        <p class="description">{%titleDescriptionStr.dualWanDescription%}</p>
+        <ul class="relayErrorTip">
+            <i class="iconfont icon-warn"></i>
+            <span id="relayTipText"></span>
+        </ul>
+    </div>
+</div>
+<div class="selectDualWanWrapper disNone">
+    <p class="selectDualWanInfo">{%label.selectDualWanInfo%}</p>
+    <div id="routerItemSelect">
+        <label class="routerName"></label>
+        <div class="portArea"></div>
+        <div class="buttonGroup">
+            <div id="cancelSelect"></div>
+            <div id="cofirmSelect"></div>
+        </div>
+    </div>
+</div>
+<div class="showDualWanWrapper disNone">
+    <div id="routerItemShow"></div>
+    <p class="wanSetInfo">请在"<span>网络参数-WAN口设置</span>"中进行WAN口设置</p>
+    <ul id="bandWidthSelUl" class="inputCMPT medium selectUl">
+        <label class="outerLbl">{%label.bandWidthSet%}</label>
+        <li class="inputLi">
+            <span class="selectWrap">
+                <span id="bandWidthSel" class="select">
+                    <span class="value"></span>
+                    <i class="arrow iconfont icon-folddropdown"></i>
+                </span>
+            </span>
+        </li>
+    </ul>
+    <div id="wanPortBandWidth"></div>
+    <ul id="balanceModeSelUl" class="inputCMPT medium selectUl">
+        <label class="outerLbl">{%label.balanceMode%}</label>
+        <li class="inputLi">
+            <span class="selectWrap">
+                <span id="balanceModeSel" class="select">
+                    <span class="value"></span>
+                    <i class="arrow iconfont icon-folddropdown"></i>
+                </span>
+            </span>
+        </li>
+    </ul>
+    <label id="topSpeedModeTips">{%label.topspeedModeTips%}</label>
+    <div class="buttonGroup">
+        <div id="reSelPort"></div>
+        <div id="finishWanSet"></div>
+    </div>
+</div>

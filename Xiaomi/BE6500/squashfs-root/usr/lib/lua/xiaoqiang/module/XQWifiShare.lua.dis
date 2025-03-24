@@ -1,0 +1,607 @@
+local L0, L1, L2, L3, L4, L5, L6, L7
+L0 = module
+L1 = "xiaoqiang.module.XQWifiShare"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.util.XQSysUtil"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.util"
+L3 = L3(L4)
+L4 = require
+L5 = "xiaoqiang.XQLog"
+L4 = L4(L5)
+L5 = require
+L6 = "luci.controller.api.xqsmarthome"
+L5 = L5(L6)
+L6 = require
+L7 = "luci.http"
+L6 = L6(L7)
+function L7(A0)
+  local L1, L2, L3, L4, L5, L6, L7
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = require
+  L3 = "xiaoqiang.util.XQWifiUtil"
+  L2 = L2(L3)
+  L3 = {}
+  L3.guest = 0
+  L3.share = 0
+  L3.need = 0
+  L4 = {}
+  L3.sns = L4
+  L4 = L2.getGuestWifi
+  L5 = A0
+  L4 = L4(L5)
+  L5 = tonumber
+  L6 = L4.status
+  L5 = L5(L6)
+  L3.guest = L5
+  L5 = {}
+  L6 = _UPVALUE0_
+  L6 = L6.encode4HtmlValue
+  L7 = L4.ssid
+  L6 = L6(L7)
+  L5.ssid = L6
+  L6 = L4.encryption
+  L5.encryption = L6
+  L6 = L4.hidden
+  L5.hidden = L6
+  L6 = _UPVALUE0_
+  L6 = L6.encode4HtmlValue
+  L7 = L4.password
+  L6 = L6(L7)
+  L5.password = L6
+  L5.ssidHtmlEncode = 1
+  L3.data = L5
+  L5 = L3.guest
+  if L5 == 0 then
+    L3.need = 1
+  end
+  return L3
+end
+wifi_share_info = L7
+function L7()
+  local L0, L1
+  L0 = {}
+  L0.need = 1
+  L1 = wifi_share_info
+  L1 = L1()
+  info = L1
+  L1 = info
+  L1 = L1.need
+  L0.need = L1
+  return L0
+end
+wifi_share_info_web = L7
+function L7()
+  local L0, L1, L2, L3, L4, L5
+  L0 = require
+  L1 = "cjson"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "xiaoqiang.util.XQCryptoUtil"
+  L1 = L1(L2)
+  L2 = 30020
+  L3 = {}
+  L3.command = "scene_delete"
+  L3.id = L2
+  L3.name = "\229\136\160\233\153\164\229\174\154\230\151\182\229\133\179\233\151\173\232\174\191\229\174\162\231\189\145\231\187\156\230\157\161\231\155\174"
+  L4 = L0.encode
+  L5 = L3
+  L4 = L4(L5)
+  L3 = L4
+  L4 = L1.binaryBase64Enc
+  L5 = L3
+  L4 = L4(L5)
+  L3 = L4
+  L4 = _UPVALUE0_
+  L4 = L4.guest_tunnelSmartControllerRequest
+  L5 = L3
+  L4(L5)
+end
+delete_share_time = L7
+function L7(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15
+  L1 = require
+  L2 = "cjson"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.util.XQCryptoUtil"
+  L2 = L2(L3)
+  L3 = os
+  L3 = L3.time
+  L3 = L3()
+  L4 = L3 * 1000
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  L5 = L5 * 60
+  L5 = L5 * 60
+  L5 = L5 * 1000
+  L4 = L4 + L5
+  L5 = tonumber
+  L6 = A0
+  L5 = L5(L6)
+  L5 = L5 * 60
+  L5 = L5 * 60
+  L5 = L5 * 1000
+  L6 = 30020
+  L7 = L3 * 1000
+  if L4 < L7 then
+    L4 = L4 + 86400000
+  end
+  L7 = {}
+  L8 = {}
+  L9 = {}
+  L10 = {}
+  L10.duration = L5
+  L10.total_length = 0
+  L9.block = 1
+  L9.delay = 0
+  L9.extra = L10
+  L9.keyName = "\229\133\179\233\151\173\232\174\191\229\174\162\231\189\145\231\187\156"
+  L9.name = "\229\176\143\231\177\179\232\183\175\231\148\177\229\153\168"
+  L9.thirdParty = "xmrouter"
+  L9.type = "guest_wifi_down"
+  L11 = {}
+  L12 = {}
+  L12.enabled = true
+  L12.time = "00:00:00"
+  L12.utc_time = L4
+  L11.timer = L12
+  L13 = table
+  L13 = L13.insert
+  L14 = L8
+  L15 = L9
+  L13(L14, L15)
+  L7.action_list = L8
+  L7.command = "scene_setting"
+  L7.id = L6
+  L7.name = "\229\133\179\233\151\173\232\174\191\229\174\162\231\189\145\231\187\156"
+  L7.launch = L11
+  L13 = L1.encode
+  L14 = L7
+  L13 = L13(L14)
+  L7 = L13
+  L13 = L2.binaryBase64Enc
+  L14 = L7
+  L13 = L13(L14)
+  L7 = L13
+  L13 = _UPVALUE0_
+  L13 = L13.guest_tunnelSmartControllerRequest
+  L14 = L7
+  L13(L14)
+end
+set_share_time = L7
+function L7(A0)
+  local L1, L2, L3
+  L1 = io
+  L1 = L1.open
+  L2 = A0
+  L3 = "rb"
+  L1 = L1(L2, L3)
+  if L1 then
+    L3 = L1
+    L2 = L1.close
+    L2(L3)
+  end
+  L2 = L1 ~= nil
+  return L2
+end
+file_exists = L7
+function L7(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L3 = L1
+  L2 = L1.get_all
+  L4 = "firewall"
+  L5 = "guest"
+  L2 = L2(L3, L4, L5)
+  L4 = L1
+  L3 = L1.get
+  L5 = "firewall"
+  L6 = "guest"
+  L7 = "enabled"
+  L3 = L3(L4, L5, L6, L7)
+  L3 = L3 or L3
+  if A0 == 1 then
+    L4 = _UPVALUE0_
+    L4 = L4.log
+    L5 = 6
+    L6 = "set guest wifi firewall enable="
+    L7 = A0
+    L8 = ", guest_fw create"
+    L6 = L6 .. L7 .. L8
+    L4(L5, L6)
+    if not L2 then
+      L5 = L1
+      L4 = L1.section
+      L6 = "firewall"
+      L7 = "include"
+      L8 = "guest"
+      L4(L5, L6, L7, L8)
+      L5 = L1
+      L4 = L1.set
+      L6 = "firewall"
+      L7 = "guest"
+      L8 = "type"
+      L9 = "script"
+      L4(L5, L6, L7, L8, L9)
+      L5 = L1
+      L4 = L1.set
+      L6 = "firewall"
+      L7 = "guest"
+      L8 = "path"
+      L9 = "/lib/firewall.sysapi.loader guest"
+      L4(L5, L6, L7, L8, L9)
+      L5 = L1
+      L4 = L1.set
+      L6 = "firewall"
+      L7 = "guest"
+      L8 = "reload"
+      L9 = 1
+      L4(L5, L6, L7, L8, L9)
+    end
+    L5 = L1
+    L4 = L1.set
+    L6 = "firewall"
+    L7 = "guest"
+    L8 = "enabled"
+    L9 = 1
+    L4(L5, L6, L7, L8, L9)
+    L5 = L1
+    L4 = L1.commit
+    L6 = "firewall"
+    L4(L5, L6)
+    L4 = _UPVALUE1_
+    L4 = L4.forkExec
+    L5 = "/usr/sbin/sysapi guest set"
+    L4(L5)
+  elseif A0 == 0 then
+    L4 = _UPVALUE0_
+    L4 = L4.log
+    L5 = 6
+    L6 = "set guest wifi firewall enable="
+    L7 = A0
+    L8 = ", guest_fw clean"
+    L6 = L6 .. L7 .. L8
+    L4(L5, L6)
+    if L2 then
+      L5 = L1
+      L4 = L1.set
+      L6 = "firewall"
+      L7 = "guest"
+      L8 = "enabled"
+      L9 = 0
+      L4(L5, L6, L7, L8, L9)
+      L5 = L1
+      L4 = L1.commit
+      L6 = "firewall"
+      L4(L5, L6)
+    end
+    L4 = _UPVALUE1_
+    L4 = L4.forkExec
+    L5 = "/usr/sbin/sysapi guest clean"
+    L4(L5)
+  end
+end
+setGuestWifiFirewall = L7
+function L7(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8, L9
+  L2 = require
+  L3 = "luci.model.uci"
+  L2 = L2(L3)
+  L2 = L2.cursor
+  L2 = L2()
+  L4 = L2
+  L3 = L2.get_all
+  L5 = "culink"
+  L6 = "app_guest_wifi"
+  L3 = L3(L4, L5, L6)
+  if L3 then
+    if A0 == 1 then
+      L5 = L2
+      L4 = L2.set
+      L6 = "culink"
+      L7 = "app_guest_wifi"
+      L8 = "guest_2g_enable"
+      L9 = A1
+      L4(L5, L6, L7, L8, L9)
+    elseif A0 == 2 then
+      L5 = L2
+      L4 = L2.set
+      L6 = "culink"
+      L7 = "app_guest_wifi"
+      L8 = "guest_5g_enable"
+      L9 = A1
+      L4(L5, L6, L7, L8, L9)
+    end
+    L5 = L2
+    L4 = L2.commit
+    L6 = "culink"
+    L4(L5, L6)
+  end
+end
+recordCulinkGuestWifiEnable = L7
+function L7(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
+  if A0 then
+    L1 = type
+    L2 = A0
+    L1 = L1(L2)
+    if L1 == "table" then
+      goto lbl_10
+    end
+  end
+  L1 = false
+  do return L1 end
+  ::lbl_10::
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = require
+  L3 = "xiaoqiang.util.XQWifiUtil"
+  L2 = L2(L3)
+  L3 = "XIAOMI_ROUTER_GUEST"
+  L4 = nil
+  function L5(A0)
+    local L1, L2
+    if A0 then
+      L1 = _UPVALUE0_
+      L1 = L1.forkExec
+      L2 = "/usr/sbin/guestwifi.sh open; sleep 6; lua /usr/sbin/sync_guest_bssid.lua"
+      L1(L2)
+    else
+      L1 = _UPVALUE0_
+      L1 = L1.forkExec
+      L2 = "/sbin/wifi update >/dev/null 2>/dev/null; sleep 1; lua /usr/sbin/sync_guest_bssid.lua"
+      L1(L2)
+    end
+  end
+  L6 = _UPVALUE1_
+  L6 = L6.getISPName
+  L6 = L6()
+  L7 = A0.guest
+  if L7 then
+    L7 = _UPVALUE2_
+    L7 = L7.log
+    L8 = 6
+    L9 = "info.guest "
+    L10 = A0.guest
+    L9 = L9 .. L10
+    L7(L8, L9)
+    L7, L8, L9 = nil, nil, nil
+    L10 = A0.data
+    if L10 then
+      L10 = type
+      L11 = A0.data
+      L10 = L10(L11)
+      if L10 == "table" then
+        L10 = A0.data
+        L7 = L10.ssid
+        L10 = A0.data
+        L8 = L10.encryption
+        L10 = A0.data
+        L9 = L10.password
+      end
+    end
+    L10 = _UPVALUE2_
+    L10 = L10.log
+    L11 = 6
+    L12 = "ssid "
+    L13 = L7
+    L12 = L12 .. L13
+    L10(L11, L12)
+    L10 = _UPVALUE2_
+    L10 = L10.log
+    L11 = 6
+    L12 = "encryption "
+    L13 = L8
+    L12 = L12 .. L13
+    L10(L11, L12)
+    L10 = _UPVALUE2_
+    L10 = L10.log
+    L11 = 6
+    L12 = "key "
+    L13 = L9
+    L12 = L12 .. L13
+    L10(L11, L12)
+    if L8 == "none" then
+      L9 = "12345678"
+      L10 = _UPVALUE2_
+      L10 = L10.log
+      L11 = 6
+      L12 = "set guest not share, key = "
+      L13 = L9
+      L12 = L12 .. L13
+      L10(L11, L12)
+    end
+    L10 = tonumber
+    L11 = A0.guest
+    L10 = L10(L11)
+    if L10 == 1 then
+      L10 = A0.closingTime
+      L4 = L10 or L4
+      if not L10 then
+        L4 = "0"
+      end
+    else
+      L4 = "0"
+    end
+    L10 = _UPVALUE2_
+    L10 = L10.log
+    L11 = 6
+    L12 = "closingTime "
+    L13 = L4
+    L12 = L12 .. L13
+    L10(L11, L12)
+    if L6 == "CUCC" then
+      L10 = L2.setGuestWifi
+      L11 = 1
+      L12 = L7
+      L13 = L8
+      L14 = L9
+      L15 = 1
+      L16 = A0.guest
+      L17 = L3
+      L18 = L4
+      L10(L11, L12, L13, L14, L15, L16, L17, L18)
+      L10 = recordCulinkGuestWifiEnable
+      L11 = 1
+      L12 = A0.guest
+      L10(L11, L12)
+    else
+      L10 = L2.setGuestWifi
+      L11 = 1
+      L12 = L7
+      L13 = L8
+      L14 = L9
+      L15 = 1
+      L16 = A0.guest
+      L17 = L3
+      L18 = L4
+      L10(L11, L12, L13, L14, L15, L16, L17, L18)
+      L10 = L2.setGuestWifi
+      L11 = 2
+      L12 = L7
+      L13 = L8
+      L14 = L9
+      L15 = 1
+      L16 = A0.guest
+      L17 = L3
+      L18 = L4
+      L10(L11, L12, L13, L14, L15, L16, L17, L18)
+    end
+    L10 = L2.enableGuestWifi
+    L11 = L5
+    L10(L11)
+    L10 = setGuestWifiFirewall
+    L11 = A0.guest
+    L10(L11)
+    L10 = tonumber
+    L11 = A0.guest
+    L10 = L10(L11)
+    if L10 == 1 and L4 ~= nil then
+      L10 = tonumber
+      L11 = L4
+      L10 = L10(L11)
+      if L10 ~= 0 then
+        L10 = delete_share_time
+        L10()
+        L10 = set_share_time
+        L11 = L4
+        L10(L11)
+      else
+        L10 = delete_share_time
+        L10()
+      end
+    end
+    L10 = tonumber
+    L11 = A0.guest
+    L10 = L10(L11)
+    if L10 == 1 then
+      L10 = _UPVALUE0_
+      L10 = L10.forkExec
+      L11 = "sleep 1; /usr/sbin/mipctl_public.sh add_guest_wifi_if"
+      L10(L11)
+    else
+      L10 = _UPVALUE0_
+      L10 = L10.forkExec
+      L11 = "sleep 1; /usr/sbin/mipctl_public.sh del_guest_wifi_if"
+      L10(L11)
+    end
+  else
+    L7 = false
+    L8 = false
+    L9 = A0.data1
+    if L9 then
+      L9 = type
+      L10 = A0.data1
+      L9 = L9(L10)
+      if L9 == "table" then
+        L9 = L2.setGuestWifi
+        L10 = 1
+        L11 = A0.data1
+        L11 = L11.ssid
+        L12 = A0.data1
+        L12 = L12.encryption
+        L13 = A0.data1
+        L13 = L13.password
+        L14 = 1
+        L15 = A0.data1
+        L15 = L15.on
+        L16 = L3
+        L17 = 0
+        L18 = A0.data1
+        L18 = L18.hidden
+        L9 = L9(L10, L11, L12, L13, L14, L15, L16, L17, L18)
+        L7 = L9
+        if L6 == "CUCC" then
+          L9 = recordCulinkGuestWifiEnable
+          L10 = 1
+          L11 = A0.data1
+          L11 = L11.on
+          L9(L10, L11)
+        end
+      end
+    end
+    L9 = A0.data2
+    if L9 then
+      L9 = type
+      L10 = A0.data2
+      L9 = L9(L10)
+      if L9 == "table" then
+        L9 = L2.setGuestWifi
+        L10 = 2
+        L11 = A0.data2
+        L11 = L11.ssid
+        L12 = A0.data2
+        L12 = L12.encryption
+        L13 = A0.data2
+        L13 = L13.password
+        L14 = 1
+        L15 = A0.data2
+        L15 = L15.on
+        L16 = L3
+        L17 = 0
+        L18 = A0.data2
+        L18 = L18.hidden
+        L9 = L9(L10, L11, L12, L13, L14, L15, L16, L17, L18)
+        L8 = L9
+        if L6 == "CUCC" then
+          L9 = recordCulinkGuestWifiEnable
+          L10 = 2
+          L11 = A0.data2
+          L11 = L11.on
+          L9(L10, L11)
+        end
+      end
+    end
+    if L7 or L8 then
+      L9 = L2.enableGuestWifi
+      L10 = L5
+      L9(L10)
+    end
+  end
+  L7 = true
+  return L7
+end
+set_wifi_share = L7

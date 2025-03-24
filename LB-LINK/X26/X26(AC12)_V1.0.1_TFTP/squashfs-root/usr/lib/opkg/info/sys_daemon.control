@@ -1,0 +1,8 @@
+Package: sys_daemon
+Version: 1
+Depends: libc, libpthread, libwificonf, libuci, libeasyuci
+Source: package/B-LINK/sys_daemon
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 18881
+Description:  big trash

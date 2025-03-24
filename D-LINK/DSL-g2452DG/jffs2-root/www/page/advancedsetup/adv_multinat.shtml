@@ -1,0 +1,174 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+</head>
+
+<script language="javascript"> 
+<!-- hide 
+function ConnectionTuple()
+{    
+    this.Type = ""
+    this.Path = ""
+    this.Name = ""
+    this.ServiceList = ""
+    this.ConnectionType = ""
+    this.IPMode = ""
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject "InternetGatewayDevice.WANDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType X_CT-COM_IPMode" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    Connection[n].IPMode = "<!--#leaf "4"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function __init()
+{
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+function MultiNATTuple()
+{    
+    this.Path = ""
+    this.Enable = ""
+    this.Type = ""
+    this.WanConn = ""
+    this.LocalStartIP = ""
+    this.LocalEndIP = ""
+    this.PublicStartIP = ""
+    this.PublicEndIP = ""
+}
+var natNum = 0;
+var natList = new Array();
+<!--#getobject "InternetGatewayDevice.MultiNAT. Enabled Type WanConnection LocalStartIP LocalEndIP PublicStartIP PublicEndIP" -->
+    natList[natNum] = new MultiNATTuple();
+    natList[natNum].Path = "<!--#path -->";
+    natList[natNum].Enable = "<!--#leaf  "1"-->";
+    natList[natNum].Type = "<!--#leaf  "2"-->";
+    natList[natNum].WanConn = "<!--#leaf  "3"-->";
+    natList[natNum].LocalStartIP = "<!--#leaf  "4"-->";
+    natList[natNum].LocalEndIP = "<!--#leaf  "5"-->";
+    natList[natNum].PublicStartIP = "<!--#leaf  "6"-->";
+    natList[natNum].PublicEndIP = "<!--#leaf  "7"-->"; /* not used */
+    natNum++;
+<!--#endgetobject -->
+
+function getConnName(connpth)
+{
+	for(var i=0; i < n; i++)
+	{
+		if(Connection[i].Path == connpth)
+			return Connection[i].Name
+	}
+	return ""
+}
+
+function addItem()
+{
+	document.location.href = "adv_multinatedit.shtml?action=add";
+}
+
+function EditItem(idx)
+{
+	
+	document.location.href = "adv_multinatedit.shtml?action=edit&value=" + natList[idx].Path + "," + natList[idx].Enable + "," + natList[idx].Type + "," + natList[idx].WanConn + "," + natList[idx].LocalStartIP + "," + natList[idx].LocalEndIP + "," + natList[idx].PublicStartIP;
+}
+
+function delItem(node) {
+	if(!validateCode())
+		return false;
+   var df = document.dataform;
+   AddElements(df, "del_obj", node);
+   df.submit();
+}
+
+
+function fillObjItems()
+{
+	var i;
+	if(natNum == 0) {
+		document.writeln('<tr class="OddRowB"><td colspan="8">' + getStr("LK_NoRule") + '</td></tr>');
+		return;
+	}
+	for(i=0; i < natNum; i++) {
+		if(i%2 == 0)
+			document.writeln("<tr class='OddRowB'>");
+		else
+			document.writeln("<tr class='EvenRowB'>");
+
+			document.writeln("<td>&nbsp;"+ (i+1) + "</td>");
+			document.writeln("<td>&nbsp;"+ getConnName(natList[i].WanConn) + "</td>");
+			document.writeln("<td>&nbsp;"+ natList[i].Type + "</td>");
+			document.writeln("<td>&nbsp;"+ natList[i].LocalStartIP + "</td>");
+			document.writeln("<td>&nbsp;"+ natList[i].LocalEndIP + "</td>");
+			document.writeln("<td>&nbsp;"+ natList[i].PublicStartIP + "</td>");
+			document.writeln("<td>&nbsp;"+ natList[i].Enable + "</td>");
+			document.writeln("<td><img href='#' src='/skin/edit.gif' style='cursor:pointer' onclick='EditItem(" + i + ")'>&nbsp;&nbsp;<img href='#' src='/skin/trash.gif' style='cursor:pointer' onclick='delItem(\"" + natList[i].Path + "\")'></td>");
+			document.writeln("</tr>");
+	}
+}
+
+// done hiding -->
+</script></head>
+<body>
+<script>printBeginContent();</script>
+<form method="get">
+<script>SetContentTitle(getStr("LK_MultiNAT"));</script>
+      <br>
+      <table width="1000" class="ContentBorder" cellspacing="0" cellpadding="0">
+        <tr class="TitleRow"> 
+          <td langkey="LK_Number"></td>
+          <td langkey="LK_Interface"></td>
+          <td langkey="LK_Type"></td>
+          <td langkey="LK_LocalSIP"></td>
+          <td langkey="LK_LocalEIP"></td>
+          <td langkey="LK_PublicIP"></td>
+          <td langkey="LK_Enable"></td>
+          <td langkey="LK_Action"></td>
+        </tr>
+        <script language='javascript'>
+		    fillObjItems();
+        </script>
+      </table>
+      <br>
+        <table class="ContentTableNoColor" cellspacing="0" cellpadding="0">
+			<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+            <tr>
+              <td>
+                <script>PrintTriButton("submit",getStr("LK_Add"),onClick="addItem();");</script>&nbsp;&nbsp;
+              </td>
+            </tr>
+	</table>
+  </form>
+<script>printEndContent();</script>
+<form method="post" name="dataform" id="dataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_multinat.shtml">
+<form>
+</body>
+</html>

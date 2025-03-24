@@ -1,0 +1,1096 @@
+<script type="text/javascript">
+	(function(){
+		/* JSON KEY_WORD */
+		var KEY_MODULE_NAME = "wlan_access";
+		var KEY_CFG = "config";
+		var KEY_WHITE_LIST = "white_list";
+		var KEY_GET_WHITE_LIST = "get_white_list";
+		var KEY_ENABLE = "enable";
+		var KEY_CONNECTED_NUM = "connected_num";
+		var KEY_GET_2G_STA = "get_2g_sta";
+		var KEY_GET_5G_STA = "get_5g_sta";
+		var KEY_INDEX_START = "index_start";
+		var KEY_INDEX_END = "index_end";
+		var KEY_BLOCK_LIST = "block_list";
+		var defHostName = label.anonymousHost;
+		var KEY_MAC = "mac";
+		var KEY_IP = "ip";
+		var hiFileName = uciHostsInfo.fileName;
+		var hiOnlineHost = uciHostsInfo.dynData.online_host;
+		var hiCurHost = uciHostsInfo.optName.isCurHost;
+		var hiMac = uciHostsInfo.optName.mac;
+		var hiName = uciHostsInfo.optName.hostname;
+		var hiType = uciHostsInfo.optName.type;
+
+		/* WHITE LIST MAX LENGTH */
+		var WLAN_ACC_WHITE_LIST_MAX_LEN = 0;
+
+		/* WHITE LIST ARRAY */
+		var whiteListArray = [];
+
+		/* LINKED / BANNED LIST ARRAY */
+		var dialogListArray = [];
+
+		var dialogSelectedArray = [];
+
+		/* ONLINE LIST ARRAY */
+		var onlineHostArray = [];
+
+		var whiteListTable;
+
+		/* MANAGER_HOST INFO */
+		var curHostIsWireless = false;
+		var curHostMac = "00-00-00-00-00-00";
+		var curHostName = "";
+
+		var curItem = {};
+		var selStaIndex = 0;
+		var num2G = 0, num5G = 0;
+		var wlanAccessCurState = 0;
+
+		var cfgEnableValue = false;
+		var loadingShow = false;
+		var pctlSwitch;
+
+		function errHandle(errCode){
+			var showStr = "";
+
+			switch (errCode)
+			{
+			case ENONE:
+				return true;
+			case ESYSTEM:
+				showStr = errStr.systemErr;
+				break;
+			case ETABLEFULL:
+				showStr = errStr.tableFullErr;
+				break;
+			case EENTRYNOTEXIST:
+				showStr = errStr.entryNoExistErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.invSameItem;
+				break;
+			case EHOSTNAME:
+				showStr = errStr.hostLenErr;
+				break;
+			default:
+				showStr = errStr.invRequestFail;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function cfgUpLoad(){
+			var reqCfg = {}, reqFile = {}, reqData = {};
+			reqCfg[KEY_MODULE_NAME] = reqFile;
+			reqFile[KEY_CFG] = reqData;
+			reqData[KEY_ENABLE] = pctlSwitch.state;
+
+			if (loadingShow == false)
+			{
+				loadingDialog.show({
+					content:{primary:label.savingAndWait}
+				});
+			}
+
+			$.modify(reqCfg, function(result){
+				loadingDialog.hide(function(){
+					if (errHandle(result[ERR_CODE]))
+					{
+						loadingShow = false;
+						cfgEnableValue = pctlSwitch.state;
+						requestData();
+					}
+				});
+			}, undefined, true);
+		}
+
+		function whiteListAdd(){
+			if (selStaIndex < dialogSelectedArray.length)
+			{
+				var reqAdd = {}, reqTable = {}, reqPara = {};
+
+				reqAdd[KEY_MODULE_NAME] = reqTable;
+				reqTable[KEY_TABLE] = KEY_WHITE_LIST;
+				reqTable[KEY_NAME] = KEY_WHITE_LIST + "_" + calcNextIndex(whiteListArray);
+				reqTable[KEY_PARA] = reqPara;
+				reqPara[KEY_NAME] = dialogSelectedArray[selStaIndex][KEY_NAME];
+				reqPara[KEY_MAC] = dialogSelectedArray[selStaIndex][KEY_MAC];
+
+				$.add(reqAdd, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						reqPara[SEC_NAME] = KEY_WHITE_LIST + "_" + calcNextIndex(whiteListArray);
+						whiteListArray.push(reqPara);
+						selStaIndex++;
+						whiteListAdd();
+					}
+					else
+					{
+						cfgUpLoad();
+						return;
+					}
+				}, undefined, true);
+			}
+			else
+			{
+				cfgUpLoad();
+			}
+		}
+
+		function whiteListItemDeleteHandle(delList, asynFunc){
+			var reqDelSel = {}, reqDelSelName = {};
+
+			loadingDialog.show({
+				title:label.confirmTip,
+				content:{primary:label.deletingAndWait}
+			});
+
+			reqDelSel[KEY_MODULE_NAME] = reqDelSelName;
+			reqDelSelName[KEY_NAME] = delList;
+
+			$.del(reqDelSel, function(result){
+				loadingDialog.hide(function(){
+					if (errHandle(result[ERR_CODE]))
+					{
+						asynFunc(true);
+						whiteListRequest(wlTblFresh);
+					}
+					else
+					{
+						asynFunc(false);
+					}
+				});
+			});
+		}
+
+		function whiteListItemDelete(index, asynFunc){
+			var indexArray = index.split("-");
+			var delSelList = [], reqDelSel = {}, reqDelSelName = {}, curDelItem = {}, delCurFlag = false, j = 0;
+			var reqDelAll = {}, reqDelAllPara = {};
+
+			if (indexArray.length == whiteListArray.length)
+			{
+				reqDelAll[KEY_MODULE_NAME] = reqDelAllPara;
+				reqDelAllPara[KEY_TABLE] = KEY_WHITE_LIST;
+
+				if (true == curHostIsWireless && checkInWhiteList(curHostMac))
+				{
+					confirmDialog.show({
+						title: label.confirmTitle,
+						content: label.wlanAccessWarnDelSel_1 + curHostMac + label.wlanAccessWarnDelSel_2,
+						callback: function(choose){
+							if (true == choose){
+								loadingDialog.show({
+									title:label.confirmTip,
+									content:{primary:label.deletingAndWait}
+								});
+
+								$.del(reqDelAll, function(result){
+									loadingDialog.hide(function(){
+										if (errHandle(result[ERR_CODE]))
+										{
+											asynFunc(true);
+											requestData();
+										}
+										else
+										{
+											asynFunc(false);
+										}
+									});
+								});
+							}
+						}
+					});
+				}
+				else
+				{
+					$.del(reqDelAll, function(result){
+						if (errHandle(result[ERR_CODE]))
+						{
+							asynFunc(true);
+							whiteListRequest(wlTblFresh);
+						}
+						else
+						{
+							asynFunc(false);
+						}
+					});
+				}
+			}
+			else
+			{
+				for (var i = 0; i < indexArray.length; i++)
+				{
+					/* IF CURRENT_HOST IS WIRELESS_LINK AND EXIST IN WHITE LIST */
+					if (whiteListArray[indexArray[i]][KEY_MAC].toUpperCase() == curHostMac.toUpperCase())
+					{
+						curDelItem = whiteListArray[indexArray[i]][SEC_NAME];
+						delCurFlag = true;
+					}
+					else
+					{
+						delSelList[j] = whiteListArray[indexArray[i]][SEC_NAME];
+						j++;
+					}
+				}
+
+				if (delCurFlag)
+				{
+					confirmDialog.show({
+						title:label.confirmTitle,
+						content: label.wlanAccessWarnDelSel_1 + curHostMac + label.wlanAccessWarnDelSel_2,
+						callback: function(choose){
+							if (true == choose){
+								delSelList.push(curDelItem);
+								whiteListItemDeleteHandle(delSelList, asynFunc);
+							}
+						}
+					});
+				}
+				else
+				{
+					whiteListItemDeleteHandle(delSelList, asynFunc);
+				}
+			}
+		}
+
+		function whiteListItemSave(mode, resultObj, index, asynFunc){
+			var newHostName = resultObj[KEY_NAME];
+			var newMac = resultObj[KEY_MAC].toUpperCase();
+
+			newHostName = newHostName.replace(/^\s+|\s+$/g,"");
+
+			for (var i = 0; i < whiteListArray.length; i++)
+			{
+				if (i == index)
+				{
+					continue;
+				}
+
+				if (newMac == whiteListArray[i][KEY_MAC].toUpperCase())
+				{
+					alarmDialog.show(errStr.invSameItem);
+					asynFunc(false);
+				}
+			}
+
+			if ("add" == mode)
+			{
+				var reqAdd = {}, reqAddFile = {}, reqAddPara = {};
+
+				reqAdd[KEY_MODULE_NAME] = reqAddFile;
+				reqAddFile[KEY_TABLE] = KEY_WHITE_LIST;
+				reqAddFile[KEY_NAME] = KEY_WHITE_LIST + '_' + calcNextIndex(whiteListArray);
+				reqAddFile[KEY_PARA] = reqAddPara;
+				reqAddPara[KEY_NAME] = newHostName;
+				reqAddPara[KEY_MAC] = newMac;
+
+				$.add(reqAdd, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						showToast(label.addSuccess);
+						asynFunc(true);
+						whiteListRequest(wlTblFresh);
+					}
+					else
+					{
+						asynFunc(false);
+					}
+				});
+			}
+			else if ("edit" == mode)
+			{
+				var secNameVal = whiteListArray[index][SEC_NAME];
+				var oldMacVal = whiteListArray[index][KEY_MAC].toUpperCase();
+				var reqSet = {}, reqSetFile = {}, reqSetPara = {};
+
+				reqSet[KEY_MODULE_NAME] = reqSetFile;
+				reqSetFile[secNameVal] = reqSetPara;
+				reqSetPara[KEY_NAME] = newHostName;
+				reqSetPara[KEY_MAC] = newMac;
+
+				/* IF CURRENT_HOST IS WIRELESS_LINK AND DOESN'T EXIST IN WHITE LIST */
+				if (0 != cfgEnableValue &&
+					oldMacVal.toUpperCase() == curHostMac.toUpperCase() &&
+					oldMacVal.toUpperCase() != newMac.toUpperCase() &&
+					(true == curHostIsWireless))
+				{
+					confirmDialog.show({
+						title: label.confirmTitle,
+						content: label.wlanAccessWarnEditCurMac,
+						callback: function(choose){
+							if (true == choose)
+							{
+								$.modify(reqSet, function(result){
+									if (errHandle(result[ERR_CODE]))
+									{
+										showToast(label.modifySuccess);
+										asynFunc(true);
+										whiteListRequest(wlTblFresh);
+									}
+									else
+									{
+										asynFunc(false);
+									}
+								});
+							}
+							else
+							{
+								asynFunc(false);
+							}
+						}
+					});
+					return;
+				}
+
+				$.modify(reqSet, function(result){
+					if (errHandle(result[ERR_CODE]))
+					{
+						showToast(label.modifySuccess);
+						asynFunc(true);
+						whiteListRequest(wlTblFresh);
+					}
+					else
+					{
+						asynFunc(false);
+					}
+				});
+			}
+		}
+
+		function dialogListConfirmHandle(dialog){
+			var selectedResult = dialog.table._getSelectItem();
+			var selectedArr = selectedResult.selArrStr.split("-");
+			var selectedLen = selectedResult.selArr.length;
+			dialogSelectedArray.length = 0;
+			selStaIndex = 0;
+
+			for (var i = 0; i < selectedLen; i++)
+			{
+				var item = {};
+				var name = (1 == cfgEnableValue) ? "" : dialogListArray[selectedArr[i]].name.replace(/^\s+|\s+$/g,"");
+				var mac = String(dialogListArray[selectedArr[i]].mac.match(/([0-9a-f]{2}-){5}([0-9a-f]{2})+/gi));
+
+				if (mac && mac != "" && !checkInWhiteList(mac)){
+					item[KEY_NAME] = name;
+					item[KEY_MAC] = mac;
+					dialogSelectedArray.push(item);
+				}
+			}
+
+			if (dialogSelectedArray.length + whiteListArray.length > WLAN_ACC_WHITE_LIST_MAX_LEN)
+			{
+				alarmDialog.show('列表条目超过规定个数，最多允许指定' + WLAN_ACC_WHITE_LIST_MAX_LEN + '个设备。');
+				return;
+			}
+
+			dialog.hide(function(){
+				if (0 == dialogSelectedArray.length)
+				{
+					if (1 == cfgEnableValue)
+					{
+						return;
+					}
+
+					if (0 == whiteListArray.length)
+					{
+						confirmDialog.show({
+							title:label.confirmTitle,
+							content:label.wlanAccessWarnWhiteListEmpty,
+							callback:function(choose){
+								if (true == choose){
+									cfgUpLoad();
+									return;
+								}
+							}
+						});
+					}
+					else
+					{
+						cfgUpLoad();
+						return;
+					}
+				}
+				else
+				{
+					/* SELECTED ITEM, SO LET'S ADD */
+					loadingDialog.show({
+						title:label.confirmTitle,
+						content:{primary:label.savingAndWait}
+					});
+
+					loadingShow = true;
+					whiteListAdd();
+				}
+			});
+		}
+
+		function getLinkedList(callback){
+			var cntNum;
+			var reqCntNum = {};
+
+			dialogListArray.length = 0;
+			num2G = 0;
+			num5G = 0;
+			reqCntNum[KEY_MODULE_NAME] = {};
+			reqCntNum[KEY_MODULE_NAME][KEY_NAME] = KEY_CONNECTED_NUM;
+
+			$.query(reqCntNum, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					cntNum = result[KEY_MODULE_NAME][KEY_CONNECTED_NUM];
+					num2G = (null == cntNum["2g"]) ? num2G : parseInt(cntNum["2g"]);
+					num5G = (null == cntNum["5g"]) ? num5G : parseInt(cntNum["5g"]);
+
+					/* IF CONNECTED NUM IS 0,DOESN'T NEED TO SEND DATA AGAIN */
+					if (num2G + num5G <= 0)
+					{
+						typeof callback == "function" && callback();
+						return;
+					}
+
+					var reqHost = {}, hosts = {};
+					reqHost[KEY_MODULE_NAME] = hosts;
+
+					if (num2G > 0)
+					{
+						var reqHostIndex = {};
+						reqHostIndex[KEY_INDEX_START] = 0;
+						reqHostIndex[KEY_INDEX_END] = num2G - 1;
+						hosts[KEY_GET_2G_STA] = reqHostIndex;
+					}
+
+					if (num5G > 0)
+					{
+						var reqHostIndex = {};
+						reqHostIndex[KEY_INDEX_START] = 0;
+						reqHostIndex[KEY_INDEX_END] = num5G - 1;
+						hosts[KEY_GET_5G_STA] = reqHostIndex;
+					}
+
+					$.action(reqHost, function(resultHost){
+						if (errHandle(resultHost[ERR_CODE]))
+						{
+							addLinkedListArray(resultHost[KEY_GET_2G_STA]);
+							addLinkedListArray(resultHost[KEY_GET_5G_STA]);
+
+							if (true == curHostIsWireless && false == checkInWhiteList(curHostMac)){
+								dialogListArray.push(curItem);
+							}
+
+							typeof callback == "function" && callback();
+							return;
+						}
+					});
+				}
+			});
+		}
+
+		function getBannedList(callback){
+			var reqBannedDev = {};
+
+			dialogListArray.length = 0;
+			reqBannedDev[KEY_MODULE_NAME] = {};
+			reqBannedDev[KEY_MODULE_NAME][KEY_TABLE] = KEY_BLOCK_LIST;
+
+			$.query(reqBannedDev, function(result){
+				if (errHandle(result[ERR_CODE])){
+					if ((result[KEY_MODULE_NAME] == null) || (result[KEY_MODULE_NAME][KEY_BLOCK_LIST] == null))
+					{
+						return;
+					}
+
+					addBannedListArray(result[KEY_MODULE_NAME][KEY_BLOCK_LIST]);
+
+					typeof callback == "function" && callback();
+					return;
+				}
+			});
+		}
+
+		function addLinkedListArray(linkedData){
+			var device, devItem, itemTmp, flag;
+			var data = formatTableData(linkedData) || [];
+
+			for (var device = 0; device < data.length; device++)
+			{
+				itemTmp = {};
+				devItem = data[device];
+
+				itemTmp.name = devItem.name.replace(/^\s+|\s+$/g,"");
+
+				if (itemTmp.name == "" || itemTmp.name == "-")
+				{
+					itemTmp.name = defHostName;
+				}
+				itemTmp.mac = devItem.mac.toUpperCase();
+				itemTmp.ip = devItem.ip;
+
+				/* SPECIAL DEAL WITH CURRENT HOST */
+				if (itemTmp.mac == curHostMac)
+				{
+					curItem.name = itemTmp.name;
+					curItem.mac = itemTmp.mac;
+					curItem.ip = itemTmp.ip;
+					continue;
+				}
+
+				if (true == checkInWhiteList(itemTmp.mac))
+				{
+					continue;
+				}
+
+				dialogListArray.splice(0, 0, itemTmp);
+			}
+		}
+
+		function addBannedListArray(bannedData){
+			var device, devItem, itemTmp, interVal;
+			var data = formatTableData(bannedData) || [];
+
+			for (var device = 0; device < data.length; device++)
+			{
+				itemTmp = {};
+				devItem = data[device];
+
+				itemTmp.name = getBrandName(devItem, "ch");
+				itemTmp.mac = devItem.mac.toUpperCase();
+				interVal = parseInt(devItem.interval);
+
+				/* TRANSITION OF TIME */
+				if (interVal >= 86400)
+				{
+					itemTmp.tip = "" + String(parseInt(interVal/86400)) + "天前";
+				}
+				else if (interVal >= 3600)
+				{
+					itemTmp.tip = "" + String(parseInt(interVal/3600)) + "小时前";
+				}
+				else if (interVal >= 60)
+				{
+					itemTmp.tip = "" + String(parseInt(interVal/60)) + "分钟前";
+				}
+				else
+				{
+					itemTmp.tip = "刚刚";
+				}
+
+				dialogListArray.splice(0, 0, itemTmp);
+			}
+		}
+
+		function showWhiteListDialog()
+		{
+			onlineHostLoad(function(){
+				for (var i = 0; i < onlineHostArray.length; i++)
+				{
+					if (false == checkInWhiteList(onlineHostArray[i][KEY_MAC]))
+					{
+						getLinkedList(function(){
+							linkedListDialog.table.setDataSource(dialogListArray);
+							linkedListDialog.table.loadData();
+
+							for (var j = 0; j < dialogListArray.length; j++)
+							{
+								if (dialogListArray[j].mac.toUpperCase() == curHostMac.toUpperCase())
+								{
+									dialogListArray[j]["CHECK_BOX"].setValue(true);
+									dialogListArray[j]["CHECK_BOX"].disable(true);
+									$("#linkedListSelectNum").html(1);
+								}
+							}
+
+							linkedListDialog.show();
+						});
+						return;
+					}
+				}
+
+				/* IF WHITE_LIST IS EMPTY, REMIND USER THAT ALL WIRELESS_DEVICE WILL UNABLE TO CONNECT THE HOST_NETWORK */
+				if (0 == whiteListArray.length)
+				{
+					confirmDialog.show({
+						title:label.confirmTitle,
+						content:label.wlanAccessWarnWhiteListEmpty,
+						callback:function(choose){
+							if (true == choose)
+							{
+								cfgUpLoad();
+								return;
+							}
+							else
+							{
+								pctlSwitch.setState(0);
+							}
+						}
+					});
+				}
+				else
+				{
+					cfgUpLoad();
+				}
+			});
+		}
+
+		function wlanAccessSwitchState(state){
+			if (state == 1)
+			{
+				if (slp.macFilterSupport)
+				{
+					var data = {};
+					data[uciCustomNetwork.fileName] = {}
+					data[uciCustomNetwork.fileName][KEY_NAME] = uciCustomNetwork.dynData.macFilterConfig;
+	
+					$.query(data, function(resp){
+						if (resp[ERR_CODE] == ENONE)
+						{
+							var enable = resp[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig][uciCustomNetwork.optName.enable];
+
+							if (enable == "on")
+							{
+								confirmDialog.show({
+									content: label.turnOnParentControlWarn,
+									callback: function(result){
+										if (result)
+										{
+											data = {};
+											data[uciCustomNetwork.fileName] = {};
+											data[uciCustomNetwork.fileName][uciCustomNetwork.secName.macFilterConfig] = {
+												enable: "off"
+											};
+
+											$.modify(data, function(resp){
+												if (resp[ERR_CODE] == ENONE)
+												{
+													showWhiteListDialog();;
+												}
+												else
+												{
+													errHandle(resp[ERR_CODE]);
+												}
+											})
+										}
+										else
+										{
+											pctlSwitch.setState(0)
+										}
+									}
+								})
+							}
+							else
+							{
+								showWhiteListDialog();;
+							}
+						}
+						else
+						{
+							errHandle(resp[ERR_CODE]);
+						}
+					});
+
+					return;
+				}
+				else
+				{
+					showWhiteListDialog();
+				}
+			}
+			else
+			{
+				cfgUpLoad();
+			}
+		}
+
+		function checkInWhiteList(tmpMac){
+			if (whiteListArray.length == 0)
+			{
+				return false;
+			}
+
+			for (var i = 0; i < whiteListArray.length; i++)
+			{
+				if (tmpMac.toUpperCase() == whiteListArray[i][KEY_MAC].toUpperCase())
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function wlTblFresh(){
+			for (var i = 0; i <whiteListArray.length; i++)
+			{
+				if (whiteListArray[i][KEY_NAME] == "" || whiteListArray[i][KEY_NAME] == "-")
+				{
+					whiteListArray[i][KEY_NAME] = defHostName;
+				}
+			}
+
+			whiteListTable.setDataSource(whiteListArray);
+			whiteListTable.loadData();
+		}
+
+		function pageUpdate(){
+			pctlSwitch.setState(cfgEnableValue);
+
+			/*if (cfgEnableValue)
+			{*/
+				onlineHostLoad(wlTblFresh);
+			/*}*/
+		}
+
+		function selectAddDeviceHandle(){
+			if (cfgEnableValue == 1)
+			{
+				getBannedList(function(){
+					bannedListDialog.table.setDataSource(dialogListArray);
+					bannedListDialog.table.loadData();
+
+					bannedListDialog.show();
+				});
+			}
+			else
+			{
+				getLinkedList(function(){
+					linkedListDialog.table.setDataSource(dialogListArray);
+					linkedListDialog.table.loadData();
+
+					for (var j = 0; j < dialogListArray.length; j++)
+					{
+						if (dialogListArray[j].mac.toUpperCase() == curHostMac.toUpperCase())
+						{
+							dialogListArray[j]["CHECK_BOX"].setValue(true);
+							dialogListArray[j]["CHECK_BOX"].disable(true);
+							$("#linkedListSelectNum").html(1);
+						}
+					}
+
+					linkedListDialog.show();
+				});
+			}
+		}
+
+		function onlineHostLoad(callback){
+			var reqData = {}, reqHostsInfo = {};
+			reqData[hiFileName] = reqHostsInfo;
+			reqHostsInfo[KEY_TABLE] = hiOnlineHost;
+
+			$.query(reqData, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					var resHostsInfo = result[hiFileName];
+					var onlineHost = formatTableData(resHostsInfo[hiOnlineHost]) || [];
+					onlineHostArray.length = 0;
+
+					for (var i = 0; i < onlineHost.length; i++)
+					{
+						var ite = onlineHost[i];
+
+						/* IF WIRELESS_LINK AND HOST_CURRENT */
+						if ((ite[hiType] == uciHostsInfo.optValue.linkType.hostWireless) && (ite[hiCurHost] == "1"))
+						{
+							curHostIsWireless = true;
+							curHostMac = ite[hiMac].toUpperCase();
+							curHostName = ite[hiName];
+						}
+
+						if (ite[hiType] == uciHostsInfo.optValue.linkType.hostWireless)
+						{
+							var host = {};
+							host["name"] = ite[hiName];
+							host["mac"] = ite[hiMac].toUpperCase();
+							onlineHostArray.push(host);
+						}
+					}
+
+					typeof callback == "function" && callback();
+				}
+			});
+		}
+
+		function whiteListRequest(callback){
+			var reqData = {};
+			reqData[KEY_MODULE_NAME] = {};
+			reqData[KEY_MODULE_NAME][KEY_GET_WHITE_LIST] = {};
+
+			$.action(reqData, function(result){
+				if (ENONE == result[ERR_CODE])
+				{
+					if (result[KEY_MODULE_NAME] == null && result[KEY_MODULE_NAME][KEY_WHITE_LIST] == null)
+					{
+						return;
+					}
+
+					whiteListArray = formatTableData(result[KEY_MODULE_NAME][KEY_WHITE_LIST]) || [];
+				}
+
+				typeof callback == "function" && callback();
+			});
+		}
+
+		function requestData(){
+			var reqData = {};
+			reqData[KEY_MODULE_NAME] = {};
+			reqData[KEY_MODULE_NAME][KEY_NAME] = KEY_CFG;
+
+			$.query(reqData, function(result){
+				if (errHandle(result[ERR_CODE]))
+				{
+					var cfg = result[KEY_MODULE_NAME][KEY_CFG];
+					cfgEnableValue = parseInt(cfg[KEY_ENABLE]) == 0 ? 0 : 1;
+
+					whiteListRequest(pageUpdate);
+				}
+			});
+		}
+
+		if (slp.bandsProvided == slp.TRIPLE)
+		{
+			WLAN_ACC_WHITE_LIST_MAX_LEN = (slp.moduleSpec.host_num_2g || 0) + (slp.moduleSpec.host_num_5g_1 || 0) + (slp.moduleSpec.host_num_5g_4 || 0);
+		}
+		else if (slp.bandsProvided == slp.DOUBLE)
+		{
+			WLAN_ACC_WHITE_LIST_MAX_LEN = (slp.moduleSpec.host_num_2g || 0) + (slp.moduleSpec.host_num_5g || 0);
+		}
+		else
+		{
+			WLAN_ACC_WHITE_LIST_MAX_LEN = slp.moduleSpec.host_num_2g || 0;
+		}
+
+		whiteListTable = new Table({
+			title: label.wlanAccessWhiteList,
+			targetId: 'wlanAccWhiteTable',
+			head:[
+				{field:label.deviceName, width:"0.66"},
+				{field:label.mac, width:"0.34"}
+			],
+			column:[
+				{name:"name", type:"str", maxLength:DEVICE_NAME_LEN_MAX, isAllowBlank: false, isAllowAllSpace: false},
+				{name:"mac", type:"mac"}
+			],
+			editable: true,
+			addable: true,
+			addOption: {
+				icon: "icon-manual",
+				str: btn.addManual
+			},
+			tableOption:[
+				{icon:"icon-add", type: "add", str: btn.addDevice, func:selectAddDeviceHandle, selRelate: false}
+			],
+			clickList:{
+				"click_save": {func: whiteListItemSave, asyn: true},
+				"click_del_item": {func: whiteListItemDelete, asyn: true}
+			},
+			blankOptions:{
+				height: 1
+			},
+			max:WLAN_ACC_WHITE_LIST_MAX_LEN
+		});
+
+		pctlSwitch = new Switch("switchCon", cfgEnableValue, wlanAccessSwitchState, false);
+
+		var linkedListDialog = new Dialog({
+			title: label.addDevice + label.lBrackets + '<span id="linkedListSelectNum">0</span>' + label.rBrackets,
+			content:'<div class="linkedBannedTitleDesc">' +
+						'<span class="primary">' + label.deviceLinkedAndChoose + '</span>' +
+						'<span class="secondary">' + label.deviceConnectAndRefresh + '</span>' +
+					'</div>' +
+					'<div id="linkedListTable"></div>',
+			size: component.Dialog.SIZE.MEDIUM,
+			type: component.Dialog.TYPE.CUSTOM,
+			hasCloseIcon: true,
+			closeIconHandle: function(){pctlSwitch.setState(0);},
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text:btn.cancelTip,
+					id:'linkedListTableCancel',
+					onClick:function(){
+						pctlSwitch.setState(0);
+						linkedListDialog.hide();
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.confirmTip,
+					id:'linkedListTableSubmit',
+					onClick:function(){
+						dialogListConfirmHandle(linkedListDialog);
+					}
+				}
+			],
+			renderCallBack: function(){
+				var self = this;
+				self.table = new Table({
+					targetId: 'linkedListTable',
+					head:[
+						{field:label.deviceName, width:"0.57"},
+						{field:label.mac, width:"0.43"}/*,
+						{field:label.ipAddr, width:""}*/
+					],
+					column:[
+						{name:"name", type:"str", onRender: function(data, str){
+							if (data.mac.toUpperCase() == curHostMac.toUpperCase())
+							{
+								return ('<span style="color:#FF3366;margin-right:2px;">[' + label.bHost + ']</span>' + str);
+							}
+							else
+							{
+								return str;
+							}
+						}},
+						{name:"mac", type:"str"}
+					],
+					tableOption:[
+						{icon: "icon-refresh", str: btn.refresh, type:"refresh", func: function(){
+							onlineHostLoad(function(){
+								getLinkedList(function(){
+									linkedListDialog.table.setDataSource(dialogListArray);
+									linkedListDialog.table.loadData();
+
+									for (var j = 0; j < dialogListArray.length; j++)
+									{
+										if (dialogListArray[j].mac.toUpperCase() == curHostMac.toUpperCase())
+										{
+											dialogListArray[j]["CHECK_BOX"].setValue(true);
+											dialogListArray[j]["CHECK_BOX"].disable(true);
+											$("#linkedListSelectNum").html(1);
+										}
+									}
+
+									showToast(label.refreshSuccess);
+								});
+							});
+						}}
+					],
+					editable:false,
+					addable:false,
+					deletable:false,
+					blankOptions:{
+						str: label.nonAddableDevice,
+						height: 1
+					},
+					numPerPage: 8
+				});
+
+				$(self.table).on("ev_sel_item", function(){
+					var num = self.table._getSelectItem().selArr.length;
+					$("#linkedListSelectNum").html(num);
+				}).on("ev_sel_none", function(){
+					$("#linkedListSelectNum").html(0);
+				});
+			}
+		});
+
+		var bannedListDialog = new Dialog({
+			title: label.addDevice + label.lBrackets + '<span id="bannedListSelectNum">0</span>' + label.rBrackets,
+			content: '<div class="linkedBannedTitleDesc">' +
+						'<span class="primary">' + label.deviceBannedAndChoose + '</span>' +
+						'<span class="secondary">' + label.deivceTryConnectAndRefresh + '</span>' +
+					 '</div>' +
+					 '<div id="bannedListTable"></div>',
+			size: component.Dialog.SIZE.MEDIUM,
+			type: component.Dialog.TYPE.CUSTOM,
+			hasCloseIcon: true,
+			bottom: [
+				{
+					type:component.Button.TYPE.SECONDARY,
+					text:btn.cancelTip,
+					id:'bannedListTableCancel',
+					onClick:function(){
+						bannedListDialog.hide();
+					}
+				},
+				{
+					type:component.Button.TYPE.PRIMARY,
+					text:btn.confirmTip,
+					id:'bannedListTableSubmit',
+					onClick:function(){
+						dialogListConfirmHandle(bannedListDialog);
+					}
+				}
+			],
+			renderCallBack: function(){
+				var self = this;
+				self.table = new Table({
+					targetId: 'bannedListTable',
+					head:[
+						{field:label.deviceBrand, width:"0.48"},
+						{field:label.mac, width:"0.32"},
+						{field:label.linkTime, width:"0.2"}
+					],
+					column:[
+						{name:"name", type:"str"},
+						{name:"mac", type:"str"},
+						{name:"tip", type:"str"}
+					],
+					tableOption:[
+						{icon: "icon-refresh", str: btn.refresh, type:"refresh", func: function(){
+							getBannedList(function(){
+								bannedListDialog.table.setDataSource(dialogListArray);
+								bannedListDialog.table.loadData();
+								showToast(label.refreshSuccess);
+							});
+						}}
+					],
+					editable:false,
+					addable:false,
+					deletable:false,
+					blankOptions:{
+						str: label.nonAddableDevice,
+						height: 1
+					},
+					numPerPage: 8
+				});
+
+				$(self.table).on("ev_sel_item", function(){
+					var num = self.table._getSelectItem().selArr.length;
+					$("#bannedListSelectNum").html(num);
+				}).on("ev_sel_none", function(){
+					$("#bannedListSelectNum").html(0);
+				});
+			}
+		});
+
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.linkedBannedTitleDesc{
+		position: absolute;
+		top: 24px;
+		left: 24px;
+	}
+	div.linkedBannedTitleDesc span{
+		display: block;
+		height: 20px;
+		line-height: 20px;
+		font-size: 13px;
+	}
+	div.linkedBannedTitleDesc span.primary{
+		color: #333333;
+	}
+	div.linkedBannedTitleDesc span.secondary{
+		color: #999999;
+	}
+	#linkedListTable div.tableTitleContainer, #bannedListTable div.tableTitleContainer{
+		margin-bottom: 16px;
+	}
+</style>
+<div class="head">
+	<div class="title">
+		<h1>{%menuStr.wlanAccess%}</h1>
+		<i class="helpBtn iconfont icon-help" helpStr="WlanAccessHelp"></i>
+		<div id="switchCon" class="switchCon switchConHs">
+			<i class="switchBg"></i>
+			<i class="switchBall"/></i>
+		</div>
+	</div>
+	<p class="description">{%titleDescriptionStr.wlanAccessDescription%}</p>
+</div>
+<div id="wlanAccWhiteTable"></div>

@@ -1,0 +1,8 @@
+Package: miwifi-discovery
+Version: 0
+Depends: libc, libubus, libblobmsg-json, libubox, libmtknetlink
+Source: package/miwifi/miwifi-discovery
+Section: net
+Architecture: mipsel_24kc
+Installed-Size: 7320
+Description:  MiWiFi new router discovery

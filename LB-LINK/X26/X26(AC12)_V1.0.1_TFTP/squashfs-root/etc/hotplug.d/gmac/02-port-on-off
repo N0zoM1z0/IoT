@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#### link ####
+# 1: wan port pluged wired
+# 0: wan port doesn't plug wired
+#### netstate ####
+# up: wan obtained an ip and can access to gateway
+# down: wan has no ip or can't access to gateway 
+
+if [ "router" = "$(uci get system.route.operationmode)" ]; then
+[ $PORTNUM -eq 4 ] && {
+    case "$ACTION" in
+        "linkup")    
+            [ "dhcp" = "$(uci get network.wan.proto)" ] && kill -USR1 $(pidof udhcpc)
+            ;;
+ 
+        "linkdown")
+            [ "dhcp" = "$(uci get network.wan.proto)" ] && kill -USR2 $(pidof udhcpc)
+            echo "down" >/tmp/wan_state
+            ;;
+   esac
+   exit 0
+}
+elif [ "mobilenetmode" = "$(uci get system.route.operationmode)" ]; then
+[ $PORTNUM -eq 0 ] && {
+    case "$ACTION" in
+        "linkup")    
+            [ "dhcp" = "$(uci get network.wan.proto)" ] && kill -USR1 $(pidof udhcpc)
+            ;;
+ 
+        "linkdown")
+            [ "dhcp" = "$(uci get network.wan.proto)" ] && kill -USR2 $(pidof udhcpc)
+            echo "down" >/tmp/wan_state
+            ;;
+   esac
+   exit 0
+}
+fi

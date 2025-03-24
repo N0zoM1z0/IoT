@@ -1,0 +1,35 @@
+local L0, L1, L2
+L0 = module
+L1 = "xiaoqiang.XQEvent"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+function L0(A0, A1)
+  local L2, L3, L4, L5, L6, L7, L8
+  L2 = require
+  L3 = "xiaoqiang.module.XQDMZModule"
+  L2 = L2(L3)
+  L3 = require
+  L4 = "xiaoqiang.module.XQGuestWifi"
+  L3 = L3(L4)
+  L4 = require
+  L5 = "xiaoqiang.module.XQPortForward"
+  L4 = L4(L5)
+  L5 = require
+  L6 = "xiaoqiang.util.XQLanWanUtil"
+  L5 = L5(L6)
+  L6 = L2.hookLanIPChangeEvent
+  L7 = A0
+  L6(L7)
+  L6 = L3.hookLanIPChangeEvent
+  L7 = A0
+  L8 = A1
+  L6(L7, L8)
+  L6 = L4.hookLanIPChangeEvent
+  L7 = A0
+  L6(L7)
+  L6 = L5.hookLanIPChangeEvent
+  L7 = A0
+  L6(L7)
+end
+lanIPChange = L0

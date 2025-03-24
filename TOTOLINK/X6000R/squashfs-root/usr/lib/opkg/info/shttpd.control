@@ -1,0 +1,10 @@
+Package: shttpd
+Version: 1
+Depends: libc, libpthread, libuci20130104, libjson-c5, libcjson, libcommon, liboperations, libopenssl1.1
+Source: package/carystudio/shttpd
+SourceName: shttpd
+Section: carystudio
+SourceDateEpoch: 1689665062
+Architecture: aarch64_cortex-a53
+Installed-Size: 105537
+Description:  shttpd for web management

@@ -1,0 +1,239 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.Time."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Time"
+
+entry_execute_method_root_Time() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.Time."*)
+		common_execute_method_obj "$DMROOT.Time." "0"
+		common_execute_method_param "$DMROOT.Time.Enable" "1" "$UCI_GET system.ntp.enabled" "time_set_enable" "xsd:boolean" "0"
+		common_execute_method_param "$DMROOT.Time.Status" "0" "time_get_status" "" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.NTPServer1" "1" "time_get_ntpserver1" "time_set_ntpserver1" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.NTPServer2" "1" "time_get_ntpserver2" "time_set_ntpserver2" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.NTPServer3" "1" "time_get_ntpserver3" "time_set_ntpserver3" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.NTPServer4" "1" "time_get_ntpserver4" "time_set_ntpserver4" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.NTPServer5" "1" "time_get_ntpserver5" "time_set_ntpserver5" "xsd:String" "0"
+		common_execute_method_param "$DMROOT.Time.CurrentLocalTime" "0" "time_get_currentlocaltime" "" "xsd:dateTime" "0"
+		common_execute_method_param "$DMROOT.Time.LocalTimeZone" "1" "time_get_localtimezone" "time_set_localtimezone" "xsd:dateTime" "0"
+		common_execute_method_param "$DMROOT.Time.LocalTimeZoneName" "1" "time_get_localtimezonename" "time_set_localtimezonename" "xsd:dateTime" "0"
+
+		return 0;
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+restart_server() {
+	local restart_flag=`ps | grep restart_ntpd | grep -v grep`
+	
+	if [ -z $restart_flag ];then
+		$UCI_COMMIT
+		/bin/restart_ntpd.sh &
+	fi
+}
+
+time_get_localtimezonename() {
+	$UCI_GET system.@system[0].zonename
+}
+
+time_set_localtimezonename() {
+	local val=$1
+	$UCI_SET system.@system[0].zonename="$val"
+	
+	restart_server
+}
+
+time_get_localtimezone() {
+	$UCI_GET system.@system[0].timezone
+}
+
+time_set_localtimezone() {
+	local val=$1
+	$UCI_SET system.@system[0].timezone="$val"
+	
+	restart_server
+	
+	return 0
+}
+
+
+time_set_enable() {
+	local val=$1
+	common_set_bool "system.ntp.enabled" "$val" "1" "0"
+	restart_server
+	return 0	
+}
+
+time_get_status() {
+	local val=`date -u "+%Y"`
+	local ntp_enable=`$UCI_GET system.ntp.enabled`
+	local ntp_exist=`ps | grep ntpd | grep -v grep`
+	
+	if [ "$ntp_enable" == "0" ];then
+		echo "Disabled"
+	elif [ -z "$ntp_exist" ];then
+		echo "Error_FailedToSynchronize"
+	elif [ $val -lt 2020 ];then
+		echo "Unsynchronized"
+	elif [ $val -ge 2020 ];then
+		echo "Synchronized"
+	fi
+}
+
+time_get_ntpserver1() {
+	$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'
+}
+
+time_get_ntpserver2() {
+	$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'
+}
+
+time_get_ntpserver3() {
+	$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'
+}
+
+time_get_ntpserver4() {
+	$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'
+}
+
+time_get_ntpserver5() {
+	$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'
+}
+
+time_set_ntpserver1() {
+	local val="$1"
+
+	local val1=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'`
+	local val2=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'`
+	local val3=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'`
+	local val4=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'`
+	local val5=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'`
+	
+	$UCI_DELETE system.ntp.server
+	$UCI_COMMIT
+	
+	$UCI_ADD_LIST system.ntp.server="$val"
+	$UCI_ADD_LIST system.ntp.server="$val2"
+	$UCI_ADD_LIST system.ntp.server="$val3"
+	$UCI_ADD_LIST system.ntp.server="$val4"
+	$UCI_ADD_LIST system.ntp.server="$val5"
+	
+	$UCI_COMMIT
+	
+	restart_server
+	
+	return 0;
+}
+
+time_set_ntpserver2() {
+	local val="$1"
+
+	local val1=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'`
+	local val2=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'`
+	local val3=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'`
+	local val4=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'`
+	local val5=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'`
+	
+	$UCI_DELETE system.ntp.server
+	$UCI_COMMIT
+	
+	$UCI_ADD_LIST system.ntp.server="$val1"
+	$UCI_ADD_LIST system.ntp.server="$val"
+	$UCI_ADD_LIST system.ntp.server="$val3"
+	$UCI_ADD_LIST system.ntp.server="$val4"
+	$UCI_ADD_LIST system.ntp.server="$val5"
+	
+	$UCI_COMMIT
+	
+	restart_server
+	
+	return 0;
+}
+
+time_set_ntpserver3() {
+	local val="$1"
+
+	local val1=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'`
+	local val2=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'`
+	local val3=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'`
+	local val4=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'`
+	local val5=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'`
+	
+	$UCI_DELETE system.ntp.server
+	$UCI_COMMIT
+	
+	$UCI_ADD_LIST system.ntp.server="$val1"
+	$UCI_ADD_LIST system.ntp.server="$val2"
+	$UCI_ADD_LIST system.ntp.server="$val"
+	$UCI_ADD_LIST system.ntp.server="$val4"
+	$UCI_ADD_LIST system.ntp.server="$val5"
+	
+	$UCI_COMMIT
+	
+	restart_server
+	
+	return 0;
+}
+
+time_set_ntpserver4() {
+	local val="$1"
+
+	local val1=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'`
+	local val2=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'`
+	local val3=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'`
+	local val4=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'`
+	local val5=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'`
+	
+	$UCI_DELETE system.ntp.server
+	$UCI_COMMIT
+	
+	$UCI_ADD_LIST system.ntp.server="$val1"
+	$UCI_ADD_LIST system.ntp.server="$val2"
+	$UCI_ADD_LIST system.ntp.server="$val3"
+	$UCI_ADD_LIST system.ntp.server="$val"
+	$UCI_ADD_LIST system.ntp.server="$val5"
+	
+	$UCI_COMMIT
+	
+	restart_server
+	
+	return 0;
+}
+
+time_set_ntpserver5() {
+	local val="$1"
+
+	local val1=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $1 }'`
+	local val2=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $2 }'`
+	local val3=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $3 }'`
+	local val4=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $4 }'`
+	local val5=`$UCI_GET system.ntp.server | awk -F ' ' '{ print $5 }'`
+	
+	$UCI_DELETE system.ntp.server
+	$UCI_COMMIT
+	
+	$UCI_ADD_LIST system.ntp.server="$val1"
+	$UCI_ADD_LIST system.ntp.server="$val2"
+	$UCI_ADD_LIST system.ntp.server="$val3"
+	$UCI_ADD_LIST system.ntp.server="$val4"
+	$UCI_ADD_LIST system.ntp.server="$val"
+	
+	$UCI_COMMIT
+	
+	restart_server
+	
+	return 0;
+}
+
+time_get_currentlocaltime() {
+	date "+%Y-%m-%dT%H:%M:%SZ"
+}

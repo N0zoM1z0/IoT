@@ -1,0 +1,8 @@
+Package: kmod-shortcut-fe-cm
+Version: 4.4.60+miwifi_git-1
+Depends: kernel (=4.4.60-1-a31b8970df4b847fa4f01d88c4d1392a), kmod-ipt-conntrack, kmod-shortcut-fe
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/shortcut-fe/shortcut-fe
+Section: kernel
+Architecture: arm_cortex-a7
+Installed-Size: 9138
+Description:  Kernel driver for SFE

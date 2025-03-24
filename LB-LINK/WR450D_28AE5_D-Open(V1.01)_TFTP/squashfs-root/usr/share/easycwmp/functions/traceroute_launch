@@ -1,0 +1,122 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+# 	Author: AHMED Sahnoun <ahmed.sahnoun@pivasoftware.com>
+
+[ "$1" != "run" -a "$1" != "stop" ] && return
+
+UCI_GET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state get"
+UCI_SET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set"
+
+traceroute_get() {
+	local val=`$UCI_GET_VARSTATE $1`
+	echo ${val:-$2}
+}
+
+traceroute_run() {
+	[ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState_trace`" = "Requested" ] && traceroute_initiation
+}
+
+traceroute_initiation() {
+	local interface=`traceroute_get easycwmp.@local[0].Interface_trace`
+	local host=`traceroute_get easycwmp.@local[0].Host_trace`
+	local numberoftries=`traceroute_get easycwmp.@local[0].NumberOfTries_trace 3`
+	local timeout=`traceroute_get easycwmp.@local[0].Timeout_trace 5000`
+	local dsize=`traceroute_get easycwmp.@local[0].DataBlockSize_trace 38`
+	local dscp=`traceroute_get easycwmp.@local[0].DSCP_trace 0`
+	local maxhopcount=`traceroute_get easycwmp.@local[0].MaxHopCount_trace 30`
+	local responsetime=0
+	local routehopsnumberofentries=0
+	local State
+	local res stc
+	
+	[ "$host" = "" ] && return
+	traceroute_launch
+	[ -n "$State" ] && { $UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_trace=$State; event_dignostic; return; }
+
+	$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_trace=Complete
+	$UCI_SET_VARSTATE easycwmp.@local[0].ResponseTime_trace=$responsetime
+	$UCI_SET_VARSTATE easycwmp.@local[0].RouteHopsNumberOfEntries_trace=$routehopsnumberofentries
+
+	event_dignostic
+}
+
+traceroute_launch() {
+	[ "$host" = "" ] && return
+	timeout=$((timeout/1000))
+	[ "$timeout" = "0" ] && timeout="1"
+	
+	[ "$interface" != "" ] && { 
+		ubusInterface=`echo {\"interface\":\"$interface\"}`
+		iface=`ubus call "network.interface" "status" $ubusInterface`
+	}
+	[ "$iface" != "" ] && {
+		json_init
+		json_load "$iface" >&2
+		json_get_var device device >&2
+		if [ "$device" != "" ] 
+			then
+				Device=`echo -i $device`
+			else
+				Device=""
+			fi
+		}
+		
+		traceroute $Device -q $numberoftries -w $timeout -t $dscp -m $maxhopcount $host $dsize 2> /tmp/trace_info > /tmp/trace_info
+		
+		ba=`cat /tmp/trace_info | grep "bad address"`
+		[ -n "$ba" ] && { State=Error_CannotResolveHostName; return; }
+		ba=`cat /tmp/trace_info | grep "unknown host"`
+		[ -n "$ba" ] && { State=Error_CannotResolveHostName; return; }
+		
+		if [ $maxhopcount -gt 64 ];then
+			State=Error_MaxHopCountExceeded
+			return
+		fi
+		
+		res= `cat /tmp/trace_info | grep "bad address"`
+		[ -n "$res" ] && { State=Error_CannotResolveHostName; return; }
+		
+		while read line
+		do
+			stc=`echo "$line" | grep "traceroute"`
+			
+			if [ -n "$stc" ];then
+				continue
+			fi
+		
+			stc=`echo "$line" | awk -F ' ' '{ print $4}'`
+			
+			if [ -n "$stc" ];then
+				responsetime=$stc
+			fi
+			
+			let routehopsnumberofentries++
+		done < /tmp/trace_info
+}
+
+event_dignostic() {
+	local e=1
+	local i=0
+	while [ "$e" != 0 -a $i -lt 200 ]; do	
+		ubus -t 1 call tr069 inform '{"event":"8 DIAGNOSTICS COMPLETE"}'
+		e=$?
+		[ "$e" != "0" ] && sleep 1;
+		let i++
+	done
+	
+	/bin/restart_easycwmpd.sh &
+}
+
+traceroute_stop() {
+	local pids=`ps aux | grep traceroute_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	[ -z "$pids" ] && pids=`ps | grep traceroute_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+	if [ -n "$pids" ]; then
+		kill -9 $pids 2>/dev/null
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_trace=None
+	fi
+}
+
+[ "$1" == "run" ] && { traceroute_run 2>/dev/null; exit 0; }
+[ "$1" == "stop" ] && traceroute_stop 2>/dev/null
+

@@ -1,0 +1,12 @@
+Package: flashtest
+Version: 1-1.0
+Depends: libc
+Source: package/miwifi/system/flashtest
+Section: util
+Architecture: aarch64_cortex-a53
+Installed-Size: 1373
+Description:  flashtest: miwifi led abstract layer,
+ support all MTK platform
+ qca platform support on issue TODO.
+ 
+ *Better to add default dependency in target profile*

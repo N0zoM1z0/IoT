@@ -1,0 +1,8 @@
+Package: miwifi-roam
+Version: 1.0
+Depends: libc, libubus, libblobmsg-json, ubusd, libubox, libmtknetlink
+Source: package/miwifi/miwifi-roam
+Section: net
+Architecture: mipsel_24kc
+Installed-Size: 67687
+Description:  miwifi roam daemon.

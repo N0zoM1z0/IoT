@@ -1,0 +1,63 @@
+#!/bin/sh
+
+artblock_init()
+{
+	default=`nvram get restore_default`
+
+	for k in wlan0_ssid wlan1_ssid wlan0_psk_pass_phrase wlan1_psk_pass_phrase;do
+		v=`artblock_cmd get $k`
+		if [ $? -ne 255 ];then
+			nv=`nvram get $k`
+			if [ "$default" = "1" ] && [ "$nv" = "dlink-WXYZ" -o "$nv" = "dlink-WXYZ-media" -o "$nv" = "wxyz1234" ];then
+			echo nvram set "${k}=${v}"
+			nvram set "${k}=${v}"
+			fi
+		else
+			echo "can get $k from art"
+		fi
+	done
+
+	v=`artblock_cmd get wps_pin`
+	for p in wps_pin wps_default_pin; do
+		nv=`nvram get $p`
+		if [ "$default" = "1" ] && [ -n "$v" ];then
+			echo nvram set "${p}=${v}"
+			nvram set "${p}=${v}"
+		else
+			"cannot get wps_pin from art"
+	fi
+	done
+}
+
+artblock2nvram()
+{
+	v=`artblock_cmd get $1`
+	if [ $? -ne 255 ];then
+		echo nvram set "$2=${v}"
+		nvram set "$2=${v}"
+	else
+		echo "can get $2 from art"
+	fi
+
+}
+
+restore_keys()
+{
+	# used by
+	# 1. MP smac -setssid... setpharsekey, setsecurity...
+	# 2. restore deafult from button and GUI.
+	artblock2nvram wlan0_ssid wlan0_ssid
+	artblock2nvram wlan0_psk_pass_phrase wlan0_psk_pass_phrase
+	artblock2nvram wlan1_ssid wlan1_ssid
+	artblock2nvram wlan1_psk_pass_phrase wlan1_psk_pass_phrase
+	nvram commit
+	#nvram set mbssid_vap1_security=wpa2auto_psk
+}
+case $1 in
+start)
+	artblock_init
+	;;
+restore)
+	restore_keys
+	;;
+esac

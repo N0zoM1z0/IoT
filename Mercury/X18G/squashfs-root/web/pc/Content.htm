@@ -1,0 +1,133 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		var reqData = {};
+
+		reqData[uciSystem.fileName] = {};
+		reqData[uciSystem.fileName][KEY_NAME] = uciSystem.secName.sys;
+		reqData[uciNetwork.fileName] = {};
+		reqData[uciNetwork.fileName][KEY_NAME] = uciNetwork.dynData.ifaceMac;
+		reqData[uciHostsInfo.fileName] = {};
+		reqData[uciHostsInfo.fileName][KEY_TABLE] = uciHostsInfo.dynData.host_info;
+
+		slp.init(function(){
+			/* HERE'S INIT SOME DIALOG */
+			if (slp.moduleSpec["wifison_mesh"] == 1)
+			{
+				initMeshDialog();
+			}
+
+			$.query(reqData, function(dataObj){
+				var  isDefault;
+
+				isDefault = dataObj[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory] != uciSystem.optValue.isFactory.no;
+
+				if (usernameSupport && isDefault)
+				{
+					isDefault = false;
+
+					var data = {};
+					data[uciSystem.fileName] = {};
+					data[uciSystem.fileName][uciSystem.secName.sys] = {};
+					data[uciSystem.fileName][uciSystem.secName.sys][uciSystem.optName.isFactory] = uciSystem.optValue.isFactory.no;
+					$.modify(data, function(){
+						load(dataObj, isDefault);
+					});
+				}
+				else
+				{
+					load(dataObj, isDefault);
+				}
+			});
+
+			function load(dataObj, isDefault) {
+				var epStaList = formatTableData(dataObj[uciHostsInfo.fileName][uciHostsInfo.dynData.host_info]);
+				var item, type;
+
+				g_cur_host_mac = dataObj[uciNetwork.fileName][uciNetwork.dynData.ifaceMac][uciNetwork.optValue.ifname.host];
+
+				/* 初始化帮助 */
+				helpInit();
+
+				if (true == isDefault)
+				{
+					if (OS.portable == true && OS.iPad == false && phoneSet["bContinuePCSet"] == false)
+					{
+						loadPage("PhoneWizardWeb.htm", "Con");
+					}
+					else
+					{
+						if (true == $.local)
+						{
+							//loadPage("LoginChgPwd.htm", "Con");
+							loadPage("Wizard.htm", "Con");
+							//loadPage("RouterSelect.htm", "Con");
+							//loadPage("Basic.htm", "Con");
+							//loadPage("Advance.htm", "Con");
+						}
+						else
+						{
+							loadPage("Wizard.htm", "Con");
+						}
+					}
+				}
+				else
+				{
+					/* 设置页面 */
+					function unUpgradingHd()
+					{
+						if($.authRltObj["bHandLg"] === true)	/* 手动点击登录 */
+						{
+							if (true == $.local)
+							{
+								id("Con").style.display = "none";
+								id(loginId).style.display = "block";
+
+								loadLgLessPage("LoginAuthLog.htm", "Login", undefined, false);
+								return;
+							}
+
+							$.queryAuthLog(function(result){
+								var unAuthLogList = result["unauth_log_list"];
+
+								$.authRltObj["authLog"] = unAuthLogList;
+								$.authRltObj["code"] = ESYSCLIENTNORMAL;
+								$.authRltObj["client"] = result["curIP"];
+
+								if (unAuthLogList.length >= 2)
+								{
+									id("Con").style.display = "none";
+									id(loginId).style.display = "block";
+
+									loadLgLessPage("LoginAuthLog.htm", "Login", undefined, undefined);
+								}
+								else
+								{
+									loadPage("Basic.htm", "Con");
+								}
+							});
+						}
+						else
+						{
+							loadPage("Basic.htm", "Con");
+						}
+					}
+
+					setUpgradeErrCBCloudPush(function(){
+						helpInit();
+						gOnlineUpgradeFail = true;
+
+						//在Advance页面中跳转到指定的页面
+						menuConfig.menuTargetUrl = "SysUpgrade.htm";
+						loadPage("Basic.htm", "Con", function(){
+							loadPage("Advance.htm", "content");
+						});
+					});
+
+					checkOnlineUpgrading(unUpgradingHd);
+				}
+			}
+		});
+	}
+	init();
+</script>

@@ -1,0 +1,108 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript"> 
+<!--
+<!--#getobject "InternetGatewayDevice.Services.ServiceTFTP. Enable" --> 
+var tftpEnable = "<!--#leaf "1"-->";
+<!--#endgetobject -->
+
+var usbDevNum = '<!--#getsingle "InternetGatewayDevice.X_CT-COM_USBDevice.StorageNumberOfEntries" -->';
+
+function USBpartionTuple() {
+	this.usbmounted = ""
+	this.usbmountpoint = ""
+}
+
+var index = 0;
+var USBpartionS = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage."-->
+<!--#getobject "InternetGatewayDevice.X_CT-COM_USBDevice.Storage.{i}.Partitions. Mounted MountPoint"-->
+	USBpartionS[index] = new USBpartionTuple();
+	USBpartionS[index].usbmounted = "<!--#leaf  "1"-->";
+	USBpartionS[index].usbmountpoint = "<!--#leaf  "2"-->";
+	index++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+function createUsbDecOpt() {
+	var _text = [], _value = [];
+	for (i=0,_len=USBpartionS.length; i <_len; i++) {
+		if (USBpartionS[i].usbmounted != '0') {
+			var _pre_mountpoint = USBpartionS[i].usbmountpoint.toUpperCase();
+			_text.push(_pre_mountpoint.substring(5));
+			_value.push(USBpartionS[i].usbmountpoint);
+		}
+	}
+	createOptions("SELECT_UsbPartion",_text,_value);
+}
+
+function uiSubmit() {
+	if(!validateCode())
+		return false;
+	if ($("INPUT_EnableTFTP").checked == true && usbDevNum == "0") {
+		top.AlertMsg(getStr("LK_NoStorageDev"));
+		return;
+	}
+	var usbPart = $("SELECT_UsbPartion").value;
+	if (usbPart == "" && $("INPUT_EnableTFTP").checked == true) {
+		top.AlertMsg(getStr("LK_NostorageText"));
+		return;
+	}
+    var df = document.app_tftpform; 
+    AddElements(df, "InternetGatewayDevice.Services.ServiceTFTP.Enable", $("INPUT_EnableTFTP").checked == true ? 1 : 0);
+    AddElements(df, "InternetGatewayDevice.Services.ServiceTFTP.RootDIR", usbPart);
+    df.submit();
+}
+
+function __init() {
+    setValue("INPUT_EnableTFTP", tftpEnable);
+    createUsbDecOpt();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+// -->
+</script>
+</head>
+<body>
+<form method="get" >
+<script>printBeginContent();</script>
+<script>SetContentTitle(getStr('LK_TFTPSetup'));</script>
+	<table class="ContentTableNoColor" cellpadding='0' cellspacing='0'>
+		<tr class="FlagText">
+			<td langkey="LK_NoStorageDevice"></td>
+		</tr>
+		<tr class="spaceLine"><td>&nbsp;</td></tr>
+	</table>
+	<table width="600" cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+		<tr>
+			<td width="150" langkey="LK_TFTPEnable"></td>
+			<td><input type="checkbox" name="INPUT_EnableTFTP" id="INPUT_EnableTFTP"></td>
+		</tr>
+		<tr>
+			<td langkey="LK_TFTPRootDir"></td>
+			<td><select id="SELECT_UsbPartion">
+							<option> </option>
+				</select>
+			</td>
+		</tr>
+		<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+		<tr>
+			<td colspan="2">
+		<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+		&nbsp;&nbsp;
+		<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script></td></tr>
+	</table>
+<script>printEndContent();</script>
+</form>
+<form method="post" name ="app_tftpform" action="/cgi-bin/setup.cgi?page/applications/app_tftpsrv.shtml"></form>
+</body>
+</html>

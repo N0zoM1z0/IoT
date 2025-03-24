@@ -1,0 +1,8 @@
+Package: rtl_hostapd
+Version: 2.10
+Depends: libc, libnl-tiny, libopenssl-1.1.1g, librt
+Source: tp_package/u_packages/hostapd/hostapd-2.10
+Section: router
+Architecture: rtl
+Installed-Size: 669606
+Description:  from rtl819x-SDK-usdk-ap-v1.4.1a-full-package/rtl819x/user/hostapd/hostapd-2.10

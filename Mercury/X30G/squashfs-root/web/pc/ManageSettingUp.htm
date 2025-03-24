@@ -1,0 +1,324 @@
+<script type="text/javascript">
+	(function(){
+		var LAN_MANAGE_ALL  = 0;
+		var LAN_MANAGE_SOME = 1;
+		var MAX_MAC_ENTRY = 4;
+
+		var USER_GROUP = $.authRltObj["group"];
+		var curPcMac = '00-00-00-00-00-00';
+		var macInputArr = [];
+
+		function errHandle(errNo)
+		{
+			var showStr = "";
+
+			switch (errNo)
+			{
+			case ENONE:
+				return true;
+			case ETABLEEMPTY:
+				showStr = errStr.lclMngHostEmptyErr;
+				break;
+			case EENTRYCONFLIC:
+				showStr = errStr.lclMngHostDupErr;
+				break;
+			case EINVMACFMT:
+				showStr = errStr.macFmtErr;
+				break;
+			case EINVMACZERO:
+				showStr = errStr.macZeroErr;
+				break;
+			case EINVMACBROAD:
+				showStr = errStr.macBroadErr;
+				break;
+			case EINVMACGROUP:
+				showStr = errStr.macGroupErr;
+				break;
+			default:
+				showStr = errStr.unknown + errNo;
+				break;
+			}
+
+			alarmDialog.show(showStr);
+			return false;
+		}
+
+		function checkLocalHost()
+		{
+			var isHostMacEmpty = true;
+			var lanHostMac = [];
+
+			for (var i = 0; i < MAX_MAC_ENTRY; i++)
+			{
+				if ("" == macInputArr[i].getValue())
+				{
+					macInputArr[i].setValue("00-00-00-00-00-00");
+					continue;
+				}
+
+				if ("00-00-00-00-00-00" == macInputArr[i].getValue())
+				{
+					continue;
+				}
+
+				if (!macInputArr[i].checkAll())
+				{
+					return false;
+				}
+
+				var mac = macInputArr[i].getValue().toUpperCase();
+				if (-1 != lanHostMac.join().indexOf(mac))
+				{
+					return errHandle(EENTRYCONFLIC);
+				}
+
+				lanHostMac[i] = mac;
+				isHostMacEmpty = false;
+			}
+
+			return (webManageOnRadio.getValue() == true && isHostMacEmpty == true) ? errHandle(ETABLEEMPTY) : true;
+		}
+
+		function localSaveHandle()
+		{
+			var data = {}, module = {}, para = {};
+			data[uciFirewall.fileName] = module;
+			module[uciFirewall.secName.lanManage] = para;
+
+			if (webManageOnRadio.getValue() == true)
+			{
+				para[uciFirewall.optName.enableAll] = uciFirewall.optValue.lanManage.some;
+			}
+			else
+			{
+				para[uciFirewall.optName.enableAll] = uciFirewall.optValue.lanManage.all;
+			}
+
+			for (var i = 0; i < MAX_MAC_ENTRY; i++)
+			{
+				para[uciFirewall.optName.mac + (i+1)] = macInputArr[i].getValue();
+			}
+
+			$.modify(data, callback);
+
+			function callback(result)
+			{
+				if (errHandle(result[ERR_CODE]))
+				{
+					showToast(label.saveSuccess);
+				}
+			}
+		}
+
+		function onSave()
+		{
+			if (checkLocalHost() == false)
+			{
+				return;
+			}
+
+			for (var i = 0; i < MAX_MAC_ENTRY; i++)
+			{
+				var mac = macInputArr[i].getValue();
+				if (mac != "")
+				{
+					macInputArr[i].setValue(mac.toUpperCase());
+				}
+			}
+
+			/* IF CURRENT HOST IS NOT ADDED */
+			if (webManageOnRadio.getValue() != false && checkCurrPcAdded() != true && USER_GROUP == USER_GROUP_ADMIN)
+			{
+				confirmDialog.show({
+					title:label.confirmTitle,
+					content:label.localWebManageForbidNote,
+					callback:function(result){
+						if (result == true)
+						{
+							localSaveHandle();
+						}
+					}
+				});
+			}
+			else
+			{
+				localSaveHandle();
+			}
+		}
+
+		function checkCurrPcAdded()
+		{
+			for (var i = 0; i < MAX_MAC_ENTRY; i++)
+			{
+				if (curPcMac == macInputArr[i].getValue().toUpperCase())
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function checkWebManageMac()
+		{
+			var result = checkMac(this.input.value);
+
+			if (this.input.value == "" || this.input.value == "00-00-00-00-00-00" || ENONE == result)
+			{
+				return true;
+			}
+			else
+			{
+				this.showNote(errStr.wanMacErr);
+				return false;
+			}
+		}
+
+		function requestData()
+		{
+			var data = {}, fwMod = {};
+			data[uciFirewall.fileName] = fwMod;
+			fwMod[KEY_NAME] = uciFirewall.secName.lanManage;
+
+			var netMod = {};
+			data[uciNetwork.fileName] = netMod;
+			netMod[KEY_NAME] = uciNetwork.dynData.ifaceMac;
+
+			$.query(data, fillData);
+		}
+
+		function fillData(ALL_DATA)
+		{
+			var lanManageData = ALL_DATA[uciFirewall.fileName][uciFirewall.secName.lanManage];
+			var ifaceMacData = ALL_DATA[uciNetwork.fileName][uciNetwork.dynData.ifaceMac];
+			curPcMac = ifaceMacData[uciNetwork.optValue.ifname.host].toUpperCase();
+
+			lanManageData[uciFirewall.optName.enableAll] == "1" ?
+					webManageOffRadio.setValue(true) : webManageOnRadio.setValue(true);
+
+			for (var i = 0; i < MAX_MAC_ENTRY; i++)
+			{
+				var mac = lanManageData[uciFirewall.optName.mac + (i+1)];
+				macInputArr[i].setValue(mac ? mac : "");
+			}
+
+			$("#curPcMac").text(curPcMac);
+		}
+
+		var webManageOnRadio = new Radio({
+			targetId: "webManageOn",
+			label: label.open,
+			name: "webManageEnable"
+		});
+		var webManageOffRadio = new Radio({
+			targetId: "webManageOff",
+			label: label.close,
+			name: "webManageEnable"
+		});
+		var macInputOne = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mac + "1"},
+			targetId:"macContent",
+			check:{blur:checkWebManageMac},
+			props:{maxlength: '17', type: "text", placeholder:"00-00-00-00-00-00"}
+		});
+		var macInputTwo = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mac + "2"},
+			targetId:"macContent",
+			check:{blur:checkWebManageMac},
+			props:{maxlength: '17', type: "text", placeholder:"00-00-00-00-00-00"}
+		});
+		var macInputThree = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mac + "3"},
+			targetId:"macContent",
+			check:{blur:checkWebManageMac},
+			props:{maxlength: '17', type: "text", placeholder:"00-00-00-00-00-00"}
+		});
+		var macInputFour = new Input({
+			type:Input.TYPE.PLAIN_TEXT,
+			label:{value:label.mac + "4"},
+			targetId:"macContent",
+			check:{blur:checkWebManageMac},
+			props:{maxlength: '17', type: "text", placeholder:"00-00-00-00-00-00"}
+		});
+		var saveBtn = new Button({
+			text:btn.save,
+			onClick:onSave,
+			type:Button.TYPE.PRIMARY,
+			id:"save",
+			props:{width:"240px", margin:"12px 0 0 132px"}
+		});
+
+		$("#addMac").on("click", function(){
+			var isSet = false, blankArr = [];
+			for (var i = 0; i < macInputArr.length; i++)
+			{
+				if (macInputArr[i].getValue() == "" ||
+					macInputArr[i].getValue() == "00-00-00-00-00-00")
+				{
+					blankArr.push(macInputArr[i]);
+				}
+
+				if (macInputArr[i].getValue().toUpperCase() == curPcMac.toUpperCase())
+				{
+					isSet = true;
+				}
+			}
+
+			if (!isSet)
+			{
+				if (blankArr.length == 0)
+				{
+					showToast(label.maxManageMac);
+				}
+				else
+				{
+					blankArr[0].setValue(curPcMac.toUpperCase());
+				}
+			}
+		});
+
+		macInputArr = [macInputOne, macInputTwo, macInputThree, macInputFour];
+		requestData();
+	})();
+</script>
+<style type="text/css">
+	div.webManageRadio{
+		display: inline-block;
+		margin-right:16px;
+	}
+	ul.inputCMPT span{
+		font-size: 13px;
+		vertical-align: middle;
+		height: 32px;
+		line-height: 32px;
+		display: inline-block;
+	}
+	#curPcMac{
+		cursor: default;
+		background-color: #fff;
+		border: 0px solid #fff;
+		vertical-align:middle;
+		height: 32px;
+		line-height: 32px;
+	}
+</style>
+<script type="text/javascript">
+</script>
+<div class="head">
+	<div class="title"><h1>{%label.localWebManage%}</h1><i class="helpBtn iconfont icon-help" helpStr="manageSULclHelp"></i></div>
+	<p class="description">{%titleDescriptionStr.localWebManageDescription%}</p>
+</div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl">{%label.localWebManage%}</label>
+	<div id="webManageOn" class="webManageRadio"></div>
+	<div id="webManageOff" class="webManageRadio"></div>
+</ul>
+<div id="macContent"></div>
+<ul class="inputCMPT medium">
+	<label class="outerLbl"></label>
+	<span>{%label.managePcMac%}{%label.colon%}</span><span id="curPcMac"></span><a id="addMac">{%btn.add%}</a>
+</ul>
+<div id="save"></div>

@@ -1,0 +1,88 @@
+#!/bin/sh
+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+
+#############################
+#   Entry point functuons   #
+#############################
+
+prefix_list="$prefix_list $DMROOT.UploadDiagnostics."
+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_UploadDiagnostics"
+
+UCI_GET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state get"
+UCI_SET_VARSTATE="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set"
+
+entry_execute_method_root_UploadDiagnostics() {
+	case "$1" in ""|"$DMROOT."|"$DMROOT.UploadDiagnostics."*)
+		common_execute_method_obj "$DMROOT.UploadDiagnostics." "0"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.DiagnosticsState" "1" "upload_get easycwmp.@local[0].DiagnosticsState_upload None" "upload_set_diagnostic_state"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.Interface" "1" "upload_get easycwmp.@local[0].Interface_upload" "upload_set easycwmp.@local[0].Interface_upload"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.UploadURL" "1" "upload_get easycwmp.@local[0].uploadurl" "upload_set easycwmp.@local[0].uploadurl"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.DSCP" "1" "upload_get easycwmp.@local[0].DSCP_upload 0" "upload_set_number easycwmp.@local[0].DSCP_upload" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.EthernetPriority" "1" "upload_get easycwmp.@local[0].ethernetpriority_upload 0" "upload_set_number easycwmp.@local[0].ethernetpriority_upload" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.ROMTime" "0" "upload_get easycwmp.@local[0].romtime_upload" "" "xsd:dateTime"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.BOMTime" "0" "upload_get easycwmp.@local[0].bomtime_upload" "" "xsd:dateTime"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.EOMTime" "0" "upload_get easycwmp.@local[0].eomtime_upload" "" "xsd:dateTime"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.TestFileLength" "0" "upload_get easycwmp.@local[0].testfilelen_upload" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.TotalBytesSent" "0" "upload_get easycwmp.@local[0].totaltx_upload" "" "xsd:unsignedInt"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.TCPOpenRequestTime" "0" "upload_get easycwmp.@local[0].tcpopenrequesttime_upload" "" "xsd:dateTime"
+		common_execute_method_param "$DMROOT.UploadDiagnostics.TCPOpenResponseTime" "0" "upload_get easycwmp.@local[0].tcpopenresponsetime_upload" "" "xsd:dateTime"
+		return 0;
+		;;
+	esac
+	return $E_INVALID_PARAMETER_NAME;
+}
+
+#######################################
+#   Data model parameters functions   #
+#######################################
+
+upload_get() {
+	local val=`$UCI_GET_VARSTATE $1`
+	echo ${val:-$2}
+}
+
+upload_set() {
+	upload_stop_diagnostic
+	if [ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload`" != "Requested" ]; then
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=None
+	fi
+	$UCI_SET_VARSTATE $1=$2
+	return 0
+}
+
+upload_set_number() {
+	case $2 in
+		(*[^0-9]*|'') return $E_INVALID_PARAMETER_VALUE;;
+	esac
+	[ $2 -lt 1 ] && return $E_INVALID_PARAMETER_VALUE
+	upload_stop_diagnostic
+	if [ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload`" != "Requested" ]; then
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=None
+	fi
+	$UCI_SET_VARSTATE $1=$2
+	return 0
+}
+
+upload_set_diagnostic_state() {
+	local val="$1"
+	case $val in 
+		Requested)
+			upload_stop_diagnostic
+			$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=Requested
+			common_execute_command_in_apply_service "/bin/sh $FUNCTION_PATH/upload_launch run &"
+			return 0
+		;;
+	esac
+	return $E_INVALID_PARAMETER_VALUE;
+}
+
+upload_stop_diagnostic() {
+	local pids=`ps aux | grep upload_launch | grep -v grep | awk '{print $2}'`
+	if [ -n "$pids" ]; then
+		kill -9 $pids
+		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState_upload=None
+	fi
+}
+
+

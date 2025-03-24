@@ -1,0 +1,5 @@
+/lib/modules/5.4.194/xfrm_ipcomp.ko
+/etc/modules.d/30-ipsec
+/lib/modules/5.4.194/xfrm_user.ko
+/lib/modules/5.4.194/xfrm_algo.ko
+/lib/modules/5.4.194/af_key.ko

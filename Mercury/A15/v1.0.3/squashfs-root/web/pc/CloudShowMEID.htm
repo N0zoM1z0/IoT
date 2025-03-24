@@ -1,0 +1,19 @@
+
+
+<h1 class="cloudTitle">{%label.cloudMEID%}</h1>
+<p class="cloudTip">{%label.cloudIDBinded%}</p>
+<p id="cloudAccount" class="cloudAccount"></p>
+<p class="suggestionSummaryHeader">{%label.cloudIDManagerFromApp%}</p>
+<div class="cloudAppSuggestion">
+	<p class="cloudAppSuggesstionTitle">{%label.downloadApp%}</p>
+	<i class="cloudAppSuggesstionQRCode"></i>
+	<div class="cloudAppSuggesstionLogoCon">
+		<div class="cloudAppSuggesstionLogo"><i class="iconfont icon-android"></i><span>Android</span></div>
+		<div class="cloudAppSuggesstionLogo"><i class="iconfont icon-ios"></i><span>IOS</span></div>
+	</div>
+</div>
+<div id="resetPwd"></div>
+<div id="unbind"></div><script type="text/javascript">(function(){function d(a){var b="";switch(parseInt(a)){case ENONE:return!0;case EINVHOSTID:b=label.cloudUnbindFail+label.cloudServerNoRespCheckNetwork;break;case EINDEVICEALREADYUNBOUND:b=label.cloudUnbindFail+label.cloudAccountReadyUnbind;break;default:a=cloudErrHandle(a),b=!1==a.result?a.tip:errStr.invRequestFail}alarmDialog.show(b);return!1}new Button({text:btn.changePwd,onClick:function(){cloudHistory.go(1)},type:Button.TYPE.SECONDARY,id:"resetPwd"});new Button({text:btn.unbindID,onClick:function(){confirmDialog.show({title:label.unbindId,
+content:label.cloudIDUnbindConfirm,button:{confirmStr:btn.unbindID},callback:function(a){!0==a&&(loadingDialog.show({title:label.unbindId,content:{primary:label.unbindingAndWait}},void 0,void 0,!1,void 0),cloudAccountUnind(function(a,c,e){loadingDialog.hide(function(){a==cloudResultType.FINISH?d(parseInt(e[cloudClientStatus.fileName][cloudClientStatus.secName.unbind][cloudClientStatus.optName.errCode]))&&(cloudHistory.setState({bind:!1,account:null}),refreshNavBarCloudStatus(),cloudHistory.go(-3),
+showToast(label.unbindIdSuccess)):a==cloudResultType.ACTION_ERROR?d(parseInt(c.errCode)):void 0!=c&&!1==c.result&&alarmDialog.show(c.errStr)})}))}})},type:Button.TYPE.SECONDARY,id:"unbind"});$("#cloudAccount").html(cloudHistory.getState("account"))})();
+</script><style type="text/css">p.cloudTip{text-align:left;margin:24px auto 8px;display:block;width:280px}p.cloudAccount{margin:0 auto 8px;text-align:left;font-size:16px;line-height:24px;color:#333;display:block;width:280px;font-weight:bold}div.cloudAppSuggestion{width:278px;border:1px solid #e6e6e6;padding:16px 0;margin:24px auto 24px}#resetPwd,#unbind{display:block;width:280px;margin:0 auto 16px}</style>

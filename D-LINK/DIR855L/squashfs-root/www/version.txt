@@ -1,0 +1,24 @@
+<html>
+<body>
+Firmware External Version: V<!--# echo sys_fw_version --><!--# echox sys_region NA --><br>
+Firmware Internal Version: V<font style="text-transform:uppercase;"><!--# echo sys_fw_version_build --></font><br>
+Date: <!--# echo sys_fw_date --><br>
+CheckSum: <!--# exec cgi /bin/checksum --><br>
+WLAN Domain(2.4GHz): <!--# exec cgi /bin/mp_show_wlan_domain --><br>
+WLAN Domain(5GHz): <!--# exec cgi /bin/mp_show_wlan_domain --><br>
+Firmware Query: <!--# exec cgi /bin/online_firmware_check show_query_str --><br>
+Kernel: <!--# echo sys_kernel_info_version -->, B<!--# echo sys_kernel_info_build -->, Date=<!--# echo sys_kernel_info_date --><br>
+LAN MAC:<font style="text-transform:uppercase;"> <!--# echo lan_mac --></font><br>
+WAN MAC:<font style="text-transform:uppercase;"> <!--# echo wan_mac --></font><br>
+WLAN MAC 0:<font style="text-transform:uppercase;"><!--# echo wlan0_mac --></font><br>
+WLAN MAC 1:<font style="text-transform:uppercase;"><!--# echo wlan1_mac --></font><br>
+SSID: <!--# echo wlan0_ssid --><br>
+Restore Default: <!--# exec cgi /bin/mp_default --><br>
+</body></html>
+WWW SVN Revision: 12220(URL: svn://router/trunk/packages/www/MP)<br>
+APPS SVN Revision: 12220(URL: svn://router/trunk/apps)<br>
+APPS_CGI SVN Revision: 8529(URL: svn://ubicom/ubicom/trunk/ubicom-distro/uClinux/user/cgi)<br>
+WIRELESS SVN Revision: 469(URL: svn://Ath_wireless/trunk/AP136)<br>
+KERNEL INFO: b3ff9355ba4ea0ad9abec3ab7e1e5ec228fd71b9,Tue, 8 Apr 2014 13:24:24 +0800<br>
+BOOT INFO: <!--# exec cgi /bin/cli sys info loader --><br>
+ATHSDK SVN Revision: 243(URL: svn://AthSDK/trunk/AthSDK_AP136)<br>

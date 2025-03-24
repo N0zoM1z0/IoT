@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="proma" content="no-cache"><meta http-equiv="cache-control" content="no cache"><meta http-equiv="expires" content="0"><meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/static/css/phone/home.css"><style>.img-invert{-webkit-filter:invert(25%);filter:invert(25%)}</style></head><body><div id="app"></div><script type="text/x-template" id="main"><div>
+  <div>
+  <div class="fun-icon cpu">
+    <svg width="130" height="90" xmlns="http://www.w3.org/2000/svg">
+      <text style="fill:#fff;" font-size="15" x="90" y="40" width="90" height="90">{{ cpuOccupy }}%</text>
+      <text style="fill:#fff;" font-size="15" x="90" y="60" width="90" height="90">
+      CPU
+      </text>
+      <circle
+        cx="40"
+        cy="40"
+        r="34"
+        stroke-width="12"
+        stroke="#5998fc"
+        fill="none">
+      </circle>
+      <circle
+        cx="40"
+        cy="40"
+        r="34"
+        stroke-width="12"
+        stroke="#9dcafa"
+        fill="none"
+        transform="matrix(0,-1,1,0,0,80)"
+        stroke-dasharray=""
+        :style="cpuOccupyPercent">
+    </circle>
+    </svg>
+  </div>
+
+  <div class="fun-icon ram">
+    <svg width="130" height="90">
+      <text style="fill:#fff;" font-size="15" x="90" y="34" width="90" height="90">{{ ramOccupy }}%</text>
+      <text style="fill:#fff;" font-size="15" x="90" y="60" width="90" height="90">RAM</text>
+      <circle
+        cx="40"
+        cy="40"
+        r="34"
+        stroke-width="12"
+        stroke="#5998fc"
+        fill="none">
+      </circle>
+      <circle
+        cx="40"
+        cy="40"
+        r="34"
+        stroke-width="12"
+        stroke="#9dcafa"
+        fill="none"
+        transform="matrix(0,-1,1,0,0,80)"
+        stroke-dasharray=""
+        :style="ramOccupyPercent">
+      </circle>
+    </svg>
+  </div>
+
+  <div class="fun-icon speed_up">
+    <a>{{ upOccupy }}</a>
+  </div>
+
+  <div class="fun-icon speed_down">
+    <a>{{ downOccupy }}</a>
+  </div>
+
+  <div v-show="globalConfig.meshPairSupport && 0" >
+    <div v-if="meshPairShow" class="fun-icon router">
+      <img v-if="model=='C8384R'||hardModel=='IP04499' || model=='C8384R'" src="/static/images/phone/IP04499_X6000R.png"@click="goHref('mesh')"/>
+      <img v-else src="/static/images/map/mesh_off.png" @click="goHref('mesh')" style="padding-top: 25px;"/>
+    </div>
+    <div v-show="!meshPairShow" class="fun-icon meshpair">
+      <canvas id='canvas' width='110px' height='100px' @click="goHref('mesh')" >
+        Canvas not supported
+      </canvas>
+    </div>
+  </div>
+
+  <div class="fun-icon router center" >
+    <img v-if="model=='C8384R'||hardModel=='IP04499'" src="/static/images/phone/IP04499_X6000R.png" @click="goHref('info')"/>
+    <img v-else-if="hardModel=='IP04509'||hardModel=='IP04501'" src="/static/images/phone/IP04509_X30.png" @click="goHref('info')"/>
+    <img v-else src="/static/images/phone/router.png" @click="goHref('info')"/>
+  </div>
+
+  <div class="fun-icon list">
+    <div class="content-home">
+      <div>
+        <div class="home row" @click="wanBtnFun()" v-if="globalConfig.meshMode != 'agent'&&!(this.globalConfig.opmode == 'br' || this.globalConfig.opmode == 'rpt')">
+          <img class="home-l" :src="wanStatusImg">
+          <div class="home-c">
+            <span>{{ lang_t('menu.wan').replace('(','\n(') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+		<div class="home row" @click="goHref('lan')">
+          <img class="home-l" src="/static/images/phone/lan.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.lan') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+        <div class="home row" @click="goHref('wifi')">
+          <img class="home-l" src="/static/images/phone/wifi.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.wifi_vi') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+        <div class="home row" @click="goHref('opmode')" v-if="globalConfig.opmodeSupport && !globalConfig.meshPairSupport">
+          <img class="home-l" src="/static/images/phone/opmode.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.opmode') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+        <div class="home row" @click="goHref('easymesh_info')" v-if="globalConfig.easymeshSupport && globalConfig.opmode != 'rpt' && globalConfig.opmode != 'wisp'">
+          <img class="home-l" src="/static/images/phone/mesh.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.easymesh') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+        <div class="home row" @click="goHref('device')" v-if="globalConfig.meshMode != 'agent' && globalConfig.opmode!='br' && globalConfig.opmode!='rpt'">
+          <img class="home-l" src="/static/images/phone/devices.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.devices') }}</span>
+          </div>
+          <!--<div class="system-badge-count system-badge-dot">
+            <p>{{ userNum }}</p>
+          </div>-->
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+        <div class="home row" @click="pcBtnFun" v-show="showPc">
+          <img class="home-l" src="/static/images/phone/desktop.png">
+          <div class="home-c">
+            <span>{{ lang_t('menu.pc_version') }}</span>
+          </div>
+          <img class="home-r" src="/static/images/phone/sign_right.png">
+        </div>
+      </div>
+	</div>
+  </div>
+  <div class="fun-icon list1">
+    <div class="content-home">
+	  <div class="fun-icon tools" @click="goHref('tools')">
+		<a>{{ lang_t('menu.tools') }}</a>
+	  </div>
+	  <div class="fun-icon application" @click="goHref('application')" v-if="globalConfig.opmode =='gw'&& (globalConfig.meshMode == '' || globalConfig.meshPairSupport)" :class="[globalConfig.meshMode == 'agent'?'img-invert':'']">
+		<a>{{ lang_t('menu.application') }}</a>
+	  </div>
+	  <div class="fun-icon application_nogw" @click="goHref('application')" v-else :class="[globalConfig.meshMode == 'agent'?'img-invert':'']">
+		<a>{{ lang_t('menu.application') }}</a>
+	  </div>
+	  <div class="fun-icon wizard" @click="goHref('wizard')" v-if="globalConfig.opmode=='gw'&& !globalConfig.meshMode">
+		<a>{{ lang_t('menu.wizard') }}</a>
+      </div>
+    </div>
+  </div>
+</div></script><script src="/plugin/vue.js"></script><script src="/plugin/jquery.min.js"></script><script src="/static/js/config.js"></script><script src="/static/js/phone_layout.js"></script><script src="/static/js/common.js"></script><script src="/static/js/topicurl.js"></script><script>var cs_main={template:"#main",data:function(){return{globalConfig:globalConfig,lang:$.lang,lang_t:lang_t,cpuOccupyPercent:{"stroke-dasharray":2*Math.PI*34*.7+" "+2*Math.PI*34*(1-.7)},ramOccupyPercent:{"stroke-dasharray":2*Math.PI*34*.7+" "+2*Math.PI*34*(1-.7)},menuShow:!1,cpuOccupy:0,ramOccupy:0,wanStatusImg:"/static/images/phone/internet_fail.png",model:"",hardModel:"",userNum:0,upOccupy:0,downOccupy:0,menuHeight:"300px",routerShow:!0,meshEnabled:0,meshPairShow:!0,showPc:!0}},created:function(){var e=this,t=navigator.userAgent,n=-1<t.indexOf("Manage_App"),a=!!t.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),t=-1<t.indexOf("Safari");(self!=top||n||a&&!t)&&(this.showPc=!1),e.menuHeight=.95*window.innerHeight+"px",e.netInit(),uiPost.getSysStatusCfg(function(t){e.model=t.model,e.hardModel=t.hardModel}),"rpt"!=globalConfig.opmode&&globalConfig.easymeshSupport&&e.getEasyMesh(),setInterval(function(){e.netInit()},5e3)},mounted:function(){globalConfig.meshPairSupport&&this.getMesh()},methods:{goHref:function(t){"agent"==globalConfig.meshMode&&"easymesh_info"==t&&(t="easymesh"),location.href=t+".html"+get_token_from_url()},netInit:function(){var n=this;uiPost.getNetInfoCfg(function(t){if(null==t.cpuRatio)return!1;n.cpuOccupy=Math.round(Number(t.cpuRatio)),n.ramOccupy=Math.round(Number(t.memRatio)),n.userNum=t.lanUserNum;var e=2*Math.PI*34;n.cpuOccupyPercent={"stroke-dasharray":e*n.cpuOccupy/100+" "+e*(1-n.cpuOccupy/100)},n.ramOccupyPercent={"stroke-dasharray":e*n.ramOccupy/100+" "+e*(1-n.ramOccupy/100)},"connected"==t.wanConnStatus?n.wanStatusImg="/static/images/phone/internet_ok.png":n.wanStatusImg="/static/images/phone/internet_fail.png",n.upOccupy=getFlow(1024*Number(t.up)),n.downOccupy=getFlow(1024*Number(t.down))})},getMesh:function(){var e=this;uiPost.getWiFiMeshConfig(function(t){(meshEnabled=t.meshEnabled)&&t.meshInfo&&(0!=(t=t.meshInfo.length)?(e.meshDraw(t),e.meshPairShow=!1):e.meshPairShow=!0)})},meshDraw:function(r){function u(t,e,n,a){g.moveTo(t,e),g.lineTo(n,a),g.stroke()}function h(t,e,n){g.drawImage(t,e,n,p,p)}var m=document.getElementById("canvas"),g=m.getContext("2d"),l=g.canvas.width,f=g.canvas.height,p=(g.strokeStyle="#ccc",g.lineWidth=2,35),t=new Image;t.src="/static/images/map/mesh_off.png",t.onload=function(){if(2<r){var t=l/2-35-8,e=l-43,n=f/2-35-5,a=f-35-10;if(h(this,t,n),h(this,e,n),h(this,t,a),h(this,e,a),u(t+p+1,n+p/2,e-1,n+p/2),u(t+p+1,a+p/2,e-1,a+p/2),u(t+p/2,n+p+1,t+p/2,a-1),u(e+p/2,n+p+1,e+p/2,a-1),4<=r)for(var o=a-1-(a-1-(n+p+1))/2,i=0;i<4;i++)s=e+p/2+4*i,c=o,g.beginPath(),g.fillStyle="#ccc",g.arc(s+2,c,1,0,2*Math.PI,!1),g.fill()}else r<2?(h(this,5,(f-35)/2),h(this,l-40,(f-35)/2),u(42,f/2,l-42,f/2)):(m.style.transform="translate(-1%, -20%)",h(this,(l-35)/2,5),h(this,2,f-36),h(this,l-36,f-36),u((l-35)/2,40,22,f-38),u((l-35)/2+35,40,l-22,f-38),u(39,f-20,l-39,f-20));var s,c}},getEasyMesh:function(){var e=this;uiPost.getEasyMeshCfg(function(t){"1"==t.enabled?e.routerShow=!1:e.routerShow=!0})},menuOffFun:function(){this.menuShow=!1},menuOnFun:function(){"agent"!=globalConfig.meshMode&&(this.menuShow=!0)},wanBtnFun:function(){"br"!=this.globalConfig.opmode&&"rpt"!=this.globalConfig.opmode&&(location.href="wan.html"+get_token_from_url())},pcBtnFun:function(){Cstool.Mark({content:this.lang_t("menu.pc_msg"),ok:function(){location.href="/basic/index.html"+get_token_from_url()}})}}}</script><script src="/static/js/main.js"></script></body></html>

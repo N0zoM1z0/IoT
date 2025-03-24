@@ -1,0 +1,243 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<meta http-equiv="Pragma" content="no-cache">
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/config.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language='javascript' src='/js/project.js'></script>
+<script language="javascript">
+
+var op = "edit";
+var targetIndex = getQueryInt("i");
+
+if (isNaN(targetIndex)) {
+	targetIndex = -1;
+	op = "add";
+}
+
+function App()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.App.";
+	this.enable = { ID: "INPUT_Enable", PATH: "X_TRI-Enable", TYPE: "int", SBMT: "y", VAL: 0 };
+	this.name = { ID: "SELECT_Business", PATH: "AppName", TYPE: "str", SBMT: "y", VAL: "" };
+	this.queue = { ID: "SELECT_ClassifyQueue", PATH: "ClassQueue", TYPE: "int", SBMT: "y", VAL: 1 };
+	this.dscp = { ID: "SELECT_DSCPMark", PATH: "X_TRI-DSCPMarkValue", TYPE: "int", SBMT: "y", VAL: -1 };
+	this.ethpri = { ID: "SELECT_802_1P", PATH: "X_TRI-802-1_P_Value", TYPE: "int", SBMT: "y", VAL: -1 };
+}
+
+i1 = 0;
+var AppInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.App. X_TRI-Enable AppName ClassQueue X_TRI-DSCPMarkValue X_TRI-802-1_P_Value" -->
+AppInsts[i1] = new App();
+AppInsts[i1].enable.VAL = <!--#leaf "1" -->;
+AppInsts[i1].name.VAL = "<!--#leaf "2" -->";
+AppInsts[i1].queue.VAL = <!--#leaf "3" -->;
+AppInsts[i1].dscp.VAL = <!--#leaf "4" -->;
+AppInsts[i1].ethpri.VAL = <!--#leaf "5" -->;
+AppInsts[i1]._inspath = "<!--#path -->";
+i1++;
+<!--#endgetobject -->
+
+function PriorityQueue()
+{
+	this._objpath = "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue.";
+	this.enable = { PATH: "Enable", TYPE: "int",
+		ID: "fake",
+		VAL: 0 };
+}
+
+i1 = 0;
+var PriorityQueueInsts = new Array();
+<!--#getobject "InternetGatewayDevice.X_CT-COM_UplinkQoS.PriorityQueue. Enable" -->
+PriorityQueueInsts[i1] = new PriorityQueue();
+PriorityQueueInsts[i1].enable.VAL = <!--#leaf "1" -->;
+PriorityQueueInsts[i1]._inspath = "<!--#path -->";
+PriorityQueueInsts[i1]._index = i1;
+i1++;
+<!--#endgetobject -->
+
+
+function enabledQueueGenerate()
+{
+	var opts = "";
+	for (var i = 0; i < PriorityQueueInsts.length; i++) {
+		var pq = PriorityQueueInsts[i];
+		if (pq.enable.VAL) {
+			opts += "<option value='" + (i+1) + "'>" + (i+1) + "</option>";
+		}
+	}
+	document.write(opts);
+}
+
+function checkAppExisted(app)
+{
+	var name = getValue(app.name.ID);
+	var inspath = app._inspath;
+
+	for (var i in AppInsts) {
+		var a = AppInsts[i];
+		if (a.name.VAL == name && a._inspath != inspath) {
+			top.AlertMsg(getStr('LK_TheappconfiguredText'));
+			return false;
+		}
+	}
+	return true;
+}
+
+function checkAppTarget(app)
+{
+	if (getValue(app.queue.ID) == "-1"
+		&& getValue(app.dscp.ID) == "-1"
+		&& getValue(app.ethpri.ID) == "-1")
+	{
+		top.AlertMsg(getStr("LK_Pleaseselectatleastoneaction"));
+		return false;
+	}
+	return true;
+}
+
+function init()
+{
+	var app = null;
+	if (op == "edit") {
+		app = AppInsts[targetIndex];
+	} else {
+		app = new App();
+	}
+	ConfigObjectUIInit(app);
+}
+
+function check(app)
+{
+	var valid = true;
+	valid = valid && checkAppExisted(app);
+	valid = valid && checkAppTarget(app);
+	return valid;
+}
+function uiBack()
+{
+	document.location.href = "adv_qoscliffication.shtml";
+
+}
+function uiSubmit()
+{
+	var form = document.dataform;
+	var app = new App();;
+
+	if (op == "edit") {
+		app = AppInsts[targetIndex];
+	}
+
+	if (!check(app)) {
+		return;
+	}
+
+	// add at the last step in case of check failed
+	if (op == "add") {
+		ConfigObjectPrepareAdd(app, form);
+	}
+
+	if(!validateCode())
+		return false;
+	ConfigObjectPrepareSet(app, form);
+	form.submit();
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+
+</head>
+<body>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_ClassificationTrafficBase'))</script>
+<form id='appform' action="#">
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable" /></td>
+</tr>
+<tr>
+	<td langkey="LK_ServiceNamee"></td>
+	<td><select id="SELECT_Business">
+		<option value="TR069">TR069</option>
+		<option value="VOIP">VOIP</option>
+	</select></td>
+</tr>
+</table>
+<script>SetContentTitle(getStr('LK_ClassificationMatchResult'))</script>
+<table cellpadding="0" cellspacing="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_Queuee"></td>
+	<td><select id="SELECT_ClassifyQueue" style="width:70px">
+		<option value='-1'>-</option>
+		<script type="text/javascript">
+			enabledQueueGenerate();
+		</script>
+	</select></td>
+</tr>
+<tr>
+	<td langkey="LK_DSCPp"></td>
+	<td><select id="SELECT_DSCPMark" style="width:100px">
+		<option value='-1'>-</option>
+		<option value="0">Default</option>
+		<option value="10">AF11(001010)</option>
+		<option value="12">AF12(001100)</option>
+		<option value="14">AF13(001110)</option>
+		<option value="18">AF21(010010)</option>
+		<option value="20">AF22(010100)</option>
+		<option value="22">AF23(010110)</option>
+		<option value="26">AF31(011010)</option>
+		<option value="28">AF32(011100)</option>
+		<option value="30">AF33(011110)</option>
+		<option value="34">AF41(100010)</option>
+		<option value="36">AF42(100100)</option>
+		<option value="38">AF43(100110) </option>
+		<option value="8">CS1(001000)</option>
+		<option value="16">CS2(010000)</option>
+		<option value="24">CS3(011000)</option>
+		<option value="32">CS4(100000)</option>
+		<option value="40">CS5(101000)</option>
+		<option value="48">CS6(110000)</option>
+		<option value="56">CS7(111000)</option>
+		<option value="46">EF(101110)</option>
+		</select></td>
+</tr>
+<tr>
+	<td langkey="LK_8021PTagg"></td>
+	<td><select id="SELECT_802_1P" style="width:70px">
+		<option value='-1'>-</option>
+		<option value="0">0</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+	</select></td>
+</tr>
+</table>
+<table class="ContentTableNoColor">
+<tr id="BUTTON_BLOCK" class="spaceLine"><td width="150">&nbsp;</td></tr>
+</table>
+<table class="ContentTableNoColor">
+<tr><td>
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>&nbsp;
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()")</script>
+	&nbsp;<script>PrintTriButton("refresh",getStr("LK_Refresh"),"uiPageRefresh()")</script>
+</td></tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name="dataform" action="/cgi-bin/setup.cgi?/page/advancedsetup/adv_qoscliffication.shtml">
+</form>
+</body></html>

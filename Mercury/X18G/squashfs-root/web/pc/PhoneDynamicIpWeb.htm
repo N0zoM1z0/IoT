@@ -1,0 +1,28 @@
+﻿<script type="text/javascript">
+	function init()
+	{
+		wzdSelectInit("netModeSel", wzOptions, WAN_TYPE_DHCP, wzdNetWorkModeChange);
+		id("sub").onclick = function(){
+			saveNetworkCfg(uciProto.optValue.proto.dynIp, function(){
+				loadPage("WizardWirelessCfg.htm", "phCon");
+			});
+		};
+
+		showNetworkCfg(uciProto.optValue.proto.dynIp);
+	}
+	init();
+</script>
+<h1 class="phoneTitle">{%label.netSet%}</h1>
+<ul class="phInputUl">
+	<li class="phInputLi">
+		<label for="netModeSel">{%label.netMode%}</label>
+		<i class="clapboard"></i>
+		<span id="netModeSel" class="phSelect">
+			<span class="value">{%label.dhcp%}</span>
+			<i class="arrow"></i>
+		</span>
+	</li>
+</ul>
+<div class="phFunc">
+	<label id="sub" class="phOneBtn">{%btn.nextStep%}</label>
+</div>

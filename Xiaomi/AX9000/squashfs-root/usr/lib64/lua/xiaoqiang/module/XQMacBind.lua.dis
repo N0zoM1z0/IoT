@@ -1,0 +1,615 @@
+local L0, L1, L2, L3, L4
+L0 = module
+L1 = "xiaoqiang.module.XQMacBind"
+L2 = package
+L2 = L2.seeall
+L0(L1, L2)
+L0 = require
+L1 = "xiaoqiang.common.XQFunction"
+L0 = L0(L1)
+L1 = require
+L2 = "xiaoqiang.common.XQConfigs"
+L1 = L1(L2)
+L2 = require
+L3 = "xiaoqiang.util.XQDBUtil"
+L2 = L2(L3)
+L3 = require
+L4 = "luci.model.uci"
+L3 = L3(L4)
+L3 = L3.cursor
+L3 = L3()
+function L4(A0)
+  local L1, L2, L3, L4
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.ip"
+  L1 = L1(L2)
+  L2 = L1.iptonl
+  L3 = A0
+  L2 = L2(L3)
+  L3 = L1.iptonl
+  L4 = "1.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "126.0.0.0"
+    L3 = L3(L4)
+    if L2 <= L3 then
+      goto lbl_35
+    end
+  end
+  L3 = L1.iptonl
+  L4 = "128.0.0.0"
+  L3 = L3(L4)
+  if L2 >= L3 then
+    L3 = L1.iptonl
+    L4 = "223.255.255.255"
+    L3 = L3(L4)
+    ::lbl_35::
+    if L2 <= L3 then
+      L3 = true
+      return L3
+  end
+  else
+    L3 = false
+    return L3
+  end
+end
+_checkIP = L4
+function L4(A0)
+  local L1, L2, L3
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = false
+    return L1
+  end
+  L1 = require
+  L2 = "luci.cbi.datatypes"
+  L1 = L1(L2)
+  L2 = L1.macaddr
+  L3 = A0
+  L2 = L2(L3)
+  if L2 and A0 ~= "ff:ff:ff:ff:ff:ff" and A0 ~= "00:00:00:00:00:00" then
+    L2 = true
+    return L2
+  else
+    L2 = false
+    return L2
+  end
+end
+_checkMac = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5
+  if A0 then
+    L1 = string
+    L1 = L1.lower
+    L2 = string
+    L2 = L2.gsub
+    L3 = A0
+    L4 = "[:-]"
+    L5 = ""
+    L2, L3, L4, L5 = L2(L3, L4, L5)
+    return L1(L2, L3, L4, L5)
+  else
+    L1 = nil
+    return L1
+  end
+end
+_parseMac = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16
+  L0 = require
+  L1 = "nixio.fs"
+  L0 = L0(L1)
+  L1 = require
+  L2 = "luci.model.uci"
+  L1 = L1(L2)
+  L1 = L1.cursor
+  L1 = L1()
+  L2 = {}
+  L3 = _UPVALUE0_
+  L3 = L3.DHCP_LEASE_FILEPATH
+  L4 = L1.foreach
+  function L8(A0)
+    local L1, L2
+    L1 = A0.leasefile
+    if L1 then
+      L1 = _UPVALUE0_
+      L1 = L1.access
+      L2 = A0.leasefile
+      L1 = L1(L2)
+      if L1 then
+        L1 = A0.leasefile
+        _UPVALUE1_ = L1
+        L1 = false
+        return L1
+      end
+    end
+  end
+  L4(L5, L6, L7, L8)
+  L4 = io
+  L4 = L4.open
+  L4 = L4(L5, L6)
+  if L4 then
+    for L8 in L5, L6, L7 do
+      if L8 then
+        L10 = L8
+        L9 = L8.match
+        L11 = "^(%d+) (%S+) (%S+) (%S+)"
+        L9, L10, L11, L12 = L9(L10, L11)
+        if L12 == "*" then
+          L12 = ""
+        end
+        if L9 and L10 and L11 and L12 then
+          L13 = {}
+          L14 = string
+          L14 = L14.lower
+          L15 = _UPVALUE1_
+          L15 = L15.macFormat
+          L16 = L10
+          L15, L16 = L15(L16)
+          L14 = L14(L15, L16)
+          L13.mac = L14
+          L13.ip = L11
+          L13.name = L12
+          L2[L11] = L13
+        end
+      end
+    end
+    L5(L6)
+  end
+  return L2
+end
+_parseDhcpLeases = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6
+  L1 = _UPVALUE0_
+  L1 = L1.isStrNil
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    return
+  end
+  L2 = A0
+  L1 = A0.gsub
+  L3 = ".%d+$"
+  L4 = ""
+  L1 = L1(L2, L3, L4)
+  L2 = _UPVALUE1_
+  L3 = L2
+  L2 = L2.foreach
+  L4 = "macbind"
+  L5 = "host"
+  function L6(A0)
+    local L1, L2, L3, L4, L5, L6, L7
+    L1 = A0.ip
+    L2 = _UPVALUE0_
+    L3 = "."
+    L5 = L1
+    L4 = L1.match
+    L6 = ".(%d+)$"
+    L4 = L4(L5, L6)
+    L1 = L2 .. L3 .. L4
+    L2 = _UPVALUE1_
+    L3 = L2
+    L2 = L2.set
+    L4 = "macbind"
+    L5 = A0[".name"]
+    L6 = "ip"
+    L7 = L1
+    L2(L3, L4, L5, L6, L7)
+  end
+  L2(L3, L4, L5, L6)
+  L2 = _UPVALUE1_
+  L3 = L2
+  L2 = L2.foreach
+  L4 = "dhcp"
+  L5 = "host"
+  function L6(A0)
+    local L1, L2, L3, L4, L5, L6, L7
+    L1 = A0.ip
+    L2 = _UPVALUE0_
+    L3 = "."
+    L5 = L1
+    L4 = L1.match
+    L6 = ".(%d+)$"
+    L4 = L4(L5, L6)
+    L1 = L2 .. L3 .. L4
+    L2 = _UPVALUE1_
+    L3 = L2
+    L2 = L2.set
+    L4 = "dhcp"
+    L5 = A0[".name"]
+    L6 = "ip"
+    L7 = L1
+    L2(L3, L4, L5, L6, L7)
+  end
+  L2(L3, L4, L5, L6)
+  L2 = _UPVALUE1_
+  L3 = L2
+  L2 = L2.commit
+  L4 = "dhcp"
+  L2(L3, L4)
+  L2 = _UPVALUE1_
+  L3 = L2
+  L2 = L2.commit
+  L4 = "macbind"
+  L2(L3, L4)
+end
+hookLanIPChangeEvent = L4
+function L4()
+  local L0, L1, L2, L3, L4, L5, L6, L7
+  L0 = {}
+  L1 = require
+  L2 = "xiaoqiang.util.XQDBUtil"
+  L1 = L1(L2)
+  L2 = require
+  L3 = "xiaoqiang.XQEquipment"
+  L2 = L2(L3)
+  L3 = _UPVALUE0_
+  L4 = L3
+  L3 = L3.foreach
+  L5 = "dhcp"
+  L6 = "host"
+  function L7(A0)
+    local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+    L1 = {}
+    L1.name = ""
+    L2 = A0.mac
+    L1.mac = L2
+    L2 = A0.ip
+    L1.ip = L2
+    L1.tag = 2
+    L2 = string
+    L2 = L2.upper
+    L3 = A0.mac
+    L2 = L2(L3)
+    L3 = ""
+    L4 = _UPVALUE0_
+    L4 = L4.fetchDeviceInfo
+    L5 = L2
+    L4 = L4(L5)
+    if L4 then
+      L5 = L4.oName
+      L6 = L4.nickname
+      L7 = _UPVALUE1_
+      L7 = L7.isStrNil
+      L8 = nickname
+      L7 = L7(L8)
+      if not L7 then
+        L3 = nickname
+      else
+        L7 = _UPVALUE2_
+        L7 = L7.identifyDevice
+        L8 = L2
+        L9 = L5
+        L7 = L7(L8, L9)
+        L8 = L7.type
+        L9 = _UPVALUE1_
+        L9 = L9.isStrNil
+        L10 = L3
+        L9 = L9(L10)
+        if L9 then
+          L9 = _UPVALUE1_
+          L9 = L9.isStrNil
+          L10 = L8.n
+          L9 = L9(L10)
+          if not L9 then
+            L3 = L8.n
+          end
+        end
+        L9 = _UPVALUE1_
+        L9 = L9.isStrNil
+        L10 = L3
+        L9 = L9(L10)
+        if L9 then
+          L9 = _UPVALUE1_
+          L9 = L9.isStrNil
+          L10 = L5
+          L9 = L9(L10)
+          if not L9 then
+            L3 = L5
+          end
+        end
+        L9 = _UPVALUE1_
+        L9 = L9.isStrNil
+        L10 = L3
+        L9 = L9(L10)
+        if L9 then
+          L9 = _UPVALUE1_
+          L9 = L9.isStrNil
+          L10 = L7.name
+          L9 = L9(L10)
+          if not L9 then
+            L3 = L7.name
+          end
+        end
+        L9 = _UPVALUE1_
+        L9 = L9.isStrNil
+        L10 = L3
+        L9 = L9(L10)
+        if L9 then
+          L3 = L2
+        end
+        L9 = L8.c
+        if L9 == 3 then
+          L9 = _UPVALUE1_
+          L9 = L9.isStrNil
+          L10 = L6
+          L9 = L9(L10)
+          if L9 then
+            L3 = L8.n
+          end
+        end
+      end
+      L1.name = L3
+    end
+    L5 = _UPVALUE3_
+    L6 = A0.mac
+    L5[L6] = L1
+  end
+  L3(L4, L5, L6, L7)
+  return L0
+end
+macBindInfo = L4
+function L4(A0, A1, A2)
+  local L3, L4, L5, L6, L7, L8, L9, L10, L11, L12
+  L3 = _checkIP
+  L4 = A1
+  L3 = L3(L4)
+  if L3 then
+    L3 = _checkMac
+    L4 = A0
+    L3 = L3(L4)
+    if L3 then
+      L3 = _parseDhcpLeases
+      L3 = L3()
+      L4 = string
+      L4 = L4.lower
+      L5 = _UPVALUE0_
+      L5 = L5.macFormat
+      L6 = A0
+      L5, L6, L7, L8, L9, L10, L11, L12 = L5(L6)
+      L4 = L4(L5, L6, L7, L8, L9, L10, L11, L12)
+      A0 = L4
+      L4 = L3[A1]
+      if L4 then
+        L5 = L4.mac
+        if L5 ~= A0 then
+          L5 = 1
+          return L5
+        end
+      end
+      L5 = _parseMac
+      L6 = A0
+      L5 = L5(L6)
+      L6 = {}
+      L6.name = L5
+      L6.mac = A0
+      L6.ip = A1
+      L7 = _UPVALUE1_
+      L7 = L7.saveDeviceInfo
+      L8 = string
+      L8 = L8.upper
+      L9 = A0
+      L8 = L8(L9)
+      L9 = A2
+      L10 = A2
+      L11 = ""
+      L12 = ""
+      L7(L8, L9, L10, L11, L12)
+      L7 = _UPVALUE2_
+      L8 = L7
+      L7 = L7.section
+      L9 = "macbind"
+      L10 = "host"
+      L11 = L5
+      L12 = L6
+      L7(L8, L9, L10, L11, L12)
+      L7 = _UPVALUE2_
+      L8 = L7
+      L7 = L7.section
+      L9 = "dhcp"
+      L10 = "host"
+      L11 = L5
+      L12 = L6
+      L7(L8, L9, L10, L11, L12)
+      L7 = _UPVALUE2_
+      L8 = L7
+      L7 = L7.commit
+      L9 = "macbind"
+      L7(L8, L9)
+      L7 = _UPVALUE2_
+      L8 = L7
+      L7 = L7.commit
+      L9 = "dhcp"
+      L7(L8, L9)
+  end
+  else
+    L3 = 2
+    return L3
+  end
+  L3 = 0
+  return L3
+end
+addBind = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19
+  L1 = type
+  L2 = A0
+  L1 = L1(L2)
+  if L1 ~= "table" then
+    L1 = 0
+    return L1
+  end
+  L1 = {}
+  L2 = _parseDhcpLeases
+  L2 = L2()
+  for L6, L7 in L3, L4, L5 do
+    L8 = string
+    L8 = L8.lower
+    L9 = _UPVALUE0_
+    L9 = L9.macFormat
+    L10 = L7.mac
+    L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19 = L9(L10)
+    L8 = L8(L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19)
+    L9 = L7.ip
+    L10 = _checkIP
+    L11 = L9
+    L10 = L10(L11)
+    if L10 then
+      L10 = _checkMac
+      L11 = L8
+      L10 = L10(L11)
+      if L10 then
+        goto lbl_35
+      end
+    end
+    L10 = 2
+    do return L10 end
+    ::lbl_35::
+    L10 = L1[L9]
+    if L10 ~= 1 then
+      L1[L9] = 1
+      L10 = L7.name
+      L11 = L2[L9]
+      if L11 then
+        L12 = L11.mac
+        if L12 ~= L8 then
+          L12 = 1
+          return L12
+        end
+      end
+      L12 = _parseMac
+      L13 = L8
+      L12 = L12(L13)
+      L13 = {}
+      L13.name = L12
+      L13.mac = L8
+      L13.ip = L9
+      L14 = _UPVALUE1_
+      L14 = L14.saveDeviceInfo
+      L15 = string
+      L15 = L15.upper
+      L16 = L8
+      L15 = L15(L16)
+      L16 = L10
+      L17 = L10
+      L18 = ""
+      L19 = ""
+      L14(L15, L16, L17, L18, L19)
+      L14 = _UPVALUE2_
+      L15 = L14
+      L14 = L14.section
+      L16 = "macbind"
+      L17 = "host"
+      L18 = L12
+      L19 = L13
+      L14(L15, L16, L17, L18, L19)
+      L14 = _UPVALUE2_
+      L15 = L14
+      L14 = L14.section
+      L16 = "dhcp"
+      L17 = "host"
+      L18 = L12
+      L19 = L13
+      L14(L15, L16, L17, L18, L19)
+    else
+      L10 = 3
+      return L10
+    end
+  end
+  L3(L4, L5)
+  L3(L4, L5)
+  return L3
+end
+addBinds = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5
+  L1 = _checkMac
+  L2 = A0
+  L1 = L1(L2)
+  if L1 then
+    L1 = _parseMac
+    L2 = A0
+    L1 = L1(L2)
+    L2 = _UPVALUE0_
+    L3 = L2
+    L2 = L2.delete
+    L4 = "dhcp"
+    L5 = L1
+    L2(L3, L4, L5)
+    L2 = _UPVALUE0_
+    L3 = L2
+    L2 = L2.commit
+    L4 = "dhcp"
+    L2(L3, L4)
+    L2 = true
+    return L2
+  else
+    L1 = false
+    return L1
+  end
+end
+removeBind = L4
+function L4(A0)
+  local L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+  if L1 ~= "table" then
+    return L1
+  end
+  for L4, L5 in L1, L2, L3 do
+    L6 = _checkMac
+    L7 = L5
+    L6 = L6(L7)
+    if L6 then
+      L6 = _parseMac
+      L7 = L5
+      L6 = L6(L7)
+      L7 = _UPVALUE0_
+      L8 = L7
+      L7 = L7.delete
+      L9 = "dhcp"
+      L10 = L6
+      L7(L8, L9, L10)
+    else
+      L6 = false
+      return L6
+    end
+  end
+  L1(L2, L3)
+  return L1
+end
+removeBinds = L4
+function L4()
+  local L0, L1, L2, L3
+  L0 = _UPVALUE0_
+  L1 = L0
+  L0 = L0.delete_all
+  L2 = "dhcp"
+  L3 = "host"
+  L0(L1, L2, L3)
+  L0 = _UPVALUE0_
+  L1 = L0
+  L0 = L0.commit
+  L2 = "dhcp"
+  L0(L1, L2)
+end
+unbindAll = L4
+function L4()
+  local L0, L1
+  L0 = os
+  L0 = L0.execute
+  L1 = "killall -s 10 noflushd ; /etc/init.d/dnsmasq restart"
+  L0(L1)
+end
+reload = L4

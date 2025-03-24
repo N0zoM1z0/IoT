@@ -1,0 +1,8 @@
+Package: kmod-br_ap_iptv
+Version: 4.4.60+1.0
+Depends: kernel (=4.4.60-1-5680aa684944bc0c51f69602aee97440)
+Source: tp_package/k_packages/br_ap_iptv
+Section: ko util
+Architecture: ipq
+Installed-Size: 6174
+Description:  tp-link ap iptv module

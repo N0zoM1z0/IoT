@@ -1,0 +1,19 @@
+config mode normal
+    option default_lan 'eth0.1 eth1.2 eth1.3 eth1.4 eth1.5'
+    option lan_ifname 'eth0.1 eth1.2 eth1.3 eth1.4'
+    option wan_ifname 'eth1.5'
+
+config mode lag
+    option default_lan 'eth0.1 eth0.2 eth1.3 eth1.4 eth1.5'
+    option lan_ifname 'eth0.1 eth0.2 eth1.3 eth1.4'
+    option wan_ifname 'eth1.5'
+
+config mode dualwan
+    option default_lan 'eth0.1 eth1.2 eth1.3 eth0.4 eth1.5'
+    option lan_ifname 'eth0.1 eth1.2 eth1.3 eth0.4'
+    option wan_ifname 'eth1.5'
+
+config mode dualwan_lag
+    option default_lan 'eth0.1 eth1.2 eth1.3 eth0.4 eth1.5'
+    option lan_ifname 'eth0.1 eth1.2 eth1.3 eth0.4'
+    option wan_ifname 'eth1.5'

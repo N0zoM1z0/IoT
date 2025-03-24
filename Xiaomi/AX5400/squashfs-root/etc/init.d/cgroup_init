@@ -1,0 +1,114 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=03
+
+PLUGIN_PATH="/sys/fs/cgroup/plugin"
+
+#memory plugin limit
+plugin_set_mem() {
+    plugin_enable=`uci -q get misc.cgroup.plugin_enable`
+    if [ "$plugin_enable" = "1" ]; then
+        plugin_mem_limit=`uci -q get misc.cgroup.plugin_mem_limit`
+        if [ -n "$plugin_mem_limit" ]; then
+            echo "$plugin_mem_limit" > $PLUGIN_PATH/memory.limit_in_bytes
+            echo "$plugin_mem_limit" > $PLUGIN_PATH/memory.soft_limit_in_bytes
+        else
+            echo "no plugin_mem_limit param"
+        fi
+    fi
+}
+
+#cpu plugin limit
+plugin_set_cpu() {
+    plugin_enable=`uci -q get misc.cgroup.plugin_enable`
+    if [ "$plugin_enable" = "1" ]; then
+        plugin_per_cpu_total=`uci -q get misc.cgroup.plugin_per_cpu_total`
+        plugin_cpu_quota=`uci -q get misc.cgroup.plugin_cpu_quota`
+        if [ -n "$plugin_per_cpu_total" ] && [ -n "$plugin_cpu_quota" ]; then
+            echo $plugin_per_cpu_total > $PLUGIN_PATH/cpu.cfs_period_us
+            echo $plugin_cpu_quota > $PLUGIN_PATH/cpu.cfs_quota_us
+        else
+            echo "no cpu param"
+        fi
+    fi
+}
+
+create_mem_group() {
+    #exit if memory of cgroups is not enabled
+    memory_flag=`grep memory /proc/cgroups 2>/dev/null`
+    if [ -z "$memory_flag" ]; then
+        return 0
+    fi
+
+    plugin_set_mem
+}
+
+#net_cls, only for local networking INPUT/OUTPUT
+#limited group/unlimited group
+create_net_group() {
+    #sure net_cls module loaded
+    #insmod cls_cgroup 2>/dev/null
+
+    #exit if net_cls of cgroups is not enabled
+    net_cls_flag=`grep net_cls /proc/cgroups 2>/dev/null`
+    if [ -z "$net_cls_flag" ]; then
+        return 0
+    fi
+
+    # cgroups for net_cls #
+    mkdir -p /dev/cgroup/net_cls
+    mount -t cgroup none -o net_cls /dev/cgroup/net_cls
+
+    # unlimit class #
+    mkdir -p /dev/cgroup/net_cls/unlimited
+    echo 0x00010000 > /dev/cgroup/net_cls/unlimited/net_cls.classid
+
+    # limited class #
+    mkdir -p /dev/cgroup/net_cls/limited
+    echo 0x00050000 > /dev/cgroup/net_cls/limited/net_cls.classid
+
+    # leteng class #
+    mkdir -p /dev/cgroup/net_cls/leteng
+    echo 0x00060000 > /dev/cgroup/net_cls/leteng/net_cls.classid
+}
+
+
+create_cpu_group() {
+
+    cpu_flag=`grep cpu /proc/cgroups 2>/dev/null`
+    if [ -z "$cpu_flag" ]; then
+        return 0
+    fi
+
+    plugin_set_cpu
+}
+
+
+start() {
+
+    #check cgroup enabled or not 1stly
+    cgroup_flag=`grep cgroup /proc/filesystems 2>/dev/null`
+    if [ -z "$cgroup_flag" ]; then
+        return 0
+    fi
+
+    mkdir -p $PLUGIN_PATH
+    if [ -d "$PLUGIN_PATH" ]
+    then
+        cpu_num=$(cat /proc/cpuinfo| grep "processor"| wc -l)
+        let cpu_num--
+        echo 0 > $PLUGIN_PATH/cpuset.mems
+        echo 0-${cpu_num} > $PLUGIN_PATH/cpuset.cpus
+    else
+        echo "$PLUGIN_PATH is not exist"
+    fi
+
+    create_mem_group
+
+    #create_net_group
+
+    create_cpu_group
+
+    return 0
+}

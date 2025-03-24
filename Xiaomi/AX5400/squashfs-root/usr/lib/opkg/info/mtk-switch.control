@@ -1,0 +1,8 @@
+Package: mtk-switch
+Version: 1
+Depends: libc, libnl-tiny
+Source: package/feeds/packages/mtk-switch
+Section: data
+Architecture: arm_cortex-a7
+Installed-Size: 29079
+Description:  Command to config switch

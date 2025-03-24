@@ -1,0 +1,10 @@
+Package: mii_mgr
+Version: 1
+Depends: libc
+Source: package/mtk-open/mii_mgr
+SourceName: mii_mgr
+Section: MTK Properties
+SourceDateEpoch: 1652901453
+Architecture: aarch64_cortex-a53
+Installed-Size: 2666
+Description:  An mdio r/w phy regs program.

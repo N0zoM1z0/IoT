@@ -1,0 +1,265 @@
+<html>
+<head>
+<title id=ID_TITLE_login></title>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<script language="javascript" src="/js/sha256.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript" src="/js/ajax.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<style type="text/css">
+.Copyright{font-family:Arial;font-weight:normal;font-size:11px;color:#000;}
+.Tributton{font-family:Arial;color:#FFFFFF;font-size:14px;font-weight:bold;width:84px;height:26px;vertical-align:middle;text-decoration:none;cursor:pointer;background:#70A0D4;border-style:solid;border-width:0px;}
+.ErrorMsg{color:#E9102A;font-size:12px;font-family:Arial;vertical-align:middler }
+.page{z-index:-1;position:absolute;left:0px;top:0px;width:100%;}
+</style>
+<script language="javascript">
+	var Manufacturer = "<!--#getsingle "InternetGatewayDevice.DeviceInfo.Manufacturer"-->";
+	var G_language = "<!--#getsingle_noop "InternetGatewayDevice.X_TRI_Language.Language"-->";
+if(window.parent != window) {
+    top.location.href="/page/login/login.html";
+}
+function init()
+{
+    var lang_js='/js/language_'+    G_language + '.js';
+
+    SetTitle(Manufacturer + ' Gateway');
+    SetCopyright(Manufacturer);
+
+    jQuery.getScript(lang_js,function(){
+        var error_string = (window.location.href.split('error='))[1];
+        if(error_string == "fail")
+        {
+            document.getElementById("ErrorTd").innerHTML = getLogStr('LK_LOGIN_ERR');
+        }
+        else if(error_string == "outtimes")
+        {
+            document.getElementById("ErrorTd").innerHTML = getLogStr('LK_ErrorLOGIN');
+        }
+        else if(error_string == "logined")
+        {
+            document.getElementById("ErrorTd").innerHTML = getLogStr('LK_LOGINED');
+        }
+
+        document.getElementById("td_info").innerHTML = getLogStr('LK_Loginfo');
+        if(G_language == "zh"){
+            document.getElementById("td_usrname").innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" + getLogStr('LK_Usernamee');
+            document.getElementById("td_passwd").innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" + getLogStr('LK_Passwordd');
+        }
+        else {
+            document.getElementById("td_usrname").innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp" + getLogStr('LK_Usernamee');
+            document.getElementById("td_passwd").innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp" + getLogStr('LK_Passwordd');
+        }
+        document.getElementById("login_btn").value = getLogStr('LK_Login');
+        document.getElementById("reset").value = getLogStr('LK_Cancel');
+    }); 
+    
+    frmLoad();
+}
+function resetError()
+{
+	document.getElementById("ErrorTd").innerHTML = "";
+}
+function onlogin() {
+	var form = document.loginform;
+	var usernameStr = "";
+	var passwordStr = "";
+	document.getElementById("ErrorTd").innerHTML = "";
+	with ( document.forms[0] ) {
+		if(orgusername.value == "") {
+			document.getElementById("ErrorTd").innerHTML = getLogStr('LK_NameNULL')+'<img border="0" src="../../skin/error_down.gif">';
+			return;
+		}
+		else {
+			usernameStr = orgusername.value;
+		}
+		
+		if(orgpassword.value == "") {
+			document.getElementById("ErrorTd").innerHTML = getLogStr('LK_PassNULL') + '<img border="0" src="../../skin/error_down.gif">';
+			return;
+		}
+		else {
+			passwordStr = SHA256(orgpassword.value);
+		}
+	}
+	
+	with ( document.forms[1] ) {
+		username.value = usernameStr;
+		password.value = passwordStr;
+	}
+	form.submit();
+}
+
+function myKeyDown(e) {
+    e = (window.event)? event : e;
+    var intKey = 0;
+    intKey = (e.keyCode)? e.keyCode : e.charCode;
+    if(intKey == 13) {
+        onlogin();
+        return intKey;
+    }
+    return 0;
+}
+
+function frmLoad() {
+     with ( document.forms[0] ) {
+         orgusername.focus();
+     }
+}
+function PrintBackground()
+{
+	var BgWidth = 0;
+	var BgHeight = 0;
+	if(window.innerWidth)
+	{
+		BgHeight = window.innerHeight;
+		BgWidth = window.innerWidth;	
+	}
+	else
+	{
+		BgHeight = document.body.clientHeight;
+		BgWidth = document.body.clientWidth;
+	}
+	document.write('<div class="page">');
+	document.write('<img border="0" id="loginbg" width="'+BgWidth+'" height="'+BgHeight+'" src="../../skin/loginback.png">');
+	document.write('</div>');
+}
+function getLogStr(str)
+{
+    var vars = 'window.' + str;
+	return eval(vars);
+}
+function ChangeBgsize()
+{
+	var obj;
+	var offset = 0;
+	var BgWidth = 0;
+	var BgHeight = 0;
+	var TableWidth = 0;
+	var LastSpace = 0;
+	var MidSpace = 0;
+	if(window.innerWidth)
+	{
+		BgHeight = window.innerHeight;
+		BgWidth = window.innerWidth;
+	}
+	else
+	{
+		BgHeight = document.body.clientHeight;
+		BgWidth = document.body.clientWidth;
+	}
+	TableWidth = BgWidth - 40 ;
+	LastSpace = BgWidth -763;
+	LastSpace = LastSpace / 3;
+	MidSpace = LastSpace;
+	if(BgWidth < 763)
+	{
+		TableWidth = 763;
+		offset = 56;
+		MidSpace = 0;
+		LastSpace = 0;
+		BgWidth = TableWidth + 40;
+	}
+	else
+		TableWidth = "100%";
+	
+	if(LastSpace < 1)
+		LastSpace = 0;
+	else if(LastSpace > 210)
+	{
+		MidSpace = 210;
+		LastSpace = ( LastSpace * 3 - 210 ) / 2;
+	}
+	obj = document.getElementById("loginbg");
+	if(obj)
+	{
+		obj.style.width = BgWidth;
+		obj.style.height = BgHeight;
+	}
+}
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true)
+        project_init(GetCurrentFileName());	
+}
+document.onkeydown = myKeyDown;
+</script>
+</head>
+<body onload="__init();"  style="overflow:hidden;top:0px" onResize="ChangeBgsize();" >
+<script>PrintBackground();</script>
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td height="100" valign="top">
+			<table width="100%" border="0" cellpadding="0" cellspacing="0" height="100%">
+				<tr>
+					<td width="162" height="68">
+						<table width="100%" border="0" cellpadding="0" cellspacing="0" height="100%" >
+							<tr>
+								<td align="center"><div align="left"><img src="../../skin/logo.png" width="200" height="60"></div>
+								<div align="left"></div></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="82%"  align="center">
+		<form>
+			<table width="410" cellpadding="0" cellspacing="0" border="0" style="background-color:#6b8baa;position:relative;top:-30px;">
+				<tr><td>
+					<table width="380" style="margin:15px">
+						<tr>
+							<script>document.write('<td colspan="2" style="font:15px Arial;color:#fff" id="td_info"></td>');</script>
+						</tr>
+					</table>
+				</td></tr>
+					
+				<tr><td>
+					<table width="380px" style="margin:0 15 0 15px">
+						<tr>
+							<td align="center" height="21px" colspan="2" id="ErrorTd" class="ErrorMsg">&nbsp;</td>
+						</tr>
+					</table>
+				</td></tr>
+				<tr><td>
+					<table width="380px" style="margin:0 15 0 15px">
+						<tr>
+							<td id="td_usrname" style="font:14px Arial;color:#fff"></td>						  
+							<td><input id="orgusername" type="text" name="orgusername" style="height:22px; width:180px;font-family:Arial;" maxlength="256"></td>
+						</tr>
+						<tr height="6">
+						</tr>
+						<tr>
+							<td id="td_passwd" style="font:14px Arial;color:#fff"></td>							  
+							<td><input id="orgpassword" name="orgpassword" type="password" style="height:22px; width:180px; font-family:Arial;" maxlength="256"></td>
+						</tr>
+					</table>
+				</td></tr>
+				<tr><td>
+					<table width="380px" style="margin:20px">
+						<tr>
+							<td style="padding-left:120" colspan="2"><input type="button" class="Tributton" id="login_btn" name="login_btn" onClick="onlogin()"/>
+							<input class="Tributton" name="reset" id="reset" type="reset" onClick="resetError();"/></td>
+						</tr>
+					</table>
+				</td></tr>
+			</table>
+		</form> </td>
+	</tr>
+<tr>
+<script>document.write('<td valign="middle" align="center" id="ID_Copyright" class="Copyright"></td>')</script>
+</td>
+</tr>
+</table>
+</form>
+<form method="post" name="loginform" action="/">
+<input type="hidden" name="username"/>
+<input type="hidden" name="password"/>
+</form>
+</body>
+</html>

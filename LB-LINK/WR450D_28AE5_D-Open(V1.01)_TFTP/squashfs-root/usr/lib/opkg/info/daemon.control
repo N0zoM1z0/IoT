@@ -1,0 +1,8 @@
+Package: daemon
+Version: 1
+Depends: libc, libuci
+Source: package/blink/daemon
+Section: opt
+Architecture: ramips_24kec
+Installed-Size: 5345
+Description:  Translate uci config into ralink wifi dat format

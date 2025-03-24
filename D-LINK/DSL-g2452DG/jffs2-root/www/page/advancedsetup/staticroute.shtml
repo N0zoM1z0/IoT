@@ -1,0 +1,370 @@
+
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<link rel="stylesheet" rev="stylesheet" href="/css/content.css" type="text/css">
+<script language="javascript" src="/js/check.js"></script>
+<script language="javascript" src="/js/jquery.js"></script>
+<script language="javascript" src="/js/t_utils.js"></script>
+<script language="javascript" src="/js/init.js"></script>
+<script language="javascript" src="/js/tri.js"></script>
+<script language="javascript" src="/js/project.js"></script>
+<script language="javascript">
+function ConnectionTuple()
+{    
+    this.Type = "";
+    this.Path = "";
+    this.Name = "";
+    this.ServiceList = "";
+    this.ConnectionType = "";
+}
+var n = 0;
+var Connection = new Array();
+<!--#getobject_noop "InternetGatewayDevice.WANDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice." -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANIPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "IP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    n++;
+<!--#endgetobject -->
+<!--#getobject_noop "InternetGatewayDevice.WANDevice.{i}.WANConnectionDevice.{i}.WANPPPConnection. Name X_CT-COM_ServiceList ConnectionType" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Type = "PPP";
+    Connection[n].Path = "<!--#path -->";
+    Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].ServiceList = "<!--#leaf "2"-->";
+    Connection[n].ConnectionType = "<!--#leaf "3"-->";
+    n++;
+<!--#endgetobject -->
+<!--#endgetobject -->
+<!--#endgetobject -->
+
+<!--#getobject_noop "InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.1. Name" -->
+    Connection[n] = new ConnectionTuple();
+    Connection[n].Path = "InternetGatewayDevice.LANDevice.1";
+    Connection[n].Name = "LAN";
+    Connection[n].Type = "LAN";
+    n++;
+<!--#endgetobject -->
+
+<!--#getobject_noop "InternetGatewayDevice.Services.X_TRI_GRETunnel.TunnelList. TunnelName" -->
+    Connection[n] = new ConnectionTuple();
+	Connection[n].Path = "<!--#path -->";
+	Connection[n].Name = "<!--#leaf "1"-->";
+    Connection[n].Type = "GRETnl";
+    n++;
+<!--#endgetobject -->
+
+function staticConnectionTuple(){
+    this.path="";
+    this.Enable="";
+    this.DestIPAddress="";
+    this.DestSubnetMask="";
+    this.GatewayIPAddress="";
+    this.Interface="";
+    this.ForwardingMetric="";
+    this.StaticRoute="";
+    this.ErrorInfo="";    
+}
+
+var index = 0;
+var staticRoutingList = new Array();
+<!--#getobject_noop "InternetGatewayDevice.Layer3Forwarding.Forwarding. Enable DestIPAddress DestSubnetMask GatewayIPAddress Interface ForwardingMetric StaticRoute X_CT-COM_ErrorInfo" -->
+    staticRoutingList[index] = new staticConnectionTuple();
+    staticRoutingList[index].path = "<!--#path -->";
+    staticRoutingList[index].Enable = "<!--#leaf "1"-->";
+    staticRoutingList[index].DestIPAddress = "<!--#leaf "2"-->";
+    staticRoutingList[index].DestSubnetMask = "<!--#leaf "3"-->";
+    staticRoutingList[index].GatewayIPAddress = "<!--#leaf "4"-->";
+    staticRoutingList[index].Interface = "<!--#leaf "5"-->";
+    staticRoutingList[index].ForwardingMetric = "<!--#leaf "6"-->";
+    staticRoutingList[index].StaticRoute = "<!--#leaf "7"-->";
+    staticRoutingList[index].ErrorInfo = "<!--#leaf "8"-->";
+    index++;
+<!--#endgetobject -->
+
+
+var gOperation; // 从adv_staticroute.shtml传递进来, Add或者Edit
+var gEditingPath; // 从adv_staticroute.shtml传递进来, InternetGatewayDevice.Layer3Forwarding.Forwarding.1.
+
+function uiBack()
+{
+	document.location.href = "adv_staticroute.shtml"
+}
+
+/* 根据path获取wan连接或者lan口的名称 */
+function getconnectionname(path)
+{
+    var conn_name = "";
+
+    for (i = 0; i < Connection.length; i++)
+    {
+      if (Connection[i].Path == path){
+           conn_name = Connection[i].Name;
+           break;
+      }
+    }
+    return conn_name;
+}
+
+
+/* 根据静态路由的path获取在数组中的索引, 目前edit时使用 */
+function get_staticrouting_index_by_path(staticroutingPath)
+{
+    var staticRoutingIndex = -1;
+
+    for (i = 0; i < staticRoutingList.length; i++)
+    {
+        if (staticRoutingList[i].path == staticroutingPath)
+        {
+            staticRoutingIndex =i;
+            break;
+        }
+    }
+    return staticRoutingIndex;
+}
+
+
+function init(){
+    var text = [];
+    var value = [];
+    var url=window.location.search;
+    var i=url.indexOf('?');
+
+    if(i==-1)
+        return null;
+    var arr = url.toString();
+    var strs = arr.split("&"); 
+
+    gOperation = strs[0].split("=")[1]; //获取操作类型, Add或者Edit
+
+
+    if(gOperation == 'Add')
+    {
+        InitConnectionOptions();
+    }
+    else if(gOperation == 'Edit')
+    {
+        gEditingPath = strs[1].split("=")[1]; //获取当前修改的static routing的path
+        var staticRoutingIndex = get_staticrouting_index_by_path(gEditingPath);
+
+        /* 对页面元素赋值 */
+        if(staticRoutingList[staticRoutingIndex].Enable=="0")
+        {
+           $('INPUT_Enable').checked=false;
+        }
+        else
+        {
+           $('INPUT_Enable').checked=true;    
+        }
+        setValue("DestinationAddress", staticRoutingList[staticRoutingIndex].DestIPAddress);
+        setValue("SubnetMask",staticRoutingList[staticRoutingIndex].DestSubnetMask);
+        setValue("staticRougingGateway", staticRoutingList[staticRoutingIndex].GatewayIPAddress);
+        setValue("staticRougingMetrics", staticRoutingList[staticRoutingIndex].ForwardingMetric);
+
+        text[0] = getconnectionname(staticRoutingList[staticRoutingIndex].Interface);
+        value[0] = 0;
+        createOptions('selectConnectionName', text,value);
+        $('selectConnectionName').value = 0;
+
+        /* 下拉框灰显 */
+        $('selectConnectionName').disabled = true;
+
+        SwitchConnection();
+    }
+}
+
+
+/* 切换wan连接名称时调用 */
+function SwitchConnection()
+{
+    var tmpElement = document.getElementById('selectConnectionName');
+    var ConnectionName = tmpElement.options[tmpElement.selectedIndex].text; //必须为tmpElement.selectedIndex, 因为value存放的是Connection中的index, 而不是当前下拉框中的index
+
+    /* 如果是LAN, 需要输入gateway.  如果是WAN连接,则不需要gateway,使用wan连接获取的gateway */
+    if(ConnectionName == "LAN")
+    {
+        document.getElementById('ID_Gateway').style.display="inline";
+        document.getElementById('staticRougingGateway').style.display="inline";
+    }
+    else
+    {
+        document.getElementById('ID_Gateway').style.display="none";
+        document.getElementById('staticRougingGateway').style.display="none";
+    }
+}
+
+
+/* 生成wan连接的下拉框, 跳过桥连接 */
+function InitConnectionOptions(){
+    var text = [];
+    var value = [];
+    var connectionIndex = 0;
+    var i = 0;
+
+    for (connectionIndex = 0; connectionIndex < Connection.length; connectionIndex++)
+    {
+        if(!isBridgedConn(Connection[connectionIndex].ConnectionType))
+        {
+            text[i] = Connection[connectionIndex].Name;
+            value[i] = connectionIndex; //这里用connectionIndex是为了让value存放Connection中的index, 而不是当前下拉框中的index
+            i++;
+        }
+    }
+    createOptions('selectConnectionName', text, value);
+    $('selectConnectionName').value = -1; //默认不选中任何接口
+}
+
+
+/* add条目的时候检查是否已经有相同的条目 */
+function checkDuplication()
+{
+    for(var i = 0; i < index; i++)
+    {
+        if( staticRoutingList[i].Interface == Connection[getValue('selectConnectionName')].Path &&
+            staticRoutingList[i].DestIPAddress == getValue('DestinationAddress') &&
+            staticRoutingList[i].DestSubnetMask == getValue('SubnetMask') &&
+            staticRoutingList[i].GatewayIPAddress == getValue('staticRougingGateway') &&
+            staticRoutingList[i].ForwardingMetric == getValue('staticRougingMetrics')
+          )
+        {
+            top.AlertMsg(getStr("LK_net_srouteadded"));
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function uiSubmit()
+{
+    var conectionIndex = getValue('selectConnectionName');
+    var df = document.ipv4_rtroutecfgdataform;
+
+    if(!isCheckIPV4($('DestinationAddress'))){            
+          return false;
+    }
+    if(!isCheckIPV4($('SubnetMask'))){    
+          return false;
+    }
+
+    if((Connection[conectionIndex].Type == "LAN") && !isCheckIPV4($('staticRougingGateway'))){            
+      return false;
+    }
+
+    if (getValue('staticRougingMetrics')=="" || isAllNum(getValue('staticRougingMetrics')) == 0 || getValue('staticRougingMetrics') <1 || getValue('staticRougingMetrics')>16 ) {
+        top.AlertMsg(getStr("LK_net_sRouteMetricRange"));
+        return false;
+    }    
+    if(getValue('DestinationAddress') == getValue('staticRougingGateway')){
+        top.AlertMsg(getStr("LK_sameipwarning"));
+        return false;
+    }
+	if(!validateCode())
+		return false;
+
+    if(gOperation == 'Add' )
+    {
+        if( checkDuplication())
+           return false;
+
+        var object_path="InternetGatewayDevice.Layer3Forwarding.Forwarding.{i}";
+        AddElements(df, 'add_obj',"InternetGatewayDevice.Layer3Forwarding.Forwarding.");
+
+        AddElements(df, object_path+".Interface", Connection[conectionIndex].Path);
+        
+        if($('INPUT_Enable').checked==true){
+            AddElements(df, object_path+".Enable",1);
+        }else if($('INPUT_Enable').checked==false){
+            AddElements(df, object_path+".Enable",0);
+        }
+       
+        AddElements(df, object_path+".DestIPAddress",getValue('DestinationAddress'));
+        AddElements(df, object_path+".DestSubnetMask", getValue('SubnetMask'));
+
+        /* LAN才需要提交gateway */
+        if(Connection[conectionIndex].Type == "LAN")
+            AddElements(df, object_path+".GatewayIPAddress",getValue('staticRougingGateway')); 
+
+        AddElements(df, object_path+".ForwardingMetric", getValue('staticRougingMetrics'));
+    }
+    else
+    {
+        var _path =gEditingPath;    
+        if($('INPUT_Enable').checked== true){ 
+            $('INPUT_Enable').value=1;
+             AddElements(df, _path+"Enable",getValue('INPUT_Enable'));       
+        }else if($('INPUT_Enable').checked== false){
+            $('INPUT_Enable').value=0;
+            AddElements(df, _path+"Enable",getValue('INPUT_Enable'));   
+        }  
+        AddElements(df, _path+"DestIPAddress", getValue('DestinationAddress'));
+        AddElements(df, _path+"DestSubnetMask",getValue('SubnetMask'));
+        AddElements(df, _path+"GatewayIPAddress",getValue('staticRougingGateway'));
+        AddElements(df, _path+"ForwardingMetric",getValue('staticRougingMetrics'));    
+    } 
+    df.submit();    
+}
+
+function __init()
+{
+    init();
+    if(IsExistedFunction("project_init") == true) 
+        project_init(GetCurrentFileName());
+}
+</script>
+</head>
+<body>
+
+<form>
+<script>printBeginContent()</script>
+<script>SetContentTitle(getStr('LK_StaticRouteSetting'))</script>
+<table width="600" cellspacing="0" cellpadding="0" class="ContentTableNoColor">
+<tr>
+	<td width="150" langkey="LK_ConnectionNamee"></td>
+	<td>
+		<select name="select" id="selectConnectionName" onChange="SwitchConnection();">
+        	<option ></option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td langkey="LK_Enablee"></td>
+	<td><input type="checkbox" id="INPUT_Enable"></div><div class="div_right"></td>
+</tr>
+<tr>
+	<td langkey="LK_DestinationSubnett"></td>
+	<td><input type="text" maxlength=15 id="DestinationAddress"/></td>
+</tr>
+<tr>
+	<td langkey="LK_SubnetMaskk"></td>
+	<td><input type="text" maxlength=15 id="SubnetMask"/></td>
+</tr>
+<tr>
+	<td id="ID_Gateway" langkey="LK_Gatewayy"></td>
+	<td><input type="text" maxlength=15 id="staticRougingGateway"/></td>
+</tr>
+<tr>
+	<td langkey="LK_Metricss"></td>
+	<td><input type="text" maxlength=3 id="staticRougingMetrics"/></td>
+</tr>
+<tr id="BUTTON_BLOCK" class="spaceLine"><td>&nbsp;</td></tr>
+<tr>
+	<td colspan="2">
+	<script>PrintTriButton("back",getStr('LK_Back'),"uiBack()");</script>
+	<script>PrintTriButton("submit",getStr('LK_Apply'),"uiSubmit()");</script>
+	<script>PrintTriButton("refresh",getStr('LK_Refresh'),"uiPageRefresh()");</script>
+	</td>
+</tr>
+</table>
+<script>printEndContent()</script>
+</form>
+<form method="post" name ="ipv4_rtroutecfgdataform" action="/cgi-bin/setup.cgi?page/advancedsetup/adv_staticroute.shtml">
+</form>
+</body>
+</html>

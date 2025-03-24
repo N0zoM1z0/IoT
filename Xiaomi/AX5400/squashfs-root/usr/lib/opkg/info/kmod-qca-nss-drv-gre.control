@@ -1,0 +1,8 @@
+Package: kmod-qca-nss-drv-gre
+Version: 4.4.60+miwifi_git-2
+Depends: kernel (=4.4.60-1-a31b8970df4b847fa4f01d88c4d1392a), kmod-qca-nss-drv, kmod-gre6
+Source: qca_qsdk/qca_qsdk_spf11.3/feeds/nss-host/qca-nss-clients
+Section: kernel
+Architecture: arm_cortex-a7
+Installed-Size: 19490
+Description:  Kernel driver for NSS (connection manager) - GRE

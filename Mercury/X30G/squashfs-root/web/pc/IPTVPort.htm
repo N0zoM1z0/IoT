@@ -1,0 +1,122 @@
+<script type="text/javascript">
+	var iptvConnectModeChoosed = [],
+		iptvPortChoosed = [],
+		iptvModeChoosed = [];
+	var wanIdx = 0, isMultiWan = false;
+	var iptvFirstPage = "IptvPortCfgFirst.htm";
+	var iptvSecondPage = "IptvPortCfgSecond.htm";
+	var iptvThirdPage = "IptvPortCfgThird.htm";
+	var iptvEndPage = "IptvPortCfgEnd.htm";
+
+	var ROUTER_MODE = 0;
+	var AP_MODE = 1;
+	var WDS_MODE = 2;
+	var curSysMode = ROUTER_MODE;
+	var curDhcpdStatus = "1";
+
+	function errHandle(errNo){
+		var showStr = "";
+		switch (errNo)
+		{
+		case ENONE:
+			return true;
+		case ESYSTEM:
+			showStr = errStr.systemErr;
+			break;
+		}
+
+		alarmDialog.show(showStr);
+		return false;
+	}
+
+	function stepPage(pageHtml){
+		var iptvLoadPageCB, index;
+
+		if (pageHtml == iptvEndPage)
+		{
+			$("#iptvStepTab").css("display","none");
+			$("#subIptvStepTab").css("display","none");
+			$("#wanTabCon").show();
+			$("#subHead .subTitle").show();
+		}
+		else
+		{
+			$("#subHead .subTitle").hide();
+			$("#wanTabCon").hide();
+			index = pageHtml == iptvFirstPage ? 0 : (pageHtml == iptvSecondPage ? 1 : 2);
+
+			iptvLoadPageCB = function(){
+				if (isMultiWan) {
+					$($('#subIptvStepTab li.step')[index]).addClass('active').siblings().removeClass('active');
+					$('#subIptvStepTab').find('li.underline').css({
+						left: $('#subIptvStepTab li.step')[index].offsetLeft + 'px',
+						width: $('#subIptvStepTab li.step')[index].offsetWidth + 'px'
+					});
+				}
+				else {
+					$($('#head li.step')[index]).addClass('active').siblings().removeClass('active');
+					$('#head ul.stepTab').find('li.underline').css({
+						left: $('#head li.step')[index].offsetLeft + 'px',
+						width: $('#head li.step')[index].offsetWidth + 'px'
+					});
+				}
+			};
+		}
+
+		loadPage(pageHtml, "iptvContent", iptvLoadPageCB);
+	}
+
+	(function(){
+		// 先获取wan状态，判断加载单WAN还是双WAN页面
+		function getMultiWanStatus() {
+			var data = {};
+			data[uciPortConfig.fileName] = {};
+			data[uciPortConfig.fileName][KEY_TABLE] = [uciPortConfig.secType.mwan];
+
+			$.query(data, function(result){
+				var err_code = result[ERR_CODE];
+
+				if (err_code == ENONE)
+				{
+					var wanList = result[uciPortConfig.fileName][uciPortConfig.secType.mwan];
+
+					if (wanList.length >= 2) {
+						if (wanList[0][uciPortConfig.optName.mwan1][uciPortConfig.optName.enable] == uciPortConfig.optValue.enable.on &&
+							wanList[1][uciPortConfig.optName.mwan2][uciPortConfig.optName.enable] == uciPortConfig.optValue.enable.on) {
+								isMultiWan = true;
+						}
+					}
+
+					loadPage(isMultiWan?"IptvMultiWan.htm":"IptvSingleWan.htm","iptvPage");
+				}
+				else
+				{
+					alarmDialog.show(err_code);
+				}
+			});
+		}
+
+		function requestSysMode(callback){
+            var data = {"dhcpd":{"name":"udhcpd"}};
+            if (slp.gSysModeSupport){
+                data.system = {"name":"sys_mode"};
+            }
+            $.query(data,function(res){
+                if(slp.gSysModeSupport){
+                    curSysMode = res.system.sys_mode.mode;
+                }
+				curDhcpdStatus = res.dhcpd.udhcpd.enable;
+				if(curSysMode != uciSystem.optValue.sysMode.routerMode || curDhcpdStatus == "0"){
+					loadPage("IptvSingleWan.htm","iptvPage");
+                } else {
+                    typeof callback == "function" && callback();
+                }
+            })
+        }
+
+		requestSysMode(getMultiWanStatus);
+	})()
+</script>
+<style type="text/css">
+</style>
+<div id="iptvPage"></div>

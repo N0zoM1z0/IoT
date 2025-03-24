@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="icon" type="image/x-icon" href="./img/router.png" />
+	<link rel="stylesheet" href="css/elementUi.css">
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/common.css">
+	<script src="js/library/vue.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/library/vue_i18n.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/library/elementUi.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/library/ele_language/en.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/library/axios.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/library/es6-promise.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/common.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/verify.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/language.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css">
+		.el-form-item__content {
+			position: relative;
+		}
+
+		.el-form-item__label {
+			color: #fff;
+		}
+
+		.el-form-item__content input {
+			height: 40px;
+			line-height: 40px;
+			border: none;
+		}
+
+		.pwd-img {
+			position: absolute;
+			right: 20px;
+			top: 50%;
+			transform: translate(0, -50%);
+			cursor: pointer;
+		}
+
+		.topBar {
+			width: 1100px;
+			margin: 0 auto;
+		}
+
+		.login {
+			margin: 280px auto 0;
+		}
+
+
+		.login .logo {
+			margin-bottom: 40px;
+			text-align: center;
+		}
+
+		.login-container {
+			width: 350px;
+			margin: 0 auto;
+		}
+
+		.login-container-button {
+			width: 100%;
+		}
+
+		.forgetPwd {
+			color: #fff;
+			margin: 10px 0 12px;
+		}
+
+		.forgetPwd span {
+			margin-right: 6px;
+			vertical-align: middle;
+			cursor: pointer;
+		}
+
+		.forgetPwd img {
+			width: 20px;
+			vertical-align: middle;
+		}
+
+		.forgetPwdTip {
+			color: #fff;
+		}
+
+		.forgetPwdTip p {
+			line-height: 22px;
+		}
+
+		/* 手机端样式 */
+		@media screen and (max-width: 850px) {
+			.login-container {
+				width: 100%;
+			}
+
+			.login {
+				width: 100%;
+				margin: 165px auto 0;
+			}
+
+			.el-form-item__content,
+			.forgetPwd,
+			.forgetPwdTip {
+				width: 70%;
+				margin: 0 auto !important;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div id="container" v-cloak>
+		<div class="login">
+			<div class="logo" :style="softwareType=='neutral'?{visibility:'hidden'}:''">
+				<img src="img/logo.png" width="230">
+			</div>
+			<div class="login-container">
+				<el-form :model="adminForm" ref="adminForm" label-width="0px" class="demo-ruleForm"
+					@submit.native.prevent>
+					<el-form-item label="" style="margin-bottom: 12px;">
+						<!-- <el-input v-model="adminForm.password" :type="pwdShow?'text':'password'" ref="loginPwdRef"
+								:placeholder="$t('loginPwd_notNull')" @keyup.enter.native="submitForm" style="width: 100%;" /> -->
+
+						<input :type="pwdShow?'text':'password'" v-model="adminForm.password" ref="loginPwdRef"
+							:placeholder="$t('loginPwd_notNull')" @keyup.enter="submitForm" style="width: 100%;" />
+						<img :src="pwdShow?'img/password_show.png':'img/password_hide.png'" class="pwd-img" width="22"
+							@click="pwdShow=!pwdShow">
+					</el-form-item>
+					<el-form-item label="">
+						<el-button class="login-container-button" :loading="showLoading" type="primary" size="medium"
+							@click.native.prevent="submitForm" v-text="$t('login')"></el-button>
+					</el-form-item>
+					<div class="forgetPwd">
+						<span @click="forgetPwdShow=!forgetPwdShow">
+							<span>{{$t('forgetPwd')}}?</span>
+							<img :src="forgetPwdShow?'img/arrow-bottom.png':'img/arrow-top.png'">
+						</span>
+					</div>
+					<div class="forgetPwdTip" v-show="forgetPwdShow">
+						<p>
+							<img src="img/arrow-right.png" width="22">
+							{{$t('forgetPwdTip1')}}
+						</p>
+						<p>
+							<img src="img/arrow-right.png" width="22">
+							{{$t('forgetPwdTip2')}}
+						</p>
+					</div>
+				</el-form>
+			</div>
+		</div>
+		<div class="layer" v-show="layerShow"></div>
+		<div class="bulletFrame" v-show="frameShow">
+			<div class="bulletFrame-border">
+				<img src="img/loading.gif" v-show="isCount==2">
+				<p class="bulletFrame-time" v-show="isCount==2">{{countdown}} {{$t('second')}}</p>
+				<span>{{tips}}</span>
+				<div style="margin-top:35px;" v-show="isCount==0">
+					<button @click="layerShow=false;frameShow=false;" v-text="$t('Confirm')"></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		var that = vm;
+		that.$refs['loginPwdRef'].focus();
+	</script>
+</body>
+
+</html>

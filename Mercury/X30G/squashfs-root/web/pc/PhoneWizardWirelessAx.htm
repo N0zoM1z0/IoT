@@ -1,0 +1,298 @@
+<script type="text/javascript">
+	function init()
+	{
+        var uciFile = uciWireless.fileName;
+		var uciSecWifi2G = uciWireless.dynData.host_2g;
+		var uciSecWifi5G = uciWireless.dynData.host_5g;
+		var optMode = uciWireless.dynOptName.mode;
+        function sendData()
+		{
+			$.modify(gWifiCfgToSave, function(resp) {
+                if (ENONE == resp[ERR_CODE]) {
+					if(gSysMode == uciSystem.optValue.sysMode.wdsMode){
+						$("#phoneAxPage").hide();
+						$("#phoneEndWDSPage").show();
+						refreshEndPage();
+					} else if (gSysMode == uciSystem.optValue.sysMode.apMode) {
+						$("#phoneAxPage").hide();
+						$("#phoneEndWDSPage").show();
+						refreshEndPage("ap");
+					}else{
+						loadPage("PhoneWireRepeaterEnd.htm", "phCon");
+					}
+                }
+			});
+		}
+        var axCheck = id("axCheckbox");
+        axCheck.checked = true;
+
+        $("#next").click(function() {
+            if ($(!axCheck.checked))
+            {
+				gWifiCfgToSave[uciFile] = gWifiCfgToSave[uciFile] || {};
+				gWifiCfgToSave[uciFile][uciSecWifi2G] = gWifiCfgToSave[uciFile][uciSecWifi2G] || {};
+				gWifiCfgToSave[uciFile][uciSecWifi2G][optMode] = uciWireless.dynOptValue.mode.m_11bgn;
+
+				gWifiCfgToSave[uciFile][uciSecWifi5G] = gWifiCfgToSave[uciFile][uciSecWifi5G] || {};
+                gWifiCfgToSave[uciFile][uciSecWifi5G][optMode] = uciWireless.dynOptValue.mode.m_11ac;
+            }
+            if (gSysMode == uciSystem.optValue.sysMode.wdsMode) {
+                $.modify({"system":{"sys_mode":{"mode": gSysMode}}}, function(result) {
+                    if (true  == errHandle(result[ERR_CODE])) {
+                        sendData();
+                    }
+                });
+            } else {
+                sendData();
+            }
+        });
+        $("#pre").click(function() {
+            if (gSysMode == uciSystem.optValue.sysMode.wdsMode) {
+                loadPage("PhoneWlanWDSCfgThird.htm", "phCon");
+            } else {
+                loadPage("PhoneWired.htm", "phCon");
+            }
+        });
+    }
+	init();
+
+	function refreshEndPage(linkType)
+	{
+		// initEndPage;
+		(function(){
+			var bands = ["2G", "5G", "5G1", "5G2"];
+			var bandsName = ["2.4G Wi-Fi","5G Wi-Fi","5G1 Wi-Fi","5G4 Wi-Fi"];
+			var band2 = [FREQ_2G, FREQ_5G];
+			var band3 = [FREQ_2G, FREQ_5G1, FREQ_5G4];
+			var pLanIP;
+			var jumpPageHd;
+			var linkInfo;
+			if (linkType == "ap"){
+				linkInfo = gWireRepeaterCfg;
+			} else {
+				linkInfo = gLocalAPInfo;
+			}
+
+			if("1" == linkInfo[FREQ_BS].bs_enable)
+			{
+				var pWifiName = document.createElement("p");
+				var pSSid = document.createElement("p");
+				var pPwd = document.createElement("p");
+
+				pWifiName.className = "wifiName";
+				pSSid.className = "ssid";
+				pPwd.className = "pwd";
+				
+				pWifiName.innerHTML = "2.4G&5G Wi-Fi";
+				pSSid.innerHTML = '<span>' + label.wirelessName  + "： " + '</span>' + linkInfo[FREQ_BS].ssid;
+				pPwd.innerHTML = '<span>' + label.wirelessPwd + "： " + '</span>' +
+					("1" == linkInfo[FREQ_BS].encryption ? linkInfo[FREQ_BS].key : label.wirelessNoSecurity);
+				$(".ssidInfo").append(pWifiName);
+				$(".ssidInfo").append(pSSid);
+				$(".ssidInfo").append(pPwd);
+			}
+			else
+			{
+				var BAND_3 = 2;
+				var freqs = slp.bandsProvided - 1 == BAND_3 ? band3 : band2;
+				for (var i = 0; i < freqs.length; i++) {
+					var freq = freqs[i];
+					var pWifiName = document.createElement("p");
+					var pSSid = document.createElement("p");
+					var pPwd = document.createElement("p");
+
+					pWifiName.className = "wifiName"
+					pSSid.className = "ssid";
+					pPwd.className = "pwd";
+					pWifiName.innerHTML = bandsName[freq];
+					pSSid.innerHTML = '<span>' + label.wirelessName + "： " + '</span>' + linkInfo[freq].ssid;
+					pPwd.innerHTML = '<span>' + label.wirelessPwd + "： " + '</span>' +
+						("1" == linkInfo[freq].encryption ? linkInfo[freq].key : label.wirelessNoSecurity);
+					$(".ssidInfo").append(pWifiName);
+					$(".ssidInfo").append(pSSid);
+					$(".ssidInfo").append(pPwd);
+				}
+			}
+
+			wzdDone();
+
+			pLanIP = document.createElement("p");
+			pLanIP.className = "lanIp";
+			pLanIP.innerHTML = '<span>' + label.ipAddr + "： " +'</span>' + gLanIP;
+			$(".ssidInfo").append(pLanIP);
+			if (linkType == "ap"){
+				$.action({"wired_extender": {"set_ip": null}});
+			} else {
+				$.action({"network":{"apply_lan_config":null},"wireless":{"wds_finish":null}}, null, true);
+			}
+			jumpPageHd = $.setTimeout(function() {
+				window.location.href = "http://" + gLanIP;
+			}, 10000);
+
+			$.changeDomain(gLanIP);
+			$.setTimeout(function() {
+				lanDetecting(function() {
+					window.location.href = "http://" + gLanIP;
+				});
+			}, 4000);
+		})();
+	}
+</script>
+<style type="text/css">
+	p.info {
+		font-size:13px;
+		line-height: 20px;
+		color:#666666;
+		width:283px;
+		margin-top: 8px;
+    }
+    p.info a{
+        color: #FF4C79;
+    }
+	ul.wifiUniteUl{
+		margin-top:-20px;
+	}
+	div.axCheckboxCon{
+		margin-bottom:6px;
+	}
+	input.axCheck{
+		display: inline;
+		height:20px !important;
+		margin:0;
+		vertical-align:middle !important;
+		width:20px !important;
+	}
+	label.axCheckboxLbl{
+		color:#333333 !important;
+		display:inline !important;
+		font-size:15px;
+		line-height:24px;
+		height:20px;
+		vertical-align: middle !important;
+		margin-left: 8px;
+		font-weight:bold;
+	}
+	div.WDSFiBlock{
+		margin:13px 0 11px 0;
+		padding-bottom:35px;
+		border:1px solid #CBCBCB;
+		background:#FCFCFC;
+		overflow:hidden;
+	}
+	p.WDSFiTitle{
+		font-size:14px;
+		font-weight:bold;
+		margin:20px 0 12px 51px;
+		text-align:left;
+	}
+	p.WDSFiDetail{
+		line-height:21px;
+		margin-left:51px;
+		text-align:left;
+		white-space:pre;
+	}
+	p.WDSFiLine{
+		font-size:0px;
+		padding:0px;
+		line-height:0px;
+		margin:13px 43px 0 43px;
+		border-bottom:1px solid #CCCCCC;
+	}
+	p.WDSFiLineS{
+		margin-top:21px !important;
+	}
+	ul.wdsGridLine{
+		padding-left:260px;
+		margin-top:0px !important;
+	}
+	ul.gridLine label span{
+		display:inline-block;
+	}
+	ul.gridLine label span pre{
+		overflow:hidden;
+		text-overflow:ellipsis;
+		vertical-align:middle;
+		width:300px;
+		display:inline-block;
+		*display:inline;
+		*zoom:1;
+	}
+	i.configGif{
+		width: 56px;
+    	height: 56px;
+    	display: inline-block;
+    	background: url(../web-static/images/portal.png) -71px -31px no-repeat;
+	}
+	.textCenter{
+		text-align: center;
+		padding-top: 80px;
+	}
+	.block p{
+		color:#333333;
+		font-size:14px;
+		text-align:center;
+	}
+	.ssidInfo{
+		display: inline-block;
+		border: 1px solid #DBDBDB;
+		padding-top: 16px;
+		padding-bottom: 14px;
+		width: 80%;
+		padding-left: 24px;
+	}
+	.ssidInfo p{
+		text-align:left;
+	}
+	.ssid{
+		margin-left: 14px;
+    	margin-top: 12px;
+	}
+	.pwd{
+		margin-left: 14px;
+		margin-top: 8px;
+		margin-bottom: 24px;
+	}
+	.lanIp{
+		margin-left: 14px;
+	}
+	.ssidInfo p span{
+		color: #666666;
+	}
+	.textCenter p{
+		font-size: 15px;
+		color: #333333;
+		margin-top: 25px;
+		margin-bottom: 40px;
+	}
+</style>
+<div id="phoneAxPage">
+	<h1 class="phoneTitle">{%menuStr.ax%}</h1>
+	<ul class="phInputUl wifiUniteUl" id="wifiUnite">
+		<p class="info" style="padding-top: 48px; padding-bottom: 24px;">{%label.axTip%}</p>
+		<div class="axCheckboxCon">
+			<input id="axCheckbox" class="axCheck" type="checkbox" />
+			<label class="axCheckboxLbl" for="axCheckbox">{%label.axCheckLabel%}</label>
+		</div>
+		<p style="margin-bottom: 16px; margin-top: 12px;" class="info">由于部分无线网卡驱动较旧，连接至802.11ax无线路由器时，可能会出现一些兼容性问题。如果您有以上疑虑，请到相关制造商官网下载最新驱动程序。</p>
+		<p class="info">Intel:&nbsp;&nbsp;<a href="https://downloadcenter.intel.com" target="_blank">https://downloadcenter.intel.com</a></p>
+		<p class="info">Mediatek:&nbsp;&nbsp;<a href="https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi" target="_blank">https://www.mediatek.com/products/connectivity-and-networking/broadband-wifi</a></p>
+		<p class="info">Realtek:&nbsp;&nbsp;<a href="https://www.realtek.com/en/downloads" target="_blank">https://www.realtek.com/en/downloads</a></p>
+		<p class="info">*需终端支持802.11ax协议，才能体验到802.11ax带来的高速上网体验。</p>
+	</ul>
+
+	<div class="phFunc">
+		<label id="pre" class="phTwoBtn phTwoBtnL">{%btn.preStep%}</label><label id="next" class="phTwoBtnR">{%btn.finish%}</label>
+	</div>
+</div>
+<div id="phoneEndWDSPage" class="disNone">
+	<div class="textCenter">
+		<i class="configGif"></i>
+		<p>路由器设置已完成</p>
+	</div>
+	<div class="block">
+		<div style="text-align:center;">
+			<div class="ssidInfo">
+			</div>
+		</div>
+	</div>
+</div>
